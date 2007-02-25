@@ -38,7 +38,7 @@ class CFunction;
 #define	I_PERF_DATA_SIZE			32768
 #define	D_PERF_DATA_SIZE			1024
 
-#define	SYSFUNC_NUM					115
+#define	SYSFUNC_NUM					116
 #define	SYSFUNC_HIS					61
 
 const wchar_t	sysfunc[SYSFUNC_NUM][32] = {
@@ -195,6 +195,8 @@ const wchar_t	sysfunc[SYSFUNC_NUM][32] = {
 	L"SINH",
 	L"COSH",
 	L"TANH",
+	// ÉVÉXÉeÉÄéûçè/ÉÅÉÇÉäèÓïÒ(2)
+	L"GETSECCOUNT",
 };
 
 //----
@@ -311,7 +313,8 @@ protected:
 	CValue	EVAL(const CValue &arg, yaya::string_t &d, int &l, CLocalVariable &lvar,
 				CFunction *thisfunc);
 	CValue	ERASEVAR(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l);
-	CValue	GETTIME(void);
+	CValue	GETTIME(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	GETSECCOUNT(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	GETTICKCOUNT(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l);
 	CValue	GETMEMINFO(void);
 	CValue	RE_SEARCH(const CValue &arg, yaya::string_t &d, int &l);
