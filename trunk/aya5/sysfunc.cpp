@@ -2726,6 +2726,8 @@ CValue	CSystemFunction::GETSECCOUNT(const CValue &arg, yaya::string_t &d, int &l
 	struct tm *today = localtime(&ltime);
 	if ( today ) {
 		input_time = *today;
+		input_time.tm_yday = 0;
+		input_time.tm_wday = 0;
 	}
 
 	unsigned int asize = arg.array_size();
@@ -2733,19 +2735,19 @@ CValue	CSystemFunction::GETSECCOUNT(const CValue &arg, yaya::string_t &d, int &l
 
 	switch ( asize ) {
 	case 7:
-		input_time.tm_sec = arg[6].GetValueInt();
+		input_time.tm_sec = arg.array()[6].GetValueInt();
 	case 6:
-		input_time.tm_min = arg[5].GetValueInt();
+		input_time.tm_min = arg.array()[5].GetValueInt();
 	case 5:
-		input_time.tm_hour = arg[4].GetValueInt();
-	case 4:
-		input_time.tm_wday = arg[3].GetValueInt();
+		input_time.tm_hour = arg.array()[4].GetValueInt();
+	/*case 4:
+		input_time.tm_wday = arg.array()[3].GetValueInt();*/ //‘ã“ü‹ÖŽ~
 	case 3:
-		input_time.tm_mday = arg[2].GetValueInt();
+		input_time.tm_mday = arg.array()[2].GetValueInt();
 	case 2:
-		input_time.tm_mon = arg[1].GetValueInt();
+		input_time.tm_mon = arg.array()[1].GetValueInt()-1;
 	case 1:
-		input_time.tm_year = arg[0].GetValueInt();
+		input_time.tm_year = arg.array()[0].GetValueInt()-1900;
 	}
 
 	return CValue((int)mktime(&input_time));
