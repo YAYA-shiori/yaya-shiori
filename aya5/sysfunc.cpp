@@ -295,6 +295,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return COSH(arg, d, l);
 	case 114:
 		return TANH(arg, d, l);
+	case 115:
+		return GETSECCOUNT(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
