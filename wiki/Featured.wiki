@@ -1,4 +1,5 @@
 #summary INDEX
+#labels Featured
 
 = 情報 =
 
