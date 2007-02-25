@@ -175,7 +175,7 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 	case 54:	// ERASEVAR
 		return ERASEVAR(arg, lvar, d, l);
 	case 55:	// GETTIME
-		return GETTIME();
+		return GETTIME(arg, d, l);
 	case 56:	// GETTICKCOUNT
 		return GETTICKCOUNT(arg, lvar, d, l);
 	case 57:	// GETMEMINFO
@@ -2664,27 +2664,89 @@ CValue	CSystemFunction::ERASEVAR(const CValue &arg, CLocalVariable &lvar, yaya::
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::GETTIME
+ *  
+ *  引数なしか、Epochからの秒数(GETSECCOUNT)
  *
  *  返値　　：  year,month,day,week(0-6),hour,minute,secondの汎用配列
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::GETTIME(void)
+CValue	CSystemFunction::GETTIME(const CValue &arg, yaya::string_t &d, int &l)
 {
 	time_t	ltime;
-	time(&ltime);
-	tm	*today = localtime(&ltime);
+
+	if (!arg.array_size()) {
+		time(&ltime);
+	}
+	else {
+		ltime = arg.array()[0].GetValueInt();
+	}
+
+	struct tm *today = localtime(&ltime);
 
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 
-	result.array().push_back(CValueSub(static_cast<int>(today->tm_year) + 1900));
-	result.array().push_back(CValueSub(static_cast<int>(today->tm_mon) + 1));
-	result.array().push_back(CValueSub(static_cast<int>(today->tm_mday)));
-	result.array().push_back(CValueSub(static_cast<int>(today->tm_wday)));
-	result.array().push_back(CValueSub(static_cast<int>(today->tm_hour)));
-	result.array().push_back(CValueSub(static_cast<int>(today->tm_min)));
-	result.array().push_back(CValueSub(static_cast<int>(today->tm_sec)));
+	if ( today ) {
+		result.array().push_back(CValueSub(static_cast<int>(today->tm_year) + 1900));
+		result.array().push_back(CValueSub(static_cast<int>(today->tm_mon) + 1));
+		result.array().push_back(CValueSub(static_cast<int>(today->tm_mday)));
+		result.array().push_back(CValueSub(static_cast<int>(today->tm_wday)));
+		result.array().push_back(CValueSub(static_cast<int>(today->tm_hour)));
+		result.array().push_back(CValueSub(static_cast<int>(today->tm_min)));
+		result.array().push_back(CValueSub(static_cast<int>(today->tm_sec)));
+	}
+	else {
+		vm.logger().Error(E_W, 12, L"GETTIME", d, l);
+		SetError(12);
+	}
 
 	return result;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::GETSECCOUNT
+ *  
+ *  引数なしか、year,month,day,week(0-6),hour,minute,secondの配列
+ *
+ *  返値　　：  EPOCHからの秒数
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::GETSECCOUNT(const CValue &arg, yaya::string_t &d, int &l)
+{
+	time_t	ltime;
+
+	if (!arg.array_size()) {
+		time(&ltime);
+		return CValue((int)ltime);
+	}
+
+	struct tm input_time;
+	time(&ltime);
+	struct tm *today = localtime(&ltime);
+	if ( today ) {
+		input_time = *today;
+	}
+
+	unsigned int asize = arg.array_size();
+	if ( asize > 7 ) { asize = 7; }
+
+	switch ( asize ) {
+	case 7:
+		input_time.tm_sec = arg[6].GetValueInt();
+	case 6:
+		input_time.tm_min = arg[5].GetValueInt();
+	case 5:
+		input_time.tm_hour = arg[4].GetValueInt();
+	case 4:
+		input_time.tm_wday = arg[3].GetValueInt();
+	case 3:
+		input_time.tm_mday = arg[2].GetValueInt();
+	case 2:
+		input_time.tm_mon = arg[1].GetValueInt();
+	case 1:
+		input_time.tm_year = arg[0].GetValueInt();
+	}
+
+	return CValue((int)mktime(&input_time));
 }
 
 /* -----------------------------------------------------------------------
