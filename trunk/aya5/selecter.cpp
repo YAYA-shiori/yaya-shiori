@@ -49,14 +49,13 @@ void	CSelecter::AddArea(void)
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSelecter::Append
  *  機能概要：  候補値を追加します
- *
- *  注意　空文字列は追加しません
  * -----------------------------------------------------------------------
  */
 void	CSelecter::Append(const CValue &value)
 {
-	if (value.GetType() == F_TAG_STRING && !value.s_value.size())
-		return;
+	//空文字列はやっぱり追加しないとまずい
+	//if (value.GetType() == F_TAG_STRING && !value.s_value.size())
+	//	return;
 	if (value.GetType() == F_TAG_VOID)
 		return;
 
