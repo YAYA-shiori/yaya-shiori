@@ -122,10 +122,12 @@ CValue	CDuplEvInfo::GetValue(CAyaVM &vm,int areanum, const std::vector<CVecValue
 
 	if (areanum) {
 		yaya::string_t	result;
-		for(int i = 0; i <= areanum; i++) {
-			int	next = t_index/num[i];
-			result += values[i].array[t_index - next*(num[i])].GetValueString();
-			t_index = next;
+		for ( int i = 0; i <= areanum; i++ ) {
+			if ( num[i] ) {
+				int	next = t_index/num[i];
+				result += values[i].array[t_index - next*(num[i])].GetValueString();
+				t_index = next;
+			}
 		}
 		return CValue(result);
 	}
