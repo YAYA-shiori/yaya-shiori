@@ -928,7 +928,6 @@ CValue	CSystemFunction::RAND(const CValue &arg, yaya::string_t &d, int &l)
 	if (!arg.array()[0].IsNum()) {
 		vm.logger().Error(E_W, 9, L"RAND", d, l);
 		SetError(9);
-		return CValue(0);
 	}
 
 	int num = arg.array()[0].GetValueInt();
@@ -954,12 +953,11 @@ CValue	CSystemFunction::FLOOR(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0.0);
 	}
 
-	if (arg.array()[0].IsNum())
-		return CValue(floor(arg.array()[0].GetValueDouble()));
-
-	vm.logger().Error(E_W, 9, L"FLOOR", d, l);
-	SetError(9);
-	return CValue(0.0);
+	if (!arg.array()[0].IsNum()) {
+		vm.logger().Error(E_W, 9, L"FLOOR", d, l);
+		SetError(9);
+	}
+	return CValue(floor(arg.array()[0].GetValueDouble()));
 }
 
 /* -----------------------------------------------------------------------
@@ -974,12 +972,11 @@ CValue	CSystemFunction::CEIL(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0.0);
 	}
 
-	if (arg.array()[0].IsNum())
-		return CValue(ceil(arg.array()[0].GetValueDouble()));
-
-	vm.logger().Error(E_W, 9, L"CEIL", d, l);
-	SetError(9);
-	return CValue(0.0);
+	if (!arg.array()[0].IsNum()) {
+		vm.logger().Error(E_W, 9, L"CEIL", d, l);
+		SetError(9);
+	}
+	return CValue(ceil(arg.array()[0].GetValueDouble()));
 }
 
 /* -----------------------------------------------------------------------
@@ -994,19 +991,20 @@ CValue	CSystemFunction::ROUND(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0.0);
 	}
 
-	if (arg.array()[0].IsInt())
+	if (arg.array()[0].IsInt()) {
 		return CValue((double)arg.array()[0].i_value);
-	else if (arg.array()[0].IsDouble()) {
-		double	value = arg.array()[0].d_value;
+	}
+	else {
+		if (!arg.array()[0].IsDouble()) {
+			vm.logger().Error(E_W, 9, L"ROUND", d, l);
+			SetError(9);
+		}
+		double	value = arg.array()[0].GetValueDouble();
 		if (value - floor(value) >= 0.5)
 			return CValue(ceil(value));
 		else
 			return CValue(floor(value));
 	}
-
-	vm.logger().Error(E_W, 9, L"ROUND", d, l);
-	SetError(9);
-	return CValue(0.0);
 }
 
 /* -----------------------------------------------------------------------
@@ -1021,12 +1019,11 @@ CValue	CSystemFunction::SIN(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0.0);
 	}
 
-	if (arg.array()[0].IsNum())
-		return CValue(sin(arg.array()[0].GetValueDouble()));
-
-	vm.logger().Error(E_W, 9, L"SIN", d, l);
-	SetError(9);
-	return CValue(0.0);
+	if (!arg.array()[0].IsNum()) {
+		vm.logger().Error(E_W, 9, L"SIN", d, l);
+		SetError(9);
+	}
+	return CValue(sin(arg.array()[0].GetValueDouble()));
 }
 
 /* -----------------------------------------------------------------------
@@ -1041,12 +1038,11 @@ CValue	CSystemFunction::COS(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0.0);
 	}
 
-	if (arg.array()[0].IsNum())
-		return CValue(cos(arg.array()[0].GetValueDouble()));
-
-	vm.logger().Error(E_W, 9, L"COS", d, l);
-	SetError(9);
-	return CValue(0.0);
+	if (!arg.array()[0].IsNum()) {
+		vm.logger().Error(E_W, 9, L"COS", d, l);
+		SetError(9);
+	}
+	return CValue(cos(arg.array()[0].GetValueDouble()));
 }
 
 /* -----------------------------------------------------------------------
@@ -1061,12 +1057,11 @@ CValue	CSystemFunction::TAN(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0.0);
 	}
 
-	if (arg.array()[0].IsNum())
-		return CValue(tan(arg.array()[0].GetValueDouble()));
-
-	vm.logger().Error(E_W, 9, L"TAN", d, l);
-	SetError(9);
-	return CValue(0.0);
+	if (!arg.array()[0].IsNum()) {
+		vm.logger().Error(E_W, 9, L"TAN", d, l);
+		SetError(9);
+	}
+	return CValue(tan(arg.array()[0].GetValueDouble()));
 }
 
 /* -----------------------------------------------------------------------
@@ -1081,12 +1076,11 @@ CValue	CSystemFunction::SINH(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0.0);
 	}
 
-	if (arg.array()[0].IsNum())
-		return CValue(sinh(arg.array()[0].GetValueDouble()));
-
-	vm.logger().Error(E_W, 9, L"SINH", d, l);
-	SetError(9);
-	return CValue(0.0);
+	if (!arg.array()[0].IsNum()) {
+		vm.logger().Error(E_W, 9, L"SINH", d, l);
+		SetError(9);
+	}
+	return CValue(sinh(arg.array()[0].GetValueDouble()));
 }
 
 /* -----------------------------------------------------------------------
@@ -1101,12 +1095,11 @@ CValue	CSystemFunction::COSH(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0.0);
 	}
 
-	if (arg.array()[0].IsNum())
-		return CValue(cosh(arg.array()[0].GetValueDouble()));
-
-	vm.logger().Error(E_W, 9, L"COSH", d, l);
-	SetError(9);
-	return CValue(0.0);
+	if (!arg.array()[0].IsNum()) {
+		vm.logger().Error(E_W, 9, L"COSH", d, l);
+		SetError(9);
+	}
+	return CValue(cosh(arg.array()[0].GetValueDouble()));
 }
 
 /* -----------------------------------------------------------------------
@@ -1121,12 +1114,11 @@ CValue	CSystemFunction::TANH(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0.0);
 	}
 
-	if (arg.array()[0].IsNum())
-		return CValue(tanh(arg.array()[0].GetValueDouble()));
-
-	vm.logger().Error(E_W, 9, L"TANH", d, l);
-	SetError(9);
-	return CValue(0.0);
+	if (!arg.array()[0].IsNum()) {
+		vm.logger().Error(E_W, 9, L"TANH", d, l);
+		SetError(9);
+	}
+	return CValue(tanh(arg.array()[0].GetValueDouble()));
 }
 
 /* -----------------------------------------------------------------------
@@ -1141,12 +1133,11 @@ CValue	CSystemFunction::ASIN(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0.0);
 	}
 
-	if (arg.array()[0].IsNum())
-		return CValue(asin(arg.array()[0].GetValueDouble()));
-
-	vm.logger().Error(E_W, 9, L"ASIN", d, l);
-	SetError(9);
-	return CValue(0.0);
+	if (!arg.array()[0].IsNum()) {
+		vm.logger().Error(E_W, 9, L"ASIN", d, l);
+		SetError(9);
+	}
+	return CValue(asin(arg.array()[0].GetValueDouble()));
 }
 
 /* -----------------------------------------------------------------------
@@ -1161,12 +1152,11 @@ CValue	CSystemFunction::ACOS(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0.0);
 	}
 
-	if (arg.array()[0].IsNum())
-		return CValue(acos(arg.array()[0].GetValueDouble()));
-
-	vm.logger().Error(E_W, 9, L"ACOS", d, l);
-	SetError(9);
-	return CValue(0.0);
+	if (!arg.array()[0].IsNum()) {
+		vm.logger().Error(E_W, 9, L"ACOS", d, l);
+		SetError(9);
+	}
+	return CValue(acos(arg.array()[0].GetValueDouble()));
 }
 
 /* -----------------------------------------------------------------------
@@ -1181,12 +1171,11 @@ CValue	CSystemFunction::ATAN(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0.0);
 	}
 
-	if (arg.array()[0].IsNum())
-		return CValue(atan(arg.array()[0].GetValueDouble()));
-
-	vm.logger().Error(E_W, 9, L"ATAN", d, l);
-	SetError(9);
-	return CValue(0.0);
+	if (!arg.array()[0].IsNum()) {
+		vm.logger().Error(E_W, 9, L"ATAN", d, l);
+		SetError(9);
+	}
+	return CValue(atan(arg.array()[0].GetValueDouble()));
 }
 
 /* -----------------------------------------------------------------------
@@ -1201,12 +1190,11 @@ CValue	CSystemFunction::LOG(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0.0);
 	}
 
-	if (arg.array()[0].IsNum())
-		return CValue(log(arg.array()[0].GetValueDouble()));
-
-	vm.logger().Error(E_W, 9, L"LOG", d, l);
-	SetError(9);
-	return CValue(0.0);
+	if (!arg.array()[0].IsNum()) {
+		vm.logger().Error(E_W, 9, L"LOG", d, l);
+		SetError(9);
+	}
+	return CValue(log(arg.array()[0].GetValueDouble()));
 }
 
 /* -----------------------------------------------------------------------
@@ -1221,12 +1209,11 @@ CValue	CSystemFunction::LOG10(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0.0);
 	}
 
-	if (arg.array()[0].IsNum())
-		return CValue(log10(arg.array()[0].GetValueDouble()));
-
-	vm.logger().Error(E_W, 9, L"LOG10", d, l);
-	SetError(9);
-	return CValue(0.0);
+	if (!arg.array()[0].IsNum()) {
+		vm.logger().Error(E_W, 9, L"LOG10", d, l);
+		SetError(9);
+	}
+	return CValue(log10(arg.array()[0].GetValueDouble()));
 }
 
 /* -----------------------------------------------------------------------
@@ -1241,14 +1228,11 @@ CValue	CSystemFunction::POW(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0.0);
 	}
 
-	if (arg.array()[0].IsNum() &&
-		arg.array()[1].IsNum()) {
-		return CValue(pow(arg.array()[0].GetValueDouble(), arg.array()[1].GetValueDouble()));
+	if (!arg.array()[0].IsNum() || !arg.array()[1].IsNum()) {
+		vm.logger().Error(E_W, 9, L"POW", d, l);
+		SetError(9);
 	}
-
-	vm.logger().Error(E_W, 9, L"POW", d, l);
-	SetError(9);
-	return CValue(0.0);
+	return CValue(pow(arg.array()[0].GetValueDouble(), arg.array()[1].GetValueDouble()));
 }
 
 /* -----------------------------------------------------------------------
@@ -1266,7 +1250,6 @@ CValue	CSystemFunction::SQRT(const CValue &arg, yaya::string_t &d, int &l)
 	if (!arg.array()[0].IsNum()) {
 		vm.logger().Error(E_W, 9, L"SQRT", d, l);
 		SetError(9);
-		return CValue(0.0);
 	}
 
 	double	value = arg.array()[0].GetValueDouble();
@@ -1289,15 +1272,12 @@ CValue	CSystemFunction::STRSTR(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(-1);
 	}
 
-	if (!arg.array()[0].IsString() ||
-		!arg.array()[1].IsString() ||
-		!arg.array()[2].IsNum()) {
+	if (!arg.array()[2].IsNum()) {
 		vm.logger().Error(E_W, 9, L"STRSTR", d, l);
 		SetError(9);
-		return CValue(-1);
 	}
 
-	return CValue((int)arg.array()[0].s_value.find(arg.array()[1].s_value, arg.array()[2].GetValueInt()));
+	return CValue((int)arg.array()[0].GetValueString().find(arg.array()[1].GetValueString(), arg.array()[2].GetValueInt()));
 }
 
 /* -----------------------------------------------------------------------
@@ -1315,10 +1295,9 @@ CValue	CSystemFunction::STRLEN(const CValue &arg, yaya::string_t &d, int &l)
 	if (!arg.array()[0].IsString()) {
 		vm.logger().Error(E_W, 9, L"STRLEN", d, l);
 		SetError(9);
-		return CValue(0);
 	}
 
-	return CValue((int)arg.array()[0].s_value.size());
+	return CValue((int)arg.array()[0].GetValueString().size());
 }
 
 /* -----------------------------------------------------------------------
@@ -1338,17 +1317,16 @@ CValue	CSystemFunction::REPLACE(const CValue &arg, yaya::string_t &d, int &l)
 		!arg.array()[2].IsString()) {
 		vm.logger().Error(E_W, 9, L"REPLACE", d, l);
 		SetError(9);
-		return CValue(arg.array()[0]);
 	}
 
-	yaya::string_t	result  = arg.array()[0].s_value;
-	const yaya::string_t	*before = &(arg.array()[1].s_value);
-	const yaya::string_t	*after  = &(arg.array()[2].s_value);
-	int	sz_before = before->size();
+	yaya::string_t	result  = arg.array()[0].GetValueString();
+	const yaya::char_t	*before = arg.array()[1].GetValueString().c_str();
+	const yaya::char_t	*after  = arg.array()[2].GetValueString().c_str();
+	//int	sz_before = before->size();
 	//int	sz_after  = after->size();
 
-	if (sz_before)
-		ws_replace(result, before->c_str(), after->c_str());
+	if (before && after && before[0])
+		ws_replace(result, before, after);
 
 	return CValue(result);
 }
@@ -1365,15 +1343,13 @@ CValue	CSystemFunction::SUBSTR(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue();
 	}
 
-	if (!arg.array()[0].IsString() ||
-		!arg.array()[1].IsNum() ||
+	if (!arg.array()[1].IsNum() ||
 		!arg.array()[2].IsNum()) {
 		vm.logger().Error(E_W, 9, L"SUBSTR", d, l);
 		SetError(9);
-		return CValue();
 	}
 
-	const yaya::string_t& src = arg.array()[0].s_value;
+	const yaya::string_t& src = arg.array()[0].GetValueString();
 	int pos = arg.array()[1].GetValueInt();
 	int len = arg.array()[2].GetValueInt();
 
@@ -1404,10 +1380,9 @@ CValue	CSystemFunction::ERASE(const CValue &arg, yaya::string_t &d, int &l)
 		!arg.array()[2].IsNum()) {
 		vm.logger().Error(E_W, 9, L"ERASE", d, l);
 		SetError(9);
-		return CValue(arg.array()[0]);
 	}
 	
-	yaya::string_t str = arg.array()[0].s_value;
+	yaya::string_t str = arg.array()[0].GetValueString();
 	return CValue(str.erase(arg.array()[1].GetValueInt(), arg.array()[2].GetValueInt()));
 }
 
@@ -1428,10 +1403,9 @@ CValue	CSystemFunction::INSERT(const CValue &arg, yaya::string_t &d, int &l)
 		!arg.array()[2].IsString()) {
 		vm.logger().Error(E_W, 9, L"ERASE", d, l);
 		SetError(9);
-		return CValue(arg.array()[0]);
 	}
 
-	yaya::string_t str = arg.array()[0].s_value;
+	yaya::string_t str = arg.array()[0].GetValueString();
 	return CValue(str.insert(arg.array()[1].GetValueInt(), arg.array()[2].s_value));
 }
 
@@ -1450,10 +1424,9 @@ CValue	CSystemFunction::TOUPPER(const CValue &arg, yaya::string_t &d, int &l)
 	if (!arg.array()[0].IsString()) {
 		vm.logger().Error(E_W, 9, L"TOUPPER", d, l);
 		SetError(9);
-		return CValue(arg.array()[0]);
 	}
 
-	yaya::string_t	result = arg.array()[0].s_value;
+	yaya::string_t	result = arg.array()[0].GetValueString();
 	int	len = result.size();
 	for(int i = 0; i < len; i++)
 		if (result[i] >= L'a' && result[i] <= L'z')
@@ -1476,10 +1449,9 @@ CValue	CSystemFunction::TOLOWER(const CValue &arg, yaya::string_t &d, int &l)
 	if (!arg.array()[0].IsString()) {
 		vm.logger().Error(E_W, 9, L"TOLOWER", d, l);
 		SetError(9);
-		return CValue(arg.array()[0]);
 	}
 
-	yaya::string_t	result = arg.array()[0].s_value;
+	yaya::string_t	result = arg.array()[0].GetValueString();
 	int	len = result.size();
 	for(int i = 0; i < len; i++)
 		if (result[i] >= L'A' && result[i] <= L'Z')
@@ -1503,10 +1475,9 @@ CValue	CSystemFunction::CUTSPACE(const CValue &arg, yaya::string_t &d, int &l)
 	if (!arg.array()[0].IsString()) {
 		vm.logger().Error(E_W, 9, L"CUTSPACE", d, l);
 		SetError(9);
-		return CValue(arg.array()[0]);
 	}
 
-	yaya::string_t	result = arg.array()[0].s_value;
+	yaya::string_t	result = arg.array()[0].GetValueString();
 	CutSpace(result);
 
 	return CValue(result);
@@ -1524,14 +1495,13 @@ CValue	CSystemFunction::TOBINSTR(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue();
 	}
 
-	if (!arg.array()[0].IsInt()) {
+	if (!arg.array()[0].IsNum()) {
 		vm.logger().Error(E_W, 9, L"TOBINSTR", d, l);
 		SetError(9);
-		return CValue();
 	}
 
 	yaya::string_t	result;
-	ws_itoa(result, arg.array()[0].i_value, 2);
+	ws_itoa(result, arg.array()[0].GetValueInt(), 2);
 
 	return CValue(result);
 }
@@ -1551,11 +1521,10 @@ CValue	CSystemFunction::TOHEXSTR(const CValue &arg, yaya::string_t &d, int &l)
 	if (!arg.array()[0].IsInt()) {
 		vm.logger().Error(E_W, 9, L"TOHEXSTR", d, l);
 		SetError(9);
-		return CValue();
 	}
 
 	yaya::string_t	result;
-	ws_itoa(result, arg.array()[0].i_value, 16);
+	ws_itoa(result, arg.array()[0].GetValueInt(), 16);
 
 	return CValue(result);
 }
@@ -1575,16 +1544,15 @@ CValue	CSystemFunction::BINSTRTOI(const CValue &arg, yaya::string_t &d, int &l)
 	if (!arg.array()[0].IsString()) {
 		vm.logger().Error(E_W, 9, L"BINSTRTOI", d, l);
 		SetError(9);
-		return CValue(0);
 	}
 
-	if (!IsIntBinString(arg.array()[0].s_value, 0)) {
+	if (!IsIntBinString(arg.array()[0].GetValueString(), 0)) {
 		vm.logger().Error(E_W, 12, L"BINSTRTOI", d, l);
 		SetError(12);
 		return CValue(0);
 	}
 
-	return CValue(ws_atoi(arg.array()[0].s_value, 2));
+	return CValue(ws_atoi(arg.array()[0].GetValueString(), 2));
 }
 
 /* -----------------------------------------------------------------------
@@ -1602,16 +1570,15 @@ CValue	CSystemFunction::HEXSTRTOI(const CValue &arg, yaya::string_t &d, int &l)
 	if (!arg.array()[0].IsString()) {
 		vm.logger().Error(E_W, 9, L"HEXSTRTOI", d, l);
 		SetError(9);
-		return CValue(0);
 	}
 
-	if (!IsIntHexString(arg.array()[0].s_value, 0)) {
+	if (!IsIntHexString(arg.array()[0].GetValueString(), 0)) {
 		vm.logger().Error(E_W, 12, L"HEXSTRTOI", d, l);
 		SetError(12);
 		return CValue(0);
 	}
 
-	return CValue(ws_atoi(arg.array()[0].s_value, 16));
+	return CValue(ws_atoi(arg.array()[0].GetValueString(), 16));
 }
 
 /* -----------------------------------------------------------------------
@@ -1626,13 +1593,12 @@ CValue	CSystemFunction::CHR(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue();
 	}
 
-	if (!arg.array()[0].IsInt()) {
+	if (!arg.array()[0].IsNum()) {
 		vm.logger().Error(E_W, 9, L"CHR", d, l);
 		SetError(9);
-		return CValue();
 	}
 
-	yaya::string_t r_value(1, static_cast<yaya::char_t>(arg.array()[0].i_value));
+	yaya::string_t r_value(1, static_cast<yaya::char_t>(arg.array()[0].GetValueInt()));
 	
 	for ( std::vector<CValueSub>::const_iterator i = arg.array().begin() + 1 ;
 		i < arg.array().end() ; ++i ) {
@@ -2615,14 +2581,13 @@ CValue	CSystemFunction::EVAL(const CValue &arg, yaya::string_t &d, int &l, CLoca
 	if (!arg.array()[0].IsString()) {
 		vm.logger().Error(E_W, 9, L"EVAL", d, l);
 		SetError(9);
-		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
 	// 数式へ展開
-	yaya::string_t	str = arg.array()[0].s_value;
+	yaya::string_t	str = arg.array()[0].GetValueString();
 	CStatement	t_state(ST_FORMULA, l);
 	if (vm.parser0().ParseEmbedString(str, t_state, d, l))
-		return CValue(arg.array()[0].s_value);
+		return CValue(arg.array()[0].GetValueString());
 
 	// 実行して結果を返す
 	CValue	result = thisfunc->GetFormulaAnswer(lvar, t_state);
@@ -2650,16 +2615,16 @@ CValue	CSystemFunction::ERASEVAR(const CValue &arg, CLocalVariable &lvar, yaya::
 	if (!arg.array()[0].IsString()) {
 		vm.logger().Error(E_W, 9, L"ERASEVAR", d, l);
 		SetError(9);
-		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
+	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
 
-	if (!arg.array()[0].s_value.size())
+	if (!arg0.size())
 		return CValue();
 
-	if (arg.array()[0].s_value[0] == L'_')
-		lvar.Erase(arg.array()[0].s_value);
+	if (arg0[0] == L'_')
+		lvar.Erase(arg0);
 	else
-		vm.variable().Erase(arg.array()[0].s_value);
+		vm.variable().Erase(arg0);
 
 	return CValue(F_TAG_NOP, 0/*dmy*/);
 }
@@ -2837,19 +2802,19 @@ CValue	CSystemFunction::RE_SEARCH(const CValue &arg, yaya::string_t &d, int &l)
 		!arg.array()[1].IsString()) {
 		vm.logger().Error(E_W, 9, L"RE_SEARCH", d, l);
 		SetError(9);
-		return CValue(0);
 	}
+	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
+	const yaya::string_t &arg1 = arg.array()[1].GetValueString();
 
-	if (!arg.array()[0].s_value.size() ||
-		!arg.array()[1].s_value.size())
+	if (!arg0.size() || !arg1.size())
 		return CValue(0);
 
 	// 実行
 	int	t_result;
 	try {
-		boost::basic_regex<yaya::char_t> regex(arg.array()[1].s_value.c_str(),boost::regex::perl | boost::regex::collate);
+		boost::basic_regex<yaya::char_t> regex(arg1.c_str(),boost::regex::perl | boost::regex::collate);
 		boost::match_results<yaya::string_t::const_iterator>	result;
-		t_result = (int)boost::regex_search(arg.array()[0].s_value, result, regex);
+		t_result = (int)boost::regex_search(arg0, result, regex);
 		if (t_result)
 			StoreReResultDetails(result);
 	}
@@ -2894,16 +2859,18 @@ CValue	CSystemFunction::RE_MATCH(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 
-	if (!arg.array()[0].s_value.size() ||
-		!arg.array()[1].s_value.size())
+	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
+	const yaya::string_t &arg1 = arg.array()[1].GetValueString();
+
+	if (!arg0.size() || !arg1.size())
 		return CValue(0);
 
 	// 実行
 	int	t_result;
 	try {
-		boost::basic_regex<yaya::char_t> regex(arg.array()[1].s_value.c_str(),boost::regex::perl | boost::regex::collate);
+		boost::basic_regex<yaya::char_t> regex(arg1.c_str(),boost::regex::perl | boost::regex::collate);
 		boost::match_results<yaya::string_t::const_iterator>	result;
-		t_result = (int)boost::regex_match(arg.array()[0].s_value, result, regex);
+		t_result = (int)boost::regex_match(arg0, result, regex);
 		if (t_result)
 			StoreReResultDetails(result);
 	}
@@ -2947,22 +2914,23 @@ CValue	CSystemFunction::RE_GREP(const CValue &arg, yaya::string_t &d, int &l)
 		!arg.array()[1].IsString()) {
 		vm.logger().Error(E_W, 9, L"RE_GREP", d, l);
 		SetError(9);
-		return CValue(0);
 	}
 
-	if (!arg.array()[0].s_value.size() ||
-		!arg.array()[1].s_value.size())
+	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
+	const yaya::string_t &arg1 = arg.array()[1].GetValueString();
+
+	if (!arg0.size() || !arg1.size())
 		return CValue(0);
 
 	// 実行
-	yaya::string_t::const_iterator str = arg.array()[0].s_value.begin();
-	yaya::string_t::const_iterator search_end = arg.array()[0].s_value.end();
+	yaya::string_t::const_iterator str = arg0.begin();
+	yaya::string_t::const_iterator search_end = arg0.end();
 	yaya::string_t::const_iterator search_point = str;
 	int	t_pos    = 0;
 	int	t_result = 0;
 
 	try {
-		boost::basic_regex<yaya::char_t> regex(arg.array()[1].s_value.c_str(),boost::regex::perl | boost::regex::collate);
+		boost::basic_regex<yaya::char_t> regex(arg1.c_str(),boost::regex::perl | boost::regex::collate);
 		boost::match_results<yaya::string_t::const_iterator>	result;
 		for( ; ; ) {
 			if (!boost::regex_search(search_point, search_end, result, regex))
@@ -3034,14 +3002,9 @@ CValue	CSystemFunction::RE_SPLIT(const CValue &arg, yaya::string_t &d, int &l)
 		!arg.array()[1].IsString()) {
 		vm.logger().Error(E_W, 9, L"RE_SPLIT", d, l);
 		SetError(9);
-		return CValue(0);
 	}
 
-	if (!arg.array()[0].s_value.size() ||
-		!arg.array()[1].s_value.size())
-		return CValue(0);
-
-	return RE_SPLIT_CORE(arg, d, l, L"RE_SEARCH", NULL);
+	return RE_SPLIT_CORE(arg, d, l, L"RE_SPLIT", NULL);
 }
 
 /* -----------------------------------------------------------------------
@@ -3056,7 +3019,7 @@ CValue	CSystemFunction::RE_REPLACE(const CValue &arg, yaya::string_t &d, int &l)
 	if (arg.array_size() < 3) {
 		vm.logger().Error(E_W, 8, L"RE_REPLACE", d, l);
 		SetError(8);
-		return CValue(arg.array()[0].s_value);
+		return CValue(arg.array()[0].GetValueString());
 	}
 
 	if (!arg.array()[0].IsString() ||
@@ -3064,26 +3027,21 @@ CValue	CSystemFunction::RE_REPLACE(const CValue &arg, yaya::string_t &d, int &l)
 		!arg.array()[2].IsString()) {
 		vm.logger().Error(E_W, 9, L"RE_REPLACE", d, l);
 		SetError(9);
-		return CValue(arg.array()[0].s_value);
 	}
-
-	if (!arg.array()[0].s_value.size() ||
-		!arg.array()[1].s_value.size())
-		return CValue(arg.array()[0].s_value);
 
 	// まずsplitする
 	CValue	splits = RE_SPLIT_CORE(arg, d, l, L"RE_REPLACE", NULL);
 	int	num = splits.array_size();
 	if (!num || num == 1)
-		return CValue(arg.array()[0].s_value);
+		return CValue(arg.array()[0].GetValueString());
 
 	// 置換後文字列の作成
 	yaya::string_t	result;
 	int	i = 0;
 	for(i = 0; i < num; i++) {
 		if (i)
-			result += arg.array()[2].s_value;
-		result += splits.array()[i].s_value;
+			result += arg.array()[2].GetValueString();
+		result += splits.array()[i].GetValueString();
 	}
 
 	return CValue(result);
@@ -3101,7 +3059,7 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
 	if (arg.array_size() < 3) {
 		vm.logger().Error(E_W, 8, L"RE_REPLACE", d, l);
 		SetError(8);
-		return CValue(arg.array()[0].s_value);
+		return CValue(arg.array()[0].GetValueString());
 	}
 
 	if (!arg.array()[0].IsString() ||
@@ -3109,12 +3067,7 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
 		!arg.array()[2].IsString()) {
 		vm.logger().Error(E_W, 9, L"RE_REPLACEEX", d, l);
 		SetError(9);
-		return CValue(arg.array()[0].s_value);
 	}
-
-	if (!arg.array()[0].s_value.size() ||
-		!arg.array()[1].s_value.size())
-		return CValue(arg.array()[0].s_value);
 
 	// 置換後文字列の用意
 	std::vector<yaya::string_t> replace_array;
@@ -3123,7 +3076,7 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
 	CValue	splits = RE_SPLIT_CORE(arg, d, l, L"RE_REPLACEEX", &replace_array);
 	int	num = splits.array_size();
 	if (!num || num == 1)
-		return CValue(arg.array()[0].s_value);
+		return CValue(arg.array()[0].GetValueString());
 
 	// 置換後文字列の作成
 	yaya::string_t	result;
@@ -3131,7 +3084,7 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
 	for(i = 0; i < num; i++) {
 		if (i)
 			result += replace_array[i-1];
-		result += splits.array()[i].s_value;
+		result += splits.array()[i].GetValueString();
 	}
 
 	return CValue(result);
@@ -3145,33 +3098,40 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
  */
 CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int &l, const yaya::char_t *fncname, std::vector<yaya::string_t> *replace_array)
 {
-	yaya::string_t::const_iterator str = arg.array()[0].s_value.begin();
+	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
+	const yaya::string_t &arg1 = arg.array()[1].GetValueString();
+	const yaya::string_t &arg2 = arg.array()[2].GetValueString();
+
+	if (!arg0.size() || !arg1.size())
+		return CValue(arg0);
+
+	yaya::string_t::const_iterator str = arg0.begin();
 	yaya::string_t::const_iterator search_point = str;
-	yaya::string_t::const_iterator search_end = arg.array()[0].s_value.end();
+	yaya::string_t::const_iterator search_end = arg0.end();
 
 	int	t_pos = 0;
 	CValue	splits(F_TAG_ARRAY, 0/*dmy*/);
 
 	try {
-		boost::basic_regex<yaya::char_t> regex(arg.array()[1].s_value.c_str(),boost::regex::perl | boost::regex::collate);
+		boost::basic_regex<yaya::char_t> regex(arg1.c_str(),boost::regex::perl | boost::regex::collate);
 		boost::match_results<yaya::string_t::const_iterator>	result;
 		for( ; ; ) {
 			if (!boost::regex_search(search_point, search_end, result, regex))
 				break;
 
-			splits.array().push_back(arg.array()[0].s_value.substr(t_pos, result.position(0)));
+			splits.array().push_back(arg0.substr(t_pos, result.position(0)));
 
 			AppendReResultDetail(result.str(0), result.position(0) + t_pos, result.length(0));
 			
 			if ( replace_array ) {
-				replace_array->push_back(result.format(arg.array()[2].s_value,boost::format_perl));
+				replace_array->push_back(result.format(arg2,boost::format_perl));
 			}
 
 			search_point = str + (t_pos += (result.position(0) + result.length(0)));
 		}
         int len = std::distance(search_point, search_end);
 //		if (len)
-			splits.array().push_back(arg.array()[0].s_value.substr(t_pos, len));
+			splits.array().push_back(arg0.substr(t_pos, len));
 	}
 	catch(const boost::bad_expression &) {
 		splits = CValue(F_TAG_ARRAY, 0/*dmy*/);
@@ -3291,11 +3251,10 @@ CValue	CSystemFunction::SPLITPATH(const CValue &arg, yaya::string_t &d, int &l)
     if (!arg.array()[0].IsString()) {
 		vm.logger().Error(E_W, 9, L"SPLITPATH", d, l);
 		SetError(9);
-		return CValue(0);
 	}
 
 	yaya::char_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
-	_wsplitpath(arg.array()[0].s_value.c_str(), drive, dir, fname, ext);
+	_wsplitpath(arg.array()[0].GetValueString().c_str(), drive, dir, fname, ext);
 
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 	result.array().push_back(drive);
@@ -3308,44 +3267,43 @@ CValue	CSystemFunction::SPLITPATH(const CValue &arg, yaya::string_t &d, int &l)
 #elif defined(POSIX)
 CValue CSystemFunction::SPLITPATH(const CValue &arg, yaya::string_t &d, int &l) {
     if (!arg.array_size()) {
-	vm.logger().Error(E_W, 8, L"SPLITPATH", d, l);
-	SetError(8);
-	return CValue(0);
+		vm.logger().Error(E_W, 8, L"SPLITPATH", d, l);
+		SetError(8);
+		return CValue(0);
     }
     
     if (!arg.array()[0].IsString()) {
-	vm.logger().Error(E_W, 9, L"SPLITPATH", d, l);
-	SetError(9);
-	return CValue(0);
+		vm.logger().Error(E_W, 9, L"SPLITPATH", d, l);
+		SetError(9);
     }
 
-    yaya::string_t path = arg.array()[0].s_value;
+    yaya::string_t path = arg.array()[0].GetValueString();
     fix_filepath(path);
 
     CValue result(F_TAG_ARRAY, 0/*dmy*/);
     result.array().push_back(L""); // driveは常に空文字列
-
+	
     yaya::string_t::size_type pos_slash = path.rfind(L'/');
     yaya::string_t fname;
     if (pos_slash == yaya::string_t::npos) {
-	result.array().push_back(L""); // dirも空
-	fname = path;
+		result.array().push_back(L""); // dirも空
+		fname = path;
     }
     else {
-	result.array().push_back(path.substr(0, pos_slash+1));
-	fname = path.substr(pos_slash+1);
+		result.array().push_back(path.substr(0, pos_slash+1));
+		fname = path.substr(pos_slash+1);
     }
-
+	
     yaya::string_t::size_type pos_period = fname.rfind(L'.');
     if (pos_period == yaya::string_t::npos) {
-	result.array().push_back(fname);
-	result.array().push_back(L""); // extは空
+		result.array().push_back(fname);
+		result.array().push_back(L""); // extは空
     }
     else {
-	result.array().push_back(fname.substr(0, pos_period));
-	result.array().push_back(fname.substr(pos_period+1));
+		result.array().push_back(fname.substr(0, pos_period));
+		result.array().push_back(fname.substr(pos_period+1));
     }
-
+	
     return CValue(result);
 }
 #endif
@@ -3439,10 +3397,10 @@ CValue	CSystemFunction::CVAUTO(const CValue &arg, const std::vector<CCell *> &pc
 	}
 
 	if (!arg.array()[0].IsString()) {
-		return CValue(F_TAG_NOP, 0/*dmy*/);
+		return CValue(arg.array()[0]);
 	}
 
-	if ( IsIntString(arg.array()[0].s_value) ) {
+	if ( IsIntString(arg.array()[0].GetValueString()) ) {
 		if (pcellarg[0]->value_GetType() == F_TAG_VARIABLE) {
 			vm.variable().SetValue(pcellarg[0]->index, arg.array()[0].GetValueInt());
 		}
@@ -3454,7 +3412,7 @@ CValue	CSystemFunction::CVAUTO(const CValue &arg, const std::vector<CCell *> &pc
 			SetError(11);
 		}
 	}
-	else if ( IsDoubleString(arg.array()[0].s_value) ) {
+	else if ( IsDoubleString(arg.array()[0].GetValueString()) ) {
 		if (pcellarg[0]->value_GetType() == F_TAG_VARIABLE) {
 			vm.variable().SetValue(pcellarg[0]->index, arg.array()[0].GetValueDouble());
 		}
@@ -3488,18 +3446,17 @@ CValue	CSystemFunction::LETTONAME(const CValue &arg, yaya::string_t &d, int &l, 
 	if (!arg.array()[0].IsString()) {
 		vm.logger().Error(E_W, 9, L"LETTONAME", d, l);
 		SetError(9);
-		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
 	// 代入式を構成する　シングルクォートはCHRでエスケープ(?)する
 	// ダブルクォートで変数展開していた問題修正
-	yaya::string_t	str = arg.array()[0].s_value;
+	yaya::string_t	str = arg.array()[0].GetValueString();
 	str += L"=(";
 	for(int i = 1; i < sz; i++) {
 		if (i > 1)
 			str += L",";
 		if (arg.array()[i].IsString()) {
-			yaya::string_t	vstr = arg.array()[i].s_value;
+			yaya::string_t	vstr = arg.array()[i].GetValueString();
 			ws_replace(vstr, L"'",L"' + CHR(0x27) + '");
 			str += (L"'" + vstr + L"'");
 		}
@@ -3533,12 +3490,12 @@ CValue	CSystemFunction::STRFORM(const CValue &arg, yaya::string_t &d, int &l)
 	if (!arg.array()[0].IsString()) {
 		vm.logger().Error(E_W, 9, L"STRFORM", d, l);
 		SetError(9);
-		return CValue(F_TAG_NOP, 0/*dmy*/);
+		return CValue(arg.array()[0]);
 	}
 
 	// '$'でsplitする
 	std::vector<yaya::string_t>	vargs;
-	int	vargs_sz = SplitToMultiString(arg.array()[0].s_value, vargs, yaya::string_t(L"$"));
+	int	vargs_sz = SplitToMultiString(arg.array()[0].GetValueString(), vargs, yaya::string_t(L"$"));
 	if (!vargs_sz)
 		return CValue();
 
@@ -3604,7 +3561,7 @@ CValue	CSystemFunction::ANY(const CValue &arg, const std::vector<CCell *> &pcell
 			delimiter = lvar.GetDelimiter(pcellarg[0]->name);
 
 		std::vector<yaya::string_t>	s_array;
-		int	a_sz = SplitToMultiString(arg.array()[0].s_value, s_array, delimiter);
+		int	a_sz = SplitToMultiString(arg.array()[0].GetValueString(), s_array, delimiter);
 		if (!a_sz) {
 			SetLso(-1);
 			return CValue();
@@ -3942,7 +3899,6 @@ CValue	CSystemFunction::SPLIT(const CValue &arg, yaya::string_t &d, int &l)
 		!arg.array()[1].IsString()) {
 		vm.logger().Error(E_W, 9, L"SPLIT", d, l);
 		SetError(9);
-		return CValue(F_TAG_ARRAY, 0/*dmy*/);
 	}
 
 	yaya::string_t::size_type nums = 0;
@@ -3957,8 +3913,8 @@ CValue	CSystemFunction::SPLIT(const CValue &arg, yaya::string_t &d, int &l)
 
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 
-	const yaya::string_t &tgt_str = arg.array()[0].s_value;
-	const yaya::string_t &sep_str = arg.array()[1].s_value;
+	const yaya::string_t &tgt_str = arg.array()[0].GetValueString();
+	const yaya::string_t &sep_str = arg.array()[1].GetValueString();
 
 	if (nums == 1 || sep_str.length() == 0) {
 		result.array().push_back(CValueSub(arg.array()[0].GetValueString()));
@@ -4067,7 +4023,7 @@ CValue	CSystemFunction::GETFUNCLIST(const CValue &arg, yaya::string_t &/*d*/, in
 	//STRINGの場合のみ絞りこみ文字列として認識
 	if ( arg.array_size() ) {
 		if (arg.array()[0].IsString()) {
-			name = arg.array()[0].s_value;
+			name = arg.array()[0].GetValueString();
 		}
 	}
 
@@ -4106,7 +4062,7 @@ CValue	CSystemFunction::GETVARLIST(const CValue &arg, CLocalVariable &lvar, yaya
 	//STRINGの場合のみ絞りこみ文字列として認識
 	if ( arg.array_size() ) {
 		if (arg.array()[0].IsString()) {
-			name = arg.array()[0].s_value;
+			name = arg.array()[0].GetValueString();
 		}
 	}
 
@@ -4253,7 +4209,7 @@ int CSystemFunction::GetCharset(const CValueSub &var,const wchar_t *fname, yaya:
 	}
 
 	if (var.IsString()) {
-		int	charset = Ccct::CharsetTextToID(var.s_value.c_str());
+		int	charset = Ccct::CharsetTextToID(var.GetValueString().c_str());
 		return charset;
 	}
 
