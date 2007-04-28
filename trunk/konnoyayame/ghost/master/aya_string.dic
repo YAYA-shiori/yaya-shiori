@@ -1,0 +1,146 @@
+///////// 文　ゴーストテンプレート
+///////// 文字列リソース辞書
+///////// written by umeici.
+
+//**** 文字列リソース *******************************************************************
+
+//---- ユーザー名 -----------------------------------------------------------------------
+On_username
+{
+	username
+}
+
+//---- ネットワーク更新の基準位置となるURL ----------------------------------------------
+On_homeurl
+{
+	"http://members.jcom.home.ne.jp/umeici/"
+}
+
+//---- ポータルサイトのボタンキャプション -----------------------------------------------
+On_portalrootbutton.caption
+{
+	"ポータル"
+}
+
+//---- ポータルサイトのリスト -----------------------------------------------------------
+On_sakura.portalsites
+{
+	"/
+	うさださくら%ASC(1)http://usada.sakura.vg/%ASC(1)http://sakura.mikage.to/banner.png/
+	"
+}
+
+//---- 本体側おすすめサイトのボタンキャプション -----------------------------------------
+On_recommendrootbutton.caption
+{
+	"おすすめ‥‥"
+	"SHIORIコア"
+}
+
+//---- 本体側おすすめサイトのリスト -----------------------------------------------------
+On_sakura.recommendsites
+{
+	"/
+	偽栞%ASC(1)http://www.nona.dti.ne.jp/~teu/niseshiori/%ASC(1)http://www.nona.dti.ne.jp/%7Eteu/niseshiori/nsbanner.png%ASC(2)/
+	翡翠%ASC(1)http://www.cokage.ne.jp/~juju/hisui.htm%ASC(1)http://www.cokage.ne.jp/~juju/site_hisui/images/hisui_bn.png%ASC(2)/
+	美坂%ASC(1)http://lovelove.rabi-en-rose.net/index_misaka.php%ASC(1)http://lovelove.rabi-en-rose.net/misaka/banner.png%ASC(2)/
+	梨野%ASC(1)http://www.junkyard.jp/nasino/index.shtml%ASC(2)/
+	華和梨%ASC(1)http://kawari.sourceforge.net/%ASC(1)http://kawari.sourceforge.net/images/banner.png%ASC(2)/
+	"
+}
+
+//---- kero側おすすめサイトのボタンキャプション -----------------------------------------
+On_kero.recommendbuttoncaption
+{
+	"ホワ伊東のおすすめ"
+}
+
+//---- kero側おすすめサイトのリスト -----------------------------------------------------
+On_kero.recommendsites
+{
+	"/
+	文%ASC(1)http://members.jcom.home.ne.jp/umeici/%ASC(1)http://members.jcom.home.ne.jp/umeici/image/aya_b.png/
+	"
+}
+
+//---- ネットワーク更新ボタンのキャプション ---------------------------------------------
+On_updatebutton.caption
+{
+	"ネトワク更新(invalid)"
+	"レッツ更新(invalid)"
+}
+
+//---- readmeボタンのキャプション -------------------------------------------------------
+On_readmebutton.caption
+{
+	"read me..."
+}
+
+//---- 消滅指示ボタンのキャプション -----------------------------------------------------
+On_vanishbutton.caption
+{
+	"さよなら"
+	"別れの日"
+}
+
+//---- 消滅指示ボタン表示切り替え -------------------------------------------------------
+On_vanishbutton.visible
+{
+	//---- "0"で非表示、それ以外で表示
+	"1"
+}
+
+//---- 起動中の他のゴースト名取得 -------------------------------------------------------
+On_otherghostname
+{
+	// 現在起動中のゴーストのリストを作成する
+	ghostexlist = ""
+	_i = 0
+	while _i >= 0 {
+		_ghostname = NAMETOVALUE("reference%_i")
+		if _ghostname != "" {
+			if _i > 0; ghostexlist += ","
+			ghostexlist += _ghostname[0]
+			_i++
+		}
+		else; _i = -1
+	}
+	ghostexcount = ARRAYSIZE(ghostexlist)
+}
+
+//---- SHIORI 関連情報 ------------------------------------------------------------------
+On_version
+{
+	GETSETTING(AYAINFO_VERSION)
+}
+
+On_craftman
+{
+	"umeici"
+}
+
+On_craftmanw
+{
+	"梅市"
+}
+
+On_name
+{
+	"AYA"
+}
+
+//---- Owned SSTP 用 uniqueid 取得 ------------------------------------------------------
+On_uniqueid
+{
+	uniqueid = reference0
+}
+
+//---- hwnd 取得 ------------------------------------------------------------------------
+On_hwnd
+{
+	sakurahwnd    = reference0[0]
+	kerohwnd      = reference0[1]
+	sakurablnhwnd = reference1[0]
+	keroblnhwnd   = reference1[1]
+}
+

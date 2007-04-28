@@ -1,0 +1,26 @@
+default.pt,9
+default.color,0
+default.bold,0
+default.italic,0
+fatal.pt,9
+fatal.color,ff0000
+fatal.bold,1
+fatal.italic,1
+error.pt,9
+error.color,ff0000
+error.bold,0
+error.italic,0
+warning.pt,9
+warning.color,ff8000
+warning.bold,0
+warning.italic,0
+note.pt,9
+note.color,8000
+note.bold,0
+note.italic,0
+background.color,ffffff
+face,ÇlÇr ÉSÉVÉbÉN
+window.x,619
+window.y,508
+window.width,803
+window.height,603
