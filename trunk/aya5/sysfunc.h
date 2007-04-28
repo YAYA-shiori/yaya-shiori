@@ -38,7 +38,7 @@ class CFunction;
 #define	I_PERF_DATA_SIZE			32768
 #define	D_PERF_DATA_SIZE			1024
 
-#define	SYSFUNC_NUM					116
+#define	SYSFUNC_NUM					117
 #define	SYSFUNC_HIS					61
 
 const wchar_t	sysfunc[SYSFUNC_NUM][32] = {
@@ -197,6 +197,8 @@ const wchar_t	sysfunc[SYSFUNC_NUM][32] = {
 	L"TANH",
 	// ÉVÉXÉeÉÄéûçè/ÉÅÉÇÉäèÓïÒ(2)
 	L"GETSECCOUNT",
+	// FMO(1)
+	L"READFMO",
 };
 
 //----
@@ -377,6 +379,8 @@ protected:
 
 	CValue	GETSTRURLENCODE(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	GETSTRURLDECODE(const CValue &arg, yaya::string_t &d, int &l);
+
+	CValue	READFMO(const CValue &arg,yaya::string_t &d,int &l);
 
 	CValue	RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int &l, const yaya::char_t *fncname, std::vector<yaya::string_t> *replace_array);
 
