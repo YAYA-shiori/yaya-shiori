@@ -21,8 +21,6 @@
 #define	C_CRLF		CHR(0xd)+CHR(0xa)				/* 改行コード     */
 #define	C_BYTE1		CHR(0x1)						/* バイト値1      */
 
-#define	RES_REF_MAX	32								/* res_referenceの上限 */
-
 // チェイン
 #globaldefine	CHAIN{{		{{CHAIN					/* どうも誤記される場合があるようなので */
 #globaldefine	CHAIN}}		}}CHAIN					/* 同上 */
@@ -138,7 +136,9 @@ unload
 	ERASEVAR('basewarename')
 	ERASEVAR('basewarenameex')
 	ERASEVAR('sender')
+	
 	ERASEVAR('S_CHARSET')
+	ERASEVAR('E_CHARSET')
 
 	ERASEVAR('installedghostlist' )
 	ERASEVAR('installedsakuralist')
