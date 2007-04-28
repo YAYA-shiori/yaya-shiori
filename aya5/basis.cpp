@@ -62,6 +62,8 @@ CBasis::CBasis(CAyaVM &vmr) : vm(vmr)
 	save_charset      = CHARSET_SJIS;
 	extension_charset = CHARSET_SJIS;
 
+	encode_savefile = false;
+
 #if defined(WIN32)
 	hlogrcvWnd  = NULL;
 #endif
@@ -356,7 +358,12 @@ void	CBasis::SetParameter(yaya::string_t &cmd, yaya::string_t &param, std::vecto
 	// iolog
 	else if (!cmd.compare(L"iolog")) {
 		if (!param.compare(L"off"))
-			iolog = 0;
+			iolog = false;
+	}
+	// iolog
+	else if (!cmd.compare(L"save.encode")) {
+		if (!param.compare(L"on"))
+			encode_savefile = true;
 	}
 	// msglang
 	else if (!cmd.compare(L"msglang")) {
@@ -416,6 +423,10 @@ yaya::string_t CBasis::GetParameter(const yaya::string_t &cmd)
 	else if (!cmd.compare(L"iolog")) {
 		return yaya::string_t(iolog ? L"on" : L"off");
 	}
+	// save.encode
+	else if (!cmd.compare(L"save.encode")) {
+		return yaya::string_t(encode_savefile ? L"on" : L"off");
+	}
 	// msglang
 	else if (!cmd.compare(L"msglang")) {
 		return yaya::string_t(msglang == MSGLANG_ENGLISH ? L"english" : L"japanese");
@@ -472,6 +483,8 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 {
 	// 変数の保存
 
+	bool ayc = encode_savefile;
+
 	// ファイルを開く
 	yaya::string_t	filename;
 	if ( ! pName || ! *pName ) {
@@ -479,6 +492,31 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 	}
 	else {
 		filename = path + pName;
+	}
+
+	if ( ayc ) {
+		char *s_filestr = Ccct::Ucs2ToMbcs(filename,CHARSET_DEFAULT);
+#if defined(WIN32)
+		DeleteFile(s_filestr);
+#else
+		unlink(s_filestr);
+#endif
+		free(s_filestr);
+
+		filename += L".ays"; //aycだとかぶるので…
+	}
+	else {
+		filename += L".ays"; //aycだとかぶるので…
+
+		char *s_filestr = Ccct::Ucs2ToMbcs(filename,CHARSET_DEFAULT);
+#if defined(WIN32)
+		DeleteFile(s_filestr);
+#else
+		unlink(s_filestr);
+#endif
+		free(s_filestr);
+		
+		filename.erase(filename.size()-4,4);
 	}
 
 	vm.logger().Message(7);
@@ -505,11 +543,17 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 */
 
 	// 文字コード
-	fprintf(fp,"//savefile_charset,%s\n",Ccct::CharsetIDToTextA(save_charset));
+	yaya::string_t str;
+	yaya::string_t wstr;
+	str.reserve(1000);
+
+	str = L"//savefile_charset,";
+	str += Ccct::CharsetIDToTextW(save_charset);
+	str += L"\n";
+
+	ws_fputs(str,fp,save_charset,ayc);
 
 	// 順次保存
-	yaya::string_t	wstr;
-	char	*tmpstr;
 	size_t	var_num = vm.variable().GetNumber();
 
 	for(size_t i = 0; i < var_num; i++) {
@@ -526,37 +570,33 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 		// 消去フラグが立っている変数は保存しない
 		if (var->IsErased())
 			continue;
+
 		// 名前の保存
-		tmpstr = Ccct::Ucs2ToMbcs(var->name, save_charset);
-		fprintf(fp, "%s,", tmpstr);
-		free(tmpstr);
+		str = var->name;
+		str += L",";
+
 		// 値の保存
 		switch(var->value_const().GetType()) {
 		case F_TAG_INT:
 			ws_itoa(wstr, var->value_const().i_value, 10);
-			tmpstr = Ccct::Ucs2ToMbcs(wstr, save_charset);
-			fprintf(fp, "%s,", tmpstr);
-			free(tmpstr);
+			str += wstr;
+			str += L",";
 			break;
 		case F_TAG_DOUBLE:
 			ws_ftoa(wstr, var->value_const().d_value);
-			tmpstr = Ccct::Ucs2ToMbcs(wstr, save_charset);
-			fprintf(fp, "%s,", tmpstr);
-			free(tmpstr);
+			str += wstr;
+			str += L",";
 			break;
 		case F_TAG_STRING:
 			wstr = var->value_const().s_value;
 			EscapeString(wstr);
-			wstr = L"\"" + wstr + L"\"";
-			tmpstr = Ccct::Ucs2ToMbcs(wstr, save_charset);
-			fprintf(fp, "%s,", tmpstr);
-			free(tmpstr);
+			str += L"\"";
+			str += wstr;
+			str += L"\",";
 			break;
 		case F_TAG_ARRAY:
 			if (!var->value_const().array_size()) {
-				fprintf(fp, ESC_IARRAY_SAVE);
-				fprintf(fp, ":");
-				fprintf(fp, ESC_IARRAY_SAVE);
+				str += ESC_IARRAY L":" ESC_IARRAY;
 			}
 			else {
 				std::vector<CValueSub>::const_iterator	itv;
@@ -564,31 +604,34 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 
 				for(itv = itvbegin; itv != var->value_const().array().end(); itv++) {
 					if (itv != itvbegin)
-						fprintf(fp, ":");
+						str += L":";
 					wstr = itv->GetValueString();
 					EscapeString(wstr);
-					tmpstr = Ccct::Ucs2ToMbcs(wstr, save_charset);
-					if (itv->GetType() == F_TAG_STRING)
-						fprintf(fp, "\"%s\"", tmpstr);
-					else
-						fprintf(fp, "%s", tmpstr);
-					free(tmpstr);
+
+					if (itv->GetType() == F_TAG_STRING) {
+						str += L"\"";
+						str += wstr;
+						str += L"\"";
+					}
+					else {
+						str += wstr;
+					}
 				}
 				if (var->value_const().array_size() == 1) {
-					fprintf(fp, ":");
-					fprintf(fp, ESC_IARRAY_SAVE);
+					str += L":" ESC_IARRAY;
 				}
 			}
-			fprintf(fp, ",");
+			str += L",";
 			break;
 		default:
 			vm.logger().Error(E_W, 7, var->name);
 			break;
 		};
 		// デリミタの保存
-		tmpstr = Ccct::Ucs2ToMbcs(var->delimiter, save_charset);
-		fprintf(fp, "%s\n", tmpstr);
-		free(tmpstr);
+		str += var->delimiter;
+		str += L"\n";
+
+		ws_fputs(str,fp,save_charset,ayc);
 	}
 
 	// ファイルを閉じる
@@ -603,6 +646,8 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
  */
 void	CBasis::RestoreVariable(const yaya::char_t* pName)
 {
+	bool ayc = encode_savefile;
+
 	// ファイルを開く
 	yaya::string_t	filename;
 	if ( ! pName || ! *pName ) {
@@ -614,10 +659,39 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 
 	vm.logger().Message(6);
 	vm.logger().Filename(filename);
-	FILE	*fp = w_fopen((wchar_t *)filename.c_str(), L"r");
-	if (fp == NULL) {
-		vm.logger().Error(E_N, 0);
-		return;
+
+	FILE *fp = NULL;
+
+	//暗号化セーブファイル対応
+	if ( ayc ) {
+		filename += L".ays";
+		fp = w_fopen((wchar_t *)filename.c_str(), L"r");
+		if (!fp) {
+			filename.erase(filename.size()-4,4);
+			fp = w_fopen((wchar_t *)filename.c_str(), L"r");
+			if (!fp) {
+				vm.logger().Error(E_N, 0);
+				return;
+			}
+			else {
+				ayc = false;
+			}
+		}
+	}
+	else {
+		fp = w_fopen((wchar_t *)filename.c_str(), L"r");
+		if (!fp) {
+			filename += L".ays";
+			fp = w_fopen((wchar_t *)filename.c_str(), L"r");
+			if (!fp) {
+				vm.logger().Error(E_N, 0);
+				return;
+			}
+			else {
+				ayc = true;
+				encode_savefile = true; //簡単に戻されてしまうのを防止
+			}
+		}
 	}
 
 	// 内容を読み取り、順次復元していく
@@ -630,7 +704,7 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 
 	for (int i = 1; ; i++) {
 		// 1行読み込み
-		if (ws_fgets(readline, fp, savefile_charset, 0, i, false) == WS_EOF)
+		if (ws_fgets(readline, fp, savefile_charset, ayc, i, false) == WS_EOF)
 			break;
 		// 改行は消去
 		CutCrLf(readline);

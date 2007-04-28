@@ -4298,11 +4298,11 @@ CValue CSystemFunction::READFMO(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	char* pBuf=new char[size];
-	strncpy_s( pBuf, size , (const char*) pData+4, size-4 );
+	strncpy( pBuf , (const char*) pData+4, size-4 );
 	UnmapViewOfFile(pData);
 	CloseHandle(hFMO);
 
-	yaya::char_t *t_str = Ccct::MbcsToUcs2(pBuf,CHARSET_SJIS);
+	yaya::char_t *t_str = Ccct::MbcsToUcs2(pBuf,CHARSET_DEFAULT);
 	if (t_str == NULL) {
 		vm.logger().Error(E_E, 13, L"READFMO(" + fmoname + L").MbcsToUcs2 Failed", d, l);
 		SetError(13);

@@ -165,6 +165,24 @@ fputc(0xbb, fp);
 fputc(0xbf, fp);
 }
 */
+
+/* -----------------------------------------------------------------------
+*  関数名  ：  decode/encodecipher
+*  機能概要：  AYA暗号化された文字を復号する
+*
+*  ただのビット反転とかき混ぜです
+* -----------------------------------------------------------------------
+*/
+static int decodecipher(const int c)
+{
+	return (((c & 0x7) << 5) | ((c & 0xf8) >> 3)) ^ 0x5a;
+}
+
+static int encodecipher(const int c)
+{
+	return (((c^ 0x5a) << 3) & 0xF8) | (((c^ 0x5a) >> 5) & 0x7);
+}
+
 /* -----------------------------------------------------------------------
 *  関数名  ：  ws_fgets
 *  機能概要：  yaya::string_tに取り出せる簡易版fgets、暗号復号とUCS-2 BOM削除も行なう
@@ -187,7 +205,7 @@ int ws_fgets(yaya::string_t &str, FILE *stream, int charset, int ayc, int lc, in
 			if (c == EOF) {
 				break;
 			}
-			decodecipher(c);
+			c = decodecipher(c);
 			buf += static_cast<char>(c);
 			if (c == '\x0a') {
 				// 行の終わり
@@ -210,6 +228,7 @@ int ws_fgets(yaya::string_t &str, FILE *stream, int charset, int ayc, int lc, in
 	}
 	
 	wchar_t *wstr_result = Ccct::MbcsToUcs2(buf, charset);
+	if ( ! wstr_result ) { return 0; }
 
 	wchar_t *wstr = wstr_result;
 	if (charset == CHARSET_UTF8 && lc == 1) {
@@ -233,14 +252,30 @@ int ws_fgets(yaya::string_t &str, FILE *stream, int charset, int ayc, int lc, in
 }
 
 /* -----------------------------------------------------------------------
-*  関数名  ：  decodecipher
-*  機能概要：  AYA暗号化された文字を復号する
-*
-*  ただのビット反転とかき混ぜです
+*  関数名  ：  ws_fputs
+*  機能概要：  yaya::string_tを書き込む簡易版fputs、暗号化も行なう
 * -----------------------------------------------------------------------
 */
-inline void	decodecipher(int &c)
+int ws_fputs(const yaya::char_t *str, FILE *stream, int charset, int ayc)
 {
-	c = (((c & 0x7) << 5) + (c >> 3)) ^ 0x5a;
+	//ayc = 1 復号化
+	char *str_result = Ccct::Ucs2ToMbcs(str, charset);
+	if ( ! str_result ) { return 0; }
+
+	int len = strlen(str_result);
+
+	if (ayc) {
+		char *resulttmp = str_result;
+		while ( *resulttmp ) {
+			*resulttmp = encodecipher(*resulttmp);
+			++resulttmp;
+		}
+	}
+
+	fwrite(str_result,1,len,stream);
+
+	free(str_result);
+	
+	return len;
 }
 
