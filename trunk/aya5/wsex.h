@@ -31,8 +31,10 @@ void	ws_replace(yaya::string_t &str, const wchar_t *before, const wchar_t *after
 FILE	*w_fopen(const wchar_t *fname, const wchar_t *mode); 
 //void	write_utf8bom(FILE *fp);
 int		ws_fgets(yaya::string_t &str, FILE *stream, int charset, int ayc, int lc, int cutspace = true);
-
-inline void	decodecipher(int &c);
+int		ws_fputs(const yaya::char_t *str, FILE *stream, int charset, int ayc);
+inline int ws_fputs(const yaya::string_t &str, FILE *stream, int charset, int ayc) {
+	return ws_fputs(str.c_str(),stream,charset,ayc);
+}
 
 //----
 
