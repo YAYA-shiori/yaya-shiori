@@ -1,4 +1,4 @@
-//Microsoft Developer Studio generated resource script.
+// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
 
@@ -21,7 +21,6 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 #pragma code_page(932)
 #endif //_WIN32
 
-#ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
@@ -44,18 +43,14 @@ BEGIN
     BEGIN
         BLOCK "041104b0"
         BEGIN
-            VALUE "Comments", "YAYA\0"
-            VALUE "CompanyName", "umeici / S Software / fifthmoon / SSP BUGTRAQ\0"
-            VALUE "FileDescription", "yaya\0"
-            VALUE "FileVersion", "5, 24, 0, 1\0"
-            VALUE "InternalName", "Yet Another AYA5\0"
-            VALUE "LegalCopyright", "\0"
-            VALUE "LegalTrademarks", "\0"
-            VALUE "OriginalFilename", "yaya.dll\0"
-            VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "Yet Another AYA5\0"
-            VALUE "ProductVersion", "5, 0, 0, 0\0"
-            VALUE "SpecialBuild", "\0"
+            VALUE "Comments", "YAYA"
+            VALUE "CompanyName", "umeici / S Software / fifthmoon / SSP BUGTRAQ / ukiya"
+            VALUE "FileDescription", "yaya"
+            VALUE "FileVersion", "5, 24, 0, 1"
+            VALUE "InternalName", "Yet Another AYA5"
+            VALUE "OriginalFilename", "yaya.dll"
+            VALUE "ProductName", "Yet Another AYA5"
+            VALUE "ProductVersion", "5, 0, 0, 0"
         END
     END
     BLOCK "VarFileInfo"
@@ -64,8 +59,6 @@ BEGIN
     END
 END
 
-#endif    // !_MAC
-
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -73,18 +66,18 @@ END
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE 
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE 
 BEGIN
     "\r\n"
     "\0"

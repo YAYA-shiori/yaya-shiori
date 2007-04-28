@@ -297,6 +297,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return TANH(arg, d, l);
 	case 115:
 		return GETSECCOUNT(arg, d, l);
+	case 116:
+		return READFMO(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -4244,6 +4246,80 @@ yaya::string_t CSystemFunction::ToFullPath(const yaya::string_t &str)
     else {
 	return vm.basis().path + str;
     }
+}
+#endif
+
+/* -----------------------------------------------------------------------
+ *  ŠÖ”–¼  F  CSystemFunction::READFMO
+ * -----------------------------------------------------------------------
+ */
+#if defined(WIN32)
+CValue CSystemFunction::READFMO(const CValue &arg, yaya::string_t &d, int &l)
+{
+	yaya::string_t fmoname;
+	if (arg.array_size()==0) {
+		fmoname=L"Sakura";
+	}else{
+		fmoname=arg.array()[0].GetValueString();
+	}
+
+	HANDLE hFMO;
+	void* pData;
+	CValue result=CValue(F_TAG_NOP, 0/*dmy*/);
+
+	//UNICODE¨SJIS‚É‚µ‚ÄŒÄ‚Ôifor win95j
+	char* tmpstr=Ccct::Ucs2ToMbcs(fmoname.c_str(),CHARSET_SJIS);
+
+	hFMO=OpenFileMapping(FILE_MAP_READ,false,tmpstr);
+	if(hFMO == NULL){
+		vm.logger().Error(E_W, 13, L"READFMO(" + fmoname + L").OpenFileMapping Failed", d, l);
+		SetError(13);
+		return result;
+	}
+
+	free(tmpstr);
+
+
+	pData=MapViewOfFile(hFMO,FILE_MAP_READ,0,0,0);
+	if(pData == NULL){
+		CloseHandle(hFMO);
+		vm.logger().Error(E_W, 13, L"READFMO(" + fmoname + L").MapViewOfFile Failed" , d, l);
+		SetError(13);
+		return result;
+	}
+
+	unsigned int size=*(unsigned int*)(pData);
+	if(size<=4){
+		UnmapViewOfFile(pData);
+		CloseHandle(hFMO);
+		vm.logger().Error(E_W, 13, L"READFMO(" + fmoname + L").FMO size less than 4 bytes" , d, l);
+		SetError(13);
+		return result;
+	}
+
+	char* pBuf=new char[size];
+	strncpy_s( pBuf, size , (const char*) pData+4, size-4 );
+	UnmapViewOfFile(pData);
+	CloseHandle(hFMO);
+
+	yaya::char_t *t_str = Ccct::MbcsToUcs2(pBuf,CHARSET_SJIS);
+	if (t_str == NULL) {
+		vm.logger().Error(E_E, 13, L"READFMO(" + fmoname + L").MbcsToUcs2 Failed", d, l);
+		SetError(13);
+		return result;
+	}
+	free(pBuf);
+
+	result=CValue(t_str);
+	free(t_str);
+
+	return result;
+}
+#elif
+CValue CSystemFunction::READFMO(const CValue &arg, yaya::string_t &d, int &l)
+{
+	vm.logger().Error(E_W, 13, L"READFMO not implemented for non-win32 system.", d, l);
+	return CValue(F_TAG_NOP, 0/*dmy*/);
 }
 #endif
 
