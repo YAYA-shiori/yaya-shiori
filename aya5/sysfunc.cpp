@@ -45,7 +45,7 @@
 #include "mt19937ar.h"
 #include "parser0.h"
 #if defined(POSIX)
-# include "posix_utils.h"
+#include "posix_utils.h"
 #endif
 #include "globaldef.h"
 #include "value.h"
