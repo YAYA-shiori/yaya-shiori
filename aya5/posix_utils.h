@@ -17,4 +17,6 @@ std::string narrow(const std::wstring& str);
 void fix_filepath(std::string& str);
 void fix_filepath(std::wstring& str);
 
+typedef unsigned int UINT;
+
 #endif

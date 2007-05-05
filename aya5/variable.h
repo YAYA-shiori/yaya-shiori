@@ -47,7 +47,7 @@ protected:
 	mutable boost::shared_ptr<CValue> m_value;				// ’l
 
 public:
-	CVariable::CVariable(const yaya::string_t &n)
+	CVariable(const yaya::string_t &n)
 	{
 		name       = n;
 		delimiter  = VAR_DELIMITER;
@@ -55,7 +55,7 @@ public:
 		erased     = 0;
 	}
 
-	CVariable::CVariable(yaya::char_t *n)
+	CVariable(yaya::char_t *n)
 	{
 		name       = n;
 		delimiter  = VAR_DELIMITER;
@@ -63,7 +63,7 @@ public:
 		erased     = 0;
 	}
 
-	CVariable::CVariable(void)
+	CVariable(void)
 	{
 		name       = L"";
 		delimiter  = VAR_DELIMITER;

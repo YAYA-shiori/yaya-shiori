@@ -956,8 +956,8 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len)
     vm.calldepth().Init();
     CLocalVariable	lvar;
     int	exitcode;
-    CValue	result = function[requestindex].Execute(arg, lvar, exitcode);
-    // 結果を文字列として取得し、文字コードをMBCSに変換
+    CValue	result = vm.function()[requestindex].Execute(arg, lvar, exitcode);
+     // 結果を文字列として取得し、文字コードをMBCSに変換
 	yaya::string_t	res = result.GetValueString();
     vm.logger().Io(1, res);
     char *mostr = Ccct::Ucs2ToMbcs(res, output_charset);
