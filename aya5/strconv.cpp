@@ -60,17 +60,17 @@ std::string aya::strconv::convert(
 }
 
 std::string aya::strconv::conv_cp932_to_utf8(const std::string& src) throw () {
-    // ½ĞÎÏ¤ÎÄ¹¤µ¤ÏÆşÎÏ¤Î1.6ÇÜ¤Ë¤Ê¤ë¤È²¾Äê¤¹¤ë¡£
+    // o—Í‚Ì’·‚³‚Í“ü—Í‚Ì1.6”{‚É‚È‚é‚Æ‰¼’è‚·‚éB
 	std::string out;
     out.reserve(static_cast<std::string::size_type>(src.length() * 1.6));
 
     for (std::string::const_iterator ite = src.begin(); ite != src.end(); ite++) {
 	unsigned char c = *ite;
-	// 0x81¡Á0x9F, 0xE0¡Á0xFC¤Ï2¥Ğ¥¤¥ÈÊ¸»ú¤Î1¥Ğ¥¤¥ÈÌÜ¤Ç¤¢¤ë¡£
+	// 0x81`0x9F, 0xE0`0xFC‚Í2ƒoƒCƒg•¶š‚Ì1ƒoƒCƒg–Ú‚Å‚ ‚éB
 	if ((c >= 0x81 && c <= 0x9f) || (c >= 0xe0 && c <= 0xfc)) {
 	    ite++;
 	    if (ite == src.end()) {
-		// 2¥Ğ¥¤¥ÈÌÜ¤¬Ìµ¤¤¡£¥¨¥é¡¼¤À¤¬Îã³°¤òÅê¤²¤Æ¤â»ÅÊıÌµ¤¤¤Î¤Ç¤³¤³¤ÇÊÑ´¹½ªÎ»¡£
+		// 2ƒoƒCƒg–Ú‚ª–³‚¢BƒGƒ‰[‚¾‚ª—áŠO‚ğ“Š‚°‚Ä‚àd•û–³‚¢‚Ì‚Å‚±‚±‚Å•ÏŠ·I—¹B
 		break;
 	    }
 	    unsigned int word = c << 8 | (*ite & 0xff);
@@ -86,7 +86,7 @@ std::string aya::strconv::conv_cp932_to_utf8(const std::string& src) throw () {
 }
 
 std::string aya::strconv::conv_utf8_to_cp932(const std::string& src) throw () {
-    // ½ĞÎÏ¤ÎÄ¹¤µ¤ÏÆşÎÏ¤Î0.8ÇÜ¤Ë¤Ê¤ë¤È²¾Äê¤¹¤ë¡£
+    // o—Í‚Ì’·‚³‚Í“ü—Í‚Ì0.8”{‚É‚È‚é‚Æ‰¼’è‚·‚éB
 	std::string out;
     out.reserve(static_cast<std::string::size_type>(src.length() * 0.8));
 
@@ -94,16 +94,16 @@ std::string aya::strconv::conv_utf8_to_cp932(const std::string& src) throw () {
     for (std::string::const_iterator ite = src.begin(); ite != end; ) {
 	unsigned int unicode = fetch_utf8(ite, end);
 	if (unicode > 0xffff) {
-	    continue; // 3¥Ğ¥¤¥È°Ê¾å¤¢¤ë¤Î¤Ç¡¢ÁÇÄÌ¤·¤¹¤ë¤Èseg fault¡£
+	    continue; // 3ƒoƒCƒgˆÈã‚ ‚é‚Ì‚ÅA‘f’Ê‚µ‚·‚é‚Æseg faultB
 	}
 	unsigned int sjis = table_unicode_to_cp932[unicode];
 	if (sjis > 0xff) {
-	    // 2¥Ğ¥¤¥È¤¢¤ë¡£
+	    // 2ƒoƒCƒg‚ ‚éB
 	    out += static_cast<char>(sjis >> 8);
 	    out += static_cast<char>(sjis);
 	}
 	else {
-	    // 1¥Ğ¥¤¥È
+	    // 1ƒoƒCƒg
 	    out += static_cast<char>(sjis);
 	}
     }
