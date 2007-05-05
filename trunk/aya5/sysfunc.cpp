@@ -760,7 +760,7 @@ CValue CSystemFunction::ZEN2HAN(const CValue &arg, yaya::string_t &d, int &l)
 
 	yaya::string_t str = arg.array()[0].GetValueString();
 
-	UINT flag = 0xFFFFFFFFU;
+	unsigned int flag = 0xFFFFFFFFU;
 	if ( arg.array_size() >= 2 ) {
 		flag = CSystemFunction_ZHFlag(arg.array()[1].GetValueString());
 	}
@@ -816,7 +816,7 @@ CValue CSystemFunction::HAN2ZEN(const CValue &arg, yaya::string_t &d, int &l)
 
 	yaya::string_t str = arg.array()[0].GetValueString();
 
-	UINT flag = 0xFFFFFFFFU;
+	unsigned int flag = 0xFFFFFFFFU;
 	if ( arg.array_size() >= 2 ) {
 		flag = CSystemFunction_ZHFlag(arg.array()[1].GetValueString());
 	}
