@@ -40,11 +40,11 @@ char* Ccct::Ucs2ToMbcs(const std::wstring& wstr, int charset) {
 	std::string utf8 = aya::strconv::convert_ucs_to_utf8<wchar_t>(wstr);
 	std::string mbcs;
 	if (charset == CHARSET_UTF8) {
-		// ÊÑ´¹ÉÔÍ×
+		// •ÏŠ·•s—v
 		mbcs = utf8;
 	}
 	else if (charset == CHARSET_SJIS || charset == CHARSET_DEFAULT) {
-		// ¡ÖOS¥Ç¥Õ¥©¥ë¥È¡×¤Ï¾ï¤ËSJIS¡£
+		// uOSƒfƒtƒHƒ‹ƒgv‚Íí‚ÉSJISB
 		mbcs = aya::strconv::convert(utf8, aya::strconv::UTF8, aya::strconv::CP932);
 	}
 	return malloc_str(mbcs);
@@ -56,11 +56,11 @@ wchar_t* Ccct::MbcsToUcs2(const char* mstr, int charset) {
 wchar_t* Ccct::MbcsToUcs2(const std::string &mstr, int charset) {
 	std::string utf8;
 	if (charset == CHARSET_UTF8) {
-		// ÊÑ´¹ÉÔÍ×
+		// •ÏŠ·•s—v
 		utf8 = mstr;
 	}
 	else if (charset == CHARSET_SJIS || charset == CHARSET_DEFAULT) {
-		// ¡ÖOS¥Ç¥Õ¥©¥ë¥È¡×¤Ï¾ï¤ËSJIS¡£
+		// uOSƒfƒtƒHƒ‹ƒgv‚Íí‚ÉSJISB
 		utf8 = aya::strconv::convert(mstr, aya::strconv::CP932, aya::strconv::UTF8);
 	}
 	return malloc_str(aya::strconv::convert_utf8_to_ucs<wchar_t>(utf8));
