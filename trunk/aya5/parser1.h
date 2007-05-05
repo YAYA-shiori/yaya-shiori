@@ -44,7 +44,7 @@ public:
 	}
 
 	char	CheckExecutionCode(void);
-	char	CParser1::CheckExecutionCode1(CStatement& st, const yaya::string_t& dicfilename);
+	char	CheckExecutionCode1(CStatement& st, const yaya::string_t& dicfilename);
 
 protected:
 	char	CheckSubstSyntax(CStatement& st, const yaya::string_t& dicfilename);

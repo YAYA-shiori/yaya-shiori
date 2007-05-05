@@ -63,10 +63,7 @@ private:
 
 public:
 	CBasis(CAyaVM &vmr);
-	~CBasis(void) {}
-	
-	void CBasis::CreateWordMatch(void);
-
+	~CBasis(void) {}	void CreateWordMatch(void);
 	char	IsRun(void) { return run; }
 
 #if defined(WIN32) || defined(_WIN32_WCE)

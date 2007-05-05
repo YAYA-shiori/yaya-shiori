@@ -48,8 +48,9 @@ extern "C" BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVO
 extern "C" DLLEXPORT RETERNTYPE FUNCATTRIB load(yaya::global_t h, long len)
 {
 	init_genrand(static_cast<unsigned long>(time(NULL)));
+#if defined(WIN32) || defined(_WIN32_WCE)
 	Ccct::sys_setlocale(LC_ALL);
-
+#endif
 	vm.basis().SetPath(h, len);
 	vm.basis().Configure();
 

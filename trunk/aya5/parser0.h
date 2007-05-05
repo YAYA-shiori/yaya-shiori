@@ -26,14 +26,14 @@ public:
 	yaya::string_t	before;
 	yaya::string_t	after;
 public:
-	CDefine::CDefine(yaya::string_t &bef, yaya::string_t &aft)
+	CDefine(yaya::string_t &bef, yaya::string_t &aft)
 	{
 		before = bef;
 		after  = aft;
 	}
 
-	CDefine::CDefine(void) {}
-	CDefine::~CDefine(void) {}
+	CDefine(void) {}
+	~CDefine(void) {}
 };
 
 //----
