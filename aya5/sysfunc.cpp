@@ -750,6 +750,8 @@ static const yaya::char_t char_zen_upper_z = 0xff3a;
 static const yaya::char_t char_zen_lower_a = 0xff41;
 static const yaya::char_t char_zen_lower_z = 0xff5a;
 
+static const yaya::char_t char_dakuten = 0xff9e;
+
 CValue CSystemFunction::ZEN2HAN(const CValue &arg, yaya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
@@ -797,7 +799,7 @@ CValue CSystemFunction::ZEN2HAN(const CValue &arg, yaya::string_t &d, int &l)
 				found = wcschr(zen_support_kana2,*it);
 				if ( found ) {
 					*it = han_support_kana2[found - zen_support_kana2];
-					it = str.insert(it+1,L'Þ');
+					it = str.insert(it+1,char_dakuten);
 				}
 			}
 		}
@@ -847,7 +849,7 @@ CValue CSystemFunction::HAN2ZEN(const CValue &arg, yaya::string_t &d, int &l)
 			if ( flag & ZH_FLAG_KANA ) {
 				const yaya::char_t *found = wcschr(han_support_kana,*it);
 				if ( found ) {
-					if ( it < str.end()-1 && *(it+1) == L'Þ' ) {
+					if ( it < str.end()-1 && *(it+1) == char_dakuten ) {
 						found = wcschr(han_support_kana2,*it);
 						if ( found ) {
 							*it = zen_support_kana2[found - han_support_kana2];
