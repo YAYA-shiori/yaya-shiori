@@ -700,9 +700,9 @@ CValue CSystemFunction::BITWISE_SHIFT(const CValue &arg, yaya::string_t &d, int 
  */
 
 static const yaya::char_t zen_support_symbol[] = 
-	L"@Igh”“•efijbeo{–pƒ„HQ[O—GFEâˆ’CDmn";
+	L"@Igh”“•efijbeo{–pƒ„HQ[O—GFEDmn";
 static const yaya::char_t han_support_symbol[] = 
-	L" !\"\"#$%&''()=|`{+*}<>?_-^\\@;:¥-,.[]";
+	L" !\"\"#$%&''()=|`{+*}<>?_-^\\@;:¥.[]";
 
 static const yaya::char_t zen_support_kana[] = 
 	L"ƒAƒCƒEƒGƒIƒJƒLƒNƒPƒRƒTƒVƒXƒZ\x30bdƒ^ƒ`ƒcƒeƒgƒiƒjƒkƒlƒmƒnƒqƒtƒwƒzƒ}ƒ~ƒ€ƒƒ‚ƒ„ƒ†ƒˆƒ‰ƒŠƒ‹ƒŒƒƒƒ’ƒ“ƒ@ƒBƒDƒFƒHƒƒƒ…ƒ‡JKAB";
@@ -741,6 +741,15 @@ static unsigned int CSystemFunction_ZHFlag(const yaya::string_t &str)
 	return flag;
 }
 
+static const yaya::char_t char_zen_0 = 0xff10;
+static const yaya::char_t char_zen_9 = 0xff19;
+
+static const yaya::char_t char_zen_upper_a = 0xff21;
+static const yaya::char_t char_zen_upper_z = 0xff3a;
+
+static const yaya::char_t char_zen_lower_a = 0xff41;
+static const yaya::char_t char_zen_lower_z = 0xff5a;
+
 CValue CSystemFunction::ZEN2HAN(const CValue &arg, yaya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
@@ -757,19 +766,19 @@ CValue CSystemFunction::ZEN2HAN(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	for ( yaya::string_t::iterator it = str.begin() ; it < str.end(); ++it ) {
-		if ( *it >= L'‚O' && *it <= L'‚X' ) {
+		if ( *it >= char_zen_0 && *it <= char_zen_9 ) {
 			if ( flag & ZH_FLAG_NUMBER ) {
-				*it = *it - L'‚O' + L'0';
+				*it = *it - char_zen_0 + L'0';
 			}
 		}
-		else if ( *it >= L'‚`' && *it <= L'‚y' ) {
+		else if ( *it >= char_zen_upper_a && *it <= char_zen_upper_z ) {
 			if ( flag & ZH_FLAG_ALPHABET ) {
-				*it = *it - L'‚`' + L'A';
+				*it = *it - char_zen_upper_a + L'A';
 			}
 		}
-		else if ( *it >= L'‚' && *it <= L'‚š' ) {
+		else if ( *it >= char_zen_lower_a && *it <= char_zen_lower_z ) {
 			if ( flag & ZH_FLAG_ALPHABET ) {
-				*it = *it - L'‚' + L'a';
+				*it = *it - char_zen_lower_a + L'a';
 			}
 		}
 		else {
@@ -815,17 +824,17 @@ CValue CSystemFunction::HAN2ZEN(const CValue &arg, yaya::string_t &d, int &l)
 	for ( yaya::string_t::iterator it = str.begin() ; it < str.end(); ++it ) {
 		if ( *it >= L'0' && *it <= L'9' ) {
 			if ( flag & ZH_FLAG_NUMBER ) {
-				*it = *it - L'0' + L'‚O';
+				*it = *it - L'0' + char_zen_0;
 			}
 		}
 		else if ( *it >= L'A' && *it <= L'Z' ) {
 			if ( flag & ZH_FLAG_ALPHABET ) {
-				*it = *it - L'A' + L'‚`';
+				*it = *it - L'A' + char_zen_upper_a;
 			}
 		}
 		else if ( *it >= L'a' && *it <= L'z' ) {
 			if ( flag & ZH_FLAG_ALPHABET ) {
-				*it = *it - L'a' + L'‚';
+				*it = *it - L'a' + char_zen_lower_a;
 			}
 		}
 		else {
@@ -3691,7 +3700,11 @@ CValue	CSystemFunction::GETSTRURLENCODE(const CValue &arg, yaya::string_t &d, in
 			result.append(1,L'+');
 		}
 		else {
+#ifdef _MSC_VER
 			swprintf(chr+1,L"%02X",current);
+#else
+			swprintf(chr+1,sizeof(wchar_t)*2+1,L"%02X",current);
+#endif
 			result.append(chr);
 		}
 		++ptr;
