@@ -22,6 +22,7 @@
 #if defined(POSIX)
 # include <dirent.h>
 # include <sys/stat.h>
+# include <sys/time.h>
 #endif
 
 #include <boost/format.hpp>
@@ -699,7 +700,7 @@ CValue CSystemFunction::BITWISE_SHIFT(const CValue &arg, yaya::string_t &d, int 
  */
 
 static const yaya::char_t zen_support_symbol[] = 
-	L"@Igh”“•efijbeo{–pƒ„HQ[O—GFE|CDmn";
+	L"@Igh”“•efijbeo{–pƒ„HQ[O—GFEâˆ’CDmn";
 static const yaya::char_t han_support_symbol[] = 
 	L" !\"\"#$%&''()=|`{+*}<>?_-^\\@;:¥-,.[]";
 
@@ -719,9 +720,9 @@ static const yaya::char_t han_support_kana2[] =
 #define ZH_FLAG_SYMBOL   0x4U
 #define ZH_FLAG_KANA     0x8U
 
-static unsigned int CSystemFunction_ZHFlag(yaya::string_t &str);
+static unsigned int CSystemFunction_ZHFlag(const yaya::string_t &str);
 
-static unsigned int CSystemFunction_ZHFlag(yaya::string_t &str)
+static unsigned int CSystemFunction_ZHFlag(const yaya::string_t &str)
 {
 	unsigned int flag = 0;
 
@@ -3998,15 +3999,15 @@ CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
     }
 
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
-	result.array().push_back(CValueSub(0);
-	result.array().push_back(CValueSub(0);
+	result.array().push_back(CValueSub(0));
+	result.array().push_back(CValueSub(0));
 	result.array().push_back(CValueSub(S_ISDIR(sb.st_mode) ? 1 : 0));
-	result.array().push_back(CValueSub(0);
+	result.array().push_back(CValueSub(0));
 	result.array().push_back(CValueSub(S_ISREG(sb.st_mode) ? 1 : 0));
-	result.array().push_back(CValueSub(0);
-	result.array().push_back(CValueSub(0);
-	result.array().push_back(CValueSub(0);
-	result.array().push_back(CValueSub(0);
+	result.array().push_back(CValueSub(0));
+	result.array().push_back(CValueSub(0));
+	result.array().push_back(CValueSub(0));
+	result.array().push_back(CValueSub(0));
 #endif
 
 	return result;
@@ -4315,7 +4316,7 @@ CValue CSystemFunction::READFMO(const CValue &arg, yaya::string_t &d, int &l)
 
 	return result;
 }
-#elif
+#else
 CValue CSystemFunction::READFMO(const CValue &arg, yaya::string_t &d, int &l)
 {
 	vm.logger().Error(E_W, 13, L"READFMO not implemented for non-win32 system.", d, l);
