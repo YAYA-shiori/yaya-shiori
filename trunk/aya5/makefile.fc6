@@ -9,7 +9,7 @@ MKDEP = mkdep
 # 作るライブラリ名の設定
 # これはdarwin用の設定で、libaya5.bundleを生成する。
 # LinuxやBSDならpostfixを.soにする必要がある筈。
-DYLIB_NAME_PREFIX = lib
+DYLIB_NAME_PREFIX = so
 DYLIB_NAME_POSTFIX = .bundle
 
 # boostの場所を指定。
@@ -24,7 +24,8 @@ LIBBOOST_REGEX_A = /usr/lib/libboost_regex.a
 # 追加するフラグ。
 # CXXFLAGSは必要無ければ空でも良いが、LDFLAGSはdlopen可能なライブラリを
 # 作れる設定にしなければならない。darwinなら-bundle、LinuxやBSDなら-shared。
-CXXFLAGS = -O3
+CXXFLAGS = 
+#CXXFLAGS = 
 LDFLAGS = -shared
 
 ################## これより下は弄らなくてもコンパイル出来ます ##################
@@ -49,7 +50,7 @@ LIBAYA5_OBJ = \
 	parser0.o \
 	parser1.o \
 	selecter.o \
-	sysfunc_utf8.o \
+	sysfunc.o \
 	value.o \
 	valuesub.o \
 	wsex.o \
@@ -74,7 +75,9 @@ $(LIBAYA5): $(LIBAYA5_OBJ)
 	$(STRIP) -x $@
 
 .cpp.o:
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $<
+	@iconv -f WINDOWS-31J $< -o $*.tmp.cpp
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $*.tmp.cpp
+	@rm $*.tmp.cpp
 
 -include .depend
 
