@@ -24,7 +24,7 @@ LIBBOOST_REGEX_A = /usr/lib/libboost_regex.a
 # 追加するフラグ。
 # CXXFLAGSは必要無ければ空でも良いが、LDFLAGSはdlopen可能なライブラリを
 # 作れる設定にしなければならない。darwinなら-bundle、LinuxやBSDなら-shared。
-CXXFLAGS = 
+CXXFLAGS = -O3 -Wall
 #CXXFLAGS = 
 LDFLAGS = -shared
 
