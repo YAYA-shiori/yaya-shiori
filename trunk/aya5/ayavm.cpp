@@ -17,6 +17,28 @@
 #include "sysfunc.h"
 #include "wordmatch.h"
 
+/*-----------------------------------------------
+	初期化
+	ほぼ乱数初期化用
+-----------------------------------------------*/
+CAyaVM::CAyaVM(void)
+{
+	InitMt_r(m_randstate,static_cast<unsigned long>(time(NULL)));
+}
+
+/*-----------------------------------------------
+	乱数生成
+-----------------------------------------------*/
+unsigned int CAyaVM::genrand(void)
+{
+	return NextMt_r(m_randstate);
+}
+
+int CAyaVM::genrand_int(int n)
+{
+	return NextIntEx_r(m_randstate,n);
+}
+
 // ちょっとひどいハックですが……
 
 #define FACTORY_DEFINE_THIS(classt,deft) \

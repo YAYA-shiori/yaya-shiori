@@ -80,7 +80,7 @@ public:
 	CValue	Choice(CAyaVM &vm,int areanum, const std::vector<CVecValue> &values, int mode);
 
 protected:
-	void	InitRoundOrder(int mode);
+	void	InitRoundOrder(CAyaVM &vm,int mode);
 	char	UpdateNums(int areanum, const std::vector<CVecValue> &values);
 	CValue	GetValue(CAyaVM &vm,int areanum, const std::vector<CVecValue> &values);
 };

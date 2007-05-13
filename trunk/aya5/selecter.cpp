@@ -12,7 +12,7 @@
 
 #include "selecter.h"
 
-#include "mt19937ar.h"
+#include "zsfmt.h"
 #include "globaldef.h"
 #include "sysfunc.h"
 #include "ayavm.h"
@@ -142,7 +142,7 @@ CValue	CSelecter::ChoiceRandom1(int index)
 		return CValue();
 	}
 
-    int choice = yaya::genrand_int(static_cast<int>(values[index].array.size()));
+    int choice = vm.genrand_int(static_cast<int>(values[index].array.size()));
 
     vm.sysfunction().SetLso(choice);
 

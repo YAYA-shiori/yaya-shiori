@@ -45,7 +45,7 @@ LIBAYA5_OBJ = \
 	localvariable.o \
 	log.o \
 	logexcode.o \
-	mt19937ar.o \
+	zsfmt.o \
 	misc.o \
 	parser0.o \
 	parser1.o \
