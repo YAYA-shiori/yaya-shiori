@@ -13,6 +13,7 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include "log.h"
+#include "zsfmt.h"
 
 class CWordMatch;
 class CBasis;
@@ -46,7 +47,13 @@ private:
 
 	CLog	m_logger;
 
+	state_t m_randstate;
+
 public:
+	CAyaVM(void);
+	unsigned int genrand(void);
+	int genrand_int(int n);
+
 	// 演算子・関数の検索マップ
 	CWordMatch&				formulatag_wm();
 	CWordMatch&				function_wm();

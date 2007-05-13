@@ -42,7 +42,7 @@
 #include "log.h"
 #include "messages.h"
 #include "misc.h"
-#include "mt19937ar.h"
+#include "zsfmt.h"
 #include "parser0.h"
 #if defined(POSIX)
 #include "posix_utils.h"
@@ -937,7 +937,7 @@ CValue	CSystemFunction::CHARSETLIBEX(const CValue &arg, yaya::string_t &d, int &
 CValue	CSystemFunction::RAND(const CValue &arg, yaya::string_t &d, int &l)
 {
 	if (!arg.array_size())
-	        return yaya::genrand_int(100);
+	        return vm.genrand_int(100);
 
 	if (!arg.array()[0].IsNum()) {
 		vm.logger().Error(E_W, 9, L"RAND", d, l);
@@ -952,7 +952,7 @@ CValue	CSystemFunction::RAND(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 
-	return yaya::genrand_int(num);
+	return vm.genrand_int(num);
 }
 
 /* -----------------------------------------------------------------------
@@ -3581,13 +3581,13 @@ CValue	CSystemFunction::ANY(const CValue &arg, const std::vector<CCell *> &pcell
 			return CValue();
 		}
 
-		int s_pos = yaya::genrand_int(a_sz);
+		int s_pos = vm.genrand_int(a_sz);
 		SetLso(s_pos);
 		return CValue(s_array[s_pos]);
 	}
 
 	// ˆø”‚ª•¡”‚È‚ç”Ä—p”z—ñ‚Æ‚µ‚Äˆ—
-	int s_pos = yaya::genrand_int(sz);
+	int s_pos = vm.genrand_int(sz);
 	SetLso(s_pos);
 	return CValue(arg.array()[s_pos]);
 }

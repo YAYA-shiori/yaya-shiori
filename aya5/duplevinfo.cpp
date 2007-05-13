@@ -16,7 +16,7 @@
 #include "selecter.h"
 
 #include "log.h"
-#include "mt19937ar.h"
+#include "zsfmt.h"
 #include "globaldef.h"
 #include "sysfunc.h"
 #include "ayavm.h"
@@ -30,7 +30,7 @@ CValue	CDuplEvInfo::Choice(CAyaVM &vm,int areanum, const std::vector<CVecValue> 
 {
 	// 領域毎の候補数と総数を更新　変化があった場合は巡回順序を初期化する
 	if (UpdateNums(areanum, values))
-		InitRoundOrder(mode);
+		InitRoundOrder(vm,mode);
 
 	// 値の取得と巡回制御
 	CValue	result = GetValue(vm, areanum, values);
@@ -40,7 +40,7 @@ CValue	CDuplEvInfo::Choice(CAyaVM &vm,int areanum, const std::vector<CVecValue> 
 	// 巡回位置を進める　巡回が完了したら巡回順序を初期化する
 	index++;
 	if (index >= static_cast<int>(roundorder.size()) )
-		InitRoundOrder(mode);
+		InitRoundOrder(vm,mode);
 
 	return result;
 }
@@ -50,7 +50,7 @@ CValue	CDuplEvInfo::Choice(CAyaVM &vm,int areanum, const std::vector<CVecValue> 
  *  機能概要：  巡回順序を初期化します
  * -----------------------------------------------------------------------
  */
-void	CDuplEvInfo::InitRoundOrder(int mode)
+void	CDuplEvInfo::InitRoundOrder(CAyaVM &vm,int mode)
 {
 	// 初期化
 	index = 0;
@@ -68,12 +68,16 @@ void	CDuplEvInfo::InitRoundOrder(int mode)
 		roundorder.push_back(0);
 	}
 
-	static std::pointer_to_unary_function<int, int> func =
-		std::ptr_fun(yaya::genrand_int);
-
     if (mode == CHOICETYPE_NONOVERLAP) {
-		std::random_shuffle(roundorder.begin(), roundorder.end(),
-			func);
+		int n = roundorder.size();
+		for ( int i = 0 ; i < n ; ++i ) {
+			int s = vm.genrand_int(n);
+			if ( i != s ) {
+				int tmp = roundorder[i];
+				roundorder[i] = roundorder[s];
+				roundorder[s] = tmp;
+			}
+		}
 	}
 }
 

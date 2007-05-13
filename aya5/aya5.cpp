@@ -15,7 +15,7 @@
 #include "basis.h"
 #include "ayavm.h"
 #include "ccct.h"
-#include "mt19937ar.h"
+#include "zsfmt.h"
 
 static CAyaVM  vm;
 
@@ -23,18 +23,11 @@ static CAyaVM  vm;
  *  DllMain
  * -----------------------------------------------------------------------
  */
-void   fundamental_init(void)
-{
-       init_genrand(static_cast<unsigned long>(time(NULL)));
-//     srand((unsigned)time(NULL));
-}
-
 #if defined(WIN32)
 extern "C" BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID /*lpReserved*/)
 {
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
 		vm.basis().SetModuleHandle(hModule);
-        fundamental_init();
 	}
 
 	return TRUE;
@@ -47,7 +40,6 @@ extern "C" BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVO
  */
 extern "C" DLLEXPORT RETERNTYPE FUNCATTRIB load(yaya::global_t h, long len)
 {
-	init_genrand(static_cast<unsigned long>(time(NULL)));
 #if defined(WIN32) || defined(_WIN32_WCE)
 	Ccct::sys_setlocale(LC_ALL);
 #endif
