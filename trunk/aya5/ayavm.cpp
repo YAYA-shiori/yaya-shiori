@@ -36,7 +36,7 @@ unsigned int CAyaVM::genrand(void)
 
 int CAyaVM::genrand_int(int n)
 {
-	return NextIntEx_r(m_randstate,n);
+	return NextMt_r(m_randstate) % n;
 }
 
 // ちょっとひどいハックですが……

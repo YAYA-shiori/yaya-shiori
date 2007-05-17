@@ -1,4 +1,4 @@
-// Microsoft Visual C++ generated resource script.
+//Microsoft Developer Studio generated resource script.
 //
 #include "resource.h"
 
@@ -21,13 +21,14 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 #pragma code_page(932)
 #endif //_WIN32
 
+#ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,24,0,1
+ FILEVERSION 5,24,0,2
  PRODUCTVERSION 5,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -43,14 +44,18 @@ BEGIN
     BEGIN
         BLOCK "041104b0"
         BEGIN
-            VALUE "Comments", "YAYA"
-            VALUE "CompanyName", "umeici / S Software / fifthmoon / SSP BUGTRAQ / ukiya"
-            VALUE "FileDescription", "yaya"
-            VALUE "FileVersion", "5, 24, 0, 1"
-            VALUE "InternalName", "Yet Another AYA5"
-            VALUE "OriginalFilename", "yaya.dll"
-            VALUE "ProductName", "Yet Another AYA5"
-            VALUE "ProductVersion", "5, 0, 0, 0"
+            VALUE "Comments", "YAYA\0"
+            VALUE "CompanyName", "umeici / S Software / fifthmoon / SSP BUGTRAQ / ukiya\0"
+            VALUE "FileDescription", "yaya\0"
+            VALUE "FileVersion", "5, 24, 0, 2\0"
+            VALUE "InternalName", "Yet Another AYA5\0"
+            VALUE "LegalCopyright", "\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "yaya.dll\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "Yet Another AYA5\0"
+            VALUE "ProductVersion", "5, 0, 0, 0\0"
+            VALUE "SpecialBuild", "\0"
         END
     END
     BLOCK "VarFileInfo"
@@ -59,6 +64,8 @@ BEGIN
     END
 END
 
+#endif    // !_MAC
+
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -66,18 +73,18 @@ END
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE MOVEABLE PURE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE MOVEABLE PURE 
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE MOVEABLE PURE 
 BEGIN
     "\r\n"
     "\0"
