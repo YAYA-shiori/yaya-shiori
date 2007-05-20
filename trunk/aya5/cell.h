@@ -29,17 +29,10 @@ public:
 	std::vector<int> index;				// 演算対象のCCell位置番号のリスト
 									// 演算子がF_TAG_FUNCPARAM/F_TAG_SYSFUNCPARAMの場合は、index[0]が関数を示します
 public:
-#if __GNUC__ >= 4
 	CSerial(int t) { tindex = t; }
 
 	CSerial(void) {}
 	~CSerial(void) {}
-#else
-	CSerial::CSerial(int t) { tindex = t; }
-
-	CSerial::CSerial(void) {}
-	CSerial::~CSerial(void) {}
-#endif
 };
 
 //----

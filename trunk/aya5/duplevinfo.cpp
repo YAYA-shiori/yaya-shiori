@@ -16,7 +16,6 @@
 #include "selecter.h"
 
 #include "log.h"
-#include "zsfmt.h"
 #include "globaldef.h"
 #include "sysfunc.h"
 #include "ayavm.h"

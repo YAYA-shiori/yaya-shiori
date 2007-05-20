@@ -23,7 +23,7 @@
 -----------------------------------------------*/
 CAyaVM::CAyaVM(void)
 {
-	InitMt_r(m_randstate,static_cast<unsigned long>(time(NULL)));
+	init_genrand(static_cast<unsigned long>(time(NULL)));
 }
 
 /*-----------------------------------------------
@@ -31,12 +31,12 @@ CAyaVM::CAyaVM(void)
 -----------------------------------------------*/
 unsigned int CAyaVM::genrand(void)
 {
-	return NextMt_r(m_randstate);
+	return genrand_int32();
 }
 
 int CAyaVM::genrand_int(int n)
 {
-	return NextMt_r(m_randstate) % n;
+	return genrand_int32() % n;
 }
 
 // ちょっとひどいハックですが……
