@@ -3116,7 +3116,6 @@ CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int 
 {
 	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
 	const yaya::string_t &arg1 = arg.array()[1].GetValueString();
-	const yaya::string_t &arg2 = arg.array()[2].GetValueString();
 
 	if (!arg0.size() || !arg1.size())
 		return CValue(arg0);
@@ -3140,7 +3139,7 @@ CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int 
 			AppendReResultDetail(result.str(0), result.position(0) + t_pos, result.length(0));
 			
 			if ( replace_array ) {
-				replace_array->push_back(result.format(arg2,boost::format_perl));
+				replace_array->push_back(result.format(arg.array()[2].GetValueString(),boost::format_perl));
 			}
 
 			search_point = str + (t_pos += (result.position(0) + result.length(0)));
