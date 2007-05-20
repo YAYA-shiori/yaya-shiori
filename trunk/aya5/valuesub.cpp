@@ -15,6 +15,15 @@
 #include "value.h"
 #include "wsex.h"
 
+//////////DEBUG/////////////////////////
+#ifdef _WINDOWS
+#ifdef _DEBUG
+#include <crtdbg.h>
+#define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
+#endif
+////////////////////////////////////////
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CValueSub::GetValueInt
  *  機能概要：  値をintで取得します
@@ -66,14 +75,10 @@ yaya::string_t	CValueSub::GetValueString(void) const
 {
 	switch(type) {
 	case F_TAG_INT: {
-			yaya::string_t	result;
-			ws_itoa(result, i_value, 10);
-			return result;
+			return ws_itoa(i_value);
 		}
 	case F_TAG_DOUBLE: {
-			yaya::string_t	result;
-			ws_ftoa(result, d_value);
-			return result;
+			return ws_ftoa(d_value);
 		}
 	case F_TAG_STRING:
 		return s_value;

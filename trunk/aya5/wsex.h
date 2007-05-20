@@ -21,10 +21,12 @@
 #define	WS_MAXLEN	1024
 #define	WS_EOF		-1
 
-int		ws_atoi(const yaya::string_t &str, int base);
+int		ws_atoi(const yaya::string_t &str, int base = 10);
 double	ws_atof(const yaya::string_t &str);
-void	ws_itoa(yaya::string_t &str, int num, int base);
-void	ws_ftoa(yaya::string_t &str, double num);
+
+yaya::string_t	ws_itoa(int num, int base = 10);
+yaya::string_t	ws_ftoa(double num);
+
 void	ws_eraseend(yaya::string_t &str, wchar_t c);
 void	ws_replace(yaya::string_t &str, const wchar_t *before, const wchar_t *after);
 
@@ -35,6 +37,10 @@ int		ws_fputs(const yaya::char_t *str, FILE *stream, int charset, int ayc);
 inline int ws_fputs(const yaya::string_t &str, FILE *stream, int charset, int ayc) {
 	return ws_fputs(str.c_str(),stream,charset,ayc);
 }
+
+namespace yaya {
+	int snprintf(yaya::char_t *buf,size_t count,const yaya::char_t *format,...);
+};
 
 //----
 

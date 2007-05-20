@@ -25,6 +25,15 @@
 #include "function.h"
 #include "sysfunc.h"
 
+//////////DEBUG/////////////////////////
+#ifdef _WINDOWS
+#ifdef _DEBUG
+#include <crtdbg.h>
+#define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
+#endif
+////////////////////////////////////////
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  Split
  *  機能概要：  文字列を分割して余分な空白を削除します

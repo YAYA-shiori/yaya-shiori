@@ -51,6 +51,15 @@
 #include "variable.h"
 #include "wsex.h"
 
+//////////DEBUG/////////////////////////
+#ifdef _WINDOWS
+#ifdef _DEBUG
+#include <crtdbg.h>
+#define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
+#endif
+////////////////////////////////////////
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::Execute
  *  機能概要：  システム関数を実行します
@@ -1513,10 +1522,7 @@ CValue	CSystemFunction::TOBINSTR(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	yaya::string_t	result;
-	ws_itoa(result, arg.array()[0].GetValueInt(), 2);
-
-	return CValue(result);
+	return CValue(ws_itoa(arg.array()[0].GetValueInt(), 2));
 }
 
 /* -----------------------------------------------------------------------
@@ -1536,10 +1542,7 @@ CValue	CSystemFunction::TOHEXSTR(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	yaya::string_t	result;
-	ws_itoa(result, arg.array()[0].GetValueInt(), 16);
-
-	return CValue(result);
+	return CValue(ws_itoa(arg.array()[0].GetValueInt(), 16));
 }
 
 /* -----------------------------------------------------------------------
@@ -3515,26 +3518,26 @@ CValue	CSystemFunction::STRFORM(const CValue &arg, yaya::string_t &d, int &l)
 	// 各要素ごとに_snwprintfで書式化して結合していく
 	yaya::string_t	left, right;
 	yaya::string_t	result = vargs[0];
-	yaya::string_t	t_str;
+	yaya::char_t	t_str[128];
 	for(int i = 1; i < vargs_sz; i++) {
 		yaya::string_t	format = L"%" + vargs[i];
 		if (i < sz) {
 			switch(arg.array()[i].GetType()) {
 			case F_TAG_INT:
-                t_str = boost::str(boost::wformat(format) % arg.array()[i].i_value);
+				yaya::snprintf(t_str,128,format.c_str(),arg.array()[i].i_value);
 				break;
 			case F_TAG_DOUBLE:
-                t_str = boost::str(boost::wformat(format) % arg.array()[i].d_value);
+				yaya::snprintf(t_str,128,format.c_str(),arg.array()[i].d_value);
 				break;
 			case F_TAG_STRING:
-                t_str = boost::str(boost::wformat(format) % arg.array()[i].s_value);
+				yaya::snprintf(t_str,128,format.c_str(),arg.array()[i].s_value.c_str());
 				break;
 			case F_TAG_VOID:
-				t_str = L"";
+				t_str[0] = 0;
 				break;
 			default:
 				vm.logger().Error(E_E, 91, d, l);
-				return CValue();
+				break;
 			};
 			result += t_str;
 		}
@@ -3701,11 +3704,7 @@ CValue	CSystemFunction::GETSTRURLENCODE(const CValue &arg, yaya::string_t &d, in
 			result.append(1,L'+');
 		}
 		else {
-#ifdef _MSC_VER
-			swprintf(chr+1,L"%02X",current);
-#else
-			swprintf(chr+1,sizeof(wchar_t)*2+1,L"%02X",current);
-#endif
+			yaya::snprintf(chr+1,4,L"%02X",current);
 			result.append(chr);
 		}
 		++ptr;

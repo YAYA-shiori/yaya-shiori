@@ -22,6 +22,15 @@
 #include "globaldef.h"
 #include "sysfunc.h"
 
+//////////DEBUG/////////////////////////
+#ifdef _WINDOWS
+#ifdef _DEBUG
+#include <crtdbg.h>
+#define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
+#endif
+////////////////////////////////////////
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CFunction::CompleteSetting
  *  機能概要：  関数の構築が完了した（≒辞書の読み込みが完了した）際に呼ばれます

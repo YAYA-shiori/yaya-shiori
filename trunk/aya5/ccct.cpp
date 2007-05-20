@@ -24,6 +24,16 @@
 #define PRIMARYLANGID(lgid)    ((WORD)(lgid) & 0x3ff)
 */
 
+//////////DEBUG/////////////////////////
+#ifdef _WINDOWS
+#ifdef _DEBUG
+#include <crtdbg.h>
+#define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
+#endif
+////////////////////////////////////////
+
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  Ccct::CheckCharset
  *  機能概要：  Charset IDのチェック

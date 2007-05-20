@@ -17,12 +17,29 @@
 #include "sysfunc.h"
 #include "wordmatch.h"
 
+//////////DEBUG/////////////////////////
+#ifdef _WINDOWS
+#ifdef _DEBUG
+#include <crtdbg.h>
+#define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
+#endif
+////////////////////////////////////////
+
+
 /*-----------------------------------------------
 	èâä˙âª
 	ÇŸÇ⁄óêêîèâä˙âªóp
 -----------------------------------------------*/
 CAyaVM::CAyaVM(void)
 {
+#ifdef _DEBUG
+	int tmpFlag = _CrtSetDbgFlag( _CRTDBG_REPORT_FLAG );
+	tmpFlag |= _CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF;
+	tmpFlag &= ~_CRTDBG_CHECK_CRT_DF;
+	_CrtSetDbgFlag( tmpFlag );
+#endif
+
 	init_genrand(static_cast<unsigned long>(time(NULL)));
 }
 

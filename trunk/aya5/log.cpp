@@ -23,6 +23,15 @@
 #include "timer.h"
 #include "wsex.h"
 
+//////////DEBUG/////////////////////////
+#ifdef _WINDOWS
+#ifdef _DEBUG
+#include <crtdbg.h>
+#define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
+#endif
+////////////////////////////////////////
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CLog::Start
  *  機能概要：  ロギングを開始します
@@ -216,9 +225,7 @@ void	CLog::Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t
 		if (linecount == -1)
 			logstr += L"-) : ";
 		else {
-			yaya::string_t	lcstr;
-			ws_itoa(lcstr, linecount, 10);
-			logstr += lcstr;
+			logstr += ws_itoa(linecount);
 			logstr += L") : ";
 		}
 	}
@@ -312,7 +319,7 @@ void	CLog::Io(char io, const yaya::char_t *str)
 	}
 	else {
 		int elapsed_time = timer.elapsed();
-		yaya::string_t t_str = L"// response (Execution time : " + boost::lexical_cast<yaya::string_t>(elapsed_time) + L"[ms])\n";
+		yaya::string_t t_str = L"// response (Execution time : " + ws_itoa(elapsed_time) + L"[ms])\n";
 
 		Write(t_str);
 		Write(str);
@@ -347,7 +354,7 @@ void	CLog::IoLib(char io, const yaya::string_t &str, const yaya::string_t &name)
 	}
 	else {
 		int elapsed_time = timer.elapsed();
-		yaya::string_t t_str = L"// response (Execution time : " + boost::lexical_cast<yaya::string_t>(elapsed_time) + L"[ms])\n";
+		yaya::string_t t_str = L"// response (Execution time : " + ws_itoa(elapsed_time) + L"[ms])\n";
 
 		Write(t_str);
 		Write(str + L"\n");

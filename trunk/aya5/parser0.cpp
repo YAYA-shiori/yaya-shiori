@@ -34,6 +34,15 @@
 #include "wordmatch.h"
 #include "wsex.h"
 
+//////////DEBUG/////////////////////////
+#ifdef _WINDOWS
+#ifdef _DEBUG
+#include <crtdbg.h>
+#define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
+#endif
+////////////////////////////////////////
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CParser0::Parse
  *  機能概要：  指定された辞書ファイル群を読み取り、実行可能な関数群を作成します
@@ -596,9 +605,7 @@ char	CParser0::StoreInternalStatement(int targetfunc, yaya::string_t &str, int& 
 	// case　特殊な名前のローカル変数への代入に書き換えてしまう
 	else if (!st.compare(L"case")) {
 		str = PREFIX_CASE_VAR + vm.function()[targetfunc].name;
-		yaya::string_t	tmpstr;
-		ws_itoa(tmpstr, linecount, 10);
-		str += tmpstr;
+		str += ws_itoa(linecount);
 		str += L"=";
 		str += par;
 		return MakeStatement(ST_FORMULA, targetfunc, str, dicfilename, linecount);
@@ -1522,18 +1529,19 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 			// 埋め込み要素を取り出し、"結果の再利用処理を行う関数"として追加
 			resstr += sysfunc[SYSFUNC_HIS];
 			resstr += L"(";
-			yaya::string_t	embedstr;
-			ws_itoa(embedstr, nindex, 10);
-			resstr += embedstr;
+			
+			resstr += ws_itoa(nindex, 10);
 			resstr += L"-(";
-			embedstr.assign(str, 2, spos - 3);
-			resstr += embedstr;
+
+			resstr.append(str, 2, spos - 3);
 			resstr += L"))";
+
 			str.erase(0, spos);
 			// 次の"%"を探してみる
 			p_pers = str.find(L'%', 0);
 			// 見つからなければこれが最後の文字列定数項
 			if (p_pers == -1) {
+				yaya::string_t embedstr;
 				embedstr = str;
 				if (embedstr.size()) {
 					AddDoubleQuote(embedstr);

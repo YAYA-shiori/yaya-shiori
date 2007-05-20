@@ -42,6 +42,16 @@
 #include "wsex.h"
 #include "ayavm.h"
 
+//////////DEBUG/////////////////////////
+#ifdef _WINDOWS
+#ifdef _DEBUG
+#include <crtdbg.h>
+#define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
+#endif
+////////////////////////////////////////
+
+
 /* -----------------------------------------------------------------------
  * CBasisコンストラクタ
  * -----------------------------------------------------------------------
@@ -454,8 +464,7 @@ yaya::string_t CBasis::GetParameter(const yaya::string_t &cmd)
 	// fncdepth
 	else if (!cmd.compare(L"fncdepth")) {
 		yaya::string_t str;
-		ws_itoa(str,vm.calldepth().GetMaxDepth(),10);
-		return str;
+		return ws_itoa(vm.calldepth().GetMaxDepth(),10);
 	}
 	return L"";
 }
@@ -577,14 +586,12 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 
 		// 値の保存
 		switch(var->value_const().GetType()) {
-		case F_TAG_INT:
-			ws_itoa(wstr, var->value_const().i_value, 10);
-			str += wstr;
+		case F_TAG_INT:	
+			str += ws_itoa(var->value_const().i_value);
 			str += L",";
 			break;
 		case F_TAG_DOUBLE:
-			ws_ftoa(wstr, var->value_const().d_value);
-			str += wstr;
+			str += ws_ftoa(var->value_const().d_value);
 			str += L",";
 			break;
 		case F_TAG_STRING:

@@ -19,6 +19,15 @@
 #include "messages.h"
 #include "globaldef.h"
 
+//////////DEBUG/////////////////////////
+#ifdef _WINDOWS
+#ifdef _DEBUG
+#include <crtdbg.h>
+#define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
+#endif
+////////////////////////////////////////
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CParser1::CheckExecutionCode
  *  機能概要：  構文解析（と中間コード生成）の最終処理と、正当性の検査を行います

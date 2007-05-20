@@ -26,6 +26,15 @@
 #include "misc.h"
 #include "wsex.h"
 
+//////////DEBUG/////////////////////////
+#ifdef _WINDOWS
+#ifdef _DEBUG
+#include <crtdbg.h>
+#define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
+#endif
+////////////////////////////////////////
+
 /* -----------------------------------------------------------------------
 *  関数名  ：  ws_atoi
 *  機能概要：  yaya::string_tをintへ変換
@@ -59,29 +68,51 @@ double	ws_atof(const yaya::string_t &str)
 *  機能概要：  intをyaya::string_tへ変換
 * -----------------------------------------------------------------------
 */
-#if defined(WIN32) || defined(_WIN32_WCE)
-void	ws_itoa(yaya::string_t &str, int num, int base)
+
+static void int2bin(yaya::char_t *str, int num, int &off)
 {
-	wchar_t	tmpstr[WS_MAXLEN];
-	_itow(num, tmpstr, base);
-	str = tmpstr;
+    int k;
+
+    if ((k = num >> 1) != 0) int2bin(str, k, off);
+    *(str + off) = (num & 1) + '0';
+    off++;
 }
-#else
-void ws_itoa(yaya::string_t &str, int num, int base) {
-	std::ostringstream s;
-    s << std::setbase(base) << num;
-    str = widen(s.str());
+
+yaya::string_t ws_itoa(int num, int base)
+{
+	yaya::char_t numtxt[128];
+	if ( base == 16 ) {
+		yaya::snprintf(numtxt,64,L"%x",num);
+	}
+	else if ( base == 8 ) {
+		yaya::snprintf(numtxt,64,L"%i",num);
+	}
+	else if ( base == 2 ) {
+		int i = 0;
+		if (num < 0) {
+			num = -num;
+			numtxt[i] = '-';
+			++i;
+		}
+		int2bin(numtxt+i, num, i);
+		numtxt[i] = '\0';
+	}
+	else {
+		yaya::snprintf(numtxt,64,L"%d",num);
+	}
+	return numtxt;
 }
-#endif
 
 /* -----------------------------------------------------------------------
 *  関数名  ：  ws_ftoa
 *  機能概要：  doubleをyaya::string_tへ変換
 * -----------------------------------------------------------------------
 */
-void	ws_ftoa(yaya::string_t &str, double num)
+yaya::string_t	ws_ftoa(double num)
 {
-	str = boost::lexical_cast<yaya::string_t>(num);
+	yaya::char_t numtxt[128];
+	yaya::snprintf(numtxt,64,L"%f",num);
+	return numtxt;
 }
 
 /* -----------------------------------------------------------------------
@@ -89,7 +120,7 @@ void	ws_ftoa(yaya::string_t &str, double num)
 *  機能概要：  yaya::string_tの終端からcを削る
 * -----------------------------------------------------------------------
 */
-void	ws_eraseend(yaya::string_t &str, wchar_t c)
+void	ws_eraseend(yaya::string_t &str,wchar_t c)
 {
 	if (!str.size())
 		return;
@@ -279,3 +310,29 @@ int ws_fputs(const yaya::char_t *str, FILE *stream, int charset, int ayc)
 	return len;
 }
 
+/* -----------------------------------------------------------------------
+*  関数名  ：  snprintf
+*  機能概要：  snprintf互換処理
+* -----------------------------------------------------------------------
+*/
+int yaya::snprintf(yaya::char_t *buf,size_t count,const yaya::char_t *format,...)
+{
+	va_list list;
+	va_start( list, format );
+
+	int result;
+
+#ifdef _MSC_VER
+#if _MSC_VER <= 1300
+	//標準非互換
+	result = _vsnwprintf(buf,count,format,list);
+#else
+	result = vswprintf(buf,count*2,format,list);
+#endif
+#else
+	result = vswprintf(buf,count*2,format,list);
+#endif
+
+	va_end( list );
+	return result;
+}
