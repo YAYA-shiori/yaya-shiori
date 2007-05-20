@@ -1,7 +1,0 @@
-#summary INDEX
-#labels Featured
-
-= 情報 =
-
-こちらを参照してください。
-http://emily.shillest.net/ayaya/
