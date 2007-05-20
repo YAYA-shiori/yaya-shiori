@@ -11,7 +11,7 @@ upx --best tmp\yaya\yaya.dll
 
 del /F /S /Q tmp\yaya.zip
 
-chdir ..\yaya\
+chdir tmp\yaya\
 zip -r -9 -q ..\yaya.zip *
 chdir ..\..
 
