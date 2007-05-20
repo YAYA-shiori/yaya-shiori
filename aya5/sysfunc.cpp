@@ -42,7 +42,6 @@
 #include "log.h"
 #include "messages.h"
 #include "misc.h"
-#include "zsfmt.h"
 #include "parser0.h"
 #if defined(POSIX)
 #include "posix_utils.h"

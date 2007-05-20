@@ -13,7 +13,7 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include "log.h"
-#include "zsfmt.h"
+#include "mt19937ar.h"
 
 class CWordMatch;
 class CBasis;
@@ -46,8 +46,6 @@ private:
 	boost::shared_ptr<CParser1>					m_parser1;
 
 	CLog	m_logger;
-
-	state_t m_randstate;
 
 public:
 	CAyaVM(void);

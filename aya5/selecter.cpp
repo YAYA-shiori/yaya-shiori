@@ -12,7 +12,6 @@
 
 #include "selecter.h"
 
-#include "zsfmt.h"
 #include "globaldef.h"
 #include "sysfunc.h"
 #include "ayavm.h"

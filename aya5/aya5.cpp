@@ -15,7 +15,6 @@
 #include "basis.h"
 #include "ayavm.h"
 #include "ccct.h"
-#include "zsfmt.h"
 
 static CAyaVM  vm;
 

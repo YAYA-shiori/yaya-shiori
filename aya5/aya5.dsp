@@ -166,6 +166,10 @@ SOURCE=.\misc.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\mt19937ar.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\parser0.cpp
 # End Source File
 # Begin Source File
@@ -200,10 +204,6 @@ SOURCE=.\wordmatch.cpp
 # Begin Source File
 
 SOURCE=.\wsex.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\zsfmt.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -271,6 +271,10 @@ SOURCE=.\misc.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\mt19937ar.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\parser0.h
 # End Source File
 # Begin Source File
@@ -304,10 +308,6 @@ SOURCE=.\wordmatch.h
 # Begin Source File
 
 SOURCE=.\wsex.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\zsfmt.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
