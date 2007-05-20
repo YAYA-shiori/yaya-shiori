@@ -31,6 +31,16 @@
 #endif
 #include "globaldef.h"
 
+//////////DEBUG/////////////////////////
+#ifdef _WINDOWS
+#ifdef _DEBUG
+#include <crtdbg.h>
+#define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
+#endif
+////////////////////////////////////////
+
+
 #if defined(POSIX)
 static std::string str_getenv(const std::string& name) {
     char* var = getenv(name.c_str());

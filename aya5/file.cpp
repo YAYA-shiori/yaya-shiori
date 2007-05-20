@@ -18,6 +18,15 @@
 #include "misc.h"
 #include "globaldef.h"
 
+//////////DEBUG/////////////////////////
+#ifdef _WINDOWS
+#ifdef _DEBUG
+#include <crtdbg.h>
+#define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
+#endif
+////////////////////////////////////////
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CFile::Add
  *  機能概要：  指定されたファイルをオープンします

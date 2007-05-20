@@ -17,6 +17,15 @@
 #include "value.h"
 #include "wsex.h"
 
+//////////DEBUG/////////////////////////
+#ifdef _WINDOWS
+#ifdef _DEBUG
+#include <crtdbg.h>
+#define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
+#endif
+////////////////////////////////////////
+
 #define	__GETMAX(a, b)	( ((a) > (b)) ? (a) : (b) )
 #define	__GETMIN(a, b)	( ((a) < (b)) ? (a) : (b) )
 
@@ -77,14 +86,10 @@ yaya::string_t	CValue::GetValueString(void) const
 {
 	switch(type) {
 	case F_TAG_INT: {
-			yaya::string_t	result;
-			ws_itoa(result, i_value, 10);
-			return result;
+			return ws_itoa(i_value, 10);
 		}
 	case F_TAG_DOUBLE: {
-			yaya::string_t	result;
-			ws_ftoa(result, d_value);
-			return result;
+			return ws_ftoa(d_value);
 		}
 	case F_TAG_STRING:
 		return s_value;
@@ -115,14 +120,10 @@ yaya::string_t	CValue::GetValueStringForLogging(void) const
 {
 	switch(type) {
 	case F_TAG_INT: {
-			yaya::string_t	result;
-			ws_itoa(result, i_value, 10);
-			return result;
+			return ws_itoa(i_value);
 		}
 	case F_TAG_DOUBLE: {
-			yaya::string_t	result;
-			ws_ftoa(result, d_value);
-			return result;
+			return ws_ftoa(d_value);
 		}
 	case F_TAG_STRING: {
 			yaya::string_t	result = s_value;

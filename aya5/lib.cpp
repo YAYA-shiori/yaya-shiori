@@ -21,6 +21,15 @@
 #include "log.h"
 #include "globaldef.h"
 
+//////////DEBUG/////////////////////////
+#ifdef _WINDOWS
+#ifdef _DEBUG
+#include <crtdbg.h>
+#define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
+#endif
+////////////////////////////////////////
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CLib::Add
  *  機能概要：  指定されたファイル名のDLLをロードし、loadを実行します
