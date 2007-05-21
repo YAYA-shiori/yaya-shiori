@@ -45,7 +45,6 @@ LIBAYA5_OBJ = \
 	localvariable.o \
 	log.o \
 	logexcode.o \
-	zsfmt.o \
 	misc.o \
 	parser0.o \
 	parser1.o \
@@ -82,3 +81,4 @@ $(LIBAYA5): $(LIBAYA5_OBJ)
 -include .depend
 
 .PHONY: all clean depend
+
