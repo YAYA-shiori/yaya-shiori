@@ -14,7 +14,7 @@
 # include <sstream>
 #endif
 #include <string>
-
+#include <stdarg.h>
 #include <boost/lexical_cast.hpp>
 
 #include "ccct.h"
@@ -333,6 +333,6 @@ int yaya::snprintf(yaya::char_t *buf,size_t count,const yaya::char_t *format,...
 	result = vswprintf(buf,count*2,format,list);
 #endif
 
-	va_end( list );
+	va_end (list);
 	return result;
 }
