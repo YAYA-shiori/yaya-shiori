@@ -68,39 +68,38 @@ double	ws_atof(const yaya::string_t &str)
 *  機能概要：  intをyaya::string_tへ変換
 * -----------------------------------------------------------------------
 */
-
-static void int2bin(yaya::char_t *str, int num, int &off)
+yaya::string_t ws_itoa(int num, int rdx)
 {
-    int k;
+	int idx;
 
-    if ((k = num >> 1) != 0) int2bin(str, k, off);
-    *(str + off) = (num & 1) + '0';
-    off++;
-}
-
-yaya::string_t ws_itoa(int num, int base)
-{
-	yaya::char_t numtxt[128];
-	if ( base == 16 ) {
-		yaya::snprintf(numtxt,64,L"%x",num);
+	yaya::char_t buf[18] = L"                 ";
+	int offset = (sizeof(buf) / sizeof(buf[0])) - 1;
+	
+	const yaya::char_t convchars[] = L"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	
+	if ( rdx < 2 ) { rdx = 2; }
+	if ( rdx > 36 ) { rdx = 36; }
+	
+	bool minus = false;
+	if ( num < 0 ) {
+		minus = true;
+		num = -num;
 	}
-	else if ( base == 8 ) {
-		yaya::snprintf(numtxt,64,L"%i",num);
+	
+	while ( num ) {
+		idx = num % rdx;
+		buf[offset] = convchars[idx];
+		num -= idx;
+		num /= rdx;
+		--offset;
 	}
-	else if ( base == 2 ) {
-		int i = 0;
-		if (num < 0) {
-			num = -num;
-			numtxt[i] = '-';
-			++i;
-		}
-		int2bin(numtxt+i, num, i);
-		numtxt[i] = '\0';
+	
+	if ( minus ) {
+		buf[offset] = '-';
+		--offset;
 	}
-	else {
-		yaya::snprintf(numtxt,64,L"%d",num);
-	}
-	return numtxt;
+	
+	return (buf + offset + 1);
 }
 
 /* -----------------------------------------------------------------------
