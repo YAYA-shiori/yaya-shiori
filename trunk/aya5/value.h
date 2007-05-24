@@ -30,8 +30,8 @@ protected:
 	int	type;						// 型
 public:
 	yaya::string_t	s_value;				// 文字列値
-	int		i_value;				// 整数値
 	double	d_value;				// 実数値
+	int		i_value;				// 整数値
 
 private:
 	int CalcEscalationTypeNum(const int rhs) const;
@@ -42,7 +42,7 @@ public:
 		type(F_TAG_VOID) , s_value(L""), d_value(0.0), i_value(0) { }
 
 	CValueSub(int value) :
-		type(F_TAG_INT) , i_value(value), d_value(0.0) { }
+		type(F_TAG_INT) , d_value(0.0) , i_value(value) { }
 
 	CValueSub(double value) :
 		type(F_TAG_DOUBLE) , d_value(value), i_value(0) { }
@@ -100,8 +100,8 @@ protected:
 	int	type;						// 型
 public:
 	yaya::string_t	s_value;				// 文字列値
-	int		i_value;				// 整数値
 	double	d_value;				// 実数値
+	int		i_value;				// 整数値
 
 private:
 	mutable boost::shared_ptr<std::vector<CValueSub> > m_array;		// 汎用配列
@@ -151,7 +151,7 @@ public:
 	}
 
 	CValue(int value) :
-		type(F_TAG_INT) , i_value(value), d_value(0.0) { }
+		type(F_TAG_INT) , d_value(0.0) , i_value(value) { }
 
 	CValue(double value) :
 		type(F_TAG_DOUBLE) , d_value(value), i_value(0) { }
