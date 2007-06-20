@@ -143,7 +143,7 @@
 				Name="VCCLCompilerTool"
 				EnableIntrinsicFunctions="true"
 				EnableFiberSafeOptimizations="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;AYA5_EXPORTS;WINVER=0x400;_WIN32_IE=0;_WIN32_WINNT=0x400"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;AYA5_EXPORTS;_CRT_SECURE_NO_WARNINGS;WINVER=0x400;_WIN32_IE=0;_WIN32_WINNT=0x400"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
@@ -723,6 +723,70 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<Filter
+				Name="TinyXPath_SRC"
+				>
+				<File
+					RelativePath=".\tinyxpath\action_store.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\lex_util.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\node_set.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\tinystr.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\tinyxml.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\tinyxmlerror.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\tinyxmlparser.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\tokenlist.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\xml_util.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\xpath_expression.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\xpath_processor.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\xpath_stack.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\xpath_static.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\xpath_stream.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\xpath_syntax.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -832,6 +896,74 @@
 				RelativePath="wsex.h"
 				>
 			</File>
+			<Filter
+				Name="TinyXPath_H"
+				>
+				<File
+					RelativePath=".\tinyxpath\action_store.h"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\byte_stream.h"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\lex_token.h"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\lex_util.h"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\node_set.h"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\tinystr.h"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\tinyxml.h"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\tinyxpath_conf.h"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\tokenlist.h"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\xml_util.h"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\xpath_expression.h"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\xpath_processor.h"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\xpath_stack.h"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\xpath_static.h"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\xpath_stream.h"
+					>
+				</File>
+				<File
+					RelativePath=".\tinyxpath\xpath_syntax.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"

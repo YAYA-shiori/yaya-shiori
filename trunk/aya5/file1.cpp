@@ -15,6 +15,10 @@
 #include "globaldef.h"
 #include "wsex.h"
 
+#include "tinyxpath/tinyxml.h"
+#include "tinyxpath/xpath_processor.h"
+#include "tinyxpath/xpath_static.h"
+
 //////////DEBUG/////////////////////////
 #ifdef _WINDOWS
 #ifdef _DEBUG
@@ -47,6 +51,44 @@ int	CFile1::Open(void)
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CFile1::OpenXML
+ *  機能概要：  XMLファイルをオープンします
+ *
+ *  返値　　：　0/1=失敗/成功(既にロードされている含む)
+ * -----------------------------------------------------------------------
+ */
+int CFile1::OpenXML(void)
+{
+	if (!fp) { return 0; }
+	if (xml) { return 1; }
+
+	xml = new TiXmlDocument;
+	if (!xml->LoadFile(fp)) {
+		delete xml;
+		xml = NULL;
+		return 0;
+	}
+
+	TiXmlNode *pNodeDec = xml->FirstChild();
+	if ( ! pNodeDec ) {
+		delete xml;
+		xml = NULL;
+		return 0;
+	}
+
+	TiXmlDeclaration *pDec = pNodeDec->ToDeclaration();
+	if ( ! pDec ) {
+		delete xml;
+		xml = NULL;
+		return 0;
+	}
+
+	xml_charset = Ccct::CharsetTextToID(pDec->Encoding());
+
+	return 1;
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CFile1::Close
  *  機能概要：  ファイルをクローズします
  *
@@ -55,12 +97,19 @@ int	CFile1::Open(void)
  */
 int	CFile1::Close(void)
 {
-	if (fp == NULL)
+	if (xml) {
+		delete xml;
+		xml = NULL;
+	}
+
+	if (fp) {
+		fclose(fp);
+		fp = NULL;
+		return 1;
+	}
+	else {
 		return 2;
-
-	fclose(fp);
-
-	return 1;
+	}
 }
 
 /* -----------------------------------------------------------------------
@@ -178,5 +227,30 @@ int	CFile1::ReadBin(yaya::string_t &ostr, size_t len, yaya::char_t alt)
 	}
 
 	return read;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFile1::ReadXML
+ *  機能概要：  XPathを解析しテキストデータを返します
+ *
+ *  返値　　：　0/1=失敗/成功
+ * -----------------------------------------------------------------------
+ */
+int CFile1::ReadXML(yaya::string_t &ostr,const yaya::string_t &xpath)
+{
+	if(!fp || !xml) { return 0; }
+
+	TIXML_STRING str;
+
+	char *p_xpath = Ccct::Ucs2ToMbcs(xpath, CHARSET_DEFAULT);
+	bool result = TinyXPath::o_xpath_string(xml->RootElement(),p_xpath,str);
+	free(p_xpath);
+
+	if (!result) { return 0; }
+	
+	wchar_t *wstr = Ccct::MbcsToUcs2(str.c_str(),xml_charset);
+	ostr = wstr;
+	free(wstr);
+	return 1;
 }
 
