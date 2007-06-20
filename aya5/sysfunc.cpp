@@ -308,6 +308,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return GETSECCOUNT(arg, d, l);
 	case 116:
 		return READFMO(arg, d, l);
+	case 117:
+		return FREADXML(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -376,21 +378,23 @@ CValue	CSystemFunction::TOAUTO(const CValue &arg, yaya::string_t &d, int &l)
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"TOAUTO", d, l);
 		SetError(8);
-		return CValue(0);
+		return CValue();
 	}
 
 	if (!arg.array()[0].IsString()) {
 		return CValue(arg.array()[0]);
 	}
 
-	if ( IsIntString(arg.array()[0].s_value) ) {
+	yaya::string_t str = arg.array()[0].GetValueString();
+
+	if ( IsIntString(str) ) {
 		return CValue(arg.array()[0].GetValueInt());
 	}
-	else if ( IsDoubleString(arg.array()[0].s_value) ) {
+	else if ( IsDoubleString(str) ) {
 		return CValue(arg.array()[0].GetValueDouble());
 	}
 	else {
-		return CValue(arg.array()[0].s_value);
+		return CValue(str);
 	}
 }
 
@@ -1734,7 +1738,7 @@ CValue	CSystemFunction::FREADBIN(const CValue &arg, yaya::string_t &d, int &l)
 
 	if (arg.array_size() >= 3) {
 		if (!arg.array()[2].IsString()) {
-			vm.logger().Error(E_W, 9, L"FWRITEBIN", d, l);
+			vm.logger().Error(E_W, 9, L"FREADBIN", d, l);
 			SetError(9);
 			return CValue(F_TAG_NOP, 0/*dmy*/);
 		}
@@ -1745,11 +1749,50 @@ CValue	CSystemFunction::FREADBIN(const CValue &arg, yaya::string_t &d, int &l)
 	int	result = vm.files().ReadBin(ToFullPath(arg.array()[0].s_value), r_value, readsize, alt);
 
 	if (!result) {
-		vm.logger().Error(E_W, 13, L"FREAD", d, l);
+		vm.logger().Error(E_W, 13, L"FREADBIN", d, l);
 		SetError(13);
 	}
 	else if (result == -1)
 		return CValue(-1);
+
+	return CValue(r_value);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FREADXML
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FREADXML(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if (arg.array_size() < 2) {
+		vm.logger().Error(E_W, 8, L"FREADXML", d, l);
+		SetError(8);
+		return CValue();
+	}
+
+    if (!arg.array()[0].IsString() ||
+		!arg.array()[1].IsString()) {
+		vm.logger().Error(E_W, 9, L"FREADXML", d, l);
+		SetError(9);
+		return CValue();
+	}
+
+	yaya::string_t	r_value;
+	yaya::string_t  fullpath = ToFullPath(arg.array()[0].GetValueString());
+	int	result = vm.files().OpenXML(fullpath);
+	if (!result) {
+		vm.logger().Error(E_W, 20, L"FREADXML", d, l);
+		SetError(20);
+		return CValue();
+	}
+
+	result = vm.files().ReadXML(fullpath, r_value, arg.array()[1].GetValueString());
+
+	if (result <= 0) {
+		vm.logger().Error(E_W, 21, L"FREADXML", d, l);
+		SetError(21);
+		return CValue();
+	}
 
 	return CValue(r_value);
 }
@@ -3463,27 +3506,23 @@ CValue	CSystemFunction::LETTONAME(const CValue &arg, yaya::string_t &d, int &l, 
 		SetError(9);
 	}
 
-	// 代入式を構成する　シングルクォートはCHRでエスケープ(?)する
-	// ダブルクォートで変数展開していた問題修正
-	yaya::string_t	str = arg.array()[0].GetValueString();
-	str += L"=(";
-	for(int i = 1; i < sz; i++) {
-		if (i > 1)
-			str += L",";
-		if (arg.array()[i].IsString()) {
-			yaya::string_t	vstr = arg.array()[i].GetValueString();
-			ws_replace(vstr, L"'",L"' + CHR(0x27) + '");
-			str += (L"'" + vstr + L"'");
-		}
-		else {
-			str += arg.array()[i].GetValueString();
-		}
+	yaya::string_t	vname = arg.array()[0].GetValueString();
+
+	CValue val;
+	if ( sz == 2 ) {
+		val = arg.array()[1];
 	}
-	str += L")";
-	// 数式へ展開して実行
-	CStatement	t_state(ST_FORMULA, l);
-	if (!vm.parser0().ParseEmbedString(str, t_state, d, l))
-		thisfunc->GetFormulaAnswer(lvar, t_state);
+	else {
+		val = arg.array();
+	}
+
+	if ( vname[0] == L'_' ) {
+		lvar.SetValue(vname,val);
+	}
+	else {
+		int	index = vm.variable().Make(vname, 0);
+		vm.variable().SetValue(index,val);
+	}
 
 	return CValue(F_TAG_NOP, 0/*dmy*/);
 }

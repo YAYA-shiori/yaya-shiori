@@ -220,7 +220,7 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 	::fclose(fp);
 
 	if ( depth != 0 ) {
-		vm.logger().Error(E_E, 94, filename, 0);
+		vm.logger().Error(E_E, 94, filename, -1);
 		errcount = 1;
 	}
 

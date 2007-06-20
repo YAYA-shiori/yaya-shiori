@@ -38,7 +38,7 @@ class CFunction;
 #define	I_PERF_DATA_SIZE			32768
 #define	D_PERF_DATA_SIZE			1024
 
-#define	SYSFUNC_NUM					117
+#define	SYSFUNC_NUM					118
 #define	SYSFUNC_HIS					61
 
 const wchar_t	sysfunc[SYSFUNC_NUM][32] = {
@@ -199,6 +199,8 @@ const wchar_t	sysfunc[SYSFUNC_NUM][32] = {
 	L"GETSECCOUNT",
 	// FMO(1)
 	L"READFMO",
+	// ÉtÉ@ÉCÉãëÄçÏ(4)
+	L"FREADXML",
 };
 
 //----
@@ -296,6 +298,7 @@ protected:
 	CValue	FCLOSE(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FREAD(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FREADBIN(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	FREADXML(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FWRITE(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FWRITE2(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FWRITEBIN(const CValue &arg, yaya::string_t &d, int &l);

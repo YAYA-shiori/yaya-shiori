@@ -44,7 +44,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "AYA5_EXPORTS" /Yu"stdafx.h" /FD /c
 # ADD CPP /nologo /MT /W3 /GX /O2 /Oy- /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "AYA5_EXPORTS" /D WINVER=0x400 /D _WIN32_IE=0 /D _WIN32_WINNT=0x400 /FD /GA /QI0f /c
-# SUBTRACT CPP /YX
+# SUBTRACT CPP /YX /Yc /Yu
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x411 /d "NDEBUG"
@@ -71,7 +71,7 @@ LINK32=link.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "AYA5_EXPORTS" /Yu"stdafx.h" /FD /GZ /c
 # ADD CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "AYA5_EXPORTS" /D WINVER=0x400 /D _WIN32_IE=0 /D _WIN32_WINNT=0x400 /FD /GZ /c
-# SUBTRACT CPP /YX
+# SUBTRACT CPP /YX /Yc /Yu
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x411 /d "_DEBUG"
@@ -92,6 +92,70 @@ LINK32=link.exe
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Group "TinyXPath_SRC"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\tinyxpath\action_store.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\lex_util.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\node_set.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\tinystr.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\tinyxml.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\tinyxmlerror.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\tinyxmlparser.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\tokenlist.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\xml_util.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\xpath_expression.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\xpath_processor.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\xpath_stack.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\xpath_static.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\xpath_stream.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\xpath_syntax.cpp
+# End Source File
+# End Group
 # Begin Source File
 
 SOURCE=.\aya5.cpp
@@ -209,6 +273,74 @@ SOURCE=.\wsex.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Group "TinyXPath_H"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\tinyxpath\action_store.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\byte_stream.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\lex_token.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\lex_util.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\node_set.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\tinystr.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\tinyxml.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\tinyxpath_conf.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\tokenlist.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\xml_util.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\xpath_expression.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\xpath_processor.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\xpath_stack.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\xpath_static.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\xpath_stream.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxpath\xpath_syntax.h
+# End Source File
+# End Group
 # Begin Source File
 
 SOURCE=.\aya5.h

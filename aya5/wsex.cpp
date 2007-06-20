@@ -72,8 +72,8 @@ yaya::string_t ws_itoa(int num, int rdx)
 {
 	int idx;
 
-	yaya::char_t buf[18] = L"                 ";
-	int offset = (sizeof(buf) / sizeof(buf[0])) - 1;
+	yaya::char_t buf[] = L"                  ";
+	int offset = (sizeof(buf) / sizeof(buf[0])) - 2;
 	
 	const yaya::char_t convchars[] = L"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	
@@ -86,12 +86,18 @@ yaya::string_t ws_itoa(int num, int rdx)
 		num = -num;
 	}
 	
-	while ( num ) {
-		idx = num % rdx;
-		buf[offset] = convchars[idx];
-		num -= idx;
-		num /= rdx;
+	if ( num == 0 ) {
+		buf[offset] = L'0';
 		--offset;
+	}
+	else {
+		while ( num ) {
+			idx = num % rdx;
+			buf[offset] = convchars[idx];
+			num -= idx;
+			num /= rdx;
+			--offset;
+		}
 	}
 	
 	if ( minus ) {

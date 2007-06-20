@@ -66,6 +66,18 @@ int      Ccct::CharsetTextToID(const wchar_t *ctxt)
 	return CHARSET_DEFAULT;
 }
 
+int      Ccct::CharsetTextToID(const char *ctxt)
+{
+	if (!stricmp("UTF-8",ctxt) || !stricmp("UTF8",ctxt))
+		return CHARSET_UTF8;
+	else if (!stricmp("default",ctxt))
+		return CHARSET_DEFAULT;
+	else if (!stricmp("Shift_JIS",ctxt) || !stricmp("ShiftJIS",ctxt) || !stricmp("SJIS",ctxt))
+		return CHARSET_SJIS;
+
+	return CHARSET_DEFAULT;
+}
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  Ccct::CharsetIDToText(A/W)
  *  機能概要：  Charset 文字列->Charset ID
