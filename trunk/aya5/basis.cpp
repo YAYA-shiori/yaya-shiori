@@ -143,9 +143,9 @@ void	CBasis::SetPath(yaya::global_t h, int len)
     }
     // モジュールハンドルの取得は出来ないので、力技で位置を知る。
     // このディレクトリにある全ての*.dll(case insensitive)を探し、
-    // 中身にaya5.dllという文字列を含んでいたら、それを選ぶ。
+    // 中身にyaya.dllという文字列を含んでいたら、それを選ぶ。
     // ただし対応する*.txtが無ければdllの中身は見ずに次へ行く。
-    modulename = L"aya5";
+    modulename = L"yaya";
     DIR* dh = opendir(narrow(path).c_str());
     if (dh == NULL) {
 		std::cerr << narrow(path) << "is not a directory!" << std::endl;
@@ -162,8 +162,8 @@ void	CBasis::SetPath(yaya::global_t h, int len)
 	    struct stat sb;
 	    if (::stat(txt_file.c_str(), &sb) == 0) {
 		// txtファイルがあるので、中身を見てみる。
-		if (file_content_search(narrow(path) + fname, "aya5.dll") != std::string::npos) {
-		    // これは文のDLLである。
+		if (file_content_search(narrow(path) + fname, "yaya.dll") != std::string::npos) {
+		    // これはYAYAのDLLである。
 		    modulename = widen(drop_extension(fname));
 		    break;
 		}

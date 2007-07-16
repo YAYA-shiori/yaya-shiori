@@ -276,18 +276,6 @@ void node_set::v_add_all_prec_node (
    }
 }
 
-/// Check if a node is an ancestor of another one
-static bool o_is_ancestor (const TiXmlNode * XNp_test, const TiXmlNode * XNp_node)
-{
-   while (XNp_test)
-   {
-      if (XNp_test == XNp_node)
-         return true;
-      XNp_test = XNp_test -> Parent ();
-   }
-   return false;
-}
-
 /// Internal utility class for the node set sorting
 class ptr_2_and_flag 
 {
