@@ -20,6 +20,10 @@
 #include "manifest.h"
 #include "globaldef.h"
 
+#ifdef POSIX
+#  include <ctype.h>
+#endif
+
 /*
 #define PRIMARYLANGID(lgid)    ((WORD)(lgid) & 0x3ff)
 */
@@ -32,6 +36,53 @@
 #endif
 #endif
 ////////////////////////////////////////
+
+
+#ifdef POSIX
+namespace {
+    int wcsicmp(const wchar_t* a, const wchar_t* b) {
+        size_t lenA = wcslen(a);
+        size_t lenB = wcslen(b);
+
+        if (lenA != lenB) {
+            return lenA - lenB;
+        }
+        else {
+            for (size_t i = 0; i < lenA; i++) {
+                wchar_t A = tolower(a[i]);
+                wchar_t B = tolower(b[i]);
+
+                if (A != B) {
+                    return A - B;
+                }
+            }
+
+            return 0;
+        }
+    }
+
+    int stricmp(const char* a, const char* b) {
+        size_t lenA = strlen(a);
+        size_t lenB = strlen(b);
+
+        if (lenA != lenB) {
+            return lenA - lenB;
+        }
+        else {
+            for (size_t i = 0; i < lenA; i++) {
+                wchar_t A = tolower(a[i]);
+                wchar_t B = tolower(b[i]);
+
+                if (A != B) {
+                    return A - B;
+                }
+            }
+
+            return 0;
+        }
+    }
+}
+#endif
 
 
 /* -----------------------------------------------------------------------
@@ -111,6 +162,7 @@ const char *Ccct::CharsetIDToTextA(const int charset)
  * (written by umeici)
  * -----------------------------------------------------------------------
  */
+#ifndef POSIX
 char	*Ccct::Ucs2ToMbcs(const yaya::char_t *wstr, int charset)
 {
 	if (charset == CHARSET_UTF8)
@@ -125,6 +177,7 @@ char	*Ccct::Ucs2ToMbcs(const yaya::string_t &wstr, int charset)
 {
 	return Ucs2ToMbcs(wstr.c_str(), charset);
 }
+#endif
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  Ccct::MbcsToUcs2
@@ -133,6 +186,7 @@ char	*Ccct::Ucs2ToMbcs(const yaya::string_t &wstr, int charset)
  * (written by umeici)
  * -----------------------------------------------------------------------
  */
+#ifndef POSIX
 yaya::char_t	*Ccct::MbcsToUcs2(const char *mstr, int charset)
 {
 	if (charset == CHARSET_UTF8)
@@ -147,12 +201,14 @@ yaya::char_t	*Ccct::MbcsToUcs2(const std::string &mstr, int charset)
 {
 	return MbcsToUcs2(mstr.c_str(), charset);
 }
+#endif
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  Ccct::utf16be_to_sjis
  *  機能概要：  UTF-16BE -> MBCS へ文字列のコード変換
  * -----------------------------------------------------------------------
  */
+#ifndef POSIX
 char *Ccct::utf16be_to_mbcs(const yaya::char_t *pUcsStr, int charset)
 {
     char *pAnsiStr = NULL;
@@ -207,12 +263,14 @@ char *Ccct::utf16be_to_mbcs(const yaya::char_t *pUcsStr, int charset)
 	if (charset == CHARSET_SJIS) sys_setlocale(LC_ALL);
     return pAnsiStr;
 }
+#endif
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  Ccct::mbcs_to_utf16be
  *  機能概要：  MBCS -> UTF-16 へ文字列のコード変換
  * -----------------------------------------------------------------------
  */
+#ifndef POSIX
 yaya::char_t *Ccct::mbcs_to_utf16be(const char *pAnsiStr, int charset)
 {
     if (!pAnsiStr)
@@ -239,12 +297,14 @@ yaya::char_t *Ccct::mbcs_to_utf16be(const char *pAnsiStr, int charset)
 	if (charset == CHARSET_SJIS) sys_setlocale(LC_ALL);
     return pUcsStr;
 }
+#endif
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  Ccct::utf16be_to_utf8
  *  機能概要：  UTF-16 -> UTF-8 へ文字列のコード変換
  * -----------------------------------------------------------------------
  */
+#ifndef POSIX
 char *Ccct::utf16be_to_utf8(const yaya::char_t *pUcsStr)
 {
     size_t nUcsNum = wcslen(pUcsStr);
@@ -254,12 +314,14 @@ char *Ccct::utf16be_to_utf8(const yaya::char_t *pUcsStr)
 
     return pUtf8Str;
 }
+#endif
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  Ccct::utf16be_to_utf8_sub
  *  機能概要：  UTF-16 -> UTF-8変換（utf16be_to_utf8で使用します）
  * -----------------------------------------------------------------------
  */
+#ifndef POSIX
 size_t Ccct::utf16be_to_utf8_sub( char *pUtf8, const yaya::char_t *pUcs2, size_t nUcsNum)
 {
     size_t nUtf8 = 0;
@@ -284,12 +346,14 @@ size_t Ccct::utf16be_to_utf8_sub( char *pUtf8, const yaya::char_t *pUcs2, size_t
 
     return nUtf8;
 }
+#endif
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  Ccct::utf8_to_utf16be
  *  機能概要：  UTF-8 -> UTF-16BE へ文字列のコード変換
  * -----------------------------------------------------------------------
  */
+#ifndef POSIX
 yaya::char_t *Ccct::utf8_to_utf16be(const char *pUtf8Str)
 {
     size_t nUtf8Num = strlen(pUtf8Str); // UTF-8文字列には，'\0' がない
@@ -299,12 +363,14 @@ yaya::char_t *Ccct::utf8_to_utf16be(const char *pUtf8Str)
 
     return pUcsStr;
 }
+#endif
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  Ccct::utf8_to_utf16be_sub
  *  機能概要：  UTF-8 -> UTF-16BE変換（utf16be_to_utf8で使用します）
  * -----------------------------------------------------------------------
  */
+#ifndef POSIX
 size_t Ccct::utf8_to_utf16be_sub( yaya::char_t *pUcs2, const char *pUtf8, size_t nUtf8Num)
 {
     size_t	nUcs2 = 0;
@@ -331,19 +397,17 @@ size_t Ccct::utf8_to_utf16be_sub( yaya::char_t *pUcs2, const char *pUtf8, size_t
 
     return nUcs2;
 }
+#endif
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  Ccct::sys_setlocale
  *  機能概要：  OSデフォルトの言語IDでロケール設定する
  * -----------------------------------------------------------------------
  */
+#ifndef POSIX
 char *Ccct::sys_setlocale(int category)
 {
-#ifdef POSIX
-	return setlocale(category,"");
-#else
 	return setlocale(category,".OCP");
-#endif
 
 	/*switch(PRIMARYLANGID(GetSystemDefaultLangID())) {
 		case LANG_JAPANESE:
@@ -366,4 +430,5 @@ char *Ccct::sys_setlocale(int category)
 			return setlocale(category, "English");
 	};*/
 }
+#endif
 

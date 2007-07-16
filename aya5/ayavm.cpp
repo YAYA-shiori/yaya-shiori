@@ -59,19 +59,19 @@ int CAyaVM::genrand_int(int n)
 // ちょっとひどいハックですが……
 
 #define FACTORY_DEFINE_THIS(classt,deft) \
-	classt ## & CAyaVM:: ## deft ## () { \
-		if ( m_ ## deft ## .get() == NULL ) { \
-			m_ ## deft ## .reset(new classt ## (*this)); \
+	classt & CAyaVM:: deft () { \
+		if ( m_ ## deft .get() == NULL ) { \
+			m_ ## deft .reset(new classt (*this)); \
 		} \
-		return *(m_ ## deft ## .get()); \
+		return *(m_ ## deft .get()); \
 	} 
 
 #define FACTORY_DEFINE_PLAIN(classt,deft) \
-	classt ## & CAyaVM:: ## deft ## () { \
-		if ( m_ ## deft ## .get() == NULL ) { \
-			m_ ## deft ## .reset(new classt ## ); \
+	classt & CAyaVM:: deft () { \
+		if ( m_ ## deft .get() == NULL ) { \
+			m_ ## deft .reset(new classt); \
 		} \
-		return *(m_ ## deft ## .get()); \
+		return *(m_ ## deft .get()); \
 	} 
 
 
@@ -90,4 +90,5 @@ FACTORY_DEFINE_THIS(CLib,libs)
 
 FACTORY_DEFINE_THIS(CParser0,parser0)
 FACTORY_DEFINE_THIS(CParser1,parser1)
+
 
