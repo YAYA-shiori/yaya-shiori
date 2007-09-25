@@ -65,18 +65,18 @@ void	CDuplEvInfo::InitRoundOrder(CAyaVM &vm,int mode)
 	roundorder.clear();
 	roundorder.reserve(total);
 
-	for(int i = 0; i < total; ++i) {
-		if ( i != lastroundorder ) {
-			roundorder.push_back(i);
-		}
-	}
-
-	//緊急時エラー回避用
-	if ( ! roundorder.size() ) {
-		roundorder.push_back(0);
-	}
-
     if (mode == CHOICETYPE_NONOVERLAP) {
+		for(int i = 0; i < total; ++i) {
+			if ( i != lastroundorder ) {
+				roundorder.push_back(i);
+			}
+		}
+
+		//緊急時エラー回避用
+		if ( ! roundorder.size() ) {
+			roundorder.push_back(0);
+		}
+
 		int n = roundorder.size();
 		for ( int i = 0 ; i < n ; ++i ) {
 			int s = vm.genrand_int(n);
@@ -85,6 +85,11 @@ void	CDuplEvInfo::InitRoundOrder(CAyaVM &vm,int mode)
 				roundorder[i] = roundorder[s];
 				roundorder[s] = tmp;
 			}
+		}
+	}
+	else {
+		for(int i = 0; i < total; ++i) {
+			roundorder.push_back(i);
 		}
 	}
 }
