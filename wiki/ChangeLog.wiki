@@ -1,4 +1,7 @@
 #labels Featured
+=Tc524-5=
+  * sequentialでもnonoverlapと同じ「初期化直前の選択肢は除く」機能が動いてしまう問題を修正
+
 =Tc524-4=
   * RE_SPLITで落ちる問題を修正
 
