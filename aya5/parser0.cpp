@@ -1144,13 +1144,14 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 */
 
 	// システム関数
-	for(i = 0; i < SYSFUNC_NUM; i++)
-		if (!scell.value_const().s_value.compare(sysfunc[i])) {
-			scell.value_SetType(F_TAG_SYSFUNC);
-			scell.index     = i;
-			scell.value().s_value = L"";
-			return 0;
-		}
+	int sysidx = CSystemFunction::FindIndex(scell.value_const().s_value);
+	if ( sysidx >= 0 ) {
+		scell.value_SetType(F_TAG_SYSFUNC);
+		scell.index     = sysidx;
+		scell.value().s_value = L"";
+		return 0;
+	}
+
 	// 整数リテラル(DEC)
 	if (IsIntString(scell.value_const().s_value)) {
 		scell.value() = ws_atoi(scell.value_const().s_value, 10);
@@ -1167,7 +1168,7 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 		return 0;
 	}
 	// 実数リテラル
-	if (IsDoubleString(scell.value_const().s_value)) {
+	if (IsDoubleButNotIntString(scell.value_const().s_value)) {
 		scell.value() = ws_atof(scell.value_const().s_value);
 		return 0;
 	}
@@ -1527,7 +1528,7 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 				return 1;
 			}
 			// 埋め込み要素を取り出し、"結果の再利用処理を行う関数"として追加
-			resstr += sysfunc[SYSFUNC_HIS];
+			resstr += CSystemFunction::HistoryFunctionName();
 			resstr += L"(";
 			
 			resstr += ws_itoa(nindex, 10);

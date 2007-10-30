@@ -317,7 +317,7 @@ void	CLogExCode::StructCellString(std::vector<CCell> *cellvector, yaya::string_t
 			break;
 		case F_TAG_SYSFUNC:
 			formula += L"(sysfunc)";
-			formula += sysfunc[it->index];
+			formula += CSystemFunction::GetNameFromIndex(it->index);
 			formula += L" ";
 			break;
 		case F_TAG_USERFUNC:
