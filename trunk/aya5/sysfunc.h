@@ -35,181 +35,11 @@ class CCell;
 class CLocalVariable;
 class CFunction;
 
-#define	I_PERF_DATA_SIZE			32768
-#define	D_PERF_DATA_SIZE			1024
-
-#define	SYSFUNC_NUM					118
-#define	SYSFUNC_HIS					61
-
-const wchar_t	sysfunc[SYSFUNC_NUM][32] = {
-	// 型取得/変換
-	L"TOINT",
-	L"TOREAL",
-	L"TOSTR",
-	L"GETTYPE",
-	L"ISFUNC",
-	L"ISVAR",
-	// デバッグ
-	L"LOGGING",
-	L"GETLASTERROR",
-	// 外部ライブラリ
-	L"LOADLIB",
-	L"UNLOADLIB",
-	L"REQUESTLIB",
-	L"CHARSETLIB",
-	// 数値
-	L"RAND",
-	L"FLOOR",
-	L"CEIL",
-	L"ROUND",
-	L"SIN",
-	L"COS",
-	L"TAN",
-	L"LOG",
-	L"LOG10",
-	L"POW",
-	L"SQRT",
-	// 文字列操作
-	L"STRSTR",
-	L"STRLEN",
-	L"REPLACE",
-	L"SUBSTR",
-	L"ERASE",
-	L"INSERT",
-	L"TOUPPER",
-	L"TOLOWER",
-	L"CUTSPACE",
-	L"TOBINSTR",
-	L"TOHEXSTR",
-	L"BINSTRTOI",
-	L"HEXSTRTOI",
-	L"CHR",
-	// ファイル操作
-	L"FOPEN",
-	L"FCLOSE",
-	L"FREAD",
-	L"FWRITE",
-	L"FWRITE2",
-	L"FCOPY",
-	L"FMOVE",
-	L"MKDIR",
-	L"RMDIR",
-	L"FDEL",
-	L"FRENAME",
-	L"FSIZE",
-	L"FENUM",
-	L"FCHARSET",
-	// 配列
-	L"ARRAYSIZE",
-	L"SETDELIM",
-	// 特殊
-	L"EVAL",
-	L"ERASEVAR",
-	// システム時刻/メモリ情報
-	L"GETTIME",
-	L"GETTICKCOUNT",
-	L"GETMEMINFO",
-	// 正規表現
-	L"RE_SEARCH",
-	L"RE_MATCH",
-	L"RE_GREP",
-	// システムで使用
-	L"EmBeD_HiStOrY",	// %[n]（置換済の値の再利用）処理用
-	// デバッグ用(2)
-	L"SETLASTERROR",
-	// 正規表現(2)
-	L"RE_REPLACE",
-	L"RE_SPLIT",
-	L"RE_GETSTR",
-	L"RE_GETPOS",
-	L"RE_GETLEN",
-	// 文字列操作(2)
-	L"CHRCODE",
-	L"ISINTSTR",
-	L"ISREALSTR",
-	// 配列(2)
-	L"IARRAY",
-	// 文字列操作(3)
-	L"SPLITPATH",
-	// 型取得/変換(2)
-	L"CVINT",
-	L"CVSTR",
-	L"CVREAL",
-	// 特殊(2)
-	L"LETTONAME",
-	L"LSO",
-	// 文字列操作(4)
-	L"STRFORM",
-	L"ANY",
-	// 特殊(3)
-	L"SAVEVAR",
-	// 文字列操作(5)
-	L"GETSTRBYTES",
-	// 配列(3)
-	L"ASEARCH",
-	L"ASEARCHEX",
-	// 配列(2)
-	L"GETDELIM",
-	// 特殊(4)
-	L"GETSETTING",
-	// 数値(2)
-	L"ASIN",
-	L"ACOS",
-	L"ATAN",
-	// 文字列操作(6)
-	L"SPLIT",
-	// ファイル操作(2)
-	L"FATTRIB",
-	// 型取得/変換(3)
-	L"GETFUNCLIST",
-	L"GETVARLIST",
-	// 正規表現(3)
-	L"RE_REPLACEEX",
-	// 外部ライブラリ(2)
-	L"CHARSETLIBEX",
-	// 文字コード
-	L"CHARSETTEXTTOID",
-	L"CHARSETIDTOTEXT",
-	// ビット演算
-	L"BITWISE_AND",
-	L"BITWISE_OR",
-	L"BITWISE_XOR",
-	L"BITWISE_NOT",
-	L"BITWISE_SHIFT",
-	// 半角<->全角
-	L"ZEN2HAN",
-	L"HAN2ZEN",
-	// 型取得/変換(3)
-	L"CVAUTO",
-	L"TOAUTO",
-	// ファイル操作(3)
-	L"FREADBIN",
-	L"FWRITEBIN",
-	// 特殊(5)
-	L"RESTOREVAR",
-	L"GETCALLSTACK",
-	// 文字列操作(7)
-	L"GETSTRURLENCODE",
-	L"GETSTRURLDECODE",
-	// 数値(3)
-	L"SINH",
-	L"COSH",
-	L"TANH",
-	// システム時刻/メモリ情報(2)
-	L"GETSECCOUNT",
-	// FMO(1)
-	L"READFMO",
-	// ファイル操作(4)
-	L"FREADXML",
-};
-
 //----
 
 class	CSystemFunction
 {
 protected:
-	size_t	sysfunc_len[SYSFUNC_NUM];	// 各関数名の長さ
-
 	int		lasterror;					// 最期に発生したエラーの番号
 	int		lso;						// LSOが返す値
 
@@ -223,20 +53,16 @@ private:
 	CSystemFunction(void);
 
 public:
-	CSystemFunction(CAyaVM &vmr)
-		: vm(vmr), re_str(F_TAG_ARRAY, 0/*dmy*/), re_pos(F_TAG_ARRAY, 0/*dmy*/), re_len(F_TAG_ARRAY, 0/*dmy*/)
-	{
-		lasterror   = 0;
-		lso         = -1;
+	CSystemFunction(CAyaVM &vmr);
 
-		for(size_t i = 0; i < SYSFUNC_NUM; i++)
-			sysfunc_len[i] = ::wcslen(sysfunc[i]);
-	}
+	static int FindIndex(const yaya::string_t &str);
+	static int FindIndexLongestMatch(const yaya::string_t &str,int max_len = 0);
 
-	size_t	GetNameLen(int index)
-	{
-		return (index >= 0 && index < SYSFUNC_NUM) ? sysfunc_len[index] : 0;
-	}
+	static const yaya::char_t* GetNameFromIndex(int idx);
+	static int GetMaxNameLength(void);
+
+	static int HistoryIndex(void);
+	static const yaya::char_t* HistoryFunctionName(void);
 
 	void	SetLso(int order) { lso = order; }
 

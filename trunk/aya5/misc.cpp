@@ -377,13 +377,14 @@ yaya::string_t::size_type IsInDQ(const yaya::string_t &str, yaya::string_t::size
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  IsDoubleString
- *  機能概要：  文字列が実数数値として正当かを検査します
+ *  関数名  ：  IsDoubleButNotIntString
+ *  機能概要：  文字列がIntを除く実数数値として正当かを検査します
+ *  注意　　：　整数値もDoubleとして正当な値なので実装時はIsIntStringとあわせること
  *
  *  返値　　：  0/1=×/○
  * -----------------------------------------------------------------------
  */
-char	IsDoubleString(const yaya::string_t &str)
+char	IsDoubleButNotIntString(const yaya::string_t &str)
 {
 	int	len = str.size();
 	if (!len)
@@ -391,16 +392,19 @@ char	IsDoubleString(const yaya::string_t &str)
 
 	int	i = (str[0] == L'-' || str[0] == L'+') ? 1 : 0;
 	int	dotcount = 0;
-	for( ; i < len; i++)
+	for( ; i < len; i++) {
 //		if (!::iswdigit((int)str[i])) {
 		if (str[i] < L'0' || str[i] > L'9') {
-			if (str[i] == L'.' && !dotcount)
+			if (str[i] == L'.') {
 				dotcount++;
-			else
+			}
+			else {
 				return 0;
+			}
 		}
+	}
 
-	return 1;
+	return dotcount == 1;
 }
 
 /* -----------------------------------------------------------------------
@@ -416,12 +420,24 @@ char	IsIntString(const yaya::string_t &str)
 	if (!len)
 		return 0;
 
-	int	i = (str[0] == L'-' || str[0] == L'+') ? 1 : 0;
+	int	advance = (str[0] == L'-' || str[0] == L'+') ? 1 : 0;
+	int i = advance;
 
-	for( ; i < len; i++)
+	//2147483647
+	if ( (len-i) > 10 ) { return 0; }
+
+	for( ; i < len; i++) {
 //		if (!::iswdigit((int)str[i]))
-		if (str[i] < L'0' || str[i] > L'9')
+		if (str[i] < L'0' || str[i] > L'9') {
 			return 0;
+		}
+	}
+
+	if ( (len-advance) == 10 ) {
+		if ( wcscmp(str.c_str(),L"2147483647") > 0 ) {
+			return 0; //Overflow
+		}
+	}
 
 	return 1;
 }
@@ -447,6 +463,9 @@ char	IsIntBinString(const yaya::string_t &str, char header)
 			return 0;
 		i += PREFIX_BASE_LEN;
 	}
+
+	//32bit
+	if ( (len-i) > 32 ) { return 0; }
 	
 	for( ; i < len; i++) {
 		yaya::char_t	j = str[i];
@@ -477,6 +496,9 @@ char	IsIntHexString(const yaya::string_t &str, char header)
 			return 0;
 		i += PREFIX_BASE_LEN;
 	}
+
+	//7fffffff
+	if ( (len-i) > 8 ) { return 0; }
 
 	for( ; i < len; i++) {
 		yaya::char_t	j = str[i];
@@ -531,9 +553,8 @@ char	IsLegalFunctionName(const yaya::string_t &str)
 			return 4;
 	}
 
-	for(int i= 0; i < SYSFUNC_NUM; i++)
-		if (!str.compare(sysfunc[i]))
-			return 5;
+	int sysidx = CSystemFunction::FindIndex(str);
+	if ( sysidx >= 0 ) { return 5; }
 
 	for(int i= 0; i < FLOWCOM_NUM; i++)
 		if (!str.compare(flowcom[i]))
@@ -582,9 +603,8 @@ char	IsLegalVariableName(const yaya::string_t &str)
 			return 4;
 	}
 
-	for(int i= 0; i < SYSFUNC_NUM; i++)
-		if (!str.compare(sysfunc[i]))
-			return 5;
+	int sysidx = CSystemFunction::FindIndex(str);
+	if ( sysidx >= 0 ) { return 5; }
 
 	for(int i= 0; i < FLOWCOM_NUM; i++)
 		if (!str.compare(flowcom[i]))

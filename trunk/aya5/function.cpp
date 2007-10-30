@@ -446,7 +446,7 @@ CValue	CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 				break;
 			case F_TAG_SYSFUNCPARAM:
 				if (ExecSystemFunctionWithArgs(o_cell, it->index, st, lvar))
-					pvm->logger().Error(E_E, 33, (wchar_t *)sysfunc[st.cell()[it->index[0]].index], dicfilename, st.linecount);
+					pvm->logger().Error(E_E, 33, CSystemFunction::GetNameFromIndex(st.cell()[it->index[0]].index), dicfilename, st.linecount);
 				break;
 			case F_TAG_ARRAYORDER:
 				if (Array(o_cell, it->index, st, lvar))
@@ -553,16 +553,12 @@ void	CFunction::SolveEmbedCell(CCell &cell, CStatement &st, CLocalVariable &lvar
 			max_len   = t_len;
 		}
 		// システム関数
-		t_len = 0;
-		for(size_t i = 0; i < SYSFUNC_NUM; i++) {
-			size_t	sysfunc_len = pvm->sysfunction().GetNameLen(i);
-			if (!::wcsncmp(cell.value_const().s_value.c_str(), sysfunc[i], sysfunc_len))
-				if (t_len < sysfunc_len)
-					t_len = sysfunc_len;
-		}
-		if (t_len > max_len) {
-			solve_src = 3;
-			max_len   = t_len;
+		if ( max_len < CSystemFunction::GetMaxNameLength() ) {
+			t_len = CSystemFunction::FindIndexLongestMatch(cell.value_const().s_value,max_len);
+			if (t_len > max_len) {
+				solve_src = 3;
+				max_len   = t_len;
+			}
 		}
 	}
 	// 存在しなければ全体が文字列ということになる
@@ -935,7 +931,7 @@ char	CFunction::ExecSystemFunctionWithArgs(CCell& cell, std::vector<int> &sid, C
 	}
 
 	// 実行　%[n]処理関数のみ特例扱い
-	if (index == SYSFUNC_HIS)
+	if (index == CSystemFunction::HistoryIndex())
 		ExecHistoryP1(func_index - 2, cell, arg, st);
 	else
 		cell.ansv() = pvm->sysfunction().Execute(index, arg, pcellarg, lvar, st.linecount, this);

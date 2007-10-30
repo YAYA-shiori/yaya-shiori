@@ -40,7 +40,7 @@ extern const yaya::string_t::size_type IsInDQ_runaway;
 extern const yaya::string_t::size_type IsInDQ_npos;
 yaya::string_t::size_type IsInDQ(const yaya::string_t &str, yaya::string_t::size_type startpoint, yaya::string_t::size_type checkpoint);
 
-char	IsDoubleString(const yaya::string_t &str);
+char	IsDoubleButNotIntString(const yaya::string_t &str);
 char	IsIntString(const yaya::string_t &str);
 char	IsIntBinString(const yaya::string_t &str, char header);
 char	IsIntHexString(const yaya::string_t &str, char header);

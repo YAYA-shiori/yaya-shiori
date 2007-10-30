@@ -16,6 +16,7 @@
 #endif
 #include <string>
 #include <vector>
+#include <map>
 
 #include <math.h>
 #include <stdio.h>
@@ -59,6 +60,282 @@
 #endif
 #endif
 ////////////////////////////////////////
+
+/* -----------------------------------------------------------------------
+ *  システム関数テーブル
+ * -----------------------------------------------------------------------
+ */
+#define	SYSFUNC_NUM					118
+#define	SYSFUNC_HIS					61
+
+static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
+	// 型取得/変換
+	L"TOINT",
+	L"TOREAL",
+	L"TOSTR",
+	L"GETTYPE",
+	L"ISFUNC",
+	L"ISVAR",
+	// デバッグ
+	L"LOGGING",
+	L"GETLASTERROR",
+	// 外部ライブラリ
+	L"LOADLIB",
+	L"UNLOADLIB",
+	L"REQUESTLIB",
+	L"CHARSETLIB",
+	// 数値
+	L"RAND",
+	L"FLOOR",
+	L"CEIL",
+	L"ROUND",
+	L"SIN",
+	L"COS",
+	L"TAN",
+	L"LOG",
+	L"LOG10",
+	L"POW",
+	L"SQRT",
+	// 文字列操作
+	L"STRSTR",
+	L"STRLEN",
+	L"REPLACE",
+	L"SUBSTR",
+	L"ERASE",
+	L"INSERT",
+	L"TOUPPER",
+	L"TOLOWER",
+	L"CUTSPACE",
+	L"TOBINSTR",
+	L"TOHEXSTR",
+	L"BINSTRTOI",
+	L"HEXSTRTOI",
+	L"CHR",
+	// ファイル操作
+	L"FOPEN",
+	L"FCLOSE",
+	L"FREAD",
+	L"FWRITE",
+	L"FWRITE2",
+	L"FCOPY",
+	L"FMOVE",
+	L"MKDIR",
+	L"RMDIR",
+	L"FDEL",
+	L"FRENAME",
+	L"FSIZE",
+	L"FENUM",
+	L"FCHARSET",
+	// 配列
+	L"ARRAYSIZE",
+	L"SETDELIM",
+	// 特殊
+	L"EVAL",
+	L"ERASEVAR",
+	// システム時刻/メモリ情報
+	L"GETTIME",
+	L"GETTICKCOUNT",
+	L"GETMEMINFO",
+	// 正規表現
+	L"RE_SEARCH",
+	L"RE_MATCH",
+	L"RE_GREP",
+	// システムで使用
+	L"EmBeD_HiStOrY",	// %[n]（置換済の値の再利用）処理用
+	// デバッグ用(2)
+	L"SETLASTERROR",
+	// 正規表現(2)
+	L"RE_REPLACE",
+	L"RE_SPLIT",
+	L"RE_GETSTR",
+	L"RE_GETPOS",
+	L"RE_GETLEN",
+	// 文字列操作(2)
+	L"CHRCODE",
+	L"ISINTSTR",
+	L"ISREALSTR",
+	// 配列(2)
+	L"IARRAY",
+	// 文字列操作(3)
+	L"SPLITPATH",
+	// 型取得/変換(2)
+	L"CVINT",
+	L"CVSTR",
+	L"CVREAL",
+	// 特殊(2)
+	L"LETTONAME",
+	L"LSO",
+	// 文字列操作(4)
+	L"STRFORM",
+	L"ANY",
+	// 特殊(3)
+	L"SAVEVAR",
+	// 文字列操作(5)
+	L"GETSTRBYTES",
+	// 配列(3)
+	L"ASEARCH",
+	L"ASEARCHEX",
+	// 配列(2)
+	L"GETDELIM",
+	// 特殊(4)
+	L"GETSETTING",
+	// 数値(2)
+	L"ASIN",
+	L"ACOS",
+	L"ATAN",
+	// 文字列操作(6)
+	L"SPLIT",
+	// ファイル操作(2)
+	L"FATTRIB",
+	// 型取得/変換(3)
+	L"GETFUNCLIST",
+	L"GETVARLIST",
+	// 正規表現(3)
+	L"RE_REPLACEEX",
+	// 外部ライブラリ(2)
+	L"CHARSETLIBEX",
+	// 文字コード
+	L"CHARSETTEXTTOID",
+	L"CHARSETIDTOTEXT",
+	// ビット演算
+	L"BITWISE_AND",
+	L"BITWISE_OR",
+	L"BITWISE_XOR",
+	L"BITWISE_NOT",
+	L"BITWISE_SHIFT",
+	// 半角<->全角
+	L"ZEN2HAN",
+	L"HAN2ZEN",
+	// 型取得/変換(3)
+	L"CVAUTO",
+	L"TOAUTO",
+	// ファイル操作(3)
+	L"FREADBIN",
+	L"FWRITEBIN",
+	// 特殊(5)
+	L"RESTOREVAR",
+	L"GETCALLSTACK",
+	// 文字列操作(7)
+	L"GETSTRURLENCODE",
+	L"GETSTRURLDECODE",
+	// 数値(3)
+	L"SINH",
+	L"COSH",
+	L"TANH",
+	// システム時刻/メモリ情報(2)
+	L"GETSECCOUNT",
+	// FMO(1)
+	L"READFMO",
+	// ファイル操作(4)
+	L"FREADXML",
+};
+
+//このグローバル変数はマルチインスタンスでも共通
+class CSystemFunctionInit {
+public:
+	int sysfunc_len[SYSFUNC_NUM];
+	int sysfunc_len_max;
+	int sysfunc_len_min;
+	std::map<yaya::string_t,int> sysfunc_map;
+
+	CSystemFunctionInit(void) {
+		sysfunc_len_max = 0;
+		sysfunc_len_min = 65536;
+		for(size_t i = 0; i < SYSFUNC_NUM; i++) {
+			sysfunc_len[i] = ::wcslen(sysfunc[i]);
+			sysfunc_map.insert(std::map<yaya::string_t,int>::value_type(sysfunc[i],i));
+
+			if ( sysfunc_len_max < sysfunc_len[i] ) {
+				sysfunc_len_max = sysfunc_len[i];
+			}
+			if ( sysfunc_len_min > sysfunc_len[i] ) {
+				sysfunc_len_min = sysfunc_len[i];
+			}
+		}
+	}
+};
+
+CSystemFunctionInit sysfuncinit;
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::CSystemFunction
+ * -----------------------------------------------------------------------
+ */
+CSystemFunction::CSystemFunction(CAyaVM &vmr)
+	: vm(vmr), re_str(F_TAG_ARRAY, 0/*dmy*/), re_pos(F_TAG_ARRAY, 0/*dmy*/), re_len(F_TAG_ARRAY, 0/*dmy*/)
+{
+	lasterror   = 0;
+	lso         = -1;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::GetMaxNameLength
+ *  機能概要：  システム関数の名前の最大値を返します
+ * -----------------------------------------------------------------------
+ */
+int CSystemFunction::GetMaxNameLength(void)
+{
+	return sysfuncinit.sysfunc_len_max;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FindIndex
+ *  機能概要：  システム関数を探索します
+ * -----------------------------------------------------------------------
+ */
+int CSystemFunction::FindIndex(const yaya::string_t &str)
+{
+	std::map<yaya::string_t,int>::const_iterator it = sysfuncinit.sysfunc_map.find(str);
+	if ( it == sysfuncinit.sysfunc_map.end() ) { return -1; }
+
+	return it->second;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FindIndexLongestMatch
+ *  機能概要：  いちばん長くマッチするシステム関数を探索します
+ * -----------------------------------------------------------------------
+ */
+int CSystemFunction::FindIndexLongestMatch(const yaya::string_t &str,int max_len)
+{
+	int found_len = 0;
+	for(size_t i = 0; i < SYSFUNC_NUM; i++) {
+		if ( sysfuncinit.sysfunc_len[i] <= max_len ) { continue; }
+
+		if ( wcsncmp(str.c_str(),sysfunc[i],sysfuncinit.sysfunc_len[i]) == 0 ) {
+			found_len = sysfuncinit.sysfunc_len[i];
+			max_len = found_len;
+		}
+	}
+	return found_len;
+}
+
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::GetNameFromIndex
+ *  機能概要：  Index->名前
+ * -----------------------------------------------------------------------
+ */
+const yaya::char_t* CSystemFunction::GetNameFromIndex(int idx)
+{
+	if ( idx < 0 || idx >= SYSFUNC_NUM ) { return L""; }
+	return sysfunc[idx];
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::HistoryIndex / HistoryFunctionName
+ *  機能概要：  履歴系の定数を返します
+ * -----------------------------------------------------------------------
+ */
+int CSystemFunction::HistoryIndex(void)
+{
+	return SYSFUNC_HIS;
+}
+
+const yaya::char_t* CSystemFunction::HistoryFunctionName(void)
+{
+	return sysfunc[SYSFUNC_HIS];
+}
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::Execute
@@ -390,7 +667,7 @@ CValue	CSystemFunction::TOAUTO(const CValue &arg, yaya::string_t &d, int &l)
 	if ( IsIntString(str) ) {
 		return CValue(arg.array()[0].GetValueInt());
 	}
-	else if ( IsDoubleString(str) ) {
+	else if ( IsDoubleButNotIntString(str) ) {
 		return CValue(arg.array()[0].GetValueDouble());
 	}
 	else {
@@ -457,9 +734,9 @@ CValue	CSystemFunction::ISFUNC(const CValue &arg, yaya::string_t &d, int &l)
 	if(i != -1)
 		return CValue(1);
 
-	for(int i = 0; i < SYSFUNC_NUM; i++)
-		if (!arg.array()[0].s_value.compare(sysfunc[i]))
-			return CValue(2);
+	if ( FindIndex(arg.array()[0].s_value) >= 0 ) {
+		return CValue(2);
+	}
 
 	return CValue(0);
 }
@@ -3290,7 +3567,7 @@ CValue	CSystemFunction::ISREALSTR(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 
-	return CValue((int)IsDoubleString(arg.array()[0].s_value));
+	return CValue( static_cast<int>(IsIntString(arg.array()[0].s_value) || IsDoubleButNotIntString(arg.array()[0].s_value)) );
 }
 
 /* -----------------------------------------------------------------------
@@ -3470,7 +3747,7 @@ CValue	CSystemFunction::CVAUTO(const CValue &arg, const std::vector<CCell *> &pc
 			SetError(11);
 		}
 	}
-	else if ( IsDoubleString(arg.array()[0].GetValueString()) ) {
+	else if ( IsDoubleButNotIntString(arg.array()[0].GetValueString()) ) {
 		if (pcellarg[0]->value_GetType() == F_TAG_VARIABLE) {
 			vm.variable().SetValue(pcellarg[0]->index, arg.array()[0].GetValueDouble());
 		}

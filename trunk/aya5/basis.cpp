@@ -755,7 +755,7 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 		int	type;
 		if (IsIntString(value))
 			type = F_TAG_INT;
-		else if (IsDoubleString(value))
+		else if (IsDoubleButNotIntString(value))
 			type = F_TAG_DOUBLE;
 		else if (!IsLegalStrLiteral(value))
 			type = F_TAG_STRING;
@@ -824,7 +824,7 @@ void	CBasis::RestoreArrayVariable(CValue &var, yaya::string_t &value)
 			if (IsIntString(par)) {
 				var.array().push_back(CValueSub( ws_atoi(par, 10) ));
 			}
-			else if (IsDoubleString(par)) {
+			else if (IsDoubleButNotIntString(par)) {
 				var.array().push_back(CValueSub( ws_atof(par) ));
 			}
 			else {
