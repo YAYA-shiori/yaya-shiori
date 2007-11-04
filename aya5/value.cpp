@@ -581,7 +581,6 @@ CValue CValue::operator +(const CValue &value) const
 				const CValueSub t_vs(value.GetValueSub());
 				for(std::vector<CValueSub>::const_iterator it = array().begin(); it != array().end(); it++)
 					result.array().push_back(*it + t_vs);
-				result.type = F_TAG_ARRAY;
 			}
 			else if (value.type == F_TAG_ARRAY) {
 				result.type = F_TAG_ARRAY;
@@ -623,7 +622,6 @@ CValue CValue::operator -(const CValue &value) const
 				const CValueSub t_vs(value.GetValueSub());
 				for(std::vector<CValueSub>::const_iterator it = array().begin(); it != array().end(); it++)
 					result.array().push_back(*it - t_vs);
-				result.type = F_TAG_ARRAY;
 			}
 			else if (value.type == F_TAG_ARRAY) {
 				result.type = F_TAG_ARRAY;
@@ -665,7 +663,6 @@ CValue CValue::operator *(const CValue &value) const
 				const CValueSub t_vs(value.GetValueSub());
 				for(std::vector<CValueSub>::const_iterator it = array().begin(); it != array().end(); it++)
 					result.array().push_back(*it * t_vs);
-				result.type = F_TAG_ARRAY;
 			}
 			else if (value.type == F_TAG_ARRAY) {
 				result.type = F_TAG_ARRAY;
@@ -723,7 +720,6 @@ CValue CValue::operator /(const CValue &value) const
 				const CValueSub t_vs(value.GetValueSub());
 				for(std::vector<CValueSub>::const_iterator it = array().begin(); it != array().end(); it++)
 					result.array().push_back(*it / t_vs);
-				result.type = F_TAG_ARRAY;
 			}
 			else if (value.type == F_TAG_ARRAY) {
 				result.type = F_TAG_ARRAY;
@@ -772,7 +768,6 @@ CValue CValue::operator %(const CValue &value) const
 				const CValueSub t_vs(value.GetValueSub());
 				for(std::vector<CValueSub>::const_iterator it = array().begin(); it != array().end(); it++)
 					result.array().push_back(*it % t_vs);
-				result.type = F_TAG_ARRAY;
 			}
 			else if (value.type == F_TAG_ARRAY) {
 				result.type = F_TAG_ARRAY;
