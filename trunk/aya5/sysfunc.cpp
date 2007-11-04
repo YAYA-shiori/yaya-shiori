@@ -2695,8 +2695,8 @@ CValue	CSystemFunction::FENUM(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	// é¿çs
-	CValue			result;
-	HANDLE			hFile;
+	CValue result(F_TAG_STRING,0);
+	HANDLE hFile;
 	WIN32_FIND_DATA	w32FindData;
 	hFile = FindFirstFile(s_filestr, &w32FindData);
 	free(s_filestr);
@@ -2762,7 +2762,7 @@ CValue CSystemFunction::FENUM(const CValue &arg, yaya::string_t &d, int &l) {
     fix_filepath(path);
 
     // é¿çs
-    CValue result;
+	CValue result(F_TAG_STRING,0);
     DIR* dh = opendir(path.c_str());
     if (dh == NULL) {
 	return result;
