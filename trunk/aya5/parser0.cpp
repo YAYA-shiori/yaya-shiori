@@ -441,12 +441,13 @@ char	CParser0::DefineFunctions(std::vector<yaya::string_t> &s, const yaya::strin
 				// 重複回避オプションの判定
 				int	chtype = CHOICETYPE_RANDOM;
 				if (d1.size()) {
-				        int i;
-					for(i = 0; i < CHOICETYPE_NUM; i++)
+				    int i;
+					for(i = 0; i < CHOICETYPE_NUM; i++) {
 						if (!d1.compare(choicetype[i])) {
 							chtype = i;
 							break;
 						}
+					}
 					if (i == CHOICETYPE_NUM) {
 						vm.logger().Error(E_E, 30, d1, dicfilename, linecount);
 						return 1;
@@ -502,7 +503,7 @@ int	CParser0::MakeFunction(const yaya::string_t& name, int chtype, const yaya::s
 */
 
 	vm.function().push_back(CFunction(vm, name, chtype, dicfilename));
-	vm.function_wm().addWord(name, vm.function().size() - 1);
+	vm.functionmap().insert(yaya::indexmap::value_type(name,static_cast<int>(vm.function().size()-1)));
 
 	return vm.function().size() - 1;
 }
@@ -948,7 +949,8 @@ void	CParser0::StructFormulaCell(yaya::string_t &str, std::vector<CCell> &cells)
 //		wcout << "WordMatch:" << endl;
 		int in_dq = 0;
 		int	in_sq = 0;
-		for(unsigned int i = 0; i < str.size(); ++i) {
+		size_t strlen = str.size();
+		for(size_t i = 0; i < strlen; ++i) {
 			if (str[i] == L'\"') {
 				if (!in_sq)
 					in_dq = 1 - in_dq;
@@ -962,8 +964,20 @@ void	CParser0::StructFormulaCell(yaya::string_t &str, std::vector<CCell> &cells)
 			if (in_dq || in_sq)
 				continue;
 
-			int result = vm.formulatag_wm().search(str, i);
-			if(result != -1) {
+			int result = -1;
+			int maxlen = 0;
+			for ( int r = 0 ; r < FORMULATAG_NUM ; ++r ) {
+				if ( formulatag_len[r] <= strlen - i ) {
+					if ( str.compare(i,formulatag_len[r],formulatag[r]) == 0 ) {
+						if ( maxlen < formulatag_len[r] ) {
+							result = r;
+							maxlen = formulatag_len[r];
+						}
+					}
+				}
+			}
+
+			if ( result >= 0 ) {
 				tagtype = result;
 				taglen  = formulatag_len[tagtype];
 				
@@ -1126,7 +1140,7 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 	if(i != -1) {
 		scell.value_SetType(F_TAG_USERFUNC);
 		scell.index     = i;
-		scell.value().s_value = L"";
+		scell.value_Delete();
 		return 0;
 	}
 
@@ -1136,7 +1150,7 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 		if (!scell.value_const().s_value.compare(it->name)) {
 			scell.value_SetType(F_TAG_USERFUNC);
 			scell.index     = i;
-			scell.value().s_value = L"";
+			scell.value_Delete();
 //			wcout << "Aya5:" << endl;
 //			wcout << "  result: " << i << endl;
 			return 0;
@@ -1148,7 +1162,7 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 	if ( sysidx >= 0 ) {
 		scell.value_SetType(F_TAG_SYSFUNC);
 		scell.index     = sysidx;
-		scell.value().s_value = L"";
+		scell.value_Delete();
 		return 0;
 	}
 
@@ -1197,12 +1211,12 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 		return 0;
 	}
 	else if (i == 1) {
-		scell.value().s_value = L"";
+		scell.value_Delete();
 		vm.logger().Error(E_E, 7, scell.value_const().s_value, dicfilename, linecount);
 		return 1;
 	}
 	else if (i == 2) {
-		scell.value().s_value = L"";
+		scell.value_Delete();
 		vm.logger().Error(E_E, 8, scell.value_const().s_value, dicfilename, linecount);
 		return 1;
 	}
@@ -1214,12 +1228,12 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 		return 0;
 	}
 	else if (i == 1) {
-		scell.value().s_value = L"";
+		scell.value_Delete();
 		vm.logger().Error(E_E, 7, scell.value_const().s_value, dicfilename, linecount);
 		return 1;
 	}
 	else if (i == 2) {
-		scell.value().s_value = L"";
+		scell.value_Delete();
 		vm.logger().Error(E_E, 93, scell.value_const().s_value, dicfilename, linecount);
 		return 1;
 	}
@@ -1231,33 +1245,33 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 		// グローバル変数
 		scell.value_SetType(F_TAG_VARIABLE);
 		scell.index     = vm.variable().Make(scell.value_const().s_value, 1);
-		scell.value().s_value = L"";
+		scell.value_Delete();
 		return 0;
 	case 16:
 		// ローカル変数
 		scell.value_SetType(F_TAG_LOCALVARIABLE);
 		scell.name      = scell.value_const().s_value;
-		scell.value().s_value = L"";
+		scell.value_Delete();
 		return 0;
 	case 3:
 		// エラー　変数名の誤り
 		vm.logger().Error(E_E, 10, scell.value_const().s_value, dicfilename, linecount);
-		scell.value().s_value = L"";
+		scell.value_Delete();
 		return 1;
 	case 4:
 		// エラー　使用できない文字を含む
 		vm.logger().Error(E_E, 11, scell.value_const().s_value, dicfilename, linecount);
-		scell.value().s_value = L"";
+		scell.value_Delete();
 		return 1;
 	case 6:
 		// エラー　予約語と衝突
 		vm.logger().Error(E_E, 12, scell.value_const().s_value, dicfilename, linecount);
-		scell.value().s_value = L"";
+		scell.value_Delete();
 		return 1;
 	default:
 		// 内部エラー
 		vm.logger().Error(E_E, 9, scell.value_const().s_value, dicfilename, linecount);
-		scell.value().s_value = L"";
+		scell.value_Delete();
 		return 1;
 	};
 }
@@ -1460,8 +1474,9 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 				if (!bdepth)
 					break;
 			}
-			if (spos < len)
+			if (spos < len) {
 				spos++;
+			}
 			// エラー処理
 			if (bdepth != 0) {
 				vm.logger().Error(E_E, 60, dicfilename, linecount);
@@ -1512,8 +1527,9 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 				if (!bdepth)
 					break;
 			}
-			if (spos < len)
+			if (spos < len) {
 				spos++;
+			}
 			// エラー処理
 			if (bdepth != 0) {
 				vm.logger().Error(E_E, 78, dicfilename, linecount);
@@ -1707,7 +1723,7 @@ char	CParser0::MakeCompleteConvertionWhenToIf(void)
 							if (it3 == it2->cell().end()) {
 								CCell	addcell1(F_TAG_LOCALVARIABLE);
 								addcell1.name    = caseary[depthm1];
-								addcell1.value().s_value = L"";
+								addcell1.value_Delete();
 								it3 = it2->cell().insert(it3, addcell1);
 								CCell	addcell2(F_TAG_IFEQUAL);
 								it3 = it2->cell().insert(it3, addcell2);
@@ -1721,7 +1737,7 @@ char	CParser0::MakeCompleteConvertionWhenToIf(void)
 							// or
 							CCell	addcell1(F_TAG_LOCALVARIABLE);
 							addcell1.name      = caseary[depthm1];
-							addcell1.value().s_value = L"";
+							addcell1.value_Delete();
 							it3 = it2->cell().insert(it3, addcell1);
 							CCell	addcell2(F_TAG_IFEQUAL);
 							it3 = it2->cell().insert(it3, addcell2);
@@ -1739,7 +1755,7 @@ char	CParser0::MakeCompleteConvertionWhenToIf(void)
 							// and
 							CCell	addcell1(F_TAG_LOCALVARIABLE);
 							addcell1.name      = caseary[depthm1];
-							addcell1.value().s_value = L"";
+							addcell1.value_Delete();
 							it3 = it2->cell().insert(it3, addcell1);
 							CCell	addcell2(F_TAG_IFLTEQUAL);
 							it3 = it2->cell().insert(it3, addcell2);
@@ -1758,7 +1774,7 @@ char	CParser0::MakeCompleteConvertionWhenToIf(void)
 							it3 = it2->cell().insert(it3, addcell3);
 							CCell	addcell4(F_TAG_LOCALVARIABLE);
 							addcell4.name      = caseary[depthm1];
-							addcell4.value().s_value = L"";
+							addcell4.value_Delete();
 							it3 = it2->cell().insert(it3, addcell4);
 							if (it3 == it2->cell().end())
 								break;
@@ -2005,12 +2021,13 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 		}
 		else {
 			// ","以外
-			for(i = t_index + 1; i < sz; i++)
+			for(i = t_index + 1; i < sz; i++) {
 				if (depthvec[i] == -2) {
 					addserial.index.push_back(i);
 					depthvec[i] = -1;
 					break;
 				}
+			}
 			if (i == sz) {
 				vm.logger().Error(E_E, 22, dicfilename, st.linecount);
 				return 1;
@@ -2050,13 +2067,19 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
  */
 int	CParser0::GetFunctionIndexFromName(const yaya::string_t& str)
 {
-	int i = vm.function_wm().search(str, 0);
+	yaya::indexmap::const_iterator it = vm.functionmap().find(str);
+	if ( it != vm.functionmap().end() ) {
+		return it->second;
+	}
+	return -1;
+
+/*	int i = vm.function_wm().search(str, 0);
 	if((i != -1) && !vm.function()[i].name.compare(str)) {
 		// strの最初が関数名にマッチした場合にWordMatchは-1以外を返すので，
 		// 完全一致かどうか再度チェックが必要．
 		return i;
 	}
-	return -1;
+	return -1;*/
 /*
 	int	sz = vm.function().size();
 	for(int i = 0; i < sz; i++)
@@ -2066,4 +2089,5 @@ int	CParser0::GetFunctionIndexFromName(const yaya::string_t& str)
 	return -1;
 */
 }
+
 

@@ -24,8 +24,12 @@
 #include "manifest.h"
 #include "globaldef.h"
 
+class CValue;
+
 class	CValueSub
 {
+	friend CValue;
+
 protected:
 	int	type;						// Œ^
 public:
@@ -53,9 +57,12 @@ public:
 	CValueSub(const yaya::char_t *value) :
 		type(F_TAG_STRING) , s_value(value), d_value(0.0), i_value(0) { }
 
+	CValueSub::CValueSub(const CValue &v);
+
 	~CValueSub(void) {}
 
 	inline int		GetType(void) const { return type; }
+	inline void		SetType(int tp) { type = tp; }
 
 	inline bool		IsVoid(void) const { return type == F_TAG_VOID; }
 	inline bool		IsString(void) const { return type == F_TAG_STRING || type == F_TAG_VOID; }
@@ -75,6 +82,7 @@ public:
 	CValueSub	&operator =(double value);
 	CValueSub	&operator =(const yaya::string_t &value);
 	CValueSub	&operator =(const yaya::char_t *value);
+	CValueSub	&operator =(const CValue &v);
 
 	CValueSub	operator +(const CValueSub &value) const;
 	CValueSub	operator -(const CValueSub &value) const;
@@ -96,6 +104,8 @@ public:
 
 class	CValue
 {
+	friend CValueSub;
+
 protected:
 	int	type;						// Œ^
 public:
@@ -109,8 +119,6 @@ private:
 private:
 	int CalcEscalationTypeNum(const int rhs) const;
 	int CalcEscalationTypeStr(const int rhs) const;
-
-	CValueSub GetValueSub(void) const;
 
 	int Compare(const CValue &value) const;
 	int Great(const CValue &value) const;
@@ -221,9 +229,6 @@ public:
 		return 0;
 	}
 
-	//SafeThis‚Í‹ŒŠÖ”‚Å‚·
-	inline CValue	*SafeThis(void) { return this; }
-
 	int		GetValueInt(void) const;
 	double	GetValueDouble(void) const;
 	yaya::string_t	GetValueString(void) const;
@@ -283,7 +288,7 @@ public:
 			return m_array->size();
 		}
 	}
-	boost::shared_ptr<std::vector<CValueSub> > &array_shared(void) {
+	boost::shared_ptr<std::vector<CValueSub> > &array_shared(void) const {
 		return m_array;
 	}
 	const std::vector<CValueSub>& array(void) const {

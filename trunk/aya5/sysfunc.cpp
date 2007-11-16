@@ -236,14 +236,14 @@ public:
 	int sysfunc_len[SYSFUNC_NUM];
 	int sysfunc_len_max;
 	int sysfunc_len_min;
-	std::map<yaya::string_t,int> sysfunc_map;
+	yaya::indexmap sysfunc_map;
 
 	CSystemFunctionInit(void) {
 		sysfunc_len_max = 0;
 		sysfunc_len_min = 65536;
 		for(size_t i = 0; i < SYSFUNC_NUM; i++) {
 			sysfunc_len[i] = ::wcslen(sysfunc[i]);
-			sysfunc_map.insert(std::map<yaya::string_t,int>::value_type(sysfunc[i],i));
+			sysfunc_map.insert(yaya::indexmap::value_type(sysfunc[i],i));
 
 			if ( sysfunc_len_max < sysfunc_len[i] ) {
 				sysfunc_len_max = sysfunc_len[i];
@@ -285,7 +285,7 @@ int CSystemFunction::GetMaxNameLength(void)
  */
 int CSystemFunction::FindIndex(const yaya::string_t &str)
 {
-	std::map<yaya::string_t,int>::const_iterator it = sysfuncinit.sysfunc_map.find(str);
+	yaya::indexmap::const_iterator it = sysfuncinit.sysfunc_map.find(str);
 	if ( it == sysfuncinit.sysfunc_map.end() ) { return -1; }
 
 	return it->second;
@@ -4651,4 +4651,5 @@ CValue CSystemFunction::READFMO(const CValue &arg, yaya::string_t &d, int &l)
 	return CValue(F_TAG_NOP, 0/*dmy*/);
 }
 #endif
+
 

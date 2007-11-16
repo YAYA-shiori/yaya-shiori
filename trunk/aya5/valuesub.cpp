@@ -25,6 +25,32 @@
 ////////////////////////////////////////
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CValueSub::CValueSub
+ *  機能概要：  CValueからCValueSubを構築します
+ * -----------------------------------------------------------------------
+ */
+CValueSub::CValueSub(const CValue &v)
+{
+	switch(v.type) {
+	case F_TAG_INT:
+		i_value = v.i_value;
+		type = v.type;
+		return;
+	case F_TAG_DOUBLE:
+		d_value = v.d_value;
+		type = v.type;
+		return;
+	case F_TAG_STRING:
+		s_value = v.s_value;
+		type = v.type;
+		return;
+	default:
+		type = F_TAG_VOID;
+		return;
+	}
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CValueSub::GetValueInt
  *  機能概要：  値をintで取得します
  *
@@ -136,6 +162,32 @@ CValueSub &CValueSub::operator =(const yaya::char_t *value)
 
 	return *this;
 }
+
+/* -----------------------------------------------------------------------
+ *  operator = (CValue)
+ * -----------------------------------------------------------------------
+ */
+CValueSub &CValueSub::operator =(const CValue &v)
+{
+	switch(v.type) {
+	case F_TAG_INT:
+		i_value = v.i_value;
+		type = v.type;
+		return *this;
+	case F_TAG_DOUBLE:
+		d_value = v.d_value;
+		type = v.type;
+		return *this;
+	case F_TAG_STRING:
+		s_value = v.s_value;
+		type = v.type;
+		return *this;
+	default:
+		type = F_TAG_VOID;
+		return *this;
+	}
+}
+
 
 /* -----------------------------------------------------------------------
  *  CalcEscalationTypeNum
@@ -311,4 +363,7 @@ int CValueSub::Compare(const CValueSub &value) const
 		return 0;
 	}
 }
+
+
+
 

@@ -60,7 +60,6 @@
 CBasis::CBasis(CAyaVM &vmr) : vm(vmr)
 {
 	ResetSuppress();
-	CreateWordMatch();
 
 	checkparser = 0;
 	iolog       = 1;
@@ -79,13 +78,6 @@ CBasis::CBasis(CAyaVM &vmr) : vm(vmr)
 #endif
 	run         = 0;
 }
-
-void CBasis::CreateWordMatch(void)
-{
-	for(int i = 0; i < FORMULATAG_NUM; i++)
-		vm.formulatag_wm().addWord(formulatag[i], i);
-}
-
 
 /* -----------------------------------------------------------------------
  *  ŠÖ”–¼  F  CBasis::SetModuleHandle

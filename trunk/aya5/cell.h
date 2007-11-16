@@ -88,7 +88,7 @@ public:
 		}
 	}
 	//-------------------//
-	boost::shared_ptr<CValue> &value_shared(void) {
+	boost::shared_ptr<CValue> &value_shared(void) const {
 		return m_value;
 	}
 	const CValue &value_const(void) const {
@@ -110,8 +110,14 @@ public:
 		}
 		return *m_value;
 	}
+	void value_Delete(void) {
+		if ( m_value.get() ) {
+			m_type = m_value->GetType();
+			m_value.reset();
+		}
+	}
 	//////////////////////////////////////
-	boost::shared_ptr<CValue> &ansv_shared(void) {
+	boost::shared_ptr<CValue> &ansv_shared(void) const {
 		return m_ansv;
 	}
 	const CValue &ansv_const(void) const {
@@ -134,7 +140,7 @@ public:
 		return *m_ansv;
 	}
 	//////////////////////////////////////
-	boost::shared_ptr<CValue> &order_shared(void) {
+	boost::shared_ptr<CValue> &order_shared(void) const {
 		return m_order;
 	}
 	const CValue &order_const(void) const {
@@ -157,7 +163,7 @@ public:
 		return *m_order;
 	}
 	//////////////////////////////////////
-	boost::shared_ptr<CValue> &emb_ansv_shared(void) {
+	boost::shared_ptr<CValue> &emb_ansv_shared(void) const {
 		return m_emb_ansv;
 	}
 	const CValue &emb_ansv_const(void) const {

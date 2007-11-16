@@ -157,10 +157,8 @@ extern const yaya::char_t *aya_author;
 #define	F_TAG_ARRAY				4096			/* 汎用配列 */
 
 // 有効な演算子の数
-#define	FORMULATAG_NUM			40
-
 // 演算子の名前
-const yaya::char_t	formulatag[FORMULATAG_NUM][19] = {
+const yaya::char_t	formulatag[][19] = {
 	L",",   L"+",   L"-",    L"*",     L"/",
 	L"%",   L"==",  L"!=",   L">=",    L"<=",
 	L">",   L"<",   L"_in_", L"!_in_", L"||",
@@ -174,6 +172,8 @@ const yaya::char_t	formulatag[FORMULATAG_NUM][19] = {
 
 	L"_Op_FuNc_PaRaM_", L"_Op_ArArY_OrDeR_", L"_Op_SySfUnC_PaRaM_"
 };
+
+#define	FORMULATAG_NUM			(sizeof(formulatag) / sizeof(formulatag[0]))
 
 // 演算子の名前の長さ
 const int	formulatag_len[FORMULATAG_NUM] = {
@@ -251,4 +251,5 @@ void exchange(T& a, T& b)
 //----
 
 #endif
+
 

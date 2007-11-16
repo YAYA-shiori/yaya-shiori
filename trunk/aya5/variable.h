@@ -26,6 +26,7 @@
 #endif
 
 #include <vector>
+#include <map>
 #include <boost/shared_ptr.hpp>
 
 #include "cell.h"
@@ -74,11 +75,14 @@ public:
 	~CVariable(void) {}
 
 	void	Enable(void) { erased = 0; }
-	void	Erase(void) { erased = 1; }
+	void	Erase(void) {
+		erased = 1;
+		m_value.reset();
+	}
 	char	IsErased(void) { return erased; }
 
 	//////////////////////////////////////
-	boost::shared_ptr<CValue> &value_shared(void) {
+	boost::shared_ptr<CValue> &value_shared(void) const {
 		return m_value;
 	}
 	const CValue &value_const(void) const {
@@ -117,6 +121,7 @@ class	CLocalVariable
 protected:
 	std::vector<CLVSubStack> stack;
 	int	depth;
+	CValue emptyvalue;
 
 public:
 	CLocalVariable(void);
@@ -144,8 +149,9 @@ public:
 	void	Make(const yaya::char_t *name, const yaya::string_t &delimiter);
 	void	Make(const yaya::string_t &name, const yaya::string_t &delimiter);
 
-	CValue	GetValue(const yaya::char_t *name);
-	CValue	GetValue(const yaya::string_t &name);
+	const CValue& GetValue(const yaya::char_t *name);
+	const CValue& GetValue(const yaya::string_t &name);
+
 	CValue*	GetValuePtr(const yaya::char_t *name);
 	CValue*	GetValuePtr(const yaya::string_t &name);
 
@@ -169,6 +175,7 @@ class	CGlobalVariable
 {
 protected:
 	std::vector<CVariable> var;
+	yaya::indexmap varmap;
 
 private:
 	CAyaVM &vm;
@@ -184,6 +191,7 @@ public:
 	}
 
 	int		Make(const yaya::string_t &name, char erased);
+
 	size_t	GetMacthedLongestNameLength(const yaya::string_t &name);
 
 	int		GetIndex(const yaya::string_t &name);
@@ -197,7 +205,6 @@ public:
 
 	void	SetType(int index, int type) { var[index].value().SetType(type); }
 
-	CValue&			GetValue(int index) { return var[index].value(); }
 	const CValue&	GetValue(int index) const { return var[index].value_const(); }
 
 	yaya::string_t&	GetDelimiter(int index) { return var[index].delimiter; }
@@ -215,7 +222,6 @@ public:
 	{
 		int	index = GetIndex(name);
 		if (index >= 0) {
-			SetValue(index, L"");
 			var[index].Erase();
 		}
 	}

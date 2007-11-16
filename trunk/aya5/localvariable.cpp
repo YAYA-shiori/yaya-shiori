@@ -200,26 +200,26 @@ void	CLocalVariable::GetIndex(const yaya::string_t &name, int &id, int &dp)
  * -----------------------------------------------------------------------
  */
 
-CValue	CLocalVariable::GetValue(const yaya::char_t *name)
+const CValue& CLocalVariable::GetValue(const yaya::char_t *name)
 {
 	int	dp, id;
 	GetIndex(name, id, dp);
 	if (id >= 0)
 		return stack[dp].substack[id].value();
 
-	return CValue();
+	return emptyvalue;
 }
 
 //----
 
-CValue	CLocalVariable::GetValue(const yaya::string_t &name)
+const CValue& CLocalVariable::GetValue(const yaya::string_t &name)
 {
 	int	dp, id;
 	GetIndex(name, id, dp);
 	if (id >= 0)
 		return stack[dp].substack[id].value();
 
-	return CValue();
+	return emptyvalue;
 }
 
 /* -----------------------------------------------------------------------
@@ -408,6 +408,7 @@ void	CLocalVariable::Erase(const yaya::string_t &name)
 {
 	int	id, dp;
 	GetIndex(name, id, dp);
-	if (id >= 0)
-		SetValue(name, CValue());
+	if (id >= 0) {
+		stack[dp].substack[id].Erase();
+	}
 }
