@@ -263,10 +263,6 @@ SOURCE=.\valuesub.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\wordmatch.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\wsex.cpp
 # End Source File
 # End Group
@@ -432,10 +428,6 @@ SOURCE=.\value.h
 # Begin Source File
 
 SOURCE=.\variable.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\wordmatch.h
 # End Source File
 # Begin Source File
 

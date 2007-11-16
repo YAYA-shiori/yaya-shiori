@@ -11,6 +11,7 @@
 
 #include <math.h>
 #include <vector>
+#include <iterator>
 
 #include "misc.h"
 #include "globaldef.h"
@@ -157,32 +158,14 @@ yaya::string_t	CValue::GetValueStringForLogging(void) const
  */
 void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 {
-	// 型変換して元の値を[0]へ代入
-	if (type == F_TAG_INT) {
-		CValueSub	addvs(i_value);
-		std::vector<CValueSub>	addvsarray;
-		addvsarray.push_back(addvs);
-		*this = addvsarray;
-	}
-	else if (type == F_TAG_DOUBLE) {
-		CValueSub	addvs(d_value);
-		std::vector<CValueSub>	addvsarray;
-		addvsarray.push_back(addvs);
-		*this = addvsarray;
-	}
-
 	// 序数とデリミタの取得
 	int	order, order1;
 	yaya::string_t	delimiter;
 	int	aoflg = oval.DecodeArrayOrder(order, order1, delimiter);
 
 	// 値を更新する
-	if (type == F_TAG_STRING) {
+	if ( type == F_TAG_STRING ) {
 		// 簡易配列
-
-		// 代入値が文字列でない場合は何もしない
-		if (value.GetType() != F_TAG_STRING)
-			return;
 		// 元の文字列をデリミタで分割
 		std::vector<yaya::string_t>	s_array;
 		int	sz = SplitToMultiString(s_value, s_array, delimiter);
@@ -194,41 +177,79 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 			else if (order < sz) {
 				int	s_index   = __GETMAX(order, 0);
 				int	e_index   = __GETMIN(order1 + 1, sz);
-				int	s_indexp1 = s_index + 1;
-				int	i         = 0;
-				s_array[s_index] = value.s_value;
-				for(std::vector<yaya::string_t>::iterator it = s_array.begin();
-					it != s_array.end(); i++) {
-					if (s_indexp1 <= i && i < e_index)
-						it = s_array.erase(it);
-					else if (i >= e_index)
-						break;
-					else
-						it++;
+
+				if ( value.GetType() == F_TAG_ARRAY ) {
+					std::vector<yaya::string_t>::iterator it = s_array.erase(s_array.begin() + s_index,s_array.begin() + e_index);
+					
+					if ( ! value.array().empty() ) {
+						for ( std::vector<CValueSub>::const_iterator ita = value.array().begin() ;
+							ita != value.array().end() ; ita++ ) {
+							it = s_array.insert(it,ita->GetValueString());
+							it++;
+						}
+					}
+				}
+				else {
+					s_array.erase(s_array.begin() + s_index + 1,s_array.begin() + e_index);
+					s_array[s_index] = value.GetValueString();
 				}
 			}
 			else {
-				int	addsize = order - s_array.size();
+				int	addsize = order - sz;
 				for(int i = 0; i < addsize; i++) {
-					yaya::string_t	addstr;
-					s_array.push_back(addstr);
+					s_array.push_back(yaya::string_t());
 				}
-				s_array.push_back(value.s_value);
+	
+				if ( value.GetType() == F_TAG_ARRAY ) {
+					if ( ! value.array().empty() ) {
+						for ( std::vector<CValueSub>::const_iterator ita = value.array().begin() ;
+							ita != value.array().end() ; ita++ ) {
+							s_array.push_back(ita->GetValueString());
+						}
+					}
+				}
+				else {
+					s_array.push_back(value.GetValueString());
+				}
 			}
 		}
 		else {
 			// 範囲なし
 			if (order < 0)
 				return;
-			else if (order < sz)
-				s_array[order] = value.s_value;
+			else if (order < sz) {
+				if ( value.GetType() == F_TAG_ARRAY ) {
+					std::vector<yaya::string_t>::iterator it = s_array.erase(s_array.begin() + order);
+					
+					if ( ! value.array().empty() ) {
+						for ( std::vector<CValueSub>::const_iterator ita = value.array().begin() ;
+							ita != value.array().end() ; ita++ ) {
+							it = s_array.insert(it,ita->GetValueString());
+							it++;
+						}
+					}
+				}
+				else {
+					s_array[order] = value.GetValueString();
+				}
+			}
 			else {
 				int	addsize = order - sz;
 				for(int i = 0; i < addsize; i++) {
-					yaya::string_t	addstr;
-					s_array.push_back(addstr);
+					s_array.push_back(yaya::string_t());
 				}
-				s_array.push_back(value.s_value);
+
+				if ( value.GetType() == F_TAG_ARRAY ) {
+					if ( ! value.array().empty() ) {
+						for ( std::vector<CValueSub>::const_iterator ita = value.array().begin() ;
+							ita != value.array().end() ; ita++ ) {
+							s_array.push_back(ita->GetValueString());
+						}
+					}
+				}
+				else {
+					s_array.push_back(value.GetValueString());
+				}
 			}
 		}
 		// 文字列の復元
@@ -237,13 +258,18 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 			s_value = L"";
 		else {
 			s_value = s_array[0];
-			for(int i = 1; i < sz; i++)
+			for(int i = 1; i < sz; i++) {
 				s_value += delimiter + s_array[i];
+			}
 		}
 	}
-	else if (type == F_TAG_ARRAY || type == F_TAG_VOID) {
+	else {
 		// 汎用配列（もしくは未初期化）
-		type = F_TAG_ARRAY;
+		if ( type != F_TAG_ARRAY ) {
+			type = F_TAG_ARRAY;
+			array().clear();
+			array().push_back(CValueSub(*this));
+		}
 
 		if (aoflg) {
 			int	sz = array_size();
@@ -254,51 +280,33 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 				// 配列中途の書き換え
 				int	s_index   = __GETMAX(order, 0);
 				int	e_index   = __GETMIN(order1 + 1, sz);
-				int	i         = 0;
-				if (value.GetType() == F_TAG_INT)
-					array()[s_index] = value.i_value;
-				else if (value.GetType() == F_TAG_DOUBLE)
-					array()[s_index] = value.d_value;
-				else if (value.GetType() == F_TAG_STRING)
-					array()[s_index] = value.s_value;
-				else if (value.GetType() == F_TAG_ARRAY) {
-					i = 0;
-					for(std::vector<CValueSub>::iterator it = array().begin(); it != array().end(); it++, i++)
-						if (i == s_index) {
-							it = array().erase(it);
-							array().insert(it, value.array().begin(), value.array().end());
-							s_index += (value.array_size() - 1);
-							e_index += (value.array_size() - 1);
-							break;
-						}
+				
+				if ( value.GetType() == F_TAG_ARRAY ) {
+					std::vector<CValueSub>::iterator it = array().erase(array().begin() + s_index,array().begin() + e_index);
+					if ( ! value.array().empty() ) {
+						array().insert(it, value.array().begin(), value.array().end());
+					}
 				}
-				i = 0;
-				for(std::vector<CValueSub>::iterator it = array().begin(); it != array().end(); i++) {
-					if (s_index < i && i < e_index)
-						it = array().erase(it);
-					else if (i >= e_index)
-						break;
-					else
-						it++;
+				else {
+					array().erase(array().begin() + s_index + 1,array().begin() + e_index);
+					array()[s_index] = value;
 				}
 			}
 			else {
 				// 後端への追加
-				std::vector<CValueSub>	*t_array = &array();
-				int	addsize = order - t_array->size();
+				int	addsize = order - array().size();
 				for(int i = 1; i <= addsize; i++) {
-					CValueSub	addvs;
-					t_array->push_back(addvs);
+					array().push_back(CValueSub());
 				}
-				if (value.GetType() == F_TAG_INT)
-					t_array->push_back(value.i_value);
-				else if (value.GetType() == F_TAG_DOUBLE)
-					t_array->push_back(value.d_value);
-				else if (value.GetType() == F_TAG_STRING)
-					t_array->push_back(value.s_value);
-				else if (value.GetType() == F_TAG_ARRAY)
-					t_array->insert(t_array->end(),
-						value.array().begin(), value.array().end());
+				
+				if (value.GetType() == F_TAG_ARRAY) {
+					if ( ! value.array().empty() ) {
+						array().insert(array().end(),value.array().begin(), value.array().end());
+					}
+				}
+				else {
+					array().push_back(CValueSub(value));
+				}
 			}
 		}
 		else {
@@ -306,41 +314,32 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 			if (order < 0)
 				return;
 			if (order < static_cast<int>(array_size()) ) {
-				// 配列中途の書き換え
-				if (value.GetType() == F_TAG_INT)
-					array()[order] = value.i_value;
-				else if (value.GetType() == F_TAG_DOUBLE)
-					array()[order] = value.d_value;
-				else if (value.GetType() == F_TAG_STRING)
-					array()[order] = value.s_value;
-				else if (value.GetType() == F_TAG_ARRAY || value.GetType() == F_TAG_VOID) {
-					for(std::vector<CValueSub>::iterator it = array().begin(); it != array().end(); it++, order--)
-						if (!order) {
-							it = array().erase(it);
-							if ( value.GetType() == F_TAG_ARRAY ) {
-								array().insert(it, value.array().begin(), value.array().end());
-							}
-							break;
-						}
+				// 配列中途の書き換え				
+				if (value.GetType() == F_TAG_ARRAY ) {
+					std::vector<CValueSub>::iterator it = array().erase(array().begin() + order);
+					if ( ! value.array().empty() ) {
+						array().insert(it, value.array().begin(), value.array().end());
+					}
+				}
+				else {
+					array()[order] = value;
 				}
 			}
 			else {
 				// 後端への追加
-				std::vector<CValueSub>	*t_array = &array();
-				int	addsize = order - t_array->size();
+				int	addsize = order - array().size();
 				for(int i = 1; i <= addsize; i++) {
-					CValueSub	addvs;
-					t_array->push_back(addvs);
+					array().push_back(CValueSub());
 				}
-				if (value.GetType() == F_TAG_INT)
-					t_array->push_back(value.i_value);
-				else if (value.GetType() == F_TAG_DOUBLE)
-					t_array->push_back(value.d_value);
-				else if (value.GetType() == F_TAG_STRING)
-					t_array->push_back(value.s_value);
-				else if (value.GetType() == F_TAG_ARRAY)
-					t_array->insert(t_array->end(),
-						value.array().begin(), value.array().end());
+				
+				if (value.GetType() == F_TAG_ARRAY) {
+					if ( ! value.array().empty() ) {
+						array().insert(array().end(),value.array().begin(), value.array().end());
+					}
+				}
+				else {
+					array().push_back(CValueSub(value));
+				}
 			}
 		}
 	}
@@ -494,27 +493,6 @@ CValue &CValue::operator =(const CValueSub &value)
 }
 
 /* -----------------------------------------------------------------------
- *  GetValueSub
- *
- *  CValueSubをつくります。配列演算用。
- * -----------------------------------------------------------------------
- */
-CValueSub CValue::GetValueSub(void) const
-{
-	switch(type) {
-	case F_TAG_INT:
-		return CValueSub(i_value);
-	case F_TAG_DOUBLE:
-		return CValueSub(d_value);
-	case F_TAG_STRING:
-		return CValueSub(s_value);
-	case F_TAG_ARRAY:
-		return CValueSub(GetValueString());
-	}
-	return CValueSub();
-}
-
-/* -----------------------------------------------------------------------
  *  CalcEscalationTypeNum
  *
  *  型の昇格ルールを扱います（数値優先）
@@ -578,13 +556,13 @@ CValue CValue::operator +(const CValue &value) const
 			}
 			else if (type == F_TAG_ARRAY) {
 				result.type = F_TAG_ARRAY;
-				const CValueSub t_vs(value.GetValueSub());
+				const CValueSub t_vs(value);
 				for(std::vector<CValueSub>::const_iterator it = array().begin(); it != array().end(); it++)
 					result.array().push_back(*it + t_vs);
 			}
 			else if (value.type == F_TAG_ARRAY) {
 				result.type = F_TAG_ARRAY;
-				const CValueSub t_vs(GetValueSub());
+				const CValueSub t_vs(*this);
 				for(std::vector<CValueSub>::const_iterator it = value.array().begin(); it != value.array().end(); it++)
 					result.array().push_back(t_vs + *it);
 			}
@@ -619,13 +597,13 @@ CValue CValue::operator -(const CValue &value) const
 			}
 			else if (type == F_TAG_ARRAY) {
 				result.type = F_TAG_ARRAY;
-				const CValueSub t_vs(value.GetValueSub());
+				const CValueSub t_vs(value);
 				for(std::vector<CValueSub>::const_iterator it = array().begin(); it != array().end(); it++)
 					result.array().push_back(*it - t_vs);
 			}
 			else if (value.type == F_TAG_ARRAY) {
 				result.type = F_TAG_ARRAY;
-				const CValueSub t_vs(GetValueSub());
+				const CValueSub t_vs(*this);
 				for(std::vector<CValueSub>::const_iterator it = value.array().begin(); it != value.array().end(); it++)
 					result.array().push_back(t_vs - *it);
 			}
@@ -660,13 +638,13 @@ CValue CValue::operator *(const CValue &value) const
 			}
 			else if (type == F_TAG_ARRAY) {
 				result.type = F_TAG_ARRAY;
-				const CValueSub t_vs(value.GetValueSub());
+				const CValueSub t_vs(value);
 				for(std::vector<CValueSub>::const_iterator it = array().begin(); it != array().end(); it++)
 					result.array().push_back(*it * t_vs);
 			}
 			else if (value.type == F_TAG_ARRAY) {
 				result.type = F_TAG_ARRAY;
-				const CValueSub t_vs(GetValueSub());
+				const CValueSub t_vs(*this);
 				for(std::vector<CValueSub>::const_iterator it = value.array().begin(); it != value.array().end(); it++)
 					result.array().push_back(t_vs * *it);
 			}
@@ -717,13 +695,13 @@ CValue CValue::operator /(const CValue &value) const
 			}
 			else if (type == F_TAG_ARRAY) {
 				result.type = F_TAG_ARRAY;
-				const CValueSub t_vs(value.GetValueSub());
+				const CValueSub t_vs(value);
 				for(std::vector<CValueSub>::const_iterator it = array().begin(); it != array().end(); it++)
 					result.array().push_back(*it / t_vs);
 			}
 			else if (value.type == F_TAG_ARRAY) {
 				result.type = F_TAG_ARRAY;
-				const CValueSub t_vs(GetValueSub());
+				const CValueSub t_vs(*this);
 				for(std::vector<CValueSub>::const_iterator it = value.array().begin(); it != value.array().end(); it++)
 					result.array().push_back(t_vs / *it);
 			}
@@ -765,13 +743,13 @@ CValue CValue::operator %(const CValue &value) const
 			}
 			else if (type == F_TAG_ARRAY) {
 				result.type = F_TAG_ARRAY;
-				const CValueSub t_vs(value.GetValueSub());
+				const CValueSub t_vs(value);
 				for(std::vector<CValueSub>::const_iterator it = array().begin(); it != array().end(); it++)
 					result.array().push_back(*it % t_vs);
 			}
 			else if (value.type == F_TAG_ARRAY) {
 				result.type = F_TAG_ARRAY;
-				const CValueSub t_vs(GetValueSub());
+				const CValueSub t_vs(*this);
 				for(std::vector<CValueSub>::const_iterator it = value.array().begin(); it != value.array().end(); it++)
 					result.array().push_back(t_vs % *it);
 			}
@@ -964,4 +942,7 @@ int CValue::Less(const CValue &value) const
 	}
 	return 0;
 }
+
+
+
 

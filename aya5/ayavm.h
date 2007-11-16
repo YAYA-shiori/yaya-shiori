@@ -11,6 +11,7 @@
 #define AYAVM_H
 
 #include <vector>
+#include <map>
 #include <boost/shared_ptr.hpp>
 #include "log.h"
 #include "mt19937ar.h"
@@ -29,12 +30,11 @@ class CParser1;
 class CAyaVM
 {
 private:
-	boost::shared_ptr<CWordMatch>				m_formulatag_wm;
-	boost::shared_ptr<CWordMatch>				m_function_wm;
-
 	boost::shared_ptr<CBasis>					m_basis;
 
 	boost::shared_ptr< std::vector<CFunction> >	m_function;
+	boost::shared_ptr< yaya::indexmap > m_functionmap;
+
 	boost::shared_ptr<CCallDepth>				m_calldepth;
 	boost::shared_ptr<CSystemFunction>			m_sysfunction;
 	boost::shared_ptr<CGlobalVariable>			m_variable;
@@ -52,15 +52,13 @@ public:
 	unsigned int genrand(void);
 	int genrand_int(int n);
 
-	// 演算子・関数の検索マップ
-	CWordMatch&				formulatag_wm();
-	CWordMatch&				function_wm();
-
 	// 主制御
 	CBasis&					basis();
 
 	// 関数/システム関数/グローバル変数
 	std::vector<CFunction>&	function();
+	yaya::indexmap& functionmap();
+
 	CCallDepth&				calldepth();
 	CSystemFunction&		sysfunction();
 	CGlobalVariable&		variable();
@@ -80,4 +78,5 @@ public:
 };
 
 #endif //AYAVM_H
+
 

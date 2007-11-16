@@ -3,10 +3,11 @@
 
 #include <cwchar>
 #include <string>
+#include <map>
 
 #include <boost/shared_ptr.hpp>
 
-//32/64bit‘Î‰ž
+//32/64bitÎ‰
 #define JGX_WIN64_AWARE 
 
 #ifdef _MSC_VER
@@ -38,6 +39,8 @@ namespace yaya {
 
 	typedef boost::shared_ptr<string_t> share_string_t;
 	typedef boost::shared_ptr<const string_t> const_share_string_t;
+
+	typedef std::map<yaya::string_t,int> indexmap;
 
 #ifdef _WIN64
 	typedef __int64 native_signed;

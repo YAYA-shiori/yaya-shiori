@@ -171,7 +171,7 @@ CValue	CSelecter::ChoiceByIndex()
 {
 	// 最後の領域が空だった場合はダミーの空文字列を追加
 	if (!values[areanum].array.size())
-		Append(CValue(L""));
+		Append(CValue());
 
 	// 主処理
 	if (areanum) {
@@ -226,21 +226,14 @@ CValue CSelecter::StructArray1(int index)
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 
     for(size_t i = 0; i < values[index].array.size(); ++i) {
-		CValue	*target = &(values[index].array[i]);
-		int	valtype = target->GetType();
-		if (valtype == F_TAG_INT)
-			result.array().push_back(CValueSub(target->GetValueInt()));
-		else if (valtype == F_TAG_DOUBLE)
-			result.array().push_back(CValueSub(target->GetValueDouble()));
-		else if (valtype == F_TAG_STRING)
-			result.array().push_back(CValueSub(target->GetValueString()));
-		/*else if (valtype == F_TAG_VOID) //VOIDは無視
-			result.array().push_back(CValueSub());*/
-		else if (valtype == F_TAG_ARRAY)
-			result.array().insert(result.array().end(), target->array().begin(), target->array().end());
+		const CValue &target = values[index].array[i];
+		int	valtype = target.GetType();
+		
+		if (valtype == F_TAG_ARRAY) {
+			result.array().insert(result.array().end(), target.array().begin(), target.array().end());
+		}
 		else {
-			// 内部エラーだが報告なし（サイレント）。注意
-			break;
+			result.array().push_back(CValueSub(target));
 		}
 	}
 

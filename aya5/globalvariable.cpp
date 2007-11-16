@@ -39,17 +39,17 @@
 int	CGlobalVariable::Make(const yaya::string_t &name, char erased)
 {
 	// Šù‚É‘¶İ‚·‚é‚©’²‚×A‘¶İ‚µ‚Ä‚¢‚½‚ç‚»‚ê‚ğ•Ô‚·
-	int	i = 0;
-	for(std::vector<CVariable>::iterator it = var.begin(); it != var.end(); it++, i++)
-		if (!name.compare(it->name)) {
-			if (!vm.basis().IsRun()) {
-				if (erased)
-					it->Erase();
-				else
-					it->Enable();
-			}
-		return i;
+	yaya::indexmap::const_iterator it = varmap.find(name);
+	if ( it != varmap.end() ) {
+		int idx = it->second;
+		if (!vm.basis().IsRun()) {
+			if (erased)
+				var[idx].Erase();
+			else
+				var[idx].Enable();
 		}
+		return idx;
+	}
 
 	// ì¬
 	CVariable	addvariable(name);
@@ -59,7 +59,9 @@ int	CGlobalVariable::Make(const yaya::string_t &name, char erased)
 		addvariable.Enable();
 	var.push_back(addvariable);
 
-	return var.size() - 1;
+	int idx = var.size() - 1;
+	varmap.insert(yaya::indexmap::value_type(name,idx));
+	return idx;
 }
 
 /* -----------------------------------------------------------------------
@@ -91,10 +93,10 @@ size_t	CGlobalVariable::GetMacthedLongestNameLength(const yaya::string_t &name)
  */
 int		CGlobalVariable::GetIndex(const yaya::string_t &name)
 {
-	int	i = 0;
-	for(std::vector<CVariable>::iterator it = var.begin(); it != var.end(); it++, i++)
-		if (!name.compare(it->name))
-			return (it->IsErased()) ? -1 : i;
-
+	yaya::indexmap::const_iterator it = varmap.find(name);
+	if ( it != varmap.end() ) {
+		int idx = it->second;
+		return var[idx].IsErased() ? -1 : idx;
+	}
 	return -1;
 }

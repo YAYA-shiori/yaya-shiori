@@ -75,8 +75,7 @@ int CAyaVM::genrand_int(int n)
 	} 
 
 
-FACTORY_DEFINE_PLAIN(CWordMatch,formulatag_wm)
-FACTORY_DEFINE_PLAIN(CWordMatch,function_wm)
+FACTORY_DEFINE_PLAIN(yaya::indexmap,functionmap)
 
 FACTORY_DEFINE_THIS(CBasis,basis)
 
@@ -90,5 +89,6 @@ FACTORY_DEFINE_THIS(CLib,libs)
 
 FACTORY_DEFINE_THIS(CParser0,parser0)
 FACTORY_DEFINE_THIS(CParser1,parser1)
+
 
 

@@ -351,7 +351,7 @@ CValue	CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 			o_index = it->tindex;
 			CCell	&o_cell = st.cell()[o_index];
 			if (o_cell.value_GetType() >= F_TAG_ORIGIN_VALUE) {
-				o_cell.ansv() = *GetValuePtrForCalc(o_cell, st, lvar);
+				o_cell.ansv() = GetValueRefForCalc(o_cell, st, lvar);
 				break;
 			}
 
@@ -379,66 +379,66 @@ CValue	CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 					pvm->logger().Error(E_E, 33, L"=", dicfilename, st.linecount);
 				break;
 			case F_TAG_PLUS:
-				o_cell.ansv() = *(GetValuePtrForCalc(*s_cell, st, lvar)->SafeThis()) +
-					*(GetValuePtrForCalc(*d_cell, st, lvar)->SafeThis());
+				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) +
+					GetValueRefForCalc(*d_cell, st, lvar);
 				break;
 			case F_TAG_MINUS:
-				o_cell.ansv() = *(GetValuePtrForCalc(*s_cell, st, lvar)->SafeThis()) -
-					*(GetValuePtrForCalc(*d_cell, st, lvar)->SafeThis());
+				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) -
+					GetValueRefForCalc(*d_cell, st, lvar);
 				break;
 			case F_TAG_MUL:
-				o_cell.ansv() = *(GetValuePtrForCalc(*s_cell, st, lvar)->SafeThis()) *
-					*(GetValuePtrForCalc(*d_cell, st, lvar)->SafeThis());
+				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) *
+					GetValueRefForCalc(*d_cell, st, lvar);
 				break;
 			case F_TAG_DIV:
-				o_cell.ansv() = *(GetValuePtrForCalc(*s_cell, st, lvar)->SafeThis()) /
-					*(GetValuePtrForCalc(*d_cell, st, lvar)->SafeThis());
+				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) /
+					GetValueRefForCalc(*d_cell, st, lvar);
 				break;
 			case F_TAG_SURP:
-				o_cell.ansv() = *(GetValuePtrForCalc(*s_cell, st, lvar)->SafeThis()) %
-					*(GetValuePtrForCalc(*d_cell, st, lvar)->SafeThis());
+				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) %
+					GetValueRefForCalc(*d_cell, st, lvar);
 				break;
 			case F_TAG_IFEQUAL:
-				o_cell.ansv() = *(GetValuePtrForCalc(*s_cell, st, lvar)->SafeThis()) ==
-					*(GetValuePtrForCalc(*d_cell, st, lvar)->SafeThis());
+				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) ==
+					GetValueRefForCalc(*d_cell, st, lvar);
 				break;
 			case F_TAG_IFDIFFER:
-				o_cell.ansv() = *(GetValuePtrForCalc(*s_cell, st, lvar)->SafeThis()) !=
-					*(GetValuePtrForCalc(*d_cell, st, lvar)->SafeThis());
+				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) !=
+					GetValueRefForCalc(*d_cell, st, lvar);
 				break;
 			case F_TAG_IFGTEQUAL:
-				o_cell.ansv() = *(GetValuePtrForCalc(*s_cell, st, lvar)->SafeThis()) >=
-					*(GetValuePtrForCalc(*d_cell, st, lvar)->SafeThis());
+				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) >=
+					GetValueRefForCalc(*d_cell, st, lvar);
 				break;
 			case F_TAG_IFLTEQUAL:
-				o_cell.ansv() = *(GetValuePtrForCalc(*s_cell, st, lvar)->SafeThis()) <=
-					*(GetValuePtrForCalc(*d_cell, st, lvar)->SafeThis());
+				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) <=
+					GetValueRefForCalc(*d_cell, st, lvar);
 				break;
 			case F_TAG_IFGT:
-				o_cell.ansv() = *(GetValuePtrForCalc(*s_cell, st, lvar)->SafeThis()) >
-					*(GetValuePtrForCalc(*d_cell, st, lvar)->SafeThis());
+				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) >
+					GetValueRefForCalc(*d_cell, st, lvar);
 				break;
 			case F_TAG_IFLT:
-				o_cell.ansv() = *(GetValuePtrForCalc(*s_cell, st, lvar)->SafeThis()) <
-					*(GetValuePtrForCalc(*d_cell, st, lvar)->SafeThis());
+				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) <
+					GetValueRefForCalc(*d_cell, st, lvar);
 				break;
 			case F_TAG_IFIN:
 				o_cell.ansv().SetType(F_TAG_INT);
-				o_cell.ansv().i_value = _in_(*(GetValuePtrForCalc(*s_cell, st, lvar)->SafeThis()),
-					*(GetValuePtrForCalc(*d_cell, st, lvar))->SafeThis());
+				o_cell.ansv().i_value = _in_(GetValueRefForCalc(*s_cell, st, lvar),
+					GetValueRefForCalc(*d_cell, st, lvar));
 				break;
 			case F_TAG_IFNOTIN:
 				o_cell.ansv().SetType(F_TAG_INT);
-				o_cell.ansv().i_value = not_in_(*(GetValuePtrForCalc(*s_cell, st, lvar)->SafeThis()),
-					*(GetValuePtrForCalc(*d_cell, st, lvar))->SafeThis());
+				o_cell.ansv().i_value = not_in_(GetValueRefForCalc(*s_cell, st, lvar),
+					GetValueRefForCalc(*d_cell, st, lvar));
 				break;
 			case F_TAG_OR:
-				o_cell.ansv() = *(GetValuePtrForCalc(*s_cell, st, lvar)->SafeThis()) ||
-					*(GetValuePtrForCalc(*d_cell, st, lvar)->SafeThis());
+				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) ||
+					GetValueRefForCalc(*d_cell, st, lvar);
 				break;
 			case F_TAG_AND:
-				o_cell.ansv() = *(GetValuePtrForCalc(*s_cell, st, lvar)->SafeThis()) &&
-					*(GetValuePtrForCalc(*d_cell, st, lvar)->SafeThis());
+				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) &&
+					GetValueRefForCalc(*d_cell, st, lvar);
 				break;
 			case F_TAG_FUNCPARAM:
 				if (ExecFunctionWithArgs(o_cell.ansv(), it->index, st, lvar))
@@ -458,7 +458,7 @@ CValue	CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 				break;
 			case F_TAG_EXC:
 				o_cell.ansv().SetType(F_TAG_INT);
-				o_cell.ansv().i_value = (int)(! GetValuePtrForCalc(*d_cell, st, lvar)->GetTruth());
+				o_cell.ansv().i_value = (int)(! GetValueRefForCalc(*d_cell, st, lvar).GetTruth());
 				break;
 			default:
 				pvm->logger().Error(E_E, 34, dicfilename, st.linecount);
@@ -471,11 +471,11 @@ CValue	CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CFunction::GetValuePtrForCalc
+ *  関数名  ：  CFunction::GetValueRefForCalc
  *  機能概要：  与えられた項に対応する値へのポインタを取得します
  * -----------------------------------------------------------------------
  */
-CValue	*CFunction::GetValuePtrForCalc(CCell &cell, CStatement &st, CLocalVariable &lvar)
+const CValue& CFunction::GetValueRefForCalc(CCell &cell, CStatement &st, CLocalVariable &lvar)
 {
 	// 即値はv、関数/変数/演算子項ならansvから取得　関数/変数の場合その値や実行結果が取得される
 
@@ -485,40 +485,38 @@ CValue	*CFunction::GetValuePtrForCalc(CCell &cell, CStatement &st, CLocalVariabl
 
 	// 演算が完了している（はずの）項ならそれを返す
 	if (cell.value_GetType() < F_TAG_ORIGIN_VALUE)
-		return &(cell.ansv());
+		return cell.ansv();
 
 	// 即値ならそれをそのまま返す
 	if (cell.value_GetType() <= F_TAG_STRING)
-		return &(cell.value());
+		return cell.value();
 
 	// 関数なら実行して結果を、変数ならその内容を返す
 	switch(cell.value_GetType()) {
 	case F_TAG_STRING_EMBED:
 		SolveEmbedCell(cell, st, lvar);
-		return &(cell.ansv());
+		return cell.ansv();
 	case F_TAG_SYSFUNC: {
 			CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
 			std::vector<CCell *>	pcellarg;
 			cell.ansv() =  pvm->sysfunction().Execute(cell.index, arg, pcellarg, lvar, st.linecount, this);
-			return &(cell.ansv());
+			return cell.ansv();
 		}
 	case F_TAG_USERFUNC: {
 		CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
 		CLocalVariable	t_lvar;
 		int	exitcode;
 		cell.ansv() = pvm->function()[cell.index].Execute(arg, t_lvar, exitcode);
-		return &(cell.ansv());
+		return cell.ansv();
 	}
 	case F_TAG_VARIABLE:
-		cell.ansv() = pvm->variable().GetValue(cell.index);
-		return &(cell.ansv());
+		return pvm->variable().GetValue(cell.index);
 	case F_TAG_LOCALVARIABLE:
-		cell.ansv() = lvar.GetValue(cell.name);
-		return &(cell.ansv());
+		return lvar.GetValue(cell.name);
 	default:
 		pvm->logger().Error(E_E, 16, dicfilename, st.linecount);
-		cell.ansv() = L"";
-		return &(cell.ansv());
+		cell.ansv().SetType(F_TAG_VOID);
+		return cell.ansv();
 	};
 }
 
@@ -626,19 +624,14 @@ char	CFunction::Comma(CValue &answer, std::vector<int> &sid, CStatement &st, CLo
 	// 結合して配列値を作成
 	std::vector<CValueSub>	t_array;
 	for(std::vector<int>::iterator it = sid.begin(); it != sid.end(); it++) {
-		CValue	*addv = GetValuePtrForCalc(st.cell()[*it], st, lvar)->SafeThis();
-		if (addv->GetType() == F_TAG_INT)
-			t_array.push_back(CValueSub(addv->i_value));
-		else if (addv->GetType() == F_TAG_DOUBLE)
-			t_array.push_back(CValueSub(addv->d_value));
-		else if (addv->GetType() == F_TAG_STRING)
-			t_array.push_back(CValueSub(addv->s_value));
-		/*else if (addv->GetType() == F_TAG_VOID)
-			t_array.push_back(CValueSub());*/ //VOID型は無視
-		else if (addv->GetType() == F_TAG_ARRAY)
-			t_array.insert(t_array.end(), addv->array().begin(), addv->array().end());
-		else
-			return 1;
+		const CValue &addv = GetValueRefForCalc(st.cell()[*it], st, lvar);
+		
+		if (addv.GetType() == F_TAG_ARRAY) {
+			t_array.insert(t_array.end(), addv.array().begin(), addv.array().end());
+		}
+		else {
+			t_array.push_back(CValueSub(addv));
+		}
 	}
 
 	answer = t_array;
@@ -661,32 +654,27 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<int> &sid, CStatemen
 	switch(type) {
 	case F_TAG_EQUAL:
 	case F_TAG_EQUAL_D:
-		answer = *(GetValuePtrForCalc(*d_cell, st, lvar)->SafeThis());
+		answer = GetValueRefForCalc(*d_cell, st, lvar);
 		break;
 	case F_TAG_PLUSEQUAL:
 	case F_TAG_PLUSEQUAL_D:
-		answer = *(GetValuePtrForCalc(*s_cell, st, lvar)->SafeThis()) +
-			*(GetValuePtrForCalc(*d_cell, st, lvar)->SafeThis());
+		answer = GetValueRefForCalc(*s_cell, st, lvar) + GetValueRefForCalc(*d_cell, st, lvar);
 		break;
 	case F_TAG_MINUSEQUAL:
 	case F_TAG_MINUSEQUAL_D:
-		answer = *(GetValuePtrForCalc(*s_cell, st, lvar)->SafeThis()) -
-			*(GetValuePtrForCalc(*d_cell, st, lvar)->SafeThis());
+		answer = GetValueRefForCalc(*s_cell, st, lvar) - GetValueRefForCalc(*d_cell, st, lvar);
 		break;
 	case F_TAG_MULEQUAL:
 	case F_TAG_MULEQUAL_D:
-		answer = *(GetValuePtrForCalc(*s_cell, st, lvar)->SafeThis()) *
-			*(GetValuePtrForCalc(*d_cell, st, lvar)->SafeThis());
+		answer = GetValueRefForCalc(*s_cell, st, lvar) * GetValueRefForCalc(*d_cell, st, lvar);
 		break;
 	case F_TAG_DIVEQUAL:
 	case F_TAG_DIVEQUAL_D:
-		answer = *(GetValuePtrForCalc(*s_cell, st, lvar)->SafeThis()) /
-			*(GetValuePtrForCalc(*d_cell, st, lvar)->SafeThis());
+		answer = GetValueRefForCalc(*s_cell, st, lvar) / GetValueRefForCalc(*d_cell, st, lvar);
 		break;
 	case F_TAG_SURPEQUAL:
 	case F_TAG_SURPEQUAL_D:
-		answer = *(GetValuePtrForCalc(*s_cell, st, lvar)->SafeThis()) %
-			*(GetValuePtrForCalc(*d_cell, st, lvar)->SafeThis());
+		answer = GetValueRefForCalc(*s_cell, st, lvar) % GetValueRefForCalc(*d_cell, st, lvar);
 		break;
 	case F_TAG_COMMAEQUAL:
 		if (Comma(answer, sid, st, lvar))
@@ -733,7 +721,7 @@ char	CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatem
 		return 1;
 
 	// 値を取得
-	CValue	value = *(GetValuePtrForCalc(vcell, st, lvar)->SafeThis());
+	CValue	value = GetValueRefForCalc(vcell, st, lvar);
 
 	// 更新
 	value.SetArrayValue(t_order, answer);
@@ -764,18 +752,18 @@ char	CFunction::Array(CCell &anscell, std::vector<int> &sid, CStatement &st, CLo
 	CCell	*n_cell = &(st.cell()[sid[1]]);
 
 	// 序数を取得
-	anscell.order() = *(GetValuePtrForCalc(*n_cell, st, lvar)->SafeThis());
+	anscell.order() = GetValueRefForCalc(*n_cell, st, lvar);
 
 	CValue	t_order;
 	EncodeArrayOrder(*v_cell, anscell.order(), lvar, t_order);
 
 	if (t_order.GetType() == F_TAG_UNKNOWN) {
-		anscell.ansv() = L"";
+		anscell.ansv().SetType(F_TAG_VOID);
 		return 1;
 	}
 
 	// 値を取得
-	anscell.ansv() = (*(GetValuePtrForCalc(*v_cell, st, lvar)->SafeThis()))[t_order];
+	anscell.ansv() = GetValueRefForCalc(*v_cell, st, lvar)[t_order];
 
 	return 0;
 }
@@ -785,7 +773,7 @@ char	CFunction::Array(CCell &anscell, std::vector<int> &sid, CStatement &st, CLo
  *  機能概要：  _in_演算子を処理します
  * -----------------------------------------------------------------------
  */
-int	CFunction::_in_(CValue &src, CValue &dst)
+int	CFunction::_in_(const CValue &src, const CValue &dst)
 {
 	if (src.IsString() && dst.IsString())
 		return (dst.s_value.find(src.s_value) != yaya::string_t::npos) ? 1 : 0;
@@ -798,7 +786,7 @@ int	CFunction::_in_(CValue &src, CValue &dst)
  *  機能概要：  !_in_演算子を処理します
  * -----------------------------------------------------------------------
  */
-int	CFunction::not_in_(CValue &src, CValue &dst)
+int	CFunction::not_in_(const CValue &src, const CValue &dst)
 {
 	return ! _in_(src,dst);
 }
@@ -822,29 +810,18 @@ char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<int> &sid, CSta
 	std::vector<int>::size_type sidsize = sid.size();
 
 	for( ; it != sid.end(); it++) {
-		CValue	*addv = GetValuePtrForCalc(st.cell()[*it], st, lvar)->SafeThis();
-		if (addv->GetType() == F_TAG_INT) {
-			arg.array().push_back(CValueSub(addv->i_value));
-		}
-		else if (addv->GetType() == F_TAG_DOUBLE) {
-			arg.array().push_back(CValueSub(addv->d_value));
-		}
-		else if (addv->GetType() == F_TAG_STRING) {
-			arg.array().push_back(CValueSub(addv->s_value));
-		}
-		else if (addv->GetType() == F_TAG_VOID) {
-			arg.array().push_back(CValueSub());
-		}
-		else if (addv->GetType() == F_TAG_ARRAY) {
+		const CValue &addv = GetValueRefForCalc(st.cell()[*it], st, lvar);
+		
+		if (addv.GetType() == F_TAG_ARRAY) {
 			if ( sidsize <= 2 ) { //配列1つのみが与えられている->最適化のためスマートポインタ代入のみで済ませる
-				arg.array_shared() = addv->array_shared();
+				arg.array_shared() = addv.array_shared();
 			}
 			else {
-				arg.array().insert(arg.array().end(), addv->array().begin(), addv->array().end());
+				arg.array().insert(arg.array().end(), addv.array().begin(), addv.array().end());
 			}
 		}
 		else {
-			return 1;
+			arg.array().push_back(CValueSub(addv));
 		}
 	}
 
@@ -902,29 +879,18 @@ char	CFunction::ExecSystemFunctionWithArgs(CCell& cell, std::vector<int> &sid, C
 	std::vector<int>::size_type sidsize = sid.size();
 
 	for( ; it != sid.end(); it++) {
-		CValue	*addv = GetValuePtrForCalc(st.cell()[*it], st, lvar)->SafeThis();
-		if (addv->GetType() == F_TAG_INT) {
-			arg.array().push_back(CValueSub(addv->i_value));
-		}
-		else if (addv->GetType() == F_TAG_DOUBLE) {
-			arg.array().push_back(CValueSub(addv->d_value));
-		}
-		else if (addv->GetType() == F_TAG_STRING) {
-			arg.array().push_back(CValueSub(addv->s_value));
-		}
-		else if (addv->GetType() == F_TAG_VOID) {
-			arg.array().push_back(CValueSub());
-		}
-		else if (addv->GetType() == F_TAG_ARRAY) {
+		const CValue &addv = GetValueRefForCalc(st.cell()[*it], st, lvar);
+		
+		if (addv.GetType() == F_TAG_ARRAY) {
 			if ( sidsize <= 2 ) { //配列1つのみが与えられている->最適化のためスマートポインタ代入のみで済ませる
-				arg.array_shared() = addv->array_shared();
+				arg.array_shared() = addv.array_shared();
 			}
 			else {
-				arg.array().insert(arg.array().end(), addv->array().begin(), addv->array().end());
+				arg.array().insert(arg.array().end(), addv.array().begin(), addv.array().end());
 			}
 		}
 		else {
-			return 1;
+			arg.array().push_back(CValueSub(addv));
 		}
 
 		pcellarg.push_back(&(st.cell()[*it]));
@@ -950,12 +916,12 @@ void	CFunction::ExecHistoryP1(int start_index, CCell& cell, const CValue &arg, C
 {
 	if (arg.array_size()) {
 		cell.ansv()    = start_index;
-		cell.order() = arg.array()[0];
+		cell.order()   = arg.array()[0];
 	}
 	else {
 		pvm->logger().Error(E_E, 90, dicfilename, st.linecount);
-		cell.ansv()    = L"";
-		cell.order() = L"";
+		cell.ansv().SetType(F_TAG_VOID);
+		cell.order().SetType(F_TAG_VOID);
 	}
 }
 
@@ -977,7 +943,7 @@ void	CFunction::ExecHistoryP2(CCell& cell, CStatement &st)
 	if (index < 0)
 		return;
 
-	for(int i = cell.ansv_const().i_value; i >= 0; i--)
+	for(int i = cell.ansv_const().i_value; i >= 0; i--) {
 		if (st.cell()[i].value_GetType() == F_TAG_STRING_EMBED) {
 			if (!index) {
 				cell.ansv_shared() = st.cell()[i].emb_ansv_shared();
@@ -985,6 +951,7 @@ void	CFunction::ExecHistoryP2(CCell& cell, CStatement &st)
 			}
 			index--;
 		}
+	}
 }
 
 /* -----------------------------------------------------------------------
@@ -999,7 +966,7 @@ char	CFunction::Feedback(CCell &anscell, std::vector<int> &sid, CStatement &st, 
 	CCell	*v_cell = &(st.cell()[sid[1]]);
 
 	// 値は右辺をそのままコピー
-	anscell.ansv() = *(GetValuePtrForCalc(*v_cell, st, lvar)->SafeThis());
+	anscell.ansv() = GetValueRefForCalc(*v_cell, st, lvar);
 
 	// 右辺が配列序数を指定する演算子だった場合はそこから序数をコピー
 	// 配列でなかった場合は序数を格納する変数の型をNOPにしてフラグとする
@@ -1022,7 +989,7 @@ char	CFunction::Feedback(CCell &anscell, std::vector<int> &sid, CStatement &st, 
  *  エラーが発生した場合は型のない（F_TAG_UNKNOWN）値を返します。（呼び出し側はこれを見てエラー処理します）
  * -----------------------------------------------------------------------
  */
-void CFunction::EncodeArrayOrder(CCell &vcell, CValue &order, CLocalVariable &lvar, CValue &result)
+void CFunction::EncodeArrayOrder(CCell &vcell, const CValue &order, CLocalVariable &lvar, CValue &result)
 {
 	result.SetType(F_TAG_ARRAY);
 
@@ -1031,25 +998,9 @@ void CFunction::EncodeArrayOrder(CCell &vcell, CValue &order, CLocalVariable &lv
 	case F_TAG_ARRAY:
 		result = order;
 		break;
-	case F_TAG_VOID: {
-			result.array().push_back(CValueSub(0));
-		}
-		break;
-	case F_TAG_INT: {
-			result.array().push_back(CValueSub(order.i_value));
-		}
-		break;
-	case F_TAG_DOUBLE: {
-			result.array().push_back(CValueSub(order.d_value));
-		}
-		break;
-	case F_TAG_STRING: {
-			result.array().push_back(CValueSub(order.s_value));
-		}
-		break;
 	default:
-		result.SetType(F_TAG_UNKNOWN);
-		return;
+		result.array().push_back(CValueSub(order));
+		break;
 	};
 
 	// デリミタ

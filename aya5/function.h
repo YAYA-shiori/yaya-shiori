@@ -142,21 +142,22 @@ protected:
 
 	char	Foreach(CStatement &st0, CStatement &st1, CLocalVariable &lvar, int &foreachcount);
 
-	CValue	*GetValuePtrForCalc(CCell &cell, CStatement &st, CLocalVariable &lvar);
+	const CValue& GetValueRefForCalc(CCell &cell, CStatement &st, CLocalVariable &lvar);
+	
 	void	SolveEmbedCell(CCell &cell, CStatement &st, CLocalVariable &lvar);
 
 	char	Comma(CValue &answer, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar);
 	char	Subst(int type, CValue &answer, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar);
 	char	SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatement &st, CLocalVariable &lvar);
 	char	Array(CCell &anscell, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar);
-	int		_in_(CValue &src, CValue &dst);
-	int		not_in_(CValue &src, CValue &dst);
+	int		_in_(const CValue &src, const CValue &dst);
+	int		not_in_(const CValue &src, const CValue &dst);
 	char	ExecFunctionWithArgs(CValue &answer, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar);
 	char	ExecSystemFunctionWithArgs(CCell& cell, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar);
 	void	ExecHistoryP1(int start_index, CCell& cell, const CValue &arg, CStatement &st);
 	void	ExecHistoryP2(CCell &cell, CStatement &st);
 	char	Feedback(CCell &anscell, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar);
-	void	EncodeArrayOrder(CCell &vcell, CValue &order, CLocalVariable &lvar, CValue &result);
+	void	EncodeArrayOrder(CCell &vcell, const CValue &order, CLocalVariable &lvar, CValue &result);
 	void	FeedLineToTail(int &line);
 };
 
