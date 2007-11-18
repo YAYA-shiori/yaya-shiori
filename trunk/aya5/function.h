@@ -133,9 +133,9 @@ public:
 	~CFunction(void) {}
 
 	void	CompleteSetting(void);
-	CValue	Execute(const CValue &arg, CLocalVariable &lvar, int &exitcode);
+	int		Execute(CValue &result, const CValue &arg, CLocalVariable &lvar);
 
-	CValue	GetFormulaAnswer(CLocalVariable &lvar, CStatement &st);
+	const CValue& GetFormulaAnswer(CLocalVariable &lvar, CStatement &st);
 
 protected:
 	int		ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, int type, int &exitcode);

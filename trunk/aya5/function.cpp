@@ -51,11 +51,9 @@ void	CFunction::CompleteSetting(void)
  *  引数CValue argは必ず配列型です。arrayが空であれば引数の無いコールとなります
  * -----------------------------------------------------------------------
  */
-CValue	CFunction::Execute(const CValue &arg, CLocalVariable &lvar, int &exitcode)
+int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
 {
-	CValue	result;
-
-	exitcode = ST_NOP;
+	int exitcode = ST_NOP;
 
 	// _argvを作成
 	lvar.SetValue(L"_argv", arg);
@@ -64,12 +62,14 @@ CValue	CFunction::Execute(const CValue &arg, CLocalVariable &lvar, int &exitcode
 	lvar.SetValue(L"_argc", t_argc);
 
 	// 実行
-	if (!pvm->calldepth().Add(name))
-		return CValue(F_TAG_NOP, 0/*dmy*/);
+	if (!pvm->calldepth().Add(name)) {
+		result.SetType(F_TAG_VOID);
+		return exitcode;
+	}
 	ExecuteInBrace(0, result, lvar, BRACE_DEFAULT, exitcode);
 	pvm->calldepth().Del();
 
-	return result;
+	return exitcode;
 }
 
 /* -----------------------------------------------------------------------
@@ -111,10 +111,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 			output.AddArea();
 			break;
 		case ST_FORMULA_OUT_FORMULA:	// 出力（数式。配列、引数つき関数も含まれる）
-			{
-		        CValue val = GetFormulaAnswer(lvar, statement[i]);
-				output.Append(val);
-			}
+			output.Append(GetFormulaAnswer(lvar, statement[i]));
 			break;
 		case ST_FORMULA_SUBST:			// 代入
 			GetFormulaAnswer(lvar, statement[i]);
@@ -150,7 +147,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 			break;
 		case ST_PARALLEL:				// parallel
 			{
-		        CValue val = GetFormulaAnswer(lvar, statement[i]);
+		        const CValue& val = GetFormulaAnswer(lvar, statement[i]);
 				if (val.GetType() == F_TAG_ARRAY) {
 					for(size_t j = 0; j < val.array_size(); ++j)
 						output.Append(CValue(val.array()[j]));
@@ -270,9 +267,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 char	CFunction::Foreach(CStatement &st0, CStatement &st1, CLocalVariable &lvar, int &foreachcount)
 {
 	// 代入値を求める
-	CValue	value = GetFormulaAnswer(lvar, st0);
-	if (value.IsVoid())
-		value = L"";
+	const CValue& value = GetFormulaAnswer(lvar, st0);
 
 	// 代入値の要素数を求める
 	// 簡易配列かつ変数からの取得の場合、その変数に設定されているデリミタを取得する
@@ -301,7 +296,7 @@ char	CFunction::Foreach(CStatement &st0, CStatement &st1, CLocalVariable &lvar, 
 					delimiter = lvar.GetDelimiter(l_cell->name);
 			}
 		}
-		sz = SplitToMultiString(value.s_value, s_array, delimiter);
+		sz = SplitToMultiString(value.GetValueString(), &s_array, delimiter);
 	}
 	else if (value.IsArray())
 		sz = value.array_size();
@@ -342,7 +337,7 @@ char	CFunction::Foreach(CStatement &st0, CStatement &st1, CLocalVariable &lvar, 
  *  機能概要：  数式を演算して結果を返します
  * -----------------------------------------------------------------------
  */
-CValue	CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
+const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 {
 	int		o_index = 0;
 
@@ -462,7 +457,7 @@ CValue	CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 				break;
 			default:
 				pvm->logger().Error(E_E, 34, dicfilename, st.linecount);
-				return CValue(F_TAG_NOP, 0/*dmy*/);
+				return emptyvalue;
 			};
 		}
 	}
@@ -480,8 +475,11 @@ const CValue& CFunction::GetValueRefForCalc(CCell &cell, CStatement &st, CLocalV
 	// 即値はv、関数/変数/演算子項ならansvから取得　関数/変数の場合その値や実行結果が取得される
 
 	// %[n]処理
-	if (cell.value_GetType() == F_TAG_SYSFUNCPARAM)
-		ExecHistoryP2(cell, st);
+	if (cell.value_GetType() == F_TAG_SYSFUNCPARAM) {
+		if ( cell.index == CSystemFunction::HistoryIndex() ) {
+			ExecHistoryP2(cell, st);
+		}
+	}
 
 	// 演算が完了している（はずの）項ならそれを返す
 	if (cell.value_GetType() < F_TAG_ORIGIN_VALUE)
@@ -505,8 +503,7 @@ const CValue& CFunction::GetValueRefForCalc(CCell &cell, CStatement &st, CLocalV
 	case F_TAG_USERFUNC: {
 		CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
 		CLocalVariable	t_lvar;
-		int	exitcode;
-		cell.ansv() = pvm->function()[cell.index].Execute(arg, t_lvar, exitcode);
+		pvm->function()[cell.index].Execute(cell.ansv(), arg, t_lvar);
 		return cell.ansv();
 	}
 	case F_TAG_VARIABLE:
@@ -515,8 +512,7 @@ const CValue& CFunction::GetValueRefForCalc(CCell &cell, CStatement &st, CLocalV
 		return lvar.GetValue(cell.name);
 	default:
 		pvm->logger().Error(E_E, 16, dicfilename, st.linecount);
-		cell.ansv().SetType(F_TAG_VOID);
-		return cell.ansv();
+		return emptyvalue;
 	};
 }
 
@@ -827,8 +823,7 @@ char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<int> &sid, CSta
 
 	// 実行
 	CLocalVariable	t_lvar;
-	int	exitcode;
-	answer = pvm->function()[index].Execute(arg, t_lvar, exitcode);
+	pvm->function()[index].Execute(answer, arg, t_lvar);
 
 	// フィードバック
 	const CValue *v_argv = &(t_lvar.GetArgvPtr()->value_const());
@@ -937,13 +932,13 @@ void	CFunction::ExecHistoryP2(CCell& cell, CStatement &st)
 	if (!cell.order_const().IsNum())
 		return;
 
-	cell.ansv() = L"";
-
 	int	index = cell.order_const().GetValueInt();
 	if (index < 0)
 		return;
 
-	for(int i = cell.ansv_const().i_value; i >= 0; i--) {
+	int start = __GETMIN(static_cast<int>(st.cell().size())-1,cell.ansv_const().GetValueInt());
+
+	for(int i = start ; i >= 0; i--) {
 		if (st.cell()[i].value_GetType() == F_TAG_STRING_EMBED) {
 			if (!index) {
 				cell.ansv_shared() = st.cell()[i].emb_ansv_shared();

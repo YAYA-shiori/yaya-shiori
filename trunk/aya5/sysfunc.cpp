@@ -1295,7 +1295,7 @@ CValue	CSystemFunction::ROUND(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	if (arg.array()[0].IsInt()) {
-		return CValue((double)arg.array()[0].i_value);
+		return CValue((double)arg.array()[0].GetValueInt());
 	}
 	else {
 		if (!arg.array()[0].IsDouble()) {
@@ -2010,7 +2010,7 @@ CValue	CSystemFunction::FREADBIN(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue();
 	}
 
-	size_t readsize = arg.array()[1].i_value;
+	size_t readsize = arg.array()[1].GetValueInt();
 	yaya::char_t alt = L' ';
 
 	if (arg.array_size() >= 3) {
@@ -2850,8 +2850,7 @@ CValue	CSystemFunction::ArraySize(const CValue &arg, const std::vector<CCell *> 
 		else if (pcellarg[0]->value_GetType() == F_TAG_LOCALVARIABLE)
 			delimiter = lvar.GetDelimiter(pcellarg[0]->name);
 
-		std::vector<yaya::string_t>	s_array;
-		return CValue((int)SplitToMultiString(arg.array()[0].s_value, s_array, delimiter));
+		return CValue((int)SplitToMultiString(arg.array()[0].s_value, NULL, delimiter));
 	}
 
 	// ”Ä—p”z—ñ‚È‚ç—v‘f”‚ð‚»‚Ì‚Ü‚Ü•Ô‚·
@@ -3068,7 +3067,7 @@ CValue	CSystemFunction::GETTICKCOUNT(const CValue &arg, CLocalVariable &/*lvar*/
 	if (!arg.array_size())
 		return lowc;
 
-	if (arg.array()[0].IsInt() && arg.array()[0].i_value == 0)
+	if (arg.array()[0].IsInt() && arg.array()[0].GetValueInt() == 0)
 		return lowc;
 
 	return highc;
@@ -3519,7 +3518,7 @@ CValue	CSystemFunction::CHRCODE(const CValue &arg, yaya::string_t &d, int &l)
 			SetError(9);
 			return CValue(0);
 		}
-		getpos = arg.array()[1].i_value;
+		getpos = arg.array()[1].GetValueInt();
 		if ( getpos >= arg.array()[0].s_value.length() ) {
 			getpos = arg.array()[0].s_value.length() - 1;
 		}
@@ -3826,7 +3825,7 @@ CValue	CSystemFunction::STRFORM(const CValue &arg, yaya::string_t &d, int &l)
 
 	// '$'‚Åsplit‚·‚é
 	std::vector<yaya::string_t>	vargs;
-	int	vargs_sz = SplitToMultiString(arg.array()[0].GetValueString(), vargs, yaya::string_t(L"$"));
+	int	vargs_sz = SplitToMultiString(arg.array()[0].GetValueString(), &vargs, yaya::string_t(L"$"));
 	if (!vargs_sz)
 		return CValue();
 
@@ -3892,7 +3891,7 @@ CValue	CSystemFunction::ANY(const CValue &arg, const std::vector<CCell *> &pcell
 			delimiter = lvar.GetDelimiter(pcellarg[0]->name);
 
 		std::vector<yaya::string_t>	s_array;
-		int	a_sz = SplitToMultiString(arg.array()[0].GetValueString(), s_array, delimiter);
+		int	a_sz = SplitToMultiString(arg.array()[0].GetValueString(), &s_array, delimiter);
 		if (!a_sz) {
 			SetLso(-1);
 			return CValue();

@@ -27,8 +27,8 @@
 #endif
 ////////////////////////////////////////
 
-#define	__GETMAX(a, b)	( ((a) > (b)) ? (a) : (b) )
-#define	__GETMIN(a, b)	( ((a) < (b)) ? (a) : (b) )
+//からっぽ変数（ダミー用）
+const CValue emptyvalue;
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CValue::GetValueInt
@@ -168,7 +168,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 		// 簡易配列
 		// 元の文字列をデリミタで分割
 		std::vector<yaya::string_t>	s_array;
-		int	sz = SplitToMultiString(s_value, s_array, delimiter);
+		int	sz = SplitToMultiString(s_value, &s_array, delimiter);
 		// 更新
 		if (aoflg) {
 			// 範囲つき
@@ -790,7 +790,7 @@ CValue CValue::operator [](const CValue &value) const
 
 		// 文字列をデリミタで分割
 		std::vector<yaya::string_t>	s_array;
-		int	sz = SplitToMultiString(s_value, s_array, delimiter);
+		int	sz = SplitToMultiString(s_value, &s_array, delimiter);
 		// 値の取得
 		if (aoflg) {
 			// 範囲あり

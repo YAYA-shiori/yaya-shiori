@@ -286,7 +286,7 @@ void	CLogExCode::StructCellString(std::vector<CCell> *cellvector, yaya::string_t
 		}
 		switch(it->value_GetType()) {
 		case F_TAG_NOP:
-			formula += L"(?NOP) ";
+			formula += L"(NOP/VOID) ";
 			break;
 		case F_TAG_FUNCPARAM:
 			formula += L"@ ";
@@ -431,6 +431,9 @@ void	CLogExCode::OutVariableInfoForCheck(void)
 			vm.logger().Write(t_str);
 			vm.logger().Write(L"\n");
 			break;
+		case F_TAG_VOID:
+			vm.logger().Write(L"(nop/void)\n");
+			break;
 		default:
 			vm.logger().Write(L"(unknown type)\n");
 			break;
@@ -463,6 +466,9 @@ void	CLogExCode::StructArrayString(const std::vector<CValueSub> &vs, yaya::strin
 			enlist += L"(string)";
 			enlist += it->s_value;
 			enlist += L" ";
+			break;
+		case F_TAG_VOID:
+			enlist += L"(nop/void) ";
 			break;
 		default:
 			enlist += L"(?UNKNOWN) ";

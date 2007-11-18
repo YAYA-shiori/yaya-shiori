@@ -87,7 +87,7 @@ public:
 	}
 	const CValue &value_const(void) const {
 		if ( ! m_value.get() ) {
-			m_value.reset(new CValue);
+			return emptyvalue;
 		}
 		return *m_value;
 	}
@@ -121,7 +121,6 @@ class	CLocalVariable
 protected:
 	std::vector<CLVSubStack> stack;
 	int	depth;
-	CValue emptyvalue;
 
 public:
 	CLocalVariable(void);
