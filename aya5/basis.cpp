@@ -850,9 +850,9 @@ void	CBasis::ExecuteLoad(void)
 	// 実行　結果は使用しないのでそのまま捨てる
 	vm.calldepth().Init();
 	CLocalVariable	lvar;
-	int	exitcode;
 	vm.logger().Io(0, path);
-	vm.function()[loadindex].Execute(arg, lvar, exitcode);
+	CValue	result;
+	vm.function()[loadindex].Execute(result, arg, lvar);
 	yaya::string_t empty;
 	vm.logger().Io(1, empty);
 }
@@ -891,8 +891,8 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len)
 	// 実行
 	vm.calldepth().Init();
 	CLocalVariable	lvar;
-	int	exitcode;
-	CValue	result = vm.function()[requestindex].Execute(arg, lvar, exitcode);
+	CValue	result;
+	vm.function()[requestindex].Execute(result, arg, lvar);
 
 	// 結果を文字列として取得し、文字コードをMBCSに変換
 	yaya::string_t	res = result.GetValueString();
@@ -954,9 +954,11 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len)
     // 実行
     vm.calldepth().Init();
     CLocalVariable	lvar;
-    int	exitcode;
-    CValue	result = vm.function()[requestindex].Execute(arg, lvar, exitcode);
-     // 結果を文字列として取得し、文字コードをMBCSに変換
+
+    CValue	result;
+	int exitcode = vm.function()[requestindex].Execute(result, arg, lvar);
+    
+	// 結果を文字列として取得し、文字コードをMBCSに変換
 	yaya::string_t	res = result.GetValueString();
     vm.logger().Io(1, res);
     char *mostr = Ccct::Ucs2ToMbcs(res, output_charset);
@@ -988,9 +990,9 @@ void	CBasis::ExecuteUnload(void)
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
 	vm.calldepth().Init();
 	CLocalVariable	lvar;
-	int	exitcode;
 	yaya::string_t empty;
 	vm.logger().Io(0, empty);
-	vm.function()[unloadindex].Execute(arg, lvar, exitcode);
+	CValue result;
+	vm.function()[unloadindex].Execute(result, arg, lvar);
 	vm.logger().Io(1, empty);
 }

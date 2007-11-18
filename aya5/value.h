@@ -311,4 +311,7 @@ public:
 
 //----
 
+//からっぽ変数（ダミー用）
+extern const CValue emptyvalue;
+
 #endif

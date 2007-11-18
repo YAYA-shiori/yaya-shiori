@@ -122,7 +122,7 @@ public:
 	}
 	const CValue &ansv_const(void) const {
 		if ( ! m_ansv.get() ) {
-			m_ansv.reset(new CValue(L""));
+			return emptyvalue;
 		}
 		return *m_ansv;
 	}
@@ -131,7 +131,7 @@ public:
 	}
 	CValue &ansv(void) {
 		if ( ! m_ansv.get() ) {
-			m_ansv.reset(new CValue(L""));
+			m_ansv.reset(new CValue());
 		}
 		else if ( m_ansv.use_count() >= 2 ) {
 			CValue *pV = m_ansv.get();
@@ -145,7 +145,7 @@ public:
 	}
 	const CValue &order_const(void) const {
 		if ( ! m_order.get() ) {
-			m_order.reset(new CValue(L""));
+			return emptyvalue;
 		}
 		return *m_order;
 	}
@@ -154,7 +154,7 @@ public:
 	}
 	CValue &order(void) {
 		if ( ! m_order.get() ) {
-			m_order.reset(new CValue(L""));
+			m_order.reset(new CValue());
 		}
 		else if ( m_order.use_count() >= 2 ) {
 			CValue *pV = m_order.get();
@@ -168,7 +168,7 @@ public:
 	}
 	const CValue &emb_ansv_const(void) const {
 		if ( ! m_emb_ansv.get() ) {
-			m_emb_ansv.reset(new CValue(L""));
+			return emptyvalue;
 		}
 		return *m_emb_ansv;
 	}
@@ -177,7 +177,7 @@ public:
 	}
 	CValue &emb_ansv(void) {
 		if ( ! m_emb_ansv.get() ) {
-			m_emb_ansv.reset(new CValue(L""));
+			m_emb_ansv.reset(new CValue());
 		}
 		else if ( m_emb_ansv.use_count() >= 2 ) {
 			CValue *pV = m_emb_ansv.get();

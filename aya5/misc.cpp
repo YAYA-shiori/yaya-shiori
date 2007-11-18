@@ -170,29 +170,34 @@ char	Split_IgnoreDQ(const yaya::string_t &str, yaya::string_t &dstr0, yaya::stri
  *　返値　　：　分割数(array.size())
  * -----------------------------------------------------------------------
  */
-int	SplitToMultiString(const yaya::string_t &str, std::vector<yaya::string_t> &array, const yaya::string_t &delimiter)
+int	SplitToMultiString(const yaya::string_t &str, std::vector<yaya::string_t> *array, const yaya::string_t &delimiter)
 {
 	if (!str.size())
 		return 0;
 
-	yaya::string_t	t_str = str;
 	const yaya::string_t::size_type dlmlen = delimiter.size();
+	yaya::string_t::size_type beforepoint = 0,seppoint;
+	size_t count = 1;
+
 	for( ; ; ) {
 		// デリミタの発見
-		yaya::string_t::size_type seppoint = t_str.find(delimiter);
+		seppoint = str.find(delimiter,beforepoint);
 		if (seppoint == yaya::string_t::npos) {
-			array.push_back(t_str);
+			if ( array ) {
+				array->push_back(yaya::string_t(str.begin()+beforepoint,str.end()));
+			}
 			break;
 		}
 		// 取り出しとvectorへの追加
-		yaya::string_t	i_str;
-		i_str.assign(t_str, 0, seppoint);
-		array.push_back(i_str);
+		if ( array ) {
+			array->push_back(yaya::string_t(str.begin()+beforepoint,str.begin()+seppoint));
+		}
 		// 取り出した分を削除
-		t_str.erase(0, seppoint + dlmlen);
+		beforepoint = seppoint + dlmlen;
+		++count;
 	}
 
-	return array.size();
+	return count;
 }
 
 /* -----------------------------------------------------------------------
