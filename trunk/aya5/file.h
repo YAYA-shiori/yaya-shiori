@@ -20,8 +20,6 @@
 
 #include "globaldef.h"
 
-class TiXmlDocument;
-
 class	CFile1
 {
 protected:
@@ -29,9 +27,6 @@ protected:
 	FILE	*fp;
 	int		charset;
 	yaya::string_t	mode;
-
-	TiXmlDocument *xml;
-	int xml_charset;
 
 	int	bomcheck;
 
@@ -42,7 +37,6 @@ public:
 		charset  = cs;
 		mode     = md;
 		fp       = NULL;
-		xml      = NULL;
 
 		bomcheck = 1;
 	}
@@ -53,12 +47,10 @@ public:
 	yaya::string_t	GetName(void) { return name; }
 
 	int	Open(void);
-	int OpenXML(void);
 	int	Close(void);
 
 	int	Write(const yaya::string_t &istr);
 	int	Read(yaya::string_t &ostr);
-	int ReadXML(yaya::string_t &ostr,const yaya::string_t &xpath);
 
 	int	WriteBin(const yaya::string_t &istr, const yaya::char_t alt);
 	int	ReadBin(yaya::string_t &ostr, size_t len, yaya::char_t alt);
@@ -86,9 +78,6 @@ public:
 
 	int		WriteBin(const yaya::string_t &name, const yaya::string_t &istr, const yaya::char_t alt);
 	int		ReadBin(const yaya::string_t &name, yaya::string_t &ostr, size_t len, yaya::char_t alt);
-
-	int		OpenXML(const yaya::string_t &name);
-	int		ReadXML(const yaya::string_t &name, yaya::string_t &ostr, const yaya::string_t &xpath);
 };
 
 //----

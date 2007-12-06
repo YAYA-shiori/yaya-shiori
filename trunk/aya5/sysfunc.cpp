@@ -226,8 +226,6 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"GETSECCOUNT",
 	// FMO(1)
 	L"READFMO",
-	// ファイル操作(4)
-	L"FREADXML",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -585,8 +583,6 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return GETSECCOUNT(arg, d, l);
 	case 116:
 		return READFMO(arg, d, l);
-	case 117:
-		return FREADXML(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -2036,45 +2032,6 @@ CValue	CSystemFunction::FREADBIN(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::FREADXML
- * -----------------------------------------------------------------------
- */
-CValue	CSystemFunction::FREADXML(const CValue &arg, yaya::string_t &d, int &l)
-{
-	if (arg.array_size() < 2) {
-		vm.logger().Error(E_W, 8, L"FREADXML", d, l);
-		SetError(8);
-		return CValue();
-	}
-
-    if (!arg.array()[0].IsString() ||
-		!arg.array()[1].IsString()) {
-		vm.logger().Error(E_W, 9, L"FREADXML", d, l);
-		SetError(9);
-		return CValue();
-	}
-
-	yaya::string_t	r_value;
-	yaya::string_t  fullpath = ToFullPath(arg.array()[0].GetValueString());
-	int	result = vm.files().OpenXML(fullpath);
-	if (!result) {
-		vm.logger().Error(E_W, 20, L"FREADXML", d, l);
-		SetError(20);
-		return CValue();
-	}
-
-	result = vm.files().ReadXML(fullpath, r_value, arg.array()[1].GetValueString());
-
-	if (result <= 0) {
-		vm.logger().Error(E_W, 21, L"FREADXML", d, l);
-		SetError(21);
-		return CValue();
-	}
-
-	return CValue(r_value);
-}
-
-/* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::FWRITE
  * -----------------------------------------------------------------------
  */
@@ -2433,7 +2390,7 @@ CValue	CSystemFunction::RMDIR(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	// 実行
-	int	result = (::RemoveDirectory(s_dirstr) ? 0 : 1);
+	int	result = (::RemoveDirectory(s_dirstr) == 0 ? 0 : 1);
 	free(s_dirstr);
 
 	return CValue(result);
@@ -4271,10 +4228,28 @@ CValue	CSystemFunction::SPLIT(const CValue &arg, yaya::string_t &d, int &l)
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::FATTRIB
- *
- *  4GB以上のサイズは取得できません
  * -----------------------------------------------------------------------
  */
+
+#if defined(WIN32)
+static time_t FileTimeToUnixTime(FILETIME &filetime)
+{
+    FILETIME localfiletime;
+    SYSTEMTIME systime;
+    struct tm utime;
+    FileTimeToLocalFileTime(&filetime, &localfiletime);
+    FileTimeToSystemTime(&localfiletime, &systime);
+    utime.tm_sec=systime.wSecond;
+    utime.tm_min=systime.wMinute;
+    utime.tm_hour=systime.wHour;
+    utime.tm_mday=systime.wDay;
+    utime.tm_mon=systime.wMonth-1;
+    utime.tm_year=systime.wYear-1900;
+    utime.tm_isdst=-1;
+    return(mktime(&utime));
+}
+#endif
+
 CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
@@ -4301,8 +4276,9 @@ CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
 	DWORD	attrib = GetFileAttributes(s_filestr);
 	free(s_filestr);
 
-	if (attrib == 0xFFFFFFFF)
+	if (attrib == 0xFFFFFFFF) {
 		return CValue(-1);
+	}
 
 	// 返値生成
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
@@ -4315,6 +4291,17 @@ CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
 	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_READONLY  ) ? 1 : 0));
 	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_SYSTEM    ) ? 1 : 0));
 	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_TEMPORARY ) ? 1 : 0));
+
+	HANDLE hFile = CreateFile(s_filestr , GENERIC_READ , 0 , NULL ,OPEN_EXISTING , FILE_ATTRIBUTE_NORMAL , NULL);
+	if (hFile == INVALID_HANDLE_VALUE) {
+		return CValue(-1);
+	}
+
+	FILETIME ftctime,ftmtime;
+	::GetFileTime(hFile , &ftctime , NULL , &ftmtime);
+
+	result.array().push_back(CValueSub(FileTimeToUnixTime(ftctime)));
+	result.array().push_back(CValueSub(FileTimeToUnixTime(ftmtime)));
 
 #elif defined(POSIX)
 	std::string path = narrow(ToFullPath(arg.array()[0].s_value));
@@ -4335,6 +4322,8 @@ CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
 	result.array().push_back(CValueSub(0));
 	result.array().push_back(CValueSub(0));
 	result.array().push_back(CValueSub(0));
+	result.array().push_back(CValueSub(sb.st_ctime);
+	result.array().push_back(CValueSub(sb.st_mtime);
 #endif
 
 	return result;
