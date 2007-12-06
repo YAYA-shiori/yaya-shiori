@@ -1,4 +1,9 @@
 #labels Featured
+=Tc526-1=
+  * RMDIRが成功時に0を返していたひどい問題を修正（Windows上のみ）
+  * FATTRIBが返す配列に日付情報追加
+  * けっこう高速化
+
 =Tc525-2=
   * FENUMが常に空変数(void)を返していたひどい問題を修正
 
