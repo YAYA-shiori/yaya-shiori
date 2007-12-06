@@ -152,8 +152,6 @@ const wchar_t	msgwj[][128] = {
 	L"warning W0017 : 正規表現処理中に未定義のエラーが発生しました.",
 	L"warning W0018 : 変数を指定してください.",
 	L"warning W0019 : 割り算にゼロを指定することはできません.",
-	L"warning W0020 : XMLファイルの書式に問題があります.",
-	L"warning W0021 : XPathの書式に問題があります.",
 };
 
 // 注記文字列（日本語）
@@ -313,8 +311,6 @@ const wchar_t	msgwe[][128] = {
 	L"warning W0017 : Unknown error occurred at regular expression.",
 	L"warning W0018 : It is necessary to specify the variable.",
 	L"warning W0019 : Integer/Double divided by zero.",
-	L"warning W0020 : Irregal XML File.",
-	L"warning W0021 : Syntax error in XPath expression.",
 };
 
 // 注記文字列（英語）
