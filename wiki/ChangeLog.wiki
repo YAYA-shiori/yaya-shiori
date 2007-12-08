@@ -1,4 +1,8 @@
 #labels Featured
+=Tc526-2=
+  * FATTRIBを呼び出すたびにリソースリークするひどいバグを修正
+  * FATTRIBがいつも-1を返すひどいバグを修正
+
 =Tc526-1=
   * RMDIRが成功時に0を返していたひどい問題を修正（Windows上のみ）
   * FATTRIBが返す配列に日付情報追加
