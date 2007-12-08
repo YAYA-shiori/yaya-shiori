@@ -4274,7 +4274,6 @@ CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
 
 	// Žæ“¾
 	DWORD	attrib = GetFileAttributes(s_filestr);
-	free(s_filestr);
 
 	if (attrib == 0xFFFFFFFF) {
 		return CValue(-1);
@@ -4292,16 +4291,21 @@ CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
 	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_SYSTEM    ) ? 1 : 0));
 	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_TEMPORARY ) ? 1 : 0));
 
-	HANDLE hFile = CreateFile(s_filestr , GENERIC_READ , 0 , NULL ,OPEN_EXISTING , FILE_ATTRIBUTE_NORMAL , NULL);
+	HANDLE hFile = ::CreateFile(s_filestr , GENERIC_READ , FILE_SHARE_READ | FILE_SHARE_WRITE , NULL ,OPEN_EXISTING , FILE_ATTRIBUTE_NORMAL , NULL);
 	if (hFile == INVALID_HANDLE_VALUE) {
-		return CValue(-1);
+		result.array().push_back(CValueSub(0));
+		result.array().push_back(CValueSub(0));
 	}
+	else {
+		FILETIME ftctime,ftmtime;
+		::GetFileTime(hFile , &ftctime , NULL , &ftmtime);
 
-	FILETIME ftctime,ftmtime;
-	::GetFileTime(hFile , &ftctime , NULL , &ftmtime);
+		result.array().push_back(CValueSub(FileTimeToUnixTime(ftctime)));
+		result.array().push_back(CValueSub(FileTimeToUnixTime(ftmtime)));
 
-	result.array().push_back(CValueSub(FileTimeToUnixTime(ftctime)));
-	result.array().push_back(CValueSub(FileTimeToUnixTime(ftmtime)));
+		::CloseHandle(hFile);
+	}
+	free(s_filestr);
 
 #elif defined(POSIX)
 	std::string path = narrow(ToFullPath(arg.array()[0].s_value));
