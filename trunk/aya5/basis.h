@@ -38,6 +38,7 @@ protected:
 	char	save_charset;
 	char	extension_charset;
 	bool	encode_savefile;
+	bool	auto_save;
 
 #if !defined(WIN32)
 	typedef void* HWND;
