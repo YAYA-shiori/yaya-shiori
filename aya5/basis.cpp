@@ -72,6 +72,7 @@ CBasis::CBasis(CAyaVM &vmr) : vm(vmr)
 	extension_charset = CHARSET_SJIS;
 
 	encode_savefile = false;
+	auto_save = true;
 
 #if defined(WIN32)
 	hlogrcvWnd  = NULL;
@@ -242,7 +243,9 @@ void	CBasis::Termination(void)
 		// 開いているすべてのファイルを閉じる
 		vm.files().DeleteAll();
 		// 変数の保存
-		SaveVariable();
+		if ( auto_save ) {
+			SaveVariable();
+		}
 	}
 
 	// ロギングを終了
@@ -362,12 +365,17 @@ void	CBasis::SetParameter(yaya::string_t &cmd, yaya::string_t &param, std::vecto
 		if (!param.compare(L"off"))
 			iolog = false;
 	}
-	// iolog
+	// セーブデータ暗号化
 	else if (!cmd.compare(L"save.encode")) {
 		if (!param.compare(L"on"))
 			encode_savefile = true;
 	}
-	// msglang
+	// 自動セーブ
+	else if (!cmd.compare(L"save.auto")) {
+		if (!param.compare(L"off"))
+			auto_save = false;
+	}
+	// エラーメッセージ言語
 	else if (!cmd.compare(L"msglang")) {
 		if (!param.compare(L"english"))
 			msglang = MSGLANG_ENGLISH;
@@ -428,6 +436,10 @@ yaya::string_t CBasis::GetParameter(const yaya::string_t &cmd)
 	// save.encode
 	else if (!cmd.compare(L"save.encode")) {
 		return yaya::string_t(encode_savefile ? L"on" : L"off");
+	}
+	// save.auto
+	else if (!cmd.compare(L"save.auto")) {
+		return yaya::string_t(auto_save ? L"on" : L"off");
 	}
 	// msglang
 	else if (!cmd.compare(L"msglang")) {
