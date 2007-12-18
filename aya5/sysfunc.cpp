@@ -52,6 +52,11 @@
 #include "variable.h"
 #include "wsex.h"
 
+extern "C" {
+#define PROTOTYPES 1
+#include "md5.h"
+}
+
 //////////DEBUG/////////////////////////
 #ifdef _WINDOWS
 #ifdef _DEBUG
@@ -226,6 +231,8 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"GETSECCOUNT",
 	// FMO(1)
 	L"READFMO",
+	// ファイル操作(4)
+	L"FDIGEST",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -583,6 +590,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return GETSECCOUNT(arg, d, l);
 	case 116:
 		return READFMO(arg, d, l);
+	case 117:
+		return FDIGEST(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -2543,6 +2552,73 @@ CValue CSystemFunction::FRENAME(const CValue &arg, yaya::string_t &d, int &l) {
 }
 #endif
 
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FDIGEST
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if (!arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"FDIGEST", d, l);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"FDIGEST", d, l);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	// パスをMBCSに変換
+	const char *s_filestr;
+
+#if defined(WIN32)	
+	s_filestr = Ccct::Ucs2ToMbcs(ToFullPath(arg.array()[0].s_value), CHARSET_DEFAULT);
+	if (s_filestr == NULL) {
+		vm.logger().Error(E_E, 89, L"FDIGEST", d, l);
+		return CValue(-1);
+	}
+#elif defined(POSIX)
+	std::string path = narrow(ToFullPath(arg.array()[0].s_value));
+    fix_filepath(path);
+	s_filestr = path.c_str();
+#endif
+
+	// 実行
+	FILE *pF = fopen(s_filestr,"rb");
+	if ( ! pF ) { return CValue(-1); }
+
+#if defined(WIN32)	
+	free((void*)s_filestr);
+#endif
+
+	MD5_CTX md5ctx;
+	MD5Init(&md5ctx);
+
+	unsigned char buf[32768];
+	while ( TRUE ) {
+		size_t readsize = fread(buf,sizeof(buf[0]),sizeof(buf),pF);
+		MD5Update(&md5ctx,buf,readsize);
+		if ( readsize <= sizeof(buf) ) { break; }
+	}
+
+	unsigned char md5result[16];
+	MD5Final(md5result,&md5ctx);
+
+	fclose(pF);
+
+	yaya::char_t md5str[33];
+	md5str[32] = 0; //ゼロ終端
+
+	for ( unsigned int i = 0 ; i < 16 ; ++i ) {
+		swprintf(md5str+i*2,L"%02X",md5result[i]);
+	}
+
+	return CValue(yaya::string_t(md5str));
+}
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::FSIZE
  *
@@ -2565,7 +2641,7 @@ CValue	CSystemFunction::FSIZE(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	// パスをMBCSに変換
-	char	*s_filestr = Ccct::Ucs2ToMbcs(ToFullPath(arg.array()[0].s_value), CHARSET_DEFAULT);
+	char *s_filestr = Ccct::Ucs2ToMbcs(ToFullPath(arg.array()[0].s_value), CHARSET_DEFAULT);
 	if (s_filestr == NULL) {
 		vm.logger().Error(E_E, 89, L"FSIZE", d, l);
 		return CValue(-1);

@@ -133,6 +133,7 @@ protected:
 	CValue	RMDIR(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FDEL(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FRENAME(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	FDIGEST(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FSIZE(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FENUM(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FCHARSET(const CValue &arg, yaya::string_t &d, int &l);

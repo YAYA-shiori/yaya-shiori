@@ -162,6 +162,10 @@ SOURCE=.\manifest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\md5c.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\misc.cpp
 # End Source File
 # Begin Source File
@@ -239,6 +243,10 @@ SOURCE=.\function.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\global.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\globaldef.h
 # End Source File
 # Begin Source File
@@ -256,6 +264,10 @@ SOURCE=.\logexcode.h
 # Begin Source File
 
 SOURCE=.\manifest.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\md5.h
 # End Source File
 # Begin Source File
 
