@@ -230,7 +230,8 @@ char *Ccct::utf16be_to_mbcs(const yaya::char_t *pUcsStr, int charset)
         nLen--;
     }
 
-    pAnsiStr = (char *)malloc((nLen + 1)*sizeof(yaya::char_t));
+	//文字長×マルチバイト最大長＋ゼロ終端
+    pAnsiStr = (char *)malloc((nLen*MB_CUR_MAX)+1);
     if (!pAnsiStr) {
 		if (charset == CHARSET_SJIS) sys_setlocale(LC_ALL);
 		return NULL;
@@ -238,27 +239,20 @@ char *Ccct::utf16be_to_mbcs(const yaya::char_t *pUcsStr, int charset)
 
     // 1文字ずつ変換する。
     // まとめて変換すると、変換不能文字への対応が困難なので
-    size_t nRet, i, nMbpos = 0;
-    char *pcMbchar = new char[MB_CUR_MAX];
+    size_t i, nMbpos = 0;
+	int nRet;
 
     for (i = 0; i < nLen; i++) {
-        nRet = wctomb(pcMbchar, pUcsStr[i]);
-        switch ( nRet) {
-        case 1:
-            pAnsiStr[nMbpos++] = pcMbchar[0];
-            break;
-        case 2:
-            pAnsiStr[nMbpos++] = pcMbchar[0];
-            pAnsiStr[nMbpos++] = pcMbchar[1];
-            break;
-        default: // can not conversion
+        nRet = wctomb(pAnsiStr+nMbpos, pUcsStr[i]);
+		if ( nRet <= 0 ) { // can not conversion
             pAnsiStr[nMbpos++] = ' ';
-            break;
         }
+		else {
+			nMbpos += nRet;
+		}
     }
-    pAnsiStr[nMbpos] = '\0';
 
-    delete [] pcMbchar;
+	pAnsiStr[nMbpos] = 0;
 
 	if (charset == CHARSET_SJIS) sys_setlocale(LC_ALL);
     return pAnsiStr;
@@ -281,18 +275,32 @@ yaya::char_t *Ccct::mbcs_to_utf16be(const char *pAnsiStr, int charset)
 	else
 		sys_setlocale(LC_ALL);
 
-    size_t len = strlen(pAnsiStr);
+    size_t nLen = strlen(pAnsiStr);
 
-    yaya::char_t *pUcsStr = (yaya::char_t *)malloc(sizeof(yaya::char_t)*(len+1));
+    yaya::char_t *pUcsStr = (yaya::char_t *)malloc(sizeof(yaya::char_t)*(nLen+1));
     if (!pUcsStr) {
 		if (charset == CHARSET_SJIS) sys_setlocale(LC_ALL);
 		return NULL;
 	}
 
-	if (len)
-		mbstowcs(pUcsStr, pAnsiStr, len+1);
-	else
-		*pUcsStr = L'\0';
+    // 1文字ずつ変換する。
+    // まとめて変換すると、変換不能文字への対応が困難なので
+    size_t i, nMbpos = 0;
+	int nRet;
+
+    for (i = 0; i < nLen; ) {
+        nRet = mbtowc(pUcsStr+nMbpos, pAnsiStr+i, nLen-i);
+		if ( nRet <= 0 ) { // can not conversion
+            pUcsStr[nMbpos++] = L' ';
+			i += 1;
+        }
+		else {
+			++nMbpos;
+			i += nRet;
+		}
+    }
+
+	pUcsStr[nMbpos] = 0;;
 
 	if (charset == CHARSET_SJIS) sys_setlocale(LC_ALL);
     return pUcsStr;
