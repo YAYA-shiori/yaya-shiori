@@ -7,6 +7,7 @@
 
 #if defined(WIN32) || defined(_WIN32_WCE)
 # include "stdafx.h"
+# include <shellapi.h>
 #endif
 
 #include <algorithm>
@@ -55,6 +56,7 @@
 extern "C" {
 #define PROTOTYPES 1
 #include "md5.h"
+#include "sha1.h"
 }
 
 //////////DEBUG/////////////////////////
@@ -70,7 +72,7 @@ extern "C" {
  *  システム関数テーブル
  * -----------------------------------------------------------------------
  */
-#define	SYSFUNC_NUM					118
+#define	SYSFUNC_NUM					119
 #define	SYSFUNC_HIS					61
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -233,6 +235,8 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"READFMO",
 	// ファイル操作(4)
 	L"FDIGEST",
+	// 特殊
+	L"EXECUTE",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -592,6 +596,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return READFMO(arg, d, l);
 	case 117:
 		return FDIGEST(arg, d, l);
+	case 118:
+		return EXECUTE(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -2571,6 +2577,11 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(-1);
 	}
 
+	yaya::string_t digest_type = L"md5";
+	if (arg.array_size()>=2) {
+		digest_type = arg.array()[1].GetValueString().c_str();
+	}
+
 	// パスをMBCSに変換
 	const char *s_filestr;
 
@@ -2594,26 +2605,44 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 	free((void*)s_filestr);
 #endif
 
-	MD5_CTX md5ctx;
-	MD5Init(&md5ctx);
-
+	unsigned char digest_result[32];
+	size_t digest_len;
 	unsigned char buf[32768];
-	while ( TRUE ) {
-		size_t readsize = fread(buf,sizeof(buf[0]),sizeof(buf),pF);
-		MD5Update(&md5ctx,buf,readsize);
-		if ( readsize <= sizeof(buf) ) { break; }
-	}
 
-	unsigned char md5result[16];
-	MD5Final(md5result,&md5ctx);
+	if ( wcsicmp(digest_type.c_str(),L"sha1") == 0 || wcsicmp(digest_type.c_str(),L"sha-1") == 0 ) {
+		SHA1Context sha1ctx;
+		SHA1Reset(&sha1ctx);
+
+		while ( TRUE ) {
+			size_t readsize = fread(buf,sizeof(buf[0]),sizeof(buf),pF);
+			SHA1Input(&sha1ctx,buf,readsize);
+			if ( readsize <= sizeof(buf) ) { break; }
+		}
+
+		SHA1Result(&sha1ctx,digest_result);
+		digest_len = SHA1HashSize;
+	}
+	else { //md5
+		MD5_CTX md5ctx;
+		MD5Init(&md5ctx);
+
+		while ( TRUE ) {
+			size_t readsize = fread(buf,sizeof(buf[0]),sizeof(buf),pF);
+			MD5Update(&md5ctx,buf,readsize);
+			if ( readsize <= sizeof(buf) ) { break; }
+		}
+
+		MD5Final(digest_result,&md5ctx);
+		digest_len = 16;
+	}
 
 	fclose(pF);
 
-	yaya::char_t md5str[33];
-	md5str[32] = 0; //ゼロ終端
+	yaya::char_t md5str[65];
+	md5str[digest_len*2] = 0; //ゼロ終端
 
-	for ( unsigned int i = 0 ; i < 16 ; ++i ) {
-		swprintf(md5str+i*2,L"%02X",md5result[i]);
+	for ( unsigned int i = 0 ; i < digest_len ; ++i ) {
+		swprintf(md5str+i*2,L"%02X",digest_result[i]);
 	}
 
 	return CValue(yaya::string_t(md5str));
@@ -4720,4 +4749,66 @@ CValue CSystemFunction::READFMO(const CValue &arg, yaya::string_t &d, int &l)
 }
 #endif
 
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::EXECUTE
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::EXECUTE(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if (!arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"EXECUTE", d, l);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"EXECUTE", d, l);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	// パスをMBCSに変換
+	int result;
+
+#if defined(WIN32)	
+	
+	char *s_filestr = Ccct::Ucs2ToMbcs(arg.array()[0].s_value, CHARSET_DEFAULT);
+	if (s_filestr == NULL) {
+		vm.logger().Error(E_E, 89, L"EXECUTE", d, l);
+		return CValue(-1);
+	}
+
+	char *s_parameter = NULL;
+	if ( arg.array_size() >= 2 ) {
+		if ( arg.array()[1].s_value.size() ) {
+			s_parameter = Ccct::Ucs2ToMbcs(arg.array()[1].s_value, CHARSET_DEFAULT);
+		}
+	}
+
+	result = (int)::ShellExecute(NULL,"open",s_filestr,s_parameter,NULL,SW_SHOWNORMAL);
+	if ( result <= 32 ) { result = -1; }
+
+	free(s_filestr);
+	if ( s_parameter ) { free(s_parameter); }
+
+#elif defined(POSIX)
+
+	std::string path = narrow(arg.array()[0].s_value);
+    fix_filepath(path);
+
+	if ( arg.array_size() >= 2 ) {
+		if ( arg.array()[1].s_value.size() ) {
+			path += L" ";
+			path += arg.array()[1].s_value;
+		}
+	}
+
+	result = system(path.c_str());
+
+#endif
+
+	// 実行
+	return CValue(result);
+}
 
