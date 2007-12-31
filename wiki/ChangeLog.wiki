@@ -1,4 +1,9 @@
 #labels Featured
+=Tc527-1=
+  * EXECUTE追加、外部アプリの実行が可能に
+  * FDIGEST追加、MD5/SHA-1などのダイジェスト値計算が可能に
+  * save.auto追加、自動保存のON/OFFが可能に
+
 =Tc526-2=
   * FATTRIBを呼び出すたびにリソースリークするひどいバグを修正
   * FATTRIBがいつも-1を返すひどいバグを修正
