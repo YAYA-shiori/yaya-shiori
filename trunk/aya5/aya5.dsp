@@ -186,8 +186,20 @@ SOURCE=.\selecter.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\sha1.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdAfx.cpp
+
+!IF  "$(CFG)" == "aya5 - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "aya5 - Win32 Debug"
+
 # ADD CPP /Yc"stdafx.h"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
@@ -292,6 +304,10 @@ SOURCE=.\parser1.h
 # Begin Source File
 
 SOURCE=.\selecter.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\sha1.h
 # End Source File
 # Begin Source File
 
