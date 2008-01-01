@@ -1,4 +1,7 @@
 #labels Featured
+=Tc527-2=
+  * Win9x対応のためのBoost Regexライブラリのビルド条件変更のみ
+
 =Tc527-1=
   * EXECUTE追加、外部アプリの実行が可能に
   * FDIGEST追加、MD5/SHA-1などのダイジェスト値計算が可能に
