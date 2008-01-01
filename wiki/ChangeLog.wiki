@@ -1,6 +1,6 @@
 #labels Featured
 =Tc527-2=
-  * Win9x対応のためのBoost Regexライブラリのビルド条件変更のみ
+  * Win9x/Me上で正規表現関係の細かい不具合があったのを修正
 
 =Tc527-1=
   * EXECUTE追加、外部アプリの実行が可能に
