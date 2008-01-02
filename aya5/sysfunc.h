@@ -180,7 +180,9 @@ protected:
 	CValue	ASEARCHEX(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue	GETDELIM(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l);
+
 	CValue	GETSETTING(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	SETSETTING(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue	SPLIT(const CValue &arg, yaya::string_t &d, int &l);
 
@@ -196,8 +198,6 @@ protected:
 
 	CValue	CHARSETTEXTTOID(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	CHARSETIDTOTEXT(const CValue &arg, yaya::string_t &d, int &l);
-
-	CValue	CHARSET(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue  BITWISE_AND(const CValue &arg, yaya::string_t &d, int &l);
 	CValue  BITWISE_OR(const CValue &arg, yaya::string_t &d, int &l);

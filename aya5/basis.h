@@ -93,6 +93,7 @@ public:
 	void	RestoreVariable(const yaya::char_t* pName = NULL);
 
 	yaya::string_t GetParameter(const yaya::string_t &cmd);
+	bool SetParameter(yaya::string_t &cmd, yaya::string_t &param, std::vector<yaya::string_t> *dics = NULL);
 
 	void    SetOutputCharset(char cst) { output_charset = cst; }
 
@@ -102,7 +103,6 @@ protected:
 	void	ResetSuppress(void);
 
 	void	LoadBaseConfigureFile(std::vector<yaya::string_t> *dics);
-	void	SetParameter(yaya::string_t &cmd, yaya::string_t &param, std::vector<yaya::string_t> *dics);
 
 	void	RestoreArrayVariable(CValue &var, yaya::string_t &value);
 };
