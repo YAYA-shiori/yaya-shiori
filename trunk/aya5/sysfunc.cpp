@@ -72,7 +72,7 @@ extern "C" {
  *  システム関数テーブル
  * -----------------------------------------------------------------------
  */
-#define	SYSFUNC_NUM					119
+#define	SYSFUNC_NUM					120
 #define	SYSFUNC_HIS					61
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -237,6 +237,8 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"FDIGEST",
 	// 特殊
 	L"EXECUTE",
+	// 文字コード(2)
+	L"CHARSET",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -598,6 +600,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return FDIGEST(arg, d, l);
 	case 118:
 		return EXECUTE(arg, d, l);
+	case 119:
+		return CHARSET(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -1167,10 +1171,29 @@ CValue CSystemFunction::HAN2ZEN(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::CHARSET
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::CHARSET(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if (!arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"CHARSET", d, l);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	int	charset = GetCharset(arg.array()[0],L"CHARSET",d,l);
+	if ( charset < 0 ) {
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	vm.basis().SetOutputCharset(charset);
+
+	return CValue(F_TAG_NOP, 0/*dmy*/);
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::CHARSETLIB
- *
- *  有効な値は、0/1/127=Shift_JIS/UTF-8/OSデフォルト　です。
- *  これ以外の値を与えた場合は無効で、warningとなります。
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::CHARSETLIB(const CValue &arg, yaya::string_t &d, int &l)
@@ -1193,9 +1216,6 @@ CValue	CSystemFunction::CHARSETLIB(const CValue &arg, yaya::string_t &d, int &l)
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::CHARSETLIBEX
- *
- *  有効な値は、0/1/127=Shift_JIS/UTF-8/OSデフォルト　です。
- *  これ以外の値を与えた場合は無効で、warningとなります。
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::CHARSETLIBEX(const CValue &arg, yaya::string_t &d, int &l)

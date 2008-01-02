@@ -109,7 +109,7 @@ int      Ccct::CharsetTextToID(const wchar_t *ctxt)
 {
 	if (!wcsicmp(L"UTF-8",ctxt) || !wcsicmp(L"UTF8",ctxt))
 		return CHARSET_UTF8;
-	else if (!wcsicmp(L"default",ctxt))
+	else if (!wcsicmp(L"default",ctxt) || !wcsicmp(L"OSNative",ctxt))
 		return CHARSET_DEFAULT;
 	else if (!wcsicmp(L"Shift_JIS",ctxt) || !wcsicmp(L"ShiftJIS",ctxt) || !wcsicmp(L"SJIS",ctxt))
 		return CHARSET_SJIS;
@@ -121,7 +121,7 @@ int      Ccct::CharsetTextToID(const char *ctxt)
 {
 	if (!stricmp("UTF-8",ctxt) || !stricmp("UTF8",ctxt))
 		return CHARSET_UTF8;
-	else if (!stricmp("default",ctxt))
+	else if (!stricmp("default",ctxt) || !stricmp("OSNative",ctxt))
 		return CHARSET_DEFAULT;
 	else if (!stricmp("Shift_JIS",ctxt) || !stricmp("ShiftJIS",ctxt) || !stricmp("SJIS",ctxt))
 		return CHARSET_SJIS;

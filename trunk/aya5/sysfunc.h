@@ -197,6 +197,8 @@ protected:
 	CValue	CHARSETTEXTTOID(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	CHARSETIDTOTEXT(const CValue &arg, yaya::string_t &d, int &l);
 
+	CValue	CHARSET(const CValue &arg, yaya::string_t &d, int &l);
+
 	CValue  BITWISE_AND(const CValue &arg, yaya::string_t &d, int &l);
 	CValue  BITWISE_OR(const CValue &arg, yaya::string_t &d, int &l);
 	CValue  BITWISE_XOR(const CValue &arg, yaya::string_t &d, int &l);
