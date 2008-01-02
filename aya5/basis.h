@@ -94,6 +94,8 @@ public:
 
 	yaya::string_t GetParameter(const yaya::string_t &cmd);
 
+	void    SetOutputCharset(char cst) { output_charset = cst; }
+
 protected:
 	char	IsSuppress(void);
 	void	SetSuppress(void);
