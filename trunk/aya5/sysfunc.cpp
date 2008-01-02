@@ -235,10 +235,9 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"READFMO",
 	// ファイル操作(4)
 	L"FDIGEST",
-	// 特殊
+	// 特殊(6)
 	L"EXECUTE",
-	// 文字コード(2)
-	L"CHARSET",
+	L"SETSETTING",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -601,7 +600,7 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 	case 118:
 		return EXECUTE(arg, d, l);
 	case 119:
-		return CHARSET(arg, d, l);
+		return SETSETTING(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -1168,28 +1167,6 @@ CValue CSystemFunction::HAN2ZEN(const CValue &arg, yaya::string_t &d, int &l)
 		}
 	}
 	return CValue(str);
-}
-
-/* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::CHARSET
- * -----------------------------------------------------------------------
- */
-CValue	CSystemFunction::CHARSET(const CValue &arg, yaya::string_t &d, int &l)
-{
-	if (!arg.array_size()) {
-		vm.logger().Error(E_W, 8, L"CHARSET", d, l);
-		SetError(8);
-		return CValue(F_TAG_NOP, 0/*dmy*/);
-	}
-
-	int	charset = GetCharset(arg.array()[0],L"CHARSET",d,l);
-	if ( charset < 0 ) {
-		return CValue(F_TAG_NOP, 0/*dmy*/);
-	}
-
-	vm.basis().SetOutputCharset(charset);
-
-	return CValue(F_TAG_NOP, 0/*dmy*/);
 }
 
 /* -----------------------------------------------------------------------
@@ -4238,6 +4215,27 @@ CValue	CSystemFunction::GETDELIM(const std::vector<CCell *> &pcellarg, CLocalVar
 
 	return delimiter;
 }
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::SETSETTING
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::SETSETTING(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if (arg.array_size() < 2) {
+		vm.logger().Error(E_W, 8, L"SETSETTING", d, l);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	if ( vm.basis().SetParameter(arg.array()[0].GetValueString(),arg.array()[1].GetValueString()) ) {
+		return CValue(1);
+	}
+	else {
+		return CValue(0);
+	}
+}
+
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::GETSETTING

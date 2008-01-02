@@ -349,73 +349,89 @@ void	CBasis::LoadBaseConfigureFile(std::vector<yaya::string_t> *dics)
  *  機能概要：  LoadBaseConfigureFileから呼ばれます。各種パラメータを設定します
  * -----------------------------------------------------------------------
  */
-void	CBasis::SetParameter(yaya::string_t &cmd, yaya::string_t &param, std::vector<yaya::string_t> *dics)
+bool CBasis::SetParameter(yaya::string_t &cmd, yaya::string_t &param, std::vector<yaya::string_t> *dics)
 {
 	// dic
-	if (!cmd.compare(L"dic")) {
+	if ( cmd.compare(L"dic") == 0 && dics) {
 		yaya::string_t	filename = path + param;
 		dics->push_back(filename);
+		return true;
 	}
 	// log
-	else if (!cmd.compare(L"log")) {
+	if ( cmd.compare(L"log") == 0 ) {
 		logpath = path + param;
+		return true;
 	}
 	// iolog
-	else if (!cmd.compare(L"iolog")) {
+	if ( cmd.compare(L"iolog") == 0 ) {
 		if (!param.compare(L"off"))
 			iolog = false;
+		return true;
 	}
 	// セーブデータ暗号化
-	else if (!cmd.compare(L"save.encode")) {
+	if ( cmd.compare(L"save.encode") == 0 ) {
 		if (!param.compare(L"on"))
 			encode_savefile = true;
+		return true;
 	}
 	// 自動セーブ
-	else if (!cmd.compare(L"save.auto")) {
+	if ( cmd.compare(L"save.auto") == 0 ) {
 		if (!param.compare(L"off"))
 			auto_save = false;
+		return true;
 	}
 	// エラーメッセージ言語
-	else if (!cmd.compare(L"msglang")) {
+	if ( cmd.compare(L"msglang") == 0 ) {
 		if (!param.compare(L"english"))
 			msglang = MSGLANG_ENGLISH;
 		else
 			msglang = MSGLANG_JAPANESE;
+		return true;
 	}
 	// charset
-	else if (!cmd.compare(L"charset")) {
+	if ( cmd.compare(L"charset") == 0 ) {
 		dic_charset       = Ccct::CharsetTextToID(param.c_str());
 		output_charset    = dic_charset;
 		file_charset      = dic_charset;
 		save_charset      = dic_charset;
 		extension_charset = dic_charset;
+		return true;
 	}
 	// charset
-	else if (!cmd.compare(L"charset.dic")) {
+	if ( cmd.compare(L"charset.dic") == 0 ) {
 		dic_charset       = Ccct::CharsetTextToID(param.c_str());
+		return true;
 	}
-	else if (!cmd.compare(L"charset.output")) {
+	if ( cmd.compare(L"charset.output") == 0 ) {
 		output_charset    = Ccct::CharsetTextToID(param.c_str());
+		return true;
 	}
-	else if (!cmd.compare(L"charset.file")) {
+	if ( cmd.compare(L"charset.file") == 0 ) {
 		file_charset      = Ccct::CharsetTextToID(param.c_str());
+		return true;
 	}
-	else if (!cmd.compare(L"charset.save")) {
+	if ( cmd.compare(L"charset.save") == 0 ) {
 		save_charset      = Ccct::CharsetTextToID(param.c_str());
+		return true;
 	}
-	else if (!cmd.compare(L"charset.extension")) {
+	if ( cmd.compare(L"charset.extension") == 0 ) {
 		extension_charset = Ccct::CharsetTextToID(param.c_str());
+		return true;
 	}
 	// fncdepth
-	else if (!cmd.compare(L"fncdepth")) {
+	if ( cmd.compare(L"fncdepth") == 0 ) {
 		int	f_depth = ws_atoi(param, 10);
 		vm.calldepth().SetMaxDepth((f_depth < 2) ? 2 : f_depth);
+		return true;
 	}
 	// checkparser closed function
-	else if (!cmd.compare(L"checkparser")) {
+	if ( cmd.compare(L"checkparser") == 0 ) {
 		if (!param.compare(L"on"))
 			checkparser = 1;
+		return true;
 	}
+
+	return false;
 }
 
 /* -----------------------------------------------------------------------
