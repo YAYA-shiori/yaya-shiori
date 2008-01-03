@@ -47,6 +47,7 @@ public:
 	char	CheckExecutionCode1(CStatement& st, const yaya::string_t& dicfilename);
 
 protected:
+	char	CheckNomialCount(CStatement& st, const yaya::string_t& dicfilename);
 	char	CheckSubstSyntax(CStatement& st, const yaya::string_t& dicfilename);
 	char	CheckFeedbackOperatorPos(CStatement& st, const yaya::string_t& dicfilename);
 	char	SetFormulaType(CStatement& st, const yaya::string_t& dicfilename);

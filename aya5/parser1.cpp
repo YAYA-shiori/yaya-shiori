@@ -67,10 +67,37 @@ char	CParser1::CheckExecutionCode1(CStatement& st, const yaya::string_t& dicfile
 {
 	int	errcount = 0;
 
+	errcount += CheckNomialCount(st, dicfilename);
 	errcount += CheckSubstSyntax(st, dicfilename);
 	errcount += CheckFeedbackOperatorPos(st, dicfilename);
 	errcount += SetFormulaType(st, dicfilename);
 	errcount += CheckFunctionArgument(st, dicfilename);
+
+	return (errcount) ? 1 : 0;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CParser1::CheckNomialCount
+ *  機能概要：  演算式の項数が正常か確認します
+ *
+ *  返値　　：  1/0=エラー/正常
+ * -----------------------------------------------------------------------
+ */
+char	CParser1::CheckNomialCount(CStatement& st, const yaya::string_t& dicfilename)
+{
+	int	errcount = 0;
+
+	for(std::vector<CSerial>::iterator it = st.serial().begin(); it != st.serial().end(); it++) {
+		int t_type = st.cell()[it->tindex].value_GetType();
+
+		//演算に関係してる項の数を確認 二項演算子なのに単項で使われてるとか
+		if ( t_type >= F_TAG_ORIGIN && t_type < F_TAG_ORIGIN_VALUE ) {
+			if ( it->index.size() < formulatag_params[t_type-F_TAG_ORIGIN] ) {
+				vm.logger().Error(E_E, 22, dicfilename, st.linecount);
+				errcount++;
+			}
+		}
+	}
 
 	return (errcount) ? 1 : 0;
 }
@@ -86,9 +113,10 @@ char	CParser1::CheckSubstSyntax(CStatement& st, const yaya::string_t& dicfilenam
 {
 	int	errcount = 0;
 
-	for(size_t i = 0; i < st.cell_size(); ++i)
-		if (st.cell()[i].value_GetType() >= F_TAG_EQUAL &&
-			st.cell()[i].value_GetType() <= F_TAG_COMMAEQUAL) {
+	for(size_t i = 0; i < st.cell_size(); ++i) {
+		int t_type = st.cell()[i].value_GetType();
+
+		if (t_type >= F_TAG_EQUAL && t_type <= F_TAG_COMMAEQUAL) {
 			// 代入演算子が式の先頭、もしくは最後尾にある場合はエラー
 			if (!i || i == static_cast<int>(st.cell_size()) - 1) {
 				vm.logger().Error(E_E, 29, dicfilename, st.linecount);
@@ -132,6 +160,7 @@ char	CParser1::CheckSubstSyntax(CStatement& st, const yaya::string_t& dicfilenam
 				}
 			}
 		}
+	}
 
 	return (errcount) ? 1 : 0;
 }
