@@ -1982,9 +1982,10 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 					}
 				}
 			}
-		}
-		// 右辺の項を取得　演算子が","の場合は列挙されたすべてを一括して取得する
-		if (t_type == F_TAG_COMMA) {
+			//}
+			//
+			// 右辺の項を取得　演算子が","の場合は列挙されたすべてを一括して取得する
+			//if (t_type == F_TAG_COMMA) {
 			// ","
 			int	gflg = 0;
 			f_depth = 1;
@@ -2033,6 +2034,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 				return 1;
 			}
 		}
+
 		// 演算定義を登録
 		st.serial().push_back(addserial);
 	}
@@ -2042,7 +2044,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 	// もし未処理項が演算子でない場合は、有効な項が1つしかないため演算が無かったことを意味している。
 	// そのままでは結果が得られないので、「残った項から結果を得る」ことを指示するフラグを追加する
 	int	scount = 0;
-	for(i = 0; i < sz; i++)
+	for(i = 0; i < sz; i++) {
 		if (depthvec[i] == -2) {
 			scount++;
 			if (st.cell()[i].value_GetType() >= F_TAG_ORIGIN_VALUE) {
@@ -2052,6 +2054,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 				st.serial().push_back(addserial);
 			}
 		}
+	}
 	if (scount != 1) {
 		vm.logger().Error(E_E, 86, dicfilename, st.linecount);
 		return 1;
