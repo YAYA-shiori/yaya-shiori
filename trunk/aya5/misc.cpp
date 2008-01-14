@@ -428,6 +428,7 @@ char	IsIntString(const yaya::string_t &str)
 	int	advance = (str[0] == L'-' || str[0] == L'+') ? 1 : 0;
 	int i = advance;
 
+	//32bit
 	//2147483647
 	if ( (len-i) > 10 ) { return 0; }
 
@@ -502,6 +503,7 @@ char	IsIntHexString(const yaya::string_t &str, char header)
 		i += PREFIX_BASE_LEN;
 	}
 
+	//32bit
 	//7fffffff
 	if ( (len-i) > 8 ) { return 0; }
 

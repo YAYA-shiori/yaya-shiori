@@ -4397,13 +4397,13 @@ CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
 
 	// 取得
 	DWORD	attrib = GetFileAttributes(s_filestr);
-
 	if (attrib == 0xFFFFFFFF) {
 		return CValue(-1);
 	}
 
 	// 返値生成
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
+
 	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_ARCHIVE   ) ? 1 : 0));
 	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_COMPRESSED) ? 1 : 0));
 	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_DIRECTORY ) ? 1 : 0));
@@ -4414,19 +4414,58 @@ CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
 	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_SYSTEM    ) ? 1 : 0));
 	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_TEMPORARY ) ? 1 : 0));
 
-	HANDLE hFile = ::CreateFile(s_filestr , GENERIC_READ , FILE_SHARE_READ | FILE_SHARE_WRITE , NULL ,OPEN_EXISTING , FILE_ATTRIBUTE_NORMAL , NULL);
-	if (hFile == INVALID_HANDLE_VALUE) {
-		result.array().push_back(CValueSub(0));
-		result.array().push_back(CValueSub(0));
+	if ( attrib & FILE_ATTRIBUTE_DIRECTORY ) { //ディレクトリ
+		//GetFileAttributesExつかいたい、けどWin95蹴るので却下
+		size_t len = strlen(s_filestr);
+		char *s_newstr = (char*)malloc(len+3);
+		strcpy(s_newstr,s_filestr);
+
+		if ( s_filestr[len-1] != '\\' && s_filestr[len-1] != '/' ) {
+			strcat(s_newstr,"\\*");
+		}
+		else {
+			strcat(s_newstr,"*");
+		}
+		free(s_filestr);
+		s_filestr = s_newstr;
+
+		WIN32_FIND_DATA ffdata;
+		HANDLE hFind = ::FindFirstFile(s_filestr,&ffdata);
+		if ( hFind == INVALID_HANDLE_VALUE ) { return CValue(-1); }
+		
+		bool found = false;
+		do {
+			if ( strcmp(ffdata.cFileName,".") == 0 ) {
+				found = true;
+				break;
+			}
+		} while ( ::FindNextFile(hFind,&ffdata) );
+		::FindClose(hFind);
+		
+		if ( ! found ) {
+			result.array().push_back(CValueSub(0));
+			result.array().push_back(CValueSub(0));
+		}
+		else {
+			result.array().push_back(CValueSub(FileTimeToUnixTime(ffdata.ftCreationTime)));
+			result.array().push_back(CValueSub(FileTimeToUnixTime(ffdata.ftLastWriteTime)));
+		}
 	}
-	else {
-		FILETIME ftctime,ftmtime;
-		::GetFileTime(hFile , &ftctime , NULL , &ftmtime);
+	else { //ただのファイル
+		HANDLE hFile = ::CreateFile(s_filestr , GENERIC_READ , FILE_SHARE_READ | FILE_SHARE_WRITE , NULL ,OPEN_EXISTING , FILE_ATTRIBUTE_NORMAL , NULL);
+		if (hFile == INVALID_HANDLE_VALUE) {
+			result.array().push_back(CValueSub(0));
+			result.array().push_back(CValueSub(0));
+		}
+		else {
+			FILETIME ftctime,ftmtime;
+			::GetFileTime(hFile , &ftctime , NULL , &ftmtime);
 
-		result.array().push_back(CValueSub(FileTimeToUnixTime(ftctime)));
-		result.array().push_back(CValueSub(FileTimeToUnixTime(ftmtime)));
+			result.array().push_back(CValueSub(FileTimeToUnixTime(ftctime)));
+			result.array().push_back(CValueSub(FileTimeToUnixTime(ftmtime)));
 
-		::CloseHandle(hFile);
+			::CloseHandle(hFile);
+		}
 	}
 	free(s_filestr);
 
