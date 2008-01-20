@@ -351,7 +351,11 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 			}
 
 			CCell	*s_cell = &(st.cell()[it->index[0]]);
-			CCell	*d_cell = &(st.cell()[it->index[1]]);
+			CCell	*d_cell = NULL;
+			if ( it->index.size() >= 2 ) {
+				d_cell = &(st.cell()[it->index[1]]);
+			}
+
 			switch(o_cell.value_GetType()) {
 			case F_TAG_COMMA:
 				if (Comma(o_cell.ansv(), it->index, st, lvar))

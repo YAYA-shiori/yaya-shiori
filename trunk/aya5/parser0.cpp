@@ -153,7 +153,7 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 	fix_filepath(file);
 #endif
 	// ファイルを開く
-	FILE	*fp = w_fopen((wchar_t *)file.c_str(), L"r");
+	FILE	*fp = yaya::w_fopen((wchar_t *)file.c_str(), L"r");
 	if (fp == NULL) {
 		vm.logger().Error(E_E, 5, file);
 		return 1;
@@ -174,8 +174,8 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 
 	for (int i = 1; ; i++) {
 		// 1行読み込み　暗号化ファイルの場合は復号も行なう
-		ret = ws_fgets(readline, fp, charset, ciphered, i);
-		if (ret == WS_EOF)
+		ret = yaya::ws_fgets(readline, fp, charset, ciphered, i);
+		if (ret == yaya::WS_EOF)
 			break;
 		// 終端の改行および不要な空白（インデント等）を消す
 		CutCrLf(readline);
@@ -313,7 +313,7 @@ void	CParser0::ExecDefinePreProcess(yaya::string_t &str, const std::vector<CDefi
 {
 	for(std::vector<CDefine>::const_iterator it = defines.begin(); it != defines.end(); it++) {
 		if (str.size() >= it->before.size()) {
-			ws_replace(str, it->before.c_str(), it->after.c_str());
+			yaya::ws_replace(str, it->before.c_str(), it->after.c_str());
 		}
 	}
 }
@@ -606,7 +606,7 @@ char	CParser0::StoreInternalStatement(int targetfunc, yaya::string_t &str, int& 
 	// case　特殊な名前のローカル変数への代入に書き換えてしまう
 	else if (!st.compare(L"case")) {
 		str = PREFIX_CASE_VAR + vm.function()[targetfunc].name;
-		str += ws_itoa(linecount);
+		str += yaya::ws_itoa(linecount);
 		str += L"=";
 		str += par;
 		return MakeStatement(ST_FORMULA, targetfunc, str, dicfilename, linecount);
@@ -1168,22 +1168,22 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 
 	// 整数リテラル(DEC)
 	if (IsIntString(scell.value_const().s_value)) {
-		scell.value() = ws_atoi(scell.value_const().s_value, 10);
+		scell.value() = yaya::ws_atoi(scell.value_const().s_value, 10);
 		return 0;
 	}
 	// 整数リテラル(BIN)
 	if (IsIntBinString(scell.value_const().s_value, 1)) {
-		scell.value() = ws_atoi(scell.value_const().s_value, 2);
+		scell.value() = yaya::ws_atoi(scell.value_const().s_value, 2);
 		return 0;
 	}
 	// 整数リテラル(HEX)
 	if (IsIntHexString(scell.value_const().s_value, 1)) {
-		scell.value() = ws_atoi(scell.value_const().s_value, 16);
+		scell.value() = yaya::ws_atoi(scell.value_const().s_value, 16);
 		return 0;
 	}
 	// 実数リテラル
 	if (IsDoubleButNotIntString(scell.value_const().s_value)) {
-		scell.value() = ws_atof(scell.value_const().s_value);
+		scell.value() = yaya::ws_atof(scell.value_const().s_value);
 		return 0;
 	}
 	// 文字列リテラル(ダブルクォート)
@@ -1547,7 +1547,7 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 			resstr += CSystemFunction::HistoryFunctionName();
 			resstr += L"(";
 			
-			resstr += ws_itoa(nindex, 10);
+			resstr += yaya::ws_itoa(nindex, 10);
 			resstr += L"-(";
 
 			resstr.append(str, 2, spos - 3);

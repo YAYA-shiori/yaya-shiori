@@ -40,7 +40,7 @@ int	CFile1::Open(void)
 	if (filepath == NULL)
 		return 0;
 
-	fp = w_fopen((wchar_t *)name.c_str(), (wchar_t *)mode.c_str());
+	fp = yaya::w_fopen((wchar_t *)name.c_str(), (wchar_t *)mode.c_str());
 	free(filepath);
 	
 	return (fp != NULL) ? 1 : 0;
@@ -139,7 +139,7 @@ int	CFile1::Read(yaya::string_t &ostr)
 	if (fp == NULL)
 		return 0;
 
-	if (ws_fgets(ostr, fp, charset, 0, bomcheck, false) == WS_EOF)
+	if (yaya::ws_fgets(ostr, fp, charset, 0, bomcheck, false) == yaya::WS_EOF)
 		return -1;
 
 	bomcheck++;

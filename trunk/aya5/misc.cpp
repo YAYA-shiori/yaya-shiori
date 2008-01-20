@@ -293,8 +293,8 @@ void	AddDoubleQuote(yaya::string_t &str)
  */
 void	CutCrLf(yaya::string_t &str)
 {
-	ws_eraseend(str, L'\n');
-	ws_eraseend(str, L'\r');
+	yaya::ws_eraseend(str, L'\n');
+	yaya::ws_eraseend(str, L'\r');
 }
 
 /* -----------------------------------------------------------------------
@@ -749,7 +749,7 @@ char	IsNt(void)
 
 void	EscapeString(yaya::string_t &wstr)
 {
-	ws_replace(wstr, L"\"", ESC_DQ);
+	yaya::ws_replace(wstr, L"\"", ESC_DQ);
 
 	for ( size_t i = 0 ; i < wstr.length() ; ++i ) {
 		if ( wstr[i] <= END_OF_CTRL_CH ) {
@@ -769,7 +769,7 @@ void	EscapeString(yaya::string_t &wstr)
  */
 void	UnescapeString(yaya::string_t &wstr)
 {
-	ws_replace(wstr, ESC_DQ, L"\"");
+	yaya::ws_replace(wstr, ESC_DQ, L"\"");
 
 	yaya::string_t::size_type found = 0;
 	const size_t len = ::wcslen(ESC_CTRL);

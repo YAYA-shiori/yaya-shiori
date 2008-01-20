@@ -45,7 +45,7 @@ int	CValue::GetValueInt(void) const
 	case F_TAG_DOUBLE:
 		return (int)floor(d_value);
 	case F_TAG_STRING:
-		return ws_atoi(s_value, 10);
+		return yaya::ws_atoi(s_value, 10);
 	case F_TAG_ARRAY:
 		return 0;
 	default:
@@ -68,7 +68,7 @@ double	CValue::GetValueDouble(void) const
 	case F_TAG_DOUBLE:
 		return d_value;
 	case F_TAG_STRING:
-		return ws_atof(s_value);
+		return yaya::ws_atof(s_value);
 	case F_TAG_ARRAY:
 		return 0.0;
 	default:
@@ -87,10 +87,10 @@ yaya::string_t	CValue::GetValueString(void) const
 {
 	switch(type) {
 	case F_TAG_INT: {
-			return ws_itoa(i_value, 10);
+			return yaya::ws_itoa(i_value, 10);
 		}
 	case F_TAG_DOUBLE: {
-			return ws_ftoa(d_value);
+			return yaya::ws_ftoa(d_value);
 		}
 	case F_TAG_STRING:
 		return s_value;
@@ -121,10 +121,10 @@ yaya::string_t	CValue::GetValueStringForLogging(void) const
 {
 	switch(type) {
 	case F_TAG_INT: {
-			return ws_itoa(i_value);
+			return yaya::ws_itoa(i_value);
 		}
 	case F_TAG_DOUBLE: {
-			return ws_ftoa(d_value);
+			return yaya::ws_ftoa(d_value);
 		}
 	case F_TAG_STRING: {
 			yaya::string_t	result = s_value;
