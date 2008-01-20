@@ -141,6 +141,8 @@ void	yaya::ws_eraseend(yaya::string_t &str,wchar_t c)
 */
 void	yaya::ws_replace(yaya::string_t &str, const wchar_t *before, const wchar_t *after)
 {
+	if ( ! after ) { after = L""; }
+
 	size_t sz_bef = wcslen(before);
 	size_t sz_aft = wcslen(after);
 	for(size_t rp_pos = 0; ; rp_pos += sz_aft) {
