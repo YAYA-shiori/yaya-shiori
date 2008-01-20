@@ -7,7 +7,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-//32/64bitΉ
+//32/64bit
 #define JGX_WIN64_AWARE 
 
 #ifdef _MSC_VER
@@ -23,10 +23,6 @@
 //#pragma warning (3: 4701 4702 4705 4706 4709 4727)
 #pragma warning (3: 4701 4705 4706 4709 4727)
 
-#if _MSC_VER >= 1300
-#undef JGX_WIN64_AWARE
-#define JGX_WIN64_AWARE __w64
-#endif
 #endif
 
 #if _MSC_VER <= 1200

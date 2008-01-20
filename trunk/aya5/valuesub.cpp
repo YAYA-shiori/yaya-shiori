@@ -364,6 +364,18 @@ int CValueSub::Compare(const CValueSub &value) const
 	}
 }
 
+bool CValueSub::Less(const CValueSub &value) const
+{
+	int t = CalcEscalationTypeStr(value.type);
 
-
-
+	if (t == F_TAG_INT) {
+		return GetValueInt() < value.GetValueInt();
+	}
+	else if (t == F_TAG_DOUBLE) {
+		return GetValueDouble() < value.GetValueDouble();
+	}
+	else if (t == F_TAG_STRING) {
+		return GetValueString() < value.GetValueString();
+	}
+	return false;
+}

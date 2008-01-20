@@ -300,6 +300,8 @@ char	CFunction::Foreach(CStatement &st0, CStatement &st1, CLocalVariable &lvar, 
 	}
 	else if (value.IsArray())
 		sz = value.array_size();
+    else if (value.IsHash())
+        sz = value.hash_size();
 	else
 		sz = -1;
 
@@ -311,6 +313,13 @@ char	CFunction::Foreach(CStatement &st0, CStatement &st1, CLocalVariable &lvar, 
 	CValue	t_value;
 	if (value.IsString())
 		t_value = s_array[foreachcount];
+    else if (value.IsHash()) {
+        std::map<CValueSub, CValueSub>::const_iterator it = value.hash().begin();
+        std::advance(it, foreachcount);
+        t_value.SetType(F_TAG_ARRAY);
+        t_value.array().push_back(it->first);
+        t_value.array().push_back(it->second);
+    }
 	else	// F_TAG_ARRAY
 		t_value = value.array()[foreachcount];
 	// ë„ì¸
@@ -724,7 +733,19 @@ char	CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatem
 	CValue	value = GetValueRefForCalc(vcell, st, lvar);
 
 	// çXêV
-	value.SetArrayValue(t_order, answer);
+    if (value.GetType() == F_TAG_HASH) {
+        if (answer.GetType() == F_TAG_HASH) {
+            if (answer.hash().empty()) {
+                value.hash().erase(t_order.array()[0]);
+            }
+        }
+        else {
+            value.hash()[CValueSub(t_order.array()[0])] = CValueSub(answer);
+        }
+    }
+    else {
+	    value.SetArrayValue(t_order, answer);
+    }
 
 	// ë„ì¸
 	switch(vcell.value_GetType()) {

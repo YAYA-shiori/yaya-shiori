@@ -73,7 +73,8 @@ extern "C" {
  *  システム関数テーブル
  * -----------------------------------------------------------------------
  */
-#define	SYSFUNC_NUM					121 //システム関数の全数
+
+#define	SYSFUNC_NUM					122 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -241,6 +242,8 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"SETSETTING",
 	// デバッグ用(3)
 	L"DUMPVAR",
+    // ハッシュ
+    L"IHASH",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -606,6 +609,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return SETSETTING(arg, d, l);
 	case 120:
 		return DUMPVAR(arg, d, l);
+    case 121:
+        return CValue(F_TAG_HASH, 0);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);

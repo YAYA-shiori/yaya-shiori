@@ -48,6 +48,8 @@ int	CValue::GetValueInt(void) const
 		return yaya::ws_atoi(s_value, 10);
 	case F_TAG_ARRAY:
 		return 0;
+    case F_TAG_HASH:
+        return 0;
 	default:
 		return 0;
 	};
@@ -70,6 +72,8 @@ double	CValue::GetValueDouble(void) const
 	case F_TAG_STRING:
 		return yaya::ws_atof(s_value);
 	case F_TAG_ARRAY:
+		return 0.0;
+	case F_TAG_HASH:
 		return 0.0;
 	default:
 		return 0.0;
@@ -463,6 +467,19 @@ CValue &CValue::operator =(const std::vector<CValueSub> &value)
 }
 
 /* -----------------------------------------------------------------------
+ *  operator = (std::map<CValueSub, CValueSub>)
+ * -----------------------------------------------------------------------
+ */
+CValue &CValue::operator =(const std::map<CValueSub, CValueSub> &value)
+{
+	type    = F_TAG_HASH;
+    hash().clear();
+    hash().insert(value.begin(), value.end());
+
+	return *this;
+}
+
+/* -----------------------------------------------------------------------
  *  operator = (CValueSub)
  * -----------------------------------------------------------------------
  */
@@ -513,6 +530,8 @@ int CValue::CalcEscalationTypeNum(const int rhs) const
 		return F_TAG_DOUBLE;
 	case F_TAG_ARRAY:
 		return F_TAG_ARRAY;
+    case F_TAG_HASH:
+        return F_TAG_HASH;
 	}
 	return F_TAG_VOID;
 }
@@ -858,6 +877,19 @@ CValue CValue::operator [](const CValue &value) const
 			}
 		}
 	}
+    else if (type == F_TAG_HASH)
+    {
+        if (!aoflg)
+        {
+            if (hash().count(value.array()[0]))
+            {
+                return CValue(hash().find(value.array()[0])->second);
+            }
+            else {
+                return CValue(L"");
+            }
+        }
+    }
 
 	return CValue(L"");
 }
