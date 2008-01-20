@@ -36,11 +36,11 @@
 ////////////////////////////////////////
 
 /* -----------------------------------------------------------------------
-*  関数名  ：  ws_atoi
+*  関数名  ：  yaya::ws_atoi
 *  機能概要：  yaya::string_tをintへ変換
 * -----------------------------------------------------------------------
 */
-int	ws_atoi(const yaya::string_t &str, int base)
+int	yaya::ws_atoi(const yaya::string_t &str, int base)
 {
 	if (!str.size())
 		return 0;
@@ -50,11 +50,11 @@ int	ws_atoi(const yaya::string_t &str, int base)
 }
 
 /* -----------------------------------------------------------------------
-*  関数名  ：  ws_atof
+*  関数名  ：  yaya::ws_atof
 *  機能概要：  yaya::string_tをdoubleへ変換
 * -----------------------------------------------------------------------
 */
-double	ws_atof(const yaya::string_t &str)
+double	yaya::ws_atof(const yaya::string_t &str)
 {
 	if (!str.size())
 		return 0.0;
@@ -64,11 +64,11 @@ double	ws_atof(const yaya::string_t &str)
 }
 
 /* -----------------------------------------------------------------------
-*  関数名  ：  ws_itoa
+*  関数名  ：  yaya::ws_itoa
 *  機能概要：  intをyaya::string_tへ変換
 * -----------------------------------------------------------------------
 */
-yaya::string_t ws_itoa(int num, int rdx)
+yaya::string_t yaya::ws_itoa(int num, int rdx)
 {
 	int idx;
 
@@ -109,11 +109,11 @@ yaya::string_t ws_itoa(int num, int rdx)
 }
 
 /* -----------------------------------------------------------------------
-*  関数名  ：  ws_ftoa
+*  関数名  ：  yaya::ws_ftoa
 *  機能概要：  doubleをyaya::string_tへ変換
 * -----------------------------------------------------------------------
 */
-yaya::string_t	ws_ftoa(double num)
+yaya::string_t	yaya::ws_ftoa(double num)
 {
 	yaya::char_t numtxt[128];
 	yaya::snprintf(numtxt,64,L"%f",num);
@@ -121,11 +121,11 @@ yaya::string_t	ws_ftoa(double num)
 }
 
 /* -----------------------------------------------------------------------
-*  関数名  ：  ws_eraseend
+*  関数名  ：  yaya::ws_eraseend
 *  機能概要：  yaya::string_tの終端からcを削る
 * -----------------------------------------------------------------------
 */
-void	ws_eraseend(yaya::string_t &str,wchar_t c)
+void	yaya::ws_eraseend(yaya::string_t &str,wchar_t c)
 {
 	if (!str.size())
 		return;
@@ -135,11 +135,11 @@ void	ws_eraseend(yaya::string_t &str,wchar_t c)
 }
 
 /* -----------------------------------------------------------------------
-*  関数名  ：  ws_replace
+*  関数名  ：  yaya::ws_replace
 *  機能概要：  str内のbeforeをすべてafterに置換します
 * -----------------------------------------------------------------------
 */
-void	ws_replace(yaya::string_t &str, const wchar_t *before, const wchar_t *after)
+void	yaya::ws_replace(yaya::string_t &str, const wchar_t *before, const wchar_t *after)
 {
 	size_t sz_bef = wcslen(before);
 	size_t sz_aft = wcslen(after);
@@ -159,7 +159,7 @@ void	ws_replace(yaya::string_t &str, const wchar_t *before, const wchar_t *after
 * -----------------------------------------------------------------------
 */
 #if defined(WIN32) || defined(_WIN32_WCE)
-FILE	*w_fopen(const wchar_t *fname, const wchar_t *mode)
+FILE	*yaya::w_fopen(const wchar_t *fname, const wchar_t *mode)
 {
 	// ファイル名とオープンモードををMBCSへ変換
 	char	*mfname = Ccct::Ucs2ToMbcs(fname, CHARSET_DEFAULT);
@@ -178,7 +178,7 @@ FILE	*w_fopen(const wchar_t *fname, const wchar_t *mode)
 	return fp;
 }
 #else
-FILE* w_fopen(const wchar_t* fname, const wchar_t* mode) {
+FILE* yaya::w_fopen(const wchar_t* fname, const wchar_t* mode) {
 	std::string s_fname = narrow(yaya::string_t(fname));
 	std::string s_mode = narrow(yaya::string_t(mode));
 	
@@ -224,7 +224,7 @@ static int encodecipher(const int c)
 *  機能概要：  yaya::string_tに取り出せる簡易版fgets、暗号復号とUCS-2 BOM削除も行なう
 * -----------------------------------------------------------------------
 */
-int ws_fgets(yaya::string_t &str, FILE *stream, int charset, int ayc, int lc, int cutspace)
+int yaya::ws_fgets(yaya::string_t &str, FILE *stream, int charset, int ayc, int lc, int cutspace)
 {
 	//ayc = 1 復号化
 	//lc = 1 BOM削除
@@ -280,7 +280,7 @@ int ws_fgets(yaya::string_t &str, FILE *stream, int charset, int ayc, int lc, in
 	free(wstr_result);
 	
 	if (c == EOF && str.empty()) {
-		return WS_EOF;
+		return yaya::WS_EOF;
 	}
 	else {
 		return str.size();
@@ -292,7 +292,7 @@ int ws_fgets(yaya::string_t &str, FILE *stream, int charset, int ayc, int lc, in
 *  機能概要：  yaya::string_tを書き込む簡易版fputs、暗号化も行なう
 * -----------------------------------------------------------------------
 */
-int ws_fputs(const yaya::char_t *str, FILE *stream, int charset, int ayc)
+int yaya::ws_fputs(const yaya::char_t *str, FILE *stream, int charset, int ayc)
 {
 	//ayc = 1 復号化
 	char *str_result = Ccct::Ucs2ToMbcs(str, charset);

@@ -76,7 +76,7 @@ void	CLog::Start(const yaya::string_t &p, int cs, int ml, HWND hw, char il)
 	if (fileen) {
 		char	*tmpstr = Ccct::Ucs2ToMbcs(str, charset);
 		if (tmpstr != NULL) {
-			FILE	*fp = w_fopen((yaya::char_t *)path.c_str(), L"w");
+			FILE	*fp = yaya::w_fopen((yaya::char_t *)path.c_str(), L"w");
 			if (fp != NULL) {
 /*				if (charset == CHARSET_UTF8)
 					write_utf8bom(fp);*/
@@ -153,7 +153,7 @@ void	CLog::Write(const yaya::char_t *str, int mode)
 		if (! path.empty()) {
 			char	*tmpstr = Ccct::Ucs2ToMbcs(cstr, charset);
 			if (tmpstr != NULL) {
-				FILE	*fp = w_fopen((yaya::char_t *)path.c_str(), L"a");
+				FILE	*fp = yaya::w_fopen((yaya::char_t *)path.c_str(), L"a");
 				if (fp != NULL) {
 					fprintf(fp, "%s", tmpstr);
 					fclose(fp);
@@ -225,7 +225,7 @@ void	CLog::Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t
 		if (linecount == -1)
 			logstr += L"-) : ";
 		else {
-			logstr += ws_itoa(linecount);
+			logstr += yaya::ws_itoa(linecount);
 			logstr += L") : ";
 		}
 	}
@@ -319,7 +319,7 @@ void	CLog::Io(char io, const yaya::char_t *str)
 	}
 	else {
 		int elapsed_time = timer.elapsed();
-		yaya::string_t t_str = L"// response (Execution time : " + ws_itoa(elapsed_time) + L"[ms])\n";
+		yaya::string_t t_str = L"// response (Execution time : " + yaya::ws_itoa(elapsed_time) + L"[ms])\n";
 
 		Write(t_str);
 		Write(str);
@@ -354,7 +354,7 @@ void	CLog::IoLib(char io, const yaya::string_t &str, const yaya::string_t &name)
 	}
 	else {
 		int elapsed_time = timer.elapsed();
-		yaya::string_t t_str = L"// response (Execution time : " + ws_itoa(elapsed_time) + L"[ms])\n";
+		yaya::string_t t_str = L"// response (Execution time : " + yaya::ws_itoa(elapsed_time) + L"[ms])\n";
 
 		Write(t_str);
 		Write(str + L"\n");

@@ -307,7 +307,7 @@ void	CBasis::LoadBaseConfigureFile(std::vector<yaya::string_t> *dics)
 
 	// ファイルを開く
 	yaya::string_t	filename = path + modulename + L".txt";
-	FILE	*fp = w_fopen(filename.c_str(), L"r");
+	FILE	*fp = yaya::w_fopen(filename.c_str(), L"r");
 	if (fp == NULL) {
 		SetSuppress();
 		return;
@@ -320,7 +320,7 @@ void	CBasis::LoadBaseConfigureFile(std::vector<yaya::string_t> *dics)
 
 	for (int i = 1; ; i++) {
 		// 1行読み込み
-		if (ws_fgets(readline, fp, dic_charset, 0, i) == WS_EOF)
+		if (yaya::ws_fgets(readline, fp, dic_charset, 0, i) == yaya::WS_EOF)
 			break;
 		// 改行は消去
 		CutCrLf(readline);
@@ -420,7 +420,7 @@ bool CBasis::SetParameter(yaya::string_t &cmd, yaya::string_t &param, std::vecto
 	}
 	// fncdepth
 	if ( cmd.compare(L"fncdepth") == 0 ) {
-		int	f_depth = ws_atoi(param, 10);
+		int	f_depth = yaya::ws_atoi(param, 10);
 		vm.calldepth().SetMaxDepth((f_depth < 2) ? 2 : f_depth);
 		return true;
 	}
@@ -484,7 +484,7 @@ yaya::string_t CBasis::GetParameter(const yaya::string_t &cmd)
 	// fncdepth
 	else if (!cmd.compare(L"fncdepth")) {
 		yaya::string_t str;
-		return ws_itoa(vm.calldepth().GetMaxDepth(),10);
+		return yaya::ws_itoa(vm.calldepth().GetMaxDepth(),10);
 	}
 	return L"";
 }
@@ -550,7 +550,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 
 	vm.logger().Message(7);
 	vm.logger().Filename(filename);
-	FILE	*fp = w_fopen((wchar_t *)filename.c_str(), L"w");
+	FILE	*fp = yaya::w_fopen((wchar_t *)filename.c_str(), L"w");
 	if (fp == NULL) {
 		vm.logger().Error(E_E, 57, filename);
 		return;
@@ -580,7 +580,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 	str += Ccct::CharsetIDToTextW(save_charset);
 	str += L"\n";
 
-	ws_fputs(str,fp,save_charset,ayc);
+	yaya::ws_fputs(str,fp,save_charset,ayc);
 
 	// 順次保存
 	size_t	var_num = vm.variable().GetNumber();
@@ -607,11 +607,11 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 		// 値の保存
 		switch(var->value_const().GetType()) {
 		case F_TAG_INT:	
-			str += ws_itoa(var->value_const().i_value);
+			str += yaya::ws_itoa(var->value_const().i_value);
 			str += L",";
 			break;
 		case F_TAG_DOUBLE:
-			str += ws_ftoa(var->value_const().d_value);
+			str += yaya::ws_ftoa(var->value_const().d_value);
 			str += L",";
 			break;
 		case F_TAG_STRING:
@@ -658,7 +658,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 		str += var->delimiter;
 		str += L"\n";
 
-		ws_fputs(str,fp,save_charset,ayc);
+		yaya::ws_fputs(str,fp,save_charset,ayc);
 	}
 
 	// ファイルを閉じる
@@ -692,10 +692,10 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 	//暗号化セーブファイル対応
 	if ( ayc ) {
 		filename += L".ays";
-		fp = w_fopen((wchar_t *)filename.c_str(), L"r");
+		fp = yaya::w_fopen((wchar_t *)filename.c_str(), L"r");
 		if (!fp) {
 			filename.erase(filename.size()-4,4);
-			fp = w_fopen((wchar_t *)filename.c_str(), L"r");
+			fp = yaya::w_fopen((wchar_t *)filename.c_str(), L"r");
 			if (!fp) {
 				vm.logger().Error(E_N, 0);
 				return;
@@ -706,10 +706,10 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 		}
 	}
 	else {
-		fp = w_fopen((wchar_t *)filename.c_str(), L"r");
+		fp = yaya::w_fopen((wchar_t *)filename.c_str(), L"r");
 		if (!fp) {
 			filename += L".ays";
-			fp = w_fopen((wchar_t *)filename.c_str(), L"r");
+			fp = yaya::w_fopen((wchar_t *)filename.c_str(), L"r");
 			if (!fp) {
 				vm.logger().Error(E_N, 0);
 				return;
@@ -731,7 +731,7 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 
 	for (int i = 1; ; i++) {
 		// 1行読み込み
-		if (ws_fgets(readline, fp, savefile_charset, ayc, i, false) == WS_EOF)
+		if (yaya::ws_fgets(readline, fp, savefile_charset, ayc, i, false) == yaya::WS_EOF)
 			break;
 		// 改行は消去
 		CutCrLf(readline);
@@ -796,10 +796,10 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 		vm.variable().SetType(index, type);
 		if (type == F_TAG_INT)
 			// 整数型
-			vm.variable().SetValue(index, ws_atoi(value, 10));
+			vm.variable().SetValue(index, yaya::ws_atoi(value, 10));
 		else if (type == F_TAG_DOUBLE) 
 			// 実数型
-			vm.variable().SetValue(index, ws_atof(value));
+			vm.variable().SetValue(index, yaya::ws_atof(value));
 		else if (type == F_TAG_STRING) {
 			// 文字列型
 			CutDoubleQuote(value);
@@ -842,10 +842,10 @@ void	CBasis::RestoreArrayVariable(CValue &var, yaya::string_t &value)
 
 		if (par.compare(ESC_IARRAY) != 0) {
 			if (IsIntString(par)) {
-				var.array().push_back(CValueSub( ws_atoi(par, 10) ));
+				var.array().push_back(CValueSub( yaya::ws_atoi(par, 10) ));
 			}
 			else if (IsDoubleButNotIntString(par)) {
-				var.array().push_back(CValueSub( ws_atof(par) ));
+				var.array().push_back(CValueSub( yaya::ws_atof(par) ));
 			}
 			else {
 				CutDoubleQuote(par);

@@ -65,7 +65,7 @@ int	CValueSub::GetValueInt(void) const
 	case F_TAG_DOUBLE:
 		return (int)floor(d_value);
 	case F_TAG_STRING:
-		return ws_atoi(s_value, 10);
+		return yaya::ws_atoi(s_value, 10);
 	default:
 		return 0;
 	};
@@ -86,7 +86,7 @@ double	CValueSub::GetValueDouble(void) const
 	case F_TAG_DOUBLE:
 		return d_value;
 	case F_TAG_STRING:
-		return ws_atof(s_value);
+		return yaya::ws_atof(s_value);
 	default:
 		return 0.0;
 	};
@@ -101,10 +101,10 @@ yaya::string_t	CValueSub::GetValueString(void) const
 {
 	switch(type) {
 	case F_TAG_INT: {
-			return ws_itoa(i_value);
+			return yaya::ws_itoa(i_value);
 		}
 	case F_TAG_DOUBLE: {
-			return ws_ftoa(d_value);
+			return yaya::ws_ftoa(d_value);
 		}
 	case F_TAG_STRING:
 		return s_value;

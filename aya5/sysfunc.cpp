@@ -1637,7 +1637,7 @@ CValue	CSystemFunction::REPLACE(const CValue &arg, yaya::string_t &d, int &l)
 	//int	sz_after  = after->size();
 
 	if (before && after && before[0])
-		ws_replace(result, before, after);
+		yaya::ws_replace(result, before, after);
 
 	return CValue(result);
 }
@@ -1811,7 +1811,7 @@ CValue	CSystemFunction::TOBINSTR(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	return CValue(ws_itoa(arg.array()[0].GetValueInt(), 2));
+	return CValue(yaya::ws_itoa(arg.array()[0].GetValueInt(), 2));
 }
 
 /* -----------------------------------------------------------------------
@@ -1831,7 +1831,7 @@ CValue	CSystemFunction::TOHEXSTR(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	return CValue(ws_itoa(arg.array()[0].GetValueInt(), 16));
+	return CValue(yaya::ws_itoa(arg.array()[0].GetValueInt(), 16));
 }
 
 /* -----------------------------------------------------------------------
@@ -1857,7 +1857,7 @@ CValue	CSystemFunction::BINSTRTOI(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 
-	return CValue(ws_atoi(arg.array()[0].GetValueString(), 2));
+	return CValue(yaya::ws_atoi(arg.array()[0].GetValueString(), 2));
 }
 
 /* -----------------------------------------------------------------------
@@ -1883,7 +1883,7 @@ CValue	CSystemFunction::HEXSTRTOI(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 
-	return CValue(ws_atoi(arg.array()[0].GetValueString(), 16));
+	return CValue(yaya::ws_atoi(arg.array()[0].GetValueString(), 16));
 }
 
 /* -----------------------------------------------------------------------
