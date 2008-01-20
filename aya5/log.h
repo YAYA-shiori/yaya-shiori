@@ -14,6 +14,8 @@
 # include "stdafx.h"
 #endif
 
+#include <vector>
+
 #include "globaldef.h"
 
 #define	CLASSNAME_CHECKTOOL	"TamaWndClass"	/* チェックツールのウィンドウクラス名 */
@@ -34,12 +36,18 @@ protected:
 	char		fileen;		// ファイルへのロギング有効フラグ
 	char		iolog;		// 入出力ロギング有効フラグ
 
+	//入力でこの文字列があったらログ出力しないリスト
+	std::vector<yaya::string_t> ignore_iolog_strings;
+	char		ignore_iolog_noresult;//↑の入力後に出力も抑制するためのフラグ
+
+
 public:
 	CLog(void)
 	{
 		enable = 1;
 		fileen = 1;
 		iolog  = 1;
+		ignore_iolog_noresult=0;
 	}
 
 #if defined(POSIX)
@@ -68,6 +76,9 @@ public:
 
 	void	SendLogToWnd(const yaya::char_t *str, int mode);
 	void	SendLogToWnd(const yaya::string_t &str, int mode);
+
+	void	AddIgnoreIologString(const yaya::string_t &ignorestr);
+	void	ClearIgnoreIologString();
 
 protected:
 #if defined(WIN32)

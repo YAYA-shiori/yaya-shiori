@@ -430,6 +430,10 @@ bool CBasis::SetParameter(yaya::string_t &cmd, yaya::string_t &param, std::vecto
 			checkparser = 1;
 		return true;
 	}
+	// ignoreiolog
+	if ( cmd.compare(L"ignoreiolog") == 0 ){
+		vm.logger().AddIgnoreIologString(param);
+	}
 
 	return false;
 }
