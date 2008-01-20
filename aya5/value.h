@@ -96,7 +96,11 @@ public:
 	inline CValueSub operator !=(const CValueSub &value) const {
 		return CValueSub(1 - Compare(value));
 	}
+	inline bool operator <(const CValueSub &value) const {
+		return Less(value);
+	}
 
+	bool Less(const CValueSub &value) const;
 	int Compare(const CValueSub &value) const;
 };
 
@@ -115,6 +119,7 @@ public:
 
 private:
 	mutable boost::shared_ptr<std::vector<CValueSub> > m_array;		// 汎用配列
+    mutable boost::shared_ptr<std::map<CValueSub, CValueSub> > m_hash;  // ハッシュ
 
 private:
 	int CalcEscalationTypeNum(const int rhs) const;
@@ -135,6 +140,9 @@ public:
 		if ( type == F_TAG_ARRAY ) {
 			m_array = rhs.m_array;
 		}
+        else if (type == F_TAG_HASH) {
+            m_hash = rhs.m_hash;
+        }
 		else if ( type == F_TAG_STRING ) {
 			s_value = rhs.s_value;
 		}
@@ -149,8 +157,12 @@ public:
 		if ( type == F_TAG_ARRAY ) {
 			m_array = rhs.m_array;
 		}
+        else if (type == F_TAG_HASH) {
+            m_hash = rhs.m_hash;
+        }
 		else {
 			m_array.reset((std::vector<CValueSub>*)NULL);
+            m_hash.reset((std::map<CValueSub, CValueSub>*)NULL);
 			if ( type == F_TAG_STRING ) {
 				s_value = rhs.s_value;
 			}
@@ -206,6 +218,7 @@ public:
 	inline bool		IsDouble(void) const { return type == F_TAG_DOUBLE || type == F_TAG_VOID; }
 	inline bool		IsDoubleReal(void) const { return type == F_TAG_DOUBLE; }
 	inline bool		IsArray(void) const { return type == F_TAG_ARRAY; }
+    inline bool     IsHash(void) const { return type == F_TAG_HASH; }
 
 	inline bool		IsNum(void) const { return type == F_TAG_INT || type == F_TAG_DOUBLE || type == F_TAG_VOID; }
 
@@ -223,6 +236,13 @@ public:
 			else {
 				return 0;
 			}
+        case F_TAG_HASH:
+            if ( m_hash.get() ) {
+                return m_hash->size() != 0;
+            }
+            else {
+                return 0;
+            }
 		default:
 			break;
 		};
@@ -243,6 +263,7 @@ public:
 	CValue	&operator =(const yaya::string_t &value);
 	CValue	&operator =(const yaya::char_t *value);
 	CValue	&operator =(const std::vector<CValueSub> &value);
+    CValue  &operator =(const std::map<CValueSub, CValueSub> &value);
 	CValue	&operator =(const CValueSub &value);
 
 	CValue	operator +(const CValue &value) const;
@@ -306,6 +327,35 @@ public:
 			m_array.reset(new std::vector<CValueSub>(*pV));
 		}
 		return *m_array;
+	}
+
+	//////////////////////////////////////////////
+	std::map<CValueSub, CValueSub>::size_type hash_size(void) const {
+		if ( ! m_hash.get() ) {
+			return 0;
+		}
+		else {
+			return m_hash->size();
+		}
+	}
+	boost::shared_ptr<std::map<CValueSub, CValueSub> > &hash_shared(void) const {
+		return m_hash;
+	}
+	const std::map<CValueSub, CValueSub>& hash(void) const {
+		if ( ! m_hash.get() ) {
+			m_hash.reset(new std::map<CValueSub, CValueSub>);
+		}
+		return *m_hash;
+	}
+	std::map<CValueSub, CValueSub>& hash(void) {
+		if ( ! m_hash.get() ) {
+			m_hash.reset(new std::map<CValueSub, CValueSub>);
+		}
+		else if ( m_hash.use_count() >= 2 ) {
+			std::map<CValueSub, CValueSub> *pV = m_hash.get();
+			m_hash.reset(new std::map<CValueSub, CValueSub>(*pV));
+		}
+		return *m_hash;
 	}
 };
 

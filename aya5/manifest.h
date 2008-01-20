@@ -155,6 +155,7 @@ extern const yaya::char_t *aya_author;
 #define	F_TAG_LOCALVARIABLE		2048			/* ローカル変数 */
 
 #define	F_TAG_ARRAY				4096			/* 汎用配列 */
+#define F_TAG_HASH              8192            /* ハッシュ */
 
 // 有効な演算子の数
 // 演算子の名前
