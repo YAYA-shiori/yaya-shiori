@@ -1635,14 +1635,15 @@ CValue	CSystemFunction::REPLACE(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	yaya::string_t	result  = arg.array()[0].GetValueString();
-	const yaya::char_t	*before = arg.array()[1].GetValueString().c_str();
-	const yaya::char_t	*after  = arg.array()[2].GetValueString().c_str();
+	yaya::string_t	result = arg.array()[0].GetValueString();
+	yaya::string_t  before = arg.array()[1].GetValueString();
+	yaya::string_t  after  = arg.array()[2].GetValueString();
 	//int	sz_before = before->size();
 	//int	sz_after  = after->size();
 
-	if (before && after && before[0])
-		yaya::ws_replace(result, before, after);
+	if (!before.empty()) {
+		yaya::ws_replace(result, before.c_str(), after.c_str());
+	}
 
 	return CValue(result);
 }
@@ -2581,7 +2582,7 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 
 	yaya::string_t digest_type = L"md5";
 	if (arg.array_size()>=2) {
-		digest_type = arg.array()[1].GetValueString().c_str();
+		digest_type = arg.array()[1].GetValueString();
 	}
 
 	// ƒpƒX‚ðMBCS‚É•ÏŠ·
@@ -3651,8 +3652,10 @@ CValue	CSystemFunction::SPLITPATH(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	yaya::char_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
-	_wsplitpath(arg.array()[0].GetValueString().c_str(), drive, dir, fname, ext);
+	yaya::char_t drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
+	yaya::string_t path = arg.array()[0].GetValueString();
+
+	_wsplitpath(path.c_str(), drive, dir, fname, ext);
 
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 	result.array().push_back(drive);
@@ -3979,7 +3982,8 @@ CValue	CSystemFunction::ANY(const CValue &arg, const std::vector<CCell *> &pcell
 CValue	CSystemFunction::SAVEVAR(const CValue &arg, yaya::string_t &d, int &l)
 {
 	if ( arg.array_size() ) {
-		vm.basis().SaveVariable(arg.array()[0].GetValueString().c_str());
+		yaya::string_t path = arg.array()[0].GetValueString();
+		vm.basis().SaveVariable(path.c_str());
 	}
 	else {
 		vm.basis().SaveVariable();
@@ -3995,7 +3999,8 @@ CValue	CSystemFunction::SAVEVAR(const CValue &arg, yaya::string_t &d, int &l)
 CValue	CSystemFunction::RESTOREVAR(const CValue &arg, yaya::string_t &d, int &l)
 {
 	if ( arg.array_size() ) {
-		vm.basis().RestoreVariable(arg.array()[0].GetValueString().c_str());
+		yaya::string_t path = arg.array()[0].GetValueString();
+		vm.basis().RestoreVariable(path.c_str());
 	}
 	else {
 		vm.basis().RestoreVariable();
@@ -4699,7 +4704,8 @@ int CSystemFunction::GetCharset(const CValueSub &var,const wchar_t *fname, yaya:
 	}
 
 	if (var.IsString()) {
-		int	charset = Ccct::CharsetTextToID(var.GetValueString().c_str());
+		yaya::string_t cset = var.GetValueString();
+		int	charset = Ccct::CharsetTextToID(cset.c_str());
 		return charset;
 	}
 
