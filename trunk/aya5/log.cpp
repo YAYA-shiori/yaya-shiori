@@ -311,6 +311,24 @@ void	CLog::Io(char io, const yaya::char_t *str)
 	static	yaya::timer		timer;
 
 	if (!io) {
+		//ignoreiolog機能
+		if(ignore_iolog_strings.size()!=0){
+			yaya::string_t cstr=str;
+			std::vector<yaya::string_t>::iterator it;
+
+			for(it = ignore_iolog_strings.begin(); it != ignore_iolog_strings.end(); it++){
+				if(cstr.find(*it) != yaya::string_t::npos){
+					//次の出力のログを抑制する。
+					//美しい実装ではないけどbasis側に手を加えたくないので。
+					//現状、basis側で必ず入力と出力はワンセットで出るはず
+					//-> see basis.cpp ExecuteRequest
+					ignore_iolog_noresult=1;
+					return;
+				}
+			}
+
+		}
+
 		Write(L"// request\n");
 		Write(str);
 		Write(L"\n");
@@ -318,6 +336,12 @@ void	CLog::Io(char io, const yaya::char_t *str)
         timer.restart();
 	}
 	else {
+		//ログ抑制
+		if(ignore_iolog_noresult){
+			ignore_iolog_noresult=0;
+			return;
+		}
+
 		int elapsed_time = timer.elapsed();
 		yaya::string_t t_str = L"// response (Execution time : " + yaya::ws_itoa(elapsed_time) + L"[ms])\n";
 
@@ -398,3 +422,21 @@ HWND	CLog::GetCheckerWnd(void)
 	return FindWindow(CLASSNAME_CHECKTOOL, NULL);
 }
 #endif
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CLog::AddIgnoreIologString
+ *  機能概要：  IOログの無視する文字列リストを追加します
+ * -----------------------------------------------------------------------
+ */
+void	CLog::AddIgnoreIologString(const yaya::string_t &ignorestr){
+	ignore_iolog_strings.push_back(ignorestr);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CLog::AddIgnoreIologString
+ *  機能概要：  IOログの無視する文字列リストをクリアします
+ * -----------------------------------------------------------------------
+ */
+void	CLog::ClearIgnoreIologString(){
+	ignore_iolog_strings.clear();
+}

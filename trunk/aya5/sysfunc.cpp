@@ -42,6 +42,7 @@
 #include "function.h"
 #include "lib.h"
 #include "log.h"
+#include "logexcode.h"
 #include "messages.h"
 #include "misc.h"
 #include "parser0.h"
@@ -72,8 +73,8 @@ extern "C" {
  *  システム関数テーブル
  * -----------------------------------------------------------------------
  */
-#define	SYSFUNC_NUM					120
-#define	SYSFUNC_HIS					61
+#define	SYSFUNC_NUM					121 //システム関数の全数
+#define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	// 型取得/変換
@@ -238,6 +239,8 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	// 特殊(6)
 	L"EXECUTE",
 	L"SETSETTING",
+	// デバッグ用(3)
+	L"DUMPVAR",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -601,6 +604,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return EXECUTE(arg, d, l);
 	case 119:
 		return SETSETTING(arg, d, l);
+	case 120:
+		return DUMPVAR(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -4447,8 +4452,8 @@ CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
 			result.array().push_back(CValueSub(0));
 		}
 		else {
-			result.array().push_back(CValueSub(FileTimeToUnixTime(ffdata.ftCreationTime)));
-			result.array().push_back(CValueSub(FileTimeToUnixTime(ffdata.ftLastWriteTime)));
+			result.array().push_back(CValueSub((int)FileTimeToUnixTime(ffdata.ftCreationTime)));
+			result.array().push_back(CValueSub((int)FileTimeToUnixTime(ffdata.ftLastWriteTime)));
 		}
 	}
 	else { //ただのファイル
@@ -4461,8 +4466,8 @@ CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
 			FILETIME ftctime,ftmtime;
 			::GetFileTime(hFile , &ftctime , NULL , &ftmtime);
 
-			result.array().push_back(CValueSub(FileTimeToUnixTime(ftctime)));
-			result.array().push_back(CValueSub(FileTimeToUnixTime(ftmtime)));
+			result.array().push_back(CValueSub((int)FileTimeToUnixTime(ftctime)));
+			result.array().push_back(CValueSub((int)FileTimeToUnixTime(ftmtime)));
 
 			::CloseHandle(hFile);
 		}
@@ -4869,3 +4874,13 @@ CValue	CSystemFunction::EXECUTE(const CValue &arg, yaya::string_t &d, int &l)
 	return CValue(result);
 }
 
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::DUMPVAR
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::DUMPVAR(const CValue &arg, yaya::string_t &d, int &l)
+{
+	CLogExCode logex(vm);
+	logex.OutVariableInfoForCheck();
+	return CValue(F_TAG_NOP, 0/*dmy*/);
+}
