@@ -474,7 +474,11 @@ CValue &CValue::operator =(const std::map<CValueSub, CValueSub> &value)
 {
 	type    = F_TAG_HASH;
     hash().clear();
+#if _MSC_VER <= 1200 && !defined(STLPORT)
+    hash().insert(&(*value.begin()), &(*value.begin()) + value.size());
+#else
     hash().insert(value.begin(), value.end());
+#endif
 
 	return *this;
 }
