@@ -58,8 +58,9 @@ extern const yaya::char_t *aya_author;
 #define	CTRL_CH_START			'@'
 #define	END_OF_CTRL_CH			0x1f
 
-// ファイル保存/復元時における汎用配列の空要素
+// ファイル保存/復元時における汎用配列/ハッシュの空要素
 #define	ESC_IARRAY				L"IARRAY"
+#define ESC_IHASH				L"IHASH"
 
 // ステートメントの種別
 #define	ST_UNKNOWN				-1
