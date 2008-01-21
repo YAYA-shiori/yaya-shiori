@@ -105,6 +105,7 @@ protected:
 	void	LoadBaseConfigureFile(std::vector<yaya::string_t> *dics);
 
 	void	RestoreArrayVariable(CValue &var, yaya::string_t &value);
+	void	RestoreHashVariable(CValue &var, yaya::string_t &value);
 };
 
 //----
