@@ -79,7 +79,7 @@ protected:
 	CValue	TOSTR(const CValue &args, yaya::string_t &d, int &l);
 	CValue	TOAUTO(const CValue &args, yaya::string_t &d, int &l);
 
-	CValue	GETTYPE(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	GETTYPE(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l);
 	CValue	ISFUNC(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	ISVAR(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l);
 	CValue	LOGGING(const CValue &arg, yaya::string_t &d, int &l);
@@ -216,6 +216,9 @@ protected:
 	CValue	EXECUTE(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue	DUMPVAR(const CValue &arg, yaya::string_t &d, int &l);
+
+	CValue	KEYS(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l);
+	CValue	VALUES(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l);
 
 	CValue	RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int &l, const yaya::char_t *fncname, std::vector<yaya::string_t> *replace_array);
 
