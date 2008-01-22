@@ -461,7 +461,7 @@ CValue &CValue::operator =(const yaya::char_t *value)
 CValue &CValue::operator =(const std::vector<CValueSub> &value)
 {
 	type    = F_TAG_ARRAY;
-	array().assign(value.begin(), value.end());
+	array() = value;
 
 	return *this;
 }
@@ -473,12 +473,7 @@ CValue &CValue::operator =(const std::vector<CValueSub> &value)
 CValue &CValue::operator =(const std::map<CValueSub, CValueSub> &value)
 {
 	type    = F_TAG_HASH;
-    hash().clear();
-#if _MSC_VER <= 1200 && !defined(STLPORT)
-    hash().insert(&(*value.begin()), &(*value.begin()) + value.size());
-#else
-    hash().insert(value.begin(), value.end());
-#endif
+	hash() = value;
 
 	return *this;
 }
