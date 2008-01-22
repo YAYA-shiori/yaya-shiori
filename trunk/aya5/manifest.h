@@ -61,6 +61,7 @@ extern const yaya::char_t *aya_author;
 // ファイル保存/復元時における汎用配列/ハッシュの空要素
 #define	ESC_IARRAY				L"IARRAY"
 #define ESC_IHASH				L"IHASH"
+#define ESC_IVOID				L"IVOID"
 
 // ステートメントの種別
 #define	ST_UNKNOWN				-1
