@@ -509,8 +509,9 @@ const CValue& CFunction::GetValueRefForCalc(CCell &cell, CStatement &st, CLocalV
 		return cell.ansv();
 	case F_TAG_SYSFUNC: {
 			CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
-			std::vector<CCell *>	pcellarg;
-			cell.ansv() =  pvm->sysfunction().Execute(cell.index, arg, pcellarg, lvar, st.linecount, this);
+			std::vector<CCell *> pcellarg; //dummy
+			std::vector<const CValue *> pvaluearg; //dummy
+			cell.ansv() =  pvm->sysfunction().Execute(cell.index, arg, pcellarg, pvaluearg, lvar, st.linecount, this);
 			return cell.ansv();
 		}
 	case F_TAG_USERFUNC: {
@@ -895,7 +896,8 @@ char	CFunction::ExecSystemFunctionWithArgs(CCell& cell, std::vector<int> &sid, C
 
 	// à¯êîçÏê¨
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
-	std::vector<CCell *>	pcellarg;
+	std::vector<CCell *> pcellarg;
+	std::vector<const CValue *> valuearg;
 	std::vector<int>::size_type sidsize = sid.size();
 
 	for( ; it != sid.end(); it++) {
@@ -913,6 +915,7 @@ char	CFunction::ExecSystemFunctionWithArgs(CCell& cell, std::vector<int> &sid, C
 			arg.array().push_back(CValueSub(addv));
 		}
 
+		valuearg.push_back(&addv);
 		pcellarg.push_back(&(st.cell()[*it]));
 	}
 
@@ -920,7 +923,7 @@ char	CFunction::ExecSystemFunctionWithArgs(CCell& cell, std::vector<int> &sid, C
 	if (index == CSystemFunction::HistoryIndex())
 		ExecHistoryP1(func_index - 2, cell, arg, st);
 	else
-		cell.ansv() = pvm->sysfunction().Execute(index, arg, pcellarg, lvar, st.linecount, this);
+		cell.ansv() = pvm->sysfunction().Execute(index, arg, pcellarg, valuearg, lvar, st.linecount, this);
 
 	return 0;
 }

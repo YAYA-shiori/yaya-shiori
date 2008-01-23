@@ -71,7 +71,7 @@ public:
 	CValue	*GetReLenPtr(void) { return &re_len; }
 
 	CValue	Execute(int index, const CValue &arg, const std::vector<CCell *> &pcellarg,
-				CLocalVariable &lvar, int l, CFunction *thisfunc);
+				std::vector<const CValue *> &valuearg, CLocalVariable &lvar, int l, CFunction *thisfunc);
 
 protected:
 	CValue	TOINT(const CValue &arg, yaya::string_t &d, int &l);
@@ -79,7 +79,8 @@ protected:
 	CValue	TOSTR(const CValue &args, yaya::string_t &d, int &l);
 	CValue	TOAUTO(const CValue &args, yaya::string_t &d, int &l);
 
-	CValue	GETTYPE(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l);
+	CValue	GETTYPE(std::vector<const CValue *> &valuearg, yaya::string_t &d, int &l);
+
 	CValue	ISFUNC(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	ISVAR(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l);
 	CValue	LOGGING(const CValue &arg, yaya::string_t &d, int &l);
@@ -217,8 +218,8 @@ protected:
 
 	CValue	DUMPVAR(const CValue &arg, yaya::string_t &d, int &l);
 
-	CValue	KEYS(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l);
-	CValue	VALUES(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l);
+	CValue	HASH_KEYS(std::vector<const CValue *> &valuearg, yaya::string_t &d, int &l);
+	CValue	HASH_VALUES(std::vector<const CValue *> &valuearg, yaya::string_t &d, int &l);
 
 	CValue	RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int &l, const yaya::char_t *fncname, std::vector<yaya::string_t> *replace_array);
 

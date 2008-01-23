@@ -244,8 +244,8 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"DUMPVAR",
     // ハッシュ
     L"IHASH",
-	L"KEYS",
-	L"VALUES",
+	L"HASH_KEYS",
+	L"HASH_VALUES",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -363,7 +363,7 @@ const yaya::char_t* CSystemFunction::HistoryFunctionName(void)
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<CCell *> &pcellarg,
-			CLocalVariable &lvar, int l, CFunction *thisfunc)
+			std::vector<const CValue *> &valuearg, CLocalVariable &lvar, int l, CFunction *thisfunc)
 {
 	yaya::string_t& d = thisfunc->dicfilename;
 
@@ -375,7 +375,7 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 	case 2:		// TOSTR
 		return TOSTR(arg, d, l);
 	case 3:		// GETTYPE
-		return GETTYPE(pcellarg, lvar, d, l);
+		return GETTYPE(valuearg, d, l);
 	case 4:		// ISFUNC
 		return ISFUNC(arg, d, l);
 	case 5:		// ISVAR
@@ -614,9 +614,9 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
     case 121:
         return CValue(F_TAG_HASH, 0);
 	case 122:
-		return KEYS(pcellarg, lvar, d, l);
+		return HASH_KEYS(valuearg, d, l);
 	case 123:
-		return VALUES(pcellarg, lvar, d, l);
+		return HASH_VALUES(valuearg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -710,26 +710,15 @@ CValue	CSystemFunction::TOAUTO(const CValue &arg, yaya::string_t &d, int &l)
  *  返値　　：  0/1/2/3/4/5=エラー/整数/実数/文字列/配列/連想配列
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::GETTYPE(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l)
+CValue	CSystemFunction::GETTYPE(std::vector<const CValue *> &valuearg, yaya::string_t &d, int &l)
 {
-	if (pcellarg.empty()) {
+	if (valuearg.empty()) {
 		vm.logger().Error(E_W, 8, L"GETTYPE", d, l);
 		SetError(8);
 		return CValue(0);
 	}
 
-	int type;
-	if (pcellarg[0]->value_GetType() == F_TAG_VARIABLE)
-		type = vm.variable().GetValue(pcellarg[0]->index).GetType();
-	else if (pcellarg[0]->value_GetType() == F_TAG_LOCALVARIABLE)
-		type = lvar.GetValue(pcellarg[0]->name).GetType();
-	else {
-		vm.logger().Error(E_W, 11, L"GETTYPE", d, l);
-		SetError(11);
-		return CValue(0);
-	}
-
-	switch(type) {
+	switch(valuearg[0]->GetType()) {
 	case F_TAG_VOID:
 		return CValue(0);
 	case F_TAG_INT:
@@ -2983,49 +2972,32 @@ CValue	CSystemFunction::SETDELIM(const std::vector<CCell *> &pcellarg, CLocalVar
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::KEYS
+ *  関数名  ：  CSystemFunction::HASH_KEYS
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::KEYS(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l)
+CValue	CSystemFunction::HASH_KEYS(std::vector<const CValue *> &valuearg, yaya::string_t &d, int &l)
 {
-	if (pcellarg.size() < 1) {
+	if (valuearg.size() < 1) {
 		vm.logger().Error(E_W, 8, L"VALUES", d, l);
 		SetError(8);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	const std::map<CValueSub,CValueSub> *pMap;
-
-	if (pcellarg[0]->value_GetType() == F_TAG_VARIABLE) {
-		const CValue &v = vm.variable().GetValue(pcellarg[0]->index);
-		if ( v.GetType() != F_TAG_HASH ) {
-			SetError(9);
-			return CValue(F_TAG_NOP, 0/*dmy*/);
-		}
-		pMap = &v.hash();
-	}
-	else if (pcellarg[0]->value_GetType() == F_TAG_LOCALVARIABLE) {
-		const CValue &v = lvar.GetValue(pcellarg[0]->name);
-		if ( v.GetType() != F_TAG_HASH ) {
-			SetError(9);
-			return CValue(F_TAG_NOP, 0/*dmy*/);
-		}
-		pMap = &v.hash();
-	}
-	else {
-		vm.logger().Error(E_W, 11, L"VALUES", d, l);
-		SetError(11);
+	if ( valuearg[0]->GetType() != F_TAG_HASH ) {
+		SetError(9);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	if ( pMap->empty() ) {
+	const std::map<CValueSub,CValueSub> &map = valuearg[0]->hash();
+
+	if ( map.empty() ) {
 		return CValue(F_TAG_ARRAY,0/*dmy*/);
 	}
 
 	CValue result(F_TAG_ARRAY,0/*dmy*/);
 	
-	std::map<CValueSub,CValueSub>::const_iterator itr = pMap->begin();
-	std::map<CValueSub,CValueSub>::const_iterator ite = pMap->end();
+	std::map<CValueSub,CValueSub>::const_iterator itr = map.begin();
+	std::map<CValueSub,CValueSub>::const_iterator ite = map.end();
 
 	for ( ; itr != ite ; ++itr ) {
 		result.array().push_back(itr->first);
@@ -3035,49 +3007,32 @@ CValue	CSystemFunction::KEYS(const std::vector<CCell *> &pcellarg, CLocalVariabl
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::VALUES
+ *  関数名  ：  CSystemFunction::HASH_VALUES
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::VALUES(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l)
+CValue	CSystemFunction::HASH_VALUES(std::vector<const CValue *> &valuearg, yaya::string_t &d, int &l)
 {
-	if (pcellarg.size() < 1) {
+	if (valuearg.size() < 1) {
 		vm.logger().Error(E_W, 8, L"VALUES", d, l);
 		SetError(8);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	const std::map<CValueSub,CValueSub> *pMap;
-
-	if (pcellarg[0]->value_GetType() == F_TAG_VARIABLE) {
-		const CValue &v = vm.variable().GetValue(pcellarg[0]->index);
-		if ( v.GetType() != F_TAG_HASH ) {
-			SetError(9);
-			return CValue(F_TAG_NOP, 0/*dmy*/);
-		}
-		pMap = &v.hash();
-	}
-	else if (pcellarg[0]->value_GetType() == F_TAG_LOCALVARIABLE) {
-		const CValue &v = lvar.GetValue(pcellarg[0]->name);
-		if ( v.GetType() != F_TAG_HASH ) {
-			SetError(9);
-			return CValue(F_TAG_NOP, 0/*dmy*/);
-		}
-		pMap = &v.hash();
-	}
-	else {
-		vm.logger().Error(E_W, 11, L"VALUES", d, l);
-		SetError(11);
+	if ( valuearg[0]->GetType() != F_TAG_HASH ) {
+		SetError(9);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	if ( pMap->empty() ) {
+	const std::map<CValueSub,CValueSub> &map = valuearg[0]->hash();
+
+	if ( map.empty() ) {
 		return CValue(F_TAG_ARRAY,0/*dmy*/);
 	}
 
 	CValue result(F_TAG_ARRAY,0/*dmy*/);
 	
-	std::map<CValueSub,CValueSub>::const_iterator itr = pMap->begin();
-	std::map<CValueSub,CValueSub>::const_iterator ite = pMap->end();
+	std::map<CValueSub,CValueSub>::const_iterator itr = map.begin();
+	std::map<CValueSub,CValueSub>::const_iterator ite = map.end();
 
 	for ( ; itr != ite ; ++itr ) {
 		result.array().push_back(itr->second);
