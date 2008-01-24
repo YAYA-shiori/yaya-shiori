@@ -630,8 +630,8 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 				str += ESC_IARRAY L":" ESC_IARRAY;
 			}
 			else {
-				std::vector<CValueSub>::const_iterator	itv;
-				std::vector<CValueSub>::const_iterator	itvbegin = var->value_const().array().begin();
+				CValueArray::const_iterator	itv;
+				CValueArray::const_iterator	itvbegin = var->value_const().array().begin();
 
 				for(itv = itvbegin; itv != var->value_const().array().end(); itv++) {
 					if (itv != itvbegin)
@@ -662,8 +662,8 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 				str += ESC_IHASH L"=" ESC_IHASH L":" ESC_IHASH L"=" ESC_IHASH;
 			}
 			else {
-				std::map<CValueSub, CValueSub>::const_iterator	itv;
-				std::map<CValueSub, CValueSub>::const_iterator	itvbegin = var->value_const().hash().begin();
+				CValueHash::const_iterator	itv;
+				CValueHash::const_iterator	itvbegin = var->value_const().hash().begin();
 
 				for(itv = itvbegin; itv != var->value_const().hash().end(); itv++) {
 					if (itv != itvbegin)

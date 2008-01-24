@@ -213,7 +213,7 @@ public:
 	void	SetValue(int index, double value) { var[index].Enable(); var[index].value() = value; }
 	void	SetValue(int index, const yaya::string_t &value) { var[index].Enable(); var[index].value() = value; }
 	void	SetValue(int index, const yaya::char_t *value) { var[index].Enable(); var[index].value() = value; }
-	void	SetValue(int index, const std::vector<CValueSub> &value) { var[index].Enable(); var[index].value() = value; }
+	void	SetValue(int index, const CValueArray &value) { var[index].Enable(); var[index].value() = value; }
 	void	SetValue(int index, const CValueSub &value) { var[index].Enable(); var[index].value() = value; }
 	void	SetDelimiter(int index, const yaya::string_t value) { var[index].Enable(); var[index].delimiter = value; }
 
