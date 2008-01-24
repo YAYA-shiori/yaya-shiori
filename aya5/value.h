@@ -25,6 +25,10 @@
 #include "globaldef.h"
 
 class CValue;
+class CValueSub;
+
+typedef std::vector<CValueSub> CValueArray;
+typedef std::map<CValueSub, CValueSub> CValueHash;
 
 class	CValueSub
 {
@@ -118,8 +122,8 @@ public:
 	int		i_value;				// 整数値
 
 private:
-	mutable boost::shared_ptr<std::vector<CValueSub> > m_array;		// 汎用配列
-    mutable boost::shared_ptr<std::map<CValueSub, CValueSub> > m_hash;  // ハッシュ
+	mutable boost::shared_ptr<CValueArray> m_array;		// 汎用配列
+    mutable boost::shared_ptr<CValueHash> m_hash;  // ハッシュ
 
 private:
 	int CalcEscalationTypeNum(const int rhs) const;
@@ -161,8 +165,8 @@ public:
             m_hash = rhs.m_hash;
         }
 		else {
-			m_array.reset((std::vector<CValueSub>*)NULL);
-            m_hash.reset((std::map<CValueSub, CValueSub>*)NULL);
+			m_array.reset((CValueArray*)NULL);
+            m_hash.reset((CValueHash*)NULL);
 			if ( type == F_TAG_STRING ) {
 				s_value = rhs.s_value;
 			}
@@ -262,8 +266,8 @@ public:
 	CValue	&operator =(double value);
 	CValue	&operator =(const yaya::string_t &value);
 	CValue	&operator =(const yaya::char_t *value);
-	CValue	&operator =(const std::vector<CValueSub> &value);
-    CValue  &operator =(const std::map<CValueSub, CValueSub> &value);
+	CValue	&operator =(const CValueArray &value);
+    CValue  &operator =(const CValueHash &value);
 	CValue	&operator =(const CValueSub &value);
 
 	CValue	operator +(const CValue &value) const;
@@ -301,7 +305,7 @@ public:
 	}
 
 	//////////////////////////////////////////////
-	std::vector<CValueSub>::size_type array_size(void) const {
+	CValueArray::size_type array_size(void) const {
 		if ( ! m_array.get() ) {
 			return 0;
 		}
@@ -309,28 +313,28 @@ public:
 			return m_array->size();
 		}
 	}
-	boost::shared_ptr<std::vector<CValueSub> > &array_shared(void) const {
+	boost::shared_ptr<CValueArray> &array_shared(void) const {
 		return m_array;
 	}
-	const std::vector<CValueSub>& array(void) const {
+	const CValueArray& array(void) const {
 		if ( ! m_array.get() ) {
-			m_array.reset(new std::vector<CValueSub>);
+			m_array.reset(new CValueArray);
 		}
 		return *m_array;
 	}
-	std::vector<CValueSub>& array(void) {
+	CValueArray& array(void) {
 		if ( ! m_array.get() ) {
-			m_array.reset(new std::vector<CValueSub>);
+			m_array.reset(new CValueArray);
 		}
 		else if ( m_array.use_count() >= 2 ) {
-			std::vector<CValueSub> *pV = m_array.get();
-			m_array.reset(new std::vector<CValueSub>(*pV));
+			CValueArray *pV = m_array.get();
+			m_array.reset(new CValueArray(*pV));
 		}
 		return *m_array;
 	}
 
 	//////////////////////////////////////////////
-	std::map<CValueSub, CValueSub>::size_type hash_size(void) const {
+	CValueHash::size_type hash_size(void) const {
 		if ( ! m_hash.get() ) {
 			return 0;
 		}
@@ -338,22 +342,22 @@ public:
 			return m_hash->size();
 		}
 	}
-	boost::shared_ptr<std::map<CValueSub, CValueSub> > &hash_shared(void) const {
+	boost::shared_ptr<CValueHash> &hash_shared(void) const {
 		return m_hash;
 	}
-	const std::map<CValueSub, CValueSub>& hash(void) const {
+	const CValueHash& hash(void) const {
 		if ( ! m_hash.get() ) {
-			m_hash.reset(new std::map<CValueSub, CValueSub>);
+			m_hash.reset(new CValueHash);
 		}
 		return *m_hash;
 	}
-	std::map<CValueSub, CValueSub>& hash(void) {
+	CValueHash& hash(void) {
 		if ( ! m_hash.get() ) {
-			m_hash.reset(new std::map<CValueSub, CValueSub>);
+			m_hash.reset(new CValueHash);
 		}
 		else if ( m_hash.use_count() >= 2 ) {
-			std::map<CValueSub, CValueSub> *pV = m_hash.get();
-			m_hash.reset(new std::map<CValueSub, CValueSub>(*pV));
+			CValueHash *pV = m_hash.get();
+			m_hash.reset(new CValueHash(*pV));
 		}
 		return *m_hash;
 	}

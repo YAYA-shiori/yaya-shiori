@@ -314,7 +314,7 @@ char	CFunction::Foreach(CStatement &st0, CStatement &st1, CLocalVariable &lvar, 
 	if (value.IsString())
 		t_value = s_array[foreachcount];
     else if (value.IsHash()) {
-        std::map<CValueSub, CValueSub>::const_iterator it = value.hash().begin();
+        CValueHash::const_iterator it = value.hash().begin();
         std::advance(it, foreachcount);
         t_value.SetType(F_TAG_ARRAY);
         t_value.array().push_back(it->first);
@@ -632,7 +632,7 @@ void	CFunction::SolveEmbedCell(CCell &cell, CStatement &st, CLocalVariable &lvar
 char	CFunction::Comma(CValue &answer, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar)
 {
 	// Œ‹‡‚µ‚Ä”z—ñ’l‚ğì¬
-	std::vector<CValueSub>	t_array;
+	CValueArray	t_array;
 	for(std::vector<int>::iterator it = sid.begin(); it != sid.end(); it++) {
 		const CValue &addv = GetValueRefForCalc(st.cell()[*it], st, lvar);
 		

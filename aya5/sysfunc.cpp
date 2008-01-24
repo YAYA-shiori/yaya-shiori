@@ -1917,7 +1917,7 @@ CValue	CSystemFunction::CHR(const CValue &arg, yaya::string_t &d, int &l)
 
 	yaya::string_t r_value(1, static_cast<yaya::char_t>(arg.array()[0].GetValueInt()));
 	
-	for ( std::vector<CValueSub>::const_iterator i = arg.array().begin() + 1 ;
+	for ( CValueArray::const_iterator i = arg.array().begin() + 1 ;
 		i < arg.array().end() ; ++i ) {
 		r_value.append(1, static_cast<yaya::char_t>(i->GetValueInt()) );
 	}
@@ -2988,7 +2988,7 @@ CValue	CSystemFunction::HASH_KEYS(std::vector<const CValue *> &valuearg, yaya::s
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	const std::map<CValueSub,CValueSub> &map = valuearg[0]->hash();
+	const CValueHash &map = valuearg[0]->hash();
 
 	if ( map.empty() ) {
 		return CValue(F_TAG_ARRAY,0/*dmy*/);
@@ -2996,8 +2996,8 @@ CValue	CSystemFunction::HASH_KEYS(std::vector<const CValue *> &valuearg, yaya::s
 
 	CValue result(F_TAG_ARRAY,0/*dmy*/);
 	
-	std::map<CValueSub,CValueSub>::const_iterator itr = map.begin();
-	std::map<CValueSub,CValueSub>::const_iterator ite = map.end();
+	CValueHash::const_iterator itr = map.begin();
+	CValueHash::const_iterator ite = map.end();
 
 	for ( ; itr != ite ; ++itr ) {
 		result.array().push_back(itr->first);
@@ -3023,7 +3023,7 @@ CValue	CSystemFunction::HASH_VALUES(std::vector<const CValue *> &valuearg, yaya:
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	const std::map<CValueSub,CValueSub> &map = valuearg[0]->hash();
+	const CValueHash &map = valuearg[0]->hash();
 
 	if ( map.empty() ) {
 		return CValue(F_TAG_ARRAY,0/*dmy*/);
@@ -3031,8 +3031,8 @@ CValue	CSystemFunction::HASH_VALUES(std::vector<const CValue *> &valuearg, yaya:
 
 	CValue result(F_TAG_ARRAY,0/*dmy*/);
 	
-	std::map<CValueSub,CValueSub>::const_iterator itr = map.begin();
-	std::map<CValueSub,CValueSub>::const_iterator ite = map.end();
+	CValueHash::const_iterator itr = map.begin();
+	CValueHash::const_iterator ite = map.end();
 
 	for ( ; itr != ite ; ++itr ) {
 		result.array().push_back(itr->second);
