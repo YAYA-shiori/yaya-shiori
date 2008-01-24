@@ -104,8 +104,19 @@ yaya::string_t	CValue::GetValueString(void) const
 				it != array().end(); it++) {
 				if (it != array().begin())
 					result += VAR_DELIMITER;
-				yaya::string_t	tmpstr = it->GetValueString();
-				result += tmpstr;
+				result += it->GetValueString();
+			}
+			return result;
+		}
+	case F_TAG_HASH: {
+			yaya::string_t	result;
+			for(CValueHash::const_iterator it = hash().begin();
+				it != hash().end(); it++) {
+				if (it != hash().begin())
+					result += VAR_DELIMITER;
+				result += it->first.GetValueString();
+				result += L"=";
+				result += it->second.GetValueString();
 			}
 			return result;
 		}
@@ -137,12 +148,37 @@ yaya::string_t	CValue::GetValueStringForLogging(void) const
 		}
 	case F_TAG_ARRAY: {
 			yaya::string_t	result;
+			yaya::string_t	tmpstr;
+
 			for(CValueArray::const_iterator it = array().begin();
 				it != array().end(); it++) {
 				if (it != array().begin())
 					result += VAR_DELIMITER;
-				yaya::string_t	tmpstr = it->GetValueString();
+				tmpstr = it->GetValueString();
 				if (it->GetType() == F_TAG_STRING)
+					AddDoubleQuote(tmpstr);
+				result += tmpstr;
+			}
+			return result;
+		}
+	case F_TAG_HASH: {
+			yaya::string_t	result;
+			yaya::string_t	tmpstr;
+
+			for(CValueHash::const_iterator it = hash().begin();
+				it != hash().end(); it++) {
+				if (it != hash().begin())
+					result += VAR_DELIMITER;
+
+				tmpstr = it->first.GetValueString();
+				if (it->first.GetType() == F_TAG_STRING)
+					AddDoubleQuote(tmpstr);
+				result += tmpstr;
+
+				result += L"=";
+
+				tmpstr = it->second.GetValueString();
+				if (it->second.GetType() == F_TAG_STRING)
 					AddDoubleQuote(tmpstr);
 				result += tmpstr;
 			}

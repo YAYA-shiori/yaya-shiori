@@ -510,7 +510,7 @@ const CValue& CFunction::GetValueRefForCalc(CCell &cell, CStatement &st, CLocalV
 	case F_TAG_SYSFUNC: {
 			CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
 			std::vector<CCell *> pcellarg; //dummy
-			std::vector<const CValue *> pvaluearg; //dummy
+			std::vector<CValue> pvaluearg; //dummy
 			cell.ansv() =  pvm->sysfunction().Execute(cell.index, arg, pcellarg, pvaluearg, lvar, st.linecount, this);
 			return cell.ansv();
 		}
@@ -897,7 +897,7 @@ char	CFunction::ExecSystemFunctionWithArgs(CCell& cell, std::vector<int> &sid, C
 	// à¯êîçÏê¨
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
 	std::vector<CCell *> pcellarg;
-	std::vector<const CValue *> valuearg;
+	std::vector<CValue> valuearg;
 	std::vector<int>::size_type sidsize = sid.size();
 
 	for( ; it != sid.end(); it++) {
@@ -915,7 +915,7 @@ char	CFunction::ExecSystemFunctionWithArgs(CCell& cell, std::vector<int> &sid, C
 			arg.array().push_back(CValueSub(addv));
 		}
 
-		valuearg.push_back(&addv);
+		valuearg.push_back(addv);
 		pcellarg.push_back(&(st.cell()[*it]));
 	}
 
