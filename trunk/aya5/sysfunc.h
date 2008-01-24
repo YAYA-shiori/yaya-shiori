@@ -35,6 +35,8 @@ class CCell;
 class CLocalVariable;
 class CFunction;
 
+typedef const std::vector<CValue> CValueArgArray;
+
 //----
 
 class	CSystemFunction
@@ -71,15 +73,15 @@ public:
 	CValue	*GetReLenPtr(void) { return &re_len; }
 
 	CValue	Execute(int index, const CValue &arg, const std::vector<CCell *> &pcellarg,
-				std::vector<const CValue *> &valuearg, CLocalVariable &lvar, int l, CFunction *thisfunc);
+				CValueArgArray &valuearg, CLocalVariable &lvar, int l, CFunction *thisfunc);
 
 protected:
 	CValue	TOINT(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	TOREAL(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	TOSTR(const CValue &args, yaya::string_t &d, int &l);
+	CValue	TOSTR(CValueArgArray &valuearg, yaya::string_t &d, int &l);
 	CValue	TOAUTO(const CValue &args, yaya::string_t &d, int &l);
 
-	CValue	GETTYPE(std::vector<const CValue *> &valuearg, yaya::string_t &d, int &l);
+	CValue	GETTYPE(CValueArgArray &valuearg, yaya::string_t &d, int &l);
 
 	CValue	ISFUNC(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	ISVAR(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l);
@@ -159,14 +161,16 @@ protected:
 	CValue	ISINTSTR(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	ISREALSTR(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	SPLITPATH(const CValue &arg, yaya::string_t &d, int &l);
+
 	CValue	CVINT(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
 				yaya::string_t &d, int &l);
-	CValue	CVSTR(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
+	CValue	CVSTR(CValueArgArray &valuearg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
 				yaya::string_t &d, int &l);
 	CValue	CVREAL(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
 				yaya::string_t &d, int &l);
 	CValue	CVAUTO(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
 				yaya::string_t &d, int &l);
+	
 	CValue	LETTONAME(const CValue &arg, yaya::string_t &d, int &l, CLocalVariable &lvar,
 				CFunction *thisfunc);
 	CValue	STRFORM(const CValue &arg, yaya::string_t &d, int &l);
@@ -218,8 +222,12 @@ protected:
 
 	CValue	DUMPVAR(const CValue &arg, yaya::string_t &d, int &l);
 
-	CValue	HASH_KEYS(std::vector<const CValue *> &valuearg, yaya::string_t &d, int &l);
-	CValue	HASH_VALUES(std::vector<const CValue *> &valuearg, yaya::string_t &d, int &l);
+	CValue	IHASH(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	HASH_KEYS(CValueArgArray &valuearg, yaya::string_t &d, int &l);
+	CValue	HASH_VALUES(CValueArgArray &valuearg, yaya::string_t &d, int &l);
+	CValue	HASH_SPLIT(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	HASH_EXIST(CValueArgArray &valuearg, yaya::string_t &d, int &l);
+	CValue	HASH_SIZE(CValueArgArray &valuearg, yaya::string_t &d, int &l);
 
 	CValue	RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int &l, const yaya::char_t *fncname, std::vector<yaya::string_t> *replace_array);
 

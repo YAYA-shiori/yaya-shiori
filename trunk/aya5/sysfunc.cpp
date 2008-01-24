@@ -74,7 +74,7 @@ extern "C" {
  * -----------------------------------------------------------------------
  */
 
-#define	SYSFUNC_NUM					124 //システム関数の全数
+#define	SYSFUNC_NUM					127 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -246,6 +246,9 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
     L"IHASH",
 	L"HASH_KEYS",
 	L"HASH_VALUES",
+	L"HASH_SPLIT",
+	L"HASH_EXIST",
+	L"HASH_SIZE",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -363,7 +366,7 @@ const yaya::char_t* CSystemFunction::HistoryFunctionName(void)
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<CCell *> &pcellarg,
-			std::vector<const CValue *> &valuearg, CLocalVariable &lvar, int l, CFunction *thisfunc)
+			CValueArgArray &valuearg, CLocalVariable &lvar, int l, CFunction *thisfunc)
 {
 	yaya::string_t& d = thisfunc->dicfilename;
 
@@ -373,7 +376,7 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 	case 1:		// TOREAL
 		return TOREAL(arg, d, l);
 	case 2:		// TOSTR
-		return TOSTR(arg, d, l);
+		return TOSTR(valuearg, d, l);
 	case 3:		// GETTYPE
 		return GETTYPE(valuearg, d, l);
 	case 4:		// ISFUNC
@@ -518,7 +521,7 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 	case 73:	// CVINT
 		return CVINT(arg, pcellarg, lvar, d, l);
 	case 74:	// CVSTR
-		return CVSTR(arg, pcellarg, lvar, d, l);
+		return CVSTR(valuearg, pcellarg, lvar, d, l);
 	case 75:	// CVREAL
 		return CVREAL(arg, pcellarg, lvar, d, l);
 	case 76:	// LETTONAME
@@ -612,11 +615,17 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 	case 120:
 		return DUMPVAR(arg, d, l);
     case 121:
-        return CValue(F_TAG_HASH, 0);
+ 		return IHASH(arg, d, l);
 	case 122:
 		return HASH_KEYS(valuearg, d, l);
 	case 123:
 		return HASH_VALUES(valuearg, d, l);
+	case 124:
+ 		return HASH_SPLIT(arg, d, l);
+	case 125:
+		return HASH_EXIST(valuearg, d, l);
+	case 126:
+		return HASH_SIZE(valuearg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -660,20 +669,19 @@ CValue	CSystemFunction::TOREAL(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::TOSTR
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::TOSTR(const CValue &args, yaya::string_t &d, int &l)
+CValue	CSystemFunction::TOSTR(CValueArgArray &valuearg, yaya::string_t &d, int &l)
 {
-	int	sz = args.array_size();
-
-	if (!sz) {
+	if (valuearg.empty()) {
 		vm.logger().Error(E_W, 8, L"TOSTR", d, l);
 		SetError(8);
 		return CValue();
 	}
 
-	if (sz == 1)
-		return CValue(args.array()[0].GetValueString());
-
-	return CValue(args.GetValueString());
+	yaya::string_t str;
+	for ( CValueArgArray::const_iterator it = valuearg.begin() ; it != valuearg.end() ; ++it ) {
+		str += it->GetValueString();
+	}
+	return CValue(str);
 }
 
 /* -----------------------------------------------------------------------
@@ -710,7 +718,7 @@ CValue	CSystemFunction::TOAUTO(const CValue &arg, yaya::string_t &d, int &l)
  *  返値　　：  0/1/2/3/4/5=エラー/整数/実数/文字列/配列/連想配列
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::GETTYPE(std::vector<const CValue *> &valuearg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::GETTYPE(CValueArgArray &valuearg, yaya::string_t &d, int &l)
 {
 	if (valuearg.empty()) {
 		vm.logger().Error(E_W, 8, L"GETTYPE", d, l);
@@ -718,7 +726,7 @@ CValue	CSystemFunction::GETTYPE(std::vector<const CValue *> &valuearg, yaya::str
 		return CValue(0);
 	}
 
-	switch(valuearg[0]->GetType()) {
+	switch(valuearg[0].GetType()) {
 	case F_TAG_VOID:
 		return CValue(0);
 	case F_TAG_INT:
@@ -2972,23 +2980,57 @@ CValue	CSystemFunction::SETDELIM(const std::vector<CCell *> &pcellarg, CLocalVar
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::IHASH
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::IHASH(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if ( ! arg.array_size() ) {
+		return CValue(F_TAG_HASH, 0);
+	}
+
+	if ( arg.array_size() % 2 ) {
+		vm.logger().Error(E_W, 20, L"IHASH", d, l);
+	}
+
+	CValue result(F_TAG_HASH,0/*dmy*/);
+	
+	CValueArray::const_iterator itr = arg.array().begin();
+	CValueArray::const_iterator ite = arg.array().end();
+
+	while ( itr != ite ) {
+		++itr;
+		if ( itr != ite ) {
+			result.hash().insert(std::pair<CValueSub,CValueSub>(*itr,*(itr+1)));
+			++itr;
+		}
+		else {
+			result.hash().insert(std::pair<CValueSub,CValueSub>(*itr,CValueSub()));
+		}
+	}
+
+	return result;
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::HASH_KEYS
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::HASH_KEYS(std::vector<const CValue *> &valuearg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::HASH_KEYS(CValueArgArray &valuearg, yaya::string_t &d, int &l)
 {
 	if (valuearg.size() < 1) {
-		vm.logger().Error(E_W, 8, L"VALUES", d, l);
+		vm.logger().Error(E_W, 8, L"HASH_KEYS", d, l);
 		SetError(8);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	if ( valuearg[0]->GetType() != F_TAG_HASH ) {
+	if ( valuearg[0].GetType() != F_TAG_HASH ) {
+		vm.logger().Error(E_W, 9, L"HASH_KEYS", d, l);
 		SetError(9);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	const CValueHash &map = valuearg[0]->hash();
+	const CValueHash &map = valuearg[0].hash();
 
 	if ( map.empty() ) {
 		return CValue(F_TAG_ARRAY,0/*dmy*/);
@@ -3010,20 +3052,21 @@ CValue	CSystemFunction::HASH_KEYS(std::vector<const CValue *> &valuearg, yaya::s
  *  関数名  ：  CSystemFunction::HASH_VALUES
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::HASH_VALUES(std::vector<const CValue *> &valuearg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::HASH_VALUES(CValueArgArray &valuearg, yaya::string_t &d, int &l)
 {
 	if (valuearg.size() < 1) {
-		vm.logger().Error(E_W, 8, L"VALUES", d, l);
+		vm.logger().Error(E_W, 8, L"HASH_VALUES", d, l);
 		SetError(8);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	if ( valuearg[0]->GetType() != F_TAG_HASH ) {
+	if ( valuearg[0].GetType() != F_TAG_HASH ) {
+		vm.logger().Error(E_W, 9, L"HASH_VALUES", d, l);
 		SetError(9);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	const CValueHash &map = valuearg[0]->hash();
+	const CValueHash &map = valuearg[0].hash();
 
 	if ( map.empty() ) {
 		return CValue(F_TAG_ARRAY,0/*dmy*/);
@@ -3039,6 +3082,54 @@ CValue	CSystemFunction::HASH_VALUES(std::vector<const CValue *> &valuearg, yaya:
 	}
 
 	return result;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::HASH_EXIST
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::HASH_EXIST(CValueArgArray &valuearg, yaya::string_t &d, int &l)
+{
+	if (valuearg.size() < 2) {
+		vm.logger().Error(E_W, 8, L"HASH_EXIST", d, l);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	if ( valuearg[0].GetType() == F_TAG_HASH || valuearg[0].GetType() == F_TAG_ARRAY ) {
+		vm.logger().Error(E_W, 9, L"HASH_EXIST", d, l);
+		SetError(9);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	if ( valuearg[1].GetType() != F_TAG_HASH ) {
+		vm.logger().Error(E_W, 9, L"HASH_EXIST", d, l);
+		SetError(9);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	return CValue(valuearg[1].hash().find(CValueSub(valuearg[0])) != valuearg[1].hash().end() ? 1 : 0);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::HASH_SIZE
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::HASH_SIZE(CValueArgArray &valuearg, yaya::string_t &d, int &l)
+{
+	if (valuearg.size() < 1) {
+		vm.logger().Error(E_W, 8, L"HASH_SIZE", d, l);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	if ( valuearg[0].GetType() != F_TAG_HASH ) {
+		vm.logger().Error(E_W, 9, L"HASH_SIZE", d, l);
+		SetError(9);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	return CValue((int)valuearg[0].hash().size());
 }
 
 /* -----------------------------------------------------------------------
@@ -3814,19 +3905,19 @@ CValue	CSystemFunction::CVINT(const CValue &arg, const std::vector<CCell *> &pce
  *  関数名  ：  CSystemFunction::CVSTR
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::CVSTR(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
-			yaya::string_t &d, int &l)
+CValue	CSystemFunction::CVSTR(CValueArgArray &valuearg, const std::vector<CCell *> &pcellarg,
+							   CLocalVariable &lvar,yaya::string_t &d, int &l)
 {
-	if (!arg.array_size()) {
+	if (!valuearg.size()) {
 		vm.logger().Error(E_W, 8, L"CVSTR", d, l);
 		SetError(8);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
 	if (pcellarg[0]->value_GetType() == F_TAG_VARIABLE)
-		vm.variable().SetValue(pcellarg[0]->index, arg.array()[0].GetValueString());
+		vm.variable().SetValue(pcellarg[0]->index, TOSTR(valuearg,d,l));
 	else if (pcellarg[0]->value_GetType() == F_TAG_LOCALVARIABLE)
-		lvar.SetValue(pcellarg[0]->name, CValue(arg.array()[0].GetValueString()));
+		lvar.SetValue(pcellarg[0]->name, TOSTR(valuearg,d,l));
 	else {
 		vm.logger().Error(E_W, 11, L"CVSTR", d, l);
 		SetError(11);
@@ -4430,6 +4521,74 @@ CValue	CSystemFunction::SPLIT(const CValue &arg, yaya::string_t &d, int &l)
 		}
 		result.array().push_back(CValueSub(tgt_str.substr(seppoint, spoint-seppoint)));
 		seppoint = spoint + sep_strlen;
+	}
+
+	return result;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::HASH_SPLIT
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::HASH_SPLIT(const CValue &arg, yaya::string_t &d, int &l)
+{
+	int	sz = arg.array_size();
+	if (sz < 3) {
+		vm.logger().Error(E_W, 8, L"HASH_SPLIT", d, l);
+		SetError(8);
+		return CValue(F_TAG_HASH, 0/*dmy*/);
+	}
+
+	if (!arg.array()[0].IsString() ||
+		!arg.array()[1].IsString() ||
+		!arg.array()[2].IsString()) {
+		vm.logger().Error(E_W, 9, L"HASH_SPLIT", d, l);
+		SetError(9);
+	}
+
+	CValue	result(F_TAG_HASH, 0/*dmy*/);
+
+	const yaya::string_t &tgt_str  = arg.array()[0].GetValueString();
+	const yaya::string_t &sep_str1 = arg.array()[1].GetValueString();
+	const yaya::string_t &sep_str2 = arg.array()[2].GetValueString();
+
+	if (sep_str1.length() == 0 || sep_str2.length() == 0) {
+		vm.logger().Error(E_W, 10, L"HASH_SPLIT", d, l);
+		SetError(10);
+		return CValue(F_TAG_HASH, 0/*dmy*/);
+	}
+	
+	const yaya::string_t::size_type sep_str1len = sep_str1.size();
+	const yaya::string_t::size_type sep_str2len = sep_str2.size();
+	const yaya::string_t::size_type tgt_strlen  = tgt_str.size();
+	yaya::string_t::size_type seppoint = 0;
+	yaya::string_t::size_type spoint,spoint2;
+	yaya::string_t element;
+
+	while(true) {
+		spoint = tgt_str.find(sep_str1,seppoint);
+		if (spoint == yaya::string_t::npos) {
+			element = tgt_str.substr(seppoint,tgt_strlen - seppoint);
+		}
+		else {
+			element = tgt_str.substr(seppoint, spoint-seppoint);
+		}
+		
+		spoint2 = element.find(sep_str2,0);
+
+		if ( spoint2 == yaya::string_t::npos ) {
+			result.hash().insert(std::pair<CValueSub,CValueSub>(element,CValueSub()));
+		}
+		else {
+			result.hash().insert(std::pair<CValueSub,CValueSub>(CValueSub(element.substr(0,spoint2))
+				,CValueSub(element.substr(spoint2+sep_str2len,element.size()-spoint2-sep_str2len))));
+		}
+
+		if (spoint == yaya::string_t::npos) {
+			break;
+		}
+
+		seppoint = spoint + sep_str1len;
 	}
 
 	return result;
