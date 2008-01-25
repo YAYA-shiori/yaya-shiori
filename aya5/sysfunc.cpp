@@ -3001,11 +3001,11 @@ CValue	CSystemFunction::IHASH(const CValue &arg, yaya::string_t &d, int &l)
 	while ( itr != ite ) {
 		++itr;
 		if ( itr != ite ) {
-			result.hash().insert(std::pair<CValueSub,CValueSub>(*itr,*(itr+1)));
+			result.hash().insert(std::pair<CValueSub,CValueSub>(*(itr-1),*(itr)));
 			++itr;
 		}
 		else {
-			result.hash().insert(std::pair<CValueSub,CValueSub>(*itr,CValueSub()));
+			result.hash().insert(std::pair<CValueSub,CValueSub>(*(itr-1),CValueSub()));
 		}
 	}
 
@@ -4566,7 +4566,16 @@ CValue	CSystemFunction::HASH_SPLIT(const CValue &arg, yaya::string_t &d, int &l)
 	yaya::string_t element;
 
 	while(true) {
+		if ( tgt_strlen-seppoint == 0 ) {
+			break;
+		}
+
 		spoint = tgt_str.find(sep_str1,seppoint);
+		if ( spoint == seppoint ) {
+			seppoint += sep_str1len;
+			continue;
+		}
+
 		if (spoint == yaya::string_t::npos) {
 			element = tgt_str.substr(seppoint,tgt_strlen - seppoint);
 		}
@@ -4580,8 +4589,10 @@ CValue	CSystemFunction::HASH_SPLIT(const CValue &arg, yaya::string_t &d, int &l)
 			result.hash().insert(std::pair<CValueSub,CValueSub>(element,CValueSub()));
 		}
 		else {
-			result.hash().insert(std::pair<CValueSub,CValueSub>(CValueSub(element.substr(0,spoint2))
-				,CValueSub(element.substr(spoint2+sep_str2len,element.size()-spoint2-sep_str2len))));
+			if ( spoint2 != 0 ) {
+				result.hash().insert(std::pair<CValueSub,CValueSub>(CValueSub(element.substr(0,spoint2))
+					,CValueSub(element.substr(spoint2+sep_str2len,element.size()-spoint2-sep_str2len))));
+			}
 		}
 
 		if (spoint == yaya::string_t::npos) {
