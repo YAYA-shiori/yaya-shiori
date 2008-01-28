@@ -723,7 +723,7 @@ SHIORI3FW.ExecuteDl2ToDll
  *  機能　：インストール済ゴースト名通知イベント
  * --------------------------------------------------------------------------------------
 */
-/*On_installedghostname
+On_installedghostname
 {
 	installedghostlist  = IARRAY
 	installedsakuralist = IARRAY
@@ -736,11 +736,8 @@ SHIORI3FW.ExecuteDl2ToDll
 	}
 
 	// Refrenceから取得
-	for _i = 0; 1; _i++ {
-		if (_name = EVAL('reference' + _i)) == ''; break
-		installedghostlist ,= _name
-	}
-}*/
+	installedghostlist = reference
+}
 
 /*---------------------------------------------------------------------------------------
  *  関数名：SHIORI3FW.StructInstalledGhostList
