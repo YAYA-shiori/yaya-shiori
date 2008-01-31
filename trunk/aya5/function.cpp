@@ -485,6 +485,11 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
  */
 const CValue& CFunction::GetValueRefForCalc(CCell &cell, CStatement &st, CLocalVariable &lvar)
 {
+	return *GetValuePtrForCalc(cell,st,lvar);
+}
+
+CValueSmartPtrConst CFunction::GetValuePtrForCalc(CCell &cell, CStatement &st, CLocalVariable &lvar)
+{
 	// 即値はv、関数/変数/演算子項ならansvから取得　関数/変数の場合その値や実行結果が取得される
 
 	// %[n]処理
@@ -494,40 +499,58 @@ const CValue& CFunction::GetValueRefForCalc(CCell &cell, CStatement &st, CLocalV
 		}
 	}
 
+	CValueSmartPtrConst s;
+
 	// 演算が完了している（はずの）項ならそれを返す
-	if (cell.value_GetType() < F_TAG_ORIGIN_VALUE)
-		return cell.ansv();
-
-	// 即値ならそれをそのまま返す
-	if (cell.value_GetType() <= F_TAG_STRING)
-		return cell.value();
-
-	// 関数なら実行して結果を、変数ならその内容を返す
-	switch(cell.value_GetType()) {
-	case F_TAG_STRING_EMBED:
-		SolveEmbedCell(cell, st, lvar);
-		return cell.ansv();
-	case F_TAG_SYSFUNC: {
-			CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
-			std::vector<CCell *> pcellarg; //dummy
-			std::vector<CValue> pvaluearg; //dummy
-			cell.ansv() =  pvm->sysfunction().Execute(cell.index, arg, pcellarg, pvaluearg, lvar, st.linecount, this);
-			return cell.ansv();
-		}
-	case F_TAG_USERFUNC: {
-		CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
-		CLocalVariable	t_lvar;
-		pvm->function()[cell.index].Execute(cell.ansv(), arg, t_lvar);
-		return cell.ansv();
+	if (cell.value_GetType() < F_TAG_ORIGIN_VALUE) {
+		s = cell.ansv_shared();
 	}
-	case F_TAG_VARIABLE:
-		return pvm->variable().GetValue(cell.index);
-	case F_TAG_LOCALVARIABLE:
-		return lvar.GetValue(cell.name);
-	default:
-		pvm->logger().Error(E_E, 16, dicfilename, st.linecount);
-		return emptyvalue;
-	};
+	// 即値ならそれをそのまま返す
+	else if (cell.value_GetType() <= F_TAG_STRING) {
+		s = cell.ansv_shared();
+	}
+	// 関数なら実行して結果を、変数ならその内容を返す
+	else {
+	switch(cell.value_GetType()) {
+		case F_TAG_STRING_EMBED:
+			SolveEmbedCell(cell, st, lvar);
+			s = cell.ansv_shared();
+			break;
+
+		case F_TAG_SYSFUNC: {
+				CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
+				std::vector<CCell *> pcellarg; //dummy
+				CValueArgArray pvaluearg; //dummy
+				cell.ansv() =  pvm->sysfunction().Execute(cell.index, arg, pcellarg, pvaluearg, lvar, st.linecount, this);
+				s = cell.ansv_shared();
+			}
+			break;
+
+		case F_TAG_USERFUNC: {
+			CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
+			CLocalVariable	t_lvar;
+			pvm->function()[cell.index].Execute(cell.ansv(), arg, t_lvar);
+			s = cell.ansv_shared();
+			break;
+
+		}
+		case F_TAG_VARIABLE:
+			s = pvm->variable().GetValuePtr(cell.index);
+			break;
+
+		case F_TAG_LOCALVARIABLE:
+			s = lvar.GetValuePtr(cell.name);
+			break;
+
+		};
+	}
+
+	if ( s.get() ) {
+		return s;
+	}
+	else {
+		return emptyvalueptr();
+	}
 }
 
 /* -----------------------------------------------------------------------
@@ -897,22 +920,22 @@ char	CFunction::ExecSystemFunctionWithArgs(CCell& cell, std::vector<int> &sid, C
 	// 引数作成
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
 	std::vector<CCell *> pcellarg;
-	std::vector<CValue> valuearg;
+	CValueArgArray valuearg;
 	std::vector<int>::size_type sidsize = sid.size();
 
 	for( ; it != sid.end(); it++) {
-		const CValue &addv = GetValueRefForCalc(st.cell()[*it], st, lvar);
+		CValueSmartPtrConst addv = GetValuePtrForCalc(st.cell()[*it], st, lvar);
 		
-		if (addv.GetType() == F_TAG_ARRAY) {
+		if (addv->GetType() == F_TAG_ARRAY) {
 			if ( sidsize <= 2 ) { //配列1つのみが与えられている->最適化のためスマートポインタ代入のみで済ませる
-				arg.array_shared() = addv.array_shared();
+				arg.array_shared() = addv->array_shared();
 			}
 			else {
-				arg.array().insert(arg.array().end(), addv.array().begin(), addv.array().end());
+				arg.array().insert(arg.array().end(), addv->array().begin(), addv->array().end());
 			}
 		}
 		else {
-			arg.array().push_back(CValueSub(addv));
+			arg.array().push_back(CValueSub(*addv));
 		}
 
 		valuearg.push_back(addv);

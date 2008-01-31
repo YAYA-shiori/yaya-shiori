@@ -35,7 +35,7 @@ class CCell;
 class CLocalVariable;
 class CFunction;
 
-typedef const std::vector<CValue> CValueArgArray;
+typedef std::vector<CValueSmartPtrConst> CValueArgArray;
 
 //----
 
@@ -181,8 +181,9 @@ protected:
 	CValue	RESTOREVAR(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue	GETSTRBYTES(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	ASEARCH(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	ASEARCHEX(const CValue &arg, yaya::string_t &d, int &l);
+
+	CValue	ASEARCH(CValueArgArray &valuearg, yaya::string_t &d, int &l);
+	CValue	ASEARCHEX(CValueArgArray &valuearg, yaya::string_t &d, int &l);
 
 	CValue	GETDELIM(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l);
 
