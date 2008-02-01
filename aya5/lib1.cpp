@@ -122,7 +122,7 @@ int	CLib1::LoadLib(void)
 	if (dllpathname == NULL)
 		return 0;
 
-	hDLL = LoadLibrary(dllpathname);
+	hDLL = ::LoadLibraryEx(dllpathname,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
 	free(dllpathname);
 	
 	return (hDLL != NULL) ? 1 : 0;
