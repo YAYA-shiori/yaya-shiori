@@ -1,4 +1,7 @@
 #labels Featured
+=Tc528-3=
+  * GETSTRURLDECODEがバグってたのを修正
+
 =Tc528-2=
   * FATTRIBがディレクトリの日付情報を取れなかった問題を修正
 
