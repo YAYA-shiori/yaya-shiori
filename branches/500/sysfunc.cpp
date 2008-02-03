@@ -4135,6 +4135,7 @@ CValue	CSystemFunction::GETSTRURLDECODE(const CValue &arg, yaya::string_t &d, in
 			ch[0] = static_cast<char>(*(it+1));
 			ch[1] = static_cast<char>(*(it+2));
 			str.append(1,static_cast<char>(strtol(ch,NULL,16)));
+			it += 2;
 		}
 		else if ( *it == L'+' ) {
 			str.append(1,' ');
