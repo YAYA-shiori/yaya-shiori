@@ -230,26 +230,26 @@ const CValue& CLocalVariable::GetValue(const yaya::string_t &name)
  * -----------------------------------------------------------------------
  */
 
-CValueSmartPtr	CLocalVariable::GetValuePtr(const yaya::char_t *name)
+CValue*	CLocalVariable::GetValuePtr(const yaya::char_t *name)
 {
 	int	dp, id;
 	GetIndex(name, id, dp);
 	if (id >= 0)
-		return stack[dp].substack[id].value_shared();
+		return &(stack[dp].substack[id].value());
 
-	return CValueSmartPtr();
+	return NULL;
 }
 
 //----
 
-CValueSmartPtr	CLocalVariable::GetValuePtr(const yaya::string_t &name)
+CValue*	CLocalVariable::GetValuePtr(const yaya::string_t &name)
 {
 	int	dp, id;
 	GetIndex(name, id, dp);
 	if (id >= 0)
-		return stack[dp].substack[id].value_shared();
+		return &(stack[dp].substack[id].value());
 
-	return CValueSmartPtr();
+	return NULL;
 }
 
 /* -----------------------------------------------------------------------

@@ -30,15 +30,6 @@
 //からっぽ変数（ダミー用）
 const CValue emptyvalue;
 
-CValueSmartPtr emptyvalueptr(void)
-{
-	static CValueSmartPtr ptr;
-	if ( ! ptr.get() ) {
-		ptr.reset(new CValue());
-	}
-	return ptr;
-}
-
 /* -----------------------------------------------------------------------
  *  関数名  ：  CValue::GetValueInt
  *  機能概要：  値をintで返します
@@ -460,9 +451,6 @@ CValue &CValue::operator =(int value)
 	type    = F_TAG_INT;
 	i_value = value;
 
-	m_array.reset((CValueArray*)NULL);
-    m_hash.reset((CValueHash*)NULL);
-
 	return *this;
 }
 
@@ -474,9 +462,6 @@ CValue &CValue::operator =(double value)
 {
 	type    = F_TAG_DOUBLE;
 	d_value = value;
-
-	m_array.reset((CValueArray*)NULL);
-    m_hash.reset((CValueHash*)NULL);
 
 	return *this;
 }
@@ -490,9 +475,6 @@ CValue &CValue::operator =(const yaya::string_t &value)
 	type    = F_TAG_STRING;
 	s_value = value;
 
-	m_array.reset((CValueArray*)NULL);
-    m_hash.reset((CValueHash*)NULL);
-
 	return *this;
 }
 
@@ -505,9 +487,6 @@ CValue &CValue::operator =(const yaya::char_t *value)
 	type    = F_TAG_STRING;
 	s_value = value;
 
-	m_array.reset((CValueArray*)NULL);
-    m_hash.reset((CValueHash*)NULL);
-
 	return *this;
 }
 
@@ -519,7 +498,6 @@ CValue &CValue::operator =(const CValueArray &value)
 {
 	type    = F_TAG_ARRAY;
 	array() = value;
-	m_hash.reset((CValueHash*)NULL);
 
 	return *this;
 }
@@ -530,9 +508,8 @@ CValue &CValue::operator =(const CValueArray &value)
  */
 CValue &CValue::operator =(const CValueHash &value)
 {
-	type   = F_TAG_HASH;
+	type    = F_TAG_HASH;
 	hash() = value;
-	m_array.reset((CValueArray*)NULL);
 
 	return *this;
 }
@@ -543,9 +520,6 @@ CValue &CValue::operator =(const CValueHash &value)
  */
 CValue &CValue::operator =(const CValueSub &value)
 {
-	m_array.reset((CValueArray*)NULL);
-    m_hash.reset((CValueHash*)NULL);
-
 	switch(value.GetType()) {
 	case F_TAG_INT:
 		*this = value.i_value;
@@ -961,10 +935,6 @@ CValue CValue::operator [](const CValue &value) const
  */
 int CValue::Compare(const CValue &value) const
 {
-	if ( this == &value ) {
-		return 1;
-	}
-
 	int t = CalcEscalationTypeStr(value.type);
 
 	switch(t) {
@@ -977,61 +947,23 @@ int CValue::Compare(const CValue &value) const
 	case F_TAG_STRING:
 		return GetValueString() == value.GetValueString();
 	case F_TAG_ARRAY: {
-			if (value.type != F_TAG_ARRAY) {
+			if (value.type == F_TAG_ARRAY) {
+				size_t	len = array_size();
+				if (len != value.array_size())
+					return 0;
+				else {
+					CValueArray::const_iterator it, it2;
+					size_t	i = 0;
+					for(it = array().begin(), it2 = value.array().begin();
+						it != array().end() && it2 != value.array().end(); it++, it2++)		
+						i += it->Compare(*it2);
+					return (i == len);
+				}
+			}
+			else {
 				return 0;
 			}
-			size_t	len = array_size();
-			if (len != value.array_size()) {
-				return 0;
-			}
-			CValueArray::const_iterator it, it2;
-			for(it = array().begin(), it2 = value.array().begin();
-				it != array().end() && it2 != value.array().end(); it++, it2++)	{
-					if ( it->Compare(*it2) ) {
-						return 0;
-					}
-			}
-			return 1;
 		}
-	case F_TAG_HASH: {
-			if (value.type != F_TAG_HASH) {
-				return 0;
-			}
-			size_t	len = hash_size();
-			if (len != value.hash_size()) {
-				return 0;
-			}
-			CValueHash::const_iterator it, it2;
-			for(it = hash().begin(), it2 = value.hash().begin();
-				it != hash().end() && it2 != value.hash().end(); it++, it2++)	{
-					if ( it->first.Compare(it2->first) || it->second.Compare(it2->second) ) {
-						return 0;
-					}
-			}
-			return 1;
-		}
-	}
-
-	return 0;
-}
-
-int CValue::Compare(const CValueSub &value) const
-{
-	if ( type == F_TAG_ARRAY || type == F_TAG_HASH ) {
-		return 0;
-	}
-
-	int t = CalcEscalationTypeStr(value.type);
-
-	switch(t) {
-	case F_TAG_VOID:
-		return 1; //VOID型同士の演算はTRUE
-	case F_TAG_INT:
-		return GetValueInt() == value.GetValueInt();
-	case F_TAG_DOUBLE:
-		return GetValueDouble() == value.GetValueDouble();
-	case F_TAG_STRING:
-		return GetValueString() == value.GetValueString();
 	}
 
 	return 0;
@@ -1043,10 +975,6 @@ int CValue::Compare(const CValueSub &value) const
  */
 int CValue::Great(const CValue &value) const
 {
-	if ( this == &value ) {
-		return 0;
-	}
-
 	int t = CalcEscalationTypeStr(value.type);
 
 	if (t == F_TAG_INT) {
@@ -1068,10 +996,6 @@ int CValue::Great(const CValue &value) const
  */
 int CValue::Less(const CValue &value) const
 {
-	if ( this == &value ) {
-		return 0;
-	}
-
 	int t = CalcEscalationTypeStr(value.type);
 
 	if (t == F_TAG_INT) {
