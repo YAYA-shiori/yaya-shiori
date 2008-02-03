@@ -537,9 +537,9 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 	case 81:	// GETSTRBYTES
 		return GETSTRBYTES(arg, d, l);
 	case 82:	// ASEARCH
-		return ASEARCH(valuearg, d, l);
+		return ASEARCH(arg, d, l);
 	case 83:	// ASEARCHEX
-		return ASEARCHEX(valuearg, d, l);
+		return ASEARCHEX(arg, d, l);
 	case 84:	// GETDELIM
 		return GETDELIM(pcellarg, lvar, d, l);
 	case 85:	// GETSETTING
@@ -679,10 +679,8 @@ CValue	CSystemFunction::TOSTR(CValueArgArray &valuearg, yaya::string_t &d, int &
 
 	yaya::string_t str;
 	for ( CValueArgArray::const_iterator it = valuearg.begin() ; it != valuearg.end() ; ++it ) {
-		str += (**it).GetValueString();
-		str += L",";
+		str += it->GetValueString();
 	}
-	str.erase(str.end()-1,str.end());
 	return CValue(str);
 }
 
@@ -728,7 +726,7 @@ CValue	CSystemFunction::GETTYPE(CValueArgArray &valuearg, yaya::string_t &d, int
 		return CValue(0);
 	}
 
-	switch(valuearg[0]->GetType()) {
+	switch(valuearg[0].GetType()) {
 	case F_TAG_VOID:
 		return CValue(0);
 	case F_TAG_INT:
@@ -3026,13 +3024,13 @@ CValue	CSystemFunction::HASH_KEYS(CValueArgArray &valuearg, yaya::string_t &d, i
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	if ( valuearg[0]->GetType() != F_TAG_HASH ) {
+	if ( valuearg[0].GetType() != F_TAG_HASH ) {
 		vm.logger().Error(E_W, 9, L"HASH_KEYS", d, l);
 		SetError(9);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	const CValueHash &map = valuearg[0]->hash();
+	const CValueHash &map = valuearg[0].hash();
 
 	if ( map.empty() ) {
 		return CValue(F_TAG_ARRAY,0/*dmy*/);
@@ -3062,13 +3060,13 @@ CValue	CSystemFunction::HASH_VALUES(CValueArgArray &valuearg, yaya::string_t &d,
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	if ( valuearg[0]->GetType() != F_TAG_HASH ) {
+	if ( valuearg[0].GetType() != F_TAG_HASH ) {
 		vm.logger().Error(E_W, 9, L"HASH_VALUES", d, l);
 		SetError(9);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	const CValueHash &map = valuearg[0]->hash();
+	const CValueHash &map = valuearg[0].hash();
 
 	if ( map.empty() ) {
 		return CValue(F_TAG_ARRAY,0/*dmy*/);
@@ -3098,19 +3096,19 @@ CValue	CSystemFunction::HASH_EXIST(CValueArgArray &valuearg, yaya::string_t &d, 
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	if ( valuearg[0]->GetType() == F_TAG_HASH || valuearg[0]->GetType() == F_TAG_ARRAY ) {
+	if ( valuearg[0].GetType() == F_TAG_HASH || valuearg[0].GetType() == F_TAG_ARRAY ) {
 		vm.logger().Error(E_W, 9, L"HASH_EXIST", d, l);
 		SetError(9);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	if ( valuearg[1]->GetType() != F_TAG_HASH ) {
+	if ( valuearg[1].GetType() != F_TAG_HASH ) {
 		vm.logger().Error(E_W, 9, L"HASH_EXIST", d, l);
 		SetError(9);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	return CValue(valuearg[1]->hash().find(CValueSub(*(valuearg[0]))) != valuearg[1]->hash().end() ? 1 : 0);
+	return CValue(valuearg[1].hash().find(CValueSub(valuearg[0])) != valuearg[1].hash().end() ? 1 : 0);
 }
 
 /* -----------------------------------------------------------------------
@@ -3125,13 +3123,13 @@ CValue	CSystemFunction::HASH_SIZE(CValueArgArray &valuearg, yaya::string_t &d, i
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	if ( valuearg[0]->GetType() != F_TAG_HASH ) {
+	if ( valuearg[0].GetType() != F_TAG_HASH ) {
 		vm.logger().Error(E_W, 9, L"HASH_SIZE", d, l);
 		SetError(9);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	return CValue((int)valuearg[0]->hash().size());
+	return CValue((int)valuearg[0].hash().size());
 }
 
 /* -----------------------------------------------------------------------
@@ -4329,72 +4327,43 @@ CValue	CSystemFunction::GETSTRURLDECODE(const CValue &arg, yaya::string_t &d, in
  *  ä÷êîñº  ÅF  CSystemFunction::ASEARCH
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::ASEARCH(CValueArgArray &valuearg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::ASEARCH(const CValue &arg, yaya::string_t &d, int &l)
 {
-	CValue v = ASEARCHEX(valuearg,d,l);
-	if ( v.array_size() ) {
-		return CValue(v.array()[0]);
-	}
-	else {
+	int	sz = arg.array_size();
+
+	if (sz < 2) {
+		vm.logger().Error(E_W, 8, L"ASEARCH", d, l);
+		SetError(8);
 		return CValue(-1);
 	}
+
+	const CValueSub &key = arg.array()[0];
+	for(int i = 1; i < sz; i++)
+		if (key.Compare(arg.array()[i]))
+			return CValue(i - 1);
+
+	return CValue(-1);
 }
 
 /* -----------------------------------------------------------------------
  *  ä÷êîñº  ÅF  CSystemFunction::ASEARCHEX
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::ASEARCHEX(CValueArgArray &valuearg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::ASEARCHEX(const CValue &arg, yaya::string_t &d, int &l)
 {
-	size_t sz = valuearg.size();
+	int	sz = arg.array_size();
 
 	if (sz < 2) {
-		vm.logger().Error(E_W, 8, L"ASEARCH/ASEARCHEX", d, l);
+		vm.logger().Error(E_W, 8, L"ASEARCHEX", d, l);
 		SetError(8);
 		return CValue(F_TAG_ARRAY, 0/*dmy*/);
 	}
 
-	if ( valuearg[0]->IsArray() || valuearg[1]->IsHash() ) {
-		vm.logger().Error(E_W, 9, L"ASEARCH/ASEARCHEX", d, l);
-		SetError(9);
-		return CValue(F_TAG_ARRAY, 0/*dmy*/);
-	}
-
-	CValue result(F_TAG_ARRAY, 0/*dmy*/);
-
-	const CValue &key = *(valuearg[0]);
-
-	int count = 0;
-	for(size_t i = 1; i < sz; i++) {
-		if ( valuearg[i]->IsArray() ) {
-			const CValueArray &a = valuearg[i]->array();
-			for ( CValueArray::const_iterator it = a.begin() ; it != a.end() ; ++it ) {
-				if ( key.Compare(*it) ) {
-					result.array().push_back(CValueSub(count));
-				}
-				++count;
-			}
-		}
-		else if ( valuearg[i]->IsHash() ) {
-			const CValueHash &h = valuearg[i]->hash();
-			for ( CValueHash::const_iterator it = h.begin() ; it != h.end() ; ++it ) {
-				if (key.Compare(it->first) ) {
-					result.array().push_back(CValueSub(count));
-				}
-				++count;
-				if (key.Compare(it->second) ) {
-					result.array().push_back(CValueSub(count));
-				}
-				++count;
-			}
-		}
-		else {
-			if (key.Compare(*(valuearg[i])) ) {
-				result.array().push_back(CValueSub(count));
-			}
-			++count;
-		}
-	}
+	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
+	const CValueSub &key = arg.array()[0];
+	for(int i = 1; i < sz; i++)
+		if (key.Compare(arg.array()[i]))
+			result.array().push_back(CValueSub(i - 1));
 
 	return result;
 }

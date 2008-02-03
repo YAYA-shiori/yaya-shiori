@@ -877,11 +877,11 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 		}
 		else if (type == F_TAG_ARRAY) {
 			// ”z—ñŒ^
-			RestoreArrayVariable(vm.variable().GetValueRef(index), value);
+			RestoreArrayVariable(*(vm.variable().GetValuePtr(index)), value);
 		}
 		else if (type == F_TAG_HASH) {
 			// ˜A‘z”z—ñŒ^
-			RestoreHashVariable(vm.variable().GetValueRef(index), value);
+			RestoreHashVariable(*(vm.variable().GetValuePtr(index)), value);
 		}
 		else {
 			vm.logger().Error(E_W, 6, filename, i);

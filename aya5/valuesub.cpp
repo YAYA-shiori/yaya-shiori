@@ -348,10 +348,6 @@ CValueSub CValueSub::operator %(const CValueSub &value) const
  */
 int CValueSub::Compare(const CValueSub &value) const
 {
-	if ( this == &value ) {
-		return 1;
-	}
-
 	int t = CalcEscalationTypeStr(value.type);
 
 	if (t == F_TAG_INT) {
@@ -370,10 +366,6 @@ int CValueSub::Compare(const CValueSub &value) const
 
 bool CValueSub::Less(const CValueSub &value) const
 {
-	if ( this == &value ) {
-		return 0;
-	}
-
 	int t = CalcEscalationTypeStr(value.type);
 
 	if (t == F_TAG_INT) {

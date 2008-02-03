@@ -143,7 +143,6 @@ protected:
 	char	Foreach(CStatement &st0, CStatement &st1, CLocalVariable &lvar, int &foreachcount);
 
 	const CValue& GetValueRefForCalc(CCell &cell, CStatement &st, CLocalVariable &lvar);
-	CValueSmartPtrConst GetValuePtrForCalc(CCell &cell, CStatement &st, CLocalVariable &lvar);
 	
 	void	SolveEmbedCell(CCell &cell, CStatement &st, CLocalVariable &lvar);
 

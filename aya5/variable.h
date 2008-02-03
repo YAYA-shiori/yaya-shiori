@@ -45,7 +45,7 @@ public:
 protected:
 	char	erased;					// 消去されたことを示すフラグ（グローバル変数で使用）
 									// 0/1=有効/消去された
-	mutable CValueSmartPtr m_value;				// 値
+	mutable boost::shared_ptr<CValue> m_value;				// 値
 
 public:
 	CVariable(const yaya::string_t &n)
@@ -82,7 +82,7 @@ public:
 	char	IsErased(void) { return erased; }
 
 	//////////////////////////////////////
-	CValueSmartPtr &value_shared(void) const {
+	boost::shared_ptr<CValue> &value_shared(void) const {
 		return m_value;
 	}
 	const CValue &value_const(void) const {
@@ -151,9 +151,9 @@ public:
 	const CValue& GetValue(const yaya::char_t *name);
 	const CValue& GetValue(const yaya::string_t &name);
 
-	CValueSmartPtr GetValuePtr(const yaya::char_t *name);
-	CValueSmartPtr GetValuePtr(const yaya::string_t &name);
- 
+	CValue*	GetValuePtr(const yaya::char_t *name);
+	CValue*	GetValuePtr(const yaya::string_t &name);
+
 	yaya::string_t	GetDelimiter(const yaya::char_t *name);
 	yaya::string_t	GetDelimiter(const yaya::string_t &name);
 
@@ -199,10 +199,8 @@ public:
 	size_t		GetNumber(void) { return var.size(); }
 	CVariable	*GetPtr(size_t index) { return &(var[index]); }
 
-	CValue			&GetValueRef(int index) { return var[index].value(); }
-	const CValue	&GetValueRef(int index) const { return var[index].value_const(); }
-
-	CValueSmartPtr  GetValuePtr(int index) const { return var[index].value_shared(); }
+	CValue			*GetValuePtr(int index) { return &(var[index].value()); }
+	const CValue	*GetValuePtr(int index) const { return &(var[index].value_const()); }
 
 	void	SetType(int index, int type) { var[index].value().SetType(type); }
 

@@ -29,8 +29,6 @@ class CValueSub;
 
 typedef std::vector<CValueSub> CValueArray;
 typedef std::map<CValueSub, CValueSub> CValueHash;
-typedef boost::shared_ptr<CValue> CValueSmartPtr;
-typedef boost::shared_ptr<const CValue> CValueSmartPtrConst;
 
 class	CValueSub
 {
@@ -46,8 +44,6 @@ public:
 private:
 	int CalcEscalationTypeNum(const int rhs) const;
 	int CalcEscalationTypeStr(const int rhs) const;
-
-	bool Less(const CValueSub &value) const;
 
 public:
 	CValueSub(void) :
@@ -71,8 +67,6 @@ public:
 
 	inline int		GetType(void) const { return type; }
 	inline void		SetType(int tp) { type = tp; }
-
-	int Compare(const CValueSub &value) const;
 
 	inline bool		IsVoid(void) const { return type == F_TAG_VOID; }
 	inline bool		IsString(void) const { return type == F_TAG_STRING || type == F_TAG_VOID; }
@@ -109,6 +103,9 @@ public:
 	inline bool operator <(const CValueSub &value) const {
 		return Less(value);
 	}
+
+	bool Less(const CValueSub &value) const;
+	int Compare(const CValueSub &value) const;
 };
 
 //----
@@ -132,6 +129,7 @@ private:
 	int CalcEscalationTypeNum(const int rhs) const;
 	int CalcEscalationTypeStr(const int rhs) const;
 
+	int Compare(const CValue &value) const;
 	int Great(const CValue &value) const;
 	int Less(const CValue &value) const;
 
@@ -260,9 +258,6 @@ public:
 	yaya::string_t	GetValueString(void) const;
 	yaya::string_t	GetValueStringForLogging(void) const;
 
-	int Compare(const CValue &value) const;
-	int Compare(const CValueSub &value) const;
-
 	void	SetArrayValue(const CValue &oval, const CValue &value);
 
 	int		DecodeArrayOrder(int &order, int &order1, yaya::string_t &delimiter) const;
@@ -289,7 +284,6 @@ public:
 	inline CValue operator !=(const CValue &value) const {
 		return CValue(1 - Compare(value));
 	}
-
 	inline CValue operator >(const CValue &value) const {
 		return CValue(Great(value));
 	}
@@ -373,6 +367,5 @@ public:
 
 //からっぽ変数（ダミー用）
 extern const CValue emptyvalue;
-CValueSmartPtr emptyvalueptr(void);
 
 #endif
