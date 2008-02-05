@@ -395,7 +395,9 @@ char	IsDoubleButNotIntString(const yaya::string_t &str)
 	if (!len)
 		return 0;
 
-	int	i = (str[0] == L'-' || str[0] == L'+') ? 1 : 0;
+	int	advance = (str[0] == L'-' || str[0] == L'+') ? 1 : 0;
+	int i = advance;
+
 	int	dotcount = 0;
 	for( ; i < len; i++) {
 //		if (!::iswdigit((int)str[i])) {
@@ -409,7 +411,7 @@ char	IsDoubleButNotIntString(const yaya::string_t &str)
 		}
 	}
 
-	return dotcount == 1;
+	return dotcount == 1 && (len-advance) > 0;
 }
 
 /* -----------------------------------------------------------------------
@@ -445,7 +447,7 @@ char	IsIntString(const yaya::string_t &str)
 		}
 	}
 
-	return 1;
+	return (len-advance) ? 1 : 0;
 }
 
 /* -----------------------------------------------------------------------
@@ -462,7 +464,8 @@ char	IsIntBinString(const yaya::string_t &str, char header)
 	if (!len)
 		return 0;
 
-	int	i = (str[0] == L'-' || str[0] == L'+') ? 1 : 0;
+	int	advance = (str[0] == L'-' || str[0] == L'+') ? 1 : 0;
+	int i = advance;
 
 	if (header) {
 		if (::wcsncmp(PREFIX_BIN, str.c_str() + i,PREFIX_BASE_LEN))
@@ -479,7 +482,7 @@ char	IsIntBinString(const yaya::string_t &str, char header)
 			return 0;
 	}
 
-	return 1;
+	return (len-advance) ? 1 : 0;
 }
 
 /* -----------------------------------------------------------------------
@@ -495,7 +498,8 @@ char	IsIntHexString(const yaya::string_t &str, char header)
 	if (!len)
 		return 0;
 
-	int	i = (str[0] == L'-' || str[0] == L'+') ? 1 : 0;
+	int	advance = (str[0] == L'-' || str[0] == L'+') ? 1 : 0;
+	int i = advance;
 
 	if (header) {
 		if (::wcsncmp(PREFIX_HEX, str.c_str() + i,PREFIX_BASE_LEN))
@@ -519,7 +523,7 @@ char	IsIntHexString(const yaya::string_t &str, char header)
 		return 0;
 	}
 
-	return 1;
+	return (len-advance) ? 1 : 0;
 }
 
 /* -----------------------------------------------------------------------
