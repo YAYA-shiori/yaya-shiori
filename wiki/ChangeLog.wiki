@@ -1,4 +1,7 @@
 #labels Featured
+=Tc528-4=
+  * 符号1文字でも「正しい数値文字列」として認識していた問題を修正
+
 =Tc528-3=
   * GETSTRURLDECODEがバグってたのを修正
 
