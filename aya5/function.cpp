@@ -441,12 +441,26 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 					GetValueRefForCalc(*d_cell, st, lvar));
 				break;
 			case F_TAG_OR:
-				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) ||
-					GetValueRefForCalc(*d_cell, st, lvar);
+				if ( GetValueRefForCalc(*s_cell, st, lvar).GetTruth() ) {
+					o_cell.ansv() = CValue(1);
+				}
+				else if ( GetValueRefForCalc(*d_cell, st, lvar).GetTruth() ) {
+					o_cell.ansv() = CValue(1);
+				}
+				else {
+					o_cell.ansv() = CValue(0);
+				}
 				break;
 			case F_TAG_AND:
-				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) &&
-					GetValueRefForCalc(*d_cell, st, lvar);
+				if ( ! GetValueRefForCalc(*s_cell, st, lvar).GetTruth() ) {
+					o_cell.ansv() = CValue(0);
+				}
+				else if ( ! GetValueRefForCalc(*d_cell, st, lvar).GetTruth() ) {
+					o_cell.ansv() = CValue(0);
+				}
+				else {
+					o_cell.ansv() = CValue(1);
+				}
 				break;
 			case F_TAG_FUNCPARAM:
 				if (ExecFunctionWithArgs(o_cell.ansv(), it->index, st, lvar))
