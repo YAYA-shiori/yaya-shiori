@@ -1670,10 +1670,21 @@ CValue	CSystemFunction::SUBSTR(const CValue &arg, yaya::string_t &d, int &l)
 	int pos = arg.array()[1].GetValueInt();
 	int len = arg.array()[2].GetValueInt();
 
-	if (pos >= static_cast<int>(src.length()) ) {
+	if ( pos < 0 ) {
+		pos += src.length();
+		if ( pos < 0 ) { //‚Ü‚¾•‰‚È‚ç‹­§•â³
+			len += pos; //•‰’l‚È‚Ì‚Å‚½‚µ‚´‚ñ‚Åˆø‚©‚ê‚é
+			pos = 0;
+			if ( len <= 0 ) {
+				return CValue(L"");
+			}
+		}
+	}
+
+	if ( pos >= static_cast<int>(src.length()) || len <= 0 ) {
 	    return CValue(L"");
 	}
-	if (pos + len >= static_cast<int>(src.length()) ) {
+	if ( pos + len >= static_cast<int>(src.length()) ) {
 	    len = src.length() - pos;
 	}
 
