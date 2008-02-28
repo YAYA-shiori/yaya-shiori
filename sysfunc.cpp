@@ -3847,7 +3847,7 @@ CValue	CSystemFunction::CVAUTO(const CValue &arg, const std::vector<CCell *> &pc
 CValue	CSystemFunction::LETTONAME(const CValue &arg, yaya::string_t &d, int &l, CLocalVariable &lvar,
 			CFunction *thisfunc)
 {
-	int	sz = arg.array_size();
+	size_t sz = arg.array_size();
 
 	if (sz < 2) {
 		vm.logger().Error(E_W, 8, L"LETTONAME", d, l);
@@ -3867,7 +3867,10 @@ CValue	CSystemFunction::LETTONAME(const CValue &arg, yaya::string_t &d, int &l, 
 		val = arg.array()[1];
 	}
 	else {
-		val = arg.array();
+		val.SetType(F_TAG_ARRAY);
+		for ( size_t i = 1 ; i < sz ; ++i ) {
+			val.array().push_back(arg.array()[i]);
+		}
 	}
 
 	if ( vname[0] == L'_' ) {
