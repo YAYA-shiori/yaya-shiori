@@ -119,7 +119,7 @@ int	CFile1::WriteBin(const yaya::string_t &istr, const yaya::char_t alt)
 	}
 
 	// ‘‚«‚İ
-	size_t write = fwrite(t_istr, sizeof(char), len, fp);
+	size_t write = fwrite(t_istr, sizeof(unsigned char), len, fp);
 	free(t_istr);
 
 	return write;
