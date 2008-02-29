@@ -171,7 +171,7 @@ protected:
 	CValue	CVAUTO(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
 				yaya::string_t &d, int &l);
 	
-	CValue	LETTONAME(const CValue &arg, yaya::string_t &d, int &l, CLocalVariable &lvar,
+	CValue	LETTONAME(CValueArgArray &valuearg, yaya::string_t &d, int &l, CLocalVariable &lvar,
 				CFunction *thisfunc);
 	CValue	STRFORM(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	ANY(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
