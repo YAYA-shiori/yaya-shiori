@@ -525,7 +525,7 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 	case 75:	// CVREAL
 		return CVREAL(arg, pcellarg, lvar, d, l);
 	case 76:	// LETTONAME
-		return LETTONAME(arg, d, l, lvar, thisfunc);
+		return LETTONAME(valuearg, d, l, lvar, thisfunc);
 	case 77:	// LSO
 		return CValue(lso);
 	case 78:	// STRFORM
@@ -4011,10 +4011,10 @@ CValue	CSystemFunction::CVAUTO(const CValue &arg, const std::vector<CCell *> &pc
  *  ä÷êîñº  ÅF  CSystemFunction::LETTONAME
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::LETTONAME(const CValue &arg, yaya::string_t &d, int &l, CLocalVariable &lvar,
+CValue	CSystemFunction::LETTONAME(CValueArgArray &valuearg, yaya::string_t &d, int &l, CLocalVariable &lvar,
 			CFunction *thisfunc)
 {
-	int	sz = arg.array_size();
+	int	sz = valuearg.size();
 
 	if (sz < 2) {
 		vm.logger().Error(E_W, 8, L"LETTONAME", d, l);
@@ -4022,27 +4022,19 @@ CValue	CSystemFunction::LETTONAME(const CValue &arg, yaya::string_t &d, int &l, 
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	if (!arg.array()[0].IsString()) {
+	if (!valuearg[0].IsString()) {
 		vm.logger().Error(E_W, 9, L"LETTONAME", d, l);
 		SetError(9);
 	}
 
-	yaya::string_t	vname = arg.array()[0].GetValueString();
-
-	CValue val;
-	if ( sz == 2 ) {
-		val = arg.array()[1];
-	}
-	else {
-		val = arg.array();
-	}
+	yaya::string_t	vname = valuearg[0].GetValueString();
 
 	if ( vname[0] == L'_' ) {
-		lvar.SetValue(vname,val);
+		lvar.SetValue(vname,valuearg[1]);
 	}
 	else {
 		int	index = vm.variable().Make(vname, 0);
-		vm.variable().SetValue(index,val);
+		vm.variable().SetValue(index,valuearg[1]);
 	}
 
 	return CValue(F_TAG_NOP, 0/*dmy*/);

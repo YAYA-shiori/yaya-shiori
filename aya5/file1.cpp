@@ -105,7 +105,7 @@ int	CFile1::WriteBin(const yaya::string_t &istr, const yaya::char_t alt)
 
 	size_t len = istr.size();
 
-	char *t_istr = reinterpret_cast<char*>(malloc(len+1));
+	unsigned char *t_istr = reinterpret_cast<unsigned char*>(malloc(len+1));
 	t_istr[len] = 0; //念のためゼロ終端（いらない）
 	
 	//altを0に置き換えつつデータ構築
@@ -114,12 +114,12 @@ int	CFile1::WriteBin(const yaya::string_t &istr, const yaya::char_t alt)
 			t_istr[i] = 0;
 		}
 		else {
-			t_istr[i] = static_cast<char>(istr[i]);
+			t_istr[i] = static_cast<unsigned char>(istr[i]);
 		}
 	}
 
 	// 書き込み
-	size_t write = fwrite(t_istr, sizeof(char), len, fp);
+	size_t write = fwrite(t_istr, sizeof(unsigned char), len, fp);
 	free(t_istr);
 
 	return write;
@@ -161,7 +161,7 @@ int	CFile1::ReadBin(yaya::string_t &ostr, size_t len, yaya::char_t alt)
 	if (fp == NULL)
 		return 0;
 
-	char *f_istr = reinterpret_cast<char*>(malloc(len+1));
+	unsigned char *f_istr = reinterpret_cast<unsigned char*>(malloc(len+1));
 	f_istr[len] = 0; //念のためゼロ終端（いらない）
 
 	size_t read = fread(f_istr,1,len,fp);
