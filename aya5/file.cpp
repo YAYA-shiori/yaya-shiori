@@ -48,10 +48,20 @@ int	CFile::Add(const yaya::string_t &name, const yaya::string_t &mode)
 		t_mode = L"w";
 	else if (!t_mode.compare(L"append"))
 		t_mode = L"a";
+	else if (!t_mode.compare(L"read_binary"))
+		t_mode = L"rb";
+	else if (!t_mode.compare(L"write_binary"))
+		t_mode = L"wb";
+	else if (!t_mode.compare(L"append_binary"))
+		t_mode = L"ab";
 
 	if (t_mode.compare(L"r") &&
 		t_mode.compare(L"w") &&
-		t_mode.compare(L"a"))
+		t_mode.compare(L"a") &&
+		t_mode.compare(L"rb") &&
+		t_mode.compare(L"wb") &&
+		t_mode.compare(L"ab")
+		)
 		return 0;
 
 	filelist.push_back(CFile1(name, charset, t_mode));

@@ -52,6 +52,7 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
+				TreatWChar_tAsBuiltInType="true"
 				PrecompiledHeaderFile=".\Debug/aya5.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
