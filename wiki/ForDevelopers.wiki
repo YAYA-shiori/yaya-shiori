@@ -23,3 +23,9 @@ https://yaya-shiori.googlecode.com/svn/branches/500
 コミットログは以下のURLで見られます。
 
 http://code.google.com/p/yaya-shiori/source/list
+
+=開発方針=
+
+「やりたいほうだい」
+
+ハデにぶっ壊さない限り何やってもいいです。
