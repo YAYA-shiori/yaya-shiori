@@ -2189,7 +2189,7 @@ CValue	CSystemFunction::FSEEK(const CValue &arg, yaya::string_t &d, int &l){
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::FTELL(const CValue &arg, yaya::string_t &d, int &l){
-	if (arg.array_size() < 3) {
+	if (arg.array_size() < 1) {
 		vm.logger().Error(E_W, 8, L"FTELL", d, l);
 		SetError(8);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
