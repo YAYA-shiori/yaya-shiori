@@ -217,6 +217,10 @@ protected:
 
 	CValue	DUMPVAR(const CValue &arg, yaya::string_t &d, int &l);
 
+	CValue	FSEEK(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	FTELL(const CValue &arg, yaya::string_t &d, int &l);
+
+
 	CValue	RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int &l, const yaya::char_t *fncname, std::vector<yaya::string_t> *replace_array);
 
 	void	StoreReResultDetails(boost::match_results<yaya::string_t::const_iterator> &result);

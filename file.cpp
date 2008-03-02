@@ -54,13 +54,32 @@ int	CFile::Add(const yaya::string_t &name, const yaya::string_t &mode)
 		t_mode = L"wb";
 	else if (!t_mode.compare(L"append_binary"))
 		t_mode = L"ab";
+	if (!t_mode.compare(L"read_random"))
+		t_mode = L"r+";
+	else if (!t_mode.compare(L"write_random"))
+		t_mode = L"w+";
+	else if (!t_mode.compare(L"append_random"))
+		t_mode = L"a+";
+	else if (!t_mode.compare(L"read_binary_random"))
+		t_mode = L"rb+";
+	else if (!t_mode.compare(L"write_binary_random"))
+		t_mode = L"wb+";
+	else if (!t_mode.compare(L"append_binary_random"))
+		t_mode = L"ab+";
 
-	if (t_mode.compare(L"r") &&
+	if (
+		t_mode.compare(L"r") &&
 		t_mode.compare(L"w") &&
 		t_mode.compare(L"a") &&
 		t_mode.compare(L"rb") &&
 		t_mode.compare(L"wb") &&
-		t_mode.compare(L"ab")
+		t_mode.compare(L"ab") &&
+		t_mode.compare(L"r+") &&
+		t_mode.compare(L"w+") &&
+		t_mode.compare(L"a+") &&
+		t_mode.compare(L"rb+") &&
+		t_mode.compare(L"wb+") &&
+		t_mode.compare(L"ab+")
 		)
 		return 0;
 
@@ -166,6 +185,53 @@ int	CFile::ReadBin(const yaya::string_t &name, yaya::string_t &ostr, size_t len,
 	for(std::list<CFile1>::iterator it = filelist.begin(); it != filelist.end(); it++)
 		if (!name.compare(it->GetName())) {
 			int	result = it->ReadBin(ostr,len,alt);
+			return result;
+		}
+
+	return 0;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFile::FSeek
+ *  機能概要：  Cライブラリfseek同等
+ *  返値　　：　0/1=失敗/成功
+ * -----------------------------------------------------------------------
+ */
+int CFile::FSeek(const yaya::string_t &name,int offset,const yaya::string_t &s_mode)
+{
+	int mode;
+
+	if (s_mode.compare(L"SEEK_CUR")==0){
+		mode=SEEK_CUR;
+	}else if (s_mode.compare(L"SEEK_END")==0){
+		mode=SEEK_END;
+	}else if (s_mode.compare(L"SEEK_SET")==0){
+		mode=SEEK_SET;
+	}else{
+		return 0;
+	}
+
+	for(std::list<CFile1>::iterator it = filelist.begin(); it != filelist.end(); it++)
+		if (!name.compare(it->GetName())) {
+			int	result = it->FSeek(offset,mode);
+			return result;
+		}
+
+	return 0;
+}
+
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFile::FTell
+ *  機能概要：  Cライブラリftell同等
+ *  返値　　：　-1/その他=失敗/成功（ftellの結果）
+ * -----------------------------------------------------------------------
+ */
+int CFile::FTell(const yaya::string_t &name)
+{
+	for(std::list<CFile1>::iterator it = filelist.begin(); it != filelist.end(); it++)
+		if (!name.compare(it->GetName())) {
+			int	result = it->FTell();
 			return result;
 		}
 

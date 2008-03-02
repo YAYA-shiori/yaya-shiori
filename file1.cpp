@@ -181,3 +181,43 @@ int	CFile1::ReadBin(yaya::string_t &ostr, size_t len, yaya::char_t alt)
 
 	return read;
 }
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFile1::FSeek
+ *  機能概要：  Cライブラリfseek同等
+ *  返値　　：　0/1=失敗/成功
+ * -----------------------------------------------------------------------
+ */
+int CFile1::FSeek(int offset,int origin){
+	if (fp == NULL)
+		return 0;
+
+	int result=::fseek(fp,offset,origin);
+
+	if(result!=0){
+		return 0;
+	}else{
+		return 1;
+	}
+}
+
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFile1::FTell
+ *  機能概要：  Cライブラリftell同等
+ *  返値　　：　-1/その他=失敗/成功（ftellの結果）
+ * -----------------------------------------------------------------------
+ */
+int CFile1::FTell(){
+	if (fp == NULL)
+		return -1;
+
+	int result=::ftell(fp);
+
+	if(result<0){
+		return -1;
+	}else{
+		return result;
+	}
+}
+
