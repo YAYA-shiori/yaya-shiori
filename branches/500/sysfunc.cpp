@@ -73,7 +73,7 @@ extern "C" {
  *  システム関数テーブル
  * -----------------------------------------------------------------------
  */
-#define	SYSFUNC_NUM					121 //システム関数の全数
+#define	SYSFUNC_NUM					123 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -241,6 +241,9 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"SETSETTING",
 	// デバッグ用(3)
 	L"DUMPVAR",
+	// ファイル操作(5)
+	L"FSEEK",
+	L"FTELL",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -606,6 +609,10 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return SETSETTING(arg, d, l);
 	case 120:
 		return DUMPVAR(arg, d, l);
+	case 121:
+		return FSEEK(arg, d, l);
+	case 122:
+		return FTELL(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -2152,6 +2159,54 @@ CValue	CSystemFunction::FWRITE2(const CValue &arg, yaya::string_t &d, int &l)
 
 	return CValue(F_TAG_NOP, 0/*dmy*/);
 }
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FSEEK
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FSEEK(const CValue &arg, yaya::string_t &d, int &l){
+	if (arg.array_size() < 3) {
+		vm.logger().Error(E_W, 8, L"FSEEK", d, l);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+    if (!arg.array()[0].IsString() ||
+		!arg.array()[1].IsInt()    ||
+		!arg.array()[2].IsString()
+		) {
+		vm.logger().Error(E_W, 9, L"FSEEK", d, l);
+		SetError(9);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	int result=vm.files().FSeek(ToFullPath(arg.array()[0].s_value), arg.array()[1].i_value,arg.array()[2].s_value);
+	return CValue(result);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FTELL
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FTELL(const CValue &arg, yaya::string_t &d, int &l){
+	if (arg.array_size() < 3) {
+		vm.logger().Error(E_W, 8, L"FTELL", d, l);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+    if (!arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"FTELL", d, l);
+		SetError(9);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	int result=vm.files().FTell(ToFullPath(arg.array()[0].s_value));
+	return CValue(result);
+}
+
+
+
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::FCOPY
