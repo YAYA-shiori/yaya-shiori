@@ -58,6 +58,7 @@ extern "C" {
 #define PROTOTYPES 1
 #include "md5.h"
 #include "sha1.h"
+#include "crc32.h"
 }
 
 //////////DEBUG/////////////////////////
@@ -74,7 +75,7 @@ extern "C" {
  * -----------------------------------------------------------------------
  */
 
-#define	SYSFUNC_NUM					127 //システム関数の全数
+#define	SYSFUNC_NUM					129 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -249,6 +250,9 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"HASH_SPLIT",
 	L"HASH_EXIST",
 	L"HASH_SIZE",
+	// ファイル操作(5)
+	L"FSEEK",
+	L"FTELL",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -626,6 +630,10 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return HASH_EXIST(valuearg, d, l);
 	case 126:
 		return HASH_SIZE(valuearg, d, l);
+	case 127:
+		return FSEEK(arg, d, l);
+	case 128:
+		return FTELL(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -2167,6 +2175,54 @@ CValue	CSystemFunction::FWRITE2(const CValue &arg, yaya::string_t &d, int &l)
 	return CValue(F_TAG_NOP, 0/*dmy*/);
 }
 
+ /* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FSEEK
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FSEEK(const CValue &arg, yaya::string_t &d, int &l){
+	if (arg.array_size() < 3) {
+		vm.logger().Error(E_W, 8, L"FSEEK", d, l);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+    if (!arg.array()[0].IsString() ||
+		!arg.array()[1].IsInt()    ||
+		!arg.array()[2].IsString()
+		) {
+		vm.logger().Error(E_W, 9, L"FSEEK", d, l);
+		SetError(9);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	int result=vm.files().FSeek(ToFullPath(arg.array()[0].s_value), arg.array()[1].i_value,arg.array()[2].s_value);
+	return CValue(result);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FTELL
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FTELL(const CValue &arg, yaya::string_t &d, int &l){
+	if (arg.array_size() < 1) {
+		vm.logger().Error(E_W, 8, L"FTELL", d, l);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+    if (!arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"FTELL", d, l);
+		SetError(9);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	int result=vm.files().FTell(ToFullPath(arg.array()[0].s_value));
+	return CValue(result);
+}
+
+
+
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::FCOPY
  * -----------------------------------------------------------------------
@@ -2649,6 +2705,20 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 
 		SHA1Result(&sha1ctx,digest_result);
 		digest_len = SHA1HashSize;
+	}
+	else if ( wcsicmp(digest_type.c_str(),L"crc32") == 0 ) {
+		unsigned long crc = 0;
+		while ( TRUE ) {
+			size_t readsize = fread(buf,sizeof(buf[0]),sizeof(buf),pF);
+			crc = update_crc32(buf,readsize,crc);;
+			if ( readsize <= sizeof(buf) ) { break; }
+		}
+
+		digest_result[0] = crc & 0xFFU;
+		digest_result[1] = (crc >> 8) & 0xFFU;
+		digest_result[2] = (crc >> 16) & 0xFFU;
+		digest_result[3] = (crc >> 24) & 0xFFU;
+		digest_len = 4;
 	}
 	else { //md5
 		MD5_CTX md5ctx;

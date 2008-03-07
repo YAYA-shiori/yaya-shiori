@@ -222,6 +222,9 @@ protected:
 
 	CValue	DUMPVAR(const CValue &arg, yaya::string_t &d, int &l);
 
+	CValue	FSEEK(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	FTELL(const CValue &arg, yaya::string_t &d, int &l);
+
 	CValue	IHASH(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	HASH_KEYS(CValueArgArray &valuearg, yaya::string_t &d, int &l);
 	CValue	HASH_VALUES(CValueArgArray &valuearg, yaya::string_t &d, int &l);

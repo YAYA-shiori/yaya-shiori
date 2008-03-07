@@ -118,6 +118,10 @@ SOURCE=.\comment.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\crc32.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\duplevinfo.cpp
 # End Source File
 # Begin Source File
@@ -244,6 +248,10 @@ SOURCE=.\cell.h
 # Begin Source File
 
 SOURCE=.\comment.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\crc32.h
 # End Source File
 # Begin Source File
 

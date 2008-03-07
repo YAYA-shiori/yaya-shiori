@@ -54,6 +54,9 @@ public:
 
 	int	WriteBin(const yaya::string_t &istr, const yaya::char_t alt);
 	int	ReadBin(yaya::string_t &ostr, size_t len, yaya::char_t alt);
+
+	int FSeek(int offset,int origin);
+	int FTell();
 };
 
 //----
@@ -78,6 +81,9 @@ public:
 
 	int		WriteBin(const yaya::string_t &name, const yaya::string_t &istr, const yaya::char_t alt);
 	int		ReadBin(const yaya::string_t &name, yaya::string_t &ostr, size_t len, yaya::char_t alt);
+
+	int FSeek(const yaya::string_t &name,int offset,const yaya::string_t &mode);
+	int FTell(const yaya::string_t &name);
 };
 
 //----
