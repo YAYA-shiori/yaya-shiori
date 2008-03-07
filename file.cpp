@@ -201,13 +201,16 @@ int CFile::FSeek(const yaya::string_t &name,int offset,const yaya::string_t &s_m
 {
 	int mode;
 
-	if (s_mode.compare(L"SEEK_CUR")==0){
+	if (s_mode.compare(L"SEEK_CUR")==0 || s_mode.compare(L"current")==0){
 		mode=SEEK_CUR;
-	}else if (s_mode.compare(L"SEEK_END")==0){
+	}
+	else if (s_mode.compare(L"SEEK_END")==0 || s_mode.compare(L"end")==0){
 		mode=SEEK_END;
-	}else if (s_mode.compare(L"SEEK_SET")==0){
+	}
+	else if (s_mode.compare(L"SEEK_SET")==0 || s_mode.compare(L"start")==0){
 		mode=SEEK_SET;
-	}else{
+	}
+	else{
 		return 0;
 	}
 
@@ -237,4 +240,5 @@ int CFile::FTell(const yaya::string_t &name)
 
 	return 0;
 }
+
 

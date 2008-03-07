@@ -58,6 +58,7 @@ extern "C" {
 #define PROTOTYPES 1
 #include "md5.h"
 #include "sha1.h"
+#include "crc32.h"
 }
 
 //////////DEBUG/////////////////////////
@@ -2690,6 +2691,20 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 
 		SHA1Result(&sha1ctx,digest_result);
 		digest_len = SHA1HashSize;
+	}
+	else if ( wcsicmp(digest_type.c_str(),L"crc32") == 0 ) {
+		unsigned long crc = 0;
+		while ( TRUE ) {
+			size_t readsize = fread(buf,sizeof(buf[0]),sizeof(buf),pF);
+			crc = update_crc32(buf,readsize,crc);;
+			if ( readsize <= sizeof(buf) ) { break; }
+		}
+
+		digest_result[0] = crc & 0xFFU;
+		digest_result[1] = (crc >> 8) & 0xFFU;
+		digest_result[2] = (crc >> 16) & 0xFFU;
+		digest_result[3] = (crc >> 24) & 0xFFU;
+		digest_len = 4;
 	}
 	else { //md5
 		MD5_CTX md5ctx;
