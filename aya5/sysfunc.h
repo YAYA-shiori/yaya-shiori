@@ -222,6 +222,8 @@ protected:
 
 	CValue	DUMPVAR(const CValue &arg, yaya::string_t &d, int &l);
 
+	CValue	LICENSE(void);
+
 	CValue	FSEEK(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FTELL(const CValue &arg, yaya::string_t &d, int &l);
 
