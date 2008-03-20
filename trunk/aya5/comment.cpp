@@ -31,30 +31,45 @@ void	CComment::Process(yaya::string_t &str)
 {
 	if (str.empty()) { return; }
 
-	yaya::string_t	outstr;
-	while(true) {
-		yaya::string_t::size_type found0 = Find_IgnoreDQ(str,L"/*");
-		yaya::string_t::size_type found1 = Find_IgnoreDQ(str,L"*/");
+	yaya::string_t::size_type found0;
+	yaya::string_t::size_type found1;
 
-		if (found0 == yaya::string_t::npos && found1 == yaya::string_t::npos) {
-			if (!flag)
-				outstr.append(str);
-			break;
+	while ( true ) {
+		//前行からコメントが続いてる
+		if ( flag ) {
+			found1 = str.find(L"*/"); //コメント終了位置を探索 これはクォートに影響されない
+
+			if ( found1 != yaya::string_t::npos ) {
+				str.erase(0,found1+2); //+2は */ の分
+				flag = 0;
+			}
+			else {
+				str.erase(); //全部なかったことに
+				break;
+			}
 		}
-		if (found0 == yaya::string_t::npos || (found0 != yaya::string_t::npos && found1 != yaya::string_t::npos && found0 >= found1)) {
-			if (!flag)
-				outstr.append(str,0,found1);
-			flag = 0;
-			str.erase(0,found1+2); //+2は */のぶん
-		}
+		//続いてない
 		else {
-			if (!flag)
-				outstr.append(str,0,found0);
-			flag = 1;
-			str.erase(0,found0+2); //+2は /*のぶん
+			found0 = Find_IgnoreDQ(str,L"/*");//スタートのみクォートを考慮
+
+			if ( found0 != yaya::string_t::npos ) { //スタート位置が同じ行内で見つかった
+
+				found1 = str.find(L"*/",found0+2);
+
+				if ( found1 != yaya::string_t::npos ) { //ストップ位置も同じ行内で見つかった
+					str.erase(found0,(found1+2-found0)); //+2は */ の分
+				}
+				else {
+					str.erase(found0,str.size()-found0); //残り全部ばっさり
+					flag = 1;
+					break; //とりあえずこの行は処理終了
+				}
+			}
+			else { //もうコメントはない
+				break;
+			}
 		}
 	}
-	str = outstr;
 }
 
 /* -----------------------------------------------------------------------
