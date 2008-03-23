@@ -7,18 +7,6 @@ version,1
 
 surface0
 {
-collision0,0,0,68,15,Head
-collision1,11,19,59,56,Face
-collision2,9,68,59,110,Bust
-
-animation0.interval,sometimes
-animation0.pattern0,overlay,101,250,0,0
-animation0.pattern1,overlay,-1,50,0,0
-
-point.centerx,34
-point.centery,86
-point.kinoko.centerx,34
-point.kinoko.centery,21
 }
 
 surface10

@@ -1,8 +1,10 @@
-name,紺野ややめ
+charset,Shift_JIS
+
+name,はろーYAYAわーるど
 type,ghost
 
-sakura.name,ややめ
-kero.name,ホワ伊東
+sakura.name,紺野ややめ
+kero.name,マック朗
 
 sstp.allowunspecifiedsend,1
 
