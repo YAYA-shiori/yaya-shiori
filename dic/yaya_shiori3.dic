@@ -1,46 +1,15 @@
 /*---------------------------------------------------------------------------------------
- *  SHIORI/3.0制御スクリプト for AYA5
+ *  SHIORI/3.0制御スクリプト for YAYA
  *  
- *  written by umeici.
- *  :::et cetera.
- *  http://members.jcom.home.ne.jp/umeici/
+ *  original written by umeici.
  *
  *  履歴
  *  ver. date     note
- *  0.0  20040312 first write
- *  0.1  20040320 bugfix
- *  0.2  20040328 bugfix (感謝 C.Ponapalt様)
- *  0.3  20040404 bugfix
- *  0.4  20040408 systemup系システム変数上限拡張
- *  0.5  20040709 bugfix
- *  0.6  20040717 REQUEST_LINES_LIMIT追加、リクエスト解析高速化 (by C.Ponapalt氏)
- *  0.7  20050116 OnGhostLoad/OnGhostUnload追加、他若干の修正
- *  0.8  20050129 bugfix
- *  ?.?  -------- :eval=(式)  Statusヘッダをstatus変数にいれる  イベント名の変換処理
+ *  1.0  ?        yaya向けに書き換え by C.Ponapalt
+ *  1.1  20070428 config分離、READFMOを使ったルーチン追加 by ukiya
  * --------------------------------------------------------------------------------------
 */
 
-/*---------------------------------------------------------------------------------------
- *  初期設定値
- * --------------------------------------------------------------------------------------
-*/
-#define	TALK_INTERVAL	180			/* AIトーク間隔の初期値[秒] */
-#define	COM_RATIO		0			/* AIトーク中に占めるコミュニケート開始の割合[%] */
-
-#define	IGLIST_ACCEL	1			/* 1にするとSSP/CROW時にはNOTIFY installedghostnameで     */
-									/* インストール済ゴーストリストを構築するようになります。 */
-									/* sakura/kero名リストは作成されませんが高速です。        */
-
-#define	IGLIST_MAX		0			/* ファイル走査にてゴーストリストを構築する際、取得する   */
-									/* 数の上限を指定します。-1で制限なし（すべて取得）です。 */
-									/* 0とすると取得しません。                                */
-
-#define REQUEST_LINES_LIMIT		0	/* リクエスト文字列を解析する最大行数です。               */
-									/* 減らすと起動等が高速になりますが、完全にインストール   */
-									/* 済のゴーストリストを取れなくなったりします。           */
-									/* 0ですべての行を取得します。                            */
-
-#define COMPATIBLE_MODE	0			/* 互換モード(タイプ自動変換とかバイト値変換とか)         */
 
 /*---------------------------------------------------------------------------------------
  *  以下のdefineは基本的に弄らないで下さい
@@ -51,8 +20,6 @@
 #define	C_CRLF2		C_CRLF+C_CRLF					/* 改行コードx2   */
 #define	C_CRLF		CHR(0xd)+CHR(0xa)				/* 改行コード     */
 #define	C_BYTE1		CHR(0x1)						/* バイト値1      */
-
-#define	RES_REF_MAX	32								/* res_referenceの上限 */
 
 // チェイン
 #globaldefine	CHAIN{{		{{CHAIN					/* どうも誤記される場合があるようなので */
@@ -103,6 +70,7 @@ load
 	basewarename          = ''
 	basewarenameex        = ''
 	sender                = ''
+	ghostboottime         = systemuptime
 
 	S_CHARSET = GETSETTING('charset.output')
 	E_CHARSET = GETSETTING('charset.extension')
@@ -115,8 +83,14 @@ load
 	SHIORI3FW.SetDelayEvent('',0)
 
 	restore_old_variables
+	
 
-	OnGhostLoad
+	_a = GETFUNCLIST('OnGhostLoad')
+	_n = ARRAYSIZE(_a)
+	for _i = 0 ; _i < _n ; _i++
+	{
+		EVAL(_a[_i])
+	}
 }
 
 /****************************************************************************************
@@ -135,7 +109,12 @@ unload
 	var.req.key   = IARRAY
 	var.req.value = IARRAY
 
-	OnGhostUnload
+	_a = GETFUNCLIST('OnGhostUnload')
+	_n = ARRAYSIZE(_a)
+	for _i = _n-1 ; _i >= 0 ; _i--
+	{
+		EVAL(_a[_i])
+	}
 
 	OnUnload
 
@@ -169,7 +148,9 @@ unload
 	ERASEVAR('basewarename')
 	ERASEVAR('basewarenameex')
 	ERASEVAR('sender')
+	
 	ERASEVAR('S_CHARSET')
+	ERASEVAR('E_CHARSET')
 
 	ERASEVAR('installedghostlist' )
 	ERASEVAR('installedsakuralist')
@@ -180,9 +161,18 @@ unload
 	ERASEVAR('displaywidth')
 	ERASEVAR('displayheight')
 	ERASEVAR('uniqueid')
+	ERASEVAR('ghostboottime')
 
 	ERASEVAR('status')
 	
+	ERASEVAR('res_securitylevel')
+	ERASEVAR('res_reference')
+	ERASEVAR('res_marker')
+
+	ERASEVAR('SHIORI3FW.FMOCache')
+	ERASEVAR('SHIORI3FW.SakuraNameList')
+	ERASEVAR('SHIORI3FW.FMOTable')
+
 	_n = ARRAYSIZE(tempvarname)
 	for _i = 0 ; _i < _n ; _i++ {
 		ERASEVAR("%(tempvarname[_i])")
@@ -193,6 +183,26 @@ unload
 	SHIORI3FW.ClearReferenceVariable
 	SHIORI3FW.ClearValueexVariable
 }
+
+/*---------------------------------------------------------------------------------------
+ *  関数名：AyaTest.Eval
+ *  機能　：受け取った文字列をEVALして返す
+ * --------------------------------------------------------------------------------------
+*/
+AyaTest.Eval
+{
+	_array = SPLIT(_argv[0],C_CRLF)
+	_result = ''
+	_n = ARRAYSIZE(_array)
+	
+	for _i = 0 ; _i < _n ; _i++ {
+		if _array[_i] {
+			_result += EVAL(_array[_i])
+		}
+	}
+	_result
+}
+
 
 /****************************************************************************************
  *  request
@@ -205,6 +215,11 @@ unload
 */
 request
 {
+	if SUBSTR(_argv[0],0,3) == '?? ' { //玉でのテスト用
+		'!! ' + JOIN(AyaTest.Eval(ERASE(_argv[0],0,3)),',')
+		return
+	}
+	
 	_reqdata = _argv[0]
 	_linestart = 0
 	_lineend = STRSTR(_reqdata, C_CRLF, _linestart)
@@ -257,7 +272,13 @@ request
 		_value       = SUBSTR(_lin,(_pos + 2),(_len - _pos - 2))
 
 		// イベントID名称を取得
-		if _key == "ID" {
+		if _key == "Charset" {
+			if S_CHARSET != _value {
+				SETSETTING('charset.output',_value)
+				S_CHARSET = _value
+			}
+		}
+		elseif _key == "ID" {
 			// 取得　名前先頭が"On"でないなら付加
 			SHIORI3FW.Eventid = _value
 			if SUBSTR(SHIORI3FW.Eventid, 0, 2) != "On"
@@ -547,7 +568,7 @@ SHIORI3FW.GetDelayEvent
  *  機能　：Reference*ヘッダからreference*変数を作成します
  * --------------------------------------------------------------------------------------
 */
-SHIORI3FW.MakeReferenceVariable
+SHIORI3FW.MakeReferenceVariable : void
 {
 	SHIORI3FW.ReferenceList = IARRAY
 	reference               = IARRAY
@@ -559,7 +580,8 @@ SHIORI3FW.MakeReferenceVariable
 			reference[_refnum] = _value
 			
 			if _refnum < 8 { //高速化のため
-				_dmy = LETTONAME(_varname = "reference%(_refnum)", _value)
+				_varname = "reference%(_refnum)"
+				LETTONAME(_varname, _value)
 				SHIORI3FW.ReferenceList ,= _varname
 			}
 		}
@@ -1034,7 +1056,6 @@ SHIORI3FW.RegisterTempVar
 
 /****************************************************************************************
  *  文 version 5 システム関数 / システム変数の補完
- *  - JOIN
  ****************************************************************************************
 */
 
@@ -1054,6 +1075,27 @@ JOIN
 		_text += _argv[_i]
 	}
 	_text
+}
+
+REVERSE
+{
+	_a = IARRAY
+	for _i = 0 ; _i < _argc ; _i++ {
+		_a ,= _argv[_argc-_i-1]
+	}
+	_a
+}
+
+SPLITEX
+{
+	_a = SPLIT(_argv)
+	_n = ARRAYSIZE(_a)
+	for _i = _n-1 ; _i >= 0 ; _i-- {
+		if _a[_i] == '' {
+			_a[_i] = IARRAY
+		}
+	}
+	_a
 }
 
 /****************************************************************************************
@@ -1096,6 +1138,11 @@ SHIORI3FW.GetTickInfo
 	_result
 }
 
+ghostuptime
+{
+	systemuptime - ghostboottime
+}
+
 /****************************************************************************************
  *  文 version 4 システム関数 / システム変数の補完
  *  - メモリ系変数
@@ -1120,4 +1167,91 @@ restore_old_variables
     for _i = 0; _i <= 0x7f; _i++ {
         ascii ,= CHR(_i)
     }
+}
+
+/****************************************************************************************
+ *  FMO関連
+ ****************************************************************************************
+*/
+/*---------------------------------------------------------------------------------------
+ *  関数名：SHIORI3FW.IsGhostExist(ゴースト名[,fmoname])
+ *  機能　：指定されたゴーストが存在するか調べる
+ *　　　　　存在しなければ0、存在すれば1を返す
+ * --------------------------------------------------------------------------------------
+*/
+SHIORI3FW.IsGhostExist
+{
+	_ghostname=_argv[0]
+	SHIORI3FW.FMO.RefreshFMOTable()
+	_result=ASEARCH(_ghostname,SHIORI3FW.SakuraNameList)
+	if _result == -1 {
+		0
+	}else{
+		1
+	}
+}
+
+
+/*---------------------------------------------------------------------------------------
+ *  関数名：SHIORI3FW.RefreshFMOTable(FMO名称)
+ *  機能　：READFMOによってFMOテーブルを作る。FMOはキャッシュされ、変わっていなければ
+ *          解析は行われない。FMO名称を省略すると自動的に"Sakura"になる。
+ *          グローバル変数：SHIORI3FW.FMOCache		FMOの内容のキャッシュ（単純ダンプ）
+ *          グローバル変数：SHIORI3FW.FMOTable		FMOのテーブル（簡易配列。内容は以下）
+ *                          id|hwnd|name|keroname,
+ *                          id|hwnd|name|keroname,
+ *                          ...
+ *          グローバル変数：SHIORI3FW.SakuraNameList	sakuranameを列挙した汎用配列
+ *          
+ *          FMOTableおよびGhostNameListには自身の情報も含まれることに注意せよ。
+ *          また、いわゆる「非ゴースト」FMOエントリ（一時起動等）はこの時点で排除される。
+ * --------------------------------------------------------------------------------------
+*/
+SHIORI3FW.RefreshFMOTable : void
+{
+	_fmoname=_argv[0]
+	if _fmoname == '' {
+		_fmoname='Sakura'
+	}
+
+	_result=READFMO(_fmoname)
+	
+	if SHIORI3FW.FMOCache != _result {
+		//FMOの内容をキャッシュする
+		SHIORI3FW.FMOCache=_result
+		SHIORI3FW.FMOTable=''
+		SHIORI3FW.SakuraNameList=IARRAY
+		
+		//\r\nで分割
+		_array = SPLIT(_result,C_CRLF)
+		_arraynum=ARRAYSIZE(_array)
+		
+		//解析
+		for _i=0 ; _i<_arraynum ; _i++ {
+			_buf=_array[_i]
+			_id=_buf[0,'.']
+			_kvpair=_buf[1,'.']
+			_key=_kvpair[0,C_BYTE1]
+			_val=_kvpair[1,C_BYTE1]
+			
+			//一時起動ゴーストかどうか？
+			if 'SSTPVIEWER-' _in_ _id  || 'ssp_fmo_header_dummyentry' _in_ _id || 'SSSB' _in_ _id
+			{
+				//一時起動なのでなにもしない
+			}else{
+				//一行解析
+				if _key == 'hwnd' {
+					if SHIORI3FW.FMOTable != '' {
+						SHIORI3FW.FMOTable += ','
+					}
+					SHIORI3FW.FMOTable += _id + '|' + _val
+				}elseif _key == 'name' {
+					SHIORI3FW.FMOTable += '|' + _val
+					SHIORI3FW.SakuraNameList=(SHIORI3FW.SakuraNameList,_val)
+				}elseif _key == 'keroname' {
+					SHIORI3FW.FMOTable += '|' + _val
+				}
+			}
+		}
+	}
 }
