@@ -220,8 +220,9 @@ AyaTest.Eval
 */
 request
 {
-	test(_argv[0])
-	return
+	//For TEST
+	//test(_argv[0])
+	//return
 	
 	if SUBSTR(_argv[0],0,3) == '?? ' { //玉でのテスト用
 		'!! ' + JOIN(AyaTest.Eval(ERASE(_argv[0],0,3)),',')
