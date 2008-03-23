@@ -7,6 +7,7 @@
  *  ver. date     note
  *  1.0  ?        yaya向けに書き換え by C.Ponapalt
  *  1.1  20070428 config分離、READFMOを使ったルーチン追加 by ukiya
+ *  1.2  20080323 構造変更（shiori3,config,compatible,optional)
  * --------------------------------------------------------------------------------------
 */
 
@@ -215,6 +216,9 @@ AyaTest.Eval
 */
 request
 {
+	test(_argv[0])
+	return
+	
 	if SUBSTR(_argv[0],0,3) == '?? ' { //玉でのテスト用
 		'!! ' + JOIN(AyaTest.Eval(ERASE(_argv[0],0,3)),',')
 		return
@@ -255,8 +259,8 @@ request
 		}
 		
 		_linenum += 1
-		if REQUEST_LINES_LIMIT {
-			if _linenum > REQUEST_LINES_LIMIT {
+		if SHIORI3FW.REQUEST_LINES_LIMIT {
+			if _linenum > SHIORI3FW.REQUEST_LINES_LIMIT {
 				if _idparsed {
 					break
 				}
@@ -319,7 +323,7 @@ request
 		}
 
 		// キーと値を記憶
-		if COMPATIBLE_MODE {
+		if SHIORI3FW.AUTO_DATA_CONVERT {
 			if ISINTSTR(_value)
 				var.req.value ,= TOINT(_value)
 			elseif ISREALSTR(_value)
@@ -379,7 +383,7 @@ SHIORI3FW.AssembleReferenceHeader
 {
 	_result = ""
 	_before = ""
-	for _i = 0; _i < RES_REF_MAX; _i++ {
+	for _i = 0; _i < SHIORI3FW.RES_REF_MAX; _i++ {
 		_before = _value
 		
 		_varname = "res_reference" + _i
@@ -579,7 +583,7 @@ SHIORI3FW.MakeReferenceVariable : void
 			_value = var.req.value[_i]
 			reference[_refnum] = _value
 			
-			if _refnum < 8 { //高速化のため
+			if SHIORI3FW.REF_ACCEL==0 { //1にすると高速化
 				_varname = "reference%(_refnum)"
 				LETTONAME(_varname, _value)
 				SHIORI3FW.ReferenceList ,= _varname
@@ -745,14 +749,15 @@ SHIORI3FW.ExecuteDl2ToDll
  *  機能　：インストール済ゴースト名通知イベント
  * --------------------------------------------------------------------------------------
 */
-/*On_installedghostname
+
+On_installedghostname
 {
 	installedghostlist  = IARRAY
 	installedsakuralist = IARRAY
 	installedkerolist   = IARRAY
 
 	// materia、もしくはイベントからの取得が指示されていなければファイル走査で取得する処理を実行
-	if basewarename == 'embryo' || !IGLIST_ACCEL {
+	if basewarename == 'embryo' || !SHIORI3FW.IGLIST_ACCEL {
 		SHIORI3FW.StructInstalledGhostList
 		return
 	}
@@ -762,7 +767,7 @@ SHIORI3FW.ExecuteDl2ToDll
 		if (_name = EVAL('reference' + _i)) == ''; break
 		installedghostlist ,= _name
 	}
-}*/
+}
 
 /*---------------------------------------------------------------------------------------
  *  関数名：SHIORI3FW.StructInstalledGhostList
@@ -771,7 +776,7 @@ SHIORI3FW.ExecuteDl2ToDll
 */
 SHIORI3FW.StructInstalledGhostList
 {
-	if !IGLIST_MAX; return
+	if !SHIORI3FW.IGLIST_MAX; return
 
 	// ghostディレクトリ配下のディレクトリを抽出
 	_filelist = FENUM('..\..\..')
@@ -783,14 +788,14 @@ SHIORI3FW.StructInstalledGhostList
 
 	// 取得開始位置と取得数を求める
 	_num = 0
-	if IGLIST_MAX == -1 {
+	if SHIORI3FW.IGLIST_MAX == -1 {
 		StructGhostList.Index = 0
 		_num                  = _dirnum
 	}
 	else {
 		if GETTYPE(StructGhostList.Index) != 1 || StructGhostList.Index >= _dirnum
 			StructGhostList.Index = 0
-		_num = IGLIST_MAX
+		_num = SHIORI3FW.IGLIST_MAX
 		if _num > _dirnum; _num = _dirname
 	}
 
@@ -979,7 +984,7 @@ SHIORI3FW.RequestLib
 		_value       = SUBSTR(_lin, _pos + 2, _len - _pos - 2)
 		_valuecv     = ''
 
-		if COMPATIBLE_MODE {
+		if SHIORI3FW.AUTO_DATA_CONVERT {
 			if ISINTSTR(_value)
 				_valuecv = TOINT(_value)
 			elseif ISREALSTR(_value)
@@ -1098,160 +1103,4 @@ SPLITEX
 	_a
 }
 
-/****************************************************************************************
- *  文 version 4 システム関数 / システム変数の補完
- *  - 時刻系変数
- ****************************************************************************************
-*/
-year    { GETTIME[0] }
-month   { GETTIME[1] }
-day     { GETTIME[2] }
-weekday { GETTIME[3] }
-hour    { GETTIME[4] }
-ampm    { if hour >= 12; 1;   else; 0    }
-hour12  { if ampm; hour - 12; else; hour }
-minute  { GETTIME[5] }
-second  { GETTIME[6] }
 
-systemuptickcount { GETTICKCOUNT }
-systemuptime
-{
-	_highcount = GETTICKCOUNT(1)
-	if _highcount > 1
-		GETTICKCOUNT/1000
-	else
-		(_highcount*0x40000000 + (GETTICKCOUNT/2))/500
-}
-
-systemupsecond    { SHIORI3FW.GetTickInfo[3] }
-systemupminute    { SHIORI3FW.GetTickInfo[1] }
-systemuphour      { SHIORI3FW.GetTickInfo[2] }
-
-SHIORI3FW.GetTickInfo
-{
-	_result     = (IARRAY, systemuptime)
-	_result    ,= _result[0]/60
-	_result    ,= _result[1]/60
-	_result    ,= _result[0] - _result[1]*60
-	_result[1] -= _result[2]*60
-
-	_result
-}
-
-ghostuptime
-{
-	systemuptime - ghostboottime
-}
-
-/****************************************************************************************
- *  文 version 4 システム関数 / システム変数の補完
- *  - メモリ系変数
- ****************************************************************************************
-*/
-memoryload         { GETMEMINFO[0] }
-memorytotalphys    { GETMEMINFO[1] }
-memoryavailphys    { GETMEMINFO[2] }
-memorytotalvirtual { GETMEMINFO[3] }
-memoryavailvirtual { GETMEMINFO[4] }
-
-
-/****************************************************************************************
- *  文 version 4 以前の変数/関数の補完
- ****************************************************************************************
-*/
-
-restore_old_variables
-{
-    // ascii
-    ascii = IARRAY
-    for _i = 0; _i <= 0x7f; _i++ {
-        ascii ,= CHR(_i)
-    }
-}
-
-/****************************************************************************************
- *  FMO関連
- ****************************************************************************************
-*/
-/*---------------------------------------------------------------------------------------
- *  関数名：SHIORI3FW.IsGhostExist(ゴースト名[,fmoname])
- *  機能　：指定されたゴーストが存在するか調べる
- *　　　　　存在しなければ0、存在すれば1を返す
- * --------------------------------------------------------------------------------------
-*/
-SHIORI3FW.IsGhostExist
-{
-	_ghostname=_argv[0]
-	SHIORI3FW.FMO.RefreshFMOTable()
-	_result=ASEARCH(_ghostname,SHIORI3FW.SakuraNameList)
-	if _result == -1 {
-		0
-	}else{
-		1
-	}
-}
-
-
-/*---------------------------------------------------------------------------------------
- *  関数名：SHIORI3FW.RefreshFMOTable(FMO名称)
- *  機能　：READFMOによってFMOテーブルを作る。FMOはキャッシュされ、変わっていなければ
- *          解析は行われない。FMO名称を省略すると自動的に"Sakura"になる。
- *          グローバル変数：SHIORI3FW.FMOCache		FMOの内容のキャッシュ（単純ダンプ）
- *          グローバル変数：SHIORI3FW.FMOTable		FMOのテーブル（簡易配列。内容は以下）
- *                          id|hwnd|name|keroname,
- *                          id|hwnd|name|keroname,
- *                          ...
- *          グローバル変数：SHIORI3FW.SakuraNameList	sakuranameを列挙した汎用配列
- *          
- *          FMOTableおよびGhostNameListには自身の情報も含まれることに注意せよ。
- *          また、いわゆる「非ゴースト」FMOエントリ（一時起動等）はこの時点で排除される。
- * --------------------------------------------------------------------------------------
-*/
-SHIORI3FW.RefreshFMOTable : void
-{
-	_fmoname=_argv[0]
-	if _fmoname == '' {
-		_fmoname='Sakura'
-	}
-
-	_result=READFMO(_fmoname)
-	
-	if SHIORI3FW.FMOCache != _result {
-		//FMOの内容をキャッシュする
-		SHIORI3FW.FMOCache=_result
-		SHIORI3FW.FMOTable=''
-		SHIORI3FW.SakuraNameList=IARRAY
-		
-		//\r\nで分割
-		_array = SPLIT(_result,C_CRLF)
-		_arraynum=ARRAYSIZE(_array)
-		
-		//解析
-		for _i=0 ; _i<_arraynum ; _i++ {
-			_buf=_array[_i]
-			_id=_buf[0,'.']
-			_kvpair=_buf[1,'.']
-			_key=_kvpair[0,C_BYTE1]
-			_val=_kvpair[1,C_BYTE1]
-			
-			//一時起動ゴーストかどうか？
-			if 'SSTPVIEWER-' _in_ _id  || 'ssp_fmo_header_dummyentry' _in_ _id || 'SSSB' _in_ _id
-			{
-				//一時起動なのでなにもしない
-			}else{
-				//一行解析
-				if _key == 'hwnd' {
-					if SHIORI3FW.FMOTable != '' {
-						SHIORI3FW.FMOTable += ','
-					}
-					SHIORI3FW.FMOTable += _id + '|' + _val
-				}elseif _key == 'name' {
-					SHIORI3FW.FMOTable += '|' + _val
-					SHIORI3FW.SakuraNameList=(SHIORI3FW.SakuraNameList,_val)
-				}elseif _key == 'keroname' {
-					SHIORI3FW.FMOTable += '|' + _val
-				}
-			}
-		}
-	}
-}
