@@ -7,16 +7,6 @@
  *  初期設定値
  * --------------------------------------------------------------------------------------*/
 
-/* 過去互換関連 -------------------------------------------------------------------------*/
-/*
-COMPATIBLE_MODE
-	1にするとAYA5と同等の処理になります。
-	-SAORIの戻り値などの自動タイプ変換・自動的に\0x01をカンマにする等の処理が入ります。
-	0にするとそれらの処理を行いません。
-*/
-#globaldefine	COMPATIBLE_MODE	1
-
-
 /* AIトーク関連 -------------------------------------------------------------------------*/
 /*
 TALK_INTERVAL	AIトーク間隔の初期値[秒]
@@ -33,24 +23,38 @@ IGLIST_ACCEL
 	インストール済ゴーストリストを構築するようになります。
 	sakura/kero名リストは作成されませんが高速です
 	0だとファイル走査にて構築します。
+	インストール済みゴーストが多いと時間がかかります。
 
 IGLIST_MAX
 	ファイル走査にてゴーストリストを構築する際、取得する
 	数の上限を指定します。-1で制限なし（すべて取得）です。
 	0とすると取得しません。
 */
-#globaldefine	IGLIST_ACCEL	1
-#globaldefine	IGLIST_MAX		0
+#globaldefine	SHIORI3FW.IGLIST_ACCEL	1
+#globaldefine	SHIORI3FW.IGLIST_MAX		0
 
 /* リクエスト解析・レスポンス構築関連 ---------------------------------------------------*/
 /*
-REQUEST_LINES_LIMIT
+SHIORI3FW.REQUEST_LINES_LIMIT
 	リクエスト文字列を解析する最大行数です。
 	減らすと起動等が高速になりますが、完全にインストール
 	済のゴーストリストを取れなくなったりします。
 	0ですべての行を取得します。
-RES_REF_MAX
+
+SHIORI3FW.RES_REF_MAX
 	res_referenceの上限
+
+SHIORI3FW.AUTO_DATA_CONVERT
+	1にするとAYA5と同等の処理になります。
+	-SAORIの戻り値などの自動タイプ変換・自動的に\0x01をカンマにする等の処理が入ります。
+	0にするとそれらの処理を行いません。
+
+SHIORI3FW.REF_ACCEL
+	1にすると、reference0 といった変数を作成せず、reference[0] という形で
+	アクセスするようになります。若干のスピードアップが見込めます。
+	0にすると、reference0 といった変数を作成します（過去互換処理）
 */
-#globaldefine	REQUEST_LINES_LIMIT	0
-#globaldefine	RES_REF_MAX			32
+#globaldefine	SHIORI3FW.REQUEST_LINES_LIMIT	0
+#globaldefine	SHIORI3FW.RES_REF_MAX			32
+#globaldefine	SHIORI3FW.AUTO_DATA_CONVERT		1
+#globaldefine	SHIORI3FW.REF_ACCEL				0
