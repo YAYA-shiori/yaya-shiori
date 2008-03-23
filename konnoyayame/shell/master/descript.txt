@@ -1,5 +1,8 @@
 charset,Shift_JIS
 
+//シェル一式のライセンスは以下のようになります。
+//http://creativecommons.org/licenses/by-nc-nd/2.1/jp/
+
 craftman,SATO M
 craftmanurl,http://sgmh.sakura.ne.jp/tcg/
 craftmanw,サトウ　Ｍ
