@@ -1,0 +1,3 @@
+charset,Shift_JIS
+version,1
+
