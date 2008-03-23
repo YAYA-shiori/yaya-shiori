@@ -78,6 +78,8 @@ load
 	
 	status = ''
 	tempvarname = IARRAY
+	
+	is_translate = ISFUNC('OnTranslateInternal')
 
 	SHIORI3FW.InitChain
 	
@@ -165,6 +167,8 @@ unload
 	ERASEVAR('ghostboottime')
 
 	ERASEVAR('status')
+	
+	ERASEVAR('is_translate')
 	
 	ERASEVAR('res_securitylevel')
 	ERASEVAR('res_reference')
@@ -463,6 +467,14 @@ SHIORI3FW.RaiseIDEvent
 		_delim = RE_GETSTR
 		_n = ARRAYSIZE(_delim)
 		
+		//先に内部トランスレート
+		if SHIORI3FW.Eventid != 'OnTranslate' {
+			if is_translate {
+				_talk[0] = EVAL('OnTranslateInternal(_talk[0])')
+			}
+		}
+		
+		//後から遅延設定
 		for _i = 0 ; _i < _n ; _i += 1 {
 			if _delim[_i] == EVAL_DELIM {
 				// 遅延EVAL
