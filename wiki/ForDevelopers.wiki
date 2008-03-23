@@ -11,12 +11,16 @@ Google Codeの全てのプロジェクトは、Subversionと呼ばれるバー�
 http://yaya-shiori.googlecode.com/svn/trunk/
 ===5xx系===
 http://yaya-shiori.googlecode.com/svn/branches/500
+===紺野ややめ===
+http://yaya-shiori.googlecode.com/svn/konnoyayame/
 
 ==開発者のみ==
 ===最新版===
 https://yaya-shiori.googlecode.com/svn/trunk/
 ===5xx系===
 https://yaya-shiori.googlecode.com/svn/branches/500
+===紺野ややめ===
+https://yaya-shiori.googlecode.com/svn/konnoyayame/
 
 開発者なら、[http://code.google.com/hosting/settings Google Code Settings]で表示されるパスワードを使って書き込み（コミット）も可能です。
 
