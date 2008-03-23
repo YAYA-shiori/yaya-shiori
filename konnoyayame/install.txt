@@ -1,4 +1,0 @@
-charset, Shift_JIS
-type,ghost
-name,®–ì‚â‚â‚ß
-directory,konnoyayame
