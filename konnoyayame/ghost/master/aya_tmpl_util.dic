@@ -55,7 +55,7 @@ OnAnchorSelect
 
 //---- メニュー横1行反転 ---------------------------------------------------------------
 //通常メニュー
-MenuItem
+AYATEMPLATE.MenuItem
 {
 	'\![*]\q['
 	--
@@ -161,6 +161,62 @@ AYATEMPLATE.MakeJustText
 	_text = AYATEMPLATE.MakeShortText(_argv[0],_argv[1])
 	_text
 }
+
+//**** リンクメニュー *************************************************************
+
+AYATEMPLATE.LinkMenuConvert
+{
+    _text = ''
+    _data = IARRAY
+    for _i = 0 ; _i < _argc ; _i++ {
+        _data = (RE_SPLIT(_argv[_i],'[ \t]*\|[ \t]*'),'','') //ダミー
+        _text += "%(_data[0])%(CHR(1))%(_data[1])%(CHR(1))%(_data[2])%(CHR(1))%(CHR(2))"
+    }
+    _text;
+}
+
+//**** システムで使われる文字置換 *************************************************************
+
+AYATEMPLATE.TranslateSystemChar
+{
+  _text = TOSTR(_argv[0])
+  _text = RE_REPLACE(_text,"[ !%(CHR(0x22))%(CHR(0x25))#$&()*+,\-/:;<=>?@\[\]`{|}~]","_")
+  _text
+}
+
+//**** 切り替えコア *************************************************************
+
+AYATEMPLATE.ExecuteChangeCallTalk
+{
+	_ghostname = AYATEMPLATE.TranslateSystemChar(reference0)
+
+	_funcname = "%(_argv[0])_%(_ghostname)"
+	if ISFUNC(_funcname) {
+		_script = EVAL(_funcname)
+		if STRLEN(_script) != 0 {
+			_script
+			return
+		}
+	}
+
+	_funcname = "%(_argv[0])Other"
+		if ISFUNC(_funcname) {
+		_script = EVAL(_funcname)
+		if STRLEN(_script) != 0 {
+			_script
+			return
+		}
+	}
+
+	if _argc >= 2 {
+		_script = EVAL(_argv[1])
+		if STRLEN(_script) != 0 {
+			REPLACE(_script,"\-","")
+			return
+		}
+	}
+}
+
 
 //**** 文字列関係 *************************************************************
 

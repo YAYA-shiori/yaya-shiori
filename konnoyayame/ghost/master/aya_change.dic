@@ -1,0 +1,77 @@
+///////// YAYA　ゴーストテンプレート
+///////// 切り替えトーク辞書
+
+//**** ゴースト/シェル切り替え **********************************************************
+
+//---- 他のゴーストへ切り替え -----------------------------------------------------------
+OnGhostChangingOther
+{
+	"\0\s[0]%(reference[0])によろしくねー。\w5\1またな。\e"
+}
+
+//---- 他のゴーストから切り替り ---------------------------------------------------------
+OnGhostChangedOther
+{
+	"\0\s[0]あ、%username、どうも。\w5\1\s[10]うわさでは、%reference0って"
+	--
+	"%WW2officerの真の姿"
+	"こないだまで%mhでバイトしてた"
+	"クローン人間"
+	"%meをたっぷり積んだ%vehicleに乗って%mpを徘徊してた"
+	--
+	"らしいぞ。\0\w5\n\nへ、へえ‥\w5‥\w5‥"
+	--
+	"地獄絵図だ"
+	"ほのぼのしてる"
+	"それもひどい"
+	--
+	"ね‥\w5‥\w5‥\e"
+}
+
+//---- シェルチェンジ開始 ---------------------------------------------------------------
+OnShellChanging
+{
+	"\0\s[0]シェル変更開始。\e"
+}
+
+//---- シェルチェンジ完了 ---------------------------------------------------------------
+OnShellChanged
+{
+	"\0\s[0]%reference0シェルに替わりました。どうですか？\w6\1\s[10]イイ！\e"
+}
+
+ 
+//**** この下は切り替えトーク処理用 **********************************************************
+//通常はいじる必要はありませんが、必要に応じて適宜変更してください。
+//AYATEMPLATE.ではじまる関数は _tmpl_util.dic にあります。
+
+OnGhostChanging
+{
+	AYATEMPLATE.ExecuteChangeCallTalk("OnGhostChanging","OnClose")
+}
+
+OnGhostChanged
+{
+	AYATEMPLATE.ExecuteChangeCallTalk("OnGhostChanged","OnBoot")
+}
+
+OnGhostCalling
+{
+	AYATEMPLATE.ExecuteChangeCallTalk("OnGhostCalling")
+}
+
+OnGhostCalled
+{
+	AYATEMPLATE.ExecuteChangeCallTalk("OnGhostCalled","OnBoot")
+}
+
+OnGhostCallComplete
+{
+	AYATEMPLATE.ExecuteChangeCallTalk("OnGhostCallComplete")
+}
+
+OnOtherGhostClosed
+{
+	AYATEMPLATE.ExecuteChangeCallTalk("OnOtherGhostClosed")
+}
+

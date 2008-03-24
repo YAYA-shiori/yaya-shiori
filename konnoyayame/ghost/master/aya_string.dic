@@ -10,9 +10,10 @@ On_username
 }
 
 //---- ネットワーク更新の基準位置となるURL ----------------------------------------------
+//必ずここは変えてね！更新しないならまるごと削除。
 On_homeurl
 {
-	"http://members.jcom.home.ne.jp/umeici/"
+	"http://ms.shillest.net/ghost/konnoyayame/"
 }
 
 //---- ポータルサイトのボタンキャプション -----------------------------------------------
@@ -24,9 +25,15 @@ On_portalrootbutton.caption
 //---- ポータルサイトのリスト -----------------------------------------------------------
 On_sakura.portalsites
 {
-	"/
-	うさださくら%ASC(1)http://usada.sakura.vg/%ASC(1)http://sakura.mikage.to/banner.png/
-	"
+	AYATEMPLATE.LinkMenuConvert(On_sakura.portalsites_EX)
+}
+
+On_sakura.portalsites_EX : array
+{
+	"SSP BUGTRAQ      | http://ssp.shillest.net/         | "
+	"整備班           | http://ms.shillest.net/          | "
+	"-" //***区切り線***
+	"Marble Note      | http://marble.tarenari.jp/       | "
 }
 
 //---- 本体側おすすめサイトのボタンキャプション -----------------------------------------
@@ -39,34 +46,36 @@ On_recommendrootbutton.caption
 //---- 本体側おすすめサイトのリスト -----------------------------------------------------
 On_sakura.recommendsites
 {
-	"/
-	偽栞%ASC(1)http://www.nona.dti.ne.jp/~teu/niseshiori/%ASC(1)http://www.nona.dti.ne.jp/%7Eteu/niseshiori/nsbanner.png%ASC(2)/
-	翡翠%ASC(1)http://www.cokage.ne.jp/~juju/hisui.htm%ASC(1)http://www.cokage.ne.jp/~juju/site_hisui/images/hisui_bn.png%ASC(2)/
-	美坂%ASC(1)http://lovelove.rabi-en-rose.net/index_misaka.php%ASC(1)http://lovelove.rabi-en-rose.net/misaka/banner.png%ASC(2)/
-	梨野%ASC(1)http://www.junkyard.jp/nasino/index.shtml%ASC(2)/
-	華和梨%ASC(1)http://kawari.sourceforge.net/%ASC(1)http://kawari.sourceforge.net/images/banner.png%ASC(2)/
-	"
+	AYATEMPLATE.LinkMenuConvert(On_sakura.recommendsites_EX)
+}
+ 
+On_sakura.recommendsites_EX : array
+{
+	"里々/整備班カスタム | http://code.google.com/p/satoriya-shiori/ | "
+	"華和梨              | http://kawari.sourceforge.net/            | "
 }
 
 //---- kero側おすすめサイトのボタンキャプション -----------------------------------------
 On_kero.recommendbuttoncaption
 {
-	"ホワ伊東のおすすめ"
+	"マック朗のおすすめ"
 }
 
 //---- kero側おすすめサイトのリスト -----------------------------------------------------
 On_kero.recommendsites
 {
-	"/
-	文%ASC(1)http://members.jcom.home.ne.jp/umeici/%ASC(1)http://members.jcom.home.ne.jp/umeici/image/aya_b.png/
-	"
+	AYATEMPLATE.LinkMenuConvert(On_kero.recommendsites_EX)
+}
+ 
+On_kero.recommendsites_EX : array
+{
+	"YAYA                | http://code.google.com/p/yaya-shiori/     | "
 }
 
 //---- ネットワーク更新ボタンのキャプション ---------------------------------------------
 On_updatebutton.caption
 {
-	"ネトワク更新(invalid)"
-	"レッツ更新(invalid)"
+	"ネットワーク更新"
 }
 
 //---- readmeボタンのキャプション -------------------------------------------------------
