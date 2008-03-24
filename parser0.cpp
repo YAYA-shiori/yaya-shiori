@@ -181,7 +181,6 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 		CutCrLf(readline);
 		CutSpace(readline);
 		// コメント処理
-		comment.Process_Top(readline);
 		comment.Process(readline);
 		// 空行（もしくは全体がコメント行だった）なら次へ
 		if (readline.size() == 0)
@@ -206,8 +205,6 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 		// プリプロセッサ#define、#globaldefine処理
 		ExecDefinePreProcess(linebuffer, defines);	// #define
 		ExecDefinePreProcess(linebuffer, gdefines);	// #globaldefine
-		// コメント処理(2)
-		comment.Process_Tail(linebuffer);
 		// {、}、;で分割
 		factors.clear();
 		SeparateFactor(factors, linebuffer);

@@ -29,6 +29,9 @@
  */
 void	CComment::Process(yaya::string_t &str)
 {
+	Process_Top(str);
+	Process_Tail(str);
+
 	if (str.empty()) { return; }
 
 	yaya::string_t::size_type found0;
