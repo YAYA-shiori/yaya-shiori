@@ -325,9 +325,7 @@ void	CBasis::LoadBaseConfigureFile(std::vector<yaya::string_t> *dics)
 		// 改行は消去
 		CutCrLf(readline);
 		// コメントアウト処理
-		comment.Process_Top(readline);
 		comment.Process(readline);
-		comment.Process_Tail(readline);
 		// 空行、もしくは全体がコメント行だった場合は次の行へ
 		if (readline.size() == 0)
 			continue;
