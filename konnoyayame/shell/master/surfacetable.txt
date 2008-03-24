@@ -1,3 +1,36 @@
 charset,Shift_JIS
 version,1
 
+group,__disabled
+{
+	1030,__parts
+	1031,__parts
+	1032,__parts
+	1033,__parts
+	1040,__parts
+	1041,__parts
+	1042,__parts
+	1043,__parts
+}
+
+group,®–ì‚â‚â‚ß
+{
+	scope,0
+	
+	0,‘f
+	1,Æ‚ê
+	2,‹Á‚«
+	3,•sˆÀ
+	4,‚Í‚¤[
+	5,Î‚¢
+	6,–Ú•Â‚¶
+	7,“{‚è
+}
+
+group,ƒ}ƒbƒN˜N
+{
+	scope,1
+	
+	10,‘f
+	11,™‰–Ú
+}

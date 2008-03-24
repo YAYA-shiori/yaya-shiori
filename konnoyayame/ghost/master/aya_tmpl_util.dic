@@ -217,6 +217,51 @@ AYATEMPLATE.ExecuteChangeCallTalk
 	}
 }
 
+//**** マウスイベントコア *************************************************************
+
+AYATEMPLATE.MouseEventExec
+{
+	_fname = _argv[0] + TOSTR(reference3) + TOSTR(reference4)
+	if ISFUNC(_fname) {
+		EVAL(_fname)
+		return
+	}
+	
+	_fname = _argv[0] + TOSTR(reference3)
+	if ISFUNC(_fname) {
+		EVAL(_fname)
+		return
+	}
+}
+
+AYATEMPLATE.MouseMoveWheelFunc
+{
+	_side = TOINT(reference3)
+	if _argv[0] {
+		_side += 10
+	}
+	
+	if strokeid[_side] == reference4 {
+		if (GETTICKCOUNT - TOINT(stroketimer[_side])) > 1500 {
+			stroke[_side] = 1
+		}
+		stroketimer[_side] = GETTICKCOUNT
+		
+		_stroke = TOINT(stroke[_side])
+		_stroke += 1
+		stroke[_side] = _stroke
+		
+		if _stroke >= _argv[1] {
+			AYATEMPLATE.MouseEventExec(_argv[2]);
+			stroke[_side] = 1
+		}
+	}
+	else {
+		stroke[_side] = 1
+		stroketimer[_side] = GETTICKCOUNT
+		strokeid[_side] = reference4
+	}
+}
 
 //**** 文字列関係 *************************************************************
 

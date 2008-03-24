@@ -60,6 +60,36 @@ collision4,183,55,252,116,Twintail
 
 }
 
+surface5
+{
+collision0,85,47,174,97,Head
+collision1,96,97,159,147,Face
+collision2,97,170,159,210,Bust
+collision3,6,56,75,117,Twintail
+collision4,183,55,252,116,Twintail
+
+}
+
+surface6
+{
+collision0,85,47,174,97,Head
+collision1,96,97,159,147,Face
+collision2,97,170,159,210,Bust
+collision3,6,56,75,117,Twintail
+collision4,183,55,252,116,Twintail
+
+}
+
+surface7
+{
+collision0,85,47,174,97,Head
+collision1,96,97,159,147,Face
+collision2,97,170,159,210,Bust
+collision3,6,56,75,117,Twintail
+collision4,183,55,252,116,Twintail
+
+}
+
 surface10
 {
 collision0,78,93,133,122,Face
