@@ -61,7 +61,6 @@ load
 	if SHIORI3FW.Status != "Run" {
 		SHIORI3FW.Status = "Run"
 		aitalkinterval   = TALK_INTERVAL
-		communicateratio = COM_RATIO
 	}
 
 	// –ˆ‰ñ‹N“®‚Ì‰Šú‰»

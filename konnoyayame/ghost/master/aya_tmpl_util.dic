@@ -1,0 +1,188 @@
+///////// YAYA　ゴーストテンプレート
+///////// メニュー処理辞書
+
+//**** 注意 *************************************************************
+// この辞書はゴーストテンプレートに必要な共通処理をまとめたものです。
+// 通常はここをいじる必要はありません。
+//**** 注意 *************************************************************
+
+//**** ランダムトーク *******************************************************************
+
+OnAITalk
+{
+	OnAiTalk
+}
+
+//---- OnAiTalkイベント -----------------------------------------------------------------
+OnAiTalk
+{
+	if mikireflag == 0
+	{
+		//---- 通常のランダムトーク、ただしチェイン中はチェイントーク
+		if CHAIN.IDName == "" {
+			RandomTalk
+		}
+		else {
+			ChainTalk
+		}
+	}
+	else
+	{
+		//---- 見切れ中なので見切れ中のトークを行う
+		MikireTalk
+	}
+}
+
+//**** メニュー関係 *************************************************************
+
+//---- イベント処理 ---------------------------------------------------------------
+//ここの記述により、選択肢ID/アンカーIDをそのまま関数名として書けるようになります。
+//以下のサンプルも参照して下さい。
+
+OnChoiceSelect
+{
+	if ISFUNC(reference[0]) {
+		EVAL(reference[0])
+	}
+}
+
+OnAnchorSelect
+{
+	if ISFUNC(reference[0]) {
+		EVAL(reference[0])
+	}
+}
+
+//---- メニュー横1行反転 ---------------------------------------------------------------
+//通常メニュー
+MenuItem
+{
+	'\![*]\q['
+	--
+	AYATEMPLATE.EscapeMenuText( AYATEMPLATE.MakeJustText(_argv[0],46) )
+	--
+	_n = ARRAYSIZE(_argv)
+	_s = ''
+	for _i = 1 ; _i < _n ; _i++ {
+		_s += ',' + AYATEMPLATE.EscapeMenuText(_argv[_i])
+	}
+	_s
+	--
+	']'
+}
+
+//エスケープ
+AYATEMPLATE.EscapeMenuText
+{
+	_r = _argv[0]
+	if RE_SEARCH(_r,'["\[\]]') >= 0 {
+		'"' + REPLACE(_r,'"','""') + '"'
+	}
+	else {
+		_r
+	}
+}
+
+//---- 後ろにスペースを補完する関数
+AYATEMPLATE.MakeLongText
+{
+	_menuitem = _argv[0]
+	_len = _argv[1] - GETSTRBYTES(_menuitem,127)
+
+	if _len <= 0 {
+		_menuitem
+		return
+	}
+	
+	_space = '　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　'
+	_menuitem += SUBSTR(_space,0,_len / 2)
+	
+	if _len % 2 > 0 {
+		_menuitem += " "
+	}
+	_menuitem
+}
+
+//---- 適当な長さで切る -------------------------------------------
+AYATEMPLATE.MakeShortText
+{
+	if _argc < 2 {
+		'';
+		return;
+	}
+	
+	_num = _argv[1] / 2
+	_len = STRLEN(_argv[0])
+	_text = ''
+	
+	if _num >= _len {
+		_argv[0]
+		return;
+	}
+	
+	_lendiff = 0
+	while 1 {
+		_text = SUBSTR(_argv[0],0,_num)
+		
+		_lendiff = GETSTRBYTES(_text,127) - _argv[1] + 1
+		if _lendiff >= 0 {
+			break;
+		}
+		_num += 1
+		if _num >= _len {
+			break;
+		}
+	}
+	
+	if _num >= _len {
+		_argv[0]
+	}
+	else {
+		_text = SUBSTR(_argv[0],0,_num - 1)
+		if _lendiff > 0 {
+			_text += '..'
+		}
+		else {
+			_text += '...'
+		}
+		_text;
+	}
+}
+
+//---- 長さをきっちり調節
+AYATEMPLATE.MakeJustText
+{
+	_text = AYATEMPLATE.MakeLongText(_argv[0],_argv[1])
+	if _text != _argv[0] {
+		_text
+		return
+	}
+	
+	_text = AYATEMPLATE.MakeShortText(_argv[0],_argv[1])
+	_text
+}
+
+//**** 文字列関係 *************************************************************
+
+//---- SHIORI 関連情報 ------------------------------------------------------------------
+On_version
+{
+	GETSETTING('coreinfo.version')
+}
+
+On_craftman
+{
+	GETSETTING('coreinfo.author')
+}
+
+On_craftmanw
+{
+	GETSETTING('coreinfo.author')
+}
+
+On_name
+{
+	GETSETTING('coreinfo.name')
+}
+
+

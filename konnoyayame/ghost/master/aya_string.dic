@@ -1,6 +1,5 @@
-///////// 文　ゴーストテンプレート
+///////// YAYA　ゴーストテンプレート
 ///////// 文字列リソース辞書
-///////// written by umeici.
 
 //**** 文字列リソース *******************************************************************
 
@@ -108,27 +107,6 @@ On_otherghostname
 	ghostexcount = ARRAYSIZE(ghostexlist)
 }
 
-//---- SHIORI 関連情報 ------------------------------------------------------------------
-On_version
-{
-	GETSETTING(AYAINFO_VERSION)
-}
-
-On_craftman
-{
-	"umeici"
-}
-
-On_craftmanw
-{
-	"梅市"
-}
-
-On_name
-{
-	"AYA"
-}
-
 //---- Owned SSTP 用 uniqueid 取得 ------------------------------------------------------
 On_uniqueid
 {
@@ -143,4 +121,5 @@ On_hwnd
 	sakurablnhwnd = reference1[0]
 	keroblnhwnd   = reference1[1]
 }
+
 
