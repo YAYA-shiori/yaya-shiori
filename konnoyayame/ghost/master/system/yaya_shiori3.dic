@@ -122,6 +122,7 @@ unload
 
 	// ï€ë∂Ç∑ÇÈïKóvÇÃÇ»Ç¢ïœêîÇçÌèú
 	ERASEVAR('eventtranslate_exist')
+	ERASEVAR('is_translate')
 	
 	ERASEVAR('REQ.COMMAND'  )
 	ERASEVAR('REQ.PROTOCOL' )
@@ -167,15 +168,9 @@ unload
 
 	ERASEVAR('status')
 	
-	ERASEVAR('is_translate')
-	
 	ERASEVAR('res_securitylevel')
 	ERASEVAR('res_reference')
 	ERASEVAR('res_marker')
-
-	ERASEVAR('SHIORI3FW.FMOCache')
-	ERASEVAR('SHIORI3FW.SakuraNameList')
-	ERASEVAR('SHIORI3FW.FMOTable')
 
 	_n = ARRAYSIZE(tempvarname)
 	for _i = 0 ; _i < _n ; _i++ {
