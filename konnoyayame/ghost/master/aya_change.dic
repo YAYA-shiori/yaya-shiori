@@ -12,7 +12,7 @@ OnGhostChangingOther
 //---- 他のゴーストから切り替り ---------------------------------------------------------
 OnGhostChangedOther
 {
-	"\0\s[0]あ、%username、どうも。\w5\1\s[10]うわさでは、%reference0って"
+	"\0\s[0]あ、%username、どうも。\w5\1\s[10]うわさでは、%(reference[0])って"
 	--
 	"%WW2officerの真の姿"
 	"こないだまで%mhでバイトしてた"
@@ -37,7 +37,7 @@ OnShellChanging
 //---- シェルチェンジ完了 ---------------------------------------------------------------
 OnShellChanged
 {
-	"\0\s[0]%reference0シェルに替わりました。どうですか？\w6\1\s[10]イイ！\e"
+	"\0\s[0]%(reference[0])シェルに替わりました。どうですか？\w6\1\s[10]イイ！\e"
 }
 
  
@@ -74,4 +74,5 @@ OnOtherGhostClosed
 {
 	AYATEMPLATE.ExecuteChangeCallTalk("OnOtherGhostClosed")
 }
+
 

@@ -14,36 +14,36 @@ OnInstallComplete
 {
 	"\0\s[0]"
 	--
-	if reference0 == "shell"
+	if reference[0] == "shell"
 	{
 		"シェル"
 	}
-	elseif reference0 == "ghost"
+	elseif reference[0] == "ghost"
 	{
 		"ゴースト"
 	}
-	elseif reference0 == "balloon"
+	elseif reference[0] == "balloon"
 	{
 		"バルーン"
 	}
-	elseif reference0 == "plugin"
+	elseif reference[0] == "plugin"
 	{
 		"プラグイン"
 	}
 	--
-	"「%reference1」、インストール完了しました。\e"
+	"「%(reference[1])」、インストール完了しました。\e"
 }
 
 //---- インストール失敗メッセージ -------------------------------------------------------
 OnInstallFailure
 {
-	"\0\s[0]インストールに失敗しましたー‥\w5‥\w5\n\n理由：%reference0。あーあ。\e"
+	"\0\s[0]インストールに失敗しましたー‥\w5‥\w5\n\n理由：%(reference[0])。あーあ。\e"
 }
 
 //---- インストール拒否（他のゴーストのためのアーカイブだった） -------------------------
 OnInstallRefuse
 {
-	"\1\s[10]これは、%reference0用のアーカイブだぞ。\w6\0\s[0]処理中断っ。\e"
+	"\1\s[10]これは、%(reference[0])用のアーカイブだぞ。\w6\0\s[0]処理中断っ。\e"
 }
 
 
@@ -72,7 +72,7 @@ OnVanishCancel
 //---- 他のゴーストが消滅して自分に切り替わった -----------------------------------------
 OnVanished
 {
-	"\0\s[0]%reference0と呼ばれていた物体よ。\w5\1\s[10]いつの日かあなたは復活するでしょう。\e"
+	"\0\s[0]%(reference[0])と呼ばれていた物体よ。\w5\1\s[10]いつの日かあなたは復活するでしょう。\e"
 	"\0\s[0]どうもー。\1\s[10]「こんなのも要らねえなこれも消滅しちまえ」とか思わないように。\0\w5\n\n泣くよ。\e"
 }
 
@@ -88,7 +88,7 @@ OnBIFFBegin
 //---- メールチェック成功 ---------------------------------------------------------------
 OnBIFFComplete
 {
-	if reference0 == 0
+	if reference[0] == 0
 	{
 		//---- メールは無かった
 		"\1\s[10]メールは無かったな。\w5\0\s[0]ご苦労さん。\n\nだそうです%username。寂しい？\e"
@@ -96,24 +96,24 @@ OnBIFFComplete
 	else
 	{
 		//---- メールが届いていた
-		"\1\s[10]%reference0通のメールがあったぞ。\w5\0\s[0]へー。%username、さっそく見てみなよ。\e"
+		"\1\s[10]%(reference[0])通のメールがあったぞ。\w5\0\s[0]へー。%username、さっそく見てみなよ。\e"
 	}
 }
 
 //---- メールチェック失敗 ---------------------------------------------------------------
 OnBIFFFailure
 {
-	if reference0 == "timeout"
+	if reference[0] == "timeout"
 	{
 		//---- タイムアウト
 		"\1\s[10]いつまで待ってもメールサーバにつながらないんだが。\w5\0\s[0]困ったもんだ。\e"
 	}
-	elseif reference0 == "kick"
+	elseif reference[0] == "kick"
 	{
 		//---- 蹴られた
 		"\1\s[10]蹴られたぞ。\0\s[0]おかしいですねー、なぜ‥\w5‥\e"
 	}
-	elseif reference0 == "defect"
+	elseif reference[0] == "defect"
 	{
 		//---- 設定誤り
 		"\1\s[10]なんか、ぜんぜんダメなんだが。\w5\0\s[0]メールチェックの設定を見なおしてね、%username。\e"
@@ -137,13 +137,13 @@ OnUpdateBegin
 //---- ネットワーク更新準備完了 ---------------------------------------------------------
 OnUpdateReady
 {
-	"\0\s[0]%reference0個のファイルをダウンロードします。\w5\1\s[10]ＯＨ！\e"
+	"\0\s[0]%(reference[0])個のファイルをダウンロードします。\w5\1\s[10]ＯＨ！\e"
 }
 
 //---- ネットワーク更新終了 -------------------------------------------------------------
 OnUpdateComplete
 {
-	if reference0 == "none"
+	if reference[0] == "none"
 	{
 		//---- 更新すべきファイルが無かった
 		"\1\s[10]あいや、盛り上がってるとこ水を差すようだが、対象ファイルが無いぞ。\w5\0\s[0]ぬあー。\e"
@@ -158,12 +158,12 @@ OnUpdateComplete
 //---- ネットワーク更新失敗 -------------------------------------------------------------
 OnUpdateFailure
 {
-	if reference0 == "timeout"
+	if reference[0] == "timeout"
 	{
 		//---- タイムアウトした
 		"\0\s[0]時間切れだ‥‥\w5\1\s[10]なんだろうな。"
 	}
-	elseif reference0 == "md5 miss"
+	elseif reference[0] == "md5 miss"
 	{
 		//---- MD5値が一致しなかった
 		"\0\s[0]MD5値が違ってましたぜ。\w5\1\s[10]ああー。"
@@ -171,7 +171,7 @@ OnUpdateFailure
 	else
 	{
 		//---- 上記以外の理由で失敗した
-		"\0\s[0]%reference0、だって。\w5\1\s[10]うーん。"
+		"\0\s[0]%(reference[0])、だって。\w5\1\s[10]うーん。"
 	}
 	--
 	"\n\n\1ネットワーク更新、失敗だ。\e"
@@ -180,7 +180,7 @@ OnUpdateFailure
 //---- ネットワーク更新 ダウンロード開始 ------------------------------------------------
 OnUpdate.OnDownloadBegin
 {
-	"\0\s[0]ファイル「%reference0」をダウンロードします。\e"
+	"\0\s[0]ファイル「%(reference[0])」をダウンロードします。\e"
 }
 
 //---- ネットワーク更新 MD5値照合開始 ---------------------------------------------------
@@ -207,44 +207,44 @@ OnUpdate.OnMD5CompareFailure
 //---- ヘッドラインセンス開始 -----------------------------------------------------------
 OnHeadlinesenseBegin
 {
-	"\0\s[0]%reference0ヘッドライン取得中。\e"
+	"\0\s[0]%(reference[0])ヘッドライン取得中。\e"
 }
 
 //---- ヘッドライン読み上げ -------------------------------------------------------------
 OnHeadlinesense.OnFind
 {
 	//---- はじめのセリフ
-	if reference2 == "First" || reference2 == "First and Last"
+	if reference[2] == "First" || reference[2] == "First and Last"
 	{
 		//---- 最初のページ
-		"\0\b2\s[0]%reference0のヘッドラインですよっ。"
+		"\0\b2\s[0]%(reference[0])のヘッドラインですよっ。"
 	}
-	elseif reference2 == "Next"
+	elseif reference[2] == "Next"
 	{
 		//---- 真ん中あたりのページ
-		"\0\b2\s[0]%reference0ヘッドライン、続き。"
+		"\0\b2\s[0]%(reference[0])ヘッドライン、続き。"
 	}
-	elseif reference2 == "Last"
+	elseif reference[2] == "Last"
 	{
 		//---- 最後のページ
-		"\0\b2\s[0]%reference0ヘッドライン、これが最後のページです。"
+		"\0\b2\s[0]%(reference[0])ヘッドライン、これが最後のページです。"
 	}
 	--
 	//---- ヘッドライン本体
-	"\n\n%reference3\n\n"
+	"\n\n%(reference[3])\n\n"
 	--
 	//---- 選択肢
-	if reference2 == "First" || reference2 == "Next"
+	if reference[2] == "First" || reference[2] == "Next"
 	{
 		//---- 次のページがある場合
 		"\q0[][次のページ]/
-		\q1[%reference1][サイトへ]/
+		\q1[%(reference[1])][サイトへ]/
 		\q2[HEADLINECANCEL][やめ]\e"
 	}
 	else
 	{
 		//---- 次のページがない場合
-		"\q0[%reference1][サイトへ]/
+		"\q0[%(reference[1])][サイトへ]/
 		\q1[HEADLINECANCEL][やめ]\e"
 	}
 }
@@ -252,7 +252,7 @@ OnHeadlinesense.OnFind
 //---- ヘッドライン更新が無かった -------------------------------------------------------
 OnHeadlinesenseComplete
 {
-	"\0\s[0]%reference0、更新はないみたいです。\e"
+	"\0\s[0]%(reference[0])、更新はないみたいです。\e"
 }
 
 //---- ヘッドラインセンス失敗 -----------------------------------------------------------
@@ -260,11 +260,11 @@ OnHeadlinesenseFailure
 {
 	"\0\s[0]ヘッドラインセンスに失敗しました。\n\n理由："
 	--
-	if reference0 == "can't download"
+	if reference[0] == "can't download"
 	{
 		"ダウンロード失敗。"
 	}
-	elseif reference0 == "can't analyze"
+	elseif reference[0] == "can't analyze"
 	{
 		"ヘッドライン解析失敗。"
 	}
@@ -300,7 +300,7 @@ OnNarCreating
 //---- NAR作成完了 ----------------------------------------------------------------------
 OnNarCreated
 {
-	"\0\s[0]「%reference0」のなーファイル「%reference1」、できました。\e"
+	"\0\s[0]「%(reference[0])」のなーファイル「%(reference[1])」、できました。\e"
 }
 
 //****　時計合わせ　*********************************************************************
@@ -309,24 +309,24 @@ OnNarCreated
 //----　時計合わせ開始 ------------------------------------------------------------------
 OnSNTPBegin
 {
-	"\0\s[0]時計あわせ開始、%reference0 に接続中。\e"
+	"\0\s[0]時計あわせ開始、%(reference[0]) に接続中。\e"
 }
 
 //----　時刻取得成功、比較開始 ----------------------------------------------------------
 OnSNTPCompare
 {
 	"\0\s[0]/
-	current %reference1[0]/%reference1[1]/%reference1[2] %reference1[3]:%reference1[4]:%reference1[5]\w2\n/
-	local   %reference2[0]/%reference2[1]/%reference2[2] %reference2[3]:%reference2[4]:%reference2[5]\w2\n/
+	current %(reference[1])[0]/%(reference[1])[1]/%(reference[1])[2] %(reference[1])[3]:%(reference[1])[4]:%(reference[1])[5]\w2\n/
+	local   %(reference[2])[0]/%(reference[2])[1]/%(reference[2])[2] %(reference[2])[3]:%(reference[2])[4]:%(reference[2])[5]\w2\n/
 	\n"
 	--
-	if reference3 == 0
+	if reference[3] == 0
 	{
 		"うーん、ぴったり。\e"
 	}
 	else
 	{
-		"\0\n\s[0]%reference3秒ずれています。\n\n/
+		"\0\n\s[0]%(reference[3])秒ずれています。\n\n/
 		\q0[OnSNTPEXECUTE][時刻を合わせる]/
 		\q1[OnSNTPCANCEL][放置]\e"
 	}
@@ -358,16 +358,16 @@ OnDisplayChange
 {
 	//---- 変数にディスプレイ解像度と色深度に関する情報を取得
 	//---- 使うかどうかは分からないがとりあえず保持しておく
-	displaybpp    = reference0
-	displaywidth  = reference1
-	displayheight = reference2
+	displaybpp    = reference[0]
+	displaywidth  = reference[1]
+	displayheight = reference[2]
 }
 
 //---- URLドロップ ----------------------------------------------------------------------
 //---- CROW でゴーストインストーラからゴーストをインストールを始めた時にも呼ばれます ----
 OnURLDropping
 {
-	"\0\s[0]%reference0からデータを取得中です。\e"
+	"\0\s[0]%(reference[0])からデータを取得中です。\e"
 }
 
 //---- 起動時に MATERIA を検出 ----------------------------------------------------------

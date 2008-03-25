@@ -14,10 +14,18 @@ OpenMenu
 	--
 	"\n\n"
 	--
-	AYATEMPLATE.MenuItem('なんか話して','MENU_AITALK') ; -- ; '\n' ; --
-	AYATEMPLATE.MenuItem('しゃべり頻度を変えて','MENU_TALKINTERVAL') ; -- ; '\n' ; --
-	AYATEMPLATE.MenuItem('コミュニケート','MENU_COMMUNICATEOPEN') ; -- ; '\n' ; --
-	AYATEMPLATE.MenuItem('AIについて','MENU_ABOUTAYA') ; -- ; '\n\n[half]' ; --
+	AYATEMPLATE.MenuItem('なんか話して','MENU_AITALK') + '\n'
+	--
+	if ( STRLEN(AYATEMPLATE.LastTalk) > 0 ) {
+		AYATEMPLATE.MenuItem('さっきの話は？','MENU_LASTTALK') + '\n'
+	}
+	--
+	AYATEMPLATE.MenuItem('しゃべり頻度を変えて','MENU_TALKINTERVAL') + '\n'
+	--
+	AYATEMPLATE.MenuItem('コミュニケート','MENU_COMMUNICATEOPEN') + '\n'
+	--
+	AYATEMPLATE.MenuItem('AIについて','MENU_ABOUTAYA') + '\n\n[half]'
+	--
 	AYATEMPLATE.MenuItem('なんでもない','MENU_CANCEL')
 }
 
@@ -31,15 +39,25 @@ MENU_AITALK
 	OnAiTalk
 }
 
+//---- さっきの話は
+MENU_LASTTALK
+{
+	AYATEMPLATE.LastTalk
+}
+
 //---- トーク頻度の調整
 MENU_TALKINTERVAL
 {
 	"\0\s[0]どのくらいがいいのかな？\n\n"
 	--
-	AYATEMPLATE.MenuItem('うるさいくらい','MENU_TALKMAX') ; -- ; '\n' ; --
-	AYATEMPLATE.MenuItem('ふつう','MENU_TALKNORMAL') ; -- ; '\n' ; --
-	AYATEMPLATE.MenuItem('静か','MENU_TALKPOOR') ; -- ; '\n' ; --
-	AYATEMPLATE.MenuItem('黙ってて','MENU_TALKNONE') ; -- ; '\n\n[half]' ; --
+	AYATEMPLATE.MenuItem('うるさいくらい','MENU_TALKMAX') + '\n'
+	--
+	AYATEMPLATE.MenuItem('ふつう','MENU_TALKNORMAL') + '\n
+	--
+	AYATEMPLATE.MenuItem('静か','MENU_TALKPOOR') + '\n'
+	--
+	AYATEMPLATE.MenuItem('黙ってて','MENU_TALKNONE') + '\n\n[half]'
+	--
 	AYATEMPLATE.MenuItem('戻る','OpenMenu')
 }
 

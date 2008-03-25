@@ -6,6 +6,26 @@
 // 通常はここをいじる必要はありません。
 //**** 注意 *************************************************************
 
+
+//**** 起動・終了初期化 *******************************************************************
+OnGhostLoad.AYATEMPLATE
+{
+	AYATEMPLATE.stroke = IARRAY
+	AYATEMPLATE.strokeid = IARRAY
+	AYATEMPLATE.stroketimer = IARRAY
+	AYATEMPLATE.mikireflag = 0
+	AYATEMPLATE.LastTalk = ''
+}
+
+OnGhostUnload.AYATEMPLATE
+{
+	ERASEVAR('AYATEMPLATE.stroke')
+	ERASEVAR('AYATEMPLATE.strokeid')
+	ERASEVAR('AYATEMPLATE.stroketimer')
+	ERASEVAR('AYATEMPLATE.mikireflag')
+	ERASEVAR('AYATEMPLATE.LastTalk')
+}
+
 //**** ランダムトーク *******************************************************************
 
 OnAITalk
@@ -16,21 +36,14 @@ OnAITalk
 //---- OnAiTalkイベント -----------------------------------------------------------------
 OnAiTalk
 {
-	if mikireflag == 0
-	{
-		//---- 通常のランダムトーク、ただしチェイン中はチェイントーク
-		if CHAIN.IDName == "" {
-			RandomTalk
-		}
-		else {
-			ChainTalk
-		}
+	//---- 通常のランダムトーク、ただしチェイン中はチェイントーク
+	if CHAIN.IDName == "" {
+		AYATEMPLATE.LastTalk = RandomTalk
 	}
-	else
-	{
-		//---- 見切れ中なので見切れ中のトークを行う
-		MikireTalk
+	else {
+		AYATEMPLATE.LastTalk = ChainTalk
 	}
+	AYATEMPLATE.LastTalk
 }
 
 //**** メニュー関係 *************************************************************
@@ -48,8 +61,17 @@ OnChoiceSelect
 
 OnAnchorSelect
 {
-	if ISFUNC(reference[0]) {
-		EVAL(reference[0])
+	if SUBSTR(reference[0],0,7) == 'http://' {
+		if basewarename == 'SSP' {
+			"\C"
+		}
+		--
+		"\j[%(AYATEMPLATE.EscapeText(reference[0]))]"
+	}
+	else {
+		if ISFUNC(reference[0]) {
+			EVAL(reference[0])
+		}
 	}
 }
 
@@ -59,12 +81,12 @@ AYATEMPLATE.MenuItem
 {
 	'\![*]\q['
 	--
-	AYATEMPLATE.EscapeMenuText( AYATEMPLATE.MakeJustText(_argv[0],46) )
+	AYATEMPLATE.EscapeText( AYATEMPLATE.MakeJustText(_argv[0],46) )
 	--
 	_n = ARRAYSIZE(_argv)
 	_s = ''
 	for _i = 1 ; _i < _n ; _i++ {
-		_s += ',' + AYATEMPLATE.EscapeMenuText(_argv[_i])
+		_s += ',' + AYATEMPLATE.EscapeText(_argv[_i])
 	}
 	_s
 	--
@@ -72,7 +94,7 @@ AYATEMPLATE.MenuItem
 }
 
 //エスケープ
-AYATEMPLATE.EscapeMenuText
+AYATEMPLATE.EscapeText
 {
 	_r = _argv[0]
 	if RE_SEARCH(_r,'["\[\]]') >= 0 {
@@ -188,7 +210,7 @@ AYATEMPLATE.TranslateSystemChar
 
 AYATEMPLATE.ExecuteChangeCallTalk
 {
-	_ghostname = AYATEMPLATE.TranslateSystemChar(reference0)
+	_ghostname = AYATEMPLATE.TranslateSystemChar(reference[0])
 
 	_funcname = "%(_argv[0])_%(_ghostname)"
 	if ISFUNC(_funcname) {
@@ -221,13 +243,13 @@ AYATEMPLATE.ExecuteChangeCallTalk
 
 AYATEMPLATE.MouseEventExec
 {
-	_fname = _argv[0] + TOSTR(reference3) + TOSTR(reference4)
+	_fname = _argv[0] + TOSTR(reference[3]) + TOSTR(reference[4])
 	if ISFUNC(_fname) {
 		EVAL(_fname)
 		return
 	}
 	
-	_fname = _argv[0] + TOSTR(reference3)
+	_fname = _argv[0] + TOSTR(reference[3])
 	if ISFUNC(_fname) {
 		EVAL(_fname)
 		return
@@ -236,30 +258,30 @@ AYATEMPLATE.MouseEventExec
 
 AYATEMPLATE.MouseMoveWheelFunc
 {
-	_side = TOINT(reference3)
+	_side = TOINT(reference[3])
 	if _argv[0] {
 		_side += 10
 	}
 	
-	if strokeid[_side] == reference4 {
-		if (GETTICKCOUNT - TOINT(stroketimer[_side])) > 1500 {
-			stroke[_side] = 1
+	if AYATEMPLATE.strokeid[_side] == reference[4] {
+		if (GETTICKCOUNT - TOINT(AYATEMPLATE.stroketimer[_side])) > 1500 {
+			AYATEMPLATE.stroke[_side] = 1
 		}
-		stroketimer[_side] = GETTICKCOUNT
+		AYATEMPLATE.stroketimer[_side] = GETTICKCOUNT
 		
-		_stroke = TOINT(stroke[_side])
+		_stroke = TOINT(AYATEMPLATE.stroke[_side])
 		_stroke += 1
-		stroke[_side] = _stroke
+		AYATEMPLATE.stroke[_side] = _stroke
 		
 		if _stroke >= _argv[1] {
 			AYATEMPLATE.MouseEventExec(_argv[2]);
-			stroke[_side] = 1
+			AYATEMPLATE.stroke[_side] = 1
 		}
 	}
 	else {
-		stroke[_side] = 1
-		stroketimer[_side] = GETTICKCOUNT
-		strokeid[_side] = reference4
+		AYATEMPLATE.stroke[_side] = 1
+		AYATEMPLATE.stroketimer[_side] = GETTICKCOUNT
+		AYATEMPLATE.strokeid[_side] = reference[4]
 	}
 }
 
@@ -285,5 +307,6 @@ On_name
 {
 	GETSETTING('coreinfo.name')
 }
+
 
 

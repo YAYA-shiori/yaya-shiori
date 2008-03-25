@@ -1,6 +1,16 @@
 ///////// YAYA　ゴーストテンプレート
 ///////// コミュニケート辞書
 
+//**** 起動中ゴーストリスト取得 *************************************************************
+
+On_otherghostname
+{
+	// 現在起動中のゴーストのリストを作成する
+	ghostexlist = reference
+	ghostexcount = ARRAYSIZE(ghostexlist)
+}
+
+
 //**** こちらから話しかける *************************************************************
 
 StartCommunicate
@@ -8,25 +18,25 @@ StartCommunicate
 	//---- まず話しかける相手を決める
 	if ghostexcount > 0
 	{
-		// res_reference0 に話しかける相手の名前を格納
-		res_reference0 = ghostexlist[RAND(ghostexcount)]
+		// res_reference[0] に話しかける相手の名前を格納
+		res_reference[0] = ghostexlist[RAND(ghostexcount)]
 	}
 
 	//---- 話しかける
-	if res_reference0 == "なる"
+	if res_reference[0] == "なる"
 	{
 		//---- 奈留へ話しかけ
 		"\0\s[0]元気ですか、奈留さん。\e"
 	}
-	elseif res_reference0 == "さくら"
+	elseif res_reference[0] == "さくら"
 	{
 		//---- さくらへ話しかけ
 		"\0\s[0]どもー。\e"
 	}
-	elseif res_reference0 != ""
+	elseif res_reference[0] != ""
 	{
 		//---- 誰かへ話しかけ
-		"\0\s[0]こんにちは、%res_reference0。\e"
+		"\0\s[0]こんにちは、%res_reference[0]。\e"
 	}
 	else
 	{
@@ -41,7 +51,7 @@ StartCommunicate
 //---- OnCommunicateイベント ------------------------------------------------------------
 OnCommunicate
 {
-	if reference0 == "user" || reference0 == "User"
+	if reference[0] == "user" || reference[0] == "User"
 	{
 		//---- ユーザーからの話しかけ
 		ReplyToUser
@@ -56,7 +66,7 @@ OnCommunicate
 //---- ユーザーからの話しかけ -----------------------------------------------------------
 ReplyToUser
 {
-	if "名前" _in_ reference1 && "覚えて" _in_ reference1
+	if "名前" _in_ reference[1] && "覚えて" _in_ reference[1]
 	{
 		//---- ユーザー名入力開始
 		"\0\s[0]いいよ、なんていう名前なの、%username？\e"
@@ -68,7 +78,7 @@ ReplyToUser
 		if teachusername == 1
 		{
 			//---- 直前が「名前覚えて」だったので名前を覚える
-			username = reference1
+			username = reference[1]
 			"\0\s[0]%username、ね。わかりました。\e"
 			teachusername = 0
 		}
@@ -83,15 +93,15 @@ ReplyToUser
 //---- ユーザーへの返事（名前覚え以外） -------------------------------------------------
 TalkToUser
 {
-	if "こんにちは" _in_ reference1
+	if "こんにちは" _in_ reference[1]
 	{
 		"\0\s0こんにちはっ。\e"
 	}
-	elseif "好き" _in_ reference1 || "愛し" _in_ reference1
+	elseif "好き" _in_ reference[1] || "愛し" _in_ reference[1]
 	{
 		"\0\s0ありがとうございます。\nわたしも%usernameのこと‥‥\w9、好きかも\w5‥\w5‥。\e"
 	}
-	elseif "ややめ" _in_ reference1 && "好物" _in_ reference1
+	elseif "ややめ" _in_ reference[1] && "好物" _in_ reference[1]
 	{
 		"\0\s0わたしの好きなたべものはねー、レーズンがいーっぱい入ったバターパンなの。/
 			\w5\1\s[10]おれは%foodがいーっぱい入った餃子だな。\e"
@@ -106,29 +116,29 @@ TalkToUser
 ReplyToGhost
 {
 	// 話しかけてきた相手に返事
-	res_reference0 = reference0
+	res_reference[0] = reference[0]
 
-	if res_reference0 == "なる"
+	if res_reference[0] == "なる"
 	{
 		//---- 奈留へ返事
-		res_reference0 = ""
+		res_reference[0] = ""
 		"\0\s0はい。\e"
 	}
-	elseif res_reference0 == "さくら"
+	elseif res_reference[0] == "さくら"
 	{
 		//---- さくらへ返事
-		if "うるさい" _in_ reference1
+		if "うるさい" _in_ reference[1]
 		{
-			res_reference0 = ""
+			res_reference[0] = ""
 			"\0\s0‥‥ぅー。\e"
 		}
-		elseif "こんにちは" _in_ reference1
+		elseif "こんにちは" _in_ reference[1]
 		{
 			"\0\s0こんちはー。\e"
 		}
-		elseif "また今度" _in_ reference1
+		elseif "また今度" _in_ reference[1]
 		{
-			res_reference0 = ""
+			res_reference[0] = ""
 			"\1\s[10]んむ。\e"
 		}
 		else
@@ -139,13 +149,13 @@ ReplyToGhost
 	else
 	{
 		//---- 誰かへ返事
-		if "こんにちは" _in_ reference1 || "こんばんは" _in_ reference1
+		if "こんにちは" _in_ reference[1] || "こんばんは" _in_ reference[1]
 		{
-			"\0\s0どうも、%res_reference0。\e"
+			"\0\s0どうも、%res_reference[0]。\e"
 		}
 		else
 		{
-			res_reference0 = ""
+			res_reference[0] = ""
 			"\0\s0はァ。\e"
 		}
 	}

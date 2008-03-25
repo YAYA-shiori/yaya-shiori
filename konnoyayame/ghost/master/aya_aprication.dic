@@ -6,19 +6,19 @@
 //---- 起動 -----------------------------------------------------------------------------
 OnApplicationBoot
 {
-	"\0\s[0]%reference0、起動っ。\e"
+	"\0\s[0]%(reference[0])、起動っ。\e"
 }
 
 //---- 終了 -----------------------------------------------------------------------------
 OnApplicationClose
 {
-	"\0\s[0]%reference0、終了っ。\e"
+	"\0\s[0]%(reference[0])、終了っ。\e"
 }
 
 //---- ファイルオープン -----------------------------------------------------------------
 OnApplicationFileOpen
 {
-	"\0\s[0]%reference1を開きました。\e"
+	"\0\s[0]%(reference[1])を開きました。\e"
 }
 
 
@@ -27,7 +27,7 @@ OnApplicationFileOpen
 //---- 生えた ---------------------------------------------------------------------------
 OnKinokoObjectCreate
 {
-	"\1\s[10]おい、%reference0が‥\w5‥\w5\0\s[0]‥\w5‥\e"
+	"\1\s[10]おい、%(reference[0])が‥\w5‥\w5\0\s[0]‥\w5‥\e"
 	"\0\s[0]重い。\e"
 }
 
@@ -55,7 +55,7 @@ OnSysResourceLow
 //---- OnNekodorifObjectHitイベント -----------------------------------------------------
 OnNekodorifObjectHit
 {
-	if reference4 == "ややめ"	// ここにsakura名を指定
+	if reference[4] == "ややめ"	// ここにsakura名を指定
 	{
 		ObjectHitSakura
 	}
@@ -68,29 +68,29 @@ OnNekodorifObjectHit
 //---- 本体側に当たった -----------------------------------------------------------------
 ObjectHitSakura
 {
-	if reference2[0] == "pain" || reference2[0] == "stab"
+	if reference[2][0] == "pain" || reference[2][0] == "stab"
 	{
 		"\0\s0いったあい！\e"
 	}
-	elseif reference2[0] == "surprise" || reference2[0] == "huge"
+	elseif reference[2][0] == "surprise" || reference[2][0] == "huge"
 	{
 		"\0\s0わっ！\e"
 	}
-	elseif reference2[0] == "love" || reference2[0] == "elegant" || /
-		reference2[0] == "pretty" || reference2[0] == "food"
+	elseif reference[2][0] == "love" || reference[2][0] == "elegant" || /
+		reference[2][0] == "pretty" || reference[2][0] == "food"
 	{
 		"\0\s0わーいっ。\e"
 	}
 	else
 	{
-		"\0\s0‥\w2‥\w2むー。%reference0か。\e"
+		"\0\s0‥\w2‥\w2むー。%(reference[0])か。\e"
 	}
 }
 
 //---- kero側に当たった -----------------------------------------------------------------
 ObjectHitKero
 {
-	if reference2[0] == "pain" || reference2[0] == "stab"
+	if reference[2][0] == "pain" || reference[2][0] == "stab"
 	{
 		"\1\s[10]ぐふっ‥\w2‥\w2！\e"
 	}
