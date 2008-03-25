@@ -79,6 +79,24 @@ OnAnchorSelect
 //’Êíƒƒjƒ…[
 AYATEMPLATE.MenuItem
 {
+	_linefeed = 100
+	if _argc >= 3 {
+		_linefeed = _argv[2]
+	}
+	
+	_lftext = ''
+	while _linefeed > 0 {
+		if _linefeed >= 100 {
+			_lftext += '\n'
+		}
+		else {
+			_lftext += '\n[half]'
+		}
+		_linefeed -= 100
+	}
+	
+	_lftext
+	--
 	'\![*]\q['
 	--
 	AYATEMPLATE.EscapeText( AYATEMPLATE.MakeJustText(_argv[0],46) )
