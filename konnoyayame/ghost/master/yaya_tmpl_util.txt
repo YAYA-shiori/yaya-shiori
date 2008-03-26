@@ -80,10 +80,14 @@ OnAnchorSelect
 AYATEMPLATE.MenuItem
 {
 	_linefeed = 100
-	if _argc >= 3 {
-		_linefeed = _argv[2]
+	_n = _argc
+	if _n >= 3 {
+		if GETTYPE(_argv[_n-1]) == 1 { //®”
+			_linefeed = _argv[_n-1]
+			_n -= 1
+		}
 	}
-	
+
 	_lftext = ''
 	while _linefeed > 0 {
 		if _linefeed >= 100 {
@@ -101,7 +105,6 @@ AYATEMPLATE.MenuItem
 	--
 	AYATEMPLATE.EscapeText( AYATEMPLATE.MakeJustText(_argv[0],46) )
 	--
-	_n = ARRAYSIZE(_argv)
 	_s = ''
 	for _i = 1 ; _i < _n ; _i++ {
 		_s += ',' + AYATEMPLATE.EscapeText(_argv[_i])

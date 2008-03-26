@@ -12,26 +12,50 @@ OnInstallBegin
 //---- インストール完了メッセージ -------------------------------------------------------
 OnInstallComplete
 {
+	_ref0 = SPLIT(reference[0],' with',2)[0] //hogehoge with hemohemo
+	
 	"\0\s[0]"
 	--
-	if reference[0] == "shell"
-	{
+	if _ref0 == "shell" {
 		"シェル"
 	}
-	elseif reference[0] == "ghost"
-	{
+	elseif _ref0 == "ghost" {
 		"ゴースト"
 	}
-	elseif reference[0] == "balloon"
-	{
+	elseif _ref0 == "balloon" {
 		"バルーン"
 	}
-	elseif reference[0] == "plugin"
-	{
+	elseif _ref0 == "plugin" {
 		"プラグイン"
 	}
 	--
-	"「%(reference[1])」、インストール完了しました。\e"
+	"「%(reference[1])」、インストール完了しました。\n"
+	--
+	if basewarenameex == 'SSP' {
+		_id = ''
+		if _ref0 == "shell" {
+			_id = 'shell'
+		}
+		elseif _ref0 == "ghost" {
+			_id = 'ghost'
+		}
+		elseif _ref0 == "balloon" {
+			_id = 'balloon'
+		}
+		
+		if _id != '' {
+			"切り替えますか？"
+			--
+			AYATEMPLATE.MenuItem("切り替える","OnAYATEMPLATE.InstallChange",_id,200)
+			--
+			AYATEMPLATE.MenuItem("切り替えない","Menu_CANCEL")
+		}
+	}
+}
+
+OnAYATEMPLATE.InstallChange
+{
+	"\![change,%(reference[0]),lastinstalled]"
 }
 
 //---- インストール失敗メッセージ -------------------------------------------------------
