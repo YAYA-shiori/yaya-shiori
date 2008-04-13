@@ -145,6 +145,12 @@ unload
 	ERASEVAR('SHIORI3FW.DelayEventReference')
 	ERASEVAR('SHIORI3FW.DelayEvent')
 
+	ERASEVAR('SHIORI3FW.SakuraNameList')
+	ERASEVAR('SHIORI3FW.FMOTable')
+	ERASEVAR('SHIORI3FW.FMOCache')
+	ERASEVAR('ghostexlist')
+	ERASEVAR('ghostexcount')
+
 	ERASEVAR('selfname' )
 	ERASEVAR('selfname2')
 	ERASEVAR('keroname' )

@@ -231,34 +231,84 @@ AYATEMPLATE.TranslateSystemChar
 
 AYATEMPLATE.ExecuteChangeCallTalk
 {
-	_ghostname = AYATEMPLATE.TranslateSystemChar(reference[0])
+	AYATEMPLATE.ExecuteGhostNameFunc(_argv[0],reference[0],_argv[1])
+}
 
-	_funcname = "%(_argv[0])_%(_ghostname)"
-	if ISFUNC(_funcname) {
-		_script = EVAL(_funcname)
-		if STRLEN(_script) != 0 {
-			_script
-			return
-		}
-	}
+//**** 切り替え/コミュ共通コア（ゴースト名付加関数呼び出し）*********************
 
-	_funcname = "%(_argv[0])Other"
+AYATEMPLATE.ExecuteGhostNameFunc
+{
+	_ghostname = AYATEMPLATE.TranslateSystemChar(_argv[1])
+
+	if _ghostname != '' {
+		_funcname = "%(_argv[0])_%(_ghostname)"
 		if ISFUNC(_funcname) {
-		_script = EVAL(_funcname)
-		if STRLEN(_script) != 0 {
-			_script
-			return
+			_script = EVAL(_funcname)
+			if STRLEN(_script) != 0 {
+				_script
+				return
+			}
+		}
+
+		_funcname = "%(_argv[0])Other"
+			if ISFUNC(_funcname) {
+			_script = EVAL(_funcname)
+			if STRLEN(_script) != 0 {
+				_script
+				return
+			}
 		}
 	}
 
 	if _argc >= 2 {
-		_script = EVAL(_argv[1])
+		_script = EVAL(_argv[2])
 		if STRLEN(_script) != 0 {
 			REPLACE(_script,"\-","")
 			return
 		}
 	}
 }
+
+//**** コミュ関係 *********************************************************************
+AYATEMPLATE.ExecuteTalkToTalk
+{
+	//---- まず話しかける相手を決める
+	_ghostname=AYATEMPLATE.GetRandomSakuraName()
+	res_reference[0]=_ghostname
+	AYATEMPLATE.ExecuteGhostNameFunc('TalkTo',_ghostname,'RandomTalk')
+}
+
+AYATEMPLATE.ExecuteReplyToTalk
+{
+	AYATEMPLATE.ExecuteGhostNameFunc('ReplyTo',_ghostname)
+}
+
+AYATEMPLATE.GetRandomSakuraName
+{
+	_ghostlist=IARRAY
+	//FMOが使える場合はFMOから読みます
+	if ISFUNC('SHIORI3FW.RefreshFMOTable') {
+		_ghostlist=SHIORI3FW.SakuraNameList
+	}else{
+		_ghostlist=ghostexlist
+	}
+	if ARRAYSIZE(_ghostlist)>0 {
+		ANY(_ghostlist)
+	}else{
+		''
+	}
+}
+
+//起動中ゴーストリスト取得
+
+On_otherghostname
+{
+	// 現在起動中のゴーストのリストを作成する
+	ghostexlist = reference
+	ghostexcount = ARRAYSIZE(ghostexlist)
+}
+
+
 
 //**** マウスイベントコア *************************************************************
 
@@ -329,5 +379,21 @@ On_name
 	GETSETTING('coreinfo.name')
 }
 
+//---- Owned SSTP 用 uniqueid 取得 ------------------------------------------------------
+On_uniqueid
+{
+	uniqueid = reference[0]
+}
 
+//---- hwnd 取得 ------------------------------------------------------------------------
+On_hwnd
+{
+	_tmp = SPLIT(reference[0],CHR(1))
+	sakurahwnd    = TOINT(_tmp[0])
+	kerohwnd      = TOINT(_tmp[1])
+
+	_tmp = SPLIT(reference[1],CHR(1))
+	sakurablnhwnd = TOINT(_tmp[0])
+	keroblnhwnd   = TOINT(_tmp[1])
+}
 

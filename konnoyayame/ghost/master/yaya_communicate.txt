@@ -1,26 +1,11 @@
 ///////// YAYA　ゴーストテンプレート
 ///////// コミュニケート辞書
 
-//**** 起動中ゴーストリスト取得 *************************************************************
-
-On_otherghostname
-{
-	// 現在起動中のゴーストのリストを作成する
-	ghostexlist = reference
-	ghostexcount = ARRAYSIZE(ghostexlist)
-}
-
 
 //**** こちらから話しかける *************************************************************
 
 StartCommunicate
 {
-	//---- まず話しかける相手を決める
-	if ghostexcount > 0
-	{
-		// res_reference[0] に話しかける相手の名前を格納
-		res_reference[0] = ghostexlist[RAND(ghostexcount)]
-	}
 
 	//---- 話しかける
 	if res_reference[0] == "なる"

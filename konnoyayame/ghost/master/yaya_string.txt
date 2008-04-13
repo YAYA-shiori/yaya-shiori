@@ -98,23 +98,6 @@ On_vanishbutton.visible
 	"1"
 }
 
-//---- Owned SSTP —p uniqueid Žæ“¾ ------------------------------------------------------
-On_uniqueid
-{
-	uniqueid = reference[0]
-}
-
-//---- hwnd Žæ“¾ ------------------------------------------------------------------------
-On_hwnd
-{
-	_tmp = SPLIT(reference[0],CHR(1))
-	sakurahwnd    = TOINT(_tmp[0])
-	kerohwnd      = TOINT(_tmp[1])
-
-	_tmp = SPLIT(reference[1],CHR(1))
-	sakurablnhwnd = TOINT(_tmp[0])
-	keroblnhwnd   = TOINT(_tmp[1])
-}
 
 
 
