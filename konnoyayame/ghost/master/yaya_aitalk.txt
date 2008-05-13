@@ -169,7 +169,7 @@ OnTranslate
 /*
 OnTranslateInternal
 {
-	_text = reference[0]
+	_text = _argv[0]
 	_text = REPLACE(_text, "ÅB", "Ç…Ç„ÅB")
 	_text
 }

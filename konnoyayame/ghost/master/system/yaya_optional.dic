@@ -41,7 +41,7 @@ SHIORI3FW.EscapeDangerousTags{
 		'updatebymyself|vanishbymyself|enter,passivemode|' + /
 		'leave,passivemode|lock,repaint|unlock,repaint|biff|' + /
 		'open,browser|open,mailer|raise)' + /
-		'\]|\j\[))' , /
+		'.*?\]|\\j\[))' , /
 		'\\')
 	_txt=REPLACE(_txt,ESCAPE_TAG_2,'\%')
 	_txt=REPLACE(_txt,ESCAPE_TAG_1,'\\')
