@@ -13,6 +13,8 @@
 
 OnGhostLoad.AYATEMPLATE
 {
+	AYATEMPLATE.installedplugin_name = IARRAY
+	AYATEMPLATE.installedplugin_id = IARRAY
 	AYATEMPLATE.stroke = IARRAY
 	AYATEMPLATE.strokeid = IARRAY
 	AYATEMPLATE.stroketimer = IARRAY
@@ -22,6 +24,8 @@ OnGhostLoad.AYATEMPLATE
 
 OnGhostUnload.AYATEMPLATE
 {
+	ERASEVAR('AYATEMPLATE.installedplugin_name')
+	ERASEVAR('AYATEMPLATE.installedplugin_id')
 	ERASEVAR('AYATEMPLATE.stroke')
 	ERASEVAR('AYATEMPLATE.strokeid')
 	ERASEVAR('AYATEMPLATE.stroketimer')
@@ -447,4 +451,39 @@ On_hwnd
 	_tmp = SPLIT(reference[1],CHR(1))
 	sakurablnhwnd = TOINT(_tmp[0])
 	keroblnhwnd   = TOINT(_tmp[1])
+}
+
+//------------------------------------------------------------------------------
+//ƒvƒ‰ƒOƒCƒ“
+//------------------------------------------------------------------------------
+On_installedplugin : void
+{
+	_n = ARRAYSIZE(reference)
+	AYATEMPLATE.installedplugin_name = IARRAY
+	AYATEMPLATE.installedplugin_id = IARRAY
+	
+	for _i = 0 ; _i < _n ; _i++ {
+		_a = SPLIT(reference[_i],CHR(1))
+		
+		AYATEMPLATE.installedplugin_name ,= _a[0]
+		AYATEMPLATE.installedplugin_id ,= _a[1]
+	}
+}
+
+AYATEMPLATE.IsPluginExist
+{
+	if _argc == 0 {
+		0
+		return
+	}
+	
+	if ASEARCH(_argv[0],AYATEMPLATE.installedplugin_id) >= 0 {
+		1
+		return
+	}
+	if ASEARCH(_argv[0],AYATEMPLATE.installedplugin_name) >= 0 {
+		1
+		return
+	}
+	0
 }
