@@ -75,10 +75,13 @@ public:
 
 //----
 
+typedef std::map<yaya::string_t,int> charset_map;
+
 class	CLib
 {
 protected:
 	std::list<CLib1>	liblist;
+	charset_map charset_temp_map;
 	int			charset;
 
 private:
