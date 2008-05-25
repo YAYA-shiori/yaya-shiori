@@ -1,4 +1,8 @@
 #labels Featured
+=Tc530-2=
+  * CHARSETLIBEXをロード前でも動くようにした
+  * iolog,offしても完全にログを無効できなかった問題を修正
+
 =Tc530-1=
   * FDIGESTに32bit CRC追加
   * LICENSEシステム関数追加（ライセンス表示）
