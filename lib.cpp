@@ -40,9 +40,11 @@
 int	CLib::Add(const yaya::string_t &name)
 {
 	std::list<CLib1>::iterator it;
-	for(it = liblist.begin(); it != liblist.end(); it++)
-		if (!name.compare(it->GetName()))
+	for(it = liblist.begin(); it != liblist.end(); it++) {
+		if (!name.compare(it->GetName())) {
 			return 2;
+		}
+	}
 
 	liblist.push_back(CLib1(vm, name, charset));
 	it = liblist.end();
@@ -57,6 +59,13 @@ int	CLib::Add(const yaya::string_t &name)
 		return 0;
 	}
 
+	//一時文字コード設定保存部にためこんだものを設定
+	charset_map::iterator itc = charset_temp_map.find(name);
+	if ( itc != charset_temp_map.end() ) {
+		it->SetCharset(itc->second);
+		charset_temp_map.erase(itc);
+	}
+
 	return 1;
 }
 
@@ -69,13 +78,14 @@ int	CLib::Add(const yaya::string_t &name)
  */
 int	CLib::Delete(const yaya::string_t &name)
 {
-	for(std::list<CLib1>::iterator it = liblist.begin(); it != liblist.end(); it++)
+	for(std::list<CLib1>::iterator it = liblist.begin(); it != liblist.end(); it++) {
 		if (!name.compare(it->GetName())) {
 			int	result = it->Unload();
 			it->Release();
 			it = liblist.erase(it);
 			return result;
 		}
+	}
 
 	return 2;
 }
@@ -88,24 +98,29 @@ int	CLib::Delete(const yaya::string_t &name)
 void	CLib::DeleteAll(void)
 {
 	liblist.clear();
+	charset_temp_map.clear();
 }
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CLib::SetCharsetDynamic
- *  機能概要：  すでにロードされているSAORIの文字コードを変更します
+ *  機能概要：  SAORIの文字コードを変更します
  *
- *  返値　　：　0/1=失敗(ロードされていない、もしくは既にunloadされている)/成功
+ *  返値　　：　1=常に成功
  * -----------------------------------------------------------------------
  */
 int	CLib::SetCharsetDynamic(const yaya::string_t &name,int cs)
 {
-	for(std::list<CLib1>::iterator it = liblist.begin(); it != liblist.end(); it++)
+	for(std::list<CLib1>::iterator it = liblist.begin(); it != liblist.end(); it++) {
 		if (!name.compare(it->GetName())) {
 			it->SetCharset(cs);
 			return 1;
 		}
+	}
 
-	return 0;
+	//まだロードされていない場合は一時mapにためこむ
+	charset_temp_map.insert( charset_map::value_type(name,cs) );
+
+	return 1;
 }
 
 
@@ -118,13 +133,14 @@ int	CLib::SetCharsetDynamic(const yaya::string_t &name,int cs)
  */
 int	CLib::Request(const yaya::string_t &name, const yaya::string_t &istr, yaya::string_t &ostr)
 {
-	for(std::list<CLib1>::iterator it = liblist.begin(); it != liblist.end(); it++)
+	for(std::list<CLib1>::iterator it = liblist.begin(); it != liblist.end(); it++) {
 		if (!name.compare(it->GetName())) {
 			vm.logger().IoLib(0, istr, name);
 			int	result = it->Request(istr, ostr);
 			vm.logger().IoLib(1, ostr, name);
 			return result;
 		}
+	}
 
 	ostr = L"";
 	return 0;
