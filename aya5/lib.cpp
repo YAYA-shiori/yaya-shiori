@@ -123,6 +123,28 @@ int	CLib::SetCharsetDynamic(const yaya::string_t &name,int cs)
 	return 1;
 }
 
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CLib::GetCharsetDynamic
+ *  機能概要：  SAORIの文字コードを取得します
+ *
+ *  返値　　：　文字コード/数値 失敗時-1
+ * -----------------------------------------------------------------------
+ */
+int	CLib::GetCharsetDynamic(const yaya::string_t &name)
+{
+	for(std::list<CLib1>::iterator it = liblist.begin(); it != liblist.end(); it++) {
+		if (!name.compare(it->GetName())) {
+			return it->GetCharset();
+		}
+	}
+
+	charset_map::const_iterator itr = charset_temp_map.find(name);
+	if ( itr != charset_temp_map.end() ) {
+		return itr->second;
+	}
+	return -1;
+}
+
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CLib::Request

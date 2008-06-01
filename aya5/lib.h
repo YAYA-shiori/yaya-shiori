@@ -69,6 +69,7 @@ public:
 	void	Release(void);
 
 	void	SetCharset(int cs) { charset = cs; }
+	int		GetCharset(void) { return charset; }
 
 	int		Request(const yaya::string_t &istr, yaya::string_t &ostr);
 };
@@ -96,6 +97,9 @@ public:
 
 	void	SetCharset(int cs) { charset = cs; }
 	int		SetCharsetDynamic(const yaya::string_t &name,int cs);
+
+	int		GetCharset(void) { return charset; }
+	int		GetCharsetDynamic(const yaya::string_t &name);
 
 	int		Add(const yaya::string_t &name);
 	int		Delete(const yaya::string_t &name);
