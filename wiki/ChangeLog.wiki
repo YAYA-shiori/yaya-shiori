@@ -1,4 +1,9 @@
 #labels Featured
+=Tc531-1=
+  * CHARSETLIB / CHARSETLIBEXをいじった
+   * [http://emily.shillest.net/ayaya/index.php?%E3%83%9E%E3%83%8B%E3%83%A5%E3%82%A2%E3%83%AB%2F%E9%96%A2%E6%95%B0%2FCHARSETLIB CHARSETLIB]
+   * [http://emily.shillest.net/ayaya/index.php?%E3%83%9E%E3%83%8B%E3%83%A5%E3%82%A2%E3%83%AB%2F%E9%96%A2%E6%95%B0%2FCHARSETLIBEX CHARSETLIBEX]
+
 =Tc530-3=
   * コメント処理がまたおかしかった問題を修正
 
