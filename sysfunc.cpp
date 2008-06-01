@@ -1193,19 +1193,17 @@ CValue CSystemFunction::HAN2ZEN(const CValue &arg, yaya::string_t &d, int &l)
 CValue	CSystemFunction::CHARSETLIB(const CValue &arg, yaya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
-		vm.logger().Error(E_W, 8, L"CHARSETLIB", d, l);
-		SetError(8);
-		return CValue(F_TAG_NOP, 0/*dmy*/);
+		return CValue(Ccct::CharsetIDToTextW(vm.libs().GetCharset()));
 	}
+	else {
+		int	charset = GetCharset(arg.array()[0],L"CHARSETLIB",d,l);
+		if ( charset < 0 ) {
+			return CValue();
+		}
 
-	int	charset = GetCharset(arg.array()[0],L"CHARSETLIB",d,l);
-	if ( charset < 0 ) {
-		return CValue(F_TAG_NOP, 0/*dmy*/);
+		vm.libs().SetCharset(charset);
+		return CValue();
 	}
-
-	vm.libs().SetCharset(charset);
-
-	return CValue(F_TAG_NOP, 0/*dmy*/);
 }
 
 /* -----------------------------------------------------------------------
@@ -1214,7 +1212,7 @@ CValue	CSystemFunction::CHARSETLIB(const CValue &arg, yaya::string_t &d, int &l)
  */
 CValue	CSystemFunction::CHARSETLIBEX(const CValue &arg, yaya::string_t &d, int &l)
 {
-	if (arg.array_size() < 2) {
+	if (arg.array_size() < 1) {
 		vm.logger().Error(E_W, 8, L"CHARSETLIBEX", d, l);
 		SetError(8);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -1226,18 +1224,27 @@ CValue	CSystemFunction::CHARSETLIBEX(const CValue &arg, yaya::string_t &d, int &
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	int	charset = GetCharset(arg.array()[1],L"CHARSETLIBEX",d,l);
-	if ( charset < 0 ) {
-		return CValue(F_TAG_NOP, 0/*dmy*/);
-	}
-	int result = vm.libs().SetCharsetDynamic(ToFullPath(arg.array()[0].s_value),charset);
+	if ( arg.array_size() >= 2 ) {
+		int	charset = GetCharset(arg.array()[1],L"CHARSETLIBEX",d,l);
+		if ( charset < 0 ) {
+			return CValue(F_TAG_NOP, 0/*dmy*/);
+		}
+		int result = vm.libs().SetCharsetDynamic(ToFullPath(arg.array()[0].s_value),charset);
 
-	if (!result) {
-		vm.logger().Error(E_W, 13, L"CHARSETLIBEX", d, l);
-		SetError(13);
-	}
+		if (!result) {
+			vm.logger().Error(E_W, 13, L"CHARSETLIBEX", d, l);
+			SetError(13);
+		}
 
-	return CValue(result);
+		return CValue(result);
+	}
+	else {
+		int result = vm.libs().GetCharsetDynamic(ToFullPath(arg.array()[0].s_value));
+		if ( result < 0 ) {
+			return CValue();
+		}
+		return CValue(Ccct::CharsetIDToTextW(result));
+	}
 }
 
 
