@@ -8,6 +8,6 @@ kero.name,ƒ}ƒbƒN˜N
 
 sstp.allowunspecifiedsend,1
 
-icon,ayame.ico
+icon,icon.ico
 
 shiori,yaya.dll
