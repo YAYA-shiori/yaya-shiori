@@ -70,7 +70,6 @@ load
 	ghostboottime         = systemuptime
 
 	S_CHARSET = GETSETTING('charset.output')
-	E_CHARSET = GETSETTING('charset.extension')
 	
 	status = ''
 	tempvarname = IARRAY
@@ -86,7 +85,15 @@ load
 		restore_old_variables
 	}
 	
-
+	//こっち推奨
+	_a = GETFUNCLIST('OnSystemLoad')
+	_n = ARRAYSIZE(_a)
+	for _i = 0 ; _i < _n ; _i++
+	{
+		EVAL(_a[_i])
+	}
+	
+	//互換用
 	_a = GETFUNCLIST('OnGhostLoad')
 	_n = ARRAYSIZE(_a)
 	for _i = 0 ; _i < _n ; _i++
@@ -110,14 +117,21 @@ unload
 	var.req.key   = IARRAY
 	var.req.value = IARRAY
 
+	//互換用
 	_a = GETFUNCLIST('OnGhostUnload')
 	_n = ARRAYSIZE(_a)
 	for _i = _n-1 ; _i >= 0 ; _i--
 	{
 		EVAL(_a[_i])
 	}
-
-	OnUnload
+	
+	//こっち推奨
+	_a = GETFUNCLIST('OnSystemUnload')
+	_n = ARRAYSIZE(_a)
+	for _i = _n-1 ; _i >= 0 ; _i--
+	{
+		EVAL(_a[_i])
+	}
 
 	// 保存する必要のない変数を削除
 	ERASEVAR('eventtranslate_exist')
@@ -155,7 +169,6 @@ unload
 	ERASEVAR('sender')
 	
 	ERASEVAR('S_CHARSET')
-	ERASEVAR('E_CHARSET')
 
 	ERASEVAR('installedghostlist' )
 	ERASEVAR('installedsakuralist')
@@ -881,7 +894,7 @@ FUNCTIONEX
 
 	// リクエスト文字列を作成
 	_reqheader = /
-		"EXECUTE SAORI/1.0%(C_CRLF)Charset: %(E_CHARSET)%(C_CRLF)Sender: AYA%(C_CRLF)SecurityLevel: Local%(C_CRLF)"
+		"EXECUTE SAORI/1.0%(C_CRLF)Charset: %(CHARSETLIBEX(_argv[0]))%(C_CRLF)Sender: AYA%(C_CRLF)SecurityLevel: Local%(C_CRLF)"
 	for _i = 1; _i < _argc; _i++ {
 		_reqheader += "Argument%(_i - 1): %(_argv[_i])%(C_CRLF)"
 	}
@@ -910,7 +923,7 @@ SAORI { FUNCTIONEX(_argv) }
 //------------------------------------------------------------------------------
 SHIORI3FW.SendGETVersion
 {
-	SHIORI3FW.RequestLib(_argv[0], "GET Version SAORI/1.0%(C_CRLF)Charset: %(E_CHARSET)%(C_CRLF)Sender: AYA%(C_CRLF2)")
+	SHIORI3FW.RequestLib(_argv[0], "GET Version SAORI/1.0%(C_CRLF)Charset: %(CHARSETLIBEX(_argv[0]))%(C_CRLF)Sender: AYA%(C_CRLF2)")
 
 	LIB.STATUSCODE
 }

@@ -13,11 +13,11 @@
 //èâä˙âªÅEå„énññ
 //******************************************************************************
 
-OnGhostLoad.SHIORI3FW.OPTIONAL
+OnSystemLoad.SHIORI3FW.OPTIONAL
 {
 }
 
-OnGhostUnload.SHIORI3FW.OPTIONAL
+OnSystemUnload.SHIORI3FW.OPTIONAL
 {
 	ERASEVAR('SHIORI3FW.FMOCache')
 	ERASEVAR('SHIORI3FW.SakuraNameList')

@@ -11,7 +11,7 @@
 //ãNìÆÅEèIóπèâä˙âª
 //******************************************************************************
 
-OnGhostLoad.AYATEMPLATE
+OnSystemLoad.AYATEMPLATE
 {
 	AYATEMPLATE.installedplugin_name = IARRAY
 	AYATEMPLATE.installedplugin_id = IARRAY
@@ -22,7 +22,7 @@ OnGhostLoad.AYATEMPLATE
 	AYATEMPLATE.LastTalk = ''
 }
 
-OnGhostUnload.AYATEMPLATE
+OnSystemUnload.AYATEMPLATE
 {
 	ERASEVAR('AYATEMPLATE.installedplugin_name')
 	ERASEVAR('AYATEMPLATE.installedplugin_id')
