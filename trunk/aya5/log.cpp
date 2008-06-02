@@ -44,7 +44,10 @@ void	CLog::Start(const yaya::string_t &p, int cs, int ml, HWND hw, char il)
 	msglang = ml;
 	iolog   = il;
 
-	if ( ! il ) {
+	if ( hw ) { //hwがある＝玉からの呼び出しなので強制ON、ファイル無効
+		path = L"";
+	}
+	else if ( ! il ) {
 		enable = 0;
 		return;
 	}
