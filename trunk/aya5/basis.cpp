@@ -12,6 +12,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stack>
 
 #if defined(POSIX)
 # include <dirent.h>
@@ -318,10 +319,25 @@ void	CBasis::LoadBaseConfigureFile(std::vector<yaya::string_t> *dics)
 	yaya::string_t	readline;
 	yaya::string_t	cmd, param;
 
+	std::stack<FILE*> fpstack;
+	std::stack<yaya::string_t> fnstack;
+	fpstack.push(fp);
+	fnstack.push(filename);
+
 	for (int i = 1; ; i++) {
 		// 1行読み込み
-		if (yaya::ws_fgets(readline, fp, dic_charset, 0, i) == yaya::WS_EOF)
-			break;
+		if (yaya::ws_fgets(readline, fp, dic_charset, 0, i) == yaya::WS_EOF) {
+			// ファイルを閉じる
+			fclose(fpstack.top());
+			fpstack.pop();
+			fnstack.pop();
+			if ( fpstack.empty() ) {
+				break;
+			}
+			fp = fpstack.top();
+			filename = fnstack.top();
+		}
+
 		// 改行は消去
 		CutCrLf(readline);
 		// コメントアウト処理
@@ -333,15 +349,27 @@ void	CBasis::LoadBaseConfigureFile(std::vector<yaya::string_t> *dics)
 			continue;
 		// パラメータを設定
 		if (Split(readline, cmd, param, L",")) {
-			SetParameter(cmd, param, dics);
+			if ( cmd.compare(L"include") == 0 ) {
+				filename = path + param;
+				fp = yaya::w_fopen(filename.c_str(), L"r");
+
+				if (fp == NULL) { //エラーが起きたので復旧
+					fp = fpstack.top();
+					filename = fnstack.top();
+				}
+				else {
+					fpstack.push(fp);
+					fnstack.push(filename);
+				}
+			}
+			else {
+				SetParameter(cmd, param, dics);
+			}
 		}
 		else {
 			vm.logger().Error(E_W, 0, filename, i);
 		}
 	}
-
-	// ファイルを閉じる
-	fclose(fp);
 }
 
 /* -----------------------------------------------------------------------
