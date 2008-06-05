@@ -208,8 +208,8 @@ protected:
 	CValue  ZEN2HAN(const CValue &arg, yaya::string_t &d, int &l);
 	CValue  HAN2ZEN(const CValue &arg, yaya::string_t &d, int &l);
 
-	CValue	GETSTRURLENCODE(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	GETSTRURLDECODE(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	STRENCODE(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	STRDECODE(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue	READFMO(const CValue &arg,yaya::string_t &d,int &l);
 
