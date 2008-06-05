@@ -75,7 +75,7 @@ extern "C" {
  * -----------------------------------------------------------------------
  */
 
-#define	SYSFUNC_NUM					130 //システム関数の全数
+#define	SYSFUNC_NUM					132 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -225,7 +225,7 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	// 特殊(5)
 	L"RESTOREVAR",
 	L"GETCALLSTACK",
-	// 文字列操作(7)
+	// 文字列操作(7) 互換用
 	L"GETSTRURLENCODE",
 	L"GETSTRURLDECODE",
 	// 数値(3)
@@ -255,6 +255,9 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"FTELL",
 	//ライセンス
 	L"LICENSE",
+	// 文字列操作(8)
+	L"STRENCODE",
+	L"STRDECODE",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -599,9 +602,9 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 	case 109:
 		return GETCALLSTACK(arg, d, l);
 	case 110:
-		return GETSTRURLENCODE(arg, d, l);
+		return STRENCODE(arg, d, l);
 	case 111:
-		return GETSTRURLDECODE(arg, d, l);
+		return STRDECODE(arg, d, l);
 	case 112:
 		return SINH(arg, d, l);
 	case 113:
@@ -638,6 +641,10 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return FTELL(arg, d, l);
 	case 129:
 		return LICENSE();
+	case 130:
+		return STRENCODE(arg, d, l);
+	case 131:
+		return STRDECODE(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -4296,15 +4303,15 @@ CValue	CSystemFunction::GETSTRBYTES(const CValue &arg, yaya::string_t &d, int &l
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::GETSTRURLENCODE
+ *  関数名  ：  CSystemFunction::STRENCODE
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::GETSTRURLENCODE(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::STRENCODE(const CValue &arg, yaya::string_t &d, int &l)
 {
 	int	sz = arg.array_size();
 
 	if (!sz) {
-		vm.logger().Error(E_W, 8, L"GETSTRURLENCODE", d, l);
+		vm.logger().Error(E_W, 8, L"STRENCODE", d, l);
 		SetError(8);
 		return CValue(0);
 	}
@@ -4312,36 +4319,88 @@ CValue	CSystemFunction::GETSTRURLENCODE(const CValue &arg, yaya::string_t &d, in
 	// 文字コード取得
 	int	charset = CHARSET_SJIS;
 	if (sz > 1) {
-		charset = GetCharset(arg.array()[1],L"GETSTRURLENCODE",d,l);
+		charset = GetCharset(arg.array()[1],L"STRENCODE",d,l);
 		if ( charset < 0 ) {
 			return CValue(0);
 		}
 	}
 	
+	//変換タイプ
+	yaya::string_t type = L"url";
+	if ( sz > 2 ) {
+		type = arg.array()[2].GetValueString();
+		std::transform(type.begin(), type.end(), type.begin(), (int (*)(int))std::tolower);
+	}
+	
 	// 主処理
 	char *t_str = Ccct::Ucs2ToMbcs(arg.array()[0].GetValueString(), charset);
 	if (t_str == NULL) {
-		vm.logger().Error(E_E, 89, L"GETSTRURLENCODE", d, l);
+		vm.logger().Error(E_E, 89, L"STRENCODE", d, l);
 		return CValue(0);
 	}
 	
-	yaya::string_t result;
-	yaya::char_t chr[4] = L"%00";
+	yaya::native_signed len = strlen(t_str);
 
-	char *ptr = t_str;
-	while ( *ptr ) {
-		int current = static_cast<unsigned char>(*ptr);
-		if ( (current >= 'a' && current <= 'z') || (current >= 'A' && current <= 'Z') || (current >= '0' && current <= '9') || current == '.' || current == '_' || current == '-' ) {
-			result.append(1,current);
+	yaya::string_t result;
+	result.reserve(len);
+
+	if ( type.compare(L"base64") == 0 ) {
+		static const yaya::char_t table[] = L"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+		
+		// 24bitを4文字に変換
+		const unsigned char *p = (unsigned char*)(t_str);
+		while (len > 0)
+		{
+			// 1文字目 1-6bit  xxxxxx--:--------:--------
+			result.append(1,table[static_cast<int>(*p)>>2]);
+			
+			// 2文字目 7-12bit ------xx:xxxx----:--------
+			if ( len-1 > 0 )
+				result.append(1,table[((static_cast<int>(*p) << 4)&0x30) | ((static_cast<int>(*(p+1)) >> 4)&0x0f)]);
+			else
+				result.append(1,table[((static_cast<int>(*p) << 4)&0x30) ]);
+			
+			--len;
+			++p;
+			
+			// 3文字目 13-18bit --------:----xxxx:xx------
+			if ( len > 0 ) {
+				if ( len-1 > 0 ) {
+					result.append(1,table[((static_cast<int>(*p) << 2)&0x3C) | ((static_cast<int>(*(p+1)) >> 6)&0x03)]);
+				}
+				else {
+					result.append(1,table[((static_cast<int>(*p) << 2)&0x3C) ]);
+				}
+				++p;
+			}
+			else {
+				result.append(1,L'=');
+			}
+			
+			// 4文字目 19-24bit --------:--------:--xxxxxx
+			result.append(1,(--len>0? table[static_cast<int>(*p) & 0x3F]: L'='));
+			
+			if(--len>0) p++;
 		}
-		else if ( current == ' ' ) {
-			result.append(1,L'+');
+	}
+	else {
+		yaya::char_t chr[4] = L"%00";
+
+		char *ptr = t_str;
+		while ( *ptr ) {
+			int current = static_cast<unsigned char>(*ptr);
+			if ( (current >= 'a' && current <= 'z') || (current >= 'A' && current <= 'Z') || (current >= '0' && current <= '9') || current == '.' || current == '_' || current == '-' ) {
+				result.append(1,current);
+			}
+			else if ( current == ' ' ) {
+				result.append(1,L'+');
+			}
+			else {
+				yaya::snprintf(chr+1,4,L"%02X",current);
+				result.append(chr);
+			}
+			++ptr;
 		}
-		else {
-			yaya::snprintf(chr+1,4,L"%02X",current);
-			result.append(chr);
-		}
-		++ptr;
 	}
 
 	free(t_str);
@@ -4350,15 +4409,15 @@ CValue	CSystemFunction::GETSTRURLENCODE(const CValue &arg, yaya::string_t &d, in
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::GETSTRURLDECODE
+ *  関数名  ：  CSystemFunction::STRDECODE
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::GETSTRURLDECODE(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::STRDECODE(const CValue &arg, yaya::string_t &d, int &l)
 {
 	int	sz = arg.array_size();
 
 	if (!sz) {
-		vm.logger().Error(E_W, 8, L"GETSTRURLDECODE", d, l);
+		vm.logger().Error(E_W, 8, L"STRDECODE", d, l);
 		SetError(8);
 		return CValue(0);
 	}
@@ -4366,10 +4425,17 @@ CValue	CSystemFunction::GETSTRURLDECODE(const CValue &arg, yaya::string_t &d, in
 	// 文字コード取得
 	int	charset = CHARSET_SJIS;
 	if (sz > 1) {
-		charset = GetCharset(arg.array()[1],L"GETSTRURLDECODE",d,l);
+		charset = GetCharset(arg.array()[1],L"STRDECODE",d,l);
 		if ( charset < 0 ) {
 			return CValue(0);
 		}
+	}
+
+	//変換タイプ
+	yaya::string_t type = L"url";
+	if ( sz > 2 ) {
+		type = arg.array()[2].GetValueString();
+		std::transform(type.begin(), type.end(), type.begin(), (int (*)(int))std::tolower);
 	}
 	
 	// 主処理
@@ -4379,26 +4445,61 @@ CValue	CSystemFunction::GETSTRURLDECODE(const CValue &arg, yaya::string_t &d, in
 	std::string str;
 	str.reserve(src.size());
 
-	char ch[3] = {0,0,0};
+	if ( type.compare(L"base64") == 0 ) {
+		static const unsigned char reverse_64[] = {
+			//0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
+			  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   // 0x00 - 0x0F
+			  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   // 0x10 - 0x1F
+			  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 62,  0,  0,  0, 63,   // 0x20 - 0x2F
+			 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,  0,  0,  0,  0,  0,  0,   // 0x30 - 0x3F
+			  0,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,   // 0x40 - 0x4F
+			 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,  0,  0,  0,  0,  0,   // 0x50 - 0x5F
+			  0, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,   // 0x60 - 0x6F
+			 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51,  0,  0,  0,  0,  0    // 0x70 - 0x7F
+		};
 
-	for ( yaya::string_t::iterator it = src.begin() ; it < end ; ++it ) {
-		if ( *it == L'%' && (end - it) >= 3) {
-			ch[0] = static_cast<char>(*(it+1));
-			ch[1] = static_cast<char>(*(it+2));
-			str.append(1,static_cast<char>(strtol(ch,NULL,16)));
-			it += 2;
+		const yaya::char_t* p = src.c_str();
+		while (*p!='=')
+		{
+			//11111122:22223333:33444444
+			if (*p=='\0' || *(p+1)=='=') break;
+			str.append(1,static_cast<unsigned char>((reverse_64[*p&0x7f] <<2) & 0xFC | (reverse_64[*(p+1)&0x7f] >>4) & 0x03));
+			++p;
+
+			if (*p=='\0' || *(p+1)=='=') break;
+			str.append(1,static_cast<unsigned char>((reverse_64[*p&0x7f] <<4) & 0xF0 | (reverse_64[*(p+1)&0x7f] >>2) & 0x0F));
+			++p;
+
+			if (*p=='\0' || *(p+1)=='=') break;
+			str.append(1,static_cast<unsigned char>((reverse_64[*p&0x7f] <<6) & 0xC0 | reverse_64[*(p+1)&0x7f] & 0x3f ));
+			++p;
+
+			if (*p=='\0' || *(p+1)=='=') break;
+			++p;
 		}
-		else if ( *it == L'+' ) {
-			str.append(1,' ');
-		}
-		else {
-			str.append(1,static_cast<char>(*it));
+	}
+	else { //if url
+		char ch[3] = {0,0,0};
+
+		for ( yaya::string_t::iterator it = src.begin() ; it < end ; ++it ) {
+			if ( *it == L'%' && (end - it) >= 3) {
+				ch[0] = static_cast<char>(*(it+1));
+				ch[1] = static_cast<char>(*(it+2));
+				str.append(1,static_cast<char>(strtol(ch,NULL,16)));
+				it += 2;
+			}
+			else if ( *it == L'+' ) {
+				str.append(1,' ');
+			}
+			else {
+				str.append(1,static_cast<char>(*it));
+			}
 		}
 	}
 
 	yaya::char_t *t_str = Ccct::MbcsToUcs2(str, charset);
 	if (t_str == NULL) {
-		vm.logger().Error(E_E, 89, L"GETSTRURLDECODE", d, l);
+		vm.logger().Error(E_E, 89, L"STRDECODE", d, l);
 		return CValue(0);
 	}
 
