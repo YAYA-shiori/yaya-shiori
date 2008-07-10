@@ -3099,31 +3099,40 @@ CValue	CSystemFunction::EVAL(const CValue &arg, yaya::string_t &d, int &l, CLoca
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::ERASEVAR
  *
- *  ローカル変数では空文字列を代入するだけです。
- *  グローバル変数では空文字列を代入し、さらにunload時にファイルへ値を保存しなくなります。
+ *  ローカル変数では消去フラグを立てるだけです。
+ *  グローバル変数では消去フラグを立て、さらにunload時にファイルへ値を保存しなくなります。
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ERASEVAR(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l)
 {
-	if (!arg.array_size()) {
+	size_t arg_size = arg.array_size();
+
+	if (!arg_size) {
 		vm.logger().Error(E_W, 8, L"ERASEVAR", d, l);
 		SetError(8);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	if (!arg.array()[0].IsString()) {
-		vm.logger().Error(E_W, 9, L"ERASEVAR", d, l);
-		SetError(9);
+	for ( size_t i = 0 ; i < arg_size ; ++i ) {
+
+		//文字列かどうかチェック - 警告は吐くが処理続行
+		if ( ! arg.array()[i].IsString() ) {
+			vm.logger().Error(E_W, 9, L"ERASEVAR", d, l);
+			SetError(9);
+		}
+
+		const yaya::string_t &arg0 = arg.array()[i].GetValueString();
+		if (!arg0.size()) {
+			continue;
+		}
+
+		if (arg0[0] == L'_') {
+			lvar.Erase(arg0);
+		}
+		else {
+			vm.variable().Erase(arg0);
+		}
 	}
-	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
-
-	if (!arg0.size())
-		return CValue();
-
-	if (arg0[0] == L'_')
-		lvar.Erase(arg0);
-	else
-		vm.variable().Erase(arg0);
 
 	return CValue(F_TAG_NOP, 0/*dmy*/);
 }
