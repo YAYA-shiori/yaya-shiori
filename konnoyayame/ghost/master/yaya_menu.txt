@@ -17,11 +17,9 @@
 //------------------------------------------------------------------------------
 OpenMenu
 {
-	"\0\s[0]"
-	--
-	"はい、なんでしょうか？"
-	"%username、なんですか？"
-	"ん‥‥どうしたの？"
+	"\0\s[5]はい、なんでしょうか？"
+	"\0\s[5]%username、なんですか？"
+	"\0\s[0]ん‥‥どうしたの？"
 	--
 	AYATEMPLATE.MenuItem("なんか話して","Menu_AITALK",200)
 	--
@@ -35,6 +33,11 @@ OpenMenu
 	--
 	AYATEMPLATE.MenuItem("ややめに話しかける","Menu_COMMUNICATEOPEN")
 	--
+	//スタンプ帳チェック
+	if AYATEMPLATE.IsPluginExist('379E0DA0-131C-11DD-E1AC-90009E101CFE') {
+		AYATEMPLATE.MenuItem("スタンプを押す","Menu_STAMP")
+	}
+	--
 	AYATEMPLATE.MenuItem("AIについて","Menu_ABOUTAYA")
 	--
 	AYATEMPLATE.MenuItem("なんでもない","Menu_CANCEL",150)
@@ -45,7 +48,7 @@ OpenMenu
 //------------------------------------------------------------------------------
 OnChoiceTimeout
 {
-	"\0\s[0]ちゃんと選んでくださいっ！\e"
+	"\0\s[7]ちゃんと選んでくださいっ！\e"
 }
 
 
@@ -142,4 +145,69 @@ Menu_HEADLINECANCEL
 {
 	//---- キャンセルされた
 	"\0\s[0]はい。\e"
+}
+
+//---- スタンプ帳
+Menu_STAMP
+{
+	//初期化
+	SHIORI3FW.RegisterTempVar('StampInfo_IsExist','StampInfo_IsNotify','StampInfo_CurrentStampFile','StampInfo_CurrentStampTitle')
+	
+	StampInfo_IsExist = 0
+	StampInfo_IsNotify = 0
+	
+	//スタンプ帳情報を取った後、raiseでOnStampMenuExecを発生させて下に処理を移す
+	"\![raiseplugin,379E0DA0-131C-11DD-E1AC-90009E101CFE,OnStampInfoCall]\![raise,OnStampMenuExec]"
+}
+
+OnStampInfo
+{
+	//スタンプあるかどうか？
+	StampInfo_IsExist = reference[1]
+	StampInfo_CurrentStampFile = ''
+	StampInfo_CurrentStampTitle = ''
+	
+	//押している場合は、どのスタンプを押しているか？
+	_stamparray = SPLIT(_reference[3],CHR(2))
+	
+	_n = ARRAYSIZE(_stamparray)
+	for _i = 0 ; _i < _n ; _i++ {
+		_stamp = RE_SPLIT(_stamparray[_i],'[\x1,]') //バイト値1かカンマかでぶった切る：互換モード対策
+		
+		//ほかで使う場合はここの名前を変えてね
+		if _stamp[0] == '紺野ややめ' {
+			StampInfo_CurrentStampFile = _stamp[1]
+			StampInfo_CurrentStampTitle = _stamp[2]
+			break
+		}
+	}
+}
+
+OnStampMenuExec
+{
+	_stamp_type = ''
+	
+	//あった
+	if StampInfo_IsExist {
+	}
+	//ない
+	else {
+		"\0\s[0]スタンプ？\w9\w9\n\s[5]はいどうぞ～。\w9\w9\1\s[11]せっかくだから俺はこのスタンプを選ぶぜ！\w9\w9\0\s[4]えーっと。"
+		
+		_stamp_type = 'ややめ'
+	}
+	--
+	if _stamp_type == 'ややめ' {
+		//2行目ファイル、3行目タイトル、4行目コメント
+		"\![raiseplugin,379E0DA0-131C-11DD-E1AC-90009E101CFE,OnStampAdd,/
+		ghost/master/stmp_yym.png,/
+		ややめスタンプ,/
+		紺野ややめが押したスタンプ。服のジッパーの取っ手とデザインが同じ。]"
+	}
+	else {
+		"\![raiseplugin,379E0DA0-131C-11DD-E1AC-90009E101CFE,OnStampAdd,/
+		ghost/master/stmp_mcr.png,/
+		マック郎スタンプ,/
+		マック郎が押したスタンプ。黒林檎。見た目に反して毒はない…と信じたい。]"
+	}
 }

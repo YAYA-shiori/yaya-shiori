@@ -35,8 +35,6 @@ On_sakura.portalsites_EX : array
 {
 	"SSP BUGTRAQ      | http://ssp.shillest.net/         | "
 	"®”õ”Ç           | http://ms.shillest.net/          | "
-	"-" // ***‹æØ‚èü***
-	"Marble Note      | http://marble.tarenari.jp/       | "
 }
 
 //------------------------------------------------------------------------------

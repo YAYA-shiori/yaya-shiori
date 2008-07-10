@@ -9,7 +9,7 @@
 //
 //以下、実際のトークを記述します。関数名は以下の規則になっています。
 //[種別] + [スコープ] + [部位]
-//種別は、MouseMove, MouseDoubleClick, MouseWheel のどれかです。
+//種別は、MouseMove, MouseDoubleClick, MouseWheelUp, MouseWheelDown のどれかです。
 //スコープは、\0,\1,といったスコープ番号です。
 //部位は、当たり判定のどの部位かを表します。当たり判定の無い場所でのイベントの場合
 //部位はありません。
@@ -69,7 +69,19 @@ OnMouseMove
 
 OnMouseWheel
 {
-	AYATEMPLATE.MouseMoveWheelFunc(1,4,'MouseWheel')
+	_result = ''
+	if TOINT(reference[2]) > 0 {
+		_result = AYATEMPLATE.MouseMoveWheelFunc(1,4,'MouseWheelUp')
+	}
+	else {
+		_result = AYATEMPLATE.MouseMoveWheelFunc(1,4,'MouseWheelDown')
+	}
+	
+	if _result = '' {
+		_result = AYATEMPLATE.MouseMoveWheelFunc(1,4,'MouseWheel')
+	}
+	
+	_result
 }
 
 OnMouseDoubleClick

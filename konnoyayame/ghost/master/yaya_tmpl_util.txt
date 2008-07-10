@@ -24,8 +24,8 @@ OnSystemLoad.AYATEMPLATE
 
 OnSystemUnload.AYATEMPLATE
 {
-	ERASEVAR('AYATEMPLATE.installedplugin_name')
-	ERASEVAR('AYATEMPLATE.installedplugin_id')
+	//ERASEVAR('AYATEMPLATE.installedplugin_name')
+	//ERASEVAR('AYATEMPLATE.installedplugin_id')
 	ERASEVAR('AYATEMPLATE.stroke')
 	ERASEVAR('AYATEMPLATE.strokeid')
 	ERASEVAR('AYATEMPLATE.stroketimer')
@@ -463,7 +463,7 @@ On_installedplugin : void
 	AYATEMPLATE.installedplugin_id = IARRAY
 	
 	for _i = 0 ; _i < _n ; _i++ {
-		_a = SPLIT(reference[_i],CHR(1))
+		_a = RE_SPLIT(reference[_i],'[,\x1]')
 		
 		AYATEMPLATE.installedplugin_name ,= _a[0]
 		AYATEMPLATE.installedplugin_id ,= _a[1]

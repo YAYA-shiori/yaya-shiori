@@ -14,6 +14,10 @@
 ゴースト名は、先頭に _が付きます。
 該当するゴースト名が無いときは、ゴースト名の部分は「Other」となります。
 
+名前の中に"や'、あるいは+-/*、半角空白など、
+システムで使われている文字が来る場合は、すべて_に変換されます。
+例：the "MobileMaster" -> OnGhostChanging_the__MobileMaster_
+
 OnGhostChanging		他のゴーストへ切り替えしようとしたとき。無ければOnCloseが呼ばれます。
 OnGhostChanged		他のゴーストから切り替わったとき。無ければOnBootが呼ばれます。
 OnGhostCalling		他のゴーストを呼び出そうとしたとき
