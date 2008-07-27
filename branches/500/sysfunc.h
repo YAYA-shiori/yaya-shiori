@@ -214,6 +214,7 @@ protected:
 	CValue	READFMO(const CValue &arg,yaya::string_t &d,int &l);
 
 	CValue	EXECUTE(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	EXECUTE_WAIT(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue	DUMPVAR(const CValue &arg, yaya::string_t &d, int &l);
 
