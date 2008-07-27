@@ -75,7 +75,7 @@ extern "C" {
  * -----------------------------------------------------------------------
  */
 
-#define	SYSFUNC_NUM					132 //システム関数の全数
+#define	SYSFUNC_NUM					133 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -258,6 +258,8 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	// 文字列操作(8)
 	L"STRENCODE",
 	L"STRDECODE",
+	// 特殊(7)
+	L"EXECUTE_WAIT",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -645,6 +647,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return STRENCODE(arg, d, l);
 	case 131:
 		return STRDECODE(arg, d, l);
+	case 132:
+		return EXECUTE_WAIT(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -5260,6 +5264,84 @@ CValue CSystemFunction::READFMO(const CValue &arg, yaya::string_t &d, int &l)
 
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::EXECUTE_WAIT
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::EXECUTE_WAIT(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if (!arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"EXECUTE_WAIT", d, l);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"EXECUTE_WAIT", d, l);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	// パスをMBCSに変換
+	int result;
+
+#if defined(WIN32)	
+	
+	char *s_filestr = Ccct::Ucs2ToMbcs(arg.array()[0].s_value, CHARSET_DEFAULT);
+	if (s_filestr == NULL) {
+		vm.logger().Error(E_E, 89, L"EXECUTE_WAIT", d, l);
+		return CValue(-1);
+	}
+
+	char *s_parameter = NULL;
+	if ( arg.array_size() >= 2 ) {
+		if ( arg.array()[1].s_value.size() ) {
+			s_parameter = Ccct::Ucs2ToMbcs(arg.array()[1].s_value, CHARSET_DEFAULT);
+		}
+	}
+
+	SHELLEXECUTEINFO inf;
+	ZeroMemory(&inf,sizeof(inf));
+	inf.cbSize = sizeof(inf);
+	inf.fMask = SEE_MASK_NOCLOSEPROCESS;
+	inf.lpVerb = "open";
+	inf.lpFile = s_filestr;
+	inf.lpParameters = s_parameter;
+	inf.nShow = SW_SHOWNORMAL;
+
+	if ( ::ShellExecuteEx(&inf) ) {
+		::WaitForSingleObject(inf.hProcess,INFINITE);
+		DWORD status;
+		result = ::GetExitCodeProcess(inf.hProcess,&status);
+		::CloseHandle(inf.hProcess);
+	}
+	else {
+		result = -1;
+	}
+
+	free(s_filestr);
+	if ( s_parameter ) { free(s_parameter); }
+
+#elif defined(POSIX)
+
+	std::string path = narrow(arg.array()[0].s_value);
+    fix_filepath(path);
+
+	if ( arg.array_size() >= 2 ) {
+		if ( arg.array()[1].s_value.size() ) {
+			path += L" ";
+			path += arg.array()[1].s_value;
+		}
+	}
+
+	result = system(path.c_str());
+
+#endif
+
+	// 実行
+	return CValue(result);
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::EXECUTE
  * -----------------------------------------------------------------------
  */
@@ -5303,17 +5385,7 @@ CValue	CSystemFunction::EXECUTE(const CValue &arg, yaya::string_t &d, int &l)
 
 #elif defined(POSIX)
 
-	std::string path = narrow(arg.array()[0].s_value);
-    fix_filepath(path);
-
-	if ( arg.array_size() >= 2 ) {
-		if ( arg.array()[1].s_value.size() ) {
-			path += L" ";
-			path += arg.array()[1].s_value;
-		}
-	}
-
-	result = system(path.c_str());
+	//TODO: Implement
 
 #endif
 
