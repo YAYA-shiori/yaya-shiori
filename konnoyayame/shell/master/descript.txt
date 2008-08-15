@@ -30,8 +30,8 @@ menu.background.font.color.r,96
 menu.background.font.color.g,96
 menu.background.font.color.b,160
 
-menu.foreground.font.color.r,192
-menu.foreground.font.color.g,192
+menu.foreground.font.color.r,255
+menu.foreground.font.color.g,255
 menu.foreground.font.color.b,255
 
 menu.disable.font.color.r,192

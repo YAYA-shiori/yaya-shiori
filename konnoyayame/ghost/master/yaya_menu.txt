@@ -164,18 +164,21 @@ OnStampInfo
 {
 	//スタンプあるかどうか？
 	StampInfo_IsExist = reference[1]
+	StampInfo_IsNotify = 1
 	StampInfo_CurrentStampFile = ''
 	StampInfo_CurrentStampTitle = ''
 	
 	//押している場合は、どのスタンプを押しているか？
-	_stamparray = SPLIT(_reference[3],CHR(2))
+	_stamparray = SPLIT(reference[3],CHR(2))
+	
+	StampInfo_Data = _stamparray
 	
 	_n = ARRAYSIZE(_stamparray)
 	for _i = 0 ; _i < _n ; _i++ {
 		_stamp = RE_SPLIT(_stamparray[_i],'[\x1,]') //バイト値1かカンマかでぶった切る：互換モード対策
 		
 		//ほかで使う場合はここの名前を変えてね
-		if _stamp[0] == '紺野ややめ' {
+		if _stamp[0] == 'はろーYAYAわーるど' || _stamp[0] == '紺野ややめ' {
 			StampInfo_CurrentStampFile = _stamp[1]
 			StampInfo_CurrentStampTitle = _stamp[2]
 			break
@@ -189,6 +192,16 @@ OnStampMenuExec
 	
 	//あった
 	if StampInfo_IsExist {
+		if 'ややめ' _in_ StampInfo_CurrentStampTitle { //マック朗におきかえ
+			"\u\s[10]\h\s[2]もう押してあるのに、\w5まだほしいの？\w9\w9\u\s[11]ならおれのスタンプに置き換えだ！\w9\nどうだうれしいだろ！\w9\w9\h\s[4]\n\nなにやってるの\w5…\w5…"
+			
+			_stamp_type = 'マック朗'
+		}
+		else { //ややめに置き換え
+			"\h\s[0]\u\s[10]もうおれのスタンプが押してあるぞ？\w9\w9\h\s[5]とりあえずわたしのに戻すねー。"
+			
+			_stamp_type = 'ややめ'
+		}
 	}
 	//ない
 	else {
@@ -207,7 +220,7 @@ OnStampMenuExec
 	else {
 		"\![raiseplugin,379E0DA0-131C-11DD-E1AC-90009E101CFE,OnStampAdd,/
 		ghost/master/stmp_mcr.png,/
-		マック郎スタンプ,/
-		マック郎が押したスタンプ。黒林檎。見た目に反して毒はない…と信じたい。]"
+		マック朗スタンプ,/
+		マック朗が押したスタンプ。黒林檎。見た目に反して毒はない…と信じたい。]"
 	}
 }
