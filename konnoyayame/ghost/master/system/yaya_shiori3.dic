@@ -794,7 +794,7 @@ SHIORI3FW.StructInstalledGhostList
 		if GETTYPE(StructGhostList.Index) != 1 || StructGhostList.Index >= _dirnum
 			StructGhostList.Index = 0
 		_num = SHIORI3FW.IGLIST_MAX
-		if _num > _dirnum; _num = _dirname
+		if _num > _dirnum; _num = _dirnum
 	}
 
 	// ƒŠƒXƒgì¬åˆ—
