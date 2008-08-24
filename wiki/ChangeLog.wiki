@@ -1,4 +1,11 @@
 #labels Featured
+=Tc532-1=
+  * EXECUTE_WAIT追加
+  * STRDECODE / STRENCODE追加 旧名はGETSTRURLENCODE / DECODE
+  * ERASEVARで複数指定可能に
+  * 設定ファイルにinclude指定追加
+  * 設定ファイルのiolog指定は、玉にD&Dする使い方で強制onされるように
+
 =Tc531-1=
   * CHARSETLIB / CHARSETLIBEXをいじった
    * [http://emily.shillest.net/ayaya/index.php?%E3%83%9E%E3%83%8B%E3%83%A5%E3%82%A2%E3%83%AB%2F%E9%96%A2%E6%95%B0%2FCHARSETLIB CHARSETLIB]
