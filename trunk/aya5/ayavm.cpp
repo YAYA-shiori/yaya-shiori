@@ -17,6 +17,13 @@
 #include "sysfunc.h"
 #include "wordmatch.h"
 
+#ifdef POSIX
+#include <sys/time.h>
+#else
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 //////////DEBUG/////////////////////////
 #ifdef _WINDOWS
 #ifdef _DEBUG
@@ -40,7 +47,17 @@ CAyaVM::CAyaVM(void)
 	_CrtSetDbgFlag( tmpFlag );
 #endif
 
-	init_genrand(static_cast<unsigned long>(time(NULL)));
+	unsigned int dwSeed;
+
+#ifdef POSIX
+	struct timeval tv;
+	gettimeofday(&tv,NULL);
+	dwSeed = tv.tv_usec;
+#else
+	dwSeed = ::GetTickCount();
+#endif
+
+	init_genrand(dwSeed);
 }
 
 /*-----------------------------------------------
