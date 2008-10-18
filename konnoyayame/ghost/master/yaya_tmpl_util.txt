@@ -138,7 +138,7 @@ AYATEMPLATE.MenuItem
 AYATEMPLATE.EscapeText
 {
 	_r = _argv[0]
-	if RE_SEARCH(_r,'["\[\]]') >= 0 {
+	if RE_SEARCH(_r,'["\[\]]') {
 		'"' + REPLACE(_r,'"','""') + '"'
 	}
 	else {
