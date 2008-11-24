@@ -44,6 +44,8 @@ load
 	var.req.key   = (IARRAY, "Path")
 	var.req.value = (IARRAY, _argv[0])
 	
+	SHIORI3FW.Path = _argv[0]
+	
 	var.lib.result = ''
 	
 	eventtranslate_exist = ISFUNC('OnGhostEventTranslate')
@@ -148,6 +150,7 @@ unload
 	ERASEVAR('var.lib.value' )
 	ERASEVAR('var.lib.result')
 
+	ERASEVAR('SHIORI3FW.Path'    )
 	ERASEVAR('SHIORI3FW.Eventid'    )
 	ERASEVAR('SHIORI3FW.EventidTranslate')
 	ERASEVAR('SHIORI3FW.AiTalkCount')
@@ -425,6 +428,7 @@ SHIORI3FW.IsImportantEvent
 	case SHIORI3FW.Eventid {
 	when "OnSecondChange","OnUpdateReady","OnUpdateComplete"
 		1
+		return
 	}
 	0
 }
@@ -1139,3 +1143,10 @@ memoryavailphys    { GETMEMINFO[2] }
 memorytotalvirtual { GETMEMINFO[3] }
 memoryavailvirtual { GETMEMINFO[4] }
 
+//******************************************************************************
+//デバッグ
+//******************************************************************************
+On_ShioriEcho
+{
+	'\0Eval Result = ' + JOIN(EVAL(reference[0]),',')
+}
