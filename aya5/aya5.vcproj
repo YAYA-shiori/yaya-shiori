@@ -302,6 +302,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\crc32.c"
+				>
+			</File>
+			<File
 				RelativePath="duplevinfo.cpp"
 				>
 				<FileConfiguration
@@ -764,6 +768,10 @@
 			</File>
 			<File
 				RelativePath="comment.h"
+				>
+			</File>
+			<File
+				RelativePath=".\crc32.h"
 				>
 			</File>
 			<File
