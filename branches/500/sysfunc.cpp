@@ -2783,6 +2783,15 @@ CValue	CSystemFunction::FSIZE(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	// 実行
+	// CreateFileはFOPENでロックされていると効かないのでFindFirstFileに変更
+	WIN32_FIND_DATA fd;
+	HANDLE hfff=FindFirstFile(s_filestr,&fd);
+	if (hfff == INVALID_HANDLE_VALUE){
+		return CValue(-1);
+	}
+	FindClose(hfff);
+	return CValue((int)fd.nFileSizeLow);
+	/*
 	HANDLE	hFile = CreateFile(s_filestr, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	free(s_filestr);
 	if (hFile == INVALID_HANDLE_VALUE)
@@ -2794,6 +2803,7 @@ CValue	CSystemFunction::FSIZE(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(-1);
 
 	return CValue((int)result);
+	*/
 }
 #elif defined(POSIX)
 CValue CSystemFunction::FSIZE(const CValue &arg, yaya::string_t &d, int &l) {
