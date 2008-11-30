@@ -29,6 +29,7 @@
 class CAyaVM;
 class CCell;
 class CSerial;
+class CSelecter;
 
 class	CStatement
 {
@@ -140,7 +141,7 @@ public:
 protected:
 	int		ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, int type, int &exitcode);
 
-	char	Foreach(CStatement &st0, CStatement &st1, CLocalVariable &lvar, int &foreachcount);
+	void	Foreach(CLocalVariable &lvar, CSelecter &output, int line, int &exitcode);
 
 	const CValue& GetValueRefForCalc(CCell &cell, CStatement &st, CLocalVariable &lvar);
 	
