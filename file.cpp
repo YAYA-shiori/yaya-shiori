@@ -192,6 +192,24 @@ int	CFile::ReadBin(const yaya::string_t &name, yaya::string_t &ostr, size_t len,
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CFile::Size
+ *  機能概要：  ファイルサイズを取る
+ *  返値　　：　<0失敗 >=0成功
+ * -----------------------------------------------------------------------
+ */
+long CFile::Size(const yaya::string_t &name)
+{
+	for(std::list<CFile1>::iterator it = filelist.begin(); it != filelist.end(); it++) {
+		if (name.compare(it->GetName()) == 0) {
+			return it->Size();
+		}
+	}
+
+	return -1;
+}
+
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CFile::FSeek
  *  機能概要：  Cライブラリfseek同等
  *  返値　　：　0/1=失敗/成功

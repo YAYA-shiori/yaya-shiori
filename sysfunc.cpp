@@ -2775,23 +2775,19 @@ CValue	CSystemFunction::FSIZE(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(-1);
 	}
 
+	//すでに開いているファイルならそっちから情報をパクる
+	yaya::string_t fullpath = ToFullPath(arg.array()[0].s_value);
+	long size = vm.files().Size(fullpath);
+	if ( size >= 0 ) { return CValue((int)size); }
+
 	// パスをMBCSに変換
-	char *s_filestr = Ccct::Ucs2ToMbcs(ToFullPath(arg.array()[0].s_value), CHARSET_DEFAULT);
+	char *s_filestr = Ccct::Ucs2ToMbcs(fullpath, CHARSET_DEFAULT);
 	if (s_filestr == NULL) {
 		vm.logger().Error(E_E, 89, L"FSIZE", d, l);
 		return CValue(-1);
 	}
 
 	// 実行
-	// CreateFileはFOPENでロックされていると効かないのでFindFirstFileに変更
-	WIN32_FIND_DATA fd;
-	HANDLE hfff=FindFirstFile(s_filestr,&fd);
-	if (hfff == INVALID_HANDLE_VALUE){
-		return CValue(-1);
-	}
-	FindClose(hfff);
-	return CValue((int)fd.nFileSizeLow);
-	/*
 	HANDLE	hFile = CreateFile(s_filestr, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	free(s_filestr);
 	if (hFile == INVALID_HANDLE_VALUE)
@@ -2803,23 +2799,26 @@ CValue	CSystemFunction::FSIZE(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(-1);
 
 	return CValue((int)result);
-	*/
 }
 #elif defined(POSIX)
 CValue CSystemFunction::FSIZE(const CValue &arg, yaya::string_t &d, int &l) {
     if (!arg.array_size()) {
-	vm.logger().Error(E_W, 8, L"FSIZE", d, l);
-	SetError(8);
-	return CValue(-1);
+		vm.logger().Error(E_W, 8, L"FSIZE", d, l);
+		SetError(8);
+		return CValue(-1);
     }
     
 	if (!arg.array()[0].IsString()) {
-	vm.logger().Error(E_W, 9, L"FSIZE", d, l);
-	SetError(9);
-	return CValue(-1);
+		vm.logger().Error(E_W, 9, L"FSIZE", d, l);
+		SetError(9);
+		return CValue(-1);
     }
 
-	std::string path = narrow(ToFullPath(arg.array()[0].s_value));
+	yaya::string_t fullpath = ToFullPath(arg.array()[0].s_value);
+	long size = vm.files().Size(fullpath);
+	if ( size >= 0 ) { return CValue((int)size); }
+
+	std::string path = narrow(fullpath);
     fix_filepath(path);
 
     struct stat sb;
