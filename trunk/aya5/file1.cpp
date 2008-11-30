@@ -44,11 +44,11 @@ int	CFile1::Open(void)
 	free(filepath);
 
 	long cur = ftell(fp);
-	fseek(fp,SEEK_SET,0);
+	fseek(fp,0,SEEK_SET);
 	long start = ftell(fp);
-	fseek(fp,SEEK_END,0);
+	fseek(fp,0,SEEK_END);
 	long end = ftell(fp);
-	fseek(fp,SEEK_SET,cur);
+	fseek(fp,cur,SEEK_SET);
 
 	size = end-start;
 	
@@ -169,6 +169,11 @@ int	CFile1::ReadBin(yaya::string_t &ostr, size_t len, yaya::char_t alt)
 
 	if (fp == NULL)
 		return 0;
+
+	//危ない！
+	if(len<1){
+		return 0;
+	}
 
 	unsigned char *f_istr = reinterpret_cast<unsigned char*>(malloc(len+1));
 	f_istr[len] = 0; //念のためゼロ終端（いらない）
