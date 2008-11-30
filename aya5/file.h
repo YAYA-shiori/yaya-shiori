@@ -26,6 +26,7 @@ protected:
 	yaya::string_t	name;
 	FILE	*fp;
 	int		charset;
+	long	size;
 	yaya::string_t	mode;
 
 	int	bomcheck;
@@ -48,6 +49,8 @@ public:
 
 	int	Open(void);
 	int	Close(void);
+
+	inline long Size(void) { return size; }
 
 	int	Write(const yaya::string_t &istr);
 	int	Read(yaya::string_t &ostr);
@@ -78,6 +81,8 @@ public:
 
 	int		Write(const yaya::string_t &name, const yaya::string_t &istr);
 	int		Read(const yaya::string_t &name, yaya::string_t &ostr);
+
+	long    Size(const yaya::string_t &name);
 
 	int		WriteBin(const yaya::string_t &name, const yaya::string_t &istr, const yaya::char_t alt);
 	int		ReadBin(const yaya::string_t &name, yaya::string_t &ostr, size_t len, yaya::char_t alt);
