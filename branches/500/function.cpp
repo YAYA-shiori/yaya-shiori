@@ -92,7 +92,6 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 	CSelecter	output(*pvm, (lvar.GetDepth() == 1) ? &dupl : NULL, type);
 	char		exec_end     = 0;	// この{}の実行を終了するためのフラグ 1で終了
 	char		ifflg        = 0;	// if-elseif-else制御用。1でそのブロックを処理したことを示す
-	int			foreachcount;		// foreach制御用
 
 	CValue		t_value;
 
@@ -181,9 +180,9 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 			i = statement[i].jumpto;
 			break;
 		case ST_FOR:					// for
-			GetFormulaAnswer(lvar, statement[i]);
+			GetFormulaAnswer(lvar, statement[i]); //for第一パラメータ
 			for( ; ; ) {
-				if (!GetFormulaAnswer(lvar, statement[i + 1]).GetTruth())
+				if (!GetFormulaAnswer(lvar, statement[i + 1]).GetTruth()) //for第二パラメータ
 					break;
 				ExecuteInBrace(i + 4, t_value, lvar, BRACE_LOOP, exitcode);
 				output.Append(t_value);
@@ -197,7 +196,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 				else if (exitcode == ST_CONTINUE)
 					exitcode = ST_NOP;
 
-				GetFormulaAnswer(lvar, statement[i + 2]);
+				GetFormulaAnswer(lvar, statement[i + 2]); //for第三パラメータ
 			}
 			i = statement[i].jumpto;
 			break;
@@ -210,21 +209,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 			}
 			break;
 		case ST_FOREACH:				// foreach
-			for(foreachcount = 0; ; ) {
-				if (!Foreach(statement[i], statement[i + 1], lvar, foreachcount))
-					break;
-				ExecuteInBrace(i + 3, t_value, lvar, BRACE_LOOP, exitcode);
-				output.Append(t_value);
-
-				if (exitcode == ST_BREAK) {
-					exitcode = ST_NOP;
-					break;
-				}
-				else if (exitcode == ST_RETURN)
-					break;
-				else if (exitcode == ST_CONTINUE)
-					exitcode = ST_NOP;
-			}
+			Foreach(lvar, output, i, exitcode);
 			i  = statement[i].jumpto;
 			break;
 		case ST_BREAK:					// break
@@ -264,16 +249,24 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
  *  実際に送るのは"}"の1つ手前の行の位置です
  * -----------------------------------------------------------------------
  */
-char	CFunction::Foreach(CStatement &st0, CStatement &st1, CLocalVariable &lvar, int &foreachcount)
+void	CFunction::Foreach(CLocalVariable &lvar, CSelecter &output, int line,int &exitcode)
 {
+	CStatement &st0 = statement[line];
+	CStatement &st1 = statement[line + 1];
+
 	// 代入値を求める
-	const CValue& value = GetFormulaAnswer(lvar, st0);
+	// 注意：foreach中の副作用を回避するため必ず参照にはしないこと
+	const CValue value = GetFormulaAnswer(lvar, st0);
 
 	// 代入値の要素数を求める
 	// 簡易配列かつ変数からの取得の場合、その変数に設定されているデリミタを取得する
+	bool isPseudoarray = false;
+
 	int	sz;
 	std::vector<yaya::string_t>	s_array;
 	if (value.IsString()) {
+		isPseudoarray = true;
+
 		yaya::string_t delimiter = VAR_DELIMITER;
 		if (st0.cell_size() == 1) {
 			if (st0.cell()[0].value_GetType() == F_TAG_VARIABLE) {
@@ -298,38 +291,50 @@ char	CFunction::Foreach(CStatement &st0, CStatement &st1, CLocalVariable &lvar, 
 		}
 		sz = SplitToMultiString(value.GetValueString(), &s_array, delimiter);
 	}
-	else if (value.IsArray())
+	else if (value.IsArray()) {
 		sz = value.array_size();
-	else
+	}
+	else {
 		sz = -1;
+	}
 
-	// 序数が要素数を超えていたらループ脱出
-	if (foreachcount >= sz)
-		return 0;
-
-	// 代入する要素値を取得
 	CValue	t_value;
-	if (value.IsString())
-		t_value = s_array[foreachcount];
-	else	// F_TAG_ARRAY
-		t_value = value.array()[foreachcount];
-	// 代入
-	switch(st1.cell()[0].value_GetType()) {
-	case F_TAG_VARIABLE:
-		pvm->variable().SetValue(st1.cell()[0].index, t_value);
-		break;
-	case F_TAG_LOCALVARIABLE:
-		lvar.SetValue(st1.cell()[0].name, t_value);
-		break;
-	default:
-		pvm->logger().Error(E_E, 28, dicfilename, st1.linecount);
-		return 0;
-	};
+	int type;
+	
+	for(int foreachcount = 0; foreachcount < sz; ++foreachcount ) {
+		// 代入する要素値を取得
+		if (isPseudoarray) {
+			t_value = s_array[foreachcount];
+		}
+		else {// F_TAG_ARRAY
+			t_value = value.array()[foreachcount];
+		}
 
-	// 序数を進める
-	foreachcount++;
+		// 代入
+		type = st1.cell()[0].value_GetType();
+		if ( type == F_TAG_VARIABLE ) {
+			pvm->variable().SetValue(st1.cell()[0].index, t_value);
+		}
+		else if ( type == F_TAG_LOCALVARIABLE ) {
+			lvar.SetValue(st1.cell()[0].name, t_value);
+		}
+		else {
+			pvm->logger().Error(E_E, 28, dicfilename, st1.linecount);
+			break;
+		}
 
-	return 1;
+		ExecuteInBrace(line + 3, t_value, lvar, BRACE_LOOP, exitcode);
+		output.Append(t_value);
+
+		if (exitcode == ST_BREAK) {
+			exitcode = ST_NOP;
+			break;
+		}
+		else if (exitcode == ST_RETURN)
+			break;
+		else if (exitcode == ST_CONTINUE)
+			exitcode = ST_NOP;
+	}
 }
 
 /* -----------------------------------------------------------------------
