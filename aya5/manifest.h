@@ -24,6 +24,11 @@ extern const yaya::char_t *aya_author;
 // 文字コードセット
 #define	CHARSET_SJIS			0				/* デフォルト */
 #define	CHARSET_UTF8			1
+#define	CHARSET_EUCJP			2
+#define	CHARSET_BIG5			3
+#define	CHARSET_GB2312			4
+#define	CHARSET_EUCKR			5
+#define	CHARSET_BINARY	126						/* 変換しない（一部でのみ利用） */
 #define	CHARSET_DEFAULT	127						/* OSデフォルトの言語を使用する */
 
 // メッセージの言語

@@ -54,6 +54,7 @@ public:
     static wchar_t*	utf8_to_utf16be(const char *pUtf8Str);
 
 	static char		*sys_setlocale(int category);
+	static char		*ccct_setlocale(int category, int charset);
 
 protected:
     static size_t	utf16be_to_utf8_sub( char *pUtf8, const wchar_t *pUcs2, size_t nUcsNum);

@@ -94,6 +94,11 @@ bool     Ccct::CheckInvalidCharset(int charset)
 {
 	if (charset != CHARSET_SJIS &&
 		charset != CHARSET_UTF8 &&
+		charset != CHARSET_EUCJP &&
+		charset != CHARSET_BIG5 &&
+		charset != CHARSET_GB2312 &&
+		charset != CHARSET_EUCKR &&
+		charset != CHARSET_BINARY &&
 		charset != CHARSET_DEFAULT) {
 		return true;
 	}
@@ -113,6 +118,16 @@ int      Ccct::CharsetTextToID(const wchar_t *ctxt)
 		return CHARSET_DEFAULT;
 	else if (!wcsicmp(L"Shift_JIS",ctxt) || !wcsicmp(L"ShiftJIS",ctxt) || !wcsicmp(L"SJIS",ctxt))
 		return CHARSET_SJIS;
+	else if (!wcsicmp(L"EUC_JP",ctxt) || !wcsicmp(L"EUC-JP",ctxt) || !wcsicmp(L"EUCJP",ctxt))
+		return CHARSET_EUCJP;
+	else if (!wcsicmp(L"BIG5",ctxt) || !wcsicmp(L"BIG-5",ctxt))
+		return CHARSET_BIG5;
+	else if (!wcsicmp(L"GB2312",ctxt) || !wcsicmp(L"GB-2312",ctxt))
+		return CHARSET_GB2312;
+	else if (!wcsicmp(L"EUC_KR",ctxt) || !wcsicmp(L"EUC-KR",ctxt) || !wcsicmp(L"EUCKR",ctxt))
+		return CHARSET_EUCKR;
+	else if (!wcsicmp(L"binary",ctxt))
+		return CHARSET_BINARY;
 
 	return CHARSET_DEFAULT;
 }
@@ -125,6 +140,16 @@ int      Ccct::CharsetTextToID(const char *ctxt)
 		return CHARSET_DEFAULT;
 	else if (!stricmp("Shift_JIS",ctxt) || !stricmp("ShiftJIS",ctxt) || !stricmp("SJIS",ctxt))
 		return CHARSET_SJIS;
+	else if (!stricmp("EUC_JP",ctxt) || !stricmp("EUC-JP",ctxt) || !stricmp("EUCJP",ctxt))
+		return CHARSET_EUCJP;
+	else if (!stricmp("BIG5",ctxt) || !stricmp("BIG-5",ctxt))
+		return CHARSET_BIG5;
+	else if (!stricmp("GB2312",ctxt) || !stricmp("GB-2312",ctxt))
+		return CHARSET_GB2312;
+	else if (!stricmp("EUC_KR",ctxt) || !stricmp("EUC-KR",ctxt) || !stricmp("EUCKR",ctxt))
+		return CHARSET_EUCKR;
+	else if (!stricmp("binary",ctxt))
+		return CHARSET_BINARY;
 
 	return CHARSET_DEFAULT;
 }
@@ -142,6 +167,21 @@ const wchar_t *Ccct::CharsetIDToTextW(const int charset)
 	if ( charset == CHARSET_SJIS ) {
 		return L"Shift_JIS";
 	}
+	if ( charset == CHARSET_EUCJP ) {
+		return L"EUC_JP";
+	}
+	if ( charset == CHARSET_BIG5 ) {
+		return L"BIG5";
+	}
+	if ( charset == CHARSET_GB2312 ) {
+		return L"GB2312";
+	}
+	if ( charset == CHARSET_EUCKR ) {
+		return L"EUC_KR";
+	}
+	if ( charset == CHARSET_BINARY ) {
+		return L"binary";
+	}
 	return L"default";
 }
 const char *Ccct::CharsetIDToTextA(const int charset)
@@ -151,6 +191,21 @@ const char *Ccct::CharsetIDToTextA(const int charset)
 	}
 	if ( charset == CHARSET_SJIS ) {
 		return "Shift_JIS";
+	}
+	if ( charset == CHARSET_EUCJP ) {
+		return "EUC_JP";
+	}
+	if ( charset == CHARSET_BIG5 ) {
+		return "BIG5";
+	}
+	if ( charset == CHARSET_GB2312 ) {
+		return "GB2312";
+	}
+	if ( charset == CHARSET_EUCKR ) {
+		return "EUC_KR";
+	}
+	if ( charset == CHARSET_BINARY ) {
+		return "binary";
 	}
 	return "default";
 }
@@ -204,7 +259,7 @@ yaya::char_t	*Ccct::MbcsToUcs2(const std::string &mstr, int charset)
 #endif
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  Ccct::utf16be_to_sjis
+ *  関数名  ：  Ccct::utf16be_to_mbcs
  *  機能概要：  UTF-16BE -> MBCS へ文字列のコード変換
  * -----------------------------------------------------------------------
  */
@@ -217,23 +272,22 @@ char *Ccct::utf16be_to_mbcs(const yaya::char_t *pUcsStr, int charset)
     if (!pUcsStr)
 		return NULL;
 
-	if (charset == CHARSET_SJIS)
-		setlocale(LC_ALL, "Japanese");
-	else
-		sys_setlocale(LC_ALL);
+	ccct_setlocale(LC_ALL, charset);
 
     nLen = wcslen( pUcsStr);
 
-    if (pUcsStr[0] == static_cast<yaya::char_t>(0xfeff) ||
-			pUcsStr[0] == static_cast<yaya::char_t>(0xfffe)) {
-        pUcsStr++; // 先頭にBOM(byte Order Mark)があれば，スキップする
-        nLen--;
-    }
+	if (charset != CHARSET_BINARY) {
+	    if (pUcsStr[0] == static_cast<yaya::char_t>(0xfeff) ||
+				pUcsStr[0] == static_cast<yaya::char_t>(0xfffe)) {
+			pUcsStr++; // 先頭にBOM(byte Order Mark)があれば，スキップする
+	        nLen--;
+		}
+	}
 
 	//文字長×マルチバイト最大長＋ゼロ終端
     pAnsiStr = (char *)malloc((nLen*MB_CUR_MAX)+1);
     if (!pAnsiStr) {
-		if (charset == CHARSET_SJIS) sys_setlocale(LC_ALL);
+		if (charset != CHARSET_UTF8 && charset != CHARSET_BINARY) ccct_setlocale(LC_ALL, charset);
 		return NULL;
 	}
 
@@ -243,7 +297,13 @@ char *Ccct::utf16be_to_mbcs(const yaya::char_t *pUcsStr, int charset)
 	int nRet;
 
     for (i = 0; i < nLen; i++) {
-        nRet = wctomb(pAnsiStr+nMbpos, pUcsStr[i]);
+		if (charset != CHARSET_BINARY) {
+			nRet = wctomb(pAnsiStr+nMbpos, pUcsStr[i]);
+		}
+		else {
+			pAnsiStr[nMbpos] = (char)(0x00ff & pUcsStr[i]);
+			nRet = 1;
+		}
 		if ( nRet <= 0 ) { // can not conversion
             pAnsiStr[nMbpos++] = ' ';
         }
@@ -254,7 +314,7 @@ char *Ccct::utf16be_to_mbcs(const yaya::char_t *pUcsStr, int charset)
 
 	pAnsiStr[nMbpos] = 0;
 
-	if (charset == CHARSET_SJIS) sys_setlocale(LC_ALL);
+	if (charset != CHARSET_UTF8 && charset != CHARSET_BINARY) ccct_setlocale(LC_ALL, charset);
     return pAnsiStr;
 }
 #endif
@@ -270,16 +330,13 @@ yaya::char_t *Ccct::mbcs_to_utf16be(const char *pAnsiStr, int charset)
     if (!pAnsiStr)
 		return NULL;
 
-	if (charset == CHARSET_SJIS)
-		setlocale(LC_ALL, "Japanese");
-	else
-		sys_setlocale(LC_ALL);
+	ccct_setlocale(LC_ALL, charset);
 
     size_t nLen = strlen(pAnsiStr);
 
     yaya::char_t *pUcsStr = (yaya::char_t *)malloc(sizeof(yaya::char_t)*(nLen+1));
     if (!pUcsStr) {
-		if (charset == CHARSET_SJIS) sys_setlocale(LC_ALL);
+		if (charset != CHARSET_UTF8 && charset != CHARSET_BINARY) ccct_setlocale(LC_ALL, charset);
 		return NULL;
 	}
 
@@ -289,7 +346,13 @@ yaya::char_t *Ccct::mbcs_to_utf16be(const char *pAnsiStr, int charset)
 	int nRet;
 
     for (i = 0; i < nLen; ) {
-        nRet = mbtowc(pUcsStr+nMbpos, pAnsiStr+i, nLen-i);
+		if (charset != CHARSET_BINARY) {
+	        nRet = mbtowc(pUcsStr+nMbpos, pAnsiStr+i, nLen-i);
+		}
+		else {
+			pUcsStr[i]=static_cast<yaya::char_t>(pAnsiStr[i]);
+			nRet = 1;
+		}
 		if ( nRet <= 0 ) { // can not conversion
             pUcsStr[nMbpos++] = L' ';
 			i += 1;
@@ -300,9 +363,9 @@ yaya::char_t *Ccct::mbcs_to_utf16be(const char *pAnsiStr, int charset)
 		}
     }
 
-	pUcsStr[nMbpos] = 0;;
+	pUcsStr[nMbpos] = 0;
 
-	if (charset == CHARSET_SJIS) sys_setlocale(LC_ALL);
+	if (charset != CHARSET_UTF8 && charset != CHARSET_BINARY) ccct_setlocale(LC_ALL, charset);
     return pUcsStr;
 }
 #endif
@@ -415,7 +478,7 @@ size_t Ccct::utf8_to_utf16be_sub( yaya::char_t *pUcs2, const char *pUtf8, size_t
 #ifndef POSIX
 char *Ccct::sys_setlocale(int category)
 {
-	return setlocale(category,".OCP");
+	return setlocale(category,".ACP");
 
 	/*switch(PRIMARYLANGID(GetSystemDefaultLangID())) {
 		case LANG_JAPANESE:
@@ -437,6 +500,29 @@ char *Ccct::sys_setlocale(int category)
 		default:
 			return setlocale(category, "English");
 	};*/
+}
+#endif
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  Ccct::ccct_setlocale
+ *  機能概要：  言語IDでロケール設定する
+ * -----------------------------------------------------------------------
+ */
+#ifndef POSIX
+char *Ccct::ccct_setlocale(int category, int charset)
+{
+	if (charset == CHARSET_SJIS)
+		return setlocale(LC_ALL, ".932");
+	else if (charset == CHARSET_EUCJP)
+		return setlocale(LC_ALL, ".20932");
+	else if (charset == CHARSET_BIG5)
+		return setlocale(LC_ALL, ".950");
+	else if (charset == CHARSET_GB2312)
+		return setlocale(LC_ALL, ".936");
+	else if (charset == CHARSET_EUCKR)
+		return setlocale(LC_ALL, ".949");
+	else
+		return sys_setlocale(LC_ALL);
 }
 #endif
 
