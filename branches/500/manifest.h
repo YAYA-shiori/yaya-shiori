@@ -24,6 +24,11 @@ extern const yaya::char_t *aya_author;
 // 文字コードセット
 #define	CHARSET_SJIS			0				/* デフォルト */
 #define	CHARSET_UTF8			1
+#define	CHARSET_EUCJP			2
+#define	CHARSET_BIG5			3
+#define	CHARSET_GB2312			4
+#define	CHARSET_EUCKR			5
+#define	CHARSET_BINARY	126						/* 変換しない（一部でのみ利用） */
 #define	CHARSET_DEFAULT	127						/* OSデフォルトの言語を使用する */
 
 // メッセージの言語
@@ -58,7 +63,7 @@ extern const yaya::char_t *aya_author;
 #define	CTRL_CH_START			'@'
 #define	END_OF_CTRL_CH			0x1f
 
-// ファイル保存/復元時における汎用配列の空要素
+// ファイル保存/復元時における汎用配列/ハッシュの空要素
 #define	ESC_IARRAY				L"IARRAY"
 
 // ステートメントの種別
