@@ -47,19 +47,13 @@ public:
 	static const wchar_t *CharsetIDToTextW(const int charset);
 	static const char    *CharsetIDToTextA(const int charset);
 
-#if defined(WIN32) || defined(_WIN32_WCE)
-    static wchar_t*	mbcs_to_utf16be(const char *pAnsiStr, int charset);
-    static char*	utf16be_to_utf8(const wchar_t *pUcsStr);
-    static char*	utf16be_to_mbcs(const wchar_t *pUcsStr, int charset);
-    static wchar_t*	utf8_to_utf16be(const char *pUtf8Str);
-
 	static char		*sys_setlocale(int category);
 	static char		*ccct_setlocale(int category, int charset);
 
-protected:
-    static size_t	utf16be_to_utf8_sub( char *pUtf8, const wchar_t *pUcs2, size_t nUcsNum);
-    static size_t	utf8_to_utf16be_sub( wchar_t *pUcs2, const char *pUtf8, size_t nUtf8Num);
-#endif
+private:
+	static char *utf16be_to_mbcs(const yaya::char_t *pUcsStr, int charset);
+	static yaya::char_t *mbcs_to_utf16be(const char *pAnsiStr, int charset);
+
 };
 
 //----
