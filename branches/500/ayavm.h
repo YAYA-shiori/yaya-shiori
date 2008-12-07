@@ -48,7 +48,9 @@ private:
 	CLog	m_logger;
 
 public:
-	CAyaVM(void);
+	void Load(void);
+	void Unload(void);
+
 	unsigned int genrand(void);
 	int genrand_int(int n);
 

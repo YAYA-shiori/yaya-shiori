@@ -51,6 +51,8 @@ extern "C" DLLEXPORT RETERNTYPE FUNCATTRIB load(yaya::global_t h, long len)
 #if defined(WIN32) || defined(_WIN32_WCE)
 	Ccct::sys_setlocale(LC_ALL);
 #endif
+	vm.Load();
+
 	vm.basis().SetPath(h, len);
 	vm.basis().Configure();
 
@@ -64,6 +66,8 @@ extern "C" DLLEXPORT RETERNTYPE FUNCATTRIB load(yaya::global_t h, long len)
 extern "C" DLLEXPORT RETERNTYPE FUNCATTRIB unload()
 {
 	vm.basis().Termination();
+
+	vm.Unload();
 
     return 1;
 }

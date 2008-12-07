@@ -19,6 +19,7 @@
 #include "ccct.h"
 #include "manifest.h"
 #include "globaldef.h"
+#include "babel/babel.h"
 
 #ifdef POSIX
 #  include <ctype.h>
@@ -213,57 +214,117 @@ const char *Ccct::CharsetIDToTextA(const int charset)
 /* -----------------------------------------------------------------------
  *  関数名  ：  Ccct::Ucs2ToMbcs
  *  機能概要：  UTF-16BE -> MBCS へ文字列のコード変換
- *
- * (written by umeici)
  * -----------------------------------------------------------------------
  */
-#ifndef POSIX
+static char* string_to_malloc(const std::string &str)
+{
+	char* pch = (char*)malloc(str.length()+1);
+	memcpy(pch,str.c_str(),str.length()+1);
+	return pch;
+}
+
 char	*Ccct::Ucs2ToMbcs(const yaya::char_t *wstr, int charset)
 {
-	if (charset == CHARSET_UTF8)
-		return Ccct::utf16be_to_utf8(wstr);
-	else
-		return Ccct::utf16be_to_mbcs(wstr, charset);
+	return Ucs2ToMbcs(yaya::string_t(wstr), charset);
 }
 
 //----
 
 char	*Ccct::Ucs2ToMbcs(const yaya::string_t &wstr, int charset)
 {
-	return Ucs2ToMbcs(wstr.c_str(), charset);
+	if ( charset == CHARSET_UTF8 ) {
+		return string_to_malloc(babel::unicode_to_utf8(wstr));
+	}
+	else if ( charset == CHARSET_SJIS ) {
+		return string_to_malloc(babel::unicode_to_sjis(wstr));
+	}
+	else if ( charset == CHARSET_EUCJP ) {
+		return string_to_malloc(babel::unicode_to_euc(wstr));
+	}
+	else if ( charset == CHARSET_JIS ) {
+		return string_to_malloc(babel::unicode_to_jis(wstr));
+	}
+	else {
+		return utf16be_to_mbcs(wstr.c_str(),charset);
+	}
 }
-#endif
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  Ccct::MbcsToUcs2
  *  機能概要：  MBCS -> UTF-16BE へ文字列のコード変換
- *
- * (written by umeici)
  * -----------------------------------------------------------------------
  */
-#ifndef POSIX
+static yaya::char_t* wstring_to_malloc(const yaya::string_t &str)
+{
+	size_t sz = (str.length()+1) * sizeof(yaya::char_t);
+	yaya::char_t* pch = (yaya::char_t*)malloc(sz);
+	memcpy(pch,str.c_str(),sz);
+	return pch;
+}
+
 yaya::char_t	*Ccct::MbcsToUcs2(const char *mstr, int charset)
 {
-	if (charset == CHARSET_UTF8)
-		return Ccct::utf8_to_utf16be(mstr);
-	else
-		return Ccct::mbcs_to_utf16be(mstr, charset);
+	return MbcsToUcs2(std::string(mstr), charset);
 }
 
 //----
 
 yaya::char_t	*Ccct::MbcsToUcs2(const std::string &mstr, int charset)
 {
-	return MbcsToUcs2(mstr.c_str(), charset);
+	if ( charset == CHARSET_UTF8 ) {
+		return wstring_to_malloc(babel::utf8_to_unicode(mstr));
+	}
+	else if ( charset == CHARSET_SJIS ) {
+		return wstring_to_malloc(babel::sjis_to_unicode(mstr));
+	}
+	else if ( charset == CHARSET_EUCJP ) {
+		return wstring_to_malloc(babel::euc_to_unicode(mstr));
+	}
+	else if ( charset == CHARSET_JIS ) {
+		return wstring_to_malloc(babel::jis_to_unicode(mstr));
+	}
+	else {
+		return mbcs_to_utf16be(mstr.c_str(),charset);
+	}
 }
-#endif
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  Ccct::sys_setlocale
+ *  機能概要：  OSデフォルトの言語IDでロケール設定する
+ * -----------------------------------------------------------------------
+ */
+char *Ccct::sys_setlocale(int category)
+{
+	return setlocale(category,"");
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  Ccct::ccct_setlocale
+ *  機能概要：  言語IDでロケール設定する
+ * -----------------------------------------------------------------------
+ */
+char *Ccct::ccct_setlocale(int category, int charset)
+{
+	if (charset == CHARSET_SJIS)
+		return setlocale(category, ".932");
+	else if (charset == CHARSET_EUCJP)
+		return setlocale(category, ".20932");
+	else if (charset == CHARSET_BIG5)
+		return setlocale(category, ".950");
+	else if (charset == CHARSET_GB2312)
+		return setlocale(category, ".936");
+	else if (charset == CHARSET_EUCKR)
+		return setlocale(category, ".949");
+	else
+		return sys_setlocale(category);
+}
+
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  Ccct::utf16be_to_mbcs
  *  機能概要：  UTF-16BE -> MBCS へ文字列のコード変換
  * -----------------------------------------------------------------------
  */
-#ifndef POSIX
 char *Ccct::utf16be_to_mbcs(const yaya::char_t *pUcsStr, int charset)
 {
     char *pAnsiStr = NULL;
@@ -317,14 +378,12 @@ char *Ccct::utf16be_to_mbcs(const yaya::char_t *pUcsStr, int charset)
 	if (charset != CHARSET_UTF8 && charset != CHARSET_BINARY) ccct_setlocale(LC_ALL, charset);
     return pAnsiStr;
 }
-#endif
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  Ccct::mbcs_to_utf16be
  *  機能概要：  MBCS -> UTF-16 へ文字列のコード変換
  * -----------------------------------------------------------------------
  */
-#ifndef POSIX
 yaya::char_t *Ccct::mbcs_to_utf16be(const char *pAnsiStr, int charset)
 {
     if (!pAnsiStr)
@@ -368,161 +427,3 @@ yaya::char_t *Ccct::mbcs_to_utf16be(const char *pAnsiStr, int charset)
 	if (charset != CHARSET_UTF8 && charset != CHARSET_BINARY) ccct_setlocale(LC_ALL, charset);
     return pUcsStr;
 }
-#endif
-
-/* -----------------------------------------------------------------------
- *  関数名  ：  Ccct::utf16be_to_utf8
- *  機能概要：  UTF-16 -> UTF-8 へ文字列のコード変換
- * -----------------------------------------------------------------------
- */
-#ifndef POSIX
-char *Ccct::utf16be_to_utf8(const yaya::char_t *pUcsStr)
-{
-    size_t nUcsNum = wcslen(pUcsStr);
-
-    char *pUtf8Str = (char *)malloc((nUcsNum + 1)*3*sizeof(char));
-    utf16be_to_utf8_sub( pUtf8Str, pUcsStr, nUcsNum);
-
-    return pUtf8Str;
-}
-#endif
-
-/* -----------------------------------------------------------------------
- *  関数名  ：  Ccct::utf16be_to_utf8_sub
- *  機能概要：  UTF-16 -> UTF-8変換（utf16be_to_utf8で使用します）
- * -----------------------------------------------------------------------
- */
-#ifndef POSIX
-size_t Ccct::utf16be_to_utf8_sub( char *pUtf8, const yaya::char_t *pUcs2, size_t nUcsNum)
-{
-    size_t nUtf8 = 0;
-
-    for (size_t nUcs2 = 0; nUcs2 < nUcsNum; nUcs2++) {
-        if ( (unsigned short)pUcs2[nUcs2] <= 0x007f) {
-            pUtf8[nUtf8] = (pUcs2[nUcs2] & 0x007f);
-            nUtf8 += 1;
-        } else if ( (unsigned short)pUcs2[nUcs2] <= 0x07ff) {
-            pUtf8[nUtf8] = ((pUcs2[nUcs2] & 0x07C0) >> 6 ) | 0xc0; // 2002.08.17 修正
-            pUtf8[nUtf8+1] = (pUcs2[nUcs2] & 0x003f) | 0x80;
-            nUtf8 += 2;
-        } else {
-            pUtf8[nUtf8] = ((pUcs2[nUcs2] & 0xf000) >> 12) | 0xe0; // 2002.08.04 修正
-            pUtf8[nUtf8+1] = ((pUcs2[nUcs2] & 0x0fc0) >> 6) | 0x80;
-            pUtf8[nUtf8+2] = (pUcs2[nUcs2] & 0x003f) | 0x80;
-            nUtf8 += 3;
-        }
-    }
-
-    pUtf8[nUtf8] = '\0';
-
-    return nUtf8;
-}
-#endif
-
-/* -----------------------------------------------------------------------
- *  関数名  ：  Ccct::utf8_to_utf16be
- *  機能概要：  UTF-8 -> UTF-16BE へ文字列のコード変換
- * -----------------------------------------------------------------------
- */
-#ifndef POSIX
-yaya::char_t *Ccct::utf8_to_utf16be(const char *pUtf8Str)
-{
-    size_t nUtf8Num = strlen(pUtf8Str); // UTF-8文字列には，'\0' がない
-
-	yaya::char_t *pUcsStr = (yaya::char_t *)malloc((nUtf8Num + 1)*sizeof(yaya::char_t));
-	utf8_to_utf16be_sub( pUcsStr, pUtf8Str, nUtf8Num);
-
-    return pUcsStr;
-}
-#endif
-
-/* -----------------------------------------------------------------------
- *  関数名  ：  Ccct::utf8_to_utf16be_sub
- *  機能概要：  UTF-8 -> UTF-16BE変換（utf16be_to_utf8で使用します）
- * -----------------------------------------------------------------------
- */
-#ifndef POSIX
-size_t Ccct::utf8_to_utf16be_sub( yaya::char_t *pUcs2, const char *pUtf8, size_t nUtf8Num)
-{
-    size_t	nUcs2 = 0;
-
-    for (size_t nUtf8 = 0; nUtf8 < nUtf8Num; ) {
-        if ( ( pUtf8[nUtf8] & 0x80) == 0x00) { // 最上位ビット = 0
-            pUcs2[nUcs2] = ( pUtf8[nUtf8] & 0x7f);
-            nUtf8 += 1;
-        } else if ((pUtf8[nUtf8] & 0xe0) == 0xc0) { // 上位3ビット = 110
-            pUcs2[nUcs2] = ( pUtf8[nUtf8] & 0x1f) << 6;
-            pUcs2[nUcs2] |= ( pUtf8[nUtf8+1] & 0x3f);
-            nUtf8 += 2;
-        } else {
-            pUcs2[nUcs2] = ( pUtf8[nUtf8] & 0x0f) << 12;
-            pUcs2[nUcs2] |= ( pUtf8[nUtf8+1] & 0x3f) << 6;
-            pUcs2[nUcs2] |= ( pUtf8[nUtf8+2] & 0x3f);
-            nUtf8 += 3;
-        }
-
-        nUcs2 += 1;
-    }
-
-    pUcs2[nUcs2] = L'\0';
-
-    return nUcs2;
-}
-#endif
-
-/* -----------------------------------------------------------------------
- *  関数名  ：  Ccct::sys_setlocale
- *  機能概要：  OSデフォルトの言語IDでロケール設定する
- * -----------------------------------------------------------------------
- */
-#ifndef POSIX
-char *Ccct::sys_setlocale(int category)
-{
-	return setlocale(category,".ACP");
-
-	/*switch(PRIMARYLANGID(GetSystemDefaultLangID())) {
-		case LANG_JAPANESE:
-			return setlocale(category, "Japanese");
-		case LANG_KOREAN:
-			return setlocale(category, "Korean");
-		case LANG_CHINESE:
-			return setlocale(category, "Chinese");
-		case LANG_RUSSIAN:
-			return setlocale(category, "Russian");
-		case LANG_FRENCH:
-			return setlocale(category, "French");
-		case LANG_GERMAN:
-			return setlocale(category, "German");
-		case LANG_SPANISH:
-			return setlocale(category, "Spanish");
-		case LANG_ITALIAN:
-			return setlocale(category, "Italian");
-		default:
-			return setlocale(category, "English");
-	};*/
-}
-#endif
-
-/* -----------------------------------------------------------------------
- *  関数名  ：  Ccct::ccct_setlocale
- *  機能概要：  言語IDでロケール設定する
- * -----------------------------------------------------------------------
- */
-#ifndef POSIX
-char *Ccct::ccct_setlocale(int category, int charset)
-{
-	if (charset == CHARSET_SJIS)
-		return setlocale(LC_ALL, ".932");
-	else if (charset == CHARSET_EUCJP)
-		return setlocale(LC_ALL, ".20932");
-	else if (charset == CHARSET_BIG5)
-		return setlocale(LC_ALL, ".950");
-	else if (charset == CHARSET_GB2312)
-		return setlocale(LC_ALL, ".936");
-	else if (charset == CHARSET_EUCKR)
-		return setlocale(LC_ALL, ".949");
-	else
-		return sys_setlocale(LC_ALL);
-}
-#endif
-

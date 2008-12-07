@@ -4,6 +4,8 @@
 // コメントアウト処理クラス　CComment
 // written by umeici. 2004
 // 
+#pragma warning( disable : 4786 ) //「デバッグ情報内での識別子切捨て」
+#pragma warning( disable : 4503 ) //「装飾された名前の長さが限界を越えました。名前は切り捨てられます。」
 
 #if defined(WIN32) || defined(_WIN32_WCE)
 # include "stdafx.h"
