@@ -104,6 +104,10 @@ SOURCE=.\ayavm.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\babel\babel.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\basis.cpp
 # End Source File
 # Begin Source File
@@ -230,6 +234,10 @@ SOURCE=.\aya5.h
 # Begin Source File
 
 SOURCE=.\ayavm.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\babel\babel.h
 # End Source File
 # Begin Source File
 

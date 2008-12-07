@@ -5,6 +5,9 @@
 // written by the Maintenance Shop/C.Ponapalt 2006
 // 
 
+#pragma warning( disable : 4786 ) //「デバッグ情報内での識別子切捨て」
+#pragma warning( disable : 4503 ) //「装飾された名前の長さが限界を越えました。名前は切り捨てられます。」
+
 #include "ayavm.h"
 
 #include "basis.h"
@@ -16,6 +19,8 @@
 #include "parser1.h"
 #include "sysfunc.h"
 #include "wordmatch.h"
+
+#include "babel/babel.h"
 
 #ifdef POSIX
 #include <sys/time.h>
@@ -38,7 +43,7 @@
 	初期化
 	ほぼ乱数初期化用
 -----------------------------------------------*/
-CAyaVM::CAyaVM(void)
+void CAyaVM::Load(void)
 {
 #ifdef _DEBUG
 	int tmpFlag = _CrtSetDbgFlag( _CRTDBG_REPORT_FLAG );
@@ -46,8 +51,9 @@ CAyaVM::CAyaVM(void)
 	tmpFlag &= ~_CRTDBG_CHECK_CRT_DF;
 	_CrtSetDbgFlag( tmpFlag );
 #endif
-
 	unsigned int dwSeed;
+
+	babel::init_babel();
 
 #ifdef POSIX
 	struct timeval tv;
@@ -58,6 +64,13 @@ CAyaVM::CAyaVM(void)
 #endif
 
 	init_genrand(dwSeed);
+}
+
+/*-----------------------------------------------
+	終了
+-----------------------------------------------*/
+void CAyaVM::Unload(void)
+{
 }
 
 /*-----------------------------------------------
