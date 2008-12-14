@@ -43,6 +43,11 @@ int	CFile1::Open(void)
 	fp = yaya::w_fopen((wchar_t *)name.c_str(), (wchar_t *)mode.c_str());
 	free(filepath);
 
+	if ( ! fp ) {
+		size = 0;
+		return 0;
+	}
+
 	long cur = ftell(fp);
 	fseek(fp,0,SEEK_SET);
 	long start = ftell(fp);
@@ -52,7 +57,7 @@ int	CFile1::Open(void)
 
 	size = end-start;
 	
-	return (fp != NULL) ? 1 : 0;
+	return 1;
 }
 
 /* -----------------------------------------------------------------------
