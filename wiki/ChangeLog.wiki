@@ -1,4 +1,10 @@
 #labels Featured
+=Tc533-1=
+  * 文字コードサポートを拡充
+  * foreach文内部で列挙対象配列に変更を加えてもループ処理に問題が生じないように
+  * FOPEN済みファイルへのFSIZEが通らない問題を修正
+  * 擬似乱数初期化改良 - ほぼ同時起動したゴーストが同じ乱数系列を使わないように
+
 =Tc532-1=
   * EXECUTE_WAIT追加
   * STRDECODE / STRENCODE追加 旧名はGETSTRURLENCODE / DECODE
