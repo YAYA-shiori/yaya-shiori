@@ -2052,33 +2052,35 @@ CValue	CSystemFunction::FREAD(const CValue &arg, yaya::string_t &d, int &l)
  */
 CValue	CSystemFunction::FREADBIN(const CValue &arg, yaya::string_t &d, int &l)
 {
-	if (arg.array_size() < 2) {
+	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"FREADBIN", d, l);
 		SetError(8);
 		return CValue();
 	}
 
-    if (!arg.array()[0].IsString() ||
-		!arg.array()[1].IsInt()) {
+    if (!arg.array()[0].IsString() || (arg.array_size() >= 2 && !arg.array()[1].IsInt()) ) {
 		vm.logger().Error(E_W, 9, L"FREADBIN", d, l);
 		SetError(9);
 		return CValue();
 	}
 
-	size_t readsize = arg.array()[1].GetValueInt();
-	yaya::char_t alt = L' ';
+	size_t readsize = 0;
+	if ( arg.array_size() >= 2 ) {
+		readsize = arg.array()[1].GetValueInt();
+	}
 
+	yaya::char_t alt = L' ';
 	if (arg.array_size() >= 3) {
 		if (!arg.array()[2].IsString()) {
 			vm.logger().Error(E_W, 9, L"FREADBIN", d, l);
 			SetError(9);
 			return CValue(F_TAG_NOP, 0/*dmy*/);
 		}
-		alt = arg.array()[2].s_value[0];
+		alt = arg.array()[2].GetValueString()[0];
 	}
 
 	yaya::string_t	r_value;
-	int	result = vm.files().ReadBin(ToFullPath(arg.array()[0].s_value), r_value, readsize, alt);
+	int	result = vm.files().ReadBin(ToFullPath(arg.array()[0].GetValueString()), r_value, readsize, alt);
 
 	if (!result) {
 		vm.logger().Error(E_W, 13, L"FREADBIN", d, l);
