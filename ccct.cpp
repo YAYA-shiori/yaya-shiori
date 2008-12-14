@@ -305,6 +305,18 @@ char *Ccct::sys_setlocale(int category)
  */
 char *Ccct::ccct_setlocale(int category, int charset)
 {
+#ifdef POSIX
+	if (charset == CHARSET_SJIS)
+		return setlocale(category, "ja_JP.SJIS");
+	else if (charset == CHARSET_EUCJP)
+		return setlocale(category, "ja_JP.eucJP");
+	else if (charset == CHARSET_BIG5)
+		return setlocale(category, "zh_TW.Big5");
+	else if (charset == CHARSET_GB2312)
+		return setlocale(category, "zh_CN.GB2312");
+	else if (charset == CHARSET_EUCKR)
+		return setlocale(category, "ko_KR.eucKR");
+#else
 	if (charset == CHARSET_SJIS)
 		return setlocale(category, ".932");
 	else if (charset == CHARSET_EUCJP)
@@ -315,6 +327,7 @@ char *Ccct::ccct_setlocale(int category, int charset)
 		return setlocale(category, ".936");
 	else if (charset == CHARSET_EUCKR)
 		return setlocale(category, ".949");
+#endif
 	else
 		return sys_setlocale(category);
 }
