@@ -99,6 +99,7 @@ bool     Ccct::CheckInvalidCharset(int charset)
 		charset != CHARSET_BIG5 &&
 		charset != CHARSET_GB2312 &&
 		charset != CHARSET_EUCKR &&
+		charset != CHARSET_JIS &&
 		charset != CHARSET_BINARY &&
 		charset != CHARSET_DEFAULT) {
 		return true;
@@ -121,6 +122,8 @@ int      Ccct::CharsetTextToID(const wchar_t *ctxt)
 		return CHARSET_SJIS;
 	else if (!wcsicmp(L"EUC_JP",ctxt) || !wcsicmp(L"EUC-JP",ctxt) || !wcsicmp(L"EUCJP",ctxt))
 		return CHARSET_EUCJP;
+	else if (!wcsicmp(L"ISO-2022-JP",ctxt) || !wcsicmp(L"JIS",ctxt))
+		return CHARSET_JIS;
 	else if (!wcsicmp(L"BIG5",ctxt) || !wcsicmp(L"BIG-5",ctxt))
 		return CHARSET_BIG5;
 	else if (!wcsicmp(L"GB2312",ctxt) || !wcsicmp(L"GB-2312",ctxt))
@@ -143,6 +146,8 @@ int      Ccct::CharsetTextToID(const char *ctxt)
 		return CHARSET_SJIS;
 	else if (!stricmp("EUC_JP",ctxt) || !stricmp("EUC-JP",ctxt) || !stricmp("EUCJP",ctxt))
 		return CHARSET_EUCJP;
+	else if (!stricmp("ISO-2022-JP",ctxt) || !stricmp("JIS",ctxt))
+		return CHARSET_JIS;
 	else if (!stricmp("BIG5",ctxt) || !stricmp("BIG-5",ctxt))
 		return CHARSET_BIG5;
 	else if (!stricmp("GB2312",ctxt) || !stricmp("GB-2312",ctxt))
@@ -171,6 +176,9 @@ const wchar_t *Ccct::CharsetIDToTextW(const int charset)
 	if ( charset == CHARSET_EUCJP ) {
 		return L"EUC_JP";
 	}
+	if ( charset == CHARSET_JIS ) {
+		return L"ISO-2022-JP";
+	}
 	if ( charset == CHARSET_BIG5 ) {
 		return L"BIG5";
 	}
@@ -195,6 +203,9 @@ const char *Ccct::CharsetIDToTextA(const int charset)
 	}
 	if ( charset == CHARSET_EUCJP ) {
 		return "EUC_JP";
+	}
+	if ( charset == CHARSET_JIS ) {
+		return "ISO-2022-JP";
 	}
 	if ( charset == CHARSET_BIG5 ) {
 		return "BIG5";
