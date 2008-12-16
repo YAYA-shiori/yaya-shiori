@@ -13,6 +13,7 @@
 #endif
 
 #include <list>
+#include <algorithm>
 
 #include "file.h"
 #include "misc.h"
@@ -28,20 +29,15 @@
 ////////////////////////////////////////
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CFile::Add
- *  機能概要：  指定されたファイルをオープンします
+ *  関数名  ：  CFile::ProcessOpenMode
+ *  機能概要：  AYA形式のFOPENパラメータ指定から、fopenが解釈できる形式に
+ *　　　　　　　変換し、同時に書式をチェックします。
  *
- *  返値　　：　0/1/2=失敗/成功/既にオープンしている
+ *  返値　　：　true/false=正常/不良
  * -----------------------------------------------------------------------
  */
-int	CFile::Add(const yaya::string_t &name, const yaya::string_t &mode)
+bool CFile::ProcessOpenMode(yaya::string_t &t_mode)
 {
-	std::list<CFile1>::iterator it;
-	for(it = filelist.begin(); it != filelist.end(); it++)
-		if (!name.compare(it->GetName()))
-			return 2;
-
-	yaya::string_t	t_mode = mode;
 	if (!t_mode.compare(L"read"))
 		t_mode = L"r";
 	else if (!t_mode.compare(L"write"))
@@ -80,8 +76,33 @@ int	CFile::Add(const yaya::string_t &name, const yaya::string_t &mode)
 		t_mode.compare(L"rb+") &&
 		t_mode.compare(L"wb+") &&
 		t_mode.compare(L"ab+")
-		)
+		) {
+		return false;
+	}
+	else {
+		return true;
+	}
+}
+
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFile::Add
+ *  機能概要：  指定されたファイルをオープンします
+ *
+ *  返値　　：　0/1/2=失敗/成功/既にオープンしている
+ * -----------------------------------------------------------------------
+ */
+int	CFile::Add(const yaya::string_t &name, const yaya::string_t &mode)
+{
+	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
+	if ( it != filelist.end() ) {
+		return 2;
+	}
+
+	yaya::string_t	t_mode = mode;
+	if ( ! ProcessOpenMode(t_mode) ) {
 		return 0;
+	}
 
 	filelist.push_back(CFile1(name, charset, t_mode));
 	it = filelist.end();
@@ -103,12 +124,12 @@ int	CFile::Add(const yaya::string_t &name, const yaya::string_t &mode)
  */
 int	CFile::Delete(const yaya::string_t &name)
 {
-	for(std::list<CFile1>::iterator it = filelist.begin(); it != filelist.end(); it++)
-		if (!name.compare(it->GetName())) {
-			int	result = it->Close();
-			it = filelist.erase(it);
-			return result;
-		}
+	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
+	if ( it != filelist.end() ) {
+		int	result = it->Close();
+		it = filelist.erase(it);
+		return result;
+	}
 
 	return 2;
 }
@@ -132,9 +153,10 @@ void	CFile::DeleteAll(void)
  */
 int	CFile::Write(const yaya::string_t &name, const yaya::string_t &istr)
 {
-	for(std::list<CFile1>::iterator it = filelist.begin(); it != filelist.end(); it++)
-		if (!name.compare(it->GetName()))
-			return it->Write(istr);
+	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
+	if ( it != filelist.end() ) {
+		return it->Write(istr);
+	}
 
 	return 0;
 }
@@ -148,9 +170,18 @@ int	CFile::Write(const yaya::string_t &name, const yaya::string_t &istr)
  */
 int	CFile::WriteBin(const yaya::string_t &name, const yaya::string_t &istr, const yaya::char_t alt)
 {
-	for(std::list<CFile1>::iterator it = filelist.begin(); it != filelist.end(); it++)
-		if (!name.compare(it->GetName()))
-			return it->WriteBin(istr,alt);
+	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
+	if ( it != filelist.end() ) {
+		return it->WriteBin(istr,alt);
+	}
+
+	CFile1 tempfile(name, charset, L"wb");
+	if ( ! tempfile.Open() ) {
+		return 0;
+	}
+	int result = tempfile.WriteBin(istr,alt);
+	tempfile.Close();
+	return result;
 
 	return 0;
 }
@@ -164,11 +195,10 @@ int	CFile::WriteBin(const yaya::string_t &name, const yaya::string_t &istr, cons
  */
 int	CFile::Read(const yaya::string_t &name, yaya::string_t &ostr)
 {
-	for(std::list<CFile1>::iterator it = filelist.begin(); it != filelist.end(); it++)
-		if (!name.compare(it->GetName())) {
-			int	result = it->Read(ostr);
-			return result;
-		}
+	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
+	if ( it != filelist.end() ) {
+		return it->Read(ostr);
+	}
 
 	return 0;
 }
@@ -182,13 +212,18 @@ int	CFile::Read(const yaya::string_t &name, yaya::string_t &ostr)
  */
 int	CFile::ReadBin(const yaya::string_t &name, yaya::string_t &ostr, size_t len, yaya::char_t alt)
 {
-	for(std::list<CFile1>::iterator it = filelist.begin(); it != filelist.end(); it++)
-		if (!name.compare(it->GetName())) {
-			int	result = it->ReadBin(ostr,len,alt);
-			return result;
-		}
+	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
+	if ( it != filelist.end() ) {
+		return it->ReadBin(ostr,len,alt);
+	}
 
-	return 0;
+	CFile1 tempfile(name, charset, L"rb");
+	if ( ! tempfile.Open() ) {
+		return 0;
+	}
+	int result = tempfile.ReadBin(ostr,len,alt);
+	tempfile.Close();
+	return result;
 }
 
 /* -----------------------------------------------------------------------
@@ -199,10 +234,9 @@ int	CFile::ReadBin(const yaya::string_t &name, yaya::string_t &ostr, size_t len,
  */
 long CFile::Size(const yaya::string_t &name)
 {
-	for(std::list<CFile1>::iterator it = filelist.begin(); it != filelist.end(); it++) {
-		if (name.compare(it->GetName()) == 0) {
-			return it->Size();
-		}
+	std::list<CFile1>::const_iterator it = std::find(filelist.begin(),filelist.end(),name);
+	if ( it != filelist.end() ) {
+		return it->Size();
 	}
 
 	return -1;
@@ -232,11 +266,10 @@ int CFile::FSeek(const yaya::string_t &name,int offset,const yaya::string_t &s_m
 		return 0;
 	}
 
-	for(std::list<CFile1>::iterator it = filelist.begin(); it != filelist.end(); it++)
-		if (!name.compare(it->GetName())) {
-			int	result = it->FSeek(offset,mode);
-			return result;
-		}
+	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
+	if ( it != filelist.end() ) {
+		return it->FSeek(offset,mode);
+	}
 
 	return 0;
 }
@@ -250,14 +283,12 @@ int CFile::FSeek(const yaya::string_t &name,int offset,const yaya::string_t &s_m
  */
 int CFile::FTell(const yaya::string_t &name)
 {
-	for(std::list<CFile1>::iterator it = filelist.begin(); it != filelist.end(); it++)
-		if (!name.compare(it->GetName())) {
-			int	result = it->FTell();
-			return result;
-		}
+	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
+	if ( it != filelist.end() ) {
+		return it->FTell();
+	}
 
 	return 0;
 }
-
 
 

@@ -175,27 +175,35 @@ int	CFile1::ReadBin(yaya::string_t &ostr, size_t len, yaya::char_t alt)
 	if (fp == NULL)
 		return 0;
 
-	//危ない！
-	if(len<1){
-		return 0;
+	if(len<1){ //0=デフォルトサイズ指定
+		len = size;
 	}
 
-	unsigned char *f_istr = reinterpret_cast<unsigned char*>(malloc(len+1));
-	f_istr[len] = 0; //念のためゼロ終端（いらない）
+	char f_buffer[1024];
+	size_t read = 0;
 
-	size_t read = fread(f_istr,1,len,fp);
-	if ( ! read ) {
-		free(f_istr);
-		return -1;
-	}
+	while ( true ) {
+		size_t lenread = len - read;
+		if ( lenread > sizeof(f_buffer) ) {
+			lenread = sizeof(f_buffer);
+		}
 
-	for ( size_t i = 0 ; i < read ; ++i ) {
-		if ( f_istr[i] == 0 ) {
-			ostr.append(1,alt);
+		size_t done = fread(f_buffer,1,lenread,fp);
+		if ( ! done ) {
+			break;
 		}
-		else {
-			ostr.append(1,static_cast<yaya::char_t>(f_istr[i]));
+
+		for ( size_t i = 0 ; i < done ; ++i ) {
+			if ( f_buffer[i] == 0 ) {
+				ostr.append(1,alt);
+			}
+			else {
+				ostr.append(1,static_cast<yaya::char_t>(f_buffer[i]));
+			}
 		}
+
+		read += done;
+		if ( done == lenread ) { break; }
 	}
 
 	return read;

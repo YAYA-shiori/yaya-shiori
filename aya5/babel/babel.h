@@ -72,17 +72,6 @@ namespace {
 //	int unimplemented;
 };
 
-#pragma warning( disable : 4786 ) //「デバッグ情報内での識別子切捨て」
-#pragma warning( disable : 4503 ) //「装飾された名前の長さが限界を越えました。名前は切り捨てられます。」
-
-
-#define __UNICODE_CHAR_SIZE_2__
-#define __LITTLE_ENDIAN_COMPUTER__
-#define __USING_SJIS__
-#define __BBL_WSTRING_DEFAULT__
-#define __BBL_USING_STATIC_TABLE__
-#define __BBL_USE_UNICODE_MAP_CP932__
-
 //
 //	★コンパイラ情報による各種自動判別
 //
