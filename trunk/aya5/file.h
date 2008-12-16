@@ -45,12 +45,13 @@ public:
 	CFile1(void) { fp = NULL; }
 	~CFile1(void) { Close(); }
 
-	yaya::string_t	GetName(void) { return name; }
+	inline const yaya::string_t& GetName(void) const { return name; }
+	inline bool operator==(const yaya::string_t &n) const { return n.compare(name) == 0; }
 
 	int	Open(void);
 	int	Close(void);
 
-	inline long Size(void) { return size; }
+	inline long Size(void) const { return size; }
 
 	int	Write(const yaya::string_t &istr);
 	int	Read(yaya::string_t &ostr);
@@ -69,6 +70,8 @@ class	CFile
 protected:
 	std::list<CFile1>	filelist;
 	int			charset;
+
+	bool    ProcessOpenMode(yaya::string_t &mode);
 
 public:
 	~CFile(void) { DeleteAll(); }
