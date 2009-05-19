@@ -122,7 +122,9 @@ int	CLib1::LoadLib(void)
 	if (dllpathname == NULL)
 		return 0;
 
-	hDLL = LoadLibrary(dllpathname);
+	isAlreadyLoaded = ::GetModuleHandle(dllpathname) != NULL;
+
+	hDLL = ::LoadLibrary(dllpathname);
 	free(dllpathname);
 	
 	return (hDLL != NULL) ? 1 : 0;
@@ -206,33 +208,35 @@ int	CLib1::Load(void)
 		return 0;
 
 	// アドレス取得
-	if (loadlib == NULL)
-		loadlib = (bool (*)(HGLOBAL h, long len))GetProcAddress(hDLL, "load");
-	if (loadlib == NULL)
-		loadlib = (bool (*)(HGLOBAL h, long len))GetProcAddress(hDLL, "_load");
-	if (loadlib == NULL)
-		return 0;
+	if ( ! isAlreadyLoaded ) {
+		if (loadlib == NULL)
+			loadlib = (bool (*)(HGLOBAL h, long len))GetProcAddress(hDLL, "load");
+		if (loadlib == NULL)
+			loadlib = (bool (*)(HGLOBAL h, long len))GetProcAddress(hDLL, "_load");
+		if (loadlib == NULL)
+			return 0;
 
-	// DLLパス文字列作成
-	wchar_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
-	_wsplitpath(name.c_str(), drive, dir, fname, ext);
-	yaya::string_t	dllpath = drive;
-	dllpath += dir;
+		// DLLパス文字列作成
+		wchar_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
+		_wsplitpath(name.c_str(), drive, dir, fname, ext);
+		yaya::string_t	dllpath = drive;
+		dllpath += dir;
 
-	// パス文字列をMBCSに変換
-	char	*t_dllpath = Ccct::Ucs2ToMbcs(dllpath, CHARSET_DEFAULT);
-	if (t_dllpath == NULL)
-		return 0;
+		// パス文字列をMBCSに変換
+		char	*t_dllpath = Ccct::Ucs2ToMbcs(dllpath, CHARSET_DEFAULT);
+		if (t_dllpath == NULL)
+			return 0;
 
-	long	len = (long)strlen(t_dllpath);
+		long	len = (long)strlen(t_dllpath);
 
-	// パス文字列をヒープにコピー
-	HGLOBAL	gmem = ::GlobalAlloc(GMEM_FIXED, len);
-	memcpy(gmem, t_dllpath, len);
-	free(t_dllpath);
+		// パス文字列をヒープにコピー
+		HGLOBAL	gmem = ::GlobalAlloc(GMEM_FIXED, len);
+		memcpy(gmem, t_dllpath, len);
+		free(t_dllpath);
 
-	// 実行
-	(*loadlib)(gmem, len);
+		// 実行
+		(*loadlib)(gmem, len);
+	}
 	
 	return 1;
 }
@@ -286,15 +290,17 @@ int	CLib1::Unload(void)
 		return 2;
 
 	// アドレス取得
-	if (unloadlib == NULL)
-		unloadlib = (bool (*)(void))GetProcAddress(hDLL, "unload");
-	if (unloadlib == NULL)
-		unloadlib = (bool (*)(void))GetProcAddress(hDLL, "_unload");
-	if (unloadlib == NULL)
-		return 0;
+	if ( ! isAlreadyLoaded ) {
+		if (unloadlib == NULL)
+			unloadlib = (bool (*)(void))GetProcAddress(hDLL, "unload");
+		if (unloadlib == NULL)
+			unloadlib = (bool (*)(void))GetProcAddress(hDLL, "_unload");
+		if (unloadlib == NULL)
+			return 0;
 
-	// 実行
-	(*unloadlib)();
+		// 実行
+		(*unloadlib)();
+	}
 
 	return 1;
 }
