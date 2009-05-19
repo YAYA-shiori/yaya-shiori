@@ -41,6 +41,7 @@ protected:
 	yaya::global_t (*requestlib)(yaya::global_t h, long *len);
 
 	module_t hDLL;
+	bool    isAlreadyLoaded;
 	int		charset;
 
 private:
@@ -57,6 +58,7 @@ public:
 		loadlib = NULL;
 		unloadlib = NULL;
 		requestlib = NULL;
+		isAlreadyLoaded = false;
 	}
 
 	~CLib1(void) { Unload(); Release(); }
