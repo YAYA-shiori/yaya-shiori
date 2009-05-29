@@ -3521,6 +3521,8 @@ CValue	CSystemFunction::RE_OPTION(const CValue &arg, yaya::string_t &d, int &l)
 	// 引数の数/型チェック
 	if (arg.array_size() >= 1) {
 		yaya::string_t opt = arg.array()[0].GetValueString();
+
+		re_option = 0;
 		if ( opt.find(L"m") == yaya::string_t::npos ) {
 			re_option |= boost::regex::no_mod_m;
 		}
