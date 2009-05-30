@@ -49,6 +49,8 @@ protected:
 	CValue	re_pos;						// 正規表現処理結果の詳細情報（一致した位置）
 	CValue	re_len;						// 正規表現処理結果の詳細情報（一致した長さ）
 
+	boost::regex_constants::syntax_option_type re_option; //正規表現オプション
+
 private:
 	CAyaVM &vm;
 
@@ -151,12 +153,14 @@ protected:
 	CValue	GETSECCOUNT(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	GETTICKCOUNT(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l);
 	CValue	GETMEMINFO(void);
+	CValue	SETLASTERROR(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	RE_SEARCH(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	RE_MATCH(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	RE_GREP(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	SETLASTERROR(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	RE_REPLACE(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	RE_SPLIT(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	RE_OPTION(const CValue &arg, yaya::string_t &d, int &l);
+
 	CValue	CHRCODE(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	ISINTSTR(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	ISREALSTR(const CValue &arg, yaya::string_t &d, int &l);

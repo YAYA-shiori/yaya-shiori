@@ -75,7 +75,7 @@ extern "C" {
  * -----------------------------------------------------------------------
  */
 
-#define	SYSFUNC_NUM					133 //システム関数の全数
+#define	SYSFUNC_NUM					134 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -260,6 +260,8 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"STRDECODE",
 	// 特殊(7)
 	L"EXECUTE_WAIT",
+	// 正規表現(3)
+	L"RE_OPTION",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -298,6 +300,8 @@ CSystemFunction::CSystemFunction(CAyaVM &vmr)
 {
 	lasterror   = 0;
 	lso         = -1;
+
+	re_option   = 0;
 }
 
 /* -----------------------------------------------------------------------
@@ -649,6 +653,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return STRDECODE(arg, d, l);
 	case 132:
 		return EXECUTE_WAIT(arg, d, l);
+	case 133:
+		return RE_OPTION(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -3281,8 +3287,8 @@ CValue	CSystemFunction::EVAL(const CValue &arg, yaya::string_t &d, int &l, CLoca
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::ERASEVAR
  *
- *  ローカル変数では空文字列を代入するだけです。
- *  グローバル変数では空文字列を代入し、さらにunload時にファイルへ値を保存しなくなります。
+ *  ローカル変数では消去フラグを立てるだけです。
+ *  グローバル変数では消去フラグを立て、さらにunload時にファイルへ値を保存しなくなります。
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ERASEVAR(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l)
@@ -3502,7 +3508,7 @@ CValue	CSystemFunction::RE_SEARCH(const CValue &arg, yaya::string_t &d, int &l)
 	// 実行
 	int	t_result;
 	try {
-		boost::basic_regex<yaya::char_t> regex(arg1.c_str(),boost::regex::perl | boost::regex::collate);
+		boost::basic_regex<yaya::char_t> regex(arg1.c_str(),boost::regex::perl | boost::regex::collate | re_option);
 		boost::match_results<yaya::string_t::const_iterator>	result;
 		t_result = (int)boost::regex_search(arg0, result, regex);
 		if (t_result)
@@ -3558,7 +3564,7 @@ CValue	CSystemFunction::RE_MATCH(const CValue &arg, yaya::string_t &d, int &l)
 	// 実行
 	int	t_result;
 	try {
-		boost::basic_regex<yaya::char_t> regex(arg1.c_str(),boost::regex::perl | boost::regex::collate);
+		boost::basic_regex<yaya::char_t> regex(arg1.c_str(),boost::regex::perl | boost::regex::collate | re_option);
 		boost::match_results<yaya::string_t::const_iterator>	result;
 		t_result = (int)boost::regex_match(arg0, result, regex);
 		if (t_result)
@@ -3620,7 +3626,7 @@ CValue	CSystemFunction::RE_GREP(const CValue &arg, yaya::string_t &d, int &l)
 	int	t_result = 0;
 
 	try {
-		boost::basic_regex<yaya::char_t> regex(arg1.c_str(),boost::regex::perl | boost::regex::collate);
+		boost::basic_regex<yaya::char_t> regex(arg1.c_str(),boost::regex::perl | boost::regex::collate | re_option);
 		boost::match_results<yaya::string_t::const_iterator>	result;
 		for( ; ; ) {
 			if (!boost::regex_search(search_point, search_end, result, regex))
@@ -3669,6 +3675,51 @@ CValue	CSystemFunction::SETLASTERROR(const CValue &arg, yaya::string_t &d, int &
 	vm.logger().Error(E_W, 9, L"SETLASTERROR", d, l);
 	SetError(9);
 	return CValue(F_TAG_NOP, 0/*dmy*/);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::RE_OPTION
+ *
+ *  引数1個：Perlスタイルの正規表現オプション
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::RE_OPTION(const CValue &arg, yaya::string_t &d, int &l)
+{
+	// 引数の数/型チェック
+	if (arg.array_size() >= 1) {
+		yaya::string_t opt = arg.array()[0].GetValueString();
+
+		re_option = 0;
+		if ( opt.find(L"m") == yaya::string_t::npos ) {
+			re_option |= boost::regex::no_mod_m;
+		}
+		if ( opt.find(L"s") != yaya::string_t::npos ) {
+			re_option |= boost::regex::mod_s;
+		}
+		if ( opt.find(L"x") != yaya::string_t::npos ) {
+			re_option |= boost::regex::mod_x;
+		}
+		if ( opt.find(L"i") != yaya::string_t::npos ) {
+			re_option |= boost::regex::icase;
+		}
+	}
+
+	yaya::string_t result = L"";
+
+	if ( (re_option & boost::regex::no_mod_m) == 0 ) {
+		result += L"m";
+	}
+	if ( (re_option & boost::regex::mod_s) != 0 ) {
+		result += L"s";
+	}
+	if ( (re_option & boost::regex::mod_x) != 0 ) {
+		result += L"x";
+	}
+	if ( (re_option & boost::regex::icase) != 0 ) {
+		result += L"i";
+	}
+
+	return CValue(result);
 }
 
 /* -----------------------------------------------------------------------
@@ -3802,7 +3853,7 @@ CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int 
 	CValue	splits(F_TAG_ARRAY, 0/*dmy*/);
 
 	try {
-		boost::basic_regex<yaya::char_t> regex(arg1.c_str(),boost::regex::perl | boost::regex::collate);
+		boost::basic_regex<yaya::char_t> regex(arg1.c_str(),boost::regex::perl | boost::regex::collate | re_option);
 		boost::match_results<yaya::string_t::const_iterator>	result;
 		for( ; ; ) {
 			if (!boost::regex_search(search_point, search_end, result, regex))
