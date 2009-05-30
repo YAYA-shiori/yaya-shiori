@@ -1,4 +1,9 @@
 #labels Featured
+=Tc534-1=
+  * LOADLIB / UNLOADLIBで2回目以降の読み込みの場合はload/unloadを呼ばないようにした
+  * RE_OPTION追加、Perl互換正規表現オプションが使えます
+  * 正規表現文字クラスがWin9x系でうまく動かない問題を修正
+
 =Tc533-2=
   * FOPENでファイルを開くのに失敗すると落ちるひどい問題を修正
 
