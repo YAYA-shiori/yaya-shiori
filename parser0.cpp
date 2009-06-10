@@ -167,6 +167,7 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 	int	targetfunction = -1;
 	std::vector<CDefine>	defines;
 	char	errcount = 0;
+	int	isInHereDocument = 0; //2 = ダブルクオート 1 = シングルクオート
 
 	yaya::string_t	readline;
 	std::vector<yaya::string_t>	factors;
@@ -177,22 +178,77 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 		ret = yaya::ws_fgets(readline, fp, charset, ciphered, i);
 		if (ret == yaya::WS_EOF)
 			break;
-		// 終端の改行および不要な空白（インデント等）を消す
+
+		// 終端の改行を消す
 		CutCrLf(readline);
-		CutSpace(readline);
-		// コメント処理
-		comment.Process_Top(readline);
-		comment.Process(readline);
-		// 空行（もしくは全体がコメント行だった）なら次へ
-		if (readline.size() == 0)
-			continue;
-		// 読み取り済バッファへ結合
-		linebuffer.append(readline);
-		// 終端が"/"なら結合なので"/"を消して次を読む
-		if (readline[readline.size() - 1] == L'/') {
-			linebuffer.erase(linebuffer.end() - 1);
-			continue;
+		if ( ! isInHereDocument ) {
+			// 不要な空白（インデント等）を消す
+			CutSpace(readline);
+			// コメント処理
+			comment.Process_Top(readline);
+			comment.Process(readline);
+			// 空行（もしくは全体がコメント行だった）なら次へ
+			if (readline.size() == 0)
+				continue;
 		}
+		
+		// 読み取り済バッファへ結合
+		if ( isInHereDocument ) {
+			if ( isInHereDocument == 1 ) {
+				if (readline.compare(0,3,L"'>>") == 0) {
+					readline.erase(0,3);
+					isInHereDocument = 0;
+					linebuffer.append(readline);
+				}
+			}
+			else {
+				if (readline.compare(0,3,L"\">>") == 0) {
+					readline.erase(0,3);
+					isInHereDocument = 0;
+					linebuffer.append(readline);
+				}
+			}
+
+			if ( isInHereDocument ) {
+				if ( isInHereDocument == 1 ) {
+					yaya::ws_replace(readline, L"\'", L"\' + CHR(0x27) + \'");
+					linebuffer.append(L" + '");
+					linebuffer.append(readline);
+					linebuffer.append(L"' + CHR(0xd,0xa)");
+				}
+				else {
+					yaya::ws_replace(readline, L"\"", L"\" + CHR(0x22) + \"");
+					linebuffer.append(L" + \"");
+					linebuffer.append(readline);
+					linebuffer.append(L"\" + CHR(0xd,0xa)");
+				}
+				continue;
+			}
+		}
+		else {
+			linebuffer.append(readline);
+			// 終端が"/"なら結合なので"/"を消して次を読む
+			if (readline[readline.size() - 1] == L'/') {
+				linebuffer.erase(linebuffer.end() - 1);
+				continue;
+			}
+			//ヒアドキュメント判定
+			else if ( readline.size() >= 3 ) {
+				if ( readline.compare(readline.size()-3,3,L"<<'") == 0 ) {
+					isInHereDocument = 1;
+					linebuffer.erase(linebuffer.size() - 3,3);
+					linebuffer.append(L"''"); //最初のダミー空文字列
+					continue;
+				}
+				else if ( readline.compare(readline.size()-3,3,L"<<\"") == 0 ) {
+					isInHereDocument = 2;
+					linebuffer.erase(linebuffer.size() - 3,3);
+					linebuffer.append(L"''"); //最初のダミー空文字列
+					continue;
+				}
+			}
+		}
+
 		// プリプロセッサの場合は取得
 		int	pp = GetPreProcess(linebuffer, defines, gdefines, file, i);
 		// プリプロセッサであったらこの行の処理は終わり、次へ
