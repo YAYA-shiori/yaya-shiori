@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="shift_jis"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="aya5"
 	ProjectGUID="{ABD05D60-C351-458C-A61C-067B8B3F64C5}"
 	RootNamespace="aya5"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -48,7 +49,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="C:\Program Files\boost\boost_1_34_1\"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;AYA5_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;AYA5_EXPORTS;__BBL_WSTRING_DEFAULT__;__BBL_USING_STDMAP_TABLE__;__BBL_USE_UNICODE_MAP_CP932__"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -58,7 +59,6 @@
 				ProgramDataBaseFileName=".\Debug/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
 				DisableSpecificWarnings="4819;4267"
 			/>
@@ -75,12 +75,14 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile=".\Debug\yaya.dll"
+				OutputFile="D:\ssp_src_set\ssp\ghost\mechdays\ghost\master\yaya.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="C:\Program Files\boost\boost_1_34_1\lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/aya5.pdb"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\Debug/aya5.lib"
 				TargetMachine="1"
 			/>
@@ -103,9 +105,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -158,7 +157,6 @@
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="3"
-				DisableSpecificWarnings="4819"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -174,10 +172,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile=".\Release/yaya.dll"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="C:\Program Files\boost\boost_1_34_1\lib"
+				AdditionalLibraryDirectories=""
 				ProgramDatabaseFile=".\Release/aya5.pdb"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\Release/aya5.lib"
 				TargetMachine="1"
 			/>
@@ -200,9 +198,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -238,6 +233,10 @@
 			</File>
 			<File
 				RelativePath=".\ayavm.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\babel\babel.cpp"
 				>
 			</File>
 			<File
@@ -299,6 +298,10 @@
 						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;AYA5_EXPORTS;$(NoInherit)"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\crc32.c"
+				>
 			</File>
 			<File
 				RelativePath="duplevinfo.cpp"
