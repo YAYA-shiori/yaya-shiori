@@ -167,7 +167,9 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 	int	targetfunction = -1;
 	std::vector<CDefine>	defines;
 	char	errcount = 0;
-	int	isInHereDocument = 0; //2 = ダブルクオート 1 = シングルクオート
+
+	int	 isInHereDocument = 0; //2 = ダブルクオート 1 = シングルクオート
+	bool isHereDocumentFirstLine = true;
 
 	yaya::string_t	readline;
 	std::vector<yaya::string_t>	factors;
@@ -194,10 +196,13 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 		
 		// 読み取り済バッファへ結合
 		if ( isInHereDocument ) {
+			//ヒアドキュメント解除部
 			if ( isInHereDocument == 1 ) {
 				if (readline.compare(0,3,L"'>>") == 0) {
 					readline.erase(0,3);
 					isInHereDocument = 0;
+					
+					linebuffer.append(L") ");
 					linebuffer.append(readline);
 				}
 			}
@@ -205,22 +210,33 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 				if (readline.compare(0,3,L"\">>") == 0) {
 					readline.erase(0,3);
 					isInHereDocument = 0;
+					
+					linebuffer.append(L") ");
 					linebuffer.append(readline);
 				}
 			}
 
+			//解除されていない（ヒアドキュメント内＝テキストをそのまんま結合）
 			if ( isInHereDocument ) {
+				if ( isHereDocumentFirstLine ) {
+					linebuffer.append(L" (");
+					isHereDocumentFirstLine = false;
+				}
+				else {
+					linebuffer.append(L" + CHR(0xd,0xa) + ");
+				}
+
 				if ( isInHereDocument == 1 ) {
 					yaya::ws_replace(readline, L"\'", L"\' + CHR(0x27) + \'");
-					linebuffer.append(L" + '");
+					linebuffer.append(L"'");
 					linebuffer.append(readline);
-					linebuffer.append(L"' + CHR(0xd,0xa)");
+					linebuffer.append(L"'");
 				}
 				else {
 					yaya::ws_replace(readline, L"\"", L"\" + CHR(0x22) + \"");
-					linebuffer.append(L" + \"");
+					linebuffer.append(L"\"");
 					linebuffer.append(readline);
-					linebuffer.append(L"\" + CHR(0xd,0xa)");
+					linebuffer.append(L"\"");
 				}
 				continue;
 			}
@@ -232,18 +248,20 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 				linebuffer.erase(linebuffer.end() - 1);
 				continue;
 			}
-			//ヒアドキュメント判定
+			//ヒアドキュメント開始判定
 			else if ( readline.size() >= 3 ) {
 				if ( readline.compare(readline.size()-3,3,L"<<'") == 0 ) {
 					isInHereDocument = 1;
+					isHereDocumentFirstLine = true;
+					
 					linebuffer.erase(linebuffer.size() - 3,3);
-					linebuffer.append(L"''"); //最初のダミー空文字列
 					continue;
 				}
 				else if ( readline.compare(readline.size()-3,3,L"<<\"") == 0 ) {
 					isInHereDocument = 2;
+					isHereDocumentFirstLine = true;
+
 					linebuffer.erase(linebuffer.size() - 3,3);
-					linebuffer.append(L"''"); //最初のダミー空文字列
 					continue;
 				}
 			}
