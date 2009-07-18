@@ -122,7 +122,7 @@ OnMouseWheel
 		_result = AYATEMPLATE.MouseMoveWheelFunc(1,4,'MouseWheelDown')
 	}
 	
-	if _result = '' {
+	if _result == '' {
 		_result = AYATEMPLATE.MouseMoveWheelFunc(1,4,'MouseWheel')
 	}
 	

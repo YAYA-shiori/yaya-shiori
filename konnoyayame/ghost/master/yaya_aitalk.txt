@@ -96,7 +96,7 @@ end
 //if文、もしくはcase~when文で分岐させると良いでしょう。
 */
 
-OnKeypress
+OnKeyPress
 {
 	if  reference0 == ”a”
 		{
@@ -121,7 +121,7 @@ OnKeypress
 //上のスクリプトを、case～whenを使うと以下のようになります。
 //暴発しないようにコメントアウトしてありますので、好きな方を使ってください。
 
-OnKeypress
+OnKeyPress
 {
 	case reference0 {
 		when "a" {
@@ -135,7 +135,7 @@ OnKeypress
 		}
 		when "f1" {
 		"\u\s[10]\0\s[5]ふぁ～\w5はふぁんくしょんの～ふぁ～♪\w8\1そりゃそうだけど。\w8\0\s[4]\n\nふぁんくしょんっ！\w8\1\n\n‥\w5‥\w5ダジャレかい。\e"
-		｝
+		}
 	}
 }
 */
