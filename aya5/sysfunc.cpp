@@ -1258,7 +1258,7 @@ CValue	CSystemFunction::CHARSETLIBEX(const CValue &arg, yaya::string_t &d, int &
 	if ( arg.array_size() >= 2 ) {
 		int	charset = GetCharset(arg.array()[1],L"CHARSETLIBEX",d,l);
 		if ( charset < 0 ) {
-			return CValue(F_TAG_NOP, 0/*dmy*/);
+			return CValue(0);
 		}
 		int result = vm.libs().SetCharsetDynamic(ToFullPath(arg.array()[0].s_value),charset);
 
