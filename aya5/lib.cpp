@@ -19,6 +19,7 @@
 #include "ayavm.h"
 
 #include "log.h"
+#include "wsex.h"
 #include "globaldef.h"
 
 //////////DEBUG/////////////////////////
@@ -116,6 +117,13 @@ int	CLib::SetCharsetDynamic(const yaya::string_t &name,int cs)
 			return 1;
 		}
 	}
+
+	//ファイルの存在ちぇき
+	FILE *fp = yaya::w_fopen(name.c_str(),L"rb");
+	if ( ! fp ) {
+		return 0;
+	}
+	fclose(fp);
 
 	//まだロードされていない場合は一時mapにためこむ
 	charset_temp_map.insert( charset_map::value_type(name,cs) );
