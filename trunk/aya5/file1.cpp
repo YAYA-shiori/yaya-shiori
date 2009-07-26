@@ -14,6 +14,7 @@
 #include "manifest.h"
 #include "globaldef.h"
 #include "wsex.h"
+#include "misc.h"
 
 //////////DEBUG/////////////////////////
 #ifdef _WINDOWS
@@ -201,6 +202,59 @@ int	CFile1::ReadBin(yaya::string_t &ostr, size_t len, yaya::char_t alt)
 				ostr.append(1,static_cast<yaya::char_t>(f_buffer[i]));
 			}
 		}
+
+		read += done;
+		if ( done == lenread ) { break; }
+	}
+
+	return read;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFile1::ReadEncode
+ *  機能概要：  ファイルからバイナリデータをエンコードして読み取ります
+ *
+ *  返値　　：　-1/0/1=EOF/失敗/成功
+ * -----------------------------------------------------------------------
+ */
+int	CFile1::ReadEncode(yaya::string_t &ostr, size_t len, const yaya::string_t &type)
+{
+	ostr = L"";
+
+	if (fp == NULL)
+		return 0;
+
+	if(len<1){ //0=デフォルトサイズ指定
+		len = size;
+	}
+
+	char f_buffer[3*3*3*3*3*3*3]; //3の倍数にすること base64対策
+	size_t read = 0;
+
+	yaya::string_t s;
+	int enc_type = 0;
+	if ( wcsicmp(type.c_str(),L"base64") == 0 ) {
+		enc_type = 1;
+	}
+
+	while ( true ) {
+		size_t lenread = len - read;
+		if ( lenread > sizeof(f_buffer) ) {
+			lenread = sizeof(f_buffer);
+		}
+
+		size_t done = fread(f_buffer,1,lenread,fp);
+		if ( ! done ) {
+			break;
+		}
+
+		if ( enc_type == 1 ) { //b64
+			EncodeBase64(s,f_buffer,done);
+		}
+		else {
+			EncodeURL(s,f_buffer,done);
+		}
+		ostr += s;
 
 		read += done;
 		if ( done == lenread ) { break; }

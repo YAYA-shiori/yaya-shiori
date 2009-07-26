@@ -55,6 +55,9 @@ char	IsNt(void);
 void	EscapeString(yaya::string_t &wstr);
 void	UnescapeString(yaya::string_t &wstr);
 
+void	EncodeBase64(yaya::string_t &out,const char *in,size_t in_len);
+void	EncodeURL(yaya::string_t &out,const char *in,size_t in_len);
+
 inline bool IsSpace(const yaya::char_t &c) {
 #if !defined(POSIX) && !defined(__MINGW32__)
 	return c == L' ' || c == L'\t' || c == L'Å@';
