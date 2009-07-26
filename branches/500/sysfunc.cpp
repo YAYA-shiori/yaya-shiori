@@ -74,7 +74,7 @@ extern "C" {
  *  システム関数テーブル
  * -----------------------------------------------------------------------
  */
-#define	SYSFUNC_NUM					128 //システム関数の全数
+#define	SYSFUNC_NUM					129 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -254,6 +254,8 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"EXECUTE_WAIT",
 	// 正規表現(3)
 	L"RE_OPTION",
+	// ファイル操作(6)
+	L"FREADENCODE",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -635,6 +637,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return EXECUTE_WAIT(arg, d, l);
 	case 127:
 		return RE_OPTION(arg, d, l);
+	case 128:
+		return FREADENCODE(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
