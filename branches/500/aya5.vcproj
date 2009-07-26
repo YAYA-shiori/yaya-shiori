@@ -48,7 +48,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\Program Files\boost\boost_1_34_1\"
+				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;AYA5_EXPORTS;__BBL_WSTRING_DEFAULT__;__BBL_USING_STDMAP_TABLE__;__BBL_USE_UNICODE_MAP_CP932__"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -75,7 +75,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="D:\ssp_src_set\ssp\ghost\mechdays\ghost\master\yaya.dll"
+				OutputFile="D:\ssp_src_set\ssp\ghost\mobilemaster\ghost\master\yaya.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="C:\Program Files\boost\boost_1_34_1\lib"

@@ -797,3 +797,74 @@ void	UnescapeString(yaya::string_t &wstr)
 		}
 	}
 }
+
+/* -----------------------------------------------------------------------
+ *  ŠÖ”–¼  F  EncodeBase64
+ * -----------------------------------------------------------------------
+ */
+
+void EncodeBase64(yaya::string_t &out,const char *in,size_t in_len)
+{
+	int len = in_len;
+	const unsigned char* p = reinterpret_cast<const unsigned char*>(in);
+	static const yaya::char_t table[] = L"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	
+	while (len > 0)
+	{
+		// 1•¶š–Ú 1-6bit  xxxxxx--:--------:--------
+		out.append(1,table[static_cast<int>(*p)>>2]);
+		
+		// 2•¶š–Ú 7-12bit ------xx:xxxx----:--------
+		if ( len-1 > 0 )
+			out.append(1,table[((static_cast<int>(*p) << 4)&0x30) | ((static_cast<int>(*(p+1)) >> 4)&0x0f)]);
+		else
+			out.append(1,table[((static_cast<int>(*p) << 4)&0x30) ]);
+		
+		--len;
+		++p;
+		
+		// 3•¶š–Ú 13-18bit --------:----xxxx:xx------
+		if ( len > 0 ) {
+			if ( len-1 > 0 ) {
+				out.append(1,table[((static_cast<int>(*p) << 2)&0x3C) | ((static_cast<int>(*(p+1)) >> 6)&0x03)]);
+			}
+			else {
+				out.append(1,table[((static_cast<int>(*p) << 2)&0x3C) ]);
+			}
+			++p;
+		}
+		else {
+			out.append(1,L'=');
+		}
+		
+		// 4•¶š–Ú 19-24bit --------:--------:--xxxxxx
+		out.append(1,(--len>0? table[static_cast<int>(*p) & 0x3F]: L'='));
+		
+		if(--len>0) p++;
+	}
+}
+
+/* -----------------------------------------------------------------------
+ *  ŠÖ”–¼  F  EncodeURL
+ * -----------------------------------------------------------------------
+ */
+
+void EncodeURL(yaya::string_t &out,const char *in,size_t in_len)
+{
+	yaya::char_t chr[4] = L"%00";
+	const unsigned char* p = reinterpret_cast<const unsigned char*>(in);
+
+	for ( size_t i = 0 ; i < in_len ; ++i ) {
+		int current = static_cast<unsigned char>(p[i]);
+		if ( (current >= 'a' && current <= 'z') || (current >= 'A' && current <= 'Z') || (current >= '0' && current <= '9') || current == '.' || current == '_' || current == '-' ) {
+			out.append(1,current);
+		}
+		else if ( current == L' ' ) {
+			out.append(1,L'+');
+		}
+		else {
+			yaya::snprintf(chr+1,4,L"%02X",current);
+			out.append(chr);
+		}
+	}
+}

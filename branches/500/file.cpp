@@ -227,6 +227,29 @@ int	CFile::ReadBin(const yaya::string_t &name, yaya::string_t &ostr, size_t len,
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CFile::ReadEncode
+ *  機能概要：  ファイルからバイナリデータをエンコードして読み取ります
+ *
+ *  返値　　：　-1/0/1=EOF/失敗/成功
+ * -----------------------------------------------------------------------
+ */
+int	CFile::ReadEncode(const yaya::string_t &name, yaya::string_t &ostr, size_t len, const yaya::string_t &type)
+{
+	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
+	if ( it != filelist.end() ) {
+		return it->ReadEncode(ostr,len,type);
+	}
+
+	CFile1 tempfile(name, charset, L"rb");
+	if ( ! tempfile.Open() ) {
+		return 0;
+	}
+	int result = tempfile.ReadEncode(ostr,len,type);
+	tempfile.Close();
+	return result;
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CFile::Size
  *  機能概要：  ファイルサイズを取る
  *  返値　　：　<0失敗 >=0成功

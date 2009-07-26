@@ -4263,63 +4263,11 @@ CValue	CSystemFunction::STRENCODE(const CValue &arg, yaya::string_t &d, int &l)
 	yaya::string_t result;
 	result.reserve(len);
 
-	if ( type.compare(L"base64") == 0 ) {
-		static const yaya::char_t table[] = L"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-		
-		// 24bit‚ð4•¶Žš‚É•ÏŠ·
-		const unsigned char *p = (unsigned char*)(t_str);
-		while (len > 0)
-		{
-			// 1•¶Žš–Ú 1-6bit  xxxxxx--:--------:--------
-			result.append(1,table[static_cast<int>(*p)>>2]);
-			
-			// 2•¶Žš–Ú 7-12bit ------xx:xxxx----:--------
-			if ( len-1 > 0 )
-				result.append(1,table[((static_cast<int>(*p) << 4)&0x30) | ((static_cast<int>(*(p+1)) >> 4)&0x0f)]);
-			else
-				result.append(1,table[((static_cast<int>(*p) << 4)&0x30) ]);
-			
-			--len;
-			++p;
-			
-			// 3•¶Žš–Ú 13-18bit --------:----xxxx:xx------
-			if ( len > 0 ) {
-				if ( len-1 > 0 ) {
-					result.append(1,table[((static_cast<int>(*p) << 2)&0x3C) | ((static_cast<int>(*(p+1)) >> 6)&0x03)]);
-				}
-				else {
-					result.append(1,table[((static_cast<int>(*p) << 2)&0x3C) ]);
-				}
-				++p;
-			}
-			else {
-				result.append(1,L'=');
-			}
-			
-			// 4•¶Žš–Ú 19-24bit --------:--------:--xxxxxx
-			result.append(1,(--len>0? table[static_cast<int>(*p) & 0x3F]: L'='));
-			
-			if(--len>0) p++;
-		}
+	if ( wcsicmp(type.c_str(),L"base64") == 0 ) {
+		EncodeBase64(result,t_str,strlen(t_str));
 	}
 	else {
-		yaya::char_t chr[4] = L"%00";
-
-		char *ptr = t_str;
-		while ( *ptr ) {
-			int current = static_cast<unsigned char>(*ptr);
-			if ( (current >= 'a' && current <= 'z') || (current >= 'A' && current <= 'Z') || (current >= '0' && current <= '9') || current == '.' || current == '_' || current == '-' ) {
-				result.append(1,current);
-			}
-			else if ( current == ' ' ) {
-				result.append(1,L'+');
-			}
-			else {
-				yaya::snprintf(chr+1,4,L"%02X",current);
-				result.append(chr);
-			}
-			++ptr;
-		}
+		EncodeURL(result,t_str,strlen(t_str));
 	}
 
 	free(t_str);
@@ -4364,7 +4312,7 @@ CValue	CSystemFunction::STRDECODE(const CValue &arg, yaya::string_t &d, int &l)
 	std::string str;
 	str.reserve(src.size());
 
-	if ( type.compare(L"base64") == 0 ) {
+	if ( wcsicmp(type.c_str(),L"base64") == 0 ) {
 		static const unsigned char reverse_64[] = {
 			//0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
 			  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   // 0x00 - 0x0F
