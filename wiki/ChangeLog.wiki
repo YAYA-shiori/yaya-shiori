@@ -1,4 +1,7 @@
 #labels Featured
+=Tc535-2=
+  * FREADENCODE、FREADBINの読み出しが途中で切れる問題を修正
+
 =Tc535-1=
   * FREADENCODE追加
   * ヒアドキュメント機能追加
