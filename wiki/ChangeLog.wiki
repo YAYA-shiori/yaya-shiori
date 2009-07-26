@@ -1,4 +1,8 @@
 #labels Featured
+=Tc535-1=
+  * FREADENCODE追加
+  * ヒアドキュメント機能追加
+
 =Tc534-1=
   * LOADLIB / UNLOADLIBで2回目以降の読み込みの場合はload/unloadを呼ばないようにした
   * RE_OPTION追加、Perl互換正規表現オプションが使えます
