@@ -248,6 +248,7 @@ int	CFile1::ReadEncode(yaya::string_t &ostr, size_t len, const yaya::string_t &t
 			break;
 		}
 
+		s.erase();
 		if ( enc_type == 1 ) { //b64
 			EncodeBase64(s,f_buffer,done);
 		}
