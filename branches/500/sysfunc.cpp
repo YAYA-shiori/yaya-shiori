@@ -2099,6 +2099,47 @@ CValue	CSystemFunction::FREADBIN(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
+ *  ä÷êîñº  ÅF  CSystemFunction::FREADENCODE
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FREADENCODE(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if (!arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"FREADENCODE", d, l);
+		SetError(8);
+		return CValue();
+	}
+
+    if (!arg.array()[0].IsString() || (arg.array_size() >= 2 && !arg.array()[1].IsInt()) ) {
+		vm.logger().Error(E_W, 9, L"FREADENCODE", d, l);
+		SetError(9);
+		return CValue();
+	}
+
+	size_t readsize = 0;
+	if ( arg.array_size() >= 2 ) {
+		readsize = arg.array()[1].GetValueInt();
+	}
+
+	yaya::string_t type = L"";
+	if ( arg.array_size() >= 3 ) {
+		type = arg.array()[2].GetValueString();
+	}
+
+	yaya::string_t	r_value;
+	int	result = vm.files().ReadEncode(ToFullPath(arg.array()[0].GetValueString()), r_value, readsize, type);
+
+	if (!result) {
+		vm.logger().Error(E_W, 13, L"FREADENCODE", d, l);
+		SetError(13);
+	}
+	else if (result == -1)
+		return CValue(-1);
+
+	return CValue(r_value);
+}
+
+/* -----------------------------------------------------------------------
  *  ä÷êîñº  ÅF  CSystemFunction::FWRITE
  * -----------------------------------------------------------------------
  */
