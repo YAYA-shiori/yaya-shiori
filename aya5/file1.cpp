@@ -204,7 +204,7 @@ int	CFile1::ReadBin(yaya::string_t &ostr, size_t len, yaya::char_t alt)
 		}
 
 		read += done;
-		if ( done == lenread ) { break; }
+		if ( done < lenread ) { break; }
 	}
 
 	return read;
@@ -257,7 +257,7 @@ int	CFile1::ReadEncode(yaya::string_t &ostr, size_t len, const yaya::string_t &t
 		ostr += s;
 
 		read += done;
-		if ( done == lenread ) { break; }
+		if ( done < lenread ) { break; }
 	}
 
 	return read;
