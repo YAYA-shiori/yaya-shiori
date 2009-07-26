@@ -75,7 +75,7 @@ extern "C" {
  * -----------------------------------------------------------------------
  */
 
-#define	SYSFUNC_NUM					134 //システム関数の全数
+#define	SYSFUNC_NUM					135 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -262,6 +262,8 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"EXECUTE_WAIT",
 	// 正規表現(3)
 	L"RE_OPTION",
+	// ファイル操作(6)
+	L"FREADENCODE",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -655,6 +657,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return EXECUTE_WAIT(arg, d, l);
 	case 133:
 		return RE_OPTION(arg, d, l);
+	case 134:
+		return FREADENCODE(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -2104,6 +2108,47 @@ CValue	CSystemFunction::FREADBIN(const CValue &arg, yaya::string_t &d, int &l)
 
 	if (!result) {
 		vm.logger().Error(E_W, 13, L"FREADBIN", d, l);
+		SetError(13);
+	}
+	else if (result == -1)
+		return CValue(-1);
+
+	return CValue(r_value);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FREADENCODE
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FREADENCODE(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if (!arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"FREADENCODE", d, l);
+		SetError(8);
+		return CValue();
+	}
+
+    if (!arg.array()[0].IsString() || (arg.array_size() >= 2 && !arg.array()[1].IsInt()) ) {
+		vm.logger().Error(E_W, 9, L"FREADENCODE", d, l);
+		SetError(9);
+		return CValue();
+	}
+
+	size_t readsize = 0;
+	if ( arg.array_size() >= 2 ) {
+		readsize = arg.array()[1].GetValueInt();
+	}
+
+	yaya::string_t type = L"";
+	if ( arg.array_size() >= 3 ) {
+		type = arg.array()[2].GetValueString();
+	}
+
+	yaya::string_t	r_value;
+	int	result = vm.files().ReadEncode(ToFullPath(arg.array()[0].GetValueString()), r_value, readsize, type);
+
+	if (!result) {
+		vm.logger().Error(E_W, 13, L"FREADENCODE", d, l);
 		SetError(13);
 	}
 	else if (result == -1)
