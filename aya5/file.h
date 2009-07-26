@@ -54,10 +54,11 @@ public:
 	inline long Size(void) const { return size; }
 
 	int	Write(const yaya::string_t &istr);
-	int	Read(yaya::string_t &ostr);
-
 	int	WriteBin(const yaya::string_t &istr, const yaya::char_t alt);
+
+	int	Read(yaya::string_t &ostr);
 	int	ReadBin(yaya::string_t &ostr, size_t len, yaya::char_t alt);
+	int	ReadEncode(yaya::string_t &ostr, size_t len, const yaya::string_t &type);
 
 	int FSeek(int offset,int origin);
 	int FTell();
@@ -83,12 +84,13 @@ public:
 	void	DeleteAll(void);
 
 	int		Write(const yaya::string_t &name, const yaya::string_t &istr);
+	int		WriteBin(const yaya::string_t &name, const yaya::string_t &istr, const yaya::char_t alt);
+
 	int		Read(const yaya::string_t &name, yaya::string_t &ostr);
+	int		ReadBin(const yaya::string_t &name, yaya::string_t &ostr, size_t len, yaya::char_t alt);
+	int		ReadEncode(const yaya::string_t &name, yaya::string_t &ostr, size_t len, const yaya::string_t &type);
 
 	long    Size(const yaya::string_t &name);
-
-	int		WriteBin(const yaya::string_t &name, const yaya::string_t &istr, const yaya::char_t alt);
-	int		ReadBin(const yaya::string_t &name, yaya::string_t &ostr, size_t len, yaya::char_t alt);
 
 	int FSeek(const yaya::string_t &name,int offset,const yaya::string_t &mode);
 	int FTell(const yaya::string_t &name);
