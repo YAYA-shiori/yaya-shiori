@@ -126,6 +126,7 @@ protected:
 	CValue	FCLOSE(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FREAD(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FREADBIN(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	FREADENCODE(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FWRITE(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FWRITE2(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FWRITEBIN(const CValue &arg, yaya::string_t &d, int &l);
