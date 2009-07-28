@@ -279,7 +279,7 @@ void	CLogExCode::StructCellString(std::vector<CCell> *cellvector, yaya::string_t
     yaya::string_t	tmpstr;
 	for(std::vector<CCell>::iterator it = cellvector->begin(); it != cellvector->end(); it++) {
 		if (it->value_GetType() >= F_TAG_ORIGIN &&
-			it->value_GetType() < F_TAG_FUNCPARAM) {
+			it->value_GetType() <= F_TAG_CALCEND) {
 			formula += formulatag[it->value_GetType()];
 			formula += L" ";
 			continue;
@@ -288,7 +288,7 @@ void	CLogExCode::StructCellString(std::vector<CCell> *cellvector, yaya::string_t
 		case F_TAG_NOP:
 			formula += L"(NOP/VOID) ";
 			break;
-		case F_TAG_FUNCPARAM:
+		case F_TAG_USERFUNCPARAM:
 			formula += L"@ ";
 			break;
 		case F_TAG_SYSFUNCPARAM:
@@ -359,7 +359,7 @@ void	CLogExCode::StructSerialString(CStatement *st, yaya::string_t &formula)
 
 			int	type = st->cell()[it->tindex].value_const().GetType();
 
-			if (type == F_TAG_FUNCPARAM)
+			if (type == F_TAG_USERFUNCPARAM)
 				formula += L"@(";
 			else if (type == F_TAG_SYSFUNCPARAM)
 				formula += L"$(" ;
