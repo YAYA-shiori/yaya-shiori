@@ -142,9 +142,12 @@ extern const yaya::char_t *aya_author;
 #define	F_TAG_HOOKBRACKETIN		35				/* [ */
 #define	F_TAG_HOOKBRACKETOUT	36				/* ] */
 
-#define	F_TAG_FUNCPARAM			37				/* 引数を関数に渡すための演算子 */
-#define	F_TAG_ARRAYORDER		38				/* 配列の序数を変数に渡すための演算子 */
-#define	F_TAG_SYSFUNCPARAM		39				/* 引数をシステム関数に渡すための演算子 */
+#define F_TAG_CALCEND			50
+
+#define	F_TAG_ARRAYORDER		51				/* 配列の序数を変数に渡すための演算子 */
+
+#define	F_TAG_USERFUNCPARAM		52				/* 引数をユーザー関数に渡すための演算子 */
+#define	F_TAG_SYSFUNCPARAM		53				/* 引数をシステム関数に渡すための演算子 */
 
 #define	F_TAG_ORIGIN_VALUE		512				/* 項の定義開始位置 */
 
