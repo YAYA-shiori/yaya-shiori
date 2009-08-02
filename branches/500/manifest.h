@@ -142,28 +142,25 @@ extern const yaya::char_t *aya_author;
 #define	F_TAG_HOOKBRACKETIN		35				/* [ */
 #define	F_TAG_HOOKBRACKETOUT	36				/* ] */
 
-#define F_TAG_CALCEND			50
+#define	F_TAG_FUNCPARAM			37				/* 引数を関数に渡すための演算子 */
+#define	F_TAG_ARRAYORDER		38				/* 配列の序数を変数に渡すための演算子 */
+#define	F_TAG_SYSFUNCPARAM		39				/* 引数をシステム関数に渡すための演算子 */
 
-#define	F_TAG_ARRAYORDER		51				/* 配列の序数を変数に渡すための演算子 */
+#define	F_TAG_ORIGIN_VALUE		128				/* 項の定義開始位置 */
 
-#define	F_TAG_USERFUNCPARAM		52				/* 引数をユーザー関数に渡すための演算子 */
-#define	F_TAG_SYSFUNCPARAM		53				/* 引数をシステム関数に渡すための演算子 */
+#define	F_TAG_INT				128				/* 整数項 */
+#define	F_TAG_DOUBLE			131				/* 実数項 */
+#define	F_TAG_STRING			132				/* 文字列項 */
+#define	F_TAG_STRING_EMBED		133				/* 先頭に変数もしくは関数が埋め込まれている可能性がある文字列項 */
+#define	F_TAG_STRING_PLAIN		134				/* 埋め込み展開されない文字列項 */
 
-#define	F_TAG_ORIGIN_VALUE		512				/* 項の定義開始位置 */
+#define	F_TAG_SYSFUNC			256				/* システム関数 */
+#define	F_TAG_USERFUNC			512				/* ユーザー関数 */
 
-#define	F_TAG_INT				512				/* 整数項 */
-#define	F_TAG_DOUBLE			513				/* 実数項 */
-#define	F_TAG_STRING			514				/* 文字列項 */
-#define	F_TAG_STRING_EMBED		515				/* 先頭に変数もしくは関数が埋め込まれている可能性がある文字列項 */
-#define	F_TAG_STRING_PLAIN		516				/* 埋め込み展開されない文字列項 */
+#define	F_TAG_VARIABLE			1024			/* 変数 */
+#define	F_TAG_LOCALVARIABLE		2048			/* ローカル変数 */
 
-#define	F_TAG_SYSFUNC			1024			/* システム関数 */
-#define	F_TAG_USERFUNC			2048			/* ユーザー関数 */
-
-#define	F_TAG_VARIABLE			4096			/* 変数 */
-#define	F_TAG_LOCALVARIABLE		8192			/* ローカル変数 */
-
-#define	F_TAG_ARRAY				16384			/* 汎用配列 */
+#define	F_TAG_ARRAY				4096			/* 汎用配列 */
 
 // 有効な演算子の数
 // 演算子の名前
