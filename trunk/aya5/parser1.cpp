@@ -606,7 +606,7 @@ char	CParser1::CheckFunctionArgument(CStatement& st, const yaya::string_t& dicfi
 	
 		if ( st.cell_size() ) { //çÇë¨âªóp
 			for(std::vector<CCell>::iterator it = st.cell().begin(); it != st.cell().end(); it++) {
-				if (it->value_GetType() == F_TAG_USERFUNCPARAM) {
+				if (it->value_GetType() == F_TAG_FUNCPARAM) {
 					if (it == st.cell().begin()) {
 						vm.logger().Error(E_E, 70, dicfilename, st.linecount);
 						errcount++;
