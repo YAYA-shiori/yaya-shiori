@@ -458,7 +458,7 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 					o_cell.ansv() = CValue(1);
 				}
 				break;
-			case F_TAG_USERFUNCPARAM:
+			case F_TAG_FUNCPARAM:
 				if (ExecFunctionWithArgs(o_cell.ansv(), it->index, st, lvar))
 					pvm->logger().Error(E_E, 33, pvm->function()[st.cell()[it->index[0]].index].name, dicfilename, st.linecount);
 				break;

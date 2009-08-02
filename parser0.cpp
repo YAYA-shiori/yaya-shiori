@@ -854,7 +854,7 @@ char	CParser0::StructFormula(yaya::string_t &str, std::vector<CCell> &cells, con
 				std::vector<CCell>::iterator	itm = it;
 				itm--;
 				if (itm->value_GetType() == F_TAG_NOP) {
-					CCell	addcell(F_TAG_USERFUNCPARAM);
+					CCell	addcell(F_TAG_FUNCPARAM);
 					it = cells.insert(it, addcell);
 					it += 2;
 					continue;
@@ -874,7 +874,7 @@ char	CParser0::StructFormula(yaya::string_t &str, std::vector<CCell> &cells, con
 					if (it != cells.begin()) {
 						itm = it;
 						itm--;
-						if (itm->value_GetType() == F_TAG_USERFUNCPARAM)
+						if (itm->value_GetType() == F_TAG_FUNCPARAM)
 							it = cells.erase(itm);
 					}
 					continue;
@@ -2038,7 +2038,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 				}
 			}
 			if (i > 0) {
-				if (st.cell()[i].value_GetType() == F_TAG_USERFUNCPARAM) {
+				if (st.cell()[i].value_GetType() == F_TAG_FUNCPARAM) {
 					// ä÷êî
 					depthvec[t_index] = -1;
 					addserial.tindex = i;
