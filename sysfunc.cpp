@@ -2049,9 +2049,11 @@ CValue	CSystemFunction::FREAD(const CValue &arg, yaya::string_t &d, int &l)
 	if (!result) {
 		vm.logger().Error(E_W, 13, L"FREAD", d, l);
 		SetError(13);
-	}
-	else if (result == -1)
 		return CValue(-1);
+	}
+	if (result == -1) {
+		return CValue(-1);
+	}
 
 	return CValue(r_value);
 }

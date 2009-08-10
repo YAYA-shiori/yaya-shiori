@@ -207,29 +207,44 @@ int	SplitToMultiString(const yaya::string_t &str, std::vector<yaya::string_t> *a
  */
 void	CutSpace(yaya::string_t &str)
 {
+	CutEndSpace(str);
+	CutStartSpace(str);
+}
+
+void	CutStartSpace(yaya::string_t &str)
+{
 	int	len = str.size();
 	// ‘O•û
 	int	erasenum = 0;
 	for(int i = 0; i < len; i++) {
-		if (IsSpace(str[i]))
+		if (IsSpace(str[i])) {
 			erasenum++;
-		else
+		}
+		else {
 			break;
+		}
 	}
 	if (erasenum) {
 		str.erase(0, erasenum);
-		len -= erasenum;
 	}
+}
+
+void	CutEndSpace(yaya::string_t &str)
+{
+	int	len = str.size();
 	// Œã•û
-	erasenum = 0;
+	int erasenum = 0;
 	for(int i = len - 1; i >= 0; i--) {
-		if (IsSpace(str[i]))
+		if (IsSpace(str[i])) {
 			erasenum++;
-		else
+		}
+		else {
 			break;
+		}
 	}
-	if (erasenum)
+	if (erasenum) {
 		str.erase(len - erasenum, erasenum);
+	}
 }
 
 /* -----------------------------------------------------------------------
@@ -338,8 +353,9 @@ const yaya::string_t::size_type IsInDQ_npos    = static_cast<yaya::string_t::siz
 
 yaya::string_t::size_type IsInDQ(const yaya::string_t &str, yaya::string_t::size_type startpoint, yaya::string_t::size_type checkpoint)
 {
-	int dq     = 0;
-	int quote  = 0;
+	bool dq    = false;
+	bool quote = false;
+
 	yaya::string_t::size_type len    = str.size();
 	yaya::string_t::size_type found  = startpoint;
 
@@ -356,24 +372,31 @@ yaya::string_t::size_type IsInDQ(const yaya::string_t &str, yaya::string_t::size
 		}
 		else {
 			if (found >= checkpoint) {
-				found += 1;
-				break;
+				if ( (dq && str[found] == L'\"') || (quote && str[found] == L'\'') ) {
+					found += 1;
+					break;
+				}
+				if ( ! dq && ! quote ) {
+					break;
+				}
 			}
 
 			if (str[found] == L'\"') {
-				if (!quote)
-					dq ^= 1;
+				if (!quote) {
+					dq = !dq;
+				}
 			}
 			else if (str[found] == L'\'') {
-				if (!dq)
-					quote ^= 1;
+				if (!dq ) {
+					quote = !quote;
+				}
 			}
 
 			found += 1;
 		}
 	}
 
-	if ( dq | quote ) {
+	if ( dq || quote ) {
 		return found;
 	}
 	else {
