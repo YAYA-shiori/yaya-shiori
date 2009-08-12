@@ -193,6 +193,10 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 			if (readline.size() == 0)
 				continue;
 		}
+		else {
+			// 不要な空白（インデント等）を消す
+			CutStartSpace(readline);
+		}
 		
 		// 読み取り済バッファへ結合
 		if ( isInHereDocument ) {

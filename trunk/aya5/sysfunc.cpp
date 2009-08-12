@@ -2063,9 +2063,11 @@ CValue	CSystemFunction::FREAD(const CValue &arg, yaya::string_t &d, int &l)
 	if (!result) {
 		vm.logger().Error(E_W, 13, L"FREAD", d, l);
 		SetError(13);
-	}
-	else if (result == -1)
 		return CValue(-1);
+	}
+	if (result == -1) {
+		return CValue(-1);
+	}
 
 	return CValue(r_value);
 }
@@ -3778,7 +3780,8 @@ CValue	CSystemFunction::RE_SPLIT(const CValue &arg, yaya::string_t &d, int &l)
 	ClearReResultDetails();
 
 	// 引数の数/型チェック
-	if (arg.array_size() < 2) {
+	int sz = arg.array_size();
+	if (sz < 2) {
 		vm.logger().Error(E_W, 8, L"RE_SPLIT", d, l);
 		SetError(8);
 		return CValue(0);
@@ -3790,7 +3793,21 @@ CValue	CSystemFunction::RE_SPLIT(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	return RE_SPLIT_CORE(arg, d, l, L"RE_SPLIT", NULL);
+	yaya::string_t::size_type nums = 0;
+	if (sz > 2) {
+		if (!arg.array()[2].IsNum()) {
+			vm.logger().Error(E_W, 9, L"RE_SPLIT", d, l);
+			SetError(9);
+			return CValue(F_TAG_ARRAY, 0/*dmy*/);
+		}
+		nums = static_cast<yaya::string_t::size_type>(arg.array()[2].GetValueInt());
+
+		if ( nums <= 1 ) {
+			return CValue(arg.array()[0]);
+		}
+	}
+
+	return RE_SPLIT_CORE(arg, d, l, L"RE_SPLIT", NULL, nums);
 }
 
 /* -----------------------------------------------------------------------
@@ -3816,7 +3833,7 @@ CValue	CSystemFunction::RE_REPLACE(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	// まずsplitする
-	CValue	splits = RE_SPLIT_CORE(arg, d, l, L"RE_REPLACE", NULL);
+	CValue	splits = RE_SPLIT_CORE(arg, d, l, L"RE_REPLACE", NULL, 0);
 	int	num = splits.array_size();
 	if (!num || num == 1)
 		return CValue(arg.array()[0].GetValueString());
@@ -3859,7 +3876,7 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
 	std::vector<yaya::string_t> replace_array;
 
 	// まずsplitする
-	CValue	splits = RE_SPLIT_CORE(arg, d, l, L"RE_REPLACEEX", &replace_array);
+	CValue	splits = RE_SPLIT_CORE(arg, d, l, L"RE_REPLACEEX", &replace_array, 0);
 	int	num = splits.array_size();
 	if (!num || num == 1)
 		return CValue(arg.array()[0].GetValueString());
@@ -3882,7 +3899,7 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
  *  RE_SPLITの主処理部分です。RE_REPLACEでも使用します。
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int &l, const yaya::char_t *fncname, std::vector<yaya::string_t> *replace_array)
+CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int &l, const yaya::char_t *fncname, std::vector<yaya::string_t> *replace_array, size_t num)
 {
 	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
 	const yaya::string_t &arg1 = arg.array()[1].GetValueString();
@@ -3895,6 +3912,7 @@ CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int 
 	yaya::string_t::const_iterator search_end = arg0.end();
 
 	int	t_pos = 0;
+	size_t count = 1;
 	CValue	splits(F_TAG_ARRAY, 0/*dmy*/);
 
 	try {
@@ -3913,6 +3931,11 @@ CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int 
 			}
 
 			search_point = str + (t_pos += (result.position(0) + result.length(0)));
+			++count;
+
+			if ( num != 0 && (count >= num) ) {
+				break;
+			}
 		}
         int len = std::distance(search_point, search_end);
 //		if (len)
