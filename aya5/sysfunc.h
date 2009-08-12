@@ -240,7 +240,7 @@ protected:
 	CValue	HASH_EXIST(CValueArgArray &valuearg, yaya::string_t &d, int &l);
 	CValue	HASH_SIZE(CValueArgArray &valuearg, yaya::string_t &d, int &l);
 
-	CValue	RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int &l, const yaya::char_t *fncname, std::vector<yaya::string_t> *replace_array);
+	CValue	RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int &l, const yaya::char_t *fncname, std::vector<yaya::string_t> *replace_array, size_t num);
 
 	void	StoreReResultDetails(boost::match_results<yaya::string_t::const_iterator> &result);
 	void	ClearReResultDetails(void);
