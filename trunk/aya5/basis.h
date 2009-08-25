@@ -36,6 +36,7 @@ protected:
 	char	output_charset;
 	char	file_charset;
 	char	save_charset;
+	char    save_old_charset;
 	char	extension_charset;
 	bool	encode_savefile;
 	bool	auto_save;
