@@ -67,9 +67,10 @@ CBasis::CBasis(CAyaVM &vmr) : vm(vmr)
 	msglang     = MSGLANG_JAPANESE;
 
 	dic_charset       = CHARSET_SJIS;
-	output_charset    = CHARSET_SJIS;
+	output_charset    = CHARSET_UTF8;
 	file_charset      = CHARSET_SJIS;
-	save_charset      = CHARSET_SJIS;
+	save_charset      = CHARSET_UTF8;
+	save_old_charset  = CHARSET_SJIS;
 	extension_charset = CHARSET_SJIS;
 
 	encode_savefile = false;
@@ -422,6 +423,7 @@ bool CBasis::SetParameter(yaya::string_t &cmd, yaya::string_t &param, std::vecto
 		output_charset    = dic_charset;
 		file_charset      = dic_charset;
 		save_charset      = dic_charset;
+		save_old_charset  = dic_charset;
 		extension_charset = dic_charset;
 		return true;
 	}
@@ -440,6 +442,10 @@ bool CBasis::SetParameter(yaya::string_t &cmd, yaya::string_t &param, std::vecto
 	}
 	if ( cmd.compare(L"charset.save") == 0 ) {
 		save_charset      = Ccct::CharsetTextToID(param.c_str());
+		return true;
+	}
+	if ( cmd.compare(L"charset.save.old") == 0 ) {
+		save_old_charset  = Ccct::CharsetTextToID(param.c_str());
 		return true;
 	}
 	if ( cmd.compare(L"charset.extension") == 0 ) {
@@ -509,6 +515,9 @@ yaya::string_t CBasis::GetParameter(const yaya::string_t &cmd)
 	}
 	else if (!cmd.compare(L"charset.save")) {
 		return Ccct::CharsetIDToTextW(save_charset);
+	}
+	else if (!cmd.compare(L"charset.save.old")) {
+		return Ccct::CharsetIDToTextW(save_old_charset);
 	}
 	else if (!cmd.compare(L"charset.extension")) {
 		return Ccct::CharsetIDToTextW(extension_charset);
@@ -759,7 +768,7 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 	yaya::string_t	parseline;
 	yaya::string_t	varname, value, delimiter;
 
-	char savefile_charset = save_charset;
+	char savefile_charset = save_old_charset;
 
 	for (int i = 1; ; i++) {
 		// 1çsì«Ç›çûÇ›
