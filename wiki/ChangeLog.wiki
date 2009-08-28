@@ -1,4 +1,8 @@
 #labels Featured
+=Tc537-2=
+  * 設定ファイルに charset.save.old を追加（旧形式セーブデータの文字コード明示）
+  * GETTYPEのタイプ検出をずいぶんまともに。
+
 =Tc536-1=
   * RE_SPLITに分割制限数パラメータ追加（SPLITといっしょに）
 
