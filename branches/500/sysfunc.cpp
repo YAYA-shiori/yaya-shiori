@@ -387,7 +387,7 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 	case 2:		// TOSTR
 		return TOSTR(arg, d, l);
 	case 3:		// GETTYPE
-		return GETTYPE(arg, d, l);
+		return GETTYPE(arg, pcellarg, lvar, d, l);
 	case 4:		// ISFUNC
 		return ISFUNC(arg, d, l);
 	case 5:		// ISVAR
@@ -736,32 +736,68 @@ CValue	CSystemFunction::TOAUTO(const CValue &arg, yaya::string_t &d, int &l)
  *  •Ô’l‚Í4‚É‚È‚é‚±‚Æ‚É’ˆÓ‚µ‚Ä‚­‚¾‚³‚¢B
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::GETTYPE(const CValue &arg, yaya::string_t &d, int &l)
+static int CSF_GetTypeConvert(int type)
 {
-	int	sz = arg.array_size();
+	switch(type) {
+	case F_TAG_INT:
+		return 1;
+	case F_TAG_DOUBLE:
+		return 2;
+	case F_TAG_STRING:
+		return 3;
+	case F_TAG_ARRAY:
+		return 4;
+	default:
+		return 0;
+	}
+}
 
+CValue	CSystemFunction::GETTYPE(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
+			yaya::string_t &d, int &l)
+{
+	if ( pcellarg.size() == 1 ) {
+		if (pcellarg[0]->value_GetType() == F_TAG_VARIABLE) {
+			const CValue &v = vm.variable().GetValue(pcellarg[0]->index);
+			return CValue(CSF_GetTypeConvert(v.GetType()));
+		}
+		else if (pcellarg[0]->value_GetType() == F_TAG_LOCALVARIABLE) {
+			const CValue *v = lvar.GetValuePtr(pcellarg[0]->name);
+			if ( v ) {
+				return CValue(CSF_GetTypeConvert(v->GetType()));
+			}
+			else {
+				return CValue(0);
+			}
+		}
+		else if (pcellarg[0]->value_GetType() == F_TAG_STRING || pcellarg[0]->value_GetType() == F_TAG_STRING_EMBED) {
+			int gidx = vm.variable().GetIndex(arg.array()[0].GetValueString());
+			if ( gidx >= 0 ) {
+				const CValue &v = vm.variable().GetValue(gidx);
+				return CValue(CSF_GetTypeConvert(v.GetType()));
+			}
+
+			const CValue *v = lvar.GetValuePtr(arg.array()[0].GetValueString());
+			if ( v ) {
+				return CValue(CSF_GetTypeConvert(v->GetType()));
+			}
+			/*else {
+				return CValue(0);
+			}*/ //ŠY“–‚ª‚È‚¯‚ê‚Î‚±‚ÌŒã‚ÅSTRING‚ª•Ô‚é
+		}
+	}
+
+	int	sz = arg.array_size();
 	if (!sz) {
 		vm.logger().Error(E_W, 8, L"GETTYPE", d, l);
 		SetError(8);
 		return CValue(0);
 	}
 
-	if (sz > 1)
+	if ( sz >= 2 ) {
 		return CValue(4);
+	}
 
-	switch(arg.array()[0].GetType()) {
-	case F_TAG_INT:
-		return CValue(1);
-	case F_TAG_DOUBLE:
-		return CValue(2);
-	case F_TAG_STRING:
-		return CValue(3);
-	case F_TAG_VOID:
-		return CValue(0);
-	default:
-		vm.logger().Error(E_E, 88, L"GETTYPE", d, l);
-		return CValue(0);
-	};
+	return CValue(CSF_GetTypeConvert(arg.array()[0].GetType()));
 }
 
 /* -----------------------------------------------------------------------
