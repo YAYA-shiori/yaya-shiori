@@ -7,7 +7,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-//32/64bitΉ
+//32/64bit
 #define JGX_WIN64_AWARE 
 
 #ifdef _MSC_VER

@@ -25,6 +25,9 @@
 #include "globaldef.h"
 
 class CValue;
+class CValueSub;
+
+typedef std::vector<CValueSub> CValueArray;
 
 class	CValueSub
 {
@@ -96,7 +99,11 @@ public:
 	inline CValueSub operator !=(const CValueSub &value) const {
 		return CValueSub(1 - Compare(value));
 	}
+	inline bool operator <(const CValueSub &value) const {
+		return Less(value);
+	}
 
+	bool Less(const CValueSub &value) const;
 	int Compare(const CValueSub &value) const;
 };
 
@@ -114,7 +121,7 @@ public:
 	int		i_value;				// 整数値
 
 private:
-	mutable boost::shared_ptr<std::vector<CValueSub> > m_array;		// 汎用配列
+	mutable boost::shared_ptr<CValueArray> m_array;		// 汎用配列
 
 private:
 	int CalcEscalationTypeNum(const int rhs) const;
@@ -150,7 +157,7 @@ public:
 			m_array = rhs.m_array;
 		}
 		else {
-			m_array.reset((std::vector<CValueSub>*)NULL);
+			m_array.reset((CValueArray*)NULL);
 			if ( type == F_TAG_STRING ) {
 				s_value = rhs.s_value;
 			}
@@ -242,7 +249,7 @@ public:
 	CValue	&operator =(double value);
 	CValue	&operator =(const yaya::string_t &value);
 	CValue	&operator =(const yaya::char_t *value);
-	CValue	&operator =(const std::vector<CValueSub> &value);
+	CValue	&operator =(const CValueArray &value);
 	CValue	&operator =(const CValueSub &value);
 
 	CValue	operator +(const CValue &value) const;
@@ -280,7 +287,7 @@ public:
 	}
 
 	//////////////////////////////////////////////
-	std::vector<CValueSub>::size_type array_size(void) const {
+	CValueArray::size_type array_size(void) const {
 		if ( ! m_array.get() ) {
 			return 0;
 		}
@@ -288,22 +295,22 @@ public:
 			return m_array->size();
 		}
 	}
-	boost::shared_ptr<std::vector<CValueSub> > &array_shared(void) const {
+	boost::shared_ptr<CValueArray> &array_shared(void) const {
 		return m_array;
 	}
-	const std::vector<CValueSub>& array(void) const {
+	const CValueArray& array(void) const {
 		if ( ! m_array.get() ) {
-			m_array.reset(new std::vector<CValueSub>);
+			m_array.reset(new CValueArray);
 		}
 		return *m_array;
 	}
-	std::vector<CValueSub>& array(void) {
+	CValueArray& array(void) {
 		if ( ! m_array.get() ) {
-			m_array.reset(new std::vector<CValueSub>);
+			m_array.reset(new CValueArray);
 		}
 		else if ( m_array.use_count() >= 2 ) {
-			std::vector<CValueSub> *pV = m_array.get();
-			m_array.reset(new std::vector<CValueSub>(*pV));
+			CValueArray *pV = m_array.get();
+			m_array.reset(new CValueArray(*pV));
 		}
 		return *m_array;
 	}

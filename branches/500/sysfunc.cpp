@@ -2020,7 +2020,7 @@ CValue	CSystemFunction::CHR(const CValue &arg, yaya::string_t &d, int &l)
 
 	yaya::string_t r_value(1, static_cast<yaya::char_t>(arg.array()[0].GetValueInt()));
 	
-	for ( std::vector<CValueSub>::const_iterator i = arg.array().begin() + 1 ;
+	for ( CValueArray::const_iterator i = arg.array().begin() + 1 ;
 		i < arg.array().end() ; ++i ) {
 		r_value.append(1, static_cast<yaya::char_t>(i->GetValueInt()) );
 	}

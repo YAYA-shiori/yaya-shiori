@@ -66,6 +66,8 @@ extern const yaya::char_t *aya_author;
 
 // ファイル保存/復元時における汎用配列/ハッシュの空要素
 #define	ESC_IARRAY				L"IARRAY"
+#define ESC_IHASH				L"IHASH"
+#define ESC_IVOID				L"IVOID"
 
 // ステートメントの種別
 #define	ST_UNKNOWN				-1
@@ -161,6 +163,7 @@ extern const yaya::char_t *aya_author;
 #define	F_TAG_LOCALVARIABLE		2048			/* ローカル変数 */
 
 #define	F_TAG_ARRAY				4096			/* 汎用配列 */
+#define F_TAG_HASH              8192            /* ハッシュ */
 
 // 有効な演算子の数
 // 演算子の名前

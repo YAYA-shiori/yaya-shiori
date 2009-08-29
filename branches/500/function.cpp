@@ -641,7 +641,7 @@ void	CFunction::SolveEmbedCell(CCell &cell, CStatement &st, CLocalVariable &lvar
 char	CFunction::Comma(CValue &answer, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar)
 {
 	// Œ‹‡‚µ‚Ä”z—ñ’l‚ğì¬
-	std::vector<CValueSub>	t_array;
+	CValueArray	t_array;
 	for(std::vector<int>::iterator it = sid.begin(); it != sid.end(); it++) {
 		const CValue &addv = GetValueRefForCalc(st.cell()[*it], st, lvar);
 		

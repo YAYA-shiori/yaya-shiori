@@ -667,8 +667,8 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 				str += ESC_IARRAY L":" ESC_IARRAY;
 			}
 			else {
-				std::vector<CValueSub>::const_iterator	itv;
-				std::vector<CValueSub>::const_iterator	itvbegin = var->value_const().array().begin();
+				CValueArray::const_iterator	itv;
+				CValueArray::const_iterator	itvbegin = var->value_const().array().begin();
 
 				for(itv = itvbegin; itv != var->value_const().array().end(); itv++) {
 					if (itv != itvbegin)
@@ -680,6 +680,9 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 						str += L"\"";
 						str += wstr;
 						str += L"\"";
+					}
+					else if (itv->GetType() == F_TAG_VOID) {
+						str += ESC_IVOID;
 					}
 					else {
 						str += wstr;
@@ -814,14 +817,18 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 		}
 		// ílÇÉ`ÉFÉbÉNÇµÇƒå^ÇîªíË
 		int	type;
-		if (IsIntString(value))
+
+		if (IsIntString(value)) {
 			type = F_TAG_INT;
-		else if (IsDoubleButNotIntString(value))
+		}
+		else if (IsDoubleButNotIntString(value)) {
 			type = F_TAG_DOUBLE;
-		else if (!IsLegalStrLiteral(value))
+		}
+		else if (!IsLegalStrLiteral(value)) {
 			type = F_TAG_STRING;
+		}
 		else {
-			if (value.find(L':') == yaya::string_t::npos) {
+			if (Find_IgnoreDQ(value,L":") == yaya::string_t::npos) {
 				vm.logger().Error(E_W, 4, filename, i);
 				continue;
 			}
@@ -835,21 +842,25 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 		// ïœêîÇçÏê¨
 		int	index = vm.variable().Make(varname, 0);
 		vm.variable().SetType(index, type);
-		if (type == F_TAG_INT)
+		
+		if (type == F_TAG_INT) {
 			// êÆêîå^
 			vm.variable().SetValue(index, yaya::ws_atoi(value, 10));
-		else if (type == F_TAG_DOUBLE) 
+		}
+		else if (type == F_TAG_DOUBLE) {
 			// é¿êîå^
 			vm.variable().SetValue(index, yaya::ws_atof(value));
+		}
 		else if (type == F_TAG_STRING) {
 			// ï∂éöóÒå^
 			CutDoubleQuote(value);
 			UnescapeString(value);
 			vm.variable().SetValue(index, value);
 		}
-		else if (type == F_TAG_ARRAY)
+		else if (type == F_TAG_ARRAY) {
 			// îzóÒå^
 			RestoreArrayVariable(*(vm.variable().GetValuePtr(index)), value);
+		}
 		else {
 			vm.logger().Error(E_W, 6, filename, i);
 			continue;
@@ -882,7 +893,10 @@ void	CBasis::RestoreArrayVariable(CValue &var, yaya::string_t &value)
 		}
 
 		if (par.compare(ESC_IARRAY) != 0) {
-			if (IsIntString(par)) {
+			if (par.compare(ESC_IVOID) == 0) {
+				var.array().push_back(CValueSub());
+			}
+			else if (IsIntString(par)) {
 				var.array().push_back(CValueSub( yaya::ws_atoi(par, 10) ));
 			}
 			else if (IsDoubleButNotIntString(par)) {
