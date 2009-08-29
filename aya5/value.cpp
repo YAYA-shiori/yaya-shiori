@@ -497,7 +497,7 @@ CValue &CValue::operator =(const yaya::char_t *value)
 CValue &CValue::operator =(const CValueArray &value)
 {
 	type    = F_TAG_ARRAY;
-	array() = value;
+	array().assign(value.begin(), value.end());
 
 	return *this;
 }
