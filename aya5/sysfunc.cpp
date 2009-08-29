@@ -75,7 +75,7 @@ extern "C" {
  * -----------------------------------------------------------------------
  */
 
-#define	SYSFUNC_NUM					135 //システム関数の全数
+#define	SYSFUNC_NUM					136 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -264,6 +264,8 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"RE_OPTION",
 	// ファイル操作(6)
 	L"FREADENCODE",
+	// 型取得/変換(4)
+	L"GETTYPEEX",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -659,6 +661,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return RE_OPTION(arg, d, l);
 	case 134:
 		return FREADENCODE(arg, d, l);
+	case 135:
+		return GETTYPEEX(arg, lvar, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -768,14 +772,90 @@ CValue	CSystemFunction::GETTYPE(CValueArgArray &valuearg, yaya::string_t &d, int
 		return CValue(2);
 	case F_TAG_STRING:
 		return CValue(3);
-	case F_TAG_ARRAY:
-		return CValue(4);
+	case F_TAG_ARRAY: //互換処理
+		{
+			if ( valuearg[0].array_size() == 1 ) {
+				int t = valuearg[0].array()[0].GetType();	
+				if ( t == F_TAG_INT ) {
+					return CValue(1);
+				}
+				else if ( t == F_TAG_DOUBLE ) {
+					return CValue(2);
+				}
+				else if ( t == F_TAG_STRING ) {
+					return CValue(3);
+				}
+				else {
+					return CValue(0);
+				}
+			}
+			else {
+				return CValue(4);
+			}
+		}
 	case F_TAG_HASH:
 		return CValue(5);
 	default:
 		vm.logger().Error(E_E, 88, L"GETTYPE", d, l);
 		return CValue(0);
 	};
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::GETTYPEEX
+ *  返値　　：  0/1/2/3/4=エラー/整数/実数/文字列/配列
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::GETTYPEEX(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l)
+{
+	size_t arg_size = arg.array_size();
+
+	if (!arg_size) {
+		vm.logger().Error(E_W, 8, L"GETTYPEEX", d, l);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	//文字列かどうかチェック - 警告は吐くが処理続行
+	if ( ! arg.array()[0].IsString() ) {
+		vm.logger().Error(E_W, 9, L"GETTYPEEX", d, l);
+		SetError(9);
+	}
+
+	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
+	if (!arg0.size()) {
+		return CValue(0);
+	}
+
+	int type = 0;
+	if (arg0[0] == L'_') {
+		const CValue *v = lvar.GetValuePtr(arg0);
+		if ( v ) {
+			type = v->GetType();
+		}
+	}
+	else {
+		int gidx = vm.variable().GetIndex(arg0);
+		if ( gidx >= 0 ) {
+			const CValue &v = vm.variable().GetValue(gidx);
+			type = v.GetType();
+		}
+	}
+
+	switch(type) {
+	case F_TAG_INT:
+		return CValue(1);
+	case F_TAG_DOUBLE:
+		return CValue(2);
+	case F_TAG_STRING:
+		return CValue(3);
+	case F_TAG_ARRAY:
+		return CValue(4);
+	case F_TAG_HASH:
+		return CValue(5);
+	default:
+		return CValue(0);
+	}
 }
 
 /* -----------------------------------------------------------------------

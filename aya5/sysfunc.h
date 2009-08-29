@@ -84,6 +84,7 @@ protected:
 	CValue	TOAUTO(const CValue &args, yaya::string_t &d, int &l);
 
 	CValue	GETTYPE(CValueArgArray &valuearg, yaya::string_t &d, int &l);
+	CValue	GETTYPEEX(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l);
 
 	CValue	ISFUNC(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	ISVAR(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l);
