@@ -35,6 +35,8 @@ class CCell;
 class CLocalVariable;
 class CFunction;
 
+typedef const std::vector<CValue> CValueArgArray;
+
 //----
 
 class	CSystemFunction
@@ -73,7 +75,7 @@ public:
 	CValue	*GetReLenPtr(void) { return &re_len; }
 
 	CValue	Execute(int index, const CValue &arg, const std::vector<CCell *> &pcellarg,
-				CLocalVariable &lvar, int l, CFunction *thisfunc);
+				CValueArgArray &valuearg, CLocalVariable &lvar, int l, CFunction *thisfunc);
 
 protected:
 	CValue	TOINT(const CValue &arg, yaya::string_t &d, int &l);
@@ -167,6 +169,7 @@ protected:
 	CValue	ISINTSTR(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	ISREALSTR(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	SPLITPATH(const CValue &arg, yaya::string_t &d, int &l);
+
 	CValue	CVINT(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
 				yaya::string_t &d, int &l);
 	CValue	CVSTR(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
