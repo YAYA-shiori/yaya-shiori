@@ -74,7 +74,7 @@ extern "C" {
  *  システム関数テーブル
  * -----------------------------------------------------------------------
  */
-#define	SYSFUNC_NUM					129 //システム関数の全数
+#define	SYSFUNC_NUM					130 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -256,6 +256,8 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"RE_OPTION",
 	// ファイル操作(6)
 	L"FREADENCODE",
+	// 型取得/変換(4)
+	L"GETTYPEEX",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -387,7 +389,7 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 	case 2:		// TOSTR
 		return TOSTR(arg, d, l);
 	case 3:		// GETTYPE
-		return GETTYPE(arg, pcellarg, lvar, d, l);
+		return GETTYPE(arg, d, l);
 	case 4:		// ISFUNC
 		return ISFUNC(arg, d, l);
 	case 5:		// ISVAR
@@ -639,6 +641,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return RE_OPTION(arg, d, l);
 	case 128:
 		return FREADENCODE(arg, d, l);
+	case 129:
+		return GETTYPEEX(arg, lvar, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -729,75 +733,93 @@ CValue	CSystemFunction::TOAUTO(const CValue &arg, yaya::string_t &d, int &l)
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::GETTYPE
- *
  *  返値　　：  0/1/2/3/4=エラー/整数/実数/文字列/配列
  *
  *  GETTYPE(1,2)のように複数の引数を与えた場合、これらは1つの配列値ですから
  *  返値は4になることに注意してください。
  * -----------------------------------------------------------------------
  */
-static int CSF_GetTypeConvert(int type)
+CValue	CSystemFunction::GETTYPE(const CValue &arg, yaya::string_t &d, int &l)
 {
-	switch(type) {
-	case F_TAG_INT:
-		return 1;
-	case F_TAG_DOUBLE:
-		return 2;
-	case F_TAG_STRING:
-		return 3;
-	case F_TAG_ARRAY:
-		return 4;
-	default:
-		return 0;
-	}
-}
-
-CValue	CSystemFunction::GETTYPE(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
-			yaya::string_t &d, int &l)
-{
-	if ( pcellarg.size() == 1 ) {
-		if (pcellarg[0]->value_GetType() == F_TAG_VARIABLE) {
-			const CValue &v = vm.variable().GetValue(pcellarg[0]->index);
-			return CValue(CSF_GetTypeConvert(v.GetType()));
-		}
-		else if (pcellarg[0]->value_GetType() == F_TAG_LOCALVARIABLE) {
-			const CValue *v = lvar.GetValuePtr(pcellarg[0]->name);
-			if ( v ) {
-				return CValue(CSF_GetTypeConvert(v->GetType()));
-			}
-			else {
-				return CValue(0);
-			}
-		}
-		else if (pcellarg[0]->value_GetType() == F_TAG_STRING || pcellarg[0]->value_GetType() == F_TAG_STRING_EMBED) {
-			int gidx = vm.variable().GetIndex(arg.array()[0].GetValueString());
-			if ( gidx >= 0 ) {
-				const CValue &v = vm.variable().GetValue(gidx);
-				return CValue(CSF_GetTypeConvert(v.GetType()));
-			}
-
-			const CValue *v = lvar.GetValuePtr(arg.array()[0].GetValueString());
-			if ( v ) {
-				return CValue(CSF_GetTypeConvert(v->GetType()));
-			}
-			/*else {
-				return CValue(0);
-			}*/ //該当がなければこの後でSTRINGが返る
-		}
-	}
-
 	int	sz = arg.array_size();
+
 	if (!sz) {
 		vm.logger().Error(E_W, 8, L"GETTYPE", d, l);
 		SetError(8);
 		return CValue(0);
 	}
 
-	if ( sz >= 2 ) {
+	if (sz > 1)
 		return CValue(4);
+
+	switch(arg.array()[0].GetType()) {
+	case F_TAG_INT:
+		return CValue(1);
+	case F_TAG_DOUBLE:
+		return CValue(2);
+	case F_TAG_STRING:
+		return CValue(3);
+	case F_TAG_VOID:
+		return CValue(0);
+	default:
+		vm.logger().Error(E_E, 88, L"GETTYPE", d, l);
+		return CValue(0);
+	};
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::GETTYPEEX
+ *  返値　　：  0/1/2/3/4=エラー/整数/実数/文字列/配列
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::GETTYPEEX(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l)
+{
+	size_t arg_size = arg.array_size();
+
+	if (!arg_size) {
+		vm.logger().Error(E_W, 8, L"GETTYPEEX", d, l);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	return CValue(CSF_GetTypeConvert(arg.array()[0].GetType()));
+	//文字列かどうかチェック - 警告は吐くが処理続行
+	if ( ! arg.array()[0].IsString() ) {
+		vm.logger().Error(E_W, 9, L"GETTYPEEX", d, l);
+		SetError(9);
+	}
+
+	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
+	if (!arg0.size()) {
+		return CValue(0);
+	}
+
+	int type = 0;
+	if (arg0[0] == L'_') {
+		const CValue *v = lvar.GetValuePtr(arg0);
+		if ( v ) {
+			type = v->GetType();
+		}
+	}
+	else {
+		int gidx = vm.variable().GetIndex(arg0);
+		if ( gidx >= 0 ) {
+			const CValue &v = vm.variable().GetValue(gidx);
+			type = v.GetType();
+		}
+	}
+
+	switch(type) {
+	case F_TAG_INT:
+		return CValue(1);
+	case F_TAG_DOUBLE:
+		return CValue(2);
+	case F_TAG_STRING:
+		return CValue(3);
+	case F_TAG_ARRAY:
+		return CValue(4);
+	default:
+		return CValue(0);
+	}
 }
 
 /* -----------------------------------------------------------------------
