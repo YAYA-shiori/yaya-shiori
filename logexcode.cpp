@@ -448,11 +448,11 @@ void	CLogExCode::OutVariableInfoForCheck(void)
  *  機能概要：  OutVariableInfoForCheckから呼ばれます。配列変数の内容を文字列化します
  * -----------------------------------------------------------------------
  */
-void	CLogExCode::StructArrayString(const std::vector<CValueSub> &vs, yaya::string_t &enlist)
+void	CLogExCode::StructArrayString(const CValueArray &vs, yaya::string_t &enlist)
 {
 	enlist = L"";
     yaya::string_t	tmpstr;
-	for(std::vector<CValueSub>::const_iterator it = vs.begin(); it != vs.end(); it++) {
+	for(CValueArray::const_iterator it = vs.begin(); it != vs.end(); it++) {
 		switch(it->GetType()) {
 		case F_TAG_INT:
 			tmpstr = L"(int)" + yaya::ws_itoa(it->i_value) + L" ";

@@ -39,7 +39,7 @@ public:
 protected:
 	void	StructCellString(std::vector<CCell> *cellvector, yaya::string_t &formula);
 	void	StructSerialString(CStatement *st, yaya::string_t &formula);
-	void	StructArrayString(const std::vector<CValueSub> &vs, yaya::string_t &enlist);
+	void	StructArrayString(const CValueArray &vs, yaya::string_t &enlist);
 };
 
 //----

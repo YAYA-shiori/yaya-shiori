@@ -152,6 +152,7 @@ const wchar_t	msgwj[][128] = {
 	L"warning W0017 : 正規表現処理中に未定義のエラーが発生しました.",
 	L"warning W0018 : 変数を指定してください.",
 	L"warning W0019 : 割り算にゼロを指定することはできません.",
+	L"warning W0020 : 連想配列の生成には偶数個の要素が必要です.",
 };
 
 // 注記文字列（日本語）
@@ -311,6 +312,7 @@ const wchar_t	msgwe[][128] = {
 	L"warning W0017 : Unknown error occurred at regular expression.",
 	L"warning W0018 : It is necessary to specify the variable.",
 	L"warning W0019 : Integer/Double divided by zero.",
+	L"warning W0020 : Requires even number of elements to create hash.",
 };
 
 // 注記文字列（英語）
