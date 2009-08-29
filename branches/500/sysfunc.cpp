@@ -377,7 +377,7 @@ const yaya::char_t* CSystemFunction::HistoryFunctionName(void)
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<CCell *> &pcellarg,
-			CLocalVariable &lvar, int l, CFunction *thisfunc)
+			CValueArgArray &valuearg, CLocalVariable &lvar, int l, CFunction *thisfunc)
 {
 	yaya::string_t& d = thisfunc->dicfilename;
 
