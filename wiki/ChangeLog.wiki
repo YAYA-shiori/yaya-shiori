@@ -1,4 +1,7 @@
 #labels Featured
+=Tc537-3=
+  * 互換性の問題が出たので新たにGETTYPEEXを新設しGETTYPEの挙動は戻した
+
 =Tc537-2=
   * 設定ファイルに charset.save.old を追加（旧形式セーブデータの文字コード明示）
   * GETTYPEのタイプ検出をずいぶんまともに。
