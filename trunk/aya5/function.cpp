@@ -180,9 +180,9 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 			i = statement[i].jumpto;
 			break;
 		case ST_FOR:					// for
-			GetFormulaAnswer(lvar, statement[i]);
+			GetFormulaAnswer(lvar, statement[i]); //for第一パラメータ
 			for( ; ; ) {
-				if (!GetFormulaAnswer(lvar, statement[i + 1]).GetTruth())
+				if (!GetFormulaAnswer(lvar, statement[i + 1]).GetTruth()) //for第二パラメータ
 					break;
 				ExecuteInBrace(i + 4, t_value, lvar, BRACE_LOOP, exitcode);
 				output.Append(t_value);
@@ -196,7 +196,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 				else if (exitcode == ST_CONTINUE)
 					exitcode = ST_NOP;
 
-				GetFormulaAnswer(lvar, statement[i + 2]);
+				GetFormulaAnswer(lvar, statement[i + 2]); //for第三パラメータ
 			}
 			i = statement[i].jumpto;
 			break;
@@ -210,6 +210,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 			break;
 		case ST_FOREACH:				// foreach
 			Foreach(lvar, output, i, exitcode);
+			i  = statement[i].jumpto;
 			break;
 		case ST_BREAK:					// break
 			exitcode = ST_BREAK;
@@ -259,9 +260,13 @@ void	CFunction::Foreach(CLocalVariable &lvar, CSelecter &output, int line,int &e
 
 	// 代入値の要素数を求める
 	// 簡易配列かつ変数からの取得の場合、その変数に設定されているデリミタを取得する
+	bool isPseudoarray = false;
+
 	int	sz;
 	std::vector<yaya::string_t>	s_array;
 	if (value.IsString()) {
+		isPseudoarray = true;
+
 		yaya::string_t delimiter = VAR_DELIMITER;
 		if (st0.cell_size() == 1) {
 			if (st0.cell()[0].value_GetType() == F_TAG_VARIABLE) {
@@ -303,17 +308,19 @@ void	CFunction::Foreach(CLocalVariable &lvar, CSelecter &output, int line,int &e
 	
 	for(int foreachcount = 0; foreachcount < sz; ++foreachcount ) {
 		// 代入する要素値を取得
-		if ( fromtype == F_TAG_ARRAY ) {
-			t_value = value.array()[foreachcount];
-		}
-		else if ( fromtype == F_TAG_HASH ) {
-			t_value.SetType(F_TAG_ARRAY);
-			t_value.array().push_back(hash_iterator->first);
-			t_value.array().push_back(hash_iterator->second);
-			hash_iterator++;
-		}
-		else { //F_TAG_STRING
+		if (isPseudoarray) {
 			t_value = s_array[foreachcount];
+		}
+		else {// F_TAG_ARRAY
+			if ( fromtype == F_TAG_ARRAY ) {
+				t_value = value.array()[foreachcount];
+			}
+			else if ( fromtype == F_TAG_HASH ) {
+				t_value.SetType(F_TAG_ARRAY);
+				t_value.array().push_back(hash_iterator->first);
+				t_value.array().push_back(hash_iterator->second);
+				hash_iterator++;
+			}
 		}
 
 		// 代入

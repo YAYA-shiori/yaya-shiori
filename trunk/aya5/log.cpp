@@ -43,7 +43,7 @@ void	CLog::Start(const yaya::string_t &p, int cs, int ml, HWND hw, char il)
 	charset = cs;
 	msglang = ml;
 	iolog   = il;
-
+	
 	if ( hw ) { //hwがある＝玉からの呼び出しなので強制ON、ファイル無効
 		path = L"";
 	}
@@ -51,7 +51,7 @@ void	CLog::Start(const yaya::string_t &p, int cs, int ml, HWND hw, char il)
 		enable = 0;
 		return;
 	}
-	
+
 #if defined(WIN32)
 	// もしhWndがNULLなら起動中のチェックツールを探して取得する
 	hWnd    = hw != NULL ? hw : GetCheckerWnd();

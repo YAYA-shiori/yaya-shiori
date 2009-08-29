@@ -29,6 +29,7 @@
 class CAyaVM;
 class CCell;
 class CSerial;
+class CSelecter;
 
 class	CStatement
 {
