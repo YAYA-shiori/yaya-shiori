@@ -50,16 +50,16 @@
  *  返値　　：  0/1=正常/エラー
  * -----------------------------------------------------------------------
  */
-char	CParser0::Parse(int charset, const std::vector<yaya::string_t>& dics, int &lindex, int &ulindex, int &rindex)
+char	CParser0::Parse(int charset, const std::vector<CDic1>& dics, int &lindex, int &ulindex, int &rindex)
 {
 	// 読み取り、構文解析、中間コードの生成
 	vm.logger().Message(3);
 	std::vector<CDefine>	gdefines;
 	int	errcount = 0;
-	for(std::vector<yaya::string_t>::const_iterator it = dics.begin(); it != dics.end(); it++) {
+	for(std::vector<CDic1>::const_iterator it = dics.begin(); it != dics.end(); it++) {
 		vm.logger().Write(L"// ");
-		vm.logger().Filename(*it);
-		errcount += LoadDictionary1(*it, gdefines, charset);
+		vm.logger().Filename(it->path);
+		errcount += LoadDictionary1(it->path, gdefines, it->charset);
 	}
 	vm.logger().Message(8);
 	vm.logger().Message(9);

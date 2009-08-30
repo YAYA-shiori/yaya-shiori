@@ -41,6 +41,7 @@ public:
 class CAyaVM;
 class CStatement;
 class CCell;
+class CDic1;
 
 class	CParser0
 {
@@ -53,7 +54,7 @@ public:
 	CParser0(CAyaVM &vmr) : vm(vmr) {
 		; //NOOP
 	}
-	char	Parse(int charset, const std::vector<yaya::string_t>& dics, int &lindex, int &ulindex, int &rindex);
+	char	Parse(int charset, const std::vector<CDic1>& dics, int &lindex, int &ulindex, int &rindex);
 	char	ParseEmbedString(yaya::string_t& str, CStatement &st, const yaya::string_t &dicfilename, int linecount);
 
 	int		GetFunctionIndexFromName(const yaya::string_t& str);
