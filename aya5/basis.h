@@ -22,6 +22,16 @@
 class CValue;
 class CAyaVM;
 
+class   CDic1
+{
+public:
+	yaya::string_t path;
+	char charset;
+
+	CDic1(const yaya::string_t &p,char c) : path(p), charset(c) {
+	}
+};
+
 class	CBasis
 {
 public:
@@ -94,7 +104,7 @@ public:
 	void	RestoreVariable(const yaya::char_t* pName = NULL);
 
 	yaya::string_t GetParameter(const yaya::string_t &cmd);
-	bool SetParameter(yaya::string_t &cmd, yaya::string_t &param, std::vector<yaya::string_t> *dics = NULL);
+	bool SetParameter(yaya::string_t &cmd, yaya::string_t &param, std::vector<CDic1> *dics = NULL);
 
 	void    SetOutputCharset(char cst) { output_charset = cst; }
 
@@ -103,7 +113,7 @@ protected:
 	void	SetSuppress(void);
 	void	ResetSuppress(void);
 
-	void	LoadBaseConfigureFile(std::vector<yaya::string_t> *dics);
+	void	LoadBaseConfigureFile(std::vector<CDic1> &dics);
 
 	void	RestoreArrayVariable(CValue &var, yaya::string_t &value);
 	void	RestoreHashVariable(CValue &var, yaya::string_t &value);

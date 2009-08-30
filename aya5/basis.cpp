@@ -189,8 +189,8 @@ void	CBasis::SetLogRcvWnd(long hwnd)
 void	CBasis::Configure(void)
 {
 	// 基礎設定ファイル（例えばaya.txt）を読み取り
-	std::vector<yaya::string_t>	dics;
-	LoadBaseConfigureFile(&dics);
+	std::vector<CDic1>	dics;
+	LoadBaseConfigureFile(dics);
 	// 基礎設定ファイル読み取りで重篤なエラーが発生した場合はここで終了
 	if (suppress)
 		return;
@@ -303,7 +303,7 @@ void	CBasis::ResetSuppress(void)
  *  ありません（文字コード0x7F以下のASCII文字のみで記述すべきです）。
  * -----------------------------------------------------------------------
  */
-void	CBasis::LoadBaseConfigureFile(std::vector<yaya::string_t> *dics)
+void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 {
 	// 設定ファイル("name".txt)読み取り
 
@@ -364,7 +364,7 @@ void	CBasis::LoadBaseConfigureFile(std::vector<yaya::string_t> *dics)
 				}
 			}
 			else {
-				SetParameter(cmd, param, dics);
+				SetParameter(cmd, param, &dics);
 			}
 		}
 		else {
@@ -378,12 +378,23 @@ void	CBasis::LoadBaseConfigureFile(std::vector<yaya::string_t> *dics)
  *  機能概要：  LoadBaseConfigureFileから呼ばれます。各種パラメータを設定します
  * -----------------------------------------------------------------------
  */
-bool CBasis::SetParameter(yaya::string_t &cmd, yaya::string_t &param, std::vector<yaya::string_t> *dics)
+bool CBasis::SetParameter(yaya::string_t &cmd, yaya::string_t &param, std::vector<CDic1> *dics)
 {
 	// dic
 	if ( cmd.compare(L"dic") == 0 && dics) {
-		yaya::string_t	filename = path + param;
-		dics->push_back(filename);
+		yaya::string_t param1,param2;
+		Split(param, param1, param2, L",");
+
+		yaya::string_t	filename = path + param1;
+
+		char cset = dic_charset;
+		if ( param2.size() ) {
+			char cx = Ccct::CharsetTextToID(param2.c_str());
+			if ( cx != CHARSET_DEFAULT ) {
+				cset = cx;
+			}
+		}
+		dics->push_back(CDic1(filename,cset));
 		return true;
 	}
 	// log
