@@ -80,10 +80,10 @@ public:
 protected:
 	CValue	TOINT(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	TOREAL(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	TOSTR(const CValue &args, yaya::string_t &d, int &l);
+	CValue	TOSTR(CValueArgArray &valuearg, yaya::string_t &d, int &l);
 	CValue	TOAUTO(const CValue &args, yaya::string_t &d, int &l);
 
-	CValue	GETTYPE(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	GETTYPE(CValueArgArray &valuearg, yaya::string_t &d, int &l);
 	CValue	GETTYPEEX(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l);
 
 	CValue	ISFUNC(const CValue &arg, yaya::string_t &d, int &l);
@@ -172,13 +172,14 @@ protected:
 
 	CValue	CVINT(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
 				yaya::string_t &d, int &l);
-	CValue	CVSTR(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
+	CValue	CVSTR(CValueArgArray &valuearg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
 				yaya::string_t &d, int &l);
 	CValue	CVREAL(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
 				yaya::string_t &d, int &l);
 	CValue	CVAUTO(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
 				yaya::string_t &d, int &l);
-	CValue	LETTONAME(const CValue &arg, yaya::string_t &d, int &l, CLocalVariable &lvar,
+	
+	CValue	LETTONAME(CValueArgArray &valuearg, yaya::string_t &d, int &l, CLocalVariable &lvar,
 				CFunction *thisfunc);
 	CValue	STRFORM(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	ANY(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
