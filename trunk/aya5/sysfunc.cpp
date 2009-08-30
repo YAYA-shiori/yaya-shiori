@@ -493,7 +493,7 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 	case 50:	// FCHARSET
 		return FCHARSET(arg, d, l);
 	case 51:	// ARRAYSIZE
-		return ArraySize(arg, pcellarg, lvar, d, l);
+		return ArraySize(valuearg, pcellarg, lvar, d, l);
 	case 52:	// SETDELIM
 		return SETDELIM(pcellarg, lvar, d, l);
 	case 53:	// EVAL
@@ -3156,19 +3156,19 @@ CValue	CSystemFunction::FCHARSET(const CValue &arg, yaya::string_t &d, int &l)
  *  winnt.h とマクロが被った。減点２。
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::ArraySize(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
-			yaya::string_t &/*d*/, int &/*l*/)
+CValue	CSystemFunction::ArraySize(CValueArgArray &valuearg, const std::vector<CCell *> &pcellarg,
+								   CLocalVariable &lvar, yaya::string_t &d, int &l)
 {
 	// 引数無しなら0
-	int	sz = arg.array_size();
-	if (!sz)
+	size_t sz = valuearg.size();
+	if (!sz) {
 		return CValue(0);
+	}
 
-	if (sz == 1) {
-		// 引数1つで文字列でないなら1
-		if (!arg.array()[0].IsString())
-			return CValue(1);
-
+	if ( valuearg[0].IsArray() ) {
+		return CValue(static_cast<int>(valuearg[0].array_size()));
+	}
+	else if ( valuearg[0].IsString() ) {
 		// 引数1つで文字列なら簡易配列の要素数を返す　変数の場合はそのデリミタで分割する
 		yaya::string_t	delimiter = VAR_DELIMITER;
 		if (pcellarg[0]->value_GetType() == F_TAG_VARIABLE)
@@ -3176,11 +3176,11 @@ CValue	CSystemFunction::ArraySize(const CValue &arg, const std::vector<CCell *> 
 		else if (pcellarg[0]->value_GetType() == F_TAG_LOCALVARIABLE)
 			delimiter = lvar.GetDelimiter(pcellarg[0]->name);
 
-		return CValue((int)SplitToMultiString(arg.array()[0].s_value, NULL, delimiter));
+		return CValue((int)SplitToMultiString(valuearg[0].s_value, NULL, delimiter));
 	}
-
-	// 汎用配列なら要素数をそのまま返す
-	return CValue((int)sz);
+	else {
+		return CValue(1);
+	}
 }
 
 /* -----------------------------------------------------------------------
