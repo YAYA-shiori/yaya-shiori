@@ -1,4 +1,7 @@
 #labels Featured
+=Tc537-4=
+  * ARRAYSIZE関数で1要素の汎用配列を指定するとその中のテキストを簡易配列として解釈する問題を修正
+
 =Tc537-3=
   * 互換性の問題が出たので新たにGETTYPEEXを新設しGETTYPEの挙動は戻した
 
