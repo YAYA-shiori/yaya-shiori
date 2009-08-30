@@ -10,6 +10,8 @@
 
 #include <vector>
 #include <ctime>
+#include <locale>
+#include <clocale>
 
 #include "aya5.h"
 #include "basis.h"

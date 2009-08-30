@@ -387,9 +387,9 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 	case 1:		// TOREAL
 		return TOREAL(arg, d, l);
 	case 2:		// TOSTR
-		return TOSTR(arg, d, l);
+		return TOSTR(valuearg, d, l);
 	case 3:		// GETTYPE
-		return GETTYPE(arg, d, l);
+		return GETTYPE(valuearg, d, l);
 	case 4:		// ISFUNC
 		return ISFUNC(arg, d, l);
 	case 5:		// ISVAR
@@ -532,11 +532,11 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 	case 73:	// CVINT
 		return CVINT(arg, pcellarg, lvar, d, l);
 	case 74:	// CVSTR
-		return CVSTR(arg, pcellarg, lvar, d, l);
+		return CVSTR(valuearg, pcellarg, lvar, d, l);
 	case 75:	// CVREAL
 		return CVREAL(arg, pcellarg, lvar, d, l);
 	case 76:	// LETTONAME
-		return LETTONAME(arg, d, l, lvar, thisfunc);
+		return LETTONAME(valuearg, d, l, lvar, thisfunc);
 	case 77:	// LSO
 		return CValue(lso);
 	case 78:	// STRFORM
@@ -686,20 +686,19 @@ CValue	CSystemFunction::TOREAL(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::TOSTR
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::TOSTR(const CValue &args, yaya::string_t &d, int &l)
+CValue	CSystemFunction::TOSTR(CValueArgArray &valuearg, yaya::string_t &d, int &l)
 {
-	int	sz = args.array_size();
-
-	if (!sz) {
+	if (valuearg.empty()) {
 		vm.logger().Error(E_W, 8, L"TOSTR", d, l);
 		SetError(8);
 		return CValue();
 	}
 
-	if (sz == 1)
-		return CValue(args.array()[0].GetValueString());
-
-	return CValue(args.GetValueString());
+	yaya::string_t str;
+	for ( CValueArgArray::const_iterator it = valuearg.begin() ; it != valuearg.end() ; ++it ) {
+		str += it->GetValueString();
+	}
+	return CValue(str);
 }
 
 /* -----------------------------------------------------------------------
@@ -733,34 +732,47 @@ CValue	CSystemFunction::TOAUTO(const CValue &arg, yaya::string_t &d, int &l)
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::GETTYPE
- *  返値　　：  0/1/2/3/4=エラー/整数/実数/文字列/配列
- *
- *  GETTYPE(1,2)のように複数の引数を与えた場合、これらは1つの配列値ですから
- *  返値は4になることに注意してください。
+ *  返値　　：  0/1/2/3/4/5=エラー/整数/実数/文字列/配列/連想配列
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::GETTYPE(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::GETTYPE(CValueArgArray &valuearg, yaya::string_t &d, int &l)
 {
-	int	sz = arg.array_size();
-
-	if (!sz) {
+	if (valuearg.empty()) {
 		vm.logger().Error(E_W, 8, L"GETTYPE", d, l);
 		SetError(8);
 		return CValue(0);
 	}
 
-	if (sz > 1)
-		return CValue(4);
-
-	switch(arg.array()[0].GetType()) {
+	switch(valuearg[0].GetType()) {
+	case F_TAG_VOID:
+		return CValue(0);
 	case F_TAG_INT:
 		return CValue(1);
 	case F_TAG_DOUBLE:
 		return CValue(2);
 	case F_TAG_STRING:
 		return CValue(3);
-	case F_TAG_VOID:
-		return CValue(0);
+	case F_TAG_ARRAY: //互換処理
+		{
+			if ( valuearg[0].array_size() == 1 ) {
+				int t = valuearg[0].array()[0].GetType();	
+				if ( t == F_TAG_INT ) {
+					return CValue(1);
+				}
+				else if ( t == F_TAG_DOUBLE ) {
+					return CValue(2);
+				}
+				else if ( t == F_TAG_STRING ) {
+					return CValue(3);
+				}
+				else {
+					return CValue(0);
+				}
+			}
+			else {
+				return CValue(4);
+			}
+		}
 	default:
 		vm.logger().Error(E_E, 88, L"GETTYPE", d, l);
 		return CValue(0);
@@ -4038,19 +4050,19 @@ CValue	CSystemFunction::CVINT(const CValue &arg, const std::vector<CCell *> &pce
  *  関数名  ：  CSystemFunction::CVSTR
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::CVSTR(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
-			yaya::string_t &d, int &l)
+CValue	CSystemFunction::CVSTR(CValueArgArray &valuearg, const std::vector<CCell *> &pcellarg,
+							   CLocalVariable &lvar,yaya::string_t &d, int &l)
 {
-	if (!arg.array_size()) {
+	if (!valuearg.size()) {
 		vm.logger().Error(E_W, 8, L"CVSTR", d, l);
 		SetError(8);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
 	if (pcellarg[0]->value_GetType() == F_TAG_VARIABLE)
-		vm.variable().SetValue(pcellarg[0]->index, arg.array()[0].GetValueString());
+		vm.variable().SetValue(pcellarg[0]->index, TOSTR(valuearg,d,l));
 	else if (pcellarg[0]->value_GetType() == F_TAG_LOCALVARIABLE)
-		lvar.SetValue(pcellarg[0]->name, CValue(arg.array()[0].GetValueString()));
+		lvar.SetValue(pcellarg[0]->name, TOSTR(valuearg,d,l));
 	else {
 		vm.logger().Error(E_W, 11, L"CVSTR", d, l);
 		SetError(11);
@@ -4133,10 +4145,10 @@ CValue	CSystemFunction::CVAUTO(const CValue &arg, const std::vector<CCell *> &pc
  *  関数名  ：  CSystemFunction::LETTONAME
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::LETTONAME(const CValue &arg, yaya::string_t &d, int &l, CLocalVariable &lvar,
+CValue	CSystemFunction::LETTONAME(CValueArgArray &valuearg, yaya::string_t &d, int &l, CLocalVariable &lvar,
 			CFunction *thisfunc)
 {
-	size_t sz = arg.array_size();
+	int	sz = valuearg.size();
 
 	if (sz < 2) {
 		vm.logger().Error(E_W, 8, L"LETTONAME", d, l);
@@ -4144,30 +4156,19 @@ CValue	CSystemFunction::LETTONAME(const CValue &arg, yaya::string_t &d, int &l, 
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	if (!arg.array()[0].IsString()) {
+	if (!valuearg[0].IsString()) {
 		vm.logger().Error(E_W, 9, L"LETTONAME", d, l);
 		SetError(9);
 	}
 
-	yaya::string_t	vname = arg.array()[0].GetValueString();
-
-	CValue val;
-	if ( sz == 2 ) {
-		val = arg.array()[1];
-	}
-	else {
-		val.SetType(F_TAG_ARRAY);
-		for ( size_t i = 1 ; i < sz ; ++i ) {
-			val.array().push_back(arg.array()[i]);
-		}
-	}
+	yaya::string_t	vname = valuearg[0].GetValueString();
 
 	if ( vname[0] == L'_' ) {
-		lvar.SetValue(vname,val);
+		lvar.SetValue(vname,valuearg[1]);
 	}
 	else {
 		int	index = vm.variable().Make(vname, 0);
-		vm.variable().SetValue(index,val);
+		vm.variable().SetValue(index,valuearg[1]);
 	}
 
 	return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -5304,7 +5305,6 @@ CValue	CSystemFunction::DUMPVAR(const CValue &arg, yaya::string_t &d, int &l)
 	logex.OutVariableInfoForCheck();
 	return CValue(F_TAG_NOP, 0/*dmy*/);
 }
-
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::LICENSE
