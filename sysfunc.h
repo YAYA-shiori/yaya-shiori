@@ -145,7 +145,7 @@ protected:
 	CValue	FENUM(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FCHARSET(const CValue &arg, yaya::string_t &d, int &l);
 	// ARRAYSYZE winnt.h とマクロが被った。減点２。
-	CValue	ArraySize(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
+	CValue	ArraySize(CValueArgArray &valuearg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
 				yaya::string_t &d, int &l);
 	CValue	SETDELIM(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l);
 	CValue	EVAL(const CValue &arg, yaya::string_t &d, int &l, CLocalVariable &lvar,
