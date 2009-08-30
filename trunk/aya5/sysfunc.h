@@ -155,7 +155,9 @@ protected:
 	CValue	GETSECCOUNT(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	GETTICKCOUNT(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l);
 	CValue	GETMEMINFO(void);
+
 	CValue	SETLASTERROR(const CValue &arg, yaya::string_t &d, int &l);
+
 	CValue	RE_SEARCH(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	RE_MATCH(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	RE_GREP(const CValue &arg, yaya::string_t &d, int &l);
