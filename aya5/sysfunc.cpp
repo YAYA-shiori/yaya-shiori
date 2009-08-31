@@ -3169,6 +3169,9 @@ CValue	CSystemFunction::ArraySize(CValueArgArray &valuearg, const std::vector<CC
 		return CValue(static_cast<int>(valuearg[0].array_size()));
 	}
 	else if ( valuearg[0].IsString() ) {
+		if ( valuearg[0].GetValueString().size() == 0 ) {
+			return CValue(0);
+		}
 		// 引数1つで文字列なら簡易配列の要素数を返す　変数の場合はそのデリミタで分割する
 		yaya::string_t	delimiter = VAR_DELIMITER;
 		if (pcellarg[0]->value_GetType() == F_TAG_VARIABLE)
@@ -3177,6 +3180,9 @@ CValue	CSystemFunction::ArraySize(CValueArgArray &valuearg, const std::vector<CC
 			delimiter = lvar.GetDelimiter(pcellarg[0]->name);
 
 		return CValue((int)SplitToMultiString(valuearg[0].s_value, NULL, delimiter));
+	}
+	else if ( valuearg[0].IsVoid() ) {
+		return CValue(0);
 	}
 	else {
 		return CValue(1);
