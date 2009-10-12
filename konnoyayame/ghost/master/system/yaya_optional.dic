@@ -29,8 +29,9 @@ OnSystemUnload.SHIORI3FW.OPTIONAL
 //******************************************************************************
 
 //------------------------------------------------------------------------------
-//関数名：SHIORI3FW.EscapeDangerousTags
-//機能　：危険なタグのみをエスケープ（\付加）する。
+//　関数名：SHIORI3FW.EscapeDangerousTags
+//　機能　：危険なタグのみをエスケープ（\付加）する。
+//　引数　：argv0＝テキスト
 //------------------------------------------------------------------------------
 SHIORI3FW.EscapeDangerousTags{
 	_txt=_argv[0]
@@ -49,8 +50,21 @@ SHIORI3FW.EscapeDangerousTags{
 }
 
 //------------------------------------------------------------------------------
-//関数名：SHIORI3FW.EscapeAllTags
-//機能　：全てのさくらスクリプトタグをエスケープ（\付加）する。
+//　関数名：SHIORI3FW.EscapeAllTags
+//　機能　：全てのさくらスクリプトタグを消去する。
+//　引数　：argv0＝テキスト
+//------------------------------------------------------------------------------
+SHIORI3FW.RemoveAllTags
+{
+	_text = RE_REPLACE(_argv[0],'\\_{0,2}[a-zA-Z0-9*!&](\d|\[("([^"]|\\")+?"|([^\]]|\\\])+?)+?\])?','')
+	_text = REPLACE(_text,'\\','\')
+	_text;
+}
+
+//------------------------------------------------------------------------------
+//　関数名：SHIORI3FW.EscapeAllTags
+//　機能　：全てのさくらスクリプトタグをエスケープ（\付加）する。
+//　引数　：argv0＝テキスト
 //------------------------------------------------------------------------------
 SHIORI3FW.EscapeAllTags{
 	_txt=_argv[0]
@@ -61,6 +75,22 @@ SHIORI3FW.EscapeAllTags{
 	_txt=REPLACE(_txt,ESCAPE_TAG_2,'\%')
 	_txt=REPLACE(_txt,ESCAPE_TAG_1,'\\')
 	_txt
+}
+
+//------------------------------------------------------------------------------
+//　関数名：SHIORI3FW.TranslateSystemChar
+//　機能　：演算子などシステム予約文字を別のものに置き換える
+//　引数　：argv0＝テキスト　argv1＝置き換え対象（省略時_）
+//------------------------------------------------------------------------------
+SHIORI3FW.TranslateSystemChar
+{
+	_c = '_'
+	if _argc >= 2 {
+		_c = _argv[1]
+	}
+	_text = TOSTR(_argv[0])
+	_text = RE_REPLACE(_text,"[ !%(CHR(0x22))%(CHR(0x25))#$&()*+,\-/:;<=>?@\[\]`{|}~]",_c)
+	_text
 }
 
 //******************************************************************************
@@ -90,7 +120,7 @@ SHIORI3FW.IsGhostExist
 /*
 FMOはキャッシュされ、変わっていなければ解析は行われない。
 FMO名称を省略すると自動的に"Sakura"になる。
-無視するエントリのHWNDを省略すると、sakurahwnd 変数が利用される。
+無視するエントリのHWNDを省略すると、SHIORI3FW.HWnd[0] 変数が利用される。
 （つまり自動的に自身の情報は含まれなくなる）
 
 グローバル変数：SHIORI3FW.FMOCache		FMOの内容のキャッシュ（単純ダンプ）
@@ -124,7 +154,7 @@ SHIORI3FW.RefreshFMOTable : void
 
 	_ignorehwnd=TOSTR(_argv[1])
 	if _ignorehwnd == '' {
-		_ignorehwnd = sakurahwnd
+		_ignorehwnd = SHIORI3FW.HWnd[0]
 	}
 
 	//\r\nで分割
@@ -201,3 +231,90 @@ SHIORI3FW.RefreshFMOTable : void
 		SHIORI3FW.FMOTable=SUBSTR(SHIORI3FW.FMOTable,0,STRLEN(SHIORI3FW.FMOTable)-1)
 	}
 }
+
+//******************************************************************************
+// テキスト処理
+//******************************************************************************
+
+//------------------------------------------------------------------------------
+//　関数名：SHIORI3FW.MakeJustText
+//　機能　：指定した長さになるまでスペースを埋める / 省略する
+//　引数　：argv0＝テキスト　argv1＝文字数（半角換算）
+//------------------------------------------------------------------------------
+
+//---- 後ろにスペースを補完する関数 (from和音)
+SHIORI3FW.MakeLongText
+{
+	_menuitem = _argv[0]
+	_len = _argv[1] - GETSTRBYTES(_menuitem,127)
+
+	if _len <= 0 {
+		_menuitem
+		return
+	}
+	
+	_space = '　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　'
+	_menuitem += SUBSTR(_space,0,_len / 2)
+	
+	if _len % 2 > 0 {
+		_menuitem += " "
+	}
+	_menuitem
+}
+
+//---- 適当な長さで切る -------------------------------------------
+SHIORI3FW.MakeShortText
+{
+	if _argc < 2 {
+		'';
+		return;
+	}
+	
+	_src = _argv[0]
+	_cut = TOINT(_argv[1])
+	_text = ''
+	
+	if GETSTRBYTES(_argv[0],127) <= _cut {
+		_argv[0]
+		return;
+	}
+	
+	_num = STRLEN(_src)
+	_lendiff = 0 //後で保存するためにスコープを一つ下げるためのダミー代入
+	
+	while 1 {
+		_text = SUBSTR(_argv[0],0,_num)
+		
+		_lendiff = _cut - GETSTRBYTES(_text,127) - 2
+		if _lendiff >= 0 {
+			break;
+		}
+		_num -= 1
+		if _num <= 0 {
+			''
+			return
+		}
+	}
+	
+	if _lendiff > 0 {
+		_text += '...'
+	}
+	else {
+		_text += '..'
+	}
+	_text
+}
+
+//---- 長さをきっちり調節
+SHIORI3FW.MakeJustText
+{
+	_text = SHIORI3FW.MakeLongText(_argv[0],_argv[1])
+	if _text != _argv[0] { //短すぎた
+		_text
+		return
+	}
+	
+	_text = SHIORI3FW.MakeShortText(_argv[0],_argv[1])
+	_text
+}
+

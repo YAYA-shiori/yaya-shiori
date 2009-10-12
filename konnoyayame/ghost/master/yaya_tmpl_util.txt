@@ -48,7 +48,7 @@ OnAITalk
 OnAiTalk
 {
 	//---- 通常のランダムトーク、ただしチェイン中はチェイントーク
-	if CHAIN.IDName == "" {
+	if SHIORI3FW.IsChain {
 		AYATEMPLATE.LastTalk = RandomTalk
 	}
 	else {
@@ -122,7 +122,7 @@ AYATEMPLATE.MenuItem
 	--
 	'\![*]\q['
 	--
-	AYATEMPLATE.EscapeText( AYATEMPLATE.MakeJustText(_argv[0],46) )
+	AYATEMPLATE.EscapeText( SHIORI3FW.MakeJustText(_argv[0],46) )
 	--
 	_s = ''
 	for _i = 1 ; _i < _n ; _i++ {
@@ -146,89 +146,6 @@ AYATEMPLATE.EscapeText
 	}
 }
 
-//------------------------------------------------------------------------------
-//後ろにスペースを補完する関数
-AYATEMPLATE.MakeLongText
-{
-	_menuitem = _argv[0]
-	_len = _argv[1] - GETSTRBYTES(_menuitem,127)
-
-	if _len <= 0 {
-		_menuitem
-		return
-	}
-	
-	_space = '　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　'
-	_menuitem += SUBSTR(_space,0,_len / 2)
-	
-	if _len % 2 > 0 {
-		_menuitem += " "
-	}
-	_menuitem
-}
-
-//------------------------------------------------------------------------------
-//適当な長さで切る
-AYATEMPLATE.MakeShortText
-{
-	if _argc < 2 {
-		'';
-		return;
-	}
-	
-	_num = _argv[1] / 2
-	_len = STRLEN(_argv[0])
-	_text = ''
-	
-	if _num >= _len {
-		_argv[0]
-		return;
-	}
-	
-	_lendiff = 0
-	while 1 {
-		_text = SUBSTR(_argv[0],0,_num)
-		
-		_lendiff = GETSTRBYTES(_text,127) - _argv[1] + 1
-		if _lendiff >= 0 {
-			break;
-		}
-		_num += 1
-		if _num >= _len {
-			break;
-		}
-	}
-	
-	if _num >= _len {
-		_argv[0]
-	}
-	else {
-		_text = SUBSTR(_argv[0],0,_num - 1)
-		if _lendiff > 0 {
-			_text += '..'
-		}
-		else {
-			_text += '...'
-		}
-		_text;
-	}
-}
-
-//------------------------------------------------------------------------------
-//長さをきっちり調節
-AYATEMPLATE.MakeJustText
-{
-	_text = AYATEMPLATE.MakeLongText(_argv[0],_argv[1])
-	if _text != _argv[0] {
-		_text
-		return
-	}
-	
-	_text = AYATEMPLATE.MakeShortText(_argv[0],_argv[1])
-	_text
-}
-
-
 //******************************************************************************
 //リンクメニュー
 //******************************************************************************
@@ -242,17 +159,6 @@ AYATEMPLATE.LinkMenuConvert
     }
     _text;
 }
-
-//******************************************************************************
-//YAYAシステムで使われる文字のエスケープ
-//******************************************************************************
-AYATEMPLATE.TranslateSystemChar
-{
-  _text = TOSTR(_argv[0])
-  _text = RE_REPLACE(_text,"[ !%(CHR(0x22))%(CHR(0x25))#$&()*+,\-/:;<=>?@\[\]`{|}~]","_")
-  _text
-}
-
 
 //******************************************************************************
 //切り替えコア
@@ -274,7 +180,7 @@ AYATEMPLATE.ExecuteChangeCallTalk
 //******************************************************************************
 AYATEMPLATE.ExecuteGhostNameFunc
 {
-	_ghostname = AYATEMPLATE.TranslateSystemChar(_argv[1])
+	_ghostname = SHIORI3FW.TranslateSystemChar(_argv[1])
 
 	if _ghostname != '' {
 		_funcname = "%(_argv[0])_%(_ghostname)"
