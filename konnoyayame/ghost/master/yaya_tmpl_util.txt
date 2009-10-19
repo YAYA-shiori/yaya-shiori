@@ -49,10 +49,10 @@ OnAiTalk
 {
 	//---- 通常のランダムトーク、ただしチェイン中はチェイントーク
 	if SHIORI3FW.IsChain {
-		AYATEMPLATE.LastTalk = RandomTalk
+		AYATEMPLATE.LastTalk = ChainTalk
 	}
 	else {
-		AYATEMPLATE.LastTalk = ChainTalk
+		AYATEMPLATE.LastTalk = RandomTalk
 	}
 	AYATEMPLATE.LastTalk
 }

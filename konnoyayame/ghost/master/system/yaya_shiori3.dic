@@ -753,7 +753,16 @@ SHIORI3FW.StartChainTalkScriptDirect
 //------------------------------------------------------------------------------
 SHIORI3FW.IsChain
 {
-	CHAIN.Script != '' || CHAIN.IDName != ''
+	if CHAIN.Script != '' {
+		1
+		return
+	}
+	if CHAIN.IDName != '' {
+		1
+		return
+	}
+	0
+	return
 }
 
 //------------------------------------------------------------------------------
@@ -762,15 +771,17 @@ SHIORI3FW.IsChain
 //------------------------------------------------------------------------------
 ChainTalk
 {
-	if ( CHAIN.Script != '' ) {
-		_res = CHAIN.Script
-		CHAIN.Script = ''
-		_res
-		return
+	if CHAIN.IDName != '' {
+		_res = EVAL(CHAIN.IDName)
+		if _res != '' {
+			_res
+			return
+		}
 	}
 	
-	_res = EVAL(CHAIN.IDName)
-	if _res != '' {
+	if CHAIN.Script != '' {
+		_res = CHAIN.Script
+		CHAIN.Script = ''
 		_res
 		return
 	}
