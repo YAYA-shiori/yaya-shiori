@@ -4,6 +4,9 @@ SHIORI/3.0制御スクリプト for YAYA
 
 使用可能な変数
 
+SHIORI3FW.Status
+　初期起動ステータス Runで初期化済み
+
 SHIORI3FW.Eventid
 　イベントID
 
@@ -101,8 +104,8 @@ load
 	}
 
 	// 初回起動時の初期化
-	if SHIORI3FW.Status != "Run" {
-		SHIORI3FW.Status = "Run"
+	if SHIORI3FW.Status != 'Run' {
+		//SHIORI3FW.Status = 'Run' //初期化は最初にしゃべった時にした
 		aitalkinterval   = TALK_INTERVAL
 	}
 
@@ -188,53 +191,64 @@ unload
 	}
 
 	// 保存する必要のない変数を削除
-	ERASEVAR('eventtranslate_exist')
-	ERASEVAR('is_translate')
+	_var = <<'
+eventtranslate_exist
+is_translate
+REQ.COMMAND
+REQ.PROTOCOL
+var.req.key
+var.req.value
+LIB.PROTOCOL
+LIB.STATUSCODE
+var.lib.key
+var.lib.value
+var.lib.result
+SAORI.DllList
+ghostexlist
+ghostexcount
+selfname
+selfname2
+keroname
+basewarename
+basewarenameex
+sender
+S_CHARSET
+installedghostlist
+installedsakuralist
+installedkerolist
+ascii
+displaybpp
+displaywidth
+displayheight
+uniqueid
+ghostboottime
+status
+res_securitylevel
+res_reference
+res_marker
+SHIORI3FW.Path
+SHIORI3FW.AiTalkCount
+SHIORI3FW.SaveVarCount
+SHIORI3FW.LastTalk
+SHIORI3FW.LastSurface
+SHIORI3FW.IsVisible
+SHIORI3FW.HWnd
+SHIORI3FW.BalloonHWnd
+SHIORI3FW.UniqueID
+SHIORI3FW.Eventid
+SHIORI3FW.EventidTranslate
+SHIORI3FW.DelayEventTime
+SHIORI3FW.DelayEvent
+SHIORI3FW.DelayEventReference
+SHIORI3FW.GhostName
+SHIORI3FW.ShellName
+SHIORI3FW.ShellPath
+SHIORI3FW.BalloonName
+SHIORI3FW.BalloonPath
+'>>
 	
-	ERASEVAR('REQ.COMMAND'  )
-	ERASEVAR('REQ.PROTOCOL' )
-	ERASEVAR('var.req.key'  )
-	ERASEVAR('var.req.value')
-
-	ERASEVAR('LIB.PROTOCOL'  )
-	ERASEVAR('LIB.STATUSCODE')
-	ERASEVAR('var.lib.key'   )
-	ERASEVAR('var.lib.value' )
-	ERASEVAR('var.lib.result')
+	ERASEVAR(SPLIT(_var,C_CRLF))
 	
-	ERASEVAR(GETVARLIST('SHIORI3FW.'))
-	
-	ERASEVAR('SAORI.DllList')
-
-	ERASEVAR('ghostexlist')
-	ERASEVAR('ghostexcount')
-
-	ERASEVAR('selfname' )
-	ERASEVAR('selfname2')
-	ERASEVAR('keroname' )
-	ERASEVAR('basewarename')
-	ERASEVAR('basewarenameex')
-	ERASEVAR('sender')
-	
-	ERASEVAR('S_CHARSET')
-
-	ERASEVAR('installedghostlist' )
-	ERASEVAR('installedsakuralist')
-	ERASEVAR('installedkerolist'  )
-
-	ERASEVAR('ascii')
-	ERASEVAR('displaybpp')
-	ERASEVAR('displaywidth')
-	ERASEVAR('displayheight')
-	ERASEVAR('uniqueid')
-	ERASEVAR('ghostboottime')
-
-	ERASEVAR('status')
-	
-	ERASEVAR('res_securitylevel')
-	ERASEVAR('res_reference')
-	ERASEVAR('res_marker')
-
 	_n = ARRAYSIZE(tempvarname)
 	for _i = 0 ; _i < _n ; _i++ {
 		ERASEVAR("%(tempvarname[_i])")
@@ -556,9 +570,17 @@ SHIORI3FW.RaiseIDEvent
 		}
 		
 		if _talk[0] != '' {
+			if SHIORI3FW.Status != 'Run' {
+				SHIORI3FW.Status = 'Run'
+			}
 			SHIORI3FW.LastTalk = _talk[0]
 			if SHIORI3FW.Eventid == 'OnAiTalk' {
 				SHIORI3FW.LastAiTalk = _talk[0]
+			}
+			if 'Surface' !_in_ _event {
+				if SUBSTR(_talk[0],0,2) != '\C' {
+					SHIORI3FW.AiTalkCount = 0
+				}
 			}
 			_talk[0]
 		}
@@ -614,7 +636,6 @@ SHIORI3FW.ControlAiTalk
 			SHIORI3FW.AiTalkCount++
 
 			if SHIORI3FW.AiTalkCount > aitalkinterval {	// トーク間隔の設定時間を越えた
-				SHIORI3FW.AiTalkCount = 0
 				_argv[0] = "OnAiTalk"
 			}
 			elseif SHIORI3FW.AiTalkCount == (aitalkinterval*2/3) { //2/3でSurfaceRestore
