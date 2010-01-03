@@ -4157,9 +4157,25 @@ CValue	CSystemFunction::LETTONAME(CValueArgArray &valuearg, yaya::string_t &d, i
 	int	sz = valuearg.size();
 
 	if (sz < 2) {
-		vm.logger().Error(E_W, 8, L"LETTONAME", d, l);
-		SetError(8);
-		return CValue(F_TAG_NOP, 0/*dmy*/);
+		if ( valuearg[0].IsArray() && valuearg[0].array_size() >= 2 ) {
+			yaya::string_t	vname = valuearg[0].array()[0].GetValueString();
+
+			if ( vname[0] == L'_' ) {
+				lvar.SetValue(vname,valuearg[0].array()[1]);
+			}
+			else {
+				int	index = vm.variable().Make(vname, 0);
+				vm.variable().SetValue(index,valuearg[0].array()[1]);
+			}
+
+			return CValue(F_TAG_NOP, 0/*dmy*/);
+		}
+		else {
+			vm.logger().Error(E_W, 8, L"LETTONAME", d, l);
+			SetError(8);
+
+			return CValue(F_TAG_NOP, 0/*dmy*/);
+		}
 	}
 
 	if (!valuearg[0].IsString()) {
