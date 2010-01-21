@@ -1,4 +1,7 @@
 #labels Featured
+=Tc538-3=
+  * 空文字列が代入された変数が保存されない問題を修正
+
 =Tc538-2=
   * [BTS:64] LETTONAMEの挙動を修正
 
