@@ -643,11 +643,11 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 		if (var->value_const().IsVoid())
 			continue;
 		// 内容が空文字列の変数は保存しない
-		if (var->value_const().IsStringReal() && !var->value_const().s_value.size())
-			continue;
+		//if (var->value_const().IsStringReal() && !var->value_const().s_value.size())
+		//	continue;
 		// 内容が空汎用配列の変数は保存しない
-//		if (var->value_const().GetType() == F_TAG_ARRAY && !var->value_const().array_size())
-//			continue;
+		//if (var->value_const().GetType() == F_TAG_ARRAY && !var->value_const().array_size())
+		//	continue;
 		// 消去フラグが立っている変数は保存しない
 		if (var->IsErased())
 			continue;

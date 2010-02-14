@@ -2590,7 +2590,7 @@ CValue	CSystemFunction::MKDIR(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	// é¿çs
-	int	result = (::CreateDirectory(s_dirstr,NULL) ? 0 : 1);
+	int	result = (::CreateDirectory(s_dirstr,NULL) ? 1 : 0);
 	free(s_dirstr);
 
 	return CValue(result);
@@ -2613,7 +2613,7 @@ CValue CSystemFunction::MKDIR(const CValue &arg, yaya::string_t &d, int &l) {
     fix_filepath(dirstr);
 
     // é¿çs
-    int result = (mkdir(dirstr.c_str(), 0644) ? 0 : 1);
+    int result = (mkdir(dirstr.c_str(), 0644) == 0 ? 1 : 0);
 
     return CValue(result);
 }
