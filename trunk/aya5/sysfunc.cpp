@@ -4784,7 +4784,9 @@ CValue	CSystemFunction::SETSETTING(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	if ( vm.basis().SetParameter(arg.array()[0].GetValueString(),arg.array()[1].GetValueString()) ) {
+	bool result = vm.basis().SetParameter(arg.array()[0].GetValueString(),arg.array()[1].GetValueString());
+	if ( result ) {
+		vm.basis().SetLogger();
 		return CValue(1);
 	}
 	else {
