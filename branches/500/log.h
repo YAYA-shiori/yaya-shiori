@@ -33,6 +33,7 @@ protected:
 #endif
 
 	char		enable;		// ロギング有効フラグ
+	char		open;		// ロギング開始フラグ
 	char		fileen;		// ファイルへのロギング有効フラグ
 	char		iolog;		// 入出力ロギング有効フラグ
 
@@ -45,6 +46,7 @@ public:
 	CLog(void)
 	{
 		enable = 1;
+		open = 0;
 		fileen = 1;
 		iolog  = 1;
 		ignore_iolog_noresult=0;
