@@ -39,10 +39,23 @@
  */
 void	CLog::Start(const yaya::string_t &p, int cs, int ml, HWND hw, char il)
 {
+	iolog   = il;
+
+	if ( open ) {
+		if ( path != p || charset != cs || msglang != ml ) {
+			Termination();
+		}
+		else {
+			if ( ! iolog ) {
+				Termination();
+			}
+			return;
+		}
+	}
+
 	path    = p;
 	charset = cs;
 	msglang = ml;
-	iolog   = il;
 	
 	if ( hw ) { //hwがある＝玉からの呼び出しなので強制ON、ファイル無効
 		path = L"";
@@ -62,10 +75,14 @@ void	CLog::Start(const yaya::string_t &p, int cs, int ml, HWND hw, char il)
 #endif
 
 	// ロギング有効/無効の判定
-	if (!path.size()) {
+	if ( path.size() ) {
+		fileen = 1;
+		enable = 1;
+	}
+	else {
 		fileen = 0;
 #if defined(WIN32)
-		if (hWnd == NULL) {
+		if ( hWnd == NULL ) {
 			enable = 0;
 			return;
 		}
@@ -94,6 +111,7 @@ void	CLog::Start(const yaya::string_t &p, int cs, int ml, HWND hw, char il)
 			free(tmpstr);
 		}
 	}
+	open = 1;
 
 #if defined(WIN32)
 	// チェックツールへ送出　最初に文字コードを設定してから文字列を送出
@@ -124,6 +142,8 @@ void	CLog::Termination(void)
 	str += L"\n\n";
 
 	Write(str);
+
+	open = 0;
 
 #if defined(WIN32)
 	SendLogToWnd(L"", E_END);

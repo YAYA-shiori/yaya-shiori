@@ -105,6 +105,7 @@ public:
 
 	yaya::string_t GetParameter(const yaya::string_t &cmd);
 	bool SetParameter(yaya::string_t &cmd, yaya::string_t &param, std::vector<CDic1> *dics = NULL);
+	void SetLogger(void);
 
 	void    SetOutputCharset(char cst) { output_charset = cst; }
 
