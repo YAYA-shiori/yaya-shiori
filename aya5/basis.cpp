@@ -182,6 +182,16 @@ void	CBasis::SetLogRcvWnd(long hwnd)
 #endif
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CBasis::SetLogger
+ *  機能概要：  ログ機能を初期化 / 再設定します
+ * -----------------------------------------------------------------------
+ */
+void CBasis::SetLogger(void)
+{
+	vm.logger().Start(logpath, output_charset, msglang, hlogrcvWnd, iolog);
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CBasis::Configure
  *  機能概要：  load時に行う初期設定処理
  * -----------------------------------------------------------------------
@@ -196,7 +206,7 @@ void	CBasis::Configure(void)
 		return;
 
 	// ロギングを開始
-	vm.logger().Start(logpath, output_charset, msglang, hlogrcvWnd, iolog);
+	SetLogger();
 
 	// 辞書読み込みと構文解析
 	if (vm.parser0().Parse(dic_charset, dics, loadindex, unloadindex, requestindex))
@@ -399,25 +409,27 @@ bool CBasis::SetParameter(yaya::string_t &cmd, yaya::string_t &param, std::vecto
 	}
 	// log
 	if ( cmd.compare(L"log") == 0 ) {
-		logpath = path + param;
+		if ( param.empty() ) {
+			logpath.erase();
+		}
+		else {
+			logpath = path + param;
+		}
 		return true;
 	}
 	// iolog
 	if ( cmd.compare(L"iolog") == 0 ) {
-		if (!param.compare(L"off"))
-			iolog = false;
+		iolog = param.compare(L"off") != 0;
 		return true;
 	}
 	// セーブデータ暗号化
 	if ( cmd.compare(L"save.encode") == 0 ) {
-		if (!param.compare(L"on"))
-			encode_savefile = true;
+		encode_savefile = param.compare(L"on") == 0;
 		return true;
 	}
 	// 自動セーブ
 	if ( cmd.compare(L"save.auto") == 0 ) {
-		if (!param.compare(L"off"))
-			auto_save = false;
+		auto_save = param.compare(L"off") != 0;
 		return true;
 	}
 	// エラーメッセージ言語
@@ -471,8 +483,7 @@ bool CBasis::SetParameter(yaya::string_t &cmd, yaya::string_t &param, std::vecto
 	}
 	// checkparser closed function
 	if ( cmd.compare(L"checkparser") == 0 ) {
-		if (!param.compare(L"on"))
-			checkparser = 1;
+		checkparser = param.compare(L"on") == 0;
 		return true;
 	}
 	// ignoreiolog
