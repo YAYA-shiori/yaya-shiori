@@ -31,7 +31,7 @@ typedef std::vector<CValueSub> CValueArray;
 
 class	CValueSub
 {
-	friend CValue;
+	friend class CValue;
 
 protected:
 	int	type;						// Œ^
@@ -60,7 +60,7 @@ public:
 	CValueSub(const yaya::char_t *value) :
 		type(F_TAG_STRING) , s_value(value), d_value(0.0), i_value(0) { }
 
-	CValueSub::CValueSub(const CValue &v);
+	CValueSub(const CValue &v);
 
 	~CValueSub(void) {}
 
@@ -111,7 +111,7 @@ public:
 
 class	CValue
 {
-	friend CValueSub;
+	friend class CValueSub;
 
 protected:
 	int	type;						// Œ^
