@@ -339,7 +339,7 @@ void	CLog::Io(char io, const yaya::char_t *str)
 	static	yaya::timer		timer;
 
 	if (!io) {
-		//ignoreiolog機能
+		//ignoreiolog機能。
 		if(ignore_iolog_strings.size()!=0){
 			yaya::string_t cstr=str;
 			std::vector<yaya::string_t>::iterator it;

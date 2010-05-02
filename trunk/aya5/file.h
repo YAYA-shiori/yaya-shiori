@@ -16,6 +16,7 @@
 # include "stdafx.h"
 #endif
 
+#include <stdio.h>
 #include <list>
 
 #include "globaldef.h"

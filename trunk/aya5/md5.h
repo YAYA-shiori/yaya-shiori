@@ -28,6 +28,10 @@ documentation and/or software.
 
 #include "global.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* MD5 context. */
 typedef struct {
   UINT4 state[4];                                   /* state (ABCD) */
@@ -35,10 +39,13 @@ typedef struct {
   unsigned char buffer[64];                         /* input buffer */
 } MD5_CTX;
 
-void MD5Init PROTO_LIST ((MD5_CTX *));
-void MD5Update PROTO_LIST
-  ((MD5_CTX *, unsigned char *, unsigned int));
-void MD5Final PROTO_LIST ((unsigned char [16], MD5_CTX *));
+void MD5Init(MD5_CTX *);
+void MD5Update(MD5_CTX *, unsigned char *, unsigned int);
+void MD5Final(unsigned char [16], MD5_CTX *);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //MD5_PROTOTYPE_H_INCLUDED
 

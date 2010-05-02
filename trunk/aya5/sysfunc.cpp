@@ -1,7 +1,7 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// ƒVƒXƒeƒ€ŠÖ”‚ğÀs‚·‚éƒNƒ‰ƒX@CSystemFunction
+// ã‚·ã‚¹ãƒ†ãƒ é–¢æ•°ã‚’å®Ÿè¡Œã™ã‚‹ã‚¯ãƒ©ã‚¹ã€€CSystemFunction
 // written by umeici. 2004
 // 
 
@@ -71,30 +71,30 @@ extern "C" {
 ////////////////////////////////////////
 
 /* -----------------------------------------------------------------------
- *  ƒVƒXƒeƒ€ŠÖ”ƒe[ƒuƒ‹
+ *  ã‚·ã‚¹ãƒ†ãƒ é–¢æ•°ãƒ†ãƒ¼ãƒ–ãƒ«
  * -----------------------------------------------------------------------
  */
 
-#define	SYSFUNC_NUM					136 //ƒVƒXƒeƒ€ŠÖ”‚Ì‘S”
-#define	SYSFUNC_HIS					61 //EmBeD_HiStOrY ‚ÌˆÊ’ui0startj
+#define	SYSFUNC_NUM					136 //ã‚·ã‚¹ãƒ†ãƒ é–¢æ•°ã®å…¨æ•°
+#define	SYSFUNC_HIS					61 //EmBeD_HiStOrY ã®ä½ç½®ï¼ˆ0startï¼‰
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
-	// Œ^æ“¾/•ÏŠ·
+	// å‹å–å¾—/å¤‰æ›
 	L"TOINT",
 	L"TOREAL",
 	L"TOSTR",
 	L"GETTYPE",
 	L"ISFUNC",
 	L"ISVAR",
-	// ƒfƒoƒbƒO
+	// ãƒ‡ãƒãƒƒã‚°
 	L"LOGGING",
 	L"GETLASTERROR",
-	// ŠO•”ƒ‰ƒCƒuƒ‰ƒŠ
+	// å¤–éƒ¨ãƒ©ã‚¤ãƒ–ãƒ©ãƒª
 	L"LOADLIB",
 	L"UNLOADLIB",
 	L"REQUESTLIB",
 	L"CHARSETLIB",
-	// ”’l
+	// æ•°å€¤
 	L"RAND",
 	L"FLOOR",
 	L"CEIL",
@@ -106,7 +106,7 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"LOG10",
 	L"POW",
 	L"SQRT",
-	// •¶š—ñ‘€ì
+	// æ–‡å­—åˆ—æ“ä½œ
 	L"STRSTR",
 	L"STRLEN",
 	L"REPLACE",
@@ -121,7 +121,7 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"BINSTRTOI",
 	L"HEXSTRTOI",
 	L"CHR",
-	// ƒtƒ@ƒCƒ‹‘€ì
+	// ãƒ•ã‚¡ã‚¤ãƒ«æ“ä½œ
 	L"FOPEN",
 	L"FCLOSE",
 	L"FREAD",
@@ -136,139 +136,139 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"FSIZE",
 	L"FENUM",
 	L"FCHARSET",
-	// ”z—ñ
+	// é…åˆ—
 	L"ARRAYSIZE",
 	L"SETDELIM",
-	// “Áê
+	// ç‰¹æ®Š
 	L"EVAL",
 	L"ERASEVAR",
-	// ƒVƒXƒeƒ€/ƒƒ‚ƒŠî•ñ
+	// ã‚·ã‚¹ãƒ†ãƒ æ™‚åˆ»/ãƒ¡ãƒ¢ãƒªæƒ…å ±
 	L"GETTIME",
 	L"GETTICKCOUNT",
 	L"GETMEMINFO",
-	// ³‹K•\Œ»
+	// æ­£è¦è¡¨ç¾
 	L"RE_SEARCH",
 	L"RE_MATCH",
 	L"RE_GREP",
-	// ƒVƒXƒeƒ€‚Åg—p
-	L"EmBeD_HiStOrY",	// %[n]i’uŠ·Ï‚Ì’l‚ÌÄ—˜—pjˆ——p
-	// ƒfƒoƒbƒO—p(2)
+	// ã‚·ã‚¹ãƒ†ãƒ ã§ä½¿ç”¨
+	L"EmBeD_HiStOrY",	// %[n]ï¼ˆç½®æ›æ¸ˆã®å€¤ã®å†åˆ©ç”¨ï¼‰å‡¦ç†ç”¨
+	// ãƒ‡ãƒãƒƒã‚°ç”¨(2)
 	L"SETLASTERROR",
-	// ³‹K•\Œ»(2)
+	// æ­£è¦è¡¨ç¾(2)
 	L"RE_REPLACE",
 	L"RE_SPLIT",
 	L"RE_GETSTR",
 	L"RE_GETPOS",
 	L"RE_GETLEN",
-	// •¶š—ñ‘€ì(2)
+	// æ–‡å­—åˆ—æ“ä½œ(2)
 	L"CHRCODE",
 	L"ISINTSTR",
 	L"ISREALSTR",
-	// ”z—ñ(2)
+	// é…åˆ—(2)
 	L"IARRAY",
-	// •¶š—ñ‘€ì(3)
+	// æ–‡å­—åˆ—æ“ä½œ(3)
 	L"SPLITPATH",
-	// Œ^æ“¾/•ÏŠ·(2)
+	// å‹å–å¾—/å¤‰æ›(2)
 	L"CVINT",
 	L"CVSTR",
 	L"CVREAL",
-	// “Áê(2)
+	// ç‰¹æ®Š(2)
 	L"LETTONAME",
 	L"LSO",
-	// •¶š—ñ‘€ì(4)
+	// æ–‡å­—åˆ—æ“ä½œ(4)
 	L"STRFORM",
 	L"ANY",
-	// “Áê(3)
+	// ç‰¹æ®Š(3)
 	L"SAVEVAR",
-	// •¶š—ñ‘€ì(5)
+	// æ–‡å­—åˆ—æ“ä½œ(5)
 	L"GETSTRBYTES",
-	// ”z—ñ(3)
+	// é…åˆ—(3)
 	L"ASEARCH",
 	L"ASEARCHEX",
-	// ”z—ñ(2)
+	// é…åˆ—(2)
 	L"GETDELIM",
-	// “Áê(4)
+	// ç‰¹æ®Š(4)
 	L"GETSETTING",
-	// ”’l(2)
+	// æ•°å€¤(2)
 	L"ASIN",
 	L"ACOS",
 	L"ATAN",
-	// •¶š—ñ‘€ì(6)
+	// æ–‡å­—åˆ—æ“ä½œ(6)
 	L"SPLIT",
-	// ƒtƒ@ƒCƒ‹‘€ì(2)
+	// ãƒ•ã‚¡ã‚¤ãƒ«æ“ä½œ(2)
 	L"FATTRIB",
-	// Œ^æ“¾/•ÏŠ·(3)
+	// å‹å–å¾—/å¤‰æ›(3)
 	L"GETFUNCLIST",
 	L"GETVARLIST",
-	// ³‹K•\Œ»(3)
+	// æ­£è¦è¡¨ç¾(3)
 	L"RE_REPLACEEX",
-	// ŠO•”ƒ‰ƒCƒuƒ‰ƒŠ(2)
+	// å¤–éƒ¨ãƒ©ã‚¤ãƒ–ãƒ©ãƒª(2)
 	L"CHARSETLIBEX",
-	// •¶šƒR[ƒh
+	// æ–‡å­—ã‚³ãƒ¼ãƒ‰
 	L"CHARSETTEXTTOID",
 	L"CHARSETIDTOTEXT",
-	// ƒrƒbƒg‰‰Z
+	// ãƒ“ãƒƒãƒˆæ¼”ç®—
 	L"BITWISE_AND",
 	L"BITWISE_OR",
 	L"BITWISE_XOR",
 	L"BITWISE_NOT",
 	L"BITWISE_SHIFT",
-	// ”¼Šp<->‘SŠp
+	// åŠè§’<->å…¨è§’
 	L"ZEN2HAN",
 	L"HAN2ZEN",
-	// Œ^æ“¾/•ÏŠ·(3)
+	// å‹å–å¾—/å¤‰æ›(3)
 	L"CVAUTO",
 	L"TOAUTO",
-	// ƒtƒ@ƒCƒ‹‘€ì(3)
+	// ãƒ•ã‚¡ã‚¤ãƒ«æ“ä½œ(3)
 	L"FREADBIN",
 	L"FWRITEBIN",
-	// “Áê(5)
+	// ç‰¹æ®Š(5)
 	L"RESTOREVAR",
 	L"GETCALLSTACK",
-	// •¶š—ñ‘€ì(7) ŒİŠ·—p
+	// æ–‡å­—åˆ—æ“ä½œ(7) äº’æ›ç”¨
 	L"GETSTRURLENCODE",
 	L"GETSTRURLDECODE",
-	// ”’l(3)
+	// æ•°å€¤(3)
 	L"SINH",
 	L"COSH",
 	L"TANH",
-	// ƒVƒXƒeƒ€/ƒƒ‚ƒŠî•ñ(2)
+	// ã‚·ã‚¹ãƒ†ãƒ æ™‚åˆ»/ãƒ¡ãƒ¢ãƒªæƒ…å ±(2)
 	L"GETSECCOUNT",
 	// FMO(1)
 	L"READFMO",
-	// ƒtƒ@ƒCƒ‹‘€ì(4)
+	// ãƒ•ã‚¡ã‚¤ãƒ«æ“ä½œ(4)
 	L"FDIGEST",
-	// “Áê(6)
+	// ç‰¹æ®Š(6)
 	L"EXECUTE",
 	L"SETSETTING",
-	// ƒfƒoƒbƒO—p(3)
+	// ãƒ‡ãƒãƒƒã‚°ç”¨(3)
 	L"DUMPVAR",
-    // ƒnƒbƒVƒ…
+    // ãƒãƒƒã‚·ãƒ¥
     L"IHASH",
 	L"HASH_KEYS",
 	L"HASH_VALUES",
 	L"HASH_SPLIT",
 	L"HASH_EXIST",
 	L"HASH_SIZE",
-	// ƒtƒ@ƒCƒ‹‘€ì(5)
+	// ãƒ•ã‚¡ã‚¤ãƒ«æ“ä½œ(5)
 	L"FSEEK",
 	L"FTELL",
-	//ƒ‰ƒCƒZƒ“ƒX
+	//ãƒ©ã‚¤ã‚»ãƒ³ã‚¹
 	L"LICENSE",
-	// •¶š—ñ‘€ì(8)
+	// æ–‡å­—åˆ—æ“ä½œ(8)
 	L"STRENCODE",
 	L"STRDECODE",
-	// “Áê(7)
+	// ç‰¹æ®Š(7)
 	L"EXECUTE_WAIT",
-	// ³‹K•\Œ»(3)
+	// æ­£è¦è¡¨ç¾(3)
 	L"RE_OPTION",
-	// ƒtƒ@ƒCƒ‹‘€ì(6)
+	// ãƒ•ã‚¡ã‚¤ãƒ«æ“ä½œ(6)
 	L"FREADENCODE",
-	// Œ^æ“¾/•ÏŠ·(4)
+	// å‹å–å¾—/å¤‰æ›(4)
 	L"GETTYPEEX",
 };
 
-//‚±‚ÌƒOƒ[ƒoƒ‹•Ï”‚Íƒ}ƒ‹ƒ`ƒCƒ“ƒXƒ^ƒ“ƒX‚Å‚à‹¤’Ê
+//ã“ã®ã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°ã¯ãƒãƒ«ãƒã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã§ã‚‚å…±é€š
 class CSystemFunctionInit {
 public:
 	int sysfunc_len[SYSFUNC_NUM];
@@ -296,7 +296,7 @@ public:
 CSystemFunctionInit sysfuncinit;
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::CSystemFunction
+ *  é–¢æ•°å  ï¼š  CSystemFunction::CSystemFunction
  * -----------------------------------------------------------------------
  */
 CSystemFunction::CSystemFunction(CAyaVM &vmr)
@@ -309,8 +309,8 @@ CSystemFunction::CSystemFunction(CAyaVM &vmr)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::GetMaxNameLength
- *  ‹@”\ŠT—vF  ƒVƒXƒeƒ€ŠÖ”‚Ì–¼‘O‚ÌÅ‘å’l‚ğ•Ô‚µ‚Ü‚·
+ *  é–¢æ•°å  ï¼š  CSystemFunction::GetMaxNameLength
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  ã‚·ã‚¹ãƒ†ãƒ é–¢æ•°ã®åå‰ã®æœ€å¤§å€¤ã‚’è¿”ã—ã¾ã™
  * -----------------------------------------------------------------------
  */
 int CSystemFunction::GetMaxNameLength(void)
@@ -319,8 +319,8 @@ int CSystemFunction::GetMaxNameLength(void)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FindIndex
- *  ‹@”\ŠT—vF  ƒVƒXƒeƒ€ŠÖ”‚ğ’Tõ‚µ‚Ü‚·
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FindIndex
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  ã‚·ã‚¹ãƒ†ãƒ é–¢æ•°ã‚’æ¢ç´¢ã—ã¾ã™
  * -----------------------------------------------------------------------
  */
 int CSystemFunction::FindIndex(const yaya::string_t &str)
@@ -332,8 +332,8 @@ int CSystemFunction::FindIndex(const yaya::string_t &str)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FindIndexLongestMatch
- *  ‹@”\ŠT—vF  ‚¢‚¿‚Î‚ñ’·‚­ƒ}ƒbƒ`‚·‚éƒVƒXƒeƒ€ŠÖ”‚ğ’Tõ‚µ‚Ü‚·
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FindIndexLongestMatch
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  ã„ã¡ã°ã‚“é•·ããƒãƒƒãƒã™ã‚‹ã‚·ã‚¹ãƒ†ãƒ é–¢æ•°ã‚’æ¢ç´¢ã—ã¾ã™
  * -----------------------------------------------------------------------
  */
 int CSystemFunction::FindIndexLongestMatch(const yaya::string_t &str,int max_len)
@@ -352,8 +352,8 @@ int CSystemFunction::FindIndexLongestMatch(const yaya::string_t &str,int max_len
 
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::GetNameFromIndex
- *  ‹@”\ŠT—vF  Index->–¼‘O
+ *  é–¢æ•°å  ï¼š  CSystemFunction::GetNameFromIndex
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  Index->åå‰
  * -----------------------------------------------------------------------
  */
 const yaya::char_t* CSystemFunction::GetNameFromIndex(int idx)
@@ -363,8 +363,8 @@ const yaya::char_t* CSystemFunction::GetNameFromIndex(int idx)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::HistoryIndex / HistoryFunctionName
- *  ‹@”\ŠT—vF  —š—ğŒn‚Ì’è”‚ğ•Ô‚µ‚Ü‚·
+ *  é–¢æ•°å  ï¼š  CSystemFunction::HistoryIndex / HistoryFunctionName
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  å±¥æ­´ç³»ã®å®šæ•°ã‚’è¿”ã—ã¾ã™
  * -----------------------------------------------------------------------
  */
 int CSystemFunction::HistoryIndex(void)
@@ -378,10 +378,10 @@ const yaya::char_t* CSystemFunction::HistoryFunctionName(void)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::Execute
- *  ‹@”\ŠT—vF  ƒVƒXƒeƒ€ŠÖ”‚ğÀs‚µ‚Ü‚·
+ *  é–¢æ•°å  ï¼š  CSystemFunction::Execute
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  ã‚·ã‚¹ãƒ†ãƒ é–¢æ•°ã‚’å®Ÿè¡Œã—ã¾ã™
  *
- *  thisfunc‚Í‚±‚ÌŠÖ”‚ğÀs‚µ‚½CFunctionƒCƒ“ƒXƒ^ƒ“ƒX‚Å‚·
+ *  thisfuncã¯ã“ã®é–¢æ•°ã‚’å®Ÿè¡Œã—ãŸCFunctionã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã§ã™
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<CCell *> &pcellarg,
@@ -512,7 +512,7 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return RE_MATCH(arg, d, l);
 	case 60:	// RE_GREP
 		return RE_GREP(arg, d, l);
-	case 61:	// %[n]i’uŠ·Ï‚Ì’l‚ÌÄ—˜—pjˆ——pŠÖ” ¨ ‚±‚ê‚Ì‚İCFunction‚Åˆ—‚·‚é‚Ì‚Å‚±‚±‚Ö‚Í—ˆ‚È‚¢
+	case 61:	// %[n]ï¼ˆç½®æ›æ¸ˆã®å€¤ã®å†åˆ©ç”¨ï¼‰å‡¦ç†ç”¨é–¢æ•° â†’ ã“ã‚Œã®ã¿CFunctionã§å‡¦ç†ã™ã‚‹ã®ã§ã“ã“ã¸ã¯æ¥ãªã„
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	case 62:	// SETLASTERROR
@@ -673,7 +673,7 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::TOINT
+ *  é–¢æ•°å  ï¼š  CSystemFunction::TOINT
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::TOINT(const CValue &arg, yaya::string_t &d, int &l)
@@ -688,7 +688,7 @@ CValue	CSystemFunction::TOINT(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::TOREAL
+ *  é–¢æ•°å  ï¼š  CSystemFunction::TOREAL
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::TOREAL(const CValue &arg, yaya::string_t &d, int &l)
@@ -703,7 +703,7 @@ CValue	CSystemFunction::TOREAL(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::TOSTR
+ *  é–¢æ•°å  ï¼š  CSystemFunction::TOSTR
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::TOSTR(CValueArgArray &valuearg, yaya::string_t &d, int &l)
@@ -722,7 +722,7 @@ CValue	CSystemFunction::TOSTR(CValueArgArray &valuearg, yaya::string_t &d, int &
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::TOAUTO
+ *  é–¢æ•°å  ï¼š  CSystemFunction::TOAUTO
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::TOAUTO(const CValue &arg, yaya::string_t &d, int &l)
@@ -751,8 +751,8 @@ CValue	CSystemFunction::TOAUTO(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::GETTYPE
- *  •Ô’l@@F  0/1/2/3/4/5=ƒGƒ‰[/®”/À”/•¶š—ñ/”z—ñ/˜A‘z”z—ñ
+ *  é–¢æ•°å  ï¼š  CSystemFunction::GETTYPE
+ *  è¿”å€¤ã€€ã€€ï¼š  0/1/2/3/4/5=ã‚¨ãƒ©ãƒ¼/æ•´æ•°/å®Ÿæ•°/æ–‡å­—åˆ—/é…åˆ—/é€£æƒ³é…åˆ—
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::GETTYPE(CValueArgArray &valuearg, yaya::string_t &d, int &l)
@@ -772,7 +772,7 @@ CValue	CSystemFunction::GETTYPE(CValueArgArray &valuearg, yaya::string_t &d, int
 		return CValue(2);
 	case F_TAG_STRING:
 		return CValue(3);
-	case F_TAG_ARRAY: //ŒİŠ·ˆ—
+	case F_TAG_ARRAY: //äº’æ›å‡¦ç†
 		{
 			if ( valuearg[0].array_size() == 1 ) {
 				int t = valuearg[0].array()[0].GetType();	
@@ -802,8 +802,8 @@ CValue	CSystemFunction::GETTYPE(CValueArgArray &valuearg, yaya::string_t &d, int
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::GETTYPEEX
- *  •Ô’l@@F  0/1/2/3/4=ƒGƒ‰[/®”/À”/•¶š—ñ/”z—ñ
+ *  é–¢æ•°å  ï¼š  CSystemFunction::GETTYPEEX
+ *  è¿”å€¤ã€€ã€€ï¼š  0/1/2/3/4=ã‚¨ãƒ©ãƒ¼/æ•´æ•°/å®Ÿæ•°/æ–‡å­—åˆ—/é…åˆ—
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::GETTYPEEX(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l)
@@ -816,7 +816,7 @@ CValue	CSystemFunction::GETTYPEEX(const CValue &arg, CLocalVariable &lvar, yaya:
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	//•¶š—ñ‚©‚Ç‚¤‚©ƒ`ƒFƒbƒN - Œx‚Í“f‚­‚ªˆ—‘±s
+	//æ–‡å­—åˆ—ã‹ã©ã†ã‹ãƒã‚§ãƒƒã‚¯ - è­¦å‘Šã¯åããŒå‡¦ç†ç¶šè¡Œ
 	if ( ! arg.array()[0].IsString() ) {
 		vm.logger().Error(E_W, 9, L"GETTYPEEX", d, l);
 		SetError(9);
@@ -859,7 +859,7 @@ CValue	CSystemFunction::GETTYPEEX(const CValue &arg, CLocalVariable &lvar, yaya:
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::ISFUNC
+ *  é–¢æ•°å  ï¼š  CSystemFunction::ISFUNC
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ISFUNC(const CValue &arg, yaya::string_t &d, int &l)
@@ -888,7 +888,7 @@ CValue	CSystemFunction::ISFUNC(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::ISVAR
+ *  é–¢æ•°å  ï¼š  CSystemFunction::ISVAR
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ISVAR(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l)
@@ -918,9 +918,9 @@ CValue	CSystemFunction::ISVAR(const CValue &arg, CLocalVariable &lvar, yaya::str
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::LOGGING
+ *  é–¢æ•°å  ï¼š  CSystemFunction::LOGGING
  *
- *  •¶š—ñ‚Ìê‡‚Íƒ_ƒuƒ‹ƒNƒH[ƒg‚µ‚Ü‚·B
+ *  æ–‡å­—åˆ—ã®å ´åˆã¯ãƒ€ãƒ–ãƒ«ã‚¯ã‚©ãƒ¼ãƒˆã—ã¾ã™ã€‚
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::LOGGING(const CValue &arg, yaya::string_t &/*d*/, int &/*l*/)
@@ -934,7 +934,7 @@ CValue	CSystemFunction::LOGGING(const CValue &arg, yaya::string_t &/*d*/, int &/
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::LOADLIB
+ *  é–¢æ•°å  ï¼š  CSystemFunction::LOADLIB
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::LOADLIB(const CValue &arg, yaya::string_t &d, int &l)
@@ -961,7 +961,7 @@ CValue	CSystemFunction::LOADLIB(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::UNLOADLIB
+ *  é–¢æ•°å  ï¼š  CSystemFunction::UNLOADLIB
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::UNLOADLIB(const CValue &arg, yaya::string_t &d, int &l)
@@ -993,7 +993,7 @@ CValue	CSystemFunction::UNLOADLIB(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::REQUESTLIB
+ *  é–¢æ•°å  ï¼š  CSystemFunction::REQUESTLIB
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::REQUESTLIB(const CValue &arg, yaya::string_t &d, int &l)
@@ -1021,7 +1021,7 @@ CValue	CSystemFunction::REQUESTLIB(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::CHARSETTEXTTOID
+ *  é–¢æ•°å  ï¼š  CSystemFunction::CHARSETTEXTTOID
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::CHARSETTEXTTOID(const CValue &arg, yaya::string_t &d, int &l)
@@ -1042,7 +1042,7 @@ CValue	CSystemFunction::CHARSETTEXTTOID(const CValue &arg, yaya::string_t &d, in
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::CHARSETIDTOTEXT
+ *  é–¢æ•°å  ï¼š  CSystemFunction::CHARSETIDTOTEXT
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::CHARSETIDTOTEXT(const CValue &arg, yaya::string_t &d, int &l)
@@ -1063,8 +1063,8 @@ CValue	CSystemFunction::CHARSETIDTOTEXT(const CValue &arg, yaya::string_t &d, in
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::BITWISE_***
- *  ƒrƒbƒg‰‰ZŠÖ˜A‚Å‚·
+ *  é–¢æ•°å  ï¼š  CSystemFunction::BITWISE_***
+ *  ãƒ“ãƒƒãƒˆæ¼”ç®—é–¢é€£ã§ã™
  * -----------------------------------------------------------------------
  */
 CValue CSystemFunction::BITWISE_AND(const CValue &arg, yaya::string_t &d, int &l)
@@ -1128,26 +1128,26 @@ CValue CSystemFunction::BITWISE_SHIFT(const CValue &arg, yaya::string_t &d, int 
 	}
 }
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::ZEN2HAN / HAN2ZEN
+ *  é–¢æ•°å  ï¼š  CSystemFunction::ZEN2HAN / HAN2ZEN
  *
- *  ”¼Šp<->‘SŠp
+ *  åŠè§’<->å…¨è§’
  * -----------------------------------------------------------------------
  */
 
 static const yaya::char_t zen_support_symbol[] = 
-	L"@Igh”“•efijbeo{–pƒ„HQ[O—GFEDmn";
+	L"ã€€ï¼â€œâ€ï¼ƒï¼„ï¼…ï¼†â€˜â€™ï¼ˆï¼‰ï¼ï½œâ€˜ï½›ï¼‹ï¼Šï½ï¼œï¼ï¼Ÿï¼¿ãƒ¼ï¼¾ï¿¥ï¼ ï¼›ï¼šãƒ»ï¼ï¼»ï¼½";
 static const yaya::char_t han_support_symbol[] = 
-	L" !\"\"#$%&''()=|`{+*}<>?_-^\\@;:¥.[]";
+	L" !\"\"#$%&''()=|`{+*}<>?_-^\\@;:ï½¥.[]";
 
 static const yaya::char_t zen_support_kana[] = 
-	L"ƒAƒCƒEƒGƒIƒJƒLƒNƒPƒRƒTƒVƒXƒZ\x30bdƒ^ƒ`ƒcƒeƒgƒiƒjƒkƒlƒmƒnƒqƒtƒwƒzƒ}ƒ~ƒ€ƒƒ‚ƒ„ƒ†ƒˆƒ‰ƒŠƒ‹ƒŒƒƒƒ’ƒ“ƒ@ƒBƒDƒFƒHƒƒƒ…ƒ‡JKAB";
+	L"ã‚¢ã‚¤ã‚¦ã‚¨ã‚ªã‚«ã‚­ã‚¯ã‚±ã‚³ã‚µã‚·ã‚¹ã‚»\x30bdã‚¿ãƒãƒ„ãƒ†ãƒˆãƒŠãƒ‹ãƒŒãƒãƒãƒãƒ’ãƒ•ãƒ˜ãƒ›ãƒãƒŸãƒ ãƒ¡ãƒ¢ãƒ¤ãƒ¦ãƒ¨ãƒ©ãƒªãƒ«ãƒ¬ãƒ­ãƒ¯ãƒ²ãƒ³ã‚¡ã‚£ã‚¥ã‚§ã‚©ãƒ£ãƒ¥ãƒ§ã‚›ã‚œã€ã€‚";
 static const yaya::char_t han_support_kana[] = 
-	L"±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖ×ØÙÚÛÜ¦İ§¨©ª«¬­®Şß¤¡";
+	L"ï½±ï½²ï½³ï½´ï½µï½¶ï½·ï½¸ï½¹ï½ºï½»ï½¼ï½½ï½¾ï½¿ï¾€ï¾ï¾‚ï¾ƒï¾„ï¾…ï¾†ï¾‡ï¾ˆï¾‰ï¾Šï¾‹ï¾Œï¾ï¾ï¾ï¾ï¾‘ï¾’ï¾“ï¾”ï¾•ï¾–ï¾—ï¾˜ï¾™ï¾šï¾›ï¾œï½¦ï¾ï½§ï½¨ï½©ï½ªï½«ï½¬ï½­ï½®ï¾ï¾Ÿï½¤ï½¡";
 
 static const yaya::char_t zen_support_kana2[] = 
-	L"ƒKƒMƒOƒQƒSƒUƒWƒYƒ[ƒ]ƒ_ƒaƒdƒfƒhƒoƒrƒuƒxƒ{";
+	L"ã‚¬ã‚®ã‚°ã‚²ã‚´ã‚¶ã‚¸ã‚ºã‚¼ã‚¾ãƒ€ãƒ‚ãƒ…ãƒ‡ãƒ‰ãƒãƒ“ãƒ–ãƒ™ãƒœ";
 static const yaya::char_t han_support_kana2[] = 
-	L"¶·¸¹º»¼½¾¿ÀÁÂÃÄÊËÌÍÎ";
+	L"ï½¶ï½·ï½¸ï½¹ï½ºï½»ï½¼ï½½ï½¾ï½¿ï¾€ï¾ï¾‚ï¾ƒï¾„ï¾Šï¾‹ï¾Œï¾ï¾";
 
 
 #define ZH_FLAG_NUMBER   0x1U
@@ -1302,7 +1302,7 @@ CValue CSystemFunction::HAN2ZEN(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::CHARSETLIB
+ *  é–¢æ•°å  ï¼š  CSystemFunction::CHARSETLIB
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::CHARSETLIB(const CValue &arg, yaya::string_t &d, int &l)
@@ -1322,7 +1322,7 @@ CValue	CSystemFunction::CHARSETLIB(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::CHARSETLIBEX
+ *  é–¢æ•°å  ï¼š  CSystemFunction::CHARSETLIBEX
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::CHARSETLIBEX(const CValue &arg, yaya::string_t &d, int &l)
@@ -1364,10 +1364,10 @@ CValue	CSystemFunction::CHARSETLIBEX(const CValue &arg, yaya::string_t &d, int &
 
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::RAND
+ *  é–¢æ•°å  ï¼š  CSystemFunction::RAND
  *
- *  ˆø”‚È‚µ‚ÍRAND(100)ˆµ‚¢‚Å‚·B
- *  ˆø”ƒGƒ‰[‚Å‚Í0‚ğ•Ô‚µ‚Ü‚·B
+ *  å¼•æ•°ãªã—ã¯RAND(100)æ‰±ã„ã§ã™ã€‚
+ *  å¼•æ•°ã‚¨ãƒ©ãƒ¼ã§ã¯0ã‚’è¿”ã—ã¾ã™ã€‚
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::RAND(const CValue &arg, yaya::string_t &d, int &l)
@@ -1392,7 +1392,7 @@ CValue	CSystemFunction::RAND(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FLOOR
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FLOOR
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::FLOOR(const CValue &arg, yaya::string_t &d, int &l)
@@ -1411,7 +1411,7 @@ CValue	CSystemFunction::FLOOR(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::CEIL
+ *  é–¢æ•°å  ï¼š  CSystemFunction::CEIL
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::CEIL(const CValue &arg, yaya::string_t &d, int &l)
@@ -1430,7 +1430,7 @@ CValue	CSystemFunction::CEIL(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::ROUND
+ *  é–¢æ•°å  ï¼š  CSystemFunction::ROUND
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ROUND(const CValue &arg, yaya::string_t &d, int &l)
@@ -1458,7 +1458,7 @@ CValue	CSystemFunction::ROUND(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::SIN
+ *  é–¢æ•°å  ï¼š  CSystemFunction::SIN
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::SIN(const CValue &arg, yaya::string_t &d, int &l)
@@ -1477,7 +1477,7 @@ CValue	CSystemFunction::SIN(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::COS
+ *  é–¢æ•°å  ï¼š  CSystemFunction::COS
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::COS(const CValue &arg, yaya::string_t &d, int &l)
@@ -1496,7 +1496,7 @@ CValue	CSystemFunction::COS(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::TAN
+ *  é–¢æ•°å  ï¼š  CSystemFunction::TAN
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::TAN(const CValue &arg, yaya::string_t &d, int &l)
@@ -1515,7 +1515,7 @@ CValue	CSystemFunction::TAN(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::SINH
+ *  é–¢æ•°å  ï¼š  CSystemFunction::SINH
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::SINH(const CValue &arg, yaya::string_t &d, int &l)
@@ -1534,7 +1534,7 @@ CValue	CSystemFunction::SINH(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::COSH
+ *  é–¢æ•°å  ï¼š  CSystemFunction::COSH
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::COSH(const CValue &arg, yaya::string_t &d, int &l)
@@ -1553,7 +1553,7 @@ CValue	CSystemFunction::COSH(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::TANH
+ *  é–¢æ•°å  ï¼š  CSystemFunction::TANH
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::TANH(const CValue &arg, yaya::string_t &d, int &l)
@@ -1572,7 +1572,7 @@ CValue	CSystemFunction::TANH(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::ASIN
+ *  é–¢æ•°å  ï¼š  CSystemFunction::ASIN
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ASIN(const CValue &arg, yaya::string_t &d, int &l)
@@ -1591,7 +1591,7 @@ CValue	CSystemFunction::ASIN(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::ACOS
+ *  é–¢æ•°å  ï¼š  CSystemFunction::ACOS
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ACOS(const CValue &arg, yaya::string_t &d, int &l)
@@ -1610,7 +1610,7 @@ CValue	CSystemFunction::ACOS(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::ATAN
+ *  é–¢æ•°å  ï¼š  CSystemFunction::ATAN
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ATAN(const CValue &arg, yaya::string_t &d, int &l)
@@ -1629,7 +1629,7 @@ CValue	CSystemFunction::ATAN(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::LOG
+ *  é–¢æ•°å  ï¼š  CSystemFunction::LOG
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::LOG(const CValue &arg, yaya::string_t &d, int &l)
@@ -1648,7 +1648,7 @@ CValue	CSystemFunction::LOG(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::LOG10
+ *  é–¢æ•°å  ï¼š  CSystemFunction::LOG10
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::LOG10(const CValue &arg, yaya::string_t &d, int &l)
@@ -1667,7 +1667,7 @@ CValue	CSystemFunction::LOG10(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::POW
+ *  é–¢æ•°å  ï¼š  CSystemFunction::POW
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::POW(const CValue &arg, yaya::string_t &d, int &l)
@@ -1686,7 +1686,7 @@ CValue	CSystemFunction::POW(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::SQRT
+ *  é–¢æ•°å  ï¼š  CSystemFunction::SQRT
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::SQRT(const CValue &arg, yaya::string_t &d, int &l)
@@ -1711,7 +1711,7 @@ CValue	CSystemFunction::SQRT(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::STRSTR
+ *  é–¢æ•°å  ï¼š  CSystemFunction::STRSTR
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::STRSTR(const CValue &arg, yaya::string_t &d, int &l)
@@ -1731,7 +1731,7 @@ CValue	CSystemFunction::STRSTR(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::STRLEN
+ *  é–¢æ•°å  ï¼š  CSystemFunction::STRLEN
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::STRLEN(const CValue &arg, yaya::string_t &d, int &l)
@@ -1751,7 +1751,7 @@ CValue	CSystemFunction::STRLEN(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::REPLACE
+ *  é–¢æ•°å  ï¼š  CSystemFunction::REPLACE
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::REPLACE(const CValue &arg, yaya::string_t &d, int &l)
@@ -1783,7 +1783,7 @@ CValue	CSystemFunction::REPLACE(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::SUBSTR
+ *  é–¢æ•°å  ï¼š  CSystemFunction::SUBSTR
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::SUBSTR(const CValue &arg, yaya::string_t &d, int &l)
@@ -1806,8 +1806,8 @@ CValue	CSystemFunction::SUBSTR(const CValue &arg, yaya::string_t &d, int &l)
 
 	if ( pos < 0 ) {
 		pos += src.length();
-		if ( pos < 0 ) { //‚Ü‚¾•‰‚È‚ç‹­§•â³
-			len += pos; //•‰’l‚È‚Ì‚Å‚½‚µ‚´‚ñ‚Åˆø‚©‚ê‚é
+		if ( pos < 0 ) { //ã¾ã è² ãªã‚‰å¼·åˆ¶è£œæ­£
+			len += pos; //è² å€¤ãªã®ã§ãŸã—ã–ã‚“ã§å¼•ã‹ã‚Œã‚‹
 			pos = 0;
 			if ( len <= 0 ) {
 				return CValue(L"");
@@ -1826,7 +1826,7 @@ CValue	CSystemFunction::SUBSTR(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::ERASE
+ *  é–¢æ•°å  ï¼š  CSystemFunction::ERASE
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ERASE(const CValue &arg, yaya::string_t &d, int &l)
@@ -1849,7 +1849,7 @@ CValue	CSystemFunction::ERASE(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::INSERT
+ *  é–¢æ•°å  ï¼š  CSystemFunction::INSERT
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::INSERT(const CValue &arg, yaya::string_t &d, int &l)
@@ -1872,7 +1872,7 @@ CValue	CSystemFunction::INSERT(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::TOUPPER
+ *  é–¢æ•°å  ï¼š  CSystemFunction::TOUPPER
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::TOUPPER(const CValue &arg, yaya::string_t &d, int &l)
@@ -1897,7 +1897,7 @@ CValue	CSystemFunction::TOUPPER(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::TOLOWER
+ *  é–¢æ•°å  ï¼š  CSystemFunction::TOLOWER
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::TOLOWER(const CValue &arg, yaya::string_t &d, int &l)
@@ -1923,7 +1923,7 @@ CValue	CSystemFunction::TOLOWER(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::CUTSPACE
+ *  é–¢æ•°å  ï¼š  CSystemFunction::CUTSPACE
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::CUTSPACE(const CValue &arg, yaya::string_t &d, int &l)
@@ -1946,7 +1946,7 @@ CValue	CSystemFunction::CUTSPACE(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::TOBINSTR
+ *  é–¢æ•°å  ï¼š  CSystemFunction::TOBINSTR
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::TOBINSTR(const CValue &arg, yaya::string_t &d, int &l)
@@ -1966,7 +1966,7 @@ CValue	CSystemFunction::TOBINSTR(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::TOHEXSTR
+ *  é–¢æ•°å  ï¼š  CSystemFunction::TOHEXSTR
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::TOHEXSTR(const CValue &arg, yaya::string_t &d, int &l)
@@ -1986,7 +1986,7 @@ CValue	CSystemFunction::TOHEXSTR(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::BINSTRTOI
+ *  é–¢æ•°å  ï¼š  CSystemFunction::BINSTRTOI
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::BINSTRTOI(const CValue &arg, yaya::string_t &d, int &l)
@@ -2012,7 +2012,7 @@ CValue	CSystemFunction::BINSTRTOI(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::HEXSTRTOI
+ *  é–¢æ•°å  ï¼š  CSystemFunction::HEXSTRTOI
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::HEXSTRTOI(const CValue &arg, yaya::string_t &d, int &l)
@@ -2038,7 +2038,7 @@ CValue	CSystemFunction::HEXSTRTOI(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::CHR
+ *  é–¢æ•°å  ï¼š  CSystemFunction::CHR
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::CHR(const CValue &arg, yaya::string_t &d, int &l)
@@ -2065,7 +2065,7 @@ CValue	CSystemFunction::CHR(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FOPEN
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FOPEN
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::FOPEN(const CValue &arg, yaya::string_t &d, int &l)
@@ -2087,7 +2087,7 @@ CValue	CSystemFunction::FOPEN(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FCLOSE
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FCLOSE
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::FCLOSE(const CValue &arg, yaya::string_t &d, int &l)
@@ -2119,7 +2119,7 @@ CValue	CSystemFunction::FCLOSE(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FREAD
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FREAD
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::FREAD(const CValue &arg, yaya::string_t &d, int &l)
@@ -2153,7 +2153,7 @@ CValue	CSystemFunction::FREAD(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FREADBIN
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FREADBIN
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::FREADBIN(const CValue &arg, yaya::string_t &d, int &l)
@@ -2199,7 +2199,7 @@ CValue	CSystemFunction::FREADBIN(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FREADENCODE
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FREADENCODE
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::FREADENCODE(const CValue &arg, yaya::string_t &d, int &l)
@@ -2240,7 +2240,7 @@ CValue	CSystemFunction::FREADENCODE(const CValue &arg, yaya::string_t &d, int &l
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FWRITE
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FWRITE
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::FWRITE(const CValue &arg, yaya::string_t &d, int &l)
@@ -2267,7 +2267,7 @@ CValue	CSystemFunction::FWRITE(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FWRITEBIN
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FWRITEBIN
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::FWRITEBIN(const CValue &arg, yaya::string_t &d, int &l)
@@ -2306,7 +2306,7 @@ CValue	CSystemFunction::FWRITEBIN(const CValue &arg, yaya::string_t &d, int &l)
 
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FWRITE2
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FWRITE2
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::FWRITE2(const CValue &arg, yaya::string_t &d, int &l)
@@ -2333,7 +2333,7 @@ CValue	CSystemFunction::FWRITE2(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FSEEK
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FSEEK
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::FSEEK(const CValue &arg, yaya::string_t &d, int &l){
@@ -2357,7 +2357,7 @@ CValue	CSystemFunction::FSEEK(const CValue &arg, yaya::string_t &d, int &l){
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FTELL
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FTELL
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::FTELL(const CValue &arg, yaya::string_t &d, int &l){
@@ -2381,7 +2381,7 @@ CValue	CSystemFunction::FTELL(const CValue &arg, yaya::string_t &d, int &l){
 
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FCOPY
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FCOPY
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
@@ -2400,7 +2400,7 @@ CValue	CSystemFunction::FCOPY(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 
-	// â‘ÎƒpƒX‰»
+	// çµ¶å¯¾ãƒ‘ã‚¹åŒ–
 	yaya::char_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
 	_wsplitpath(arg.array()[0].s_value.c_str(), drive, dir, fname, ext);
 	yaya::string_t	s_path = ((::wcslen(drive)) ? yaya::string_t(L"") : vm.basis().path) + arg.array()[0].s_value;
@@ -2410,7 +2410,7 @@ CValue	CSystemFunction::FCOPY(const CValue &arg, yaya::string_t &d, int &l)
 	yaya::string_t	d_path = ((::wcslen(drive)) ?
 						yaya::string_t(L"") : vm.basis().path) + arg.array()[1].s_value + L"\\" + fname + ext;
 
-	// ƒpƒX‚ğMBCS‚É•ÏŠ·
+	// ãƒ‘ã‚¹ã‚’MBCSã«å¤‰æ›
 	char	*s_pstr = Ccct::Ucs2ToMbcs(s_path, CHARSET_DEFAULT);
 	if (s_pstr == NULL) {
 		vm.logger().Error(E_E, 89, L"FCOPY", d, l);
@@ -2423,7 +2423,7 @@ CValue	CSystemFunction::FCOPY(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 
-	// Às
+	// å®Ÿè¡Œ
 	int	result = (CopyFile(s_pstr, d_pstr, FALSE) ? 1 : 0);
 	free(s_pstr);
 	free(d_pstr);
@@ -2445,14 +2445,14 @@ CValue CSystemFunction::FCOPY(const CValue &arg, yaya::string_t &d, int &l) {
 		return CValue(0);
     }
 
-    // â‘ÎƒpƒX‰»
+    // çµ¶å¯¾ãƒ‘ã‚¹åŒ–
 	std::string src = narrow(ToFullPath(arg.array()[0].s_value));
 	std::string dest = narrow(ToFullPath(arg.array()[1].s_value));
     fix_filepath(src);
     fix_filepath(dest);
 
-    // src‚Í’Êíƒtƒ@ƒCƒ‹‚Å‚È‚¯‚ê‚Î‚È‚ç‚È‚¢B
-    // FCOPY("/dev/zero", "/tmp/hoge") ‚Æ‚©‚â‚ç‚ê‚½‚çŒ™‰ß‚¬B
+    // srcã¯é€šå¸¸ãƒ•ã‚¡ã‚¤ãƒ«ã§ãªã‘ã‚Œã°ãªã‚‰ãªã„ã€‚
+    // FCOPY("/dev/zero", "/tmp/hoge") ã¨ã‹ã‚„ã‚‰ã‚ŒãŸã‚‰å«Œéãã€‚
     struct stat sb;
     if (stat(src.c_str(), &sb) != 0) {
 	return CValue(0);
@@ -2461,8 +2461,8 @@ CValue CSystemFunction::FCOPY(const CValue &arg, yaya::string_t &d, int &l) {
 	return CValue(0);
     }
 
-    // Às
-    unlink(dest.c_str()); // ƒRƒs[æ‚ªƒVƒ“ƒ{ƒŠƒbƒNƒŠƒ“ƒN‚Æ‚©‚¾‚ÆŒ™B
+    // å®Ÿè¡Œ
+    unlink(dest.c_str()); // ã‚³ãƒ”ãƒ¼å…ˆãŒã‚·ãƒ³ãƒœãƒªãƒƒã‚¯ãƒªãƒ³ã‚¯ã¨ã‹ã ã¨å«Œã€‚
 	std::ifstream is(src.c_str());
     int result = 0;
     if (is.good()) {
@@ -2486,7 +2486,7 @@ CValue CSystemFunction::FCOPY(const CValue &arg, yaya::string_t &d, int &l) {
 #endif
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FMOVE
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FMOVE
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
@@ -2505,7 +2505,7 @@ CValue	CSystemFunction::FMOVE(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 
-	// â‘ÎƒpƒX‰»
+	// çµ¶å¯¾ãƒ‘ã‚¹åŒ–
 	yaya::char_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
 	_wsplitpath(arg.array()[0].s_value.c_str(), drive, dir, fname, ext);
 	yaya::string_t	s_path = ((::wcslen(drive)) ? yaya::string_t(L"") : vm.basis().path) + arg.array()[0].s_value;
@@ -2515,7 +2515,7 @@ CValue	CSystemFunction::FMOVE(const CValue &arg, yaya::string_t &d, int &l)
 	yaya::string_t	d_path = ((::wcslen(drive)) ?
 						yaya::string_t(L"") : vm.basis().path) + arg.array()[1].s_value + L"\\" + fname + ext;
 
-	// ƒpƒX‚ğMBCS‚É•ÏŠ·
+	// ãƒ‘ã‚¹ã‚’MBCSã«å¤‰æ›
 	char	*s_pstr = Ccct::Ucs2ToMbcs(s_path, CHARSET_DEFAULT);
 	if (s_pstr == NULL) {
 		vm.logger().Error(E_E, 89, L"FMOVE", d, l);
@@ -2528,7 +2528,7 @@ CValue	CSystemFunction::FMOVE(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 
-	// Às
+	// å®Ÿè¡Œ
 	int	result = (MoveFile(s_pstr, d_pstr) ? 1 : 0);
 	free(s_pstr);
 	free(d_pstr);
@@ -2550,13 +2550,13 @@ CValue CSystemFunction::FMOVE(const CValue &arg, yaya::string_t &d, int &l) {
 	return CValue(0);
     }
 
-    // â‘ÎƒpƒX‰»
+    // çµ¶å¯¾ãƒ‘ã‚¹åŒ–
 	std::string src = narrow(ToFullPath(arg.array()[0].s_value));
 	std::string dest = narrow(ToFullPath(arg.array()[1].s_value));
     fix_filepath(src);
     fix_filepath(dest);
     
-    // Às
+    // å®Ÿè¡Œ
     int result = rename(src.c_str(), dest.c_str()) ? 0 : 1;
 
     return CValue(result);
@@ -2564,7 +2564,7 @@ CValue CSystemFunction::FMOVE(const CValue &arg, yaya::string_t &d, int &l) {
 #endif
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::MKDIR
+ *  é–¢æ•°å  ï¼š  CSystemFunction::MKDIR
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
@@ -2582,14 +2582,14 @@ CValue	CSystemFunction::MKDIR(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 
-	// ƒpƒX‚ğMBCS‚É•ÏŠ·
+	// ãƒ‘ã‚¹ã‚’MBCSã«å¤‰æ›
 	char	*s_dirstr = Ccct::Ucs2ToMbcs(ToFullPath(arg.array()[0].s_value), CHARSET_DEFAULT);
 	if (s_dirstr == NULL) {
 		vm.logger().Error(E_E, 89, L"MKDIR", d, l);
 		return CValue(0);
 	}
 
-	// Às
+	// å®Ÿè¡Œ
 	int	result = (::CreateDirectory(s_dirstr,NULL) ? 1 : 0);
 	free(s_dirstr);
 
@@ -2612,7 +2612,7 @@ CValue CSystemFunction::MKDIR(const CValue &arg, yaya::string_t &d, int &l) {
 	std::string dirstr = narrow(ToFullPath(arg.array()[0].s_value));
     fix_filepath(dirstr);
 
-    // Às
+    // å®Ÿè¡Œ
     int result = (mkdir(dirstr.c_str(), 0644) == 0 ? 1 : 0);
 
     return CValue(result);
@@ -2620,7 +2620,7 @@ CValue CSystemFunction::MKDIR(const CValue &arg, yaya::string_t &d, int &l) {
 #endif
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::RMDIR
+ *  é–¢æ•°å  ï¼š  CSystemFunction::RMDIR
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
@@ -2638,14 +2638,14 @@ CValue	CSystemFunction::RMDIR(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 
-	// ƒpƒX‚ğMBCS‚É•ÏŠ·
+	// ãƒ‘ã‚¹ã‚’MBCSã«å¤‰æ›
 	char	*s_dirstr = Ccct::Ucs2ToMbcs(ToFullPath(arg.array()[0].s_value), CHARSET_DEFAULT);
 	if (s_dirstr == NULL) {
 		vm.logger().Error(E_E, 89, L"RMDIR", d, l);
 		return CValue(0);
 	}
 
-	// Às
+	// å®Ÿè¡Œ
 	int	result = (::RemoveDirectory(s_dirstr) == 0 ? 0 : 1);
 	free(s_dirstr);
 
@@ -2668,7 +2668,7 @@ CValue CSystemFunction::RMDIR(const CValue &arg, yaya::string_t &d, int &l) {
 	std::string dirstr = narrow(ToFullPath(arg.array()[0].s_value));
     fix_filepath(dirstr);
 
-    // ÀsB
+    // å®Ÿè¡Œã€‚
     int result = (rmdir(dirstr.c_str()) ? 0 : 1);
 
     return CValue(result);
@@ -2676,7 +2676,7 @@ CValue CSystemFunction::RMDIR(const CValue &arg, yaya::string_t &d, int &l) {
 #endif
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FDEL
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FDEL
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
@@ -2694,14 +2694,14 @@ CValue	CSystemFunction::FDEL(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 
-	// ƒpƒX‚ğMBCS‚É•ÏŠ·
+	// ãƒ‘ã‚¹ã‚’MBCSã«å¤‰æ›
 	char	*s_filestr = Ccct::Ucs2ToMbcs(ToFullPath(arg.array()[0].s_value), CHARSET_DEFAULT);
 	if (s_filestr == NULL) {
 		vm.logger().Error(E_E, 89, L"FDEL", d, l);
 		return CValue(0);
 	}
 
-	// Às
+	// å®Ÿè¡Œ
 	int	result = (DeleteFile(s_filestr) ? 1 : 0);
 	free(s_filestr);
 
@@ -2724,7 +2724,7 @@ CValue CSystemFunction::FDEL(const CValue &arg, yaya::string_t &d, int &l) {
 	std::string filestr = narrow(ToFullPath(arg.array()[0].s_value));
     fix_filepath(filestr);
 
-    // Às
+    // å®Ÿè¡Œ
     int result = (unlink(filestr.c_str()) ? 0 : 1);
 
     return CValue(result);
@@ -2732,7 +2732,7 @@ CValue CSystemFunction::FDEL(const CValue &arg, yaya::string_t &d, int &l) {
 #endif
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FRENAME
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FRENAME
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
@@ -2751,7 +2751,7 @@ CValue	CSystemFunction::FRENAME(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 
-	// ƒpƒX‚ğMBCS‚É•ÏŠ·
+	// ãƒ‘ã‚¹ã‚’MBCSã«å¤‰æ›
 	char	*s_filestr = Ccct::Ucs2ToMbcs(ToFullPath(arg.array()[0].s_value), CHARSET_DEFAULT);
 	if (s_filestr == NULL) {
 		vm.logger().Error(E_E, 89, L"FRENAME", d, l);
@@ -2764,7 +2764,7 @@ CValue	CSystemFunction::FRENAME(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 
-	// Às
+	// å®Ÿè¡Œ
 	int	result = (MoveFile(s_filestr, d_filestr) ? 1 : 0);
 	free(s_filestr);
 	free(d_filestr);
@@ -2786,13 +2786,13 @@ CValue CSystemFunction::FRENAME(const CValue &arg, yaya::string_t &d, int &l) {
 		return CValue(0);
 	}
 
-    // â‘ÎƒpƒX‰»
+    // çµ¶å¯¾ãƒ‘ã‚¹åŒ–
 	std::string src = narrow(ToFullPath(arg.array()[0].s_value));
 	std::string dest = narrow(ToFullPath(arg.array()[1].s_value));
     fix_filepath(src);
     fix_filepath(dest);
     
-    // Às
+    // å®Ÿè¡Œ
     int result = rename(src.c_str(), dest.c_str()) ? 0 : 1;
 
     return CValue(result);
@@ -2801,7 +2801,7 @@ CValue CSystemFunction::FRENAME(const CValue &arg, yaya::string_t &d, int &l) {
 
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FDIGEST
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FDIGEST
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
@@ -2823,7 +2823,7 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 		digest_type = arg.array()[1].GetValueString();
 	}
 
-	// ƒpƒX‚ğMBCS‚É•ÏŠ·
+	// ãƒ‘ã‚¹ã‚’MBCSã«å¤‰æ›
 	const char *s_filestr;
 
 #if defined(WIN32)	
@@ -2838,7 +2838,7 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 	s_filestr = path.c_str();
 #endif
 
-	// Às
+	// å®Ÿè¡Œ
 	FILE *pF = fopen(s_filestr,"rb");
 	if ( ! pF ) { return CValue(-1); }
 
@@ -2894,7 +2894,7 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 	fclose(pF);
 
 	yaya::char_t md5str[65];
-	md5str[digest_len*2] = 0; //ƒ[ƒI’[
+	md5str[digest_len*2] = 0; //ã‚¼ãƒ­çµ‚ç«¯
 
 	for ( unsigned int i = 0 ; i < digest_len ; ++i ) {
 		swprintf(md5str+i*2,L"%02X",digest_result[i]);
@@ -2904,9 +2904,9 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FSIZE
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FSIZE
  *
- *  4GBˆÈã‚ÌƒTƒCƒY‚Íæ“¾‚Å‚«‚Ü‚¹‚ñ
+ *  4GBä»¥ä¸Šã®ã‚µã‚¤ã‚ºã¯å–å¾—ã§ãã¾ã›ã‚“
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
@@ -2924,19 +2924,19 @@ CValue	CSystemFunction::FSIZE(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(-1);
 	}
 
-	//‚·‚Å‚ÉŠJ‚¢‚Ä‚¢‚éƒtƒ@ƒCƒ‹‚È‚ç‚»‚Á‚¿‚©‚çî•ñ‚ğƒpƒN‚é
+	//ã™ã§ã«é–‹ã„ã¦ã„ã‚‹ãƒ•ã‚¡ã‚¤ãƒ«ãªã‚‰ãã£ã¡ã‹ã‚‰æƒ…å ±ã‚’ãƒ‘ã‚¯ã‚‹
 	yaya::string_t fullpath = ToFullPath(arg.array()[0].s_value);
 	long size = vm.files().Size(fullpath);
 	if ( size >= 0 ) { return CValue((int)size); }
 
-	// ƒpƒX‚ğMBCS‚É•ÏŠ·
+	// ãƒ‘ã‚¹ã‚’MBCSã«å¤‰æ›
 	char *s_filestr = Ccct::Ucs2ToMbcs(fullpath, CHARSET_DEFAULT);
 	if (s_filestr == NULL) {
 		vm.logger().Error(E_E, 89, L"FSIZE", d, l);
 		return CValue(-1);
 	}
 
-	// Às
+	// å®Ÿè¡Œ
 	HANDLE	hFile = CreateFile(s_filestr, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	free(s_filestr);
 	if (hFile == INVALID_HANDLE_VALUE)
@@ -2979,7 +2979,7 @@ CValue CSystemFunction::FSIZE(const CValue &arg, yaya::string_t &d, int &l) {
 #endif
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FENUM
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FENUM
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
@@ -2999,7 +2999,7 @@ CValue	CSystemFunction::FENUM(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue();
 	}
 
-	// ƒfƒŠƒ~ƒ^æ“¾
+	// ãƒ‡ãƒªãƒŸã‚¿å–å¾—
 	yaya::string_t	delimiter = VAR_DELIMITER;
 	if (sz >= 2) {
 		if (arg.array()[1].IsString() &&
@@ -3012,7 +3012,7 @@ CValue	CSystemFunction::FENUM(const CValue &arg, yaya::string_t &d, int &l)
 		}
 	}
 
-	// ƒpƒX‚ğMBCS‚É•ÏŠ·
+	// ãƒ‘ã‚¹ã‚’MBCSã«å¤‰æ›
 	yaya::string_t tmp_str = arg.array()[0].s_value + L"\\*.*";
 	char	*s_filestr = Ccct::Ucs2ToMbcs(ToFullPath(tmp_str), CHARSET_DEFAULT);
 	if (s_filestr == NULL) {
@@ -3020,7 +3020,7 @@ CValue	CSystemFunction::FENUM(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue();
 	}
 
-	// Às
+	// å®Ÿè¡Œ
 	CValue result(F_TAG_STRING,0);
 	HANDLE hFile;
 	WIN32_FIND_DATA	w32FindData;
@@ -3029,16 +3029,16 @@ CValue	CSystemFunction::FENUM(const CValue &arg, yaya::string_t &d, int &l)
 	if(hFile != INVALID_HANDLE_VALUE) {
 		int i = 0;
 		do {
-			// 1‚Âæ“¾
+			// 1ã¤å–å¾—
 			std::string	t_file =w32FindData.cFileName;
-			// ‚à‚µ"."or".."‚È‚ç”ò‚Î‚·
+			// ã‚‚ã—"."or".."ãªã‚‰é£›ã°ã™
 			if (!t_file.compare(".") || !t_file.compare(".."))
 				continue;
-			// UCS2‚Ö•ÏŠ·
+			// UCS2ã¸å¤‰æ›
 			yaya::char_t	*t_wfile = Ccct::MbcsToUcs2(t_file, CHARSET_DEFAULT);
 			if (t_wfile == NULL)
 				continue;
-			// ’Ç‰Á
+			// è¿½åŠ 
 			if (i)
 				result.s_value += delimiter;
 			if (w32FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -3070,7 +3070,7 @@ CValue CSystemFunction::FENUM(const CValue &arg, yaya::string_t &d, int &l) {
 	return CValue();
     }
     
-    // ƒfƒŠƒ~ƒ^æ“¾
+    // ãƒ‡ãƒªãƒŸã‚¿å–å¾—
     yaya::string_t delimiter = VAR_DELIMITER;
     if (sz >= 2) {
 	if (arg.array()[1].IsString() &&
@@ -3087,7 +3087,7 @@ CValue CSystemFunction::FENUM(const CValue &arg, yaya::string_t &d, int &l) {
 	std::string path = narrow(ToFullPath(arg.array()[0].s_value));
     fix_filepath(path);
 
-    // Às
+    // å®Ÿè¡Œ
 	CValue result(F_TAG_STRING,0);
     DIR* dh = opendir(path.c_str());
     if (dh == NULL) {
@@ -3097,12 +3097,12 @@ CValue CSystemFunction::FENUM(const CValue &arg, yaya::string_t &d, int &l) {
     while (true) {
 	struct dirent* ent = readdir(dh);
 	if (ent == NULL) {
-	    break; // ‚à‚¤–³‚¢B
+	    break; // ã‚‚ã†ç„¡ã„ã€‚
 	}
 	
 	std::string name(ent->d_name, strlen(ent->d_name)/*ent->d_namlen*/);	// by umeici. 2005/1/16 5.6.0.232
 	if (name == "." || name == "..") {
-	    continue; // .‚Æ..‚Í”ò‚Î‚·
+	    continue; // .ã¨..ã¯é£›ã°ã™
 	}
 	if (!first_entry) {
 	    result.s_value += delimiter;
@@ -3124,10 +3124,10 @@ CValue CSystemFunction::FENUM(const CValue &arg, yaya::string_t &d, int &l) {
 #endif
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FCHARSET
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FCHARSET
  *
- *  —LŒø‚È’l‚ÍA0/1/127=Shift_JIS/UTF-8/OSƒfƒtƒHƒ‹ƒg@‚Å‚·B
- *  ‚±‚êˆÈŠO‚Ì’l‚ğ—^‚¦‚½ê‡‚Í–³Œø‚ÅAwarning‚Æ‚È‚è‚Ü‚·B
+ *  æœ‰åŠ¹ãªå€¤ã¯ã€0/1/127=Shift_JIS/UTF-8/OSãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã€€ã§ã™ã€‚
+ *  ã“ã‚Œä»¥å¤–ã®å€¤ã‚’ä¸ãˆãŸå ´åˆã¯ç„¡åŠ¹ã§ã€warningã¨ãªã‚Šã¾ã™ã€‚
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::FCHARSET(const CValue &arg, yaya::string_t &d, int &l)
@@ -3149,17 +3149,17 @@ CValue	CSystemFunction::FCHARSET(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::ARRAYSIZE
+ *  é–¢æ•°å  ï¼š  CSystemFunction::ARRAYSIZE
  *
- *  •¶š—ñ‚Ìê‡‚ÍŠÈˆÕ”z—ñ‚ÌA”Ä—p”z—ñ‚Ìê‡‚Í‚»‚Ì—v‘f”‚ğ•Ô‚µ‚Ü‚·B
+ *  æ–‡å­—åˆ—ã®å ´åˆã¯ç°¡æ˜“é…åˆ—ã®ã€æ±ç”¨é…åˆ—ã®å ´åˆã¯ãã®è¦ç´ æ•°ã‚’è¿”ã—ã¾ã™ã€‚
  *
- *  winnt.h ‚Æƒ}ƒNƒ‚ª”í‚Á‚½BŒ¸“_‚QB
+ *  winnt.h ã¨ãƒã‚¯ãƒ­ãŒè¢«ã£ãŸã€‚æ¸›ç‚¹ï¼’ã€‚
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ArraySize(CValueArgArray &valuearg, const std::vector<CCell *> &pcellarg,
 								   CLocalVariable &lvar, yaya::string_t &d, int &l)
 {
-	// ˆø”–³‚µ‚È‚ç0
+	// å¼•æ•°ç„¡ã—ãªã‚‰0
 	size_t sz = valuearg.size();
 	if (!sz) {
 		return CValue(0);
@@ -3172,7 +3172,7 @@ CValue	CSystemFunction::ArraySize(CValueArgArray &valuearg, const std::vector<CC
 		if ( valuearg[0].GetValueString().size() == 0 ) {
 			return CValue(0);
 		}
-		// ˆø”1‚Â‚Å•¶š—ñ‚È‚çŠÈˆÕ”z—ñ‚Ì—v‘f”‚ğ•Ô‚·@•Ï”‚Ìê‡‚Í‚»‚ÌƒfƒŠƒ~ƒ^‚Å•ªŠ„‚·‚é
+		// å¼•æ•°1ã¤ã§æ–‡å­—åˆ—ãªã‚‰ç°¡æ˜“é…åˆ—ã®è¦ç´ æ•°ã‚’è¿”ã™ã€€å¤‰æ•°ã®å ´åˆã¯ãã®ãƒ‡ãƒªãƒŸã‚¿ã§åˆ†å‰²ã™ã‚‹
 		yaya::string_t	delimiter = VAR_DELIMITER;
 		if (pcellarg[0]->value_GetType() == F_TAG_VARIABLE)
 			delimiter = vm.variable().GetDelimiter(pcellarg[0]->index);
@@ -3190,7 +3190,7 @@ CValue	CSystemFunction::ArraySize(CValueArgArray &valuearg, const std::vector<CC
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::SETDELIM
+ *  é–¢æ•°å  ï¼š  CSystemFunction::SETDELIM
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::SETDELIM(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l)
@@ -3233,7 +3233,7 @@ CValue	CSystemFunction::SETDELIM(const std::vector<CCell *> &pcellarg, CLocalVar
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::IHASH
+ *  é–¢æ•°å  ï¼š  CSystemFunction::IHASH
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::IHASH(const CValue &arg, yaya::string_t &d, int &l)
@@ -3266,7 +3266,7 @@ CValue	CSystemFunction::IHASH(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::HASH_KEYS
+ *  é–¢æ•°å  ï¼š  CSystemFunction::HASH_KEYS
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::HASH_KEYS(CValueArgArray &valuearg, yaya::string_t &d, int &l)
@@ -3302,7 +3302,7 @@ CValue	CSystemFunction::HASH_KEYS(CValueArgArray &valuearg, yaya::string_t &d, i
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::HASH_VALUES
+ *  é–¢æ•°å  ï¼š  CSystemFunction::HASH_VALUES
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::HASH_VALUES(CValueArgArray &valuearg, yaya::string_t &d, int &l)
@@ -3338,7 +3338,7 @@ CValue	CSystemFunction::HASH_VALUES(CValueArgArray &valuearg, yaya::string_t &d,
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::HASH_EXIST
+ *  é–¢æ•°å  ï¼š  CSystemFunction::HASH_EXIST
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::HASH_EXIST(CValueArgArray &valuearg, yaya::string_t &d, int &l)
@@ -3365,7 +3365,7 @@ CValue	CSystemFunction::HASH_EXIST(CValueArgArray &valuearg, yaya::string_t &d, 
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::HASH_SIZE
+ *  é–¢æ•°å  ï¼š  CSystemFunction::HASH_SIZE
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::HASH_SIZE(CValueArgArray &valuearg, yaya::string_t &d, int &l)
@@ -3386,7 +3386,7 @@ CValue	CSystemFunction::HASH_SIZE(CValueArgArray &valuearg, yaya::string_t &d, i
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::EVAL
+ *  é–¢æ•°å  ï¼š  CSystemFunction::EVAL
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::EVAL(const CValue &arg, yaya::string_t &d, int &l, CLocalVariable &lvar,
@@ -3403,13 +3403,13 @@ CValue	CSystemFunction::EVAL(const CValue &arg, yaya::string_t &d, int &l, CLoca
 		SetError(9);
 	}
 
-	// ”®‚Ö“WŠJ
+	// æ•°å¼ã¸å±•é–‹
 	yaya::string_t	str = arg.array()[0].GetValueString();
 	CStatement	t_state(ST_FORMULA, l);
 	if (vm.parser0().ParseEmbedString(str, t_state, d, l))
 		return CValue(arg.array()[0].GetValueString());
 
-	// Às‚µ‚ÄŒ‹‰Ê‚ğ•Ô‚·
+	// å®Ÿè¡Œã—ã¦çµæœã‚’è¿”ã™
 	CValue	result = thisfunc->GetFormulaAnswer(lvar, t_state);
 	if (t_state.type == ST_FORMULA_SUBST)
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -3418,10 +3418,10 @@ CValue	CSystemFunction::EVAL(const CValue &arg, yaya::string_t &d, int &l, CLoca
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::ERASEVAR
+ *  é–¢æ•°å  ï¼š  CSystemFunction::ERASEVAR
  *
- *  ƒ[ƒJƒ‹•Ï”‚Å‚ÍÁ‹ƒtƒ‰ƒO‚ğ—§‚Ä‚é‚¾‚¯‚Å‚·B
- *  ƒOƒ[ƒoƒ‹•Ï”‚Å‚ÍÁ‹ƒtƒ‰ƒO‚ğ—§‚ÄA‚³‚ç‚Éunload‚Éƒtƒ@ƒCƒ‹‚Ö’l‚ğ•Û‘¶‚µ‚È‚­‚È‚è‚Ü‚·B
+ *  ãƒ­ãƒ¼ã‚«ãƒ«å¤‰æ•°ã§ã¯æ¶ˆå»ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹ã ã‘ã§ã™ã€‚
+ *  ã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°ã§ã¯æ¶ˆå»ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã€ã•ã‚‰ã«unloadæ™‚ã«ãƒ•ã‚¡ã‚¤ãƒ«ã¸å€¤ã‚’ä¿å­˜ã—ãªããªã‚Šã¾ã™ã€‚
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ERASEVAR(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l)
@@ -3436,7 +3436,7 @@ CValue	CSystemFunction::ERASEVAR(const CValue &arg, CLocalVariable &lvar, yaya::
 
 	for ( size_t i = 0 ; i < arg_size ; ++i ) {
 
-		//•¶š—ñ‚©‚Ç‚¤‚©ƒ`ƒFƒbƒN - Œx‚Í“f‚­‚ªˆ—‘±s
+		//æ–‡å­—åˆ—ã‹ã©ã†ã‹ãƒã‚§ãƒƒã‚¯ - è­¦å‘Šã¯åããŒå‡¦ç†ç¶šè¡Œ
 		if ( ! arg.array()[i].IsString() ) {
 			vm.logger().Error(E_W, 9, L"ERASEVAR", d, l);
 			SetError(9);
@@ -3459,11 +3459,11 @@ CValue	CSystemFunction::ERASEVAR(const CValue &arg, CLocalVariable &lvar, yaya::
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::GETTIME
+ *  é–¢æ•°å  ï¼š  CSystemFunction::GETTIME
  *  
- *  ˆø”‚È‚µ‚©AEpoch‚©‚ç‚Ì•b”(GETSECCOUNT)
+ *  å¼•æ•°ãªã—ã‹ã€Epochã‹ã‚‰ã®ç§’æ•°(GETSECCOUNT)
  *
- *  •Ô’l@@F  year,month,day,week(0-6),hour,minute,second‚Ì”Ä—p”z—ñ
+ *  è¿”å€¤ã€€ã€€ï¼š  year,month,day,week(0-6),hour,minute,secondã®æ±ç”¨é…åˆ—
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::GETTIME(const CValue &arg, yaya::string_t &d, int &l)
@@ -3499,11 +3499,11 @@ CValue	CSystemFunction::GETTIME(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::GETSECCOUNT
+ *  é–¢æ•°å  ï¼š  CSystemFunction::GETSECCOUNT
  *  
- *  ˆø”‚È‚µ‚©Ayear,month,day,week(0-6),hour,minute,second‚Ì”z—ñ
+ *  å¼•æ•°ãªã—ã‹ã€year,month,day,week(0-6),hour,minute,secondã®é…åˆ—
  *
- *  •Ô’l@@F  EPOCH‚©‚ç‚Ì•b”
+ *  è¿”å€¤ã€€ã€€ï¼š  EPOCHã‹ã‚‰ã®ç§’æ•°
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::GETSECCOUNT(const CValue &arg, yaya::string_t &d, int &l)
@@ -3535,7 +3535,7 @@ CValue	CSystemFunction::GETSECCOUNT(const CValue &arg, yaya::string_t &d, int &l
 	case 5:
 		input_time.tm_hour = arg.array()[4].GetValueInt();
 	/*case 4:
-		input_time.tm_wday = arg.array()[3].GetValueInt();*/ //‘ã“ü‹Ö~
+		input_time.tm_wday = arg.array()[3].GetValueInt();*/ //ä»£å…¥ç¦æ­¢
 	case 3:
 		input_time.tm_mday = arg.array()[2].GetValueInt();
 	case 2:
@@ -3548,7 +3548,7 @@ CValue	CSystemFunction::GETSECCOUNT(const CValue &arg, yaya::string_t &d, int &l
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::GETTICKCOUNT
+ *  é–¢æ•°å  ï¼š  CSystemFunction::GETTICKCOUNT
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
@@ -3577,10 +3577,10 @@ CValue CSystemFunction::GETTICKCOUNT(const CValue &arg, CLocalVariable &lvar, ya
 #endif
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::GETMEMINFO
+ *  é–¢æ•°å  ï¼š  CSystemFunction::GETMEMINFO
  *
- *  •Ô’l@@F  memoryload,memorytotalphys,memoryavailphys,memorytotalvirtual,memoryavailvirtual
- *  @@@@@  ‚Ì”Ä—p”z—ñ
+ *  è¿”å€¤ã€€ã€€ï¼š  memoryload,memorytotalphys,memoryavailphys,memorytotalvirtual,memoryavailvirtual
+ *  ã€€ã€€ã€€ã€€ã€€  ã®æ±ç”¨é…åˆ—
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
@@ -3601,7 +3601,7 @@ CValue	CSystemFunction::GETMEMINFO(void)
 }
 #elif defined(POSIX)
 CValue CSystemFunction::GETMEMINFO(void) {
-    // ƒƒ‚ƒŠ‚Ìó‘Ô‚ğæ“¾‚·‚éƒ|[ƒ^ƒuƒ‹‚È•û–@‚Í–³‚¢‚Ì‚Åc
+    // ãƒ¡ãƒ¢ãƒªã®çŠ¶æ…‹ã‚’å–å¾—ã™ã‚‹ãƒãƒ¼ã‚¿ãƒ–ãƒ«ãªæ–¹æ³•ã¯ç„¡ã„ã®ã§â€¦
     CValue result(F_TAG_ARRAY, 0/*dmy*/);
     result.array().push_back(CValueSub(0)); // dwMemoryLoad
     result.array().push_back(CValueSub(0)); // dwTotalPhys
@@ -3613,14 +3613,14 @@ CValue CSystemFunction::GETMEMINFO(void) {
 #endif
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::RE_SEARCH
+ *  é–¢æ•°å  ï¼š  CSystemFunction::RE_SEARCH
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::RE_SEARCH(const CValue &arg, yaya::string_t &d, int &l)
 {
 	ClearReResultDetails();
 
-	// ˆø”‚Ì”/Œ^ƒ`ƒFƒbƒN
+	// å¼•æ•°ã®æ•°/å‹ãƒã‚§ãƒƒã‚¯
 	if (arg.array_size() < 2) {
 		vm.logger().Error(E_W, 8, L"RE_SEARCH", d, l);
 		SetError(8);
@@ -3638,7 +3638,7 @@ CValue	CSystemFunction::RE_SEARCH(const CValue &arg, yaya::string_t &d, int &l)
 	if (!arg0.size() || !arg1.size())
 		return CValue(0);
 
-	// Às
+	// å®Ÿè¡Œ
 	int	t_result;
 	try {
 		boost::basic_regex<yaya::char_t> regex(arg1.c_str(),boost::regex::perl | boost::regex::collate | re_option);
@@ -3667,14 +3667,14 @@ CValue	CSystemFunction::RE_SEARCH(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::RE_MATCH
+ *  é–¢æ•°å  ï¼š  CSystemFunction::RE_MATCH
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::RE_MATCH(const CValue &arg, yaya::string_t &d, int &l)
 {
 	ClearReResultDetails();
 
-	// ˆø”‚Ì”/Œ^ƒ`ƒFƒbƒN
+	// å¼•æ•°ã®æ•°/å‹ãƒã‚§ãƒƒã‚¯
 	if (arg.array_size() < 2) {
 		vm.logger().Error(E_W, 8, L"RE_MATCH", d, l);
 		SetError(8);
@@ -3694,7 +3694,7 @@ CValue	CSystemFunction::RE_MATCH(const CValue &arg, yaya::string_t &d, int &l)
 	if (!arg0.size() || !arg1.size())
 		return CValue(0);
 
-	// Às
+	// å®Ÿè¡Œ
 	int	t_result;
 	try {
 		boost::basic_regex<yaya::char_t> regex(arg1.c_str(),boost::regex::perl | boost::regex::collate | re_option);
@@ -3723,16 +3723,16 @@ CValue	CSystemFunction::RE_MATCH(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::RE_GREP
+ *  é–¢æ•°å  ï¼š  CSystemFunction::RE_GREP
  *
- *  regex_grep‚Íg—p‚¹‚¸Aregex_search‚ğŒJ‚è•Ô‚µÀs‚·‚é‚±‚Æ‚Å“¯“™‚Ì‹@”\‚Æ‚µ‚Ä‚¢‚Ü‚·B
+ *  regex_grepã¯ä½¿ç”¨ã›ãšã€regex_searchã‚’ç¹°ã‚Šè¿”ã—å®Ÿè¡Œã™ã‚‹ã“ã¨ã§åŒç­‰ã®æ©Ÿèƒ½ã¨ã—ã¦ã„ã¾ã™ã€‚
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::RE_GREP(const CValue &arg, yaya::string_t &d, int &l)
 {
 	ClearReResultDetails();
 
-	// ˆø”‚Ì”/Œ^ƒ`ƒFƒbƒN
+	// å¼•æ•°ã®æ•°/å‹ãƒã‚§ãƒƒã‚¯
 	if (arg.array_size() < 2) {
 		vm.logger().Error(E_W, 8, L"RE_GREP", d, l);
 		SetError(8);
@@ -3751,7 +3751,7 @@ CValue	CSystemFunction::RE_GREP(const CValue &arg, yaya::string_t &d, int &l)
 	if (!arg0.size() || !arg1.size())
 		return CValue(0);
 
-	// Às
+	// å®Ÿè¡Œ
 	yaya::string_t::const_iterator str = arg0.begin();
 	yaya::string_t::const_iterator search_end = arg0.end();
 	yaya::string_t::const_iterator search_point = str;
@@ -3789,7 +3789,7 @@ CValue	CSystemFunction::RE_GREP(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::SETLASTERROR
+ *  é–¢æ•°å  ï¼š  CSystemFunction::SETLASTERROR
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::SETLASTERROR(const CValue &arg, yaya::string_t &d, int &l)
@@ -3811,14 +3811,14 @@ CValue	CSystemFunction::SETLASTERROR(const CValue &arg, yaya::string_t &d, int &
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::RE_OPTION
+ *  é–¢æ•°å  ï¼š  CSystemFunction::RE_OPTION
  *
- *  ˆø”1ŒÂFPerlƒXƒ^ƒCƒ‹‚Ì³‹K•\Œ»ƒIƒvƒVƒ‡ƒ“
+ *  å¼•æ•°1å€‹ï¼šPerlã‚¹ã‚¿ã‚¤ãƒ«ã®æ­£è¦è¡¨ç¾ã‚ªãƒ—ã‚·ãƒ§ãƒ³
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::RE_OPTION(const CValue &arg, yaya::string_t &d, int &l)
 {
-	// ˆø”‚Ì”/Œ^ƒ`ƒFƒbƒN
+	// å¼•æ•°ã®æ•°/å‹ãƒã‚§ãƒƒã‚¯
 	if (arg.array_size() >= 1) {
 		yaya::string_t opt = arg.array()[0].GetValueString();
 
@@ -3856,16 +3856,16 @@ CValue	CSystemFunction::RE_OPTION(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::RE_SPLIT
+ *  é–¢æ•°å  ï¼š  CSystemFunction::RE_SPLIT
  *
- *  regex_split‚Íg—p‚¹‚¸Aregex_search‚ğŒJ‚è•Ô‚µÀs‚·‚é‚±‚Æ‚Å“¯“™‚Ì‹@”\‚Æ‚µ‚Ä‚¢‚Ü‚·B
+ *  regex_splitã¯ä½¿ç”¨ã›ãšã€regex_searchã‚’ç¹°ã‚Šè¿”ã—å®Ÿè¡Œã™ã‚‹ã“ã¨ã§åŒç­‰ã®æ©Ÿèƒ½ã¨ã—ã¦ã„ã¾ã™ã€‚
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::RE_SPLIT(const CValue &arg, yaya::string_t &d, int &l)
 {
 	ClearReResultDetails();
 
-	// ˆø”‚Ì”/Œ^ƒ`ƒFƒbƒN
+	// å¼•æ•°ã®æ•°/å‹ãƒã‚§ãƒƒã‚¯
 	int sz = arg.array_size();
 	if (sz < 2) {
 		vm.logger().Error(E_W, 8, L"RE_SPLIT", d, l);
@@ -3897,14 +3897,14 @@ CValue	CSystemFunction::RE_SPLIT(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::RE_REPLACE
+ *  é–¢æ•°å  ï¼š  CSystemFunction::RE_REPLACE
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::RE_REPLACE(const CValue &arg, yaya::string_t &d, int &l)
 {
 	ClearReResultDetails();
 
-	// ˆø”‚Ì”/Œ^ƒ`ƒFƒbƒN
+	// å¼•æ•°ã®æ•°/å‹ãƒã‚§ãƒƒã‚¯
 	if (arg.array_size() < 3) {
 		vm.logger().Error(E_W, 8, L"RE_REPLACE", d, l);
 		SetError(8);
@@ -3918,13 +3918,13 @@ CValue	CSystemFunction::RE_REPLACE(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	// ‚Ü‚¸split‚·‚é
+	// ã¾ãšsplitã™ã‚‹
 	CValue	splits = RE_SPLIT_CORE(arg, d, l, L"RE_REPLACE", NULL, 0);
 	int	num = splits.array_size();
 	if (!num || num == 1)
 		return CValue(arg.array()[0].GetValueString());
 
-	// ’uŠ·Œã•¶š—ñ‚Ìì¬
+	// ç½®æ›å¾Œæ–‡å­—åˆ—ã®ä½œæˆ
 	yaya::string_t	result;
 	int	i = 0;
 	for(i = 0; i < num; i++) {
@@ -3937,14 +3937,14 @@ CValue	CSystemFunction::RE_REPLACE(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::RE_REPLACEEX
+ *  é–¢æ•°å  ï¼š  CSystemFunction::RE_REPLACEEX
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &l)
 {
 	ClearReResultDetails();
 
-	// ˆø”‚Ì”/Œ^ƒ`ƒFƒbƒN
+	// å¼•æ•°ã®æ•°/å‹ãƒã‚§ãƒƒã‚¯
 	if (arg.array_size() < 3) {
 		vm.logger().Error(E_W, 8, L"RE_REPLACE", d, l);
 		SetError(8);
@@ -3958,16 +3958,16 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
 		SetError(9);
 	}
 
-	// ’uŠ·Œã•¶š—ñ‚Ì—pˆÓ
+	// ç½®æ›å¾Œæ–‡å­—åˆ—ã®ç”¨æ„
 	std::vector<yaya::string_t> replace_array;
 
-	// ‚Ü‚¸split‚·‚é
+	// ã¾ãšsplitã™ã‚‹
 	CValue	splits = RE_SPLIT_CORE(arg, d, l, L"RE_REPLACEEX", &replace_array, 0);
 	int	num = splits.array_size();
 	if (!num || num == 1)
 		return CValue(arg.array()[0].GetValueString());
 
-	// ’uŠ·Œã•¶š—ñ‚Ìì¬
+	// ç½®æ›å¾Œæ–‡å­—åˆ—ã®ä½œæˆ
 	yaya::string_t	result;
 	int	i = 0;
 	for(i = 0; i < num; i++) {
@@ -3980,9 +3980,9 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::RE_SPLIT_CORE
+ *  é–¢æ•°å  ï¼š  CSystemFunction::RE_SPLIT_CORE
  *
- *  RE_SPLIT‚Ìåˆ—•”•ª‚Å‚·BRE_REPLACE‚Å‚àg—p‚µ‚Ü‚·B
+ *  RE_SPLITã®ä¸»å‡¦ç†éƒ¨åˆ†ã§ã™ã€‚RE_REPLACEã§ã‚‚ä½¿ç”¨ã—ã¾ã™ã€‚
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int &l, const yaya::char_t *fncname, std::vector<yaya::string_t> *replace_array, size_t num)
@@ -4047,7 +4047,7 @@ CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int 
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::CHRCODE
+ *  é–¢æ•°å  ï¼š  CSystemFunction::CHRCODE
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::CHRCODE(const CValue &arg, yaya::string_t &d, int &l)
@@ -4088,7 +4088,7 @@ CValue	CSystemFunction::CHRCODE(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::ISINTSTR
+ *  é–¢æ•°å  ï¼š  CSystemFunction::ISINTSTR
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ISINTSTR(const CValue &arg, yaya::string_t &d, int &l)
@@ -4109,7 +4109,7 @@ CValue	CSystemFunction::ISINTSTR(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::ISREALSTR
+ *  é–¢æ•°å  ï¼š  CSystemFunction::ISREALSTR
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ISREALSTR(const CValue &arg, yaya::string_t &d, int &l)
@@ -4130,7 +4130,7 @@ CValue	CSystemFunction::ISREALSTR(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::SPLITPATH
+ *  é–¢æ•°å  ï¼š  CSystemFunction::SPLITPATH
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
@@ -4177,12 +4177,12 @@ CValue CSystemFunction::SPLITPATH(const CValue &arg, yaya::string_t &d, int &l) 
     fix_filepath(path);
 
     CValue result(F_TAG_ARRAY, 0/*dmy*/);
-    result.array().push_back(L""); // drive‚Íí‚É‹ó•¶š—ñ
+    result.array().push_back(L""); // driveã¯å¸¸ã«ç©ºæ–‡å­—åˆ—
 	
     yaya::string_t::size_type pos_slash = path.rfind(L'/');
     yaya::string_t fname;
     if (pos_slash == yaya::string_t::npos) {
-		result.array().push_back(L""); // dir‚à‹ó
+		result.array().push_back(L""); // dirã‚‚ç©º
 		fname = path;
     }
     else {
@@ -4193,7 +4193,7 @@ CValue CSystemFunction::SPLITPATH(const CValue &arg, yaya::string_t &d, int &l) 
     yaya::string_t::size_type pos_period = fname.rfind(L'.');
     if (pos_period == yaya::string_t::npos) {
 		result.array().push_back(fname);
-		result.array().push_back(L""); // ext‚Í‹ó
+		result.array().push_back(L""); // extã¯ç©º
     }
     else {
 		result.array().push_back(fname.substr(0, pos_period));
@@ -4205,7 +4205,7 @@ CValue CSystemFunction::SPLITPATH(const CValue &arg, yaya::string_t &d, int &l) 
 #endif
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::CVINT
+ *  é–¢æ•°å  ï¼š  CSystemFunction::CVINT
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::CVINT(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
@@ -4230,7 +4230,7 @@ CValue	CSystemFunction::CVINT(const CValue &arg, const std::vector<CCell *> &pce
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::CVSTR
+ *  é–¢æ•°å  ï¼š  CSystemFunction::CVSTR
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::CVSTR(CValueArgArray &valuearg, const std::vector<CCell *> &pcellarg,
@@ -4255,7 +4255,7 @@ CValue	CSystemFunction::CVSTR(CValueArgArray &valuearg, const std::vector<CCell 
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::CVREAL
+ *  é–¢æ•°å  ï¼š  CSystemFunction::CVREAL
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::CVREAL(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
@@ -4280,7 +4280,7 @@ CValue	CSystemFunction::CVREAL(const CValue &arg, const std::vector<CCell *> &pc
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::CVAUTO
+ *  é–¢æ•°å  ï¼š  CSystemFunction::CVAUTO
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::CVAUTO(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
@@ -4325,7 +4325,7 @@ CValue	CSystemFunction::CVAUTO(const CValue &arg, const std::vector<CCell *> &pc
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::LETTONAME
+ *  é–¢æ•°å  ï¼š  CSystemFunction::LETTONAME
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::LETTONAME(CValueArgArray &valuearg, yaya::string_t &d, int &l, CLocalVariable &lvar,
@@ -4374,7 +4374,7 @@ CValue	CSystemFunction::LETTONAME(CValueArgArray &valuearg, yaya::string_t &d, i
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::STRFORM
+ *  é–¢æ•°å  ï¼š  CSystemFunction::STRFORM
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::STRFORM(const CValue &arg, yaya::string_t &d, int &l)
@@ -4393,13 +4393,13 @@ CValue	CSystemFunction::STRFORM(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(arg.array()[0]);
 	}
 
-	// '$'‚Åsplit‚·‚é
+	// '$'ã§splitã™ã‚‹
 	std::vector<yaya::string_t>	vargs;
 	int	vargs_sz = SplitToMultiString(arg.array()[0].GetValueString(), &vargs, yaya::string_t(L"$"));
 	if (!vargs_sz)
 		return CValue();
 
-	// Še—v‘f‚²‚Æ‚É_snwprintf‚Å‘®‰»‚µ‚ÄŒ‹‡‚µ‚Ä‚¢‚­
+	// å„è¦ç´ ã”ã¨ã«_snwprintfã§æ›¸å¼åŒ–ã—ã¦çµåˆã—ã¦ã„ã
 	yaya::string_t	left, right;
 	yaya::string_t	result = vargs[0];
 	yaya::char_t	t_str[128];
@@ -4433,13 +4433,13 @@ CValue	CSystemFunction::STRFORM(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::ANY
+ *  é–¢æ•°å  ï¼š  CSystemFunction::ANY
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ANY(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
 			yaya::string_t &/*d*/, int &/*l*/)
 {
-	// ˆø”–³‚µ‚È‚ç‹ó•¶š—ñ
+	// å¼•æ•°ç„¡ã—ãªã‚‰ç©ºæ–‡å­—åˆ—
 	int	sz = arg.array_size();
 	if (!sz) {
 		SetLso(-1);
@@ -4447,13 +4447,13 @@ CValue	CSystemFunction::ANY(const CValue &arg, const std::vector<CCell *> &pcell
 	}
 
 	if (sz == 1) {
-		// ˆø”1‚Â‚Å•¶š—ñ‚Å‚È‚¢‚È‚çˆø”‚ª‚»‚Ì‚Ü‚Ü•Ô‚é
+		// å¼•æ•°1ã¤ã§æ–‡å­—åˆ—ã§ãªã„ãªã‚‰å¼•æ•°ãŒãã®ã¾ã¾è¿”ã‚‹
 		if (!arg.array()[0].IsString()) {
 			SetLso(0);
 			return CValue(arg.array()[0]);
 		}
 
-		// ˆø”1‚Â‚Å•¶š—ñ‚È‚çŠÈˆÕ”z—ñ‚Æ‚µ‚Äˆ—@•Ï”‚Ìê‡‚Í‚»‚ÌƒfƒŠƒ~ƒ^‚Å•ªŠ„‚·‚é
+		// å¼•æ•°1ã¤ã§æ–‡å­—åˆ—ãªã‚‰ç°¡æ˜“é…åˆ—ã¨ã—ã¦å‡¦ç†ã€€å¤‰æ•°ã®å ´åˆã¯ãã®ãƒ‡ãƒªãƒŸã‚¿ã§åˆ†å‰²ã™ã‚‹
 		yaya::string_t	delimiter = VAR_DELIMITER;
 		if (pcellarg[0]->value_GetType() == F_TAG_VARIABLE)
 			delimiter = vm.variable().GetDelimiter(pcellarg[0]->index);
@@ -4472,14 +4472,14 @@ CValue	CSystemFunction::ANY(const CValue &arg, const std::vector<CCell *> &pcell
 		return CValue(s_array[s_pos]);
 	}
 
-	// ˆø”‚ª•¡”‚È‚ç”Ä—p”z—ñ‚Æ‚µ‚Äˆ—
+	// å¼•æ•°ãŒè¤‡æ•°ãªã‚‰æ±ç”¨é…åˆ—ã¨ã—ã¦å‡¦ç†
 	int s_pos = vm.genrand_int(sz);
 	SetLso(s_pos);
 	return CValue(arg.array()[s_pos]);
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::SAVEVAR
+ *  é–¢æ•°å  ï¼š  CSystemFunction::SAVEVAR
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::SAVEVAR(const CValue &arg, yaya::string_t &d, int &l)
@@ -4496,7 +4496,7 @@ CValue	CSystemFunction::SAVEVAR(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::RESTOREVAR
+ *  é–¢æ•°å  ï¼š  CSystemFunction::RESTOREVAR
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::RESTOREVAR(const CValue &arg, yaya::string_t &d, int &l)
@@ -4513,7 +4513,7 @@ CValue	CSystemFunction::RESTOREVAR(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::GETSTRBYTES
+ *  é–¢æ•°å  ï¼š  CSystemFunction::GETSTRBYTES
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::GETSTRBYTES(const CValue &arg, yaya::string_t &d, int &l)
@@ -4526,7 +4526,7 @@ CValue	CSystemFunction::GETSTRBYTES(const CValue &arg, yaya::string_t &d, int &l
 		return CValue(0);
 	}
 
-	// •¶šƒR[ƒhæ“¾
+	// æ–‡å­—ã‚³ãƒ¼ãƒ‰å–å¾—
 	int	charset = CHARSET_SJIS;
 	if (sz > 1) {
 		charset = GetCharset(arg.array()[1],L"GETSTRBYTES",d,l);
@@ -4535,7 +4535,7 @@ CValue	CSystemFunction::GETSTRBYTES(const CValue &arg, yaya::string_t &d, int &l
 		}
 	}
 	
-	// åˆ—
+	// ä¸»å‡¦ç†
 	char	*t_str = Ccct::Ucs2ToMbcs(arg.array()[0].GetValueString(), charset);
 	if (t_str == NULL) {
 		vm.logger().Error(E_E, 89, L"GETSTRBYTES", d, l);
@@ -4548,7 +4548,7 @@ CValue	CSystemFunction::GETSTRBYTES(const CValue &arg, yaya::string_t &d, int &l
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::STRENCODE
+ *  é–¢æ•°å  ï¼š  CSystemFunction::STRENCODE
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::STRENCODE(const CValue &arg, yaya::string_t &d, int &l)
@@ -4561,7 +4561,7 @@ CValue	CSystemFunction::STRENCODE(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 
-	// •¶šƒR[ƒhæ“¾
+	// æ–‡å­—ã‚³ãƒ¼ãƒ‰å–å¾—
 	int	charset = CHARSET_SJIS;
 	if (sz > 1) {
 		charset = GetCharset(arg.array()[1],L"STRENCODE",d,l);
@@ -4570,14 +4570,14 @@ CValue	CSystemFunction::STRENCODE(const CValue &arg, yaya::string_t &d, int &l)
 		}
 	}
 	
-	//•ÏŠ·ƒ^ƒCƒv
+	//å¤‰æ›ã‚¿ã‚¤ãƒ—
 	yaya::string_t type = L"url";
 	if ( sz > 2 ) {
 		type = arg.array()[2].GetValueString();
 		std::transform(type.begin(), type.end(), type.begin(), (int (*)(int))std::tolower);
 	}
 	
-	// åˆ—
+	// ä¸»å‡¦ç†
 	char *t_str = Ccct::Ucs2ToMbcs(arg.array()[0].GetValueString(), charset);
 	if (t_str == NULL) {
 		vm.logger().Error(E_E, 89, L"STRENCODE", d, l);
@@ -4602,7 +4602,7 @@ CValue	CSystemFunction::STRENCODE(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::STRDECODE
+ *  é–¢æ•°å  ï¼š  CSystemFunction::STRDECODE
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::STRDECODE(const CValue &arg, yaya::string_t &d, int &l)
@@ -4615,7 +4615,7 @@ CValue	CSystemFunction::STRDECODE(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 
-	// •¶šƒR[ƒhæ“¾
+	// æ–‡å­—ã‚³ãƒ¼ãƒ‰å–å¾—
 	int	charset = CHARSET_SJIS;
 	if (sz > 1) {
 		charset = GetCharset(arg.array()[1],L"STRDECODE",d,l);
@@ -4624,14 +4624,14 @@ CValue	CSystemFunction::STRDECODE(const CValue &arg, yaya::string_t &d, int &l)
 		}
 	}
 
-	//•ÏŠ·ƒ^ƒCƒv
+	//å¤‰æ›ã‚¿ã‚¤ãƒ—
 	yaya::string_t type = L"url";
 	if ( sz > 2 ) {
 		type = arg.array()[2].GetValueString();
 		std::transform(type.begin(), type.end(), type.begin(), (int (*)(int))std::tolower);
 	}
 	
-	// åˆ—
+	// ä¸»å‡¦ç†
 	yaya::string_t src = arg.array()[0].GetValueString();
 	yaya::string_t::iterator end = src.end();
 
@@ -4703,7 +4703,7 @@ CValue	CSystemFunction::STRDECODE(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::ASEARCH
+ *  é–¢æ•°å  ï¼š  CSystemFunction::ASEARCH
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ASEARCH(const CValue &arg, yaya::string_t &d, int &l)
@@ -4725,7 +4725,7 @@ CValue	CSystemFunction::ASEARCH(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::ASEARCHEX
+ *  é–¢æ•°å  ï¼š  CSystemFunction::ASEARCHEX
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ASEARCHEX(const CValue &arg, yaya::string_t &d, int &l)
@@ -4748,7 +4748,7 @@ CValue	CSystemFunction::ASEARCHEX(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::GETDELIM
+ *  é–¢æ•°å  ï¼š  CSystemFunction::GETDELIM
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::GETDELIM(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l)
@@ -4773,7 +4773,7 @@ CValue	CSystemFunction::GETDELIM(const std::vector<CCell *> &pcellarg, CLocalVar
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::SETSETTING
+ *  é–¢æ•°å  ï¼š  CSystemFunction::SETSETTING
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::SETSETTING(const CValue &arg, yaya::string_t &d, int &l)
@@ -4796,7 +4796,7 @@ CValue	CSystemFunction::SETSETTING(const CValue &arg, yaya::string_t &d, int &l)
 
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::GETSETTING
+ *  é–¢æ•°å  ï¼š  CSystemFunction::GETSETTING
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::GETSETTING(const CValue &arg, yaya::string_t &d, int &l)
@@ -4850,7 +4850,7 @@ CValue	CSystemFunction::GETSETTING(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::SPLIT
+ *  é–¢æ•°å  ï¼š  CSystemFunction::SPLIT
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::SPLIT(const CValue &arg, yaya::string_t &d, int &l)
@@ -4908,7 +4908,7 @@ CValue	CSystemFunction::SPLIT(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::HASH_SPLIT
+ *  é–¢æ•°å  ï¼š  CSystemFunction::HASH_SPLIT
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::HASH_SPLIT(const CValue &arg, yaya::string_t &d, int &l)
@@ -4987,7 +4987,7 @@ CValue	CSystemFunction::HASH_SPLIT(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::FATTRIB
+ *  é–¢æ•°å  ï¼š  CSystemFunction::FATTRIB
  * -----------------------------------------------------------------------
  */
 
@@ -5025,20 +5025,20 @@ CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 #if defined(WIN32)
-	// ƒpƒX‚ğMBCS‚É•ÏŠ·
+	// ãƒ‘ã‚¹ã‚’MBCSã«å¤‰æ›
 	char	*s_filestr = Ccct::Ucs2ToMbcs(ToFullPath(arg.array()[0].s_value), CHARSET_DEFAULT);
 	if (s_filestr == NULL) {
 		vm.logger().Error(E_E, 89, L"FATTRIB", d, l);
 		return CValue(-1);
 	}
 
-	// æ“¾
+	// å–å¾—
 	DWORD	attrib = GetFileAttributes(s_filestr);
 	if (attrib == 0xFFFFFFFF) {
 		return CValue(-1);
 	}
 
-	// •Ô’l¶¬
+	// è¿”å€¤ç”Ÿæˆ
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 
 	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_ARCHIVE   ) ? 1 : 0));
@@ -5051,8 +5051,8 @@ CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
 	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_SYSTEM    ) ? 1 : 0));
 	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_TEMPORARY ) ? 1 : 0));
 
-	if ( attrib & FILE_ATTRIBUTE_DIRECTORY ) { //ƒfƒBƒŒƒNƒgƒŠ
-		//GetFileAttributesEx‚Â‚©‚¢‚½‚¢A‚¯‚ÇWin95R‚é‚Ì‚Å‹p‰º
+	if ( attrib & FILE_ATTRIBUTE_DIRECTORY ) { //ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª
+		//GetFileAttributesExã¤ã‹ã„ãŸã„ã€ã‘ã©Win95è¹´ã‚‹ã®ã§å´ä¸‹
 		size_t len = strlen(s_filestr);
 		char *s_newstr = (char*)malloc(len+3);
 		strcpy(s_newstr,s_filestr);
@@ -5088,7 +5088,7 @@ CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
 			result.array().push_back(CValueSub((int)FileTimeToUnixTime(ffdata.ftLastWriteTime)));
 		}
 	}
-	else { //‚½‚¾‚Ìƒtƒ@ƒCƒ‹
+	else { //ãŸã ã®ãƒ•ã‚¡ã‚¤ãƒ«
 		HANDLE hFile = ::CreateFile(s_filestr , GENERIC_READ , FILE_SHARE_READ | FILE_SHARE_WRITE , NULL ,OPEN_EXISTING , FILE_ATTRIBUTE_NORMAL , NULL);
 		if (hFile == INVALID_HANDLE_VALUE) {
 			result.array().push_back(CValueSub(0));
@@ -5133,16 +5133,16 @@ CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::GETFUNCLIST
- *  ˆø”@@F@_argv[0] = i‚è‚±‚İ•¶š—ñ
- *  @@@@@@w’è‚µ‚½•¶š—ñ‚ª“ª‚É‚Â‚¢‚Ä‚é‚à‚Ì‚Ì‚İ’Šo‚µ‚Ä”z—ñ‚Å•Ô‚·
+ *  é–¢æ•°å  ï¼š  CSystemFunction::GETFUNCLIST
+ *  å¼•æ•°ã€€ã€€ï¼šã€€_argv[0] = çµã‚Šã“ã¿æ–‡å­—åˆ—
+ *  ã€€ã€€ã€€ã€€ã€€ã€€æŒ‡å®šã—ãŸæ–‡å­—åˆ—ãŒé ­ã«ã¤ã„ã¦ã‚‹ã‚‚ã®ã®ã¿æŠ½å‡ºã—ã¦é…åˆ—ã§è¿”ã™
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::GETFUNCLIST(const CValue &arg, yaya::string_t &/*d*/, int &/*l*/)
 {
 	yaya::string_t name;
 
-	//STRING‚Ìê‡‚Ì‚İi‚è‚±‚İ•¶š—ñ‚Æ‚µ‚Ä”F¯
+	//STRINGã®å ´åˆã®ã¿çµã‚Šã“ã¿æ–‡å­—åˆ—ã¨ã—ã¦èªè­˜
 	if ( arg.array_size() ) {
 		if (arg.array()[0].IsString()) {
 			name = arg.array()[0].GetValueString();
@@ -5151,13 +5151,13 @@ CValue	CSystemFunction::GETFUNCLIST(const CValue &arg, yaya::string_t &/*d*/, in
 
 	CValue result(F_TAG_ARRAY, 0/*dmy*/);
 
-	//i‚è‚±‚İ•¶š—ñ‚ª‚È‚¢ê‡
+	//çµã‚Šã“ã¿æ–‡å­—åˆ—ãŒãªã„å ´åˆ
 	if ( name.empty() ) {
 		for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
 			result.array().push_back(CValueSub(it->name));
 		}
 	}
-	//‚ ‚éê‡
+	//ã‚ã‚‹å ´åˆ
 	else {
 		yaya::string_t::size_type len = name.length();
 
@@ -5172,16 +5172,16 @@ CValue	CSystemFunction::GETFUNCLIST(const CValue &arg, yaya::string_t &/*d*/, in
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::GETVARLIST
- *  ˆø”@@F@_argv[0] = i‚è‚±‚İ•¶š—ñ
- *  @@@@@@w’è‚µ‚½•¶š—ñ‚ª“ª‚É‚Â‚¢‚Ä‚é‚à‚Ì‚Ì‚İ’Šo‚µ‚Ä”z—ñ‚Å•Ô‚·
+ *  é–¢æ•°å  ï¼š  CSystemFunction::GETVARLIST
+ *  å¼•æ•°ã€€ã€€ï¼šã€€_argv[0] = çµã‚Šã“ã¿æ–‡å­—åˆ—
+ *  ã€€ã€€ã€€ã€€ã€€ã€€æŒ‡å®šã—ãŸæ–‡å­—åˆ—ãŒé ­ã«ã¤ã„ã¦ã‚‹ã‚‚ã®ã®ã¿æŠ½å‡ºã—ã¦é…åˆ—ã§è¿”ã™
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::GETVARLIST(const CValue &arg, CLocalVariable &lvar, yaya::string_t &/*d*/, int &/*l*/)
 {
 	yaya::string_t name;
 
-	//STRING‚Ìê‡‚Ì‚İi‚è‚±‚İ•¶š—ñ‚Æ‚µ‚Ä”F¯
+	//STRINGã®å ´åˆã®ã¿çµã‚Šã“ã¿æ–‡å­—åˆ—ã¨ã—ã¦èªè­˜
 	if ( arg.array_size() ) {
 		if (arg.array()[0].IsString()) {
 			name = arg.array()[0].GetValueString();
@@ -5190,9 +5190,9 @@ CValue	CSystemFunction::GETVARLIST(const CValue &arg, CLocalVariable &lvar, yaya
 
 	CValue result(F_TAG_ARRAY, 0/*dmy*/);
 
-	//i‚è‚±‚İ•¶š—ñ‚ª‚È‚¢ê‡
+	//çµã‚Šã“ã¿æ–‡å­—åˆ—ãŒãªã„å ´åˆ
 	if ( name.empty() ) {
-		//ƒOƒ[ƒoƒ‹•Ï”
+		//ã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°
 		size_t n = vm.variable().GetNumber();
 
 		for(size_t i = 0; i < n; ++i) {
@@ -5204,7 +5204,7 @@ CValue	CSystemFunction::GETVARLIST(const CValue &arg, CLocalVariable &lvar, yaya
 
 		unsigned int depthmax = lvar.GetDepth();
 		
-		//ƒ[ƒJƒ‹•Ï”
+		//ãƒ­ãƒ¼ã‚«ãƒ«å¤‰æ•°
 		for(unsigned int depth = 0; depth < depthmax; ++depth) {
 			size_t n = lvar.GetNumber(depth);
 			for(size_t i = 0; i < n; ++i) {
@@ -5215,12 +5215,12 @@ CValue	CSystemFunction::GETVARLIST(const CValue &arg, CLocalVariable &lvar, yaya
 			}
 		}
 	}
-	//‚ ‚éê‡
+	//ã‚ã‚‹å ´åˆ
 	else {
 		yaya::string_t::size_type len = name.length();
 
 		if (name[0] != L'_') {
-			//ƒOƒ[ƒoƒ‹•Ï”
+			//ã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°
 			size_t n = vm.variable().GetNumber();
 
 			for(size_t i = 0; i < n; ++i) {
@@ -5233,7 +5233,7 @@ CValue	CSystemFunction::GETVARLIST(const CValue &arg, CLocalVariable &lvar, yaya
 			}
 		}
 		else {
-			//ƒ[ƒJƒ‹•Ï”
+			//ãƒ­ãƒ¼ã‚«ãƒ«å¤‰æ•°
 			unsigned int depthmax = lvar.GetDepth();
 			
 			for(unsigned int depth = 0; depth < depthmax; ++depth) {
@@ -5254,7 +5254,7 @@ CValue	CSystemFunction::GETVARLIST(const CValue &arg, CLocalVariable &lvar, yaya
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::GETCALLSTACKiŒÄ‚Ño‚µ—š—ğj
+ *  é–¢æ•°å  ï¼š  CSystemFunction::GETCALLSTACKï¼ˆå‘¼ã³å‡ºã—å±¥æ­´ï¼‰
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::GETCALLSTACK(const CValue &arg, yaya::string_t &/*d*/, int &/*l*/)
@@ -5273,8 +5273,8 @@ CValue	CSystemFunction::GETCALLSTACK(const CValue &arg, yaya::string_t &/*d*/, i
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::MakeReResultDetails
- *  ‹@”\ŠT—vF  ³‹K•\Œ»ŒnŠÖ”‚Ìˆ—Œ‹‰ÊÚ×‚ğ’~Ï‚µ‚Ü‚·
+ *  é–¢æ•°å  ï¼š  CSystemFunction::MakeReResultDetails
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  æ­£è¦è¡¨ç¾ç³»é–¢æ•°ã®å‡¦ç†çµæœè©³ç´°ã‚’è“„ç©ã—ã¾ã™
  * -----------------------------------------------------------------------
  */
 void	CSystemFunction::StoreReResultDetails(boost::match_results<yaya::string_t::const_iterator> &result)
@@ -5285,8 +5285,8 @@ void	CSystemFunction::StoreReResultDetails(boost::match_results<yaya::string_t::
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::ClearReResultDetails
- *  ‹@”\ŠT—vF  ³‹K•\Œ»ŒnŠÖ”‚Ìˆ—Œ‹‰ÊÚ×‚ğƒNƒŠƒA‚µ‚Ü‚·
+ *  é–¢æ•°å  ï¼š  CSystemFunction::ClearReResultDetails
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  æ­£è¦è¡¨ç¾ç³»é–¢æ•°ã®å‡¦ç†çµæœè©³ç´°ã‚’ã‚¯ãƒªã‚¢ã—ã¾ã™
  * -----------------------------------------------------------------------
  */
 void	CSystemFunction::ClearReResultDetails(void)
@@ -5297,8 +5297,8 @@ void	CSystemFunction::ClearReResultDetails(void)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::AppendReResultDetail
- *  ‹@”\ŠT—vF  ³‹K•\Œ»ŒnŠÖ”‚Ìˆ—Œ‹‰ÊÚ×‚ğ1‚Â’~Ï‚µ‚Ü‚·
+ *  é–¢æ•°å  ï¼š  CSystemFunction::AppendReResultDetail
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  æ­£è¦è¡¨ç¾ç³»é–¢æ•°ã®å‡¦ç†çµæœè©³ç´°ã‚’1ã¤è“„ç©ã—ã¾ã™
  * -----------------------------------------------------------------------
  */
 void	CSystemFunction::AppendReResultDetail(const yaya::string_t &str, int pos, int len)
@@ -5309,8 +5309,8 @@ void	CSystemFunction::AppendReResultDetail(const yaya::string_t &str, int pos, i
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::SetError
- *  ‹@”\ŠT—vF  GETLASTERROR‚ª•Ô‚·’l‚ğİ’è‚µ‚Ü‚·
+ *  é–¢æ•°å  ï¼š  CSystemFunction::SetError
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  GETLASTERRORãŒè¿”ã™å€¤ã‚’è¨­å®šã—ã¾ã™
  * -----------------------------------------------------------------------
  */
 void	CSystemFunction::SetError(int code)
@@ -5343,8 +5343,8 @@ int CSystemFunction::GetCharset(const CValueSub &var,const wchar_t *fname, yaya:
 
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::ToFullPath
- *  ‹@”\ŠT—vF  “n‚³‚ê‚½•¶š—ñ‚ª‘Š‘ÎƒpƒX•\‹L‚È‚çâ‘ÎƒpƒX‚É‘‚«Š·‚¦‚Ü‚·
+ *  é–¢æ•°å  ï¼š  CSystemFunction::ToFullPath
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  æ¸¡ã•ã‚ŒãŸæ–‡å­—åˆ—ãŒç›¸å¯¾ãƒ‘ã‚¹è¡¨è¨˜ãªã‚‰çµ¶å¯¾ãƒ‘ã‚¹ã«æ›¸ãæ›ãˆã¾ã™
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
@@ -5371,7 +5371,7 @@ yaya::string_t CSystemFunction::ToFullPath(const yaya::string_t &str)
 #endif
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::READFMO
+ *  é–¢æ•°å  ï¼š  CSystemFunction::READFMO
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
@@ -5388,7 +5388,7 @@ CValue CSystemFunction::READFMO(const CValue &arg, yaya::string_t &d, int &l)
 	void* pData;
 	CValue result=CValue(F_TAG_NOP, 0/*dmy*/);
 
-	//UNICODE¨SJIS‚É‚µ‚ÄŒÄ‚Ôifor win95j
+	//UNICODEâ†’SJISã«ã—ã¦å‘¼ã¶ï¼ˆfor win95ï¼‰
 	char* tmpstr=Ccct::Ucs2ToMbcs(fmoname.c_str(),CHARSET_SJIS);
 
 	hFMO=OpenFileMapping(FILE_MAP_READ,false,tmpstr);
@@ -5446,7 +5446,7 @@ CValue CSystemFunction::READFMO(const CValue &arg, yaya::string_t &d, int &l)
 
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::EXECUTE_WAIT
+ *  é–¢æ•°å  ï¼š  CSystemFunction::EXECUTE_WAIT
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::EXECUTE_WAIT(const CValue &arg, yaya::string_t &d, int &l)
@@ -5463,7 +5463,7 @@ CValue	CSystemFunction::EXECUTE_WAIT(const CValue &arg, yaya::string_t &d, int &
 		return CValue(-1);
 	}
 
-	// ƒpƒX‚ğMBCS‚É•ÏŠ·
+	// ãƒ‘ã‚¹ã‚’MBCSã«å¤‰æ›
 	int result;
 
 #if defined(WIN32)	
@@ -5519,12 +5519,12 @@ CValue	CSystemFunction::EXECUTE_WAIT(const CValue &arg, yaya::string_t &d, int &
 
 #endif
 
-	// Às
+	// å®Ÿè¡Œ
 	return CValue(result);
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::EXECUTE
+ *  é–¢æ•°å  ï¼š  CSystemFunction::EXECUTE
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::EXECUTE(const CValue &arg, yaya::string_t &d, int &l)
@@ -5541,7 +5541,7 @@ CValue	CSystemFunction::EXECUTE(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(-1);
 	}
 
-	// ƒpƒX‚ğMBCS‚É•ÏŠ·
+	// ãƒ‘ã‚¹ã‚’MBCSã«å¤‰æ›
 	int result;
 
 #if defined(WIN32)	
@@ -5571,12 +5571,12 @@ CValue	CSystemFunction::EXECUTE(const CValue &arg, yaya::string_t &d, int &l)
 
 #endif
 
-	// Às
+	// å®Ÿè¡Œ
 	return CValue(result);
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::DUMPVAR
+ *  é–¢æ•°å  ï¼š  CSystemFunction::DUMPVAR
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::DUMPVAR(const CValue &arg, yaya::string_t &d, int &l)
@@ -5587,7 +5587,7 @@ CValue	CSystemFunction::DUMPVAR(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CSystemFunction::LICENSE
+ *  é–¢æ•°å  ï¼š  CSystemFunction::LICENSE
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::LICENSE()

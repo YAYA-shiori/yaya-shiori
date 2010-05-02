@@ -337,7 +337,7 @@ int yaya::snprintf(yaya::char_t *buf,size_t count,const yaya::char_t *format,...
 	result = vswprintf(buf,count*2,format,list);
 #endif
 #else
-	result = vswprintf(buf,count*2,format,list);
+	result = vswprintf(buf,/*count*2,*/format,list);
 #endif
 
 	va_end (list);
