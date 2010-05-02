@@ -388,7 +388,7 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
  *  機能概要：  LoadBaseConfigureFileから呼ばれます。各種パラメータを設定します
  * -----------------------------------------------------------------------
  */
-bool CBasis::SetParameter(yaya::string_t &cmd, yaya::string_t &param, std::vector<CDic1> *dics)
+bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param, std::vector<CDic1> *dics)
 {
 	// dic
 	if ( cmd.compare(L"dic") == 0 && dics) {
