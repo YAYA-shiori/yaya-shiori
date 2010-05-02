@@ -17,10 +17,15 @@
 #ifndef _SHA1_H_
 #define _SHA1_H_
 
+#ifndef _STDINT_H
 typedef unsigned long uint32_t;
 typedef unsigned char uint8_t;
 typedef int int_least16_t;
+#endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * If you do not have the ISO standard stdint.h header file, then you
  * must typdef the following:
@@ -72,5 +77,8 @@ int SHA1Input(  SHA1Context *,
                 unsigned int);
 int SHA1Result( SHA1Context *,
                 uint8_t Message_Digest[SHA1HashSize]);
+#ifdef __cplusplus
+}
+#endif
 
 #endif

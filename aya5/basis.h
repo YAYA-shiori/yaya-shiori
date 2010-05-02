@@ -104,7 +104,7 @@ public:
 	void	RestoreVariable(const yaya::char_t* pName = NULL);
 
 	yaya::string_t GetParameter(const yaya::string_t &cmd);
-	bool SetParameter(yaya::string_t &cmd, yaya::string_t &param, std::vector<CDic1> *dics = NULL);
+	bool SetParameter(const yaya::string_t &cmd, const yaya::string_t &param, std::vector<CDic1> *dics = NULL);
 	void SetLogger(void);
 
 	void    SetOutputCharset(char cst) { output_charset = cst; }

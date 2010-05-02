@@ -1,6 +1,7 @@
 # -*- makefile -*-
 
 # 使用するツール類の設定
+CC = gcc
 CXX = g++
 LD = g++
 STRIP = strip
@@ -14,12 +15,13 @@ DYLIB_NAME_POSTFIX = .dll
 
 # STLPort
 STLPORT_INCLUDES = /usr/local/include/stlport
-LIBSTLPORT_A = /usr/local/lib/libstlport_mingw32_static.a
+LIBSTLPORT_A = 
+#LIBSTLPORT_A = /usr/local/lib/libstlport_mingw32_static.a
 
 # boostの場所を指定。
 BOOST_INCLUDES = /usr/local/include
 # libboost_regex.aの場所を設定。
-LIBBOOST_REGEX_A = /usr/local/lib/libboost_regex-sp.lib
+LIBBOOST_REGEX_A = -lboost_regex-sp
 
 # 注意:
 # このプログラムは wstring を使用しています。
@@ -33,13 +35,16 @@ LDFLAGS = -shared
 
 ################## これより下は弄らなくてもコンパイル出来ます ##################
 CXXFLAGS_ADD = -I$(STLPORT_INCLUDES) -I$(BOOST_INCLUDES) -I.
-LD_ADD = $(LIBBOOST_REGEX_A) $(LIBSTLPORT_A)
+LD_ADD = $(LIBBOOST_REGEX_A) $(LIBSTLPORT_A) -lsupc++ -lmingw32 -lmingwex
 LIBAYA5_SRC = \
 	stdafx.cpp \
 	aya5.cpp \
+	ayavm.cpp \
+	babel/babel.cpp \
 	basis.cpp \
 	ccct.cpp \
 	comment.cpp \
+	crc32.cpp \
 	duplevinfo.cpp \
 	file.cpp \
 	file1.cpp \
@@ -50,12 +55,15 @@ LIBAYA5_SRC = \
 	localvariable.cpp \
 	log.cpp \
 	logexcode.cpp \
+	manifest.cpp \
+	md5c.cpp \
 	misc.cpp \
 	mt19937ar.cpp \
 	parser0.cpp \
 	parser1.cpp \
 	posix_utils.cpp \
 	selecter.cpp \
+	sha1.cpp \
 	sysfunc.cpp \
 	value.cpp \
 	valuesub.cpp \
@@ -64,7 +72,7 @@ LIBAYA5_SRC = \
 
 LIBAYA5_OBJ = $(LIBAYA5_SRC:.cpp=.o)
 
-LIBAYA5 = $(DYLIB_NAME_PREFIX)aya5$(DYLIB_NAME_POSTFIX)
+LIBAYA5 = $(DYLIB_NAME_PREFIX)yaya$(DYLIB_NAME_POSTFIX)
 
 .SUFFIXES: .cpp
 
@@ -79,6 +87,9 @@ clean:
 $(LIBAYA5): $(LIBAYA5_OBJ)
 	$(LD) -o $@ $(LIBAYA5_OBJ) $(LDFLAGS) $(LD_ADD)
 	$(STRIP) -s $@
+
+.c.o:
+	$(CC) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $<
 
 .cpp.o:
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $<
