@@ -119,6 +119,7 @@ load
 	SHIORI3FW.HWnd         = (0,0)
 	SHIORI3FW.BalloonHWnd  = (0,0)
 	SHIORI3FW.UniqueID     = ''
+	SHIORI3FW.DebugMode    = 1
 	
 	SAORI.DllList          = IARRAY
 	basewarename           = ''
@@ -208,6 +209,7 @@ ghostexlist
 ghostexcount
 selfname
 selfname2
+sakuraname
 keroname
 basewarename
 basewarenameex
@@ -527,6 +529,7 @@ SHIORI3FW.RaiseIDEvent
 	
 	_event = SHIORI3FW.EventidTranslate
 	
+	_result_internal = ''
 	if SHIORI3FW.Eventid == "OnSecondChange" {
 		// OnSecondChangeならランダムトーク関連処理
 		SHIORI3FW.ControlAiTalk(&_event)
@@ -535,16 +538,19 @@ SHIORI3FW.RaiseIDEvent
 		}
 	}
 	elseif ISFUNC('SHIORI3EV.' + SHIORI3FW.Eventid) {
-		void EVAL('SHIORI3EV.' + SHIORI3FW.Eventid)
+		_result_internal = TOSTR(EVAL('SHIORI3EV.' + SHIORI3FW.Eventid))
 	}
 
 	// イベント活性化
 	_result = ''
 	if ISFUNC(_event) {
-		_result = EVAL(_event)
+		_result = TOSTR(EVAL(_event))
 	}
+	if _result == '' {
+		_result = _result_internal
+	}
+	
 	if _result != '' {
-		
 		// 遅延EVAL
 		_talk = RE_SPLIT(_result,'(' + EVAL_DELIM + '|' + CHAIN_DELIM + ')')
 		_delim = RE_GETSTR
@@ -625,7 +631,6 @@ SHIORI3FW.ControlAiTalk
 			SHIORI3FW.DelayEventTime--
 
 			if SHIORI3FW.DelayEventTime <= 0 {
-				SHIORI3FW.AiTalkCount = 0
 				_argv[0] = SHIORI3FW.DelayEvent
 				if ARRAYSIZE(SHIORI3FW.DelayEventReference) {
 					reference = SHIORI3FW.DelayEventReference
@@ -693,7 +698,7 @@ SHIORI3FW.MakeReferenceVariable : void
 			
 			if SHIORI3FW.REF_ACCEL==0 { //1にすると高速化
 				_varname = "reference%(_refnum)"
-				LETTONAME(_varname, _value)
+				void EVAL("%(_varname) = _value")
 				SHIORI3FW.ReferenceList ,= _varname
 			}
 		}
@@ -1153,7 +1158,8 @@ SHIORI3FW.MakeValueexVariable
 	_sz                   = ARRAYSIZE(var.lib.key)
 	for _i = 0; _i < _sz; _i++ {
 		if SUBSTR(_keyname = var.lib.key[_i], 0, 5) == "Value" {
-			_dmy = LETTONAME(_varname = "valueex%(SUBSTR(_keyname, 5, 3))", var.lib.value[_i])
+			_varname = "valueex%(SUBSTR(_keyname, 5, 3))"
+			void EVAL("%(_varname) = var.lib.value[_i]")
 			SHIORI3FW.ValueexList ,= _varname
 			valueex[TOINT(SUBSTR(_keyname, 5, 3))] = var.lib.value[_i]
 		}
@@ -1335,6 +1341,36 @@ SHIORI3EV.OnBalloonChange : void
 }
 
 //******************************************************************************
+// デバッグ
+//******************************************************************************
+SHIORI3EV.On_enable_log
+{
+	if TOINT(reference[0]) {
+		SETSETTING('log','yaya_ssp_debug.log')
+	}
+	else {
+		SETSETTING('log','')
+	}
+}
+
+SHIORI3EV.On_log_path
+{
+	SHIORI3FW.Path + 'yaya_ssp_debug.log'
+}
+
+SHIORI3EV.On_enable_debug
+{
+	SHIORI3FW.DebugMode = TOINT(reference[0])
+}
+
+SHIORI3EV.On_ShioriEcho
+{
+	if SHIORI3FW.DebugMode {
+		'\0Eval Result = ' + JOIN(EVAL(reference[0]),',')
+	}
+}
+
+//******************************************************************************
 // 時刻系変数
 //******************************************************************************
 year    { GETTIME[0] }
@@ -1386,10 +1422,3 @@ memoryavailphys    { GETMEMINFO[2] }
 memorytotalvirtual { GETMEMINFO[3] }
 memoryavailvirtual { GETMEMINFO[4] }
 
-//******************************************************************************
-// デバッグ
-//******************************************************************************
-On_ShioriEcho
-{
-	'\0Eval Result = ' + JOIN(EVAL(reference[0]),',')
-}
