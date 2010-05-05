@@ -468,11 +468,11 @@ SHIORI3FW.AssembleReferenceHeader
 		if _r == 4 {
 			_n = ARRAYSIZE(res_reference)
 			for _i = 0 ; _i < _n ; _i++ {
-				_result0 += "Reference%(_i): %(res_reference[_i])%(C_CRLF)"
+				_result += "Reference%(_i): %(res_reference[_i])%(C_CRLF)"
 			}
 		}
 		else {
-			_result0 += "Reference0: %(res_reference)%(C_CRLF)"
+			_result += "Reference0: %(res_reference)%(C_CRLF)"
 		}
 		ERASEVAR('res_reference')
 	}
