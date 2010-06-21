@@ -580,7 +580,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 	// ファイルを開く
 	yaya::string_t	filename;
 	if ( ! pName || ! *pName ) {
-		filename = path + modulename + L"_variable.cfg";
+		filename = GetSavefilePath();
 	}
 	else {
 		filename = path + pName;
@@ -744,7 +744,7 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 	// ファイルを開く
 	yaya::string_t	filename;
 	if ( ! pName || ! *pName ) {
-		filename = path + modulename + L"_variable.cfg";
+		filename = path + GetSavefilePath();
 	}
 	else {
 		filename = path + pName;
