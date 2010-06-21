@@ -91,10 +91,11 @@ public:
 #if defined(WIN32)
 	HWND	GetLogHWnd(void) { return hlogrcvWnd; }
 #endif
-	yaya::string_t	GetLogPath(void)  { return logpath; }
+	const yaya::string_t& GetLogPath(void) const { return logpath; }
 	char	GetMsgLang(void)  { return msglang; }
 	char	GetDicCharset(void)  { return dic_charset; }
-	yaya::string_t	GetRootPath(void) { return path;    }
+	const yaya::string_t& GetRootPath(void) const { return path;    }
+	yaya::string_t GetSavefilePath(void) const { return path + modulename + L"_variable.cfg"; }
 
 	void	ExecuteLoad(void);
 	yaya::global_t	ExecuteRequest(yaya::global_t h, long *len);
