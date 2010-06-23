@@ -744,7 +744,7 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 	// ファイルを開く
 	yaya::string_t	filename;
 	if ( ! pName || ! *pName ) {
-		filename = path + GetSavefilePath();
+		filename = GetSavefilePath();
 	}
 	else {
 		filename = path + pName;
