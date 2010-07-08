@@ -164,6 +164,7 @@ protected:
 	CValue	RE_REPLACE(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	RE_SPLIT(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	RE_OPTION(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	RE_ASEARCHEX(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue	CHRCODE(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	ISINTSTR(const CValue &arg, yaya::string_t &d, int &l);

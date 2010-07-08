@@ -74,7 +74,7 @@ extern "C" {
  *  システム関数テーブル
  * -----------------------------------------------------------------------
  */
-#define	SYSFUNC_NUM					130 //システム関数の全数
+#define	SYSFUNC_NUM					131 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -252,12 +252,14 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"STRDECODE",
 	// 特殊(7)
 	L"EXECUTE_WAIT",
-	// 正規表現(3)
+	// 正規表現(4)
 	L"RE_OPTION",
 	// ファイル操作(6)
 	L"FREADENCODE",
 	// 型取得/変換(4)
 	L"GETTYPEEX",
+	// 正規表現(5)
+	L"RE_ASEARCHEX",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -643,6 +645,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return FREADENCODE(arg, d, l);
 	case 129:
 		return GETTYPEEX(arg, lvar, d, l);
+	case 130:
+		return RE_ASEARCHEX(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -3487,6 +3491,60 @@ CValue	CSystemFunction::RE_SEARCH(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	return CValue(t_result);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::RE_ASEARCHEX
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::RE_ASEARCHEX(const CValue &arg, yaya::string_t &d, int &l)
+{
+	int	sz = arg.array_size();
+
+	if (sz < 2) {
+		vm.logger().Error(E_W, 8, L"RE_ASEARCHEX", d, l);
+		SetError(8);
+		return CValue(F_TAG_ARRAY, 0/*dmy*/);
+	}
+
+	const CValueSub &key = arg.array()[0];
+	CValue res(F_TAG_ARRAY, 0/*dmy*/);
+
+	try {
+		boost::basic_regex<yaya::char_t> regex(key.GetValueString(),boost::regex::perl | boost::regex::collate | re_option);
+
+		for(int i = 1; i < sz; i++) {
+			try {
+				boost::match_results<yaya::string_t::const_iterator> result;
+				int t_result = (int)boost::regex_search(arg.array()[i].GetValueString(), result, regex);
+				if (t_result) {
+					StoreReResultDetails(result);
+					res.array().push_back(arg.array()[i]);
+				}
+			}
+			catch(const std::runtime_error &) {
+				vm.logger().Error(E_W, 16, L"RE_ASEARCHEX", d, l);
+				SetError(16);
+			}
+			catch(...) {
+				vm.logger().Error(E_W, 17, L"RE_ASEARCHEX", d, l);
+				SetError(17);
+			}
+		}
+
+	}
+	catch(const boost::bad_expression &) {
+		vm.logger().Error(E_W, 16, L"RE_ASEARCHEX", d, l);
+		SetError(16);
+		return CValue(F_TAG_ARRAY, 0/*dmy*/);
+	}
+	catch(...) {
+		vm.logger().Error(E_W, 17, L"RE_ASEARCHEX", d, l);
+		SetError(17);
+		return CValue(F_TAG_ARRAY, 0/*dmy*/);
+	}
+
+	return res;
 }
 
 /* -----------------------------------------------------------------------
