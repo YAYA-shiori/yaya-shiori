@@ -166,7 +166,6 @@ protected:
 	CValue	RE_OPTION(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue	RE_ASEARCH(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	RE_ASEARCHMULTI(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	RE_ASEARCHEX(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue	CHRCODE(const CValue &arg, yaya::string_t &d, int &l);
@@ -195,7 +194,6 @@ protected:
 	CValue	GETSTRBYTES(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue	ASEARCH(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	ASEARCHMULTI(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	ASEARCHEX(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue	GETDELIM(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l);
