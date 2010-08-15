@@ -268,10 +268,7 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"GETTYPEEX",
 	// 正規表現(5)
 	L"RE_ASEARCHEX",
-	L"RE_ASEARCH",
-	L"RE_ASEARCHMULTI",
-	// 配列(5)
-	L"ASEARCHMULTI",
+	L"RE_ASEARCH"
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -673,10 +670,6 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return RE_ASEARCHEX(arg, d, l);
 	case 137:
 		return RE_ASEARCH(arg, d, l);
-	case 138:
-		return RE_ASEARCHMULTI(arg, d, l);
-	case 139:
-		return ASEARCHMULTI(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -3681,7 +3674,7 @@ CValue	CSystemFunction::RE_SEARCH(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::RE_ASEARCH / RE_ASEARCHMULTI
+ *  関数名  ：  CSystemFunction::RE_ASEARCH / RE_ASEARCHEX
  * -----------------------------------------------------------------------
  */
 
@@ -3735,61 +3728,6 @@ CValue	CSystemFunction::RE_ASEARCH(const CValue &arg, yaya::string_t &d, int &l)
 	return CValue(-1);
 }
 
-CValue	CSystemFunction::RE_ASEARCHMULTI(const CValue &arg, yaya::string_t &d, int &l)
-{
-	int	sz = arg.array_size();
-
-	if (sz < 2) {
-		vm.logger().Error(E_W, 8, L"RE_ASEARCHEX", d, l);
-		SetError(8);
-		return CValue(F_TAG_ARRAY, 0/*dmy*/);
-	}
-
-	const CValueSub &key = arg.array()[0];
-	CValue res(F_TAG_ARRAY, 0/*dmy*/);
-
-	try {
-		boost::basic_regex<yaya::char_t> regex(key.GetValueString(),boost::regex::perl | boost::regex::collate | re_option);
-
-		for(int i = 1; i < sz; i++) {
-			try {
-				boost::match_results<yaya::string_t::const_iterator> result;
-				int t_result = (int)boost::regex_search(arg.array()[i].GetValueString(), result, regex);
-				if (t_result) {
-					//結果ためこんでもあまり意味ないので
-					//StoreReResultDetails(result);
-					res.array().push_back(CValueSub(i-1));
-				}
-			}
-			catch(const std::runtime_error &) {
-				vm.logger().Error(E_W, 16, L"RE_ASEARCHEX", d, l);
-				SetError(16);
-			}
-			catch(...) {
-				vm.logger().Error(E_W, 17, L"RE_ASEARCHEX", d, l);
-				SetError(17);
-			}
-		}
-
-	}
-	catch(const boost::bad_expression &) {
-		vm.logger().Error(E_W, 16, L"RE_ASEARCHEX", d, l);
-		SetError(16);
-		return CValue(F_TAG_ARRAY, 0/*dmy*/);
-	}
-	catch(...) {
-		vm.logger().Error(E_W, 17, L"RE_ASEARCHEX", d, l);
-		SetError(17);
-		return CValue(F_TAG_ARRAY, 0/*dmy*/);
-	}
-
-	return res;
-}
-
-/* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::RE_ASEARCHEX
- * -----------------------------------------------------------------------
- */
 CValue	CSystemFunction::RE_ASEARCHEX(const CValue &arg, yaya::string_t &d, int &l)
 {
 	int	sz = arg.array_size();
@@ -3813,7 +3751,7 @@ CValue	CSystemFunction::RE_ASEARCHEX(const CValue &arg, yaya::string_t &d, int &
 				if (t_result) {
 					//結果ためこんでもあまり意味ないので
 					//StoreReResultDetails(result);
-					res.array().push_back(arg.array()[i]);
+					res.array().push_back(CValueSub(i-1));
 				}
 			}
 			catch(const std::runtime_error &) {
@@ -4878,7 +4816,7 @@ CValue	CSystemFunction::STRDECODE(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::ASEARCH
+ *  関数名  ：  CSystemFunction::ASEARCH / ASEARCHEX
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ASEARCH(const CValue &arg, yaya::string_t &d, int &l)
@@ -4901,32 +4839,6 @@ CValue	CSystemFunction::ASEARCH(const CValue &arg, yaya::string_t &d, int &l)
 	return CValue(-1);
 }
 
-CValue CSystemFunction::ASEARCHMULTI(const CValue &arg, yaya::string_t &d, int &l)
-{
-	int	sz = arg.array_size();
-
-	if (sz < 2) {
-		vm.logger().Error(E_W, 8, L"ASEARCH", d, l);
-		SetError(8);
-		return CValue(F_TAG_ARRAY, 0/*dmy*/);
-	}
-
-	CValue res(F_TAG_ARRAY, 0/*dmy*/);
-	const CValueSub &key = arg.array()[0];
-
-	for (int i = 1; i < sz; i++) {
-		if (key.Compare(arg.array()[i])) {
-			res.array().push_back(CValueSub(i - 1));
-		}
-	}
-
-	return res;
-}
-
-/* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::ASEARCHEX
- * -----------------------------------------------------------------------
- */
 CValue	CSystemFunction::ASEARCHEX(const CValue &arg, yaya::string_t &d, int &l)
 {
 	int	sz = arg.array_size();
@@ -4939,9 +4851,11 @@ CValue	CSystemFunction::ASEARCHEX(const CValue &arg, yaya::string_t &d, int &l)
 
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 	const CValueSub &key = arg.array()[0];
-	for(int i = 1; i < sz; i++)
-		if (key.Compare(arg.array()[i]))
+	for(int i = 1; i < sz; i++) {
+		if (key.Compare(arg.array()[i])) {
 			result.array().push_back(CValueSub(i - 1));
+		}
+	}
 
 	return result;
 }
