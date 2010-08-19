@@ -320,6 +320,8 @@ int CSystemFunction::GetMaxNameLength(void)
  */
 int CSystemFunction::FindIndex(const yaya::string_t &str)
 {
+	if ( str.size() == 0 ) { return -1; }
+
 	yaya::indexmap::const_iterator it = sysfuncinit.sysfunc_map.find(str);
 	if ( it == sysfuncinit.sysfunc_map.end() ) { return -1; }
 
