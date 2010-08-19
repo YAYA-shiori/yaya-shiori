@@ -1,4 +1,7 @@
 #labels Featured
+=Tc539-2"
+  * ISFUNCで空文字列を指定すると2が返るひどい問題を修正
+
 =Tc539-1=
   * SETSETTINGでiolog,logpathの変更を有効に
   * 新関数 RE_ASEARCH RE_ASEARCHEX RE_ASEARCHMULTI ASEARCHMULTI
