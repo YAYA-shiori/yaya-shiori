@@ -22,5 +22,5 @@ background.color,ddffcc
 face,MS UI Gothic
 window.x,78
 window.y,312
-window.width,701
-window.height,526
+window.width,705
+window.height,530
