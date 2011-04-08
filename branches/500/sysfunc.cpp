@@ -3703,8 +3703,8 @@ CValue	CSystemFunction::RE_GREP(const CValue &arg, yaya::string_t &d, int &l)
 			if (!boost::regex_search(search_point, search_end, result, regex))
 				break;
 			t_result++;
-			AppendReResultDetail(result.str(0), result.position(0) + t_pos, result.length(0));
-			search_point = str + (t_pos += (result.position(0) + result.length(0)));
+			AppendReResultDetail(result.str(0), result.position(static_cast<unsigned int>(0)) + t_pos, result.length(0));
+			search_point = str + (t_pos += (result.position(static_cast<unsigned int>(0)) + result.length(0)));
 		}
 	}
 	catch(const boost::bad_expression &) {
@@ -3946,15 +3946,15 @@ CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int 
 			if (!boost::regex_search(search_point, search_end, result, regex))
 				break;
 
-			splits.array().push_back(arg0.substr(t_pos, result.position(0)));
+			splits.array().push_back(arg0.substr(t_pos, result.position(static_cast<unsigned int>(0))));
 
-			AppendReResultDetail(result.str(0), result.position(0) + t_pos, result.length(0));
+			AppendReResultDetail(result.str(0), result.position(static_cast<unsigned int>(0)) + t_pos, result.length(0));
 			
 			if ( replace_array ) {
 				replace_array->push_back(result.format(arg.array()[2].GetValueString(),boost::format_perl));
 			}
 
-			search_point = str + (t_pos += (result.position(0) + result.length(0)));
+			search_point = str + (t_pos += (result.position(static_cast<unsigned int>(0)) + result.length(0)));
 			++count;
 
 			if ( num != 0 && (count >= num) ) {
@@ -5291,7 +5291,7 @@ CValue CSystemFunction::READFMO(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(13);
 		return result;
 	}
-	free(pBuf);
+	delete[](pBuf);
 
 	result=CValue(t_str);
 	free(t_str);
