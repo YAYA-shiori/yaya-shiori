@@ -5547,7 +5547,7 @@ CValue CSystemFunction::READFMO(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(13);
 		return result;
 	}
-	free(pBuf);
+	delete[](pBuf);
 
 	result=CValue(t_str);
 	free(t_str);
