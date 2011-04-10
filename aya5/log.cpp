@@ -109,6 +109,7 @@ void	CLog::Start(const yaya::string_t &p, int cs, int ml, HWND hw, char il)
 				fclose(fp);
 			}
 			free(tmpstr);
+			tmpstr = NULL;
 		}
 	}
 	open = 1;
@@ -187,6 +188,7 @@ void	CLog::Write(const yaya::char_t *str, int mode)
 					fclose(fp);
 				}
 				free(tmpstr);
+				tmpstr = NULL;
 			}
 		}
 	}

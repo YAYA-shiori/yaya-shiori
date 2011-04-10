@@ -92,7 +92,7 @@ char	CParser1::CheckNomialCount(CStatement& st, const yaya::string_t& dicfilenam
 
 		//演算に関係してる項の数を確認 二項演算子なのに単項で使われてるとか
 		if ( t_type >= F_TAG_ORIGIN && t_type < F_TAG_ORIGIN_VALUE ) {
-			if ( it->index.size() < formulatag_params[t_type-F_TAG_ORIGIN] ) {
+			if ( static_cast<int>(it->index.size()) < formulatag_params[t_type-F_TAG_ORIGIN] ) {
 				vm.logger().Error(E_E, 22, dicfilename, st.linecount);
 				errcount++;
 			}
@@ -118,7 +118,7 @@ char	CParser1::CheckSubstSyntax(CStatement& st, const yaya::string_t& dicfilenam
 
 		if (t_type >= F_TAG_EQUAL && t_type <= F_TAG_COMMAEQUAL) {
 			// 代入演算子が式の先頭、もしくは最後尾にある場合はエラー
-			if (!i || i == static_cast<int>(st.cell_size()) - 1) {
+			if (!i || i == static_cast<size_t>(st.cell_size()) - 1) {
 				vm.logger().Error(E_E, 29, dicfilename, st.linecount);
 				errcount++;
 			}
@@ -136,7 +136,7 @@ char	CParser1::CheckSubstSyntax(CStatement& st, const yaya::string_t& dicfilenam
 				// 手前が閉じスクウェアブラケット("]")だった場合はブラケット手前の変数を確認
 				if (st.cell()[before].value_GetType() == F_TAG_HOOKBRACKETOUT) {
 					int	depth = 1;
-					int     j;
+					int     j = 0;
 					for(j = before - 1; j >= 0; j--) {
 						if (st.cell()[j].value_GetType() == F_TAG_HOOKBRACKETOUT)
 							depth++;

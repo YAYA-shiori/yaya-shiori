@@ -519,7 +519,7 @@ char	CParser0::DefineFunctions(std::vector<yaya::string_t> &s, const yaya::strin
 				// 重複回避オプションの判定
 				int	chtype = CHOICETYPE_RANDOM;
 				if (d1.size()) {
-				    int i;
+				    int i = 0;
 					for(i = 0; i < CHOICETYPE_NUM; i++) {
 						if (!d1.compare(choicetype[i])) {
 							chtype = i;
@@ -1045,7 +1045,7 @@ void	CParser0::StructFormulaCell(yaya::string_t &str, std::vector<CCell> &cells)
 			int result = -1;
 			int maxlen = 0;
 			for ( int r = 0 ; r < FORMULATAG_NUM ; ++r ) {
-				if ( formulatag_len[r] <= strlen - i ) {
+				if ( static_cast<size_t>(formulatag_len[r]) <= strlen - i ) {
 					if ( str.compare(i,formulatag_len[r],formulatag[r]) == 0 ) {
 						if ( maxlen < formulatag_len[r] ) {
 							result = r;
@@ -1546,7 +1546,7 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 			// 抜き出し位置検索
 			int	bdepth = 1;
 			int	len = str.size();
-			int     spos;
+			int     spos = 0;
 			for(spos = 2; spos < len; spos++) {
 				bdepth += ((str[spos] == L'(') - (str[spos] == L')'));
 				if (!bdepth)
@@ -1599,7 +1599,7 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 			// 抜き出し位置検索
 			int	bdepth = 1;
 			int	len = str.size();
-			int     spos;
+			int     spos = 0;
 			for(spos = 2; spos < len; spos++) {
 				bdepth += ((str[spos] == L'[') - (str[spos] == L']'));
 				if (!bdepth)
@@ -1940,7 +1940,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 
 	//ここはintでないとだめ……i--のループで負（＝0xFFFFFFFFになってunsignedだと巨大な値）になる可能性がある
 	int sz = static_cast<int>(st.cell_size());
-	int i;
+	int i = 0;
 
 	std::vector<int>	depthvec;
 	depthvec.reserve(sz);
@@ -1968,7 +1968,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 		vm.logger().Error(E_E, 48, dicfilename, st.linecount);
 		return 1;
 	}
-	if (sz != depthvec.size()) {
+	if (sz != static_cast<int>(depthvec.size())) {
 		vm.logger().Error(E_E, 21, dicfilename, st.linecount);
 		return 1;
 	}
