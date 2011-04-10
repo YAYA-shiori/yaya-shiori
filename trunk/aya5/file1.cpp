@@ -43,6 +43,7 @@ int	CFile1::Open(void)
 
 	fp = yaya::w_fopen((wchar_t *)name.c_str(), (wchar_t *)mode.c_str());
 	free(filepath);
+	filepath = NULL;
 
 	if ( ! fp ) {
 		size = 0;
@@ -102,6 +103,7 @@ int	CFile1::Write(const yaya::string_t &istr)
 	// ‘‚«‚İ
 	fwrite(t_istr, sizeof(char), len, fp);
 	free(t_istr);
+	t_istr = NULL;
 
 	return 1;
 }
@@ -136,6 +138,7 @@ int	CFile1::WriteBin(const yaya::string_t &istr, const yaya::char_t alt)
 	// ‘‚«‚İ
 	size_t write = fwrite(t_istr, sizeof(unsigned char), len, fp);
 	free(t_istr);
+	t_istr = NULL;
 
 	return write;
 }
