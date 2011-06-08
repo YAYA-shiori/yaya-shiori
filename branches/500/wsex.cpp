@@ -170,12 +170,15 @@ FILE	*yaya::w_fopen(const wchar_t *fname, const wchar_t *mode)
 	char	*mmode  = Ccct::Ucs2ToMbcs(mode,  CHARSET_DEFAULT);
 	if (mmode == NULL) {
 		free(mfname);
+		mfname = NULL;
 		return NULL;
 	}
 	// ÉIÅ[ÉvÉì
 	FILE	*fp = fopen(mfname, mmode);
 	free(mfname);
+	mfname = NULL;
 	free(mmode);
+	mmode = NULL;
 	
 	return fp;
 }
@@ -280,6 +283,7 @@ int yaya::ws_fgets(yaya::string_t &str, FILE *stream, int charset, int ayc, int 
 	str = wstr;
 
 	free(wstr_result);
+	wstr_result = NULL;
 	
 	if (c == EOF && str.empty()) {
 		return yaya::WS_EOF;
@@ -313,7 +317,8 @@ int yaya::ws_fputs(const yaya::char_t *str, FILE *stream, int charset, int ayc)
 	fwrite(str_result,1,len,stream);
 
 	free(str_result);
-	
+	str_result = NULL;
+
 	return len;
 }
 

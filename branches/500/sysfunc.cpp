@@ -1829,8 +1829,29 @@ CValue	CSystemFunction::ERASE(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 	
-	yaya::string_t str = arg.array()[0].GetValueString();
-	return CValue(str.erase(arg.array()[1].GetValueInt(), arg.array()[2].GetValueInt()));
+	yaya::string_t src = arg.array()[0].GetValueString();
+	int pos = arg.array()[1].GetValueInt();
+	int len = arg.array()[2].GetValueInt();
+
+	if ( pos < 0 ) {
+		pos += src.length();
+		if ( pos < 0 ) { //まだ負なら強制補正
+			len += pos; //負値なのでたしざんで引かれる
+			pos = 0;
+			if ( len <= 0 ) {
+				return CValue(L"");
+			}
+		}
+	}
+
+	if ( pos >= static_cast<int>(src.length()) || len <= 0 ) {
+	    return CValue(L"");
+	}
+	if ( pos + len >= static_cast<int>(src.length()) ) {
+	    len = src.length() - pos;
+	}
+
+	return CValue(src.erase(pos, len));
 }
 
 /* -----------------------------------------------------------------------
@@ -2404,6 +2425,7 @@ CValue	CSystemFunction::FCOPY(const CValue &arg, yaya::string_t &d, int &l)
 	char	*d_pstr = Ccct::Ucs2ToMbcs(d_path, CHARSET_DEFAULT);
 	if (d_pstr == NULL) {
 		free(s_pstr);
+		s_pstr = NULL;
 		vm.logger().Error(E_E, 89, L"FCOPY", d, l);
 		return CValue(0);
 	}
@@ -2411,7 +2433,9 @@ CValue	CSystemFunction::FCOPY(const CValue &arg, yaya::string_t &d, int &l)
 	// 実行
 	int	result = (CopyFile(s_pstr, d_pstr, FALSE) ? 1 : 0);
 	free(s_pstr);
+	s_pstr = NULL;
 	free(d_pstr);
+	d_pstr = NULL;
 
 	return CValue(result);
 }
@@ -2509,6 +2533,7 @@ CValue	CSystemFunction::FMOVE(const CValue &arg, yaya::string_t &d, int &l)
 	char	*d_pstr = Ccct::Ucs2ToMbcs(d_path, CHARSET_DEFAULT);
 	if (d_pstr == NULL) {
 		free(s_pstr);
+		s_pstr = NULL;
 		vm.logger().Error(E_E, 89, L"FMOVE", d, l);
 		return CValue(0);
 	}
@@ -2516,7 +2541,9 @@ CValue	CSystemFunction::FMOVE(const CValue &arg, yaya::string_t &d, int &l)
 	// 実行
 	int	result = (MoveFile(s_pstr, d_pstr) ? 1 : 0);
 	free(s_pstr);
+	s_pstr = NULL;
 	free(d_pstr);
+	d_pstr = NULL;
 
 	return CValue(result);
 }
@@ -2577,6 +2604,7 @@ CValue	CSystemFunction::MKDIR(const CValue &arg, yaya::string_t &d, int &l)
 	// 実行
 	int	result = (::CreateDirectory(s_dirstr,NULL) ? 1 : 0); //mkdirと論理が逆
 	free(s_dirstr);
+	s_dirstr = NULL;
 
 	return CValue(result);
 }
@@ -2633,6 +2661,7 @@ CValue	CSystemFunction::RMDIR(const CValue &arg, yaya::string_t &d, int &l)
 	// 実行
 	int	result = (::RemoveDirectory(s_dirstr) == 0 ? 0 : 1);
 	free(s_dirstr);
+	s_dirstr = NULL;
 
 	return CValue(result);
 }
@@ -2689,6 +2718,7 @@ CValue	CSystemFunction::FDEL(const CValue &arg, yaya::string_t &d, int &l)
 	// 実行
 	int	result = (DeleteFile(s_filestr) ? 1 : 0);
 	free(s_filestr);
+	s_filestr = NULL;
 
 	return CValue(result);
 }
@@ -2745,6 +2775,7 @@ CValue	CSystemFunction::FRENAME(const CValue &arg, yaya::string_t &d, int &l)
 	char	*d_filestr = Ccct::Ucs2ToMbcs(ToFullPath(arg.array()[1].s_value), CHARSET_DEFAULT);
 	if (d_filestr == NULL) {
 		free(s_filestr);
+		s_filestr = NULL;
 		vm.logger().Error(E_E, 89, L"FRENAME", d, l);
 		return CValue(0);
 	}
@@ -2752,8 +2783,11 @@ CValue	CSystemFunction::FRENAME(const CValue &arg, yaya::string_t &d, int &l)
 	// 実行
 	int	result = (MoveFile(s_filestr, d_filestr) ? 1 : 0);
 	free(s_filestr);
+	s_filestr = NULL;
 	free(d_filestr);
+	d_filestr = NULL;
 
+	
 	return CValue(result);
 }
 #elif defined(POSIX)
@@ -2829,6 +2863,8 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 
 #if defined(WIN32)	
 	free((void*)s_filestr);
+	s_filestr = NULL;
+	
 #endif
 
 	unsigned char digest_result[32];
@@ -2856,10 +2892,10 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 			if ( readsize <= sizeof(buf) ) { break; }
 		}
 
-		digest_result[0] = crc & 0xFFU;
-		digest_result[1] = (crc >> 8) & 0xFFU;
-		digest_result[2] = (crc >> 16) & 0xFFU;
-		digest_result[3] = (crc >> 24) & 0xFFU;
+		digest_result[0] = static_cast<unsigned char>(crc & 0xFFU);
+		digest_result[1] = static_cast<unsigned char>((crc >> 8) & 0xFFU);
+		digest_result[2] = static_cast<unsigned char>((crc >> 16) & 0xFFU);
+		digest_result[3] = static_cast<unsigned char>((crc >> 24) & 0xFFU);
 		digest_len = 4;
 	}
 	else { //md5
@@ -2924,6 +2960,7 @@ CValue	CSystemFunction::FSIZE(const CValue &arg, yaya::string_t &d, int &l)
 	// 実行
 	HANDLE	hFile = CreateFile(s_filestr, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	free(s_filestr);
+	s_filestr = NULL;
 	if (hFile == INVALID_HANDLE_VALUE)
 		return CValue(-1);
 	unsigned long	result = GetFileSize(hFile, NULL);
@@ -3011,6 +3048,7 @@ CValue	CSystemFunction::FENUM(const CValue &arg, yaya::string_t &d, int &l)
 	WIN32_FIND_DATA	w32FindData;
 	hFile = FindFirstFile(s_filestr, &w32FindData);
 	free(s_filestr);
+	s_filestr = NULL;
 	if(hFile != INVALID_HANDLE_VALUE) {
 		int i = 0;
 		do {
@@ -3030,6 +3068,7 @@ CValue	CSystemFunction::FENUM(const CValue &arg, yaya::string_t &d, int &l)
 				result.s_value +=  L"\\";
 			result.s_value +=  t_wfile;
 			free(t_wfile);
+			t_wfile = NULL;
 			i++;
 		}
 		while(FindNextFile(hFile, &w32FindData));
@@ -4481,6 +4520,7 @@ CValue	CSystemFunction::GETSTRBYTES(const CValue &arg, yaya::string_t &d, int &l
 	}
 	int	result = ::strlen(t_str);
 	free(t_str);
+	t_str = NULL;
 
 	return CValue(result);
 }
@@ -4535,6 +4575,7 @@ CValue	CSystemFunction::STRENCODE(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	free(t_str);
+	t_str = NULL;
 
 	return CValue(result);
 }
@@ -4636,7 +4677,8 @@ CValue	CSystemFunction::STRDECODE(const CValue &arg, yaya::string_t &d, int &l)
 
 	CValue result(t_str);
 	free(t_str);
-
+	t_str = NULL;
+	
 	return result;
 }
 
@@ -4967,6 +5009,7 @@ CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
 		}
 	}
 	free(s_filestr);
+	s_filestr = NULL;
 
 #elif defined(POSIX)
 	std::string path = narrow(ToFullPath(arg.array()[0].s_value));
@@ -5261,7 +5304,7 @@ CValue CSystemFunction::READFMO(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	free(tmpstr);
-
+	tmpstr = NULL;
 
 	pData=MapViewOfFile(hFMO,FILE_MAP_READ,0,0,0);
 	if(pData == NULL){
@@ -5292,9 +5335,10 @@ CValue CSystemFunction::READFMO(const CValue &arg, yaya::string_t &d, int &l)
 		return result;
 	}
 	delete[](pBuf);
-
+	pBuf = NULL;
 	result=CValue(t_str);
 	free(t_str);
+	t_str= NULL;
 
 	return result;
 }
@@ -5363,7 +5407,8 @@ CValue	CSystemFunction::EXECUTE_WAIT(const CValue &arg, yaya::string_t &d, int &
 	}
 
 	free(s_filestr);
-	if ( s_parameter ) { free(s_parameter); }
+	s_filestr = NULL;
+	if ( s_parameter ) { free(s_parameter); s_parameter = NULL;}
 
 #elif defined(POSIX)
 
@@ -5425,7 +5470,8 @@ CValue	CSystemFunction::EXECUTE(const CValue &arg, yaya::string_t &d, int &l)
 	if ( result <= 32 ) { result = -1; }
 
 	free(s_filestr);
-	if ( s_parameter ) { free(s_parameter); }
+	s_filestr = NULL;
+	if ( s_parameter ) { free(s_parameter); s_parameter = NULL;}
 
 #elif defined(POSIX)
 

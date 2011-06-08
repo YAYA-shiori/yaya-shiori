@@ -96,7 +96,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 	CValue		t_value;
 
 	int	t_statelenm1 = statelenm1;
-	int i;
+	int i = 0;
 	for(i = line; i < t_statelenm1; i++) {
 		switch(statement[i].type) {
 		case ST_OPEN:					// "{"
@@ -571,7 +571,7 @@ void	CFunction::SolveEmbedCell(CCell &cell, CStatement &st, CLocalVariable &lvar
 			max_len   = t_len;
 		}
 		// システム関数
-		if ( max_len < CSystemFunction::GetMaxNameLength() ) {
+		if ( max_len < static_cast<size_t>(CSystemFunction::GetMaxNameLength()) ) {
 			t_len = CSystemFunction::FindIndexLongestMatch(cell.value_const().s_value,max_len);
 			if (t_len > max_len) {
 				solve_src = 3;
@@ -590,7 +590,7 @@ void	CFunction::SolveEmbedCell(CCell &cell, CStatement &st, CLocalVariable &lvar
 	size_t	len = cell.value_const().s_value.size();
 	if (solve_src >= 2) {
 		size_t	depth = 1;
-		size_t i;
+		size_t i = 0;
 		for(i = max_len + 1; i < len; i++) {
 			depth += ((cell.value_const().s_value[i] == L'(') - (cell.value_const().s_value[i] == L')'));
 			if (!depth)
@@ -602,7 +602,7 @@ void	CFunction::SolveEmbedCell(CCell &cell, CStatement &st, CLocalVariable &lvar
 
 	// 配列部分を探す
 	size_t	depth = 1;
-	size_t i;
+	size_t i = 0;
 	for(i = max_len + 1; i < len; i++) {
 		if (!depth && cell.value_const().s_value[i] != L'[')
 			break;
