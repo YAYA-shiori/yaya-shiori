@@ -3,11 +3,11 @@
 //オプション関数
 //******************************************************************************
 
-#define	C_CRLF2			C_CRLF+C_CRLF					/* 改行コードx2   */
-#define	C_CRLF			CHR(0xd)+CHR(0xa)				/* 改行コード     */
+#define	C_CRLF2			CHR(0xd,0xa,0xd,0xa)			/* 改行コードx2   */
+#define	C_CRLF			CHR(0xd,0xa)					/* 改行コード     */
 #define	C_BYTE1			CHR(0x1)						/* バイト値1      */
-#define	ESCAPE_TAG_1	CHR(0x3)+CHR(0x3)
-#define	ESCAPE_TAG_2	CHR(0x4)+CHR(0x4)
+#define	ESCAPE_TAG_1	CHR(0x3,0x3)
+#define	ESCAPE_TAG_2	CHR(0x4,0x4)
 
 //******************************************************************************
 //初期化・後始末
@@ -320,5 +320,35 @@ SHIORI3FW.MakeJustText
 	
 	_text = SHIORI3FW.MakeShortText(_argv[0],_argv[1])
 	_text
+}
+
+//******************************************************************************
+// その他
+//******************************************************************************
+
+//---- HTTPコード->日本語 _argv[0]にコード
+
+SHIORI3FW.HTTPCodeToMessage
+{
+	case _argv[0] {
+		when '403' {
+			'アクセス拒否'
+		}
+		when '404','410' {
+			'ファイル無し'
+		}
+		when '500','502','503' {
+			'サーバ側の不調'
+		}
+		when 'timeout' {
+			'タイムアウト'
+		}
+		when 'fileio' {
+			'ファイル書き込みエラー'
+		}
+		when 'artificial' {
+			'手動中断'
+		}
+	}
 }
 
