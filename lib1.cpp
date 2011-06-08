@@ -126,6 +126,7 @@ int	CLib1::LoadLib(void)
 
 	hDLL = ::LoadLibrary(dllpathname);
 	free(dllpathname);
+	dllpathname= NULL;
 	
 	return (hDLL != NULL) ? 1 : 0;
 }
@@ -233,6 +234,7 @@ int	CLib1::Load(void)
 		HGLOBAL	gmem = ::GlobalAlloc(GMEM_FIXED, len);
 		memcpy(gmem, t_dllpath, len);
 		free(t_dllpath);
+		t_dllpath = NULL;
 
 		// é¿çs
 		(*loadlib)(gmem, len);
@@ -387,6 +389,7 @@ int	CLib1::Request(const yaya::string_t &istr, yaya::string_t &ostr)
 	HGLOBAL	igmem = ::GlobalAlloc(GMEM_FIXED, len);
 	memcpy(igmem, t_istr, len);
 	free(t_istr);
+	t_istr = NULL;
 
 	// é¿çs
 	HGLOBAL	ogmem = (*requestlib)(igmem, &len);
@@ -395,19 +398,23 @@ int	CLib1::Request(const yaya::string_t &istr, yaya::string_t &ostr)
 	char	*t_ostr = (char *)malloc((len + 1)*sizeof(char));
 	if (t_ostr == NULL) {
 		GlobalFree(ogmem);
+		ogmem = NULL;
 		return 0;
 	}
 	strncpy(t_ostr, (char *)ogmem, len);
 	*(t_ostr + len) = '\0';
 	GlobalFree(ogmem);
+	ogmem = NULL;
 
 	// åãâ ÇUCS-2Ç÷ïœä∑
 	wchar_t	*t_ostr2 = Ccct::MbcsToUcs2(t_ostr, charset);
 	free(t_ostr);
+	t_ostr = NULL;
 	if (t_ostr2 == NULL)
 		return 0;
 	ostr = t_ostr2;
 	free(t_ostr2);
+	t_ostr2 = NULL;
 
 	return 1;
 }
@@ -438,6 +445,7 @@ int CLib1::Request(const yaya::string_t &istr, yaya::string_t &ostr) {
     char* igmem = static_cast<char*>(malloc(len));
     memcpy(igmem, t_istr, len);
     free(t_istr);
+	t_istr = NULL;
 
     // é¿çs
     char* ogmem = (*requestlib)(igmem, &len);
@@ -452,6 +460,7 @@ int CLib1::Request(const yaya::string_t &istr, yaya::string_t &ostr) {
     }
     ostr = t_ostr2;
     free(t_ostr2);
+	t_ostr2 = NULL;
 
     return 1;
 }

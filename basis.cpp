@@ -106,6 +106,7 @@ void	CBasis::SetModuleHandle(HANDLE h)
 	wchar_t	*wcmodulename = Ccct::MbcsToUcs2(mbmodulename, CHARSET_DEFAULT);
 	modulename = wcmodulename;
 	free(wcmodulename);
+	wcmodulename = NULL;
 }
 #endif
 
@@ -121,10 +122,12 @@ void	CBasis::SetPath(yaya::global_t h, int len)
 	std::string	mbpath;
 	mbpath.assign((char *)h, 0, len);
 	GlobalFree(h);
+	h = NULL;
 	// 文字コードをUCS-2へ変換（ここでのマルチバイト文字コードはOSデフォルト）
 	wchar_t	*wcpath = Ccct::MbcsToUcs2(mbpath, CHARSET_DEFAULT);
 	path = wcpath;
 	free(wcpath);
+	wcpath = NULL;
 }
 #elif defined(POSIX)
 void	CBasis::SetPath(yaya::global_t h, int len)
@@ -132,6 +135,7 @@ void	CBasis::SetPath(yaya::global_t h, int len)
     // 取得と領域開放
     path = widen(std::string(h, static_cast<std::string::size_type>(len)));
     free(h);
+	h = NULL;
     // スラッシュで終わってなければ付ける。
     if (path.length() == 0 || path[path.length() - 1] != L'/') {
 	path += L'/';
@@ -594,6 +598,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 		unlink(s_filestr);
 #endif
 		free(s_filestr);
+		s_filestr=0;
 
 		filename += L".ays"; //aycだとかぶるので…
 	}
@@ -607,6 +612,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 		unlink(s_filestr);
 #endif
 		free(s_filestr);
+		s_filestr=0;
 		
 		filename.erase(filename.size()-4,4);
 	}
@@ -972,6 +978,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len)
 {
 	if (IsSuppress() || requestindex == -1) {
 		GlobalFree(h);
+		h = NULL;
 		*len = 0;
 		return NULL;
 	}
@@ -988,6 +995,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len)
 		vm.logger().Io(0, arg0.s_value);
 		arg.array().push_back(arg0);
 		free(wistr);
+		wistr = NULL;
 	}
 	else {
 		vm.logger().Io(0, L"");
@@ -1007,6 +1015,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len)
 		// 文字コード変換失敗、NULLを返す
 		*len = 0;
 		GlobalFree(h);
+		h = NULL;
 		return NULL;
 	}
 
@@ -1022,6 +1031,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len)
 	}
 	else {
 		GlobalFree(h);
+		h = NULL;
 		r_h = ::GlobalAlloc(GMEM_FIXED,copylen);
 	}
 
@@ -1029,6 +1039,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len)
 		memcpy(r_h, mostr, copylen);
 	}
 	free(mostr);
+	mostr = NULL;
 	return r_h;
 }
 #elif defined(POSIX)
@@ -1036,6 +1047,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len)
 {
     if (IsSuppress() || requestindex == -1) {
 	free(h);
+	h = NULL;
 	*len = 0;
 	return NULL;
     }
@@ -1050,6 +1062,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len)
 	vm.logger().Io(0, arg0.s_value);
 	arg.array().push_back(arg0);
 	free(wistr);
+	wistr = NULL;
     }
     else {
 		yaya::string_t empty;
@@ -1077,6 +1090,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len)
     char* r_h = static_cast<char*>(malloc(*len));
     memcpy(r_h, mostr, *len);
     free(mostr);
+	moste = NULL;
     return r_h;
 }
 #endif
