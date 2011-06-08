@@ -1,4 +1,7 @@
 #labels Featured
+=Tc539-3=
+  * ERASEの第二引数に負値を使えるように (BTS:MS:72 Patch Merged)
+
 =Tc539-2=
   * ISFUNCで空文字列を指定すると2が返るひどい問題を修正
 
