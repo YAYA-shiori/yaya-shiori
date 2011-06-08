@@ -7,9 +7,7 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include <windows.h>
-#define IDC_STATIC -1
-//#include "afxres.h"
+#include "afxres.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -30,7 +28,7 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,39,2,0
+ FILEVERSION 5,39,3,0
  PRODUCTVERSION 5,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -49,7 +47,7 @@ BEGIN
             VALUE "Comments", "YAYA\0"
             VALUE "CompanyName", "YAYA Development Team\0"
             VALUE "FileDescription", "yaya\0"
-            VALUE "FileVersion", "5, 39, 2, 0\0"
+            VALUE "FileVersion", "5, 39, 3, 0\0"
             VALUE "InternalName", "Yet Another AYA5\0"
             VALUE "LegalCopyright", " \0"
             VALUE "LegalTrademarks", " \0"
