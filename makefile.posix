@@ -106,6 +106,6 @@ dist:
 .cpp.o:
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $<
 
--include .depend
+#-include .depend
 
 .PHONY: all clean depend
