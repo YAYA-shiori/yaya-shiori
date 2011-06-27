@@ -87,7 +87,7 @@ $(LIBAYA5): $(LIBAYA5_OBJ)
 #	$(STRIP) -x $@
 
 .cpp.o:
-	@iconv -f CP932 $< > $*.tmp.cpp
+	@iconv --from-code=CP932 --to-code=UTF-8 -c $< > $*.tmp.cpp
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $*.tmp.cpp
 	@rm $*.tmp.cpp
 
