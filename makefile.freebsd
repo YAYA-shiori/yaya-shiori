@@ -26,7 +26,7 @@ LIBBOOST_REGEX_A = /usr/local/lib/libboost_regex.a
 # 追加するフラグ。
 # CXXFLAGSは必要無ければ空でも良いが、LDFLAGSはdlopen可能なライブラリを
 # 作れる設定にしなければならない。darwinなら-bundle、LinuxやBSDなら-shared。
-CXXFLAGS = -O3 -Wall --input-charset=CP932
+CXXFLAGS = -O3 -Wall
 #CXXFLAGS = 
 LDFLAGS = -shared
 
@@ -87,7 +87,7 @@ $(LIBAYA5): $(LIBAYA5_OBJ)
 #	$(STRIP) -x $@
 
 .cpp.o:
-	@iconv -f cp932 $< > $*.tmp.cpp
+	@iconv -f CP932 $< > $*.tmp.cpp
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $*.tmp.cpp
 	@rm $*.tmp.cpp
 
