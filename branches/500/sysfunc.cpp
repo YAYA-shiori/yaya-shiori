@@ -74,6 +74,14 @@ extern "C" {
  *  システム関数テーブル
  * -----------------------------------------------------------------------
  */
+
+#ifdef POSIX
+#define wcsicmp wcscasecmp
+#ifndef TRUE
+#define TRUE	1
+#endif
+#endif
+
 #define	SYSFUNC_NUM					134 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
@@ -2918,7 +2926,11 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 	md5str[digest_len*2] = 0; //ゼロ終端
 
 	for ( unsigned int i = 0 ; i < digest_len ; ++i ) {
-		swprintf(md5str+i*2,L"%02X",digest_result[i]);
+#if _MSC_VER <= 1200
+		swprintf(md5str+i*2, L"%02X",digest_result[i]);
+#else
+		swprintf(md5str+i*2,sizeof(md5str), L"%02X",digest_result[i]);
+#endif
 	}
 
 	return CValue(yaya::string_t(md5str));
@@ -5030,8 +5042,8 @@ CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
 	result.array().push_back(CValueSub(0));
 	result.array().push_back(CValueSub(0));
 	result.array().push_back(CValueSub(0));
-	result.array().push_back(CValueSub(sb.st_ctime);
-	result.array().push_back(CValueSub(sb.st_mtime);
+	result.array().push_back(CValueSub(sb.st_ctime));
+	result.array().push_back(CValueSub(sb.st_mtime));
 #endif
 
 	return result;
@@ -5417,8 +5429,9 @@ CValue	CSystemFunction::EXECUTE_WAIT(const CValue &arg, yaya::string_t &d, int &
 
 	if ( arg.array_size() >= 2 ) {
 		if ( arg.array()[1].s_value.size() ) {
-			path += L" ";
-			path += arg.array()[1].s_value;
+			path += " ";
+			std::string tmp(arg.array()[1].s_value.begin(), arg.array()[1].s_value.end()); 
+			path += tmp;
 		}
 	}
 
