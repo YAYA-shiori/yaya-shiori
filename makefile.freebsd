@@ -91,7 +91,7 @@ $(LIBAYA5): $(LIBAYA5_OBJ)
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $*.tmp.cpp
 	@rm $*.tmp.cpp
 
--include .depend
+#-include .depend
 
 .PHONY: all clean depend
 
