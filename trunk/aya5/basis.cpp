@@ -1213,7 +1213,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len)
     char* r_h = static_cast<char*>(malloc(*len));
     memcpy(r_h, mostr, *len);
     free(mostr);
-	moste = NULL;
+	mostr = NULL;
     return r_h;
 }
 #endif
