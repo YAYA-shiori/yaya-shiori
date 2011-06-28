@@ -63,10 +63,8 @@ LIBAYA5_OBJ = \
 	value.o \
 	valuesub.o \
 	wsex.o \
-	posix_utils.o \
-	wordmatch.o
+	posix_utils.o
 
-#	posix_charconv.o
 LIBAYA5 = $(DYLIB_NAME_PREFIX)aya5$(DYLIB_NAME_POSTFIX)
 
 all: $(LIBAYA5)
