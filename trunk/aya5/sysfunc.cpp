@@ -5717,9 +5717,8 @@ CValue	CSystemFunction::EXECUTE(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	// ƒpƒX‚ðMBCS‚É•ÏŠ·
+#if defined(WIN32)
 	int result;
-
-#if defined(WIN32)	
 	
 	char *s_filestr = Ccct::Ucs2ToMbcs(arg.array()[0].s_value, CHARSET_DEFAULT);
 	if (s_filestr == NULL) {
