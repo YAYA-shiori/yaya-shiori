@@ -39,7 +39,6 @@
 # include "posix_utils.h"
 #endif
 #include "globaldef.h"
-#include "wordmatch.h"
 #include "wsex.h"
 #include "ayavm.h"
 

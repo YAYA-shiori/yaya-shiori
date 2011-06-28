@@ -20,7 +20,6 @@
 #include "parser0.h"
 #include "parser1.h"
 #include "sysfunc.h"
-#include "wordmatch.h"
 
 #include "babel/babel.h"
 
