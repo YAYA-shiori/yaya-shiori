@@ -16,7 +16,6 @@
 #include "log.h"
 #include "mt19937ar.h"
 
-class CWordMatch;
 class CBasis;
 class CFunction;
 class CCallDepth;
