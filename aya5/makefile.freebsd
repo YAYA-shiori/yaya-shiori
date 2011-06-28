@@ -64,8 +64,6 @@ LIBAYA5_OBJ = \
 	valuesub.o \
 	wsex.o \
 	posix_utils.o \
-	strconv.o \
-	strconv_cp932.o \
 	wordmatch.o
 
 #	posix_charconv.o
