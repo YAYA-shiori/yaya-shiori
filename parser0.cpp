@@ -31,7 +31,6 @@
 #endif
 #include "globaldef.h"
 #include "sysfunc.h"
-#include "wordmatch.h"
 #include "wsex.h"
 
 //////////DEBUG/////////////////////////
