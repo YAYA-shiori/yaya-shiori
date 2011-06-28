@@ -700,26 +700,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="wordmatch.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_MBCS;_USRDLL;AYA5_EXPORTS;$(NoInherit)"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;AYA5_EXPORTS;$(NoInherit)"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="wsex.cpp"
 				>
 				<FileConfiguration
@@ -846,10 +826,6 @@
 			</File>
 			<File
 				RelativePath="variable.h"
-				>
-			</File>
-			<File
-				RelativePath="wordmatch.h"
 				>
 			</File>
 			<File
