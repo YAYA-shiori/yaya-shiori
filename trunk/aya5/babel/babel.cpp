@@ -54,9 +54,6 @@
 //		http://tricklib.com/license.htm
 //
 
-#pragma warning( disable : 4786 ) //「デバッグ情報内での識別子切捨て」
-#pragma warning( disable : 4503 ) //「装飾された名前の長さが限界を越えました。名前は切り捨てられます。」
-
 #include <map>
 
 #include "babel.h"
@@ -737,7 +734,7 @@ void sjis_to_euc_engine::translate() {
 				}
 			} else if (0xA1 <= lead_char && lead_char <= 0xDF) {
 			//	半角カナ・・・
-				euc[j++] = '\x8E';
+				euc[j++] = 0x8E;
 				euc[j++] = lead_char;
 				++i;
 			} else {
@@ -2299,7 +2296,7 @@ void jis_to_euc_engine::translate() {
 					break;
 				}
 				bbl_char trail_char = unsignize(untranslated_buffer.at(k));
-				euc[j++] = '\x8F';
+				euc[j++] = 0x8F;
 				euc[j++] = lead_char |0x80;
 				euc[j++] = trail_char |0x80;
 				i += 2;
@@ -2308,7 +2305,7 @@ void jis_to_euc_engine::translate() {
 				++i;
 			} else {
 				assert(jis_K1 == status || jis_S == status);
-				euc[j++] = '\x8E';
+				euc[j++] = 0x8E;
 				euc[j++] = lead_char +0x80;
 				++i;
 			}
@@ -3739,10 +3736,10 @@ manual_translate_engine<bbl_wstring, bbl_wstring>::order(int X_from_base_encodin
 	assert(unicode == X_from_base_encoding);
 	assert(unicode == X_to_base_encoding);
 
-//	switch(MAKE_ORDER_CODE(X_from_base_encoding, X_to_base_encoding)) {
-//		default:
+	switch(MAKE_ORDER_CODE(X_from_base_encoding, X_to_base_encoding)) {
+		default:
 			return through_engine<bbl_wstring>::create();
-//	}
+	}
 }
 
 template<>
@@ -3752,10 +3749,10 @@ const bbl_wstring manual_translate_engine<bbl_wstring, bbl_wstring>::ignite(cons
 	assert(unicode == X_from_base_encoding);
 	assert(unicode == X_to_base_encoding);
 
-//	switch(MAKE_ORDER_CODE(X_from_base_encoding, X_to_base_encoding)) {
-//		default:
+	switch(MAKE_ORDER_CODE(X_from_base_encoding, X_to_base_encoding)) {
+		default:
 			return X;
-//	}
+	}
 }
 #endif	//	defined(__BBL_USE_UNICODE__)
 
@@ -4267,7 +4264,7 @@ static bool initialized = false;
 
 	const bbl_code *i;
 
-	bbl_code sjis, euc/*, jis*/;
+	bbl_code sjis, euc, jis;
 #if defined(__BBL_USING_STDMAP_TABLE__)
 	i = bbl_transmap::sjis_euc_map;
 	while(i < ARRAY_END(bbl_transmap::sjis_euc_map)) {
