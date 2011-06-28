@@ -108,6 +108,9 @@ public:
 
 class	CFunction
 {
+private:
+	CAyaVM *pvm;
+
 public:
 	yaya::string_t				name;			// 名前
 	yaya::string_t::size_type	namelen;		// 名前の長さ
@@ -119,8 +122,6 @@ protected:
 	int					statelenm1;		// statementの長さ-1（1を減じているのは終端の"}"を処理しないためです）
 
 private:
-	CAyaVM *pvm;
-
 	CFunction(void);
 
 public:
