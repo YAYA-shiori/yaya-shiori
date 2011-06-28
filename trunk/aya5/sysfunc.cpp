@@ -5740,15 +5740,16 @@ CValue	CSystemFunction::EXECUTE(const CValue &arg, yaya::string_t &d, int &l)
 	free(s_filestr);
 	s_filestr = NULL;
 	if ( s_parameter ) { free(s_parameter); s_parameter = NULL;}
-
-#elif defined(POSIX)
-
-	//TODO: Implement
-
-#endif
-
+	
 	// é¿çs
 	return CValue(result);
+	
+#elif defined(POSIX)
+	//TODO: Implement
+	return CValue(-1);
+	
+#endif
+
 }
 
 /* -----------------------------------------------------------------------
