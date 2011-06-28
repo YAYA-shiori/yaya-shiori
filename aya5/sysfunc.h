@@ -41,6 +41,9 @@ typedef const std::vector<CValue> CValueArgArray;
 
 class	CSystemFunction
 {
+private:
+	CAyaVM &vm;
+
 protected:
 	int		lasterror;					// 最期に発生したエラーの番号
 	int		lso;						// LSOが返す値
@@ -52,8 +55,6 @@ protected:
 	boost::regex_constants::syntax_option_type re_option; //正規表現オプション
 
 private:
-	CAyaVM &vm;
-
 	CSystemFunction(void);
 
 public:

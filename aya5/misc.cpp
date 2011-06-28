@@ -603,12 +603,12 @@ char	IsLegalFunctionName(const yaya::string_t &str)
 	int sysidx = CSystemFunction::FindIndex(str);
 	if ( sysidx >= 0 ) { return 5; }
 
-	for(int i= 0; i < FLOWCOM_NUM; i++) {
+	for(size_t i= 0; i < FLOWCOM_NUM; i++) {
 		if (!str.compare(flowcom[i])) {
 			return 6;
 		}
 	}
-	for(int i= 0; i < FORMULATAG_NUM; i++) {
+	for(size_t i= 0; i < FORMULATAG_NUM; i++) {
 //		if (!str.compare(formulatag[i]))
 		if (str.find(formulatag[i]) != yaya::string_t::npos) {
 			return 6;
@@ -657,12 +657,12 @@ char	IsLegalVariableName(const yaya::string_t &str)
 	int sysidx = CSystemFunction::FindIndex(str);
 	if ( sysidx >= 0 ) { return 5; }
 
-	for(int i= 0; i < FLOWCOM_NUM; i++) {
+	for(size_t i= 0; i < FLOWCOM_NUM; i++) {
 		if (!str.compare(flowcom[i])) {
 			return 6;
 		}
 	}
-	for(int i= 0; i < FORMULATAG_NUM; i++) {
+	for(size_t i= 0; i < FORMULATAG_NUM; i++) {
 //		if (!str.compare(formulatag[i]))
 		if (str.find(formulatag[i]) != yaya::string_t::npos) {
 			return 6;
