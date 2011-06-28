@@ -11,11 +11,11 @@
 
 #if defined(WIN32) || defined(_WIN32_WCE)
 # define DLLEXPORT __declspec(dllexport)
-# define RETERNTYPE BOOL
+# define BOOL_TYPE   BOOL
 # define FUNCATTRIB __cdecl
 #elif defined(POSIX)
 # define DLLEXPORT
-# define RETERNTYPE int
+# define BOOL_TYPE   int
 # define FUNCATTRIB
 #endif
 
@@ -27,12 +27,17 @@ namespace yaya {
 #endif
 }; // namespace yaya {
 
-extern "C" DLLEXPORT RETERNTYPE FUNCATTRIB load(yaya::global_t h, long len);
-extern "C" DLLEXPORT RETERNTYPE FUNCATTRIB unload();
+extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB load(yaya::global_t h, long len);
+extern "C" DLLEXPORT long FUNCATTRIB multi_load(yaya::global_t h, long len);
+
+extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB unload();
+extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB multi_unload(long id);
+
 extern "C" DLLEXPORT yaya::global_t FUNCATTRIB request(yaya::global_t h, long *len);
+extern "C" DLLEXPORT yaya::global_t FUNCATTRIB multi_request(long id,yaya::global_t h, long *len);
 
 #if defined(WIN32)
-extern "C" DLLEXPORT RETERNTYPE FUNCATTRIB logsend(long hwnd);
+extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB logsend(long hwnd);
 #endif
 
 //----
