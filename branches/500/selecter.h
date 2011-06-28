@@ -90,11 +90,11 @@ protected:
 class CSelecter
 {
 protected:
+	CAyaVM &vm;
 	std::vector<CVecValue>	values;			// 出力候補値
 	int					areanum;		// 出力候補を蓄積する領域の数
 	CDuplEvInfo			*duplctl;		// 対応する重複回避情報へのポインタ
 	int					aindex;			// switch構文で使用
-	CAyaVM &vm;
 
 private:
 	CSelecter(void);
