@@ -17,8 +17,10 @@
 #include "basis.h"
 #include "ayavm.h"
 #include "ccct.h"
+#include "manifest.h"
 
-static CAyaVM  vm;
+static std::vector<CAyaVM*> vm;
+static yaya::string_t modulename;
 
 //////////DEBUG/////////////////////////
 #ifdef _WINDOWS
@@ -29,15 +31,47 @@ static CAyaVM  vm;
 #endif
 ////////////////////////////////////////
 
+class CAyaVMPrepare {
+public:
+	CAyaVMPrepare(void) {
+		vm.clear();
+		vm.push_back(NULL); //0番VM＝loadなど従来関数で使う標準
+	}
+	~CAyaVMPrepare(void) {
+		size_t n = vm.size();
+		for ( size_t i = 0 ; i < n ; ++i ) {
+			if ( vm[i] ) {
+				delete vm[i];
+			}
+		}
+	}
+};
+
+static CAyaVMPrepare prepare; //これはコンストラクタ・デストラクタ作動用
+
 /* -----------------------------------------------------------------------
  *  DllMain
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
-extern "C" BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID /*lpReserved*/)
+extern "C" BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID /*lpReserved*/)
 {
+	// モジュールの主ファイル名を取得
+	// NT系ではいきなりUNICODEで取得できるが、9x系を考慮してMBCSで取得してからUCS-2へ変換
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
-		vm.basis().SetModuleHandle(hModule);
+		char path[MAX_PATH];
+		GetModuleFileName(hModule, path, sizeof(path));
+		char drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
+		_splitpath(path, drive, dir, fname, ext);
+		std::string	mbmodulename = fname;
+
+		wchar_t	*wcmodulename = Ccct::MbcsToUcs2(mbmodulename, CHARSET_DEFAULT);
+		modulename = wcmodulename;
+
+		free(wcmodulename);
+		wcmodulename = NULL;
+
+		Ccct::sys_setlocale(LC_ALL);
 	}
 
 	return TRUE;
@@ -48,30 +82,78 @@ extern "C" BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVO
  *  load
  * -----------------------------------------------------------------------
  */
-extern "C" DLLEXPORT RETERNTYPE FUNCATTRIB load(yaya::global_t h, long len)
+extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB load(yaya::global_t h, long len)
 {
-#if defined(WIN32) || defined(_WIN32_WCE)
-	Ccct::sys_setlocale(LC_ALL);
-#endif
-	vm.Load();
+	vm[0] = new CAyaVM;
 
-	vm.basis().SetPath(h, len);
-	vm.basis().Configure();
+	vm[0]->basis().SetModuleName(modulename);
+
+	vm[0]->Load();
+
+	vm[0]->basis().SetPath(h, len);
+	vm[0]->basis().Configure();
 
     return 1;
+}
+
+extern "C" DLLEXPORT long FUNCATTRIB multi_load(yaya::global_t h, long len)
+{
+	long id = 0;
+	
+	long n = (long)vm.size();
+	for ( long i = 1 ; i < n ; ++i ) { //1から 0番は従来用
+		if ( vm[i] == NULL ) {
+			id = i;
+		}
+	}
+
+	if ( id <= 0 ) {
+		vm.push_back(NULL);
+		id = (long)vm.size() - 1;
+	}
+
+	vm[id] = new CAyaVM;
+
+	vm[id]->basis().SetModuleName(modulename);
+
+	vm[id]->Load();
+
+	vm[id]->basis().SetPath(h, len);
+	vm[id]->basis().Configure();
+
+    return id;
 }
 
 /* -----------------------------------------------------------------------
  *  unload
  * -----------------------------------------------------------------------
  */
-extern "C" DLLEXPORT RETERNTYPE FUNCATTRIB unload()
+extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB unload()
 {
-	vm.basis().Termination();
+	vm[0]->basis().Termination();
 
-	vm.Unload();
+	vm[0]->Unload();
+
+	delete vm[0];
+	vm[0] = NULL;
 
     return 1;
+}
+
+extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB multi_unload(long id)
+{
+	if ( id <= 0 || id > (long)vm.size() || vm[id] == NULL ) { //1から 0番は従来用
+		return 0;
+	}
+
+	vm[id]->basis().Termination();
+
+	vm[id]->Unload();
+
+	delete vm[id];
+	vm[id] = NULL;
+
+	return 1;
 }
 
 /* -----------------------------------------------------------------------
@@ -80,7 +162,26 @@ extern "C" DLLEXPORT RETERNTYPE FUNCATTRIB unload()
  */
 extern "C" DLLEXPORT yaya::global_t FUNCATTRIB request(yaya::global_t h, long *len)
 {
-	return vm.basis().ExecuteRequest(h, len);
+	if ( vm[0] ) {
+		return vm[0]->basis().ExecuteRequest(h, len);
+	}
+	else {
+		return NULL;
+	}
+}
+
+extern "C" DLLEXPORT yaya::global_t FUNCATTRIB multi_request(long id, yaya::global_t h, long *len)
+{
+	if ( id <= 0 || id > (long)vm.size() || vm[id] == NULL ) { //1から 0番は従来用
+		return 0;
+	}
+
+	if ( vm[id] ) {
+		return vm[id]->basis().ExecuteRequest(h, len);
+	}
+	else {
+		return NULL;
+	}
 }
 
 /* -----------------------------------------------------------------------
@@ -88,9 +189,14 @@ extern "C" DLLEXPORT yaya::global_t FUNCATTRIB request(yaya::global_t h, long *l
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
-extern "C" DLLEXPORT RETERNTYPE FUNCATTRIB logsend(long hwnd)
+extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB logsend(long hwnd)
 {
-	vm.basis().SetLogRcvWnd(hwnd);
+	if ( vm[0] ) {
+		vm[0]->basis().SetLogRcvWnd(hwnd);
+	}
+	else if ( vm.size() >= 2 && vm[1] ) {
+		vm[1]->basis().SetLogRcvWnd(hwnd);
+	}
 
 	return TRUE;
 }

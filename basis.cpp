@@ -88,26 +88,10 @@ CBasis::CBasis(CAyaVM &vmr) : vm(vmr)
  *  ついでにモジュールの主ファイル名取得も行います
  * -----------------------------------------------------------------------
  */
-#if defined(WIN32) || defined(_WIN32_WCE)
-void	CBasis::SetModuleHandle(HANDLE h)
+void	CBasis::SetModuleName(const yaya::string_t &s)
 {
-	// モジュールハンドルを取得
-	hmodule = (HMODULE)h;
-
-	// モジュールの主ファイル名を取得
-	// NT系ではいきなりUNICODEで取得できるが、9x系を考慮してMBCSで取得してからUCS-2へ変換
-	char	path[STRMAX];
-	GetModuleFileName(hmodule, path, sizeof(path));
-	char drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
-	_splitpath(path, drive, dir, fname, ext);
-	std::string	mbmodulename = fname;
-
-	wchar_t	*wcmodulename = Ccct::MbcsToUcs2(mbmodulename, CHARSET_DEFAULT);
-	modulename = wcmodulename;
-	free(wcmodulename);
-	wcmodulename = NULL;
+	modulename = s;
 }
-#endif
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CBasis::SetPath

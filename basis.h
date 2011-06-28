@@ -55,9 +55,7 @@ protected:
 	typedef void* HWND;
 #endif
 	HWND	hlogrcvWnd;				// チェックツールのhWnd
-#if defined(WIN32) || defined(_WIN32_WCE)
-	HMODULE	hmodule;				// モジュールのハンドル
-#endif
+
 	yaya::string_t	logpath;				// ログファイルのパス
 	yaya::string_t	modulename;				// モジュールの主ファイル名（例えばa.dllの場合は"a"）
 	char	suppress;				// 自律動作抑止（構文解析でエラーが起きた際に動作をマスクするために使用します）
@@ -79,8 +77,8 @@ public:
 
 	char	IsRun(void) { return run; }
 
+	void	SetModuleName(const yaya::string_t &s);
 #if defined(WIN32) || defined(_WIN32_WCE)
-	void	SetModuleHandle(HANDLE h);
 	void	SetLogRcvWnd(long hwnd);
 #endif
 	void	SetPath(yaya::global_t h, int len);
