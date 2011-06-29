@@ -31,10 +31,10 @@ CXXFLAGS = -O3 -Wall
 LDFLAGS = -shared
 
 ################## これより下は弄らなくてもコンパイル出来ます ##################
-# CXXFLAGS_ADD = -DPOSIX -I. -I$(BOOST_INCLUDES)
-# LD_ADD = $(LIBBOOST_REGEX_A)
 
-CXXFLAGS_ADD = -DPOSIX -I. 
+CXXFLAGS_ADD = -DPOSIX -I. -I$(BOOST_INCLUDES)
+
+# LD_ADD = $(LIBBOOST_REGEX_A)
 LD_ADD = 
 
 LIBAYA5_OBJ = \
