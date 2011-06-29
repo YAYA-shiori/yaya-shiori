@@ -9,6 +9,8 @@
 #  include "stdafx.h"
 #endif
 
+#include <string.h>
+
 #include "ccct.h"
 #include "file.h"
 #include "manifest.h"

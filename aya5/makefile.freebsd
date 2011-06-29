@@ -17,7 +17,7 @@ DYLIB_NAME_POSTFIX = .so
 # boostの場所を指定。
 BOOST_INCLUDES = /usr/local/include
 # libboost_regex.aの場所を設定。
-LIBBOOST_REGEX_A = /usr/local/lib/libboost_regex.a
+BOOST_LINK = /usr/local/lib
 
 # 注意:
 # このプログラムは wstring を使用しています。
@@ -27,12 +27,13 @@ LIBBOOST_REGEX_A = /usr/local/lib/libboost_regex.a
 # CXXFLAGSは必要無ければ空でも良いが、LDFLAGSはdlopen可能なライブラリを
 # 作れる設定にしなければならない。darwinなら-bundle、LinuxやBSDなら-shared。
 CXXFLAGS = -O3 -Wall
-#CXXFLAGS = 
 LDFLAGS = -shared
 
 ################## これより下は弄らなくてもコンパイル出来ます ##################
+
 CXXFLAGS_ADD = -DPOSIX -I. -I$(BOOST_INCLUDES)
-LD_ADD = $(LIBBOOST_REGEX_A)
+LD_ADD = -lboost_regex -L$(BOOST_LINK)
+
 LIBAYA5_OBJ = \
 	aya5.o \
 	ayavm.o \
