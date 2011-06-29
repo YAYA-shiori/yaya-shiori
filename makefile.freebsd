@@ -15,7 +15,7 @@ DYLIB_NAME_PREFIX = lib
 DYLIB_NAME_POSTFIX = .so
 
 # boost‚ÌêŠ‚ğw’èB
-# BOOST_INCLUDES = /usr/local/include
+BOOST_INCLUDES = /usr/local/include
 # libboost_regex.a‚ÌêŠ‚ğİ’èB
 # LIBBOOST_REGEX_A = /usr/local/lib/libboost_regex.a
 
