@@ -4822,19 +4822,19 @@ CValue	CSystemFunction::STRDECODE(const CValue &arg, yaya::string_t &d, int &l)
 		while (*p!='=')
 		{
 			//11111122:22223333:33444444
-			if (*p=='\0' || *(p+1)=='=') break;
+			if ( (*p=='\0') || (*(p+1)=='=') ) break;
 			str.append(1,static_cast<unsigned char>((reverse_64[*p&0x7f] <<2) & 0xFC | (reverse_64[*(p+1)&0x7f] >>4) & 0x03));
 			++p;
 
-			if (*p=='\0' || *(p+1)=='=') break;
+			if ( (*p=='\0') || (*(p+1)=='=') ) break;
 			str.append(1,static_cast<unsigned char>((reverse_64[*p&0x7f] <<4) & 0xF0 | (reverse_64[*(p+1)&0x7f] >>2) & 0x0F));
 			++p;
 
-			if (*p=='\0' || *(p+1)=='=') break;
+			if ( (*p=='\0') || (*(p+1)=='=') ) break;
 			str.append(1,static_cast<unsigned char>((reverse_64[*p&0x7f] <<6) & 0xC0 | reverse_64[*(p+1)&0x7f] & 0x3f ));
 			++p;
 
-			if (*p=='\0' || *(p+1)=='=') break;
+			if ( (*p=='\0') || (*(p+1)=='=') ) break;
 			++p;
 		}
 	}
@@ -5297,8 +5297,8 @@ CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
 	result.array().push_back(CValueSub(0));
 	result.array().push_back(CValueSub(0));
 	result.array().push_back(CValueSub(0));
-	result.array().push_back(CValueSub(sb.st_ctime));
-	result.array().push_back(CValueSub(sb.st_mtime));
+	result.array().push_back(CValueSub((int)sb.st_ctime));
+	result.array().push_back(CValueSub((int)sb.st_mtime));
 #endif
 
 	return result;
