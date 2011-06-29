@@ -9,8 +9,6 @@
 # include "stdafx.h"
 #endif
 
-#include <string.h>
-
 #include <string>
 #include <vector>
 
@@ -441,7 +439,7 @@ int CLib1::Request(const yaya::string_t &istr, yaya::string_t &ostr) {
 	return 0;
     }
 
-    long len = (long)std::strlen(t_istr);
+    long len = (long)strlen(t_istr);
 
     // パス文字列をヒープにコピー
     char* igmem = static_cast<char*>(malloc(len));
