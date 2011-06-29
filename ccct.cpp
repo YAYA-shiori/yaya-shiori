@@ -13,6 +13,8 @@
 # include "stdafx.h"
 #endif
 
+#include <string.h>
+
 #include <clocale>
 #include <string>
 
