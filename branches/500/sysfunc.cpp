@@ -4835,9 +4835,9 @@ CValue	CSystemFunction::ASORT(const CValue &arg, yaya::string_t &d, int &l)
 		option = L"string,ascent";
 	}
 
-	CValue val;
+	CValue val(F_TAG_ARRAY, 0/*dmy*/);
 	for ( int i = 1 ; i < sz ; ++i ) {
-		val.array().push_back(arg[i]);
+		val.array().push_back(arg.array()[i]);
 	}
 
 	bool isDescent = (option.find(L"des") != yaya::string_t::npos);

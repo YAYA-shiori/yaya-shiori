@@ -75,7 +75,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="D:\ssp_src_set\ssp\ghost\cyau_cyaka\ghost\master\yaya_jp.dll"
+				OutputFile="D:\ssp_src_set\ssp\ghost\mobilemaster\ghost\master\yaya.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="C:\Program Files\boost\boost_1_34_1\lib"
