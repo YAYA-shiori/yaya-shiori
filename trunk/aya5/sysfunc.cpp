@@ -4998,13 +4998,18 @@ struct CSFSORT_DoubleDescent : public std::binary_function<T, T, bool> {
 CValue	CSystemFunction::ASORT(const CValue &arg, yaya::string_t &d, int &l)
 {
 	int	sz = arg.array_size();
-	if (sz < 1) {
+	if (sz <= 0) {
 		vm.logger().Error(E_W, 8, L"ASORT", d, l);
 		SetError(8);
 		return CValue(-1);
 	}
-	if (sz < 2) {
-		return CValue(arg.array()[1]);
+	if (sz <= 1) {
+		return CValue(F_TAG_ARRAY, 0/*dmy*/);
+	}
+	if (sz <= 2) {
+		CValue val(F_TAG_ARRAY, 0/*dmy*/);
+		val.array().push_back(arg.array()[0]);
+		return val;
 	}
 
 	yaya::string_t option = arg.array()[0].GetValueString();
