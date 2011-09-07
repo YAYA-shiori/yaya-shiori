@@ -11,6 +11,7 @@
 #endif
 
 #include <algorithm>
+#include <functional>
 #include <exception>
 #if defined(POSIX)
 # include <fstream>
