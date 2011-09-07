@@ -197,6 +197,8 @@ protected:
 	CValue	ASEARCH(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	ASEARCHEX(const CValue &arg, yaya::string_t &d, int &l);
 
+	CValue	ASORT(const CValue &arg, yaya::string_t &d, int &l);
+
 	CValue	GETDELIM(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l);
 
 	CValue	GETSETTING(const CValue &arg, yaya::string_t &d, int &l);
