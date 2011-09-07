@@ -1,4 +1,7 @@
 #labels Featured
+=Tc540-1=
+  * ASORT追加
+
 =Tc539-4=
   * FreeBSDでビルドできるようになった修正済みソースで再ビルド (send-pr from Henry Hu. Thanks.)
   * (manifest.cppの番号書き換え忘れたので差し替えた)
