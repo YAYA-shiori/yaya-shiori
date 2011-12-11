@@ -1,4 +1,7 @@
 #labels Featured
+=Tc540-2=
+  * FDIGEST関数が腐っていた問題を修正
+
 =Tc540-1=
   * ASORT追加
 
