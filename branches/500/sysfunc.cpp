@@ -2888,10 +2888,10 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 		SHA1Context sha1ctx;
 		SHA1Reset(&sha1ctx);
 
-		while ( TRUE ) {
+		while ( ! feof(pF) ) {
 			size_t readsize = fread(buf,sizeof(buf[0]),sizeof(buf),pF);
 			SHA1Input(&sha1ctx,buf,readsize);
-			if ( readsize <= sizeof(buf) ) { break; }
+			if ( readsize < sizeof(buf) ) { break; }
 		}
 
 		SHA1Result(&sha1ctx,digest_result);
@@ -2899,10 +2899,11 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 	}
 	else if ( wcsicmp(digest_type.c_str(),L"crc32") == 0 ) {
 		unsigned long crc = 0;
-		while ( TRUE ) {
+
+		while ( ! feof(pF) ) {
 			size_t readsize = fread(buf,sizeof(buf[0]),sizeof(buf),pF);
 			crc = update_crc32(buf,readsize,crc);;
-			if ( readsize <= sizeof(buf) ) { break; }
+			if ( readsize < sizeof(buf) ) { break; }
 		}
 
 		digest_result[0] = static_cast<unsigned char>(crc & 0xFFU);
@@ -2915,10 +2916,10 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 		MD5_CTX md5ctx;
 		MD5Init(&md5ctx);
 
-		while ( TRUE ) {
+		while ( ! feof(pF) ) {
 			size_t readsize = fread(buf,sizeof(buf[0]),sizeof(buf),pF);
 			MD5Update(&md5ctx,buf,readsize);
-			if ( readsize <= sizeof(buf) ) { break; }
+			if ( readsize < sizeof(buf) ) { break; }
 		}
 
 		MD5Final(digest_result,&md5ctx);
