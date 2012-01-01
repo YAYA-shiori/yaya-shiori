@@ -207,7 +207,7 @@ int	CFile1::ReadBin(yaya::string_t &ostr, size_t len, yaya::char_t alt)
 				ostr.append(1,alt);
 			}
 			else {
-				ostr.append(1,static_cast<yaya::char_t>(f_buffer[i]));
+				ostr.append(1,static_cast<yaya::char_t>(static_cast<unsigned char>(f_buffer[i])));
 			}
 		}
 
