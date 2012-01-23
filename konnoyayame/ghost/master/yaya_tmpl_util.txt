@@ -298,8 +298,10 @@ AYATEMPLATE.MouseMoveWheelFunc
 		AYATEMPLATE.stroke[_side] = _stroke
 		
 		if _stroke >= _argv[1] {
-			AYATEMPLATE.MouseEventExec(_argv[2]);
-			AYATEMPLATE.stroke[_side] = 1
+			if 'talking' !_in_ status {
+				AYATEMPLATE.MouseEventExec(_argv[2]);
+				AYATEMPLATE.stroke[_side] = 1
+			}
 		}
 	}
 	else {
