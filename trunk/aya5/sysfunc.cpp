@@ -3566,11 +3566,192 @@ CValue	CSystemFunction::GETTIME(const CValue &arg, yaya::string_t &d, int &l)
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::GETSECCOUNT
  *  
- *  引数なしか、year,month,day,week(0-6),hour,minute,secondの配列
+ *  引数なしか、year,month,day,week(0-6),hour,minute,secondの配列、または
+ *  日時を表すテキスト
  *
  *  返値　　：  EPOCHからの秒数
  * -----------------------------------------------------------------------
  */
+/*-----------------------------------------------------
+	HTTP Date Conversion
+------------------------------------------------------*/
+#define HTTP_DATE_TOKEN " \t,:-;"
+
+static const char * const g_pWDayArray[] = {"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
+static const char * const g_pMonthArray[] = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+
+static unsigned int Utils_HTTPToSystemTime_MonthConv(char *pMon)
+{
+	static const unsigned int n = sizeof(g_pMonthArray) / sizeof(g_pMonthArray[0]);
+	unsigned int i = 0;
+	for ( i = 0 ; i < n ; ++i ) {
+		if ( strnicmp(pMon,g_pMonthArray[i],3) == 0 ) {
+			break;
+		}
+	}
+	return i + 1;
+}
+
+static int Utils_TimeZoneConvert(char *pTZ)
+{
+	if ( ! pTZ || ! *pTZ ) { return 0; }
+
+	int tzdiff = atoi(pTZ);
+	if ( ! tzdiff ) {
+		if ( stricmp(pTZ,"ut") == 0 ) {
+			return 0;
+		}
+		if ( stricmp(pTZ,"gmt") == 0 ) {
+			return 0;
+		}
+		if ( stricmp(pTZ,"est") == 0 ) {
+			return -5*60;
+		}
+		if ( stricmp(pTZ,"edt") == 0 ) {
+			return -4*60;
+		}
+		if ( stricmp(pTZ,"cst") == 0 ) {
+			return -6*60;
+		}
+		if ( stricmp(pTZ,"cdt") == 0 ) {
+			return -5*60;
+		}
+		if ( stricmp(pTZ,"mst") == 0 ) {
+			return -7*60;
+		}
+		if ( stricmp(pTZ,"mdt") == 0 ) {
+			return -6*60;
+		}
+		if ( stricmp(pTZ,"pst") == 0 ) {
+			return -8*60;
+		}
+		if ( stricmp(pTZ,"pdt") == 0 ) {
+			return -7*60;
+		}
+
+		if ( pTZ[1] == 0 ) { //1文字アルファベット？
+			int c = pTZ[0];
+			if ( c >= 'A' && c <= 'Z' ) {
+				c = c - 'A' + 'a';
+			}
+			if ( c >= 'a' && c <= 'm' ) {
+				return static_cast<int>(c - 'n' + 1)*-60;
+			}
+			if ( c >= 'n' && c <= 'y' ) {
+				return static_cast<int>(c - 'n' + 1)*60;
+			}
+			if ( c == 'z' ) {
+				return 0;
+			}
+		}
+	}
+
+	if ( labs(tzdiff) <= 24 ) { //2けた+時間
+		return tzdiff * 60;
+	}
+	
+	int h = tzdiff / 100;
+	return (h * 60) + (tzdiff - (h*100));
+}
+
+// Sun, 06 Nov 1994 08:49:37 GMT  ; RFC 822, updated by RFC 1123
+// Sunday, 06-Nov-94 08:49:37 GMT ; RFC 850, obsoleted by RFC 1036
+// Sun Nov  6 08:49:37 1994       ; ANSI C's asctime() format
+
+static bool Utils_HTTPToTM(const char *pText,struct tm &outTime)
+{
+	if ( ! pText ) { return false; }
+
+	memset(&outTime,0,sizeof(outTime));
+
+	unsigned int len = strlen(pText) + 1;
+	char *pData = (char*)malloc(len);
+	memcpy(pData,pText,len);
+
+	char *pTok = strtok(pData,HTTP_DATE_TOKEN);
+	unsigned int num = 0;
+
+	char *pTokArray[8];
+	memset(&pTokArray,0,sizeof(pTokArray));
+
+	while ( pTok && (num <= 7) ) {
+		pTokArray[num] = pTok;
+		++num;
+		pTok = strtok(NULL,HTTP_DATE_TOKEN);
+	}
+
+	if ( num < 6 ) {
+		free(pData);
+		return FALSE;
+	}
+
+	unsigned int n,i = 0;
+	bool isDayOfWeekFound = false;
+	n = sizeof(g_pWDayArray) / sizeof(g_pWDayArray[0]);
+	for ( i = 0 ; i < n ; ++i ) {
+		if ( strnicmp(pTokArray[0],g_pWDayArray[i],3) == 0 ) {
+			isDayOfWeekFound = true;
+			break;
+		}
+	}
+
+	if ( ! isDayOfWeekFound ) { //曜日省略形
+		for ( int j = 7 ; j > 0 ; --j ) {
+			pTokArray[j] = pTokArray[j-1];
+		}
+		pTokArray[0] = "";
+		outTime.tm_wday = 0;
+	}
+	else {
+		outTime.tm_wday = static_cast<WORD>(i);
+	}
+
+	if ( isdigit(pTokArray[1][0]) ) { //RFC Format
+		outTime.tm_mday = static_cast<unsigned short>(strtoul(pTokArray[1],NULL,10));
+		outTime.tm_mon = Utils_HTTPToSystemTime_MonthConv(pTokArray[2]) - 1;
+		outTime.tm_year = static_cast<unsigned short>(strtoul(pTokArray[3],NULL,10)) - 1900;
+		outTime.tm_hour = static_cast<unsigned short>(strtoul(pTokArray[4],NULL,10));
+		outTime.tm_min = static_cast<unsigned short>(strtoul(pTokArray[5],NULL,10));
+		outTime.tm_sec = static_cast<unsigned short>(strtoul(pTokArray[6],NULL,10));
+
+		if ( outTime.tm_year < 100 ) { //2桁だった
+			if ( outTime.tm_year < 70 ) {
+				outTime.tm_year += 2000;
+			}
+			else {
+				outTime.tm_year += 1900;
+			}
+		}
+
+		if ( pTokArray[7] ) { //補正
+			int diff = Utils_TimeZoneConvert(pTokArray[7]);
+			if ( diff ) {
+				outTime.tm_min -= diff * 60;
+			}
+		}
+	}
+	else { //C asctime
+		outTime.tm_mon = Utils_HTTPToSystemTime_MonthConv(pTokArray[1]) - 1;
+		outTime.tm_mday = static_cast<unsigned short>(strtoul(pTokArray[2],NULL,10));
+		outTime.tm_hour = static_cast<unsigned short>(strtoul(pTokArray[3],NULL,10));
+		outTime.tm_min = static_cast<unsigned short>(strtoul(pTokArray[4],NULL,10));
+		outTime.tm_sec = static_cast<unsigned short>(strtoul(pTokArray[5],NULL,10));
+		outTime.tm_year = static_cast<unsigned short>(strtoul(pTokArray[6],NULL,10)) - 1900;
+
+		if ( outTime.tm_year < 100 ) { //2桁だった
+			if ( outTime.tm_year < 70 ) {
+				outTime.tm_year += 2000;
+			}
+			else {
+				outTime.tm_year += 1900;
+			}
+		}
+	}
+
+	free(pData);
+	return true;
+}
+
 CValue	CSystemFunction::GETSECCOUNT(const CValue &arg, yaya::string_t &d, int &l)
 {
 	time_t	ltime;
@@ -3592,21 +3773,28 @@ CValue	CSystemFunction::GETSECCOUNT(const CValue &arg, yaya::string_t &d, int &l
 	unsigned int asize = arg.array_size();
 	if ( asize > 7 ) { asize = 7; }
 
-	switch ( asize ) {
-	case 7:
-		input_time.tm_sec = arg.array()[6].GetValueInt();
-	case 6:
-		input_time.tm_min = arg.array()[5].GetValueInt();
-	case 5:
-		input_time.tm_hour = arg.array()[4].GetValueInt();
-	/*case 4:
-		input_time.tm_wday = arg.array()[3].GetValueInt();*/ //代入禁止
-	case 3:
-		input_time.tm_mday = arg.array()[2].GetValueInt();
-	case 2:
-		input_time.tm_mon = arg.array()[1].GetValueInt()-1;
-	case 1:
-		input_time.tm_year = arg.array()[0].GetValueInt()-1900;
+	if ( asize == 1 && arg.array()[0].IsString() ) { //文字列日付の可能性
+		char* time = Ccct::Ucs2ToMbcs(arg.array()[0].GetValueString().c_str(),CHARSET_DEFAULT);
+		Utils_HTTPToTM(time,input_time);
+		free(time);
+	}
+	else {
+		switch ( asize ) {
+		case 7:
+			input_time.tm_sec = arg.array()[6].GetValueInt();
+		case 6:
+			input_time.tm_min = arg.array()[5].GetValueInt();
+		case 5:
+			input_time.tm_hour = arg.array()[4].GetValueInt();
+		/*case 4:
+			input_time.tm_wday = arg.array()[3].GetValueInt();*/ //代入禁止
+		case 3:
+			input_time.tm_mday = arg.array()[2].GetValueInt();
+		case 2:
+			input_time.tm_mon = arg.array()[1].GetValueInt()-1;
+		case 1:
+			input_time.tm_year = arg.array()[0].GetValueInt()-1900;
+		}
 	}
 
 	return CValue((int)mktime(&input_time));
