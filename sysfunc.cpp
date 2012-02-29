@@ -3519,7 +3519,7 @@ static bool Utils_HTTPToTM(const char *pText,struct tm &outTime)
 	}
 
 	if ( ! isDayOfWeekFound ) { //—j“úÈ—ªŒ`
-		for ( int j = 6 ; j > 0 ; --j ) {
+		for ( int j = 7 ; j > 0 ; --j ) {
 			pTokArray[j] = pTokArray[j-1];
 		}
 		pTokArray[0] = "";
@@ -3532,7 +3532,7 @@ static bool Utils_HTTPToTM(const char *pText,struct tm &outTime)
 	if ( isdigit(pTokArray[1][0]) ) { //RFC Format
 		outTime.tm_mday = static_cast<unsigned short>(strtoul(pTokArray[1],NULL,10));
 		outTime.tm_mon = Utils_HTTPToSystemTime_MonthConv(pTokArray[2]) - 1;
-		outTime.tm_year = static_cast<unsigned short>(strtoul(pTokArray[3],NULL,10));
+		outTime.tm_year = static_cast<unsigned short>(strtoul(pTokArray[3],NULL,10)) - 1900;
 		outTime.tm_hour = static_cast<unsigned short>(strtoul(pTokArray[4],NULL,10));
 		outTime.tm_min = static_cast<unsigned short>(strtoul(pTokArray[5],NULL,10));
 		outTime.tm_sec = static_cast<unsigned short>(strtoul(pTokArray[6],NULL,10));
@@ -3559,7 +3559,7 @@ static bool Utils_HTTPToTM(const char *pText,struct tm &outTime)
 		outTime.tm_hour = static_cast<unsigned short>(strtoul(pTokArray[3],NULL,10));
 		outTime.tm_min = static_cast<unsigned short>(strtoul(pTokArray[4],NULL,10));
 		outTime.tm_sec = static_cast<unsigned short>(strtoul(pTokArray[5],NULL,10));
-		outTime.tm_year = static_cast<unsigned short>(strtoul(pTokArray[6],NULL,10));
+		outTime.tm_year = static_cast<unsigned short>(strtoul(pTokArray[6],NULL,10)) - 1900;
 
 		if ( outTime.tm_year < 100 ) { //2Œ…‚¾‚Á‚½
 			if ( outTime.tm_year < 70 ) {
