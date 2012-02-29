@@ -3390,7 +3390,8 @@ CValue	CSystemFunction::GETTIME(const CValue &arg, yaya::string_t &d, int &l)
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::GETSECCOUNT
  *  
- *  引数なしか、year,month,day,week(0-6),hour,minute,secondの配列
+ *  引数なしか、year,month,day,week(0-6),hour,minute,secondの配列、または
+ *  日時を表すテキスト
  *
  *  返値　　：  EPOCHからの秒数
  * -----------------------------------------------------------------------
