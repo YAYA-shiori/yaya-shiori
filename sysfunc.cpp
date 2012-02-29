@@ -3540,17 +3540,14 @@ static bool Utils_HTTPToTM(const char *pText,struct tm &outTime)
 
 		if ( outTime.tm_year < 100 ) { //2Œ…‚¾‚Á‚½
 			if ( outTime.tm_year < 70 ) {
-				outTime.tm_year += 2000;
-			}
-			else {
-				outTime.tm_year += 1900;
+				outTime.tm_year += 100;
 			}
 		}
 
 		if ( pTokArray[7] ) { //•â³
 			int diff = Utils_TimeZoneConvert(pTokArray[7]);
 			if ( diff ) {
-				outTime.tm_min -= diff * 60;
+				outTime.tm_min -= diff;
 			}
 		}
 	}
@@ -3564,10 +3561,7 @@ static bool Utils_HTTPToTM(const char *pText,struct tm &outTime)
 
 		if ( outTime.tm_year < 100 ) { //2Œ…‚¾‚Á‚½
 			if ( outTime.tm_year < 70 ) {
-				outTime.tm_year += 2000;
-			}
-			else {
-				outTime.tm_year += 1900;
+				outTime.tm_year += 100;
 			}
 		}
 	}
