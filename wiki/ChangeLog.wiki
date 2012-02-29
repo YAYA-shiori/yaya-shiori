@@ -1,4 +1,7 @@
 #labels Featured
+=Tc541-1=
+  * GETSECCOUNT関数に、日付文字列解析機能追加
+
 =Tc540-3=
   * FREADBIN関数が腐っていた問題を修正
 
