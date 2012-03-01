@@ -1,5 +1,7 @@
 #labels Featured
 =Tc541-3=
+  * GETSECCOUNT機能追加で苦闘中その2(だいたい修正済)
+
 =Tc541-2=
   * GETSECCOUNT機能追加で苦闘中(だいたい修正済)
 
