@@ -3768,9 +3768,17 @@ CValue	CSystemFunction::GETSECCOUNT(const CValue &arg, yaya::string_t &d, int &l
 	if ( asize > 7 ) { asize = 7; }
 
 	if ( asize == 1 && arg.array()[0].IsString() ) { //ï∂éöóÒì˙ïtÇÃâ¬î\ê´
-		char* time = Ccct::Ucs2ToMbcs(arg.array()[0].GetValueString().c_str(),CHARSET_DEFAULT);
-		Utils_HTTPToTM(time,input_time);
-		free(time);
+		char* text = Ccct::Ucs2ToMbcs(arg.array()[0].GetValueString().c_str(),CHARSET_DEFAULT);
+		Utils_HTTPToTM(text,input_time);
+		free(text);
+		time_t gmt_local = mktime(&input_time);
+
+		time_t now;
+		time(&now);
+		struct tm* gmt_tm = gmtime(&now);
+		time_t local_gmt = now - mktime(gmt_tm);
+
+		return CValue((int)(gmt_local + local_gmt));
 	}
 	else {
 		switch ( asize ) {
@@ -3789,9 +3797,8 @@ CValue	CSystemFunction::GETSECCOUNT(const CValue &arg, yaya::string_t &d, int &l
 		case 1:
 			input_time.tm_year = arg.array()[0].GetValueInt()-1900;
 		}
+		return CValue((int)mktime(&input_time));
 	}
-
-	return CValue((int)mktime(&input_time));
 }
 
 /* -----------------------------------------------------------------------
