@@ -3378,6 +3378,8 @@ CValue	CSystemFunction::GETTIME(const CValue &arg, yaya::string_t &d, int &l)
 		result.array().push_back(CValueSub(static_cast<int>(today->tm_hour)));
 		result.array().push_back(CValueSub(static_cast<int>(today->tm_min)));
 		result.array().push_back(CValueSub(static_cast<int>(today->tm_sec)));
+		result.array().push_back(CValueSub(static_cast<int>(today->tm_yday)));
+		result.array().push_back(CValueSub(static_cast<int>(today->tm_isdst)));
 	}
 	else {
 		vm.logger().Error(E_W, 12, L"GETTIME", d, l);
