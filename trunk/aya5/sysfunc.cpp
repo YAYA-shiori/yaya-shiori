@@ -4655,7 +4655,7 @@ CValue	CSystemFunction::CVAUTO(const CValue &arg, const std::vector<CCell *> &pc
 	}
 
 	if (!arg.array()[0].IsString()) {
-		return CValue(arg.array()[0]);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
 	if ( IsIntString(arg.array()[0].GetValueString()) ) {
