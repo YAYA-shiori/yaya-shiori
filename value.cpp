@@ -43,7 +43,17 @@ int	CValue::GetValueInt(void) const
 	case F_TAG_INT:
 		return i_value;
 	case F_TAG_DOUBLE:
-		return (int)floor(d_value);
+		{
+			if ( d_value > static_cast<double>(INT_MAX) ) {
+				return INT_MAX;
+			}
+			else if ( d_value < static_cast<double>(INT_MIN) ) {
+				return INT_MIN;
+			}
+			else {
+				return static_cast<int>(d_value);
+			}
+		}
 	case F_TAG_STRING:
 		return yaya::ws_atoi(s_value, 10);
 	case F_TAG_ARRAY:
