@@ -5,13 +5,17 @@
 // 
 
 #if defined(WIN32) || defined(_WIN32_WCE)
-# include "stdafx.h"
+#include "stdafx.h"
+#include <io.h>
+#include <fcntl.h>
 #endif
 
 #include <vector>
 #include <ctime>
 #include <locale>
 #include <clocale>
+#include <locale>
+#include <stdio.h>
 
 #include "aya5.h"
 #include "basis.h"
@@ -54,29 +58,42 @@ static CAyaVMPrepare prepare; //これはコンストラクタ・デストラクタ作動用
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
+
+static void AYA_InitModule(HMODULE hModule)
+{
+	char path[MAX_PATH];
+	GetModuleFileName(hModule, path, sizeof(path));
+	char drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
+	_splitpath(path, drive, dir, fname, ext);
+	std::string	mbmodulename = fname;
+
+	wchar_t	*wcmodulename = Ccct::MbcsToUcs2(mbmodulename, CHARSET_DEFAULT);
+	modulename = wcmodulename;
+
+	free(wcmodulename);
+	wcmodulename = NULL;
+
+	Ccct::sys_setlocale(LC_ALL);
+}
+
+#endif //win32
+
+#if !defined(AYA_MAKE_EXE)
+#if defined(WIN32)
+
 extern "C" BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID /*lpReserved*/)
 {
 	// モジュールの主ファイル名を取得
 	// NT系ではいきなりUNICODEで取得できるが、9x系を考慮してMBCSで取得してからUCS-2へ変換
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
-		char path[MAX_PATH];
-		GetModuleFileName(hModule, path, sizeof(path));
-		char drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
-		_splitpath(path, drive, dir, fname, ext);
-		std::string	mbmodulename = fname;
-
-		wchar_t	*wcmodulename = Ccct::MbcsToUcs2(mbmodulename, CHARSET_DEFAULT);
-		modulename = wcmodulename;
-
-		free(wcmodulename);
-		wcmodulename = NULL;
-
-		Ccct::sys_setlocale(LC_ALL);
+		AYA_InitModule(hModule);
 	}
 
 	return TRUE;
 }
-#endif
+
+#endif //win32
+#endif //aya_make_exe
 
 /* -----------------------------------------------------------------------
  *  load
@@ -188,6 +205,7 @@ extern "C" DLLEXPORT yaya::global_t FUNCATTRIB multi_request(long id, yaya::glob
  *  logsend（AYA固有　チェックツールから使用）
  * -----------------------------------------------------------------------
  */
+#if !defined(AYA_MAKE_EXE)
 #if defined(WIN32)
 extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB logsend(long hwnd)
 {
@@ -200,4 +218,86 @@ extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB logsend(long hwnd)
 
 	return TRUE;
 }
-#endif
+#endif //win32
+#endif //aya_make_exe
+
+
+/* -----------------------------------------------------------------------
+ *  main (実行ファイル版のみ)
+ * -----------------------------------------------------------------------
+ */
+
+#if defined(AYA_MAKE_EXE)
+
+int main( int argc, char *argv[ ], char *envp[ ] )
+{
+	AYA_InitModule(NULL);
+
+	std::string bufstr;
+
+	_setmode( _fileno( stdin ), _O_BINARY );
+	_setmode( _fileno( stdout ), _O_BINARY );
+
+	while ( 1 ) {
+		bufstr = "";
+
+		while ( 1 ) {
+			bufstr += static_cast<char>(getchar());
+
+			if ( bufstr.size() >= 4 ) {
+				if ( strcmp(bufstr.c_str() + bufstr.size() - 4,"\r\n\r\n") == 0 ) { //空行検出
+					break;
+				}
+			}
+		}
+
+		const char* bufptr = bufstr.c_str();
+
+		if ( strncmp(bufptr,"load\r\n",6) == 0 ) {
+			bufptr += 6;
+			const char* line_end = strstr(bufptr,"\r\n");
+
+			if ( line_end ) {
+				long size = line_end-bufptr;
+				yaya::global_t g = ::GlobalAlloc(GMEM_FIXED,size+1);
+				memcpy(g,bufptr,size);
+				reinterpret_cast<char*>(g)[size] = 0; //安全用ゼロ終端
+
+				load(g,size);
+			}
+
+			const char* result = "1\r\n\r\n";
+			fwrite(result,1,strlen(result),stdout);
+			fflush(stdout);
+		}
+		else if ( strncmp(bufptr,"unload\r\n",8) == 0 ) {
+			bufptr += 8;
+			unload();
+
+			const char* result = "1\r\n\r\n";
+			fwrite(result,1,strlen(result),stdout);
+			fflush(stdout);
+
+			break;
+		}
+		else if ( strncmp(bufptr,"request\r\n",9) == 0 ) {
+			bufptr += 9;
+
+			long size = strlen(bufptr);
+			yaya::global_t g = ::GlobalAlloc(GMEM_FIXED,size+1);
+			memcpy(g,bufptr,size);
+			reinterpret_cast<char*>(g)[size] = 0; //安全用ゼロ終端
+
+			yaya::global_t res = request(g,&size);
+
+			fwrite(res,1,size,stdout);
+			fflush(stdout);
+
+			::GlobalFree(res);
+		}
+	}
+
+	return 0;
+}
+
+#endif //aya_make_exe
