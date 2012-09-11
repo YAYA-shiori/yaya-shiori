@@ -290,10 +290,24 @@ int main( int argc, char *argv[ ], char *envp[ ] )
 
 			yaya::global_t res = request(g,&size);
 
-			fwrite(res,1,size,stdout);
-			fflush(stdout);
+			if ( ! res || reinterpret_cast<char*>(res)[0] == 0 ) {
+				fwrite("\r\n\r\n",1,4,stdout);
+				fflush(stdout);
 
-			::GlobalFree(res);
+				if ( res ) {
+					::GlobalFree(res);
+				}
+			}
+			else {
+				fwrite(res,1,size,stdout);
+				fflush(stdout);
+
+				::GlobalFree(res);
+			}
+		}
+		else {
+			fwrite("\r\n\r\n",1,4,stdout);
+			fflush(stdout);
 		}
 	}
 
