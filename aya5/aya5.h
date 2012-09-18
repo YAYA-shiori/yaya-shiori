@@ -9,7 +9,11 @@
 
 //----
 
-#if defined(WIN32) || defined(_WIN32_WCE)
+#if defined(AYA_MAKE_EXE)
+# define DLLEXPORT
+# define BOOL_TYPE   BOOL
+# define FUNCATTRIB
+#elif defined(WIN32) || defined(_WIN32_WCE)
 # define DLLEXPORT __declspec(dllexport)
 # define BOOL_TYPE   BOOL
 # define FUNCATTRIB __cdecl

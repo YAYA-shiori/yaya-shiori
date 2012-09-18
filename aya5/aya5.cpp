@@ -5,13 +5,17 @@
 // 
 
 #if defined(WIN32) || defined(_WIN32_WCE)
-# include "stdafx.h"
+#include "stdafx.h"
+#include <io.h>
+#include <fcntl.h>
 #endif
 
 #include <vector>
 #include <ctime>
 #include <locale>
 #include <clocale>
+#include <locale>
+#include <stdio.h>
 
 #include "aya5.h"
 #include "basis.h"
@@ -54,29 +58,42 @@ static CAyaVMPrepare prepare; //これはコンストラクタ・デストラクタ作動用
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
+
+static void AYA_InitModule(HMODULE hModule)
+{
+	char path[MAX_PATH];
+	GetModuleFileName(hModule, path, sizeof(path));
+	char drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
+	_splitpath(path, drive, dir, fname, ext);
+	std::string	mbmodulename = fname;
+
+	wchar_t	*wcmodulename = Ccct::MbcsToUcs2(mbmodulename, CHARSET_DEFAULT);
+	modulename = wcmodulename;
+
+	free(wcmodulename);
+	wcmodulename = NULL;
+
+	Ccct::sys_setlocale(LC_ALL);
+}
+
+#endif //win32
+
+#if !defined(AYA_MAKE_EXE)
+#if defined(WIN32)
+
 extern "C" BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID /*lpReserved*/)
 {
 	// モジュールの主ファイル名を取得
 	// NT系ではいきなりUNICODEで取得できるが、9x系を考慮してMBCSで取得してからUCS-2へ変換
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
-		char path[MAX_PATH];
-		GetModuleFileName(hModule, path, sizeof(path));
-		char drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
-		_splitpath(path, drive, dir, fname, ext);
-		std::string	mbmodulename = fname;
-
-		wchar_t	*wcmodulename = Ccct::MbcsToUcs2(mbmodulename, CHARSET_DEFAULT);
-		modulename = wcmodulename;
-
-		free(wcmodulename);
-		wcmodulename = NULL;
-
-		Ccct::sys_setlocale(LC_ALL);
+		AYA_InitModule(hModule);
 	}
 
 	return TRUE;
 }
-#endif
+
+#endif //win32
+#endif //aya_make_exe
 
 /* -----------------------------------------------------------------------
  *  load
@@ -188,6 +205,7 @@ extern "C" DLLEXPORT yaya::global_t FUNCATTRIB multi_request(long id, yaya::glob
  *  logsend（AYA固有　チェックツールから使用）
  * -----------------------------------------------------------------------
  */
+#if !defined(AYA_MAKE_EXE)
 #if defined(WIN32)
 extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB logsend(long hwnd)
 {
@@ -200,4 +218,104 @@ extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB logsend(long hwnd)
 
 	return TRUE;
 }
-#endif
+#endif //win32
+#endif //aya_make_exe
+
+
+/* -----------------------------------------------------------------------
+ *  main (実行ファイル版のみ)
+ * -----------------------------------------------------------------------
+ */
+
+#if defined(AYA_MAKE_EXE)
+
+int main( int argc, char *argv[ ], char *envp[ ] )
+{
+	AYA_InitModule(NULL);
+
+	std::string bufstr;
+
+	_setmode( _fileno( stdin ), _O_BINARY );
+	_setmode( _fileno( stdout ), _O_BINARY );
+
+	while ( 1 ) {
+		bufstr = "";
+
+		while ( 1 ) {
+			char buf[2];
+			fread(buf,1,1,stdin);
+			bufstr += static_cast<char>(buf[0]);
+
+			if ( bufstr.size() >= 2 ) {
+				if ( strcmp(bufstr.c_str() + bufstr.size() - 2,"\r\n") == 0 ) { //改行検出
+					break;
+				}
+			}
+		}
+
+		const char* bufptr = bufstr.c_str();
+
+		if ( strncmp(bufptr,"load:",5) == 0 ) {
+			bufptr += 5;
+			long size = atoi(bufptr);
+			if ( size > 0 ) {
+				char *read_ptr = (char*)::GlobalAlloc(GMEM_FIXED,size+1);
+				fread(read_ptr,1,size,stdin);
+				read_ptr[size] = 0;
+
+				char *p = strstr(read_ptr,"\r\n");
+				if ( p ) { *p = 0; size -= 2; }
+				
+				load(read_ptr,size);
+			}
+
+			const char* result = "load:3\r\n1\r\n";
+			fwrite(result,1,strlen(result),stdout);
+			fflush(stdout);
+		}
+		else if ( strncmp(bufptr,"unload:",7) == 0 ) {
+			bufptr += 7;
+			long size = atoi(bufptr);
+			if ( size > 0 ) {
+				char *read_ptr = (char*)malloc(size);
+				fread(read_ptr,1,size,stdin);
+				free(read_ptr); //データまとめて破棄
+			}
+
+			unload();
+
+			const char* result = "unload:3\r\n1\r\n";
+			fwrite(result,1,strlen(result),stdout);
+			fflush(stdout);
+			break;
+		}
+		else if ( strncmp(bufptr,"request:",8) == 0 ) {
+			bufptr += 8;
+			long size = atoi(bufptr);
+			if ( size > 0 ) {
+				char *read_ptr = (char*)::GlobalAlloc(GMEM_FIXED,size+1);
+				fread(read_ptr,1,size,stdin);
+				read_ptr[size] = 0;
+				
+				yaya::global_t res = request(read_ptr,&size);
+
+				char write_header[64];
+				sprintf(write_header,"request:%d\r\n",size);
+				fwrite(write_header,1,strlen(write_header),stdout);
+
+				fwrite(res,1,size,stdout);
+				fflush(stdout);
+
+				::GlobalFree(res);
+			}
+			else {
+				const char* w = "request:0\r\n";
+				fwrite(w,1,strlen(w),stdout);
+			}
+		}
+	}
+
+	return 0;
+}
+
+#endif //aya_make_exe
