@@ -242,10 +242,12 @@ int main( int argc, char *argv[ ], char *envp[ ] )
 		bufstr = "";
 
 		while ( 1 ) {
-			bufstr += static_cast<char>(getchar());
+			char buf[2];
+			fread(buf,1,1,stdin);
+			bufstr += static_cast<char>(buf[0]);
 
-			if ( bufstr.size() >= 4 ) {
-				if ( strcmp(bufstr.c_str() + bufstr.size() - 4,"\r\n\r\n") == 0 ) { //空行検出
+			if ( bufstr.size() >= 2 ) {
+				if ( strcmp(bufstr.c_str() + bufstr.size() - 2,"\r\n") == 0 ) { //改行検出
 					break;
 				}
 			}
@@ -253,61 +255,63 @@ int main( int argc, char *argv[ ], char *envp[ ] )
 
 		const char* bufptr = bufstr.c_str();
 
-		if ( strncmp(bufptr,"load\r\n",6) == 0 ) {
-			bufptr += 6;
-			const char* line_end = strstr(bufptr,"\r\n");
+		if ( strncmp(bufptr,"load:",5) == 0 ) {
+			bufptr += 5;
+			long size = atoi(bufptr);
+			if ( size > 0 ) {
+				char *read_ptr = (char*)::GlobalAlloc(GMEM_FIXED,size+1);
+				fread(read_ptr,1,size,stdin);
+				read_ptr[size] = 0;
 
-			if ( line_end ) {
-				long size = line_end-bufptr;
-				yaya::global_t g = ::GlobalAlloc(GMEM_FIXED,size+1);
-				memcpy(g,bufptr,size);
-				reinterpret_cast<char*>(g)[size] = 0; //安全用ゼロ終端
-
-				load(g,size);
+				char *p = strstr(read_ptr,"\r\n");
+				if ( p ) { *p = 0; size -= 2; }
+				
+				load(read_ptr,size);
 			}
 
-			const char* result = "1\r\n\r\n";
+			const char* result = "load:3\r\n1\r\n";
 			fwrite(result,1,strlen(result),stdout);
 			fflush(stdout);
 		}
-		else if ( strncmp(bufptr,"unload\r\n",8) == 0 ) {
-			bufptr += 8;
+		else if ( strncmp(bufptr,"unload:",7) == 0 ) {
+			bufptr += 7;
+			long size = atoi(bufptr);
+			if ( size > 0 ) {
+				char *read_ptr = (char*)malloc(size);
+				fread(read_ptr,1,size,stdin);
+				free(read_ptr); //データまとめて破棄
+			}
+
 			unload();
 
-			const char* result = "1\r\n\r\n";
+			const char* result = "unload:3\r\n1\r\n";
 			fwrite(result,1,strlen(result),stdout);
 			fflush(stdout);
-
 			break;
 		}
-		else if ( strncmp(bufptr,"request\r\n",9) == 0 ) {
-			bufptr += 9;
+		else if ( strncmp(bufptr,"request:",8) == 0 ) {
+			bufptr += 8;
+			long size = atoi(bufptr);
+			if ( size > 0 ) {
+				char *read_ptr = (char*)::GlobalAlloc(GMEM_FIXED,size+1);
+				fread(read_ptr,1,size,stdin);
+				read_ptr[size] = 0;
+				
+				yaya::global_t res = request(read_ptr,&size);
 
-			long size = strlen(bufptr);
-			yaya::global_t g = ::GlobalAlloc(GMEM_FIXED,size+1);
-			memcpy(g,bufptr,size);
-			reinterpret_cast<char*>(g)[size] = 0; //安全用ゼロ終端
+				char write_header[64];
+				sprintf(write_header,"request:%d\r\n",size);
+				fwrite(write_header,1,strlen(write_header),stdout);
 
-			yaya::global_t res = request(g,&size);
-
-			if ( ! res || reinterpret_cast<char*>(res)[0] == 0 ) {
-				fwrite("\r\n\r\n",1,4,stdout);
-				fflush(stdout);
-
-				if ( res ) {
-					::GlobalFree(res);
-				}
-			}
-			else {
 				fwrite(res,1,size,stdout);
 				fflush(stdout);
 
 				::GlobalFree(res);
 			}
-		}
-		else {
-			fwrite("\r\n\r\n",1,4,stdout);
-			fflush(stdout);
+			else {
+				const char* w = "request:0\r\n";
+				fwrite(w,1,strlen(w),stdout);
+			}
 		}
 	}
 
