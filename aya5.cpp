@@ -269,7 +269,7 @@ int main( int argc, char *argv[ ], char *envp[ ] )
 				load(read_ptr,size);
 			}
 
-			const char* result = "load:3\r\n1\r\n";
+			const char* result = "load:5\r\n1\r\n\r\n";
 			fwrite(result,1,strlen(result),stdout);
 			fflush(stdout);
 		}
@@ -284,7 +284,7 @@ int main( int argc, char *argv[ ], char *envp[ ] )
 
 			unload();
 
-			const char* result = "unload:3\r\n1\r\n";
+			const char* result = "unload:5\r\n1\r\n\r\n";
 			fwrite(result,1,strlen(result),stdout);
 			fflush(stdout);
 			break;
