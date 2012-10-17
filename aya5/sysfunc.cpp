@@ -1905,7 +1905,7 @@ CValue	CSystemFunction::INSERT(const CValue &arg, yaya::string_t &d, int &l)
 	if (!arg.array()[0].IsString() ||
 		!arg.array()[1].IsNum() ||
 		!arg.array()[2].IsString()) {
-		vm.logger().Error(E_W, 9, L"ERASE", d, l);
+		vm.logger().Error(E_W, 9, L"INSERT", d, l);
 		SetError(9);
 	}
 
