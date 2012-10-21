@@ -281,6 +281,7 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 			continue;
 		}
 		// プリプロセッサ#define、#globaldefine処理
+		ExecInternalPreProcess(linebuffer,file,i);
 		ExecDefinePreProcess(linebuffer, defines);	// #define
 		ExecDefinePreProcess(linebuffer, gdefines);	// #globaldefine
 		// コメント処理(2)
@@ -392,6 +393,30 @@ void	CParser0::ExecDefinePreProcess(yaya::string_t &str, const std::vector<CDefi
 		if (str.size() >= it->before.size()) {
 			yaya::ws_replace(str, it->before.c_str(), it->after.c_str());
 		}
+	}
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CParser0::ExecInternalPreProcess
+ *  機能概要：  組み込み定義文字列を置換します。
+ * -----------------------------------------------------------------------
+ */
+void	CParser0::ExecInternalPreProcess(yaya::string_t &str,const yaya::string_t &file,int line)
+{
+	if ( str.find_first_of(L"__AYA_SYSTEM_FILE__") != yaya::string_t::npos ) {
+
+		yaya::string_t file_str = file;
+		yaya::ws_replace(file_str,vm.basis().GetRootPath().c_str(),L"");
+		yaya::ws_replace(file_str,L"\\",L"/");
+
+		yaya::ws_replace(str, L"__AYA_SYSTEM_FILE__", file_str.c_str());
+	}
+
+	if ( str.find_first_of(L"__AYA_SYSTEM_LINE__") != yaya::string_t::npos ) {
+		yaya::char_t line_str[32];
+		swprintf(line_str,L"%d",line);
+
+		yaya::ws_replace(str, L"__AYA_SYSTEM_LINE__", line_str);
 	}
 }
 
