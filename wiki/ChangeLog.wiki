@@ -1,4 +1,11 @@
 #labels Featured
+=Tc543-1=
+  * #globaldefineしなくても使える組み込みプリプロセッサ定義を2つ追加
+   * __AYA_SYSTEM_FILE__ 実行中のファイル名(相対パス)
+   * __AYA_SYSTEM_LINE__ 実行中の行数
+   * 今後の追加予定なし
+  * INSERTの警告表示がERASEになっていた問題を修正
+
 =Tc542-4=
   * TOINT関数を、「小数点以下を機械的に切り落とす」処理に変えた（今まではfloorと同等）
 
