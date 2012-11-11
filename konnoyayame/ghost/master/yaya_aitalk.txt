@@ -108,6 +108,20 @@ OnKeyPress
 		when "f1" {
 		"\u\s[10]\0\s[5]‚Ó‚Ÿ`\w5‚Í‚Ó‚Ÿ‚ñ‚­‚µ‚å‚ñ‚Ì`‚Ó‚Ÿ`ô\w8\1‚»‚è‚á‚»‚¤‚¾‚¯‚ÇB\w8\0\s[4]\n\n‚Ó‚Ÿ‚ñ‚­‚µ‚å‚ñ‚ÁI\w8\1\n\nd\w5d\w5ƒ_ƒWƒƒƒŒ‚©‚¢B\e"
 		}
+		when "t" {
+			'\![raise,OnAiTalk]'
+		}
+		when "r" {
+			'\![reload,shiori](RELOAD SHIORI)'
+		}
+		when "m" {
+			if ISFUNC('OpenMenu') {
+				OpenMenu
+			}
+			else {
+				'\![raise,OnMouseDoubleClick,0,0,0,0,__SYSTEM_KEYDOWN_COL,0,mouse]'
+			}
+		}
 	}
 }
 

@@ -76,7 +76,7 @@ OnChoiceSelect
 
 OnAnchorSelect
 {
-	if SUBSTR(reference[0],0,7) == 'http://' {
+	if RE_SEARCH(reference[0],'^(http|https)://') {
 		if basewarename == 'SSP' {
 			"\C"
 		}

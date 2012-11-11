@@ -166,6 +166,19 @@ load
 	{
 		EVAL(_a[_i])
 	}
+	
+	_ft = <<'
+	On_version
+	On_craftman
+	On_craftmanw
+	'>>
+	_fa = SPLIT(_ft,CHR(0xd,0xa))
+	
+	foreach _fa;_f {
+		if ISFUNC(_f) {
+			LOGGING("警告：関数/イベント %(_f) はシステム辞書で上書きされます")
+		}
+	}
 }
 
 //******************************************************************************
@@ -235,6 +248,8 @@ status
 res_securitylevel
 res_reference
 res_marker
+refold
+refold0
 SHIORI3FW.Path
 SHIORI3FW.LastAITalk
 SHIORI3FW.LastAITalkTime
@@ -1477,7 +1492,7 @@ SHIORI3EV.OnSurfaceChange : void
 		}
 		
 		if _s1 >= 0 {
-			SHIORI3FW.LastSurface[1] = _s0
+			SHIORI3FW.LastSurface[1] = _s1
 			SHIORI3FW.IsVisible[1] = 1
 		}
 		else {
@@ -1503,8 +1518,8 @@ SHIORI3EV.On_hwnd : void
 		SHIORI3FW.HWndOld[_i] = TOINT(SHIORI3FW.HWndOld[_i])
 	}
 	
-	refold  = reference
-	refold0 = reference0
+	_refold  = reference
+	_refold0 = reference0
 	
 	for _i = 0 ; _i < _n ; _i++ {
 		if SHIORI3FW.HWndOld[_i] != SHIORI3FW.HWnd[_i] {
@@ -1522,8 +1537,8 @@ SHIORI3EV.On_hwnd : void
 		}
 	}
 	
-	reference = refold
-	reference0 = refold0
+	reference = _refold
+	reference0 = _refold0
 }
 
 SHIORI3EV.On_uniqueid : void
@@ -1573,31 +1588,6 @@ SHIORI3EV.OnBalloonChange : void
 	SHIORI3FW.BalloonPath = reference[1]
 	
 	EVAL('OnSHIORI3FW.ChangeSelfInfo')
-}
-
-SHIORI3EV.OnKeyPress
-{
-	if TOINT(reference[2]) >= 2 {
-		return
-	}
-	
-	if reference[0] == 't' {
-		'\![raise,OnAiTalk]'
-		return
-	}
-	if reference[0] == 'r' {
-		'\![reload,shiori](RELOAD SHIORI)'
-		return
-	}
-	if reference[0] == 'm' {
-		if ISFUNC('OpenMenu') {
-			OpenMenu
-		}
-		else {
-			'\![raise,OnMouseDoubleClick,0,0,0,0,__SYSTEM_KEYDOWN_COL,0,mouse]'
-		}
-		return
-	}
 }
 
 //------------------------------------------------------------------------------
