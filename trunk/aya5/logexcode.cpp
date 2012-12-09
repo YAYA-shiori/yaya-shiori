@@ -10,7 +10,6 @@
 #endif
 
 
-#include <boost/lexical_cast.hpp>
 #include <vector>
 
 #include "logexcode.h"
@@ -65,7 +64,7 @@ void	CLogExCode::OutExecutionCodeForCheck(void)
 		int	j = 0;
 		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++, j++) {
 			// 行番号（[関数内の行番号/辞書ファイル中の行番号]）
-			tmpstr = L"[" + yaya::ws_itoa(j) + L" / " + boost::lexical_cast<yaya::string_t>(it2->linecount) + L"] ";
+			tmpstr = L"[" + yaya::ws_itoa(j) + L" / " + yaya::ws_itoa(it2->linecount) + L"] ";
 			vm.logger().Write(tmpstr);
 			// ステートメントの種類別にログに記録
 			yaya::string_t	formula;
