@@ -5076,8 +5076,11 @@ CValue	CSystemFunction::ASEARCH(const CValue &arg, yaya::string_t &d, int &l)
 	int	sz = arg.array_size();
 
 	if (sz < 2) {
-		vm.logger().Error(E_W, 8, L"ASEARCH", d, l);
-		SetError(8);
+		//要素1コ＝空配列の探索である。正常。
+		if (sz < 1) {
+			vm.logger().Error(E_W, 8, L"ASEARCHEX", d, l);
+			SetError(8);
+		}
 		return CValue(-1);
 	}
 
@@ -5096,8 +5099,11 @@ CValue	CSystemFunction::ASEARCHEX(const CValue &arg, yaya::string_t &d, int &l)
 	int	sz = arg.array_size();
 
 	if (sz < 2) {
-		vm.logger().Error(E_W, 8, L"ASEARCHEX", d, l);
-		SetError(8);
+		//要素1コ＝空配列の探索である。正常。
+		if (sz < 1) {
+			vm.logger().Error(E_W, 8, L"ASEARCHEX", d, l);
+			SetError(8);
+		}
 		return CValue(F_TAG_ARRAY, 0/*dmy*/);
 	}
 
