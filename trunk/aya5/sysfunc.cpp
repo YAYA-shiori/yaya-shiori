@@ -4765,30 +4765,88 @@ CValue	CSystemFunction::STRFORM(const CValue &arg, yaya::string_t &d, int &l)
 	yaya::string_t	left, right;
 	yaya::string_t	result = vargs[0];
 	yaya::char_t	t_str[128];
+	yaya::string_t	t_format;
+
 	for(int i = 1; i < vargs_sz; i++) {
+		t_format = L"%";
+
+		const yaya::char_t *arg_str = vargs[i].c_str();
+		if ( (*arg_str == L'-') || (*arg_str == L'+') || (*arg_str == L'0') || (*arg_str == L' ') || (*arg_str == L'#') ) { //flag
+			t_format += *arg_str;
+			arg_str += 1;
+		}
+		while ( (*arg_str >= L'0') && (*arg_str <= L'9') ) { //width
+			t_format += *arg_str;
+			arg_str += 1;
+		}
+		if ( *arg_str == L'.' ) { //precision
+			t_format += *arg_str;
+			arg_str += 1;
+			while ( (*arg_str >= L'0') && (*arg_str <= L'9') ) {
+				t_format += *arg_str;
+				arg_str += 1;
+			}
+		}
+		if ( (*arg_str == L'h') || (*arg_str == L'l') || (*arg_str == L'L') ) { //extension
+			//‚±‚±‚Í“Ç‚Ý”ò‚Î‚·
+			arg_str += 1;
+		}
+		if ( wcsncmp(arg_str,L"I64",3) == 0 ) {
+			//‚±‚±‚Í“Ç‚Ý”ò‚Î‚·
+			arg_str += 3;
+		}
+		int type = F_TAG_VOID;
+		if ( (*arg_str == L'c') || (*arg_str == L'C') || (*arg_str == L'd') || (*arg_str == L'i') || (*arg_str == L'o') || (*arg_str == L'u') || (*arg_str == L'x') || (*arg_str == L'X') ) {
+			type = F_TAG_INT;
+			t_format += *arg_str;
+			arg_str += 1;
+		}
+		else if ( (*arg_str == L'e') || (*arg_str == L'E') || (*arg_str == L'f') || (*arg_str == L'g') || (*arg_str == L'G') ) {
+			type = F_TAG_DOUBLE;
+			t_format += *arg_str;
+			arg_str += 1;
+		}
+		else if ( *arg_str == L's' ) {
+			type = F_TAG_STRING;
+			t_format += *arg_str;
+			arg_str += 1;
+		}
+		else if ( *arg_str == L'S' ) {
+			type = F_TAG_STRING;
+			t_format += L's'; //ƒƒCƒh•¶Žš—ñ‚µ‚©Žg‚í‚È‚¢‚Ì‚Å’²®
+			arg_str += 1;
+		}
+		else if ( (*arg_str == L'n') || (*arg_str == L'p') ) {
+			//n‚Æp‚Í–³Ž‹
+			arg_str += 1;
+		}
+
 		yaya::string_t	format = L"%" + vargs[i];
 		if (i < sz) {
-			switch(arg.array()[i].GetType()) {
+			switch ( type ) {
 			case F_TAG_INT:
-				yaya::snprintf(t_str,128,format.c_str(),arg.array()[i].i_value);
+				yaya::snprintf(t_str,128,t_format.c_str(),arg.array()[i].GetValueInt());
 				break;
 			case F_TAG_DOUBLE:
-				yaya::snprintf(t_str,128,format.c_str(),arg.array()[i].d_value);
+				yaya::snprintf(t_str,128,t_format.c_str(),arg.array()[i].GetValueDouble());
 				break;
 			case F_TAG_STRING:
-				yaya::snprintf(t_str,128,format.c_str(),arg.array()[i].s_value.c_str());
+				yaya::snprintf(t_str,128,t_format.c_str(),arg.array()[i].GetValueString().c_str());
 				break;
 			case F_TAG_VOID:
 				t_str[0] = 0;
 				break;
 			default:
 				vm.logger().Error(E_E, 91, d, l);
+				t_str[0] = 0;
 				break;
 			};
 			result += t_str;
+			result += arg_str;
 		}
-		else
+		else {
 			result += L"$" + vargs[i];
+		}
 	}
 
 	return CValue(result);
