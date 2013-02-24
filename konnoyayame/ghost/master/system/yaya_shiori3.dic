@@ -133,6 +133,11 @@ load
 	SHIORI3FW.DebugMode    = 1
 	SHIORI3FW.CanTalkFlag  = 1
 	
+	SHIORI3FW.Eventid = ''
+	SHIORI3FW.EventidOld = ''
+	SHIORI3FW.EventidTranslate = ''
+	SHIORI3FW.EventidTranslateOld = ''
+	
 	SAORI.DllList          = IARRAY
 	basewarename           = ''
 	basewarenameex         = ''
@@ -156,16 +161,8 @@ load
 		restore_old_variables
 	}
 	
-	_a = GETFUNCLIST('OnGhostLoad')
-	_a ,= GETFUNCLIST('OnSystemLoad')
-	
-	_a = ASORT('string,ascending',_a)
-	
-	_n = ARRAYSIZE(_a)
-	for _i = 0 ; _i < _n ; _i++
-	{
-		EVAL(_a[_i])
-	}
+	AyaLoad.FuncEnumExec('OnSystemLoad','ascending')
+	AyaLoad.FuncEnumExec('OnGhostLoad','ascending')
 	
 	_ft = <<'
 	On_version
@@ -199,17 +196,9 @@ unload
 	
 	ghostupmin_last = ghostupmin_total()
 
-	_a = GETFUNCLIST('OnGhostUnload')
-	_a ,= GETFUNCLIST('OnSystemUnload')
+	AyaLoad.FuncEnumExec('OnGhostUnload','descending')
+	AyaLoad.FuncEnumExec('OnSystemUnload','descending')
 	
-	_a = ASORT('string,descending',_a)
-	
-	_n = ARRAYSIZE(_a)
-	for _i = _n-1 ; _i >= 0 ; _i--
-	{
-		EVAL(_a[_i])
-	}
-
 	// 保存する必要のない変数を削除
 	_var = <<'
 array_eventtranslate
@@ -267,7 +256,9 @@ SHIORI3FW.HWndOld
 SHIORI3FW.BalloonHWnd
 SHIORI3FW.UniqueID
 SHIORI3FW.Eventid
+SHIORI3FW.EventidOld
 SHIORI3FW.EventidTranslate
+SHIORI3FW.EventidTranslateOld
 SHIORI3FW.DelayEventTime
 SHIORI3FW.DelayEvent
 SHIORI3FW.DelayEventReference
@@ -309,6 +300,22 @@ AyaTest.Eval
 		}
 	}
 	_result
+}
+
+//------------------------------------------------------------------------------
+//関数名：AyaLoad.FuncEnumExec
+//機能　：関数リストを作成しソートして実行
+//引数　：0=イベント 1=ソート順(ascending,descending)
+//------------------------------------------------------------------------------
+AyaLoad.FuncEnumExec : void
+{
+	_a = GETFUNCLIST(_argv[0])
+	_a = ASORT('string,' + _argv[1],_a)
+	
+	_n = ARRAYSIZE(_a)
+	for _i = 0 ; _i < _n ; _i++ {
+		EVAL(_a[_i])
+	}
 }
 
 
@@ -508,6 +515,11 @@ OnRequest
 			SHIORI3FW.AssembleReferenceHeader
 			--
 			C_CRLF
+			
+			if SHIORI3FW.Eventid != 'OnTranslate' {
+				SHIORI3FW.EventidOld = SHIORI3FW.Eventid
+				SHIORI3FW.EventidTranslateOld = SHIORI3FW.EventidTranslate
+			}
 		}
 	}
 
