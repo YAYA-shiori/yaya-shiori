@@ -205,7 +205,13 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 					readline.erase(0,3);
 					isInHereDocument = 0;
 					
-					linebuffer.append(L") ");
+					if ( isHereDocumentFirstLine ) {
+						linebuffer.append(L"'' ");
+						vm.logger().Error(E_W, 21, filename, i);
+					}
+					else {
+						linebuffer.append(L") ");
+					}
 					linebuffer.append(readline);
 				}
 			}
@@ -214,7 +220,13 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 					readline.erase(0,3);
 					isInHereDocument = 0;
 					
-					linebuffer.append(L") ");
+					if ( isHereDocumentFirstLine ) {
+						linebuffer.append(L"'' ");
+						vm.logger().Error(E_W, 21, filename, i);
+					}
+					else {
+						linebuffer.append(L") ");
+					}
 					linebuffer.append(readline);
 				}
 			}
