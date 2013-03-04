@@ -5005,73 +5005,153 @@ CValue	CSystemFunction::ASEARCHEX(const CValue &arg, yaya::string_t &d, int &l)
  * -----------------------------------------------------------------------
  */
 
-template<class T>
-struct CSFSORT_StringAscent : public std::binary_function<T, T, bool> {
-    inline bool operator()(const T& x, const T& y) const {
-		return wcscmp(x.GetValueString().c_str(),y.GetValueString().c_str()) < 0;
+//string,ascent
+template <class TTYPE>
+class CSFSORT_StringAscent : public std::binary_function<TTYPE, TTYPE, bool> {
+private:
+	CValueArray &a;
+
+public:
+	CSFSORT_StringAscent(CValueArray &ain) : a(ain) { }
+	CSFSORT_StringAscent(CSFSORT_StringAscent &ain) : a(ain.a) { }
+
+    inline bool operator()(const TTYPE& x, const TTYPE& y) const {
+		return wcscmp(a[x].GetValueString().c_str(),a[y].GetValueString().c_str()) < 0;
 	}
 };
 
-template<class T>
-struct CSFSORT_StringDescent : public std::binary_function<T, T, bool> {
-    inline bool operator()(const T& x, const T& y) const {
-		return wcscmp(x.GetValueString().c_str(),y.GetValueString().c_str()) > 0;
+//string,descent
+template <class TTYPE>
+class CSFSORT_StringDescent : public std::binary_function<TTYPE, TTYPE, bool> {
+private:
+	CValueArray &a;
+
+public:
+	CSFSORT_StringDescent(CValueArray &ain) : a(ain) { }
+	CSFSORT_StringDescent(CSFSORT_StringDescent &ain) : a(ain.a) { }
+
+    inline bool operator()(const TTYPE& x, const TTYPE& y) const {
+		return wcscmp(a[x].GetValueString().c_str(),a[y].GetValueString().c_str()) > 0;
 	}
 };
 
-template<class T>
-struct CSFSORT_StringAscentI : public std::binary_function<T, T, bool> {
-    inline bool operator()(const T& x, const T& y) const {
-		return wcsicmp(x.GetValueString().c_str(),y.GetValueString().c_str()) < 0;
+//string,ascent,case insensitive
+template <class TTYPE>
+class CSFSORT_StringAscentI : public std::binary_function<TTYPE, TTYPE, bool> {
+private:
+	CValueArray &a;
+
+public:
+	CSFSORT_StringAscentI(CValueArray &ain) : a(ain) { }
+	CSFSORT_StringAscentI(CSFSORT_StringAscentI &ain) : a(ain.a) { }
+
+    inline bool operator()(const TTYPE& x, const TTYPE& y) const {
+		return wcsicmp(a[x].GetValueString().c_str(),a[y].GetValueString().c_str()) < 0;
 	}
 };
 
-template<class T>
-struct CSFSORT_StringDescentI : public std::binary_function<T, T, bool> {
-    inline bool operator()(const T& x, const T& y) const {
-		return wcsicmp(x.GetValueString().c_str(),y.GetValueString().c_str()) > 0;
+//string,descent,case insensitive
+template <class TTYPE>
+class CSFSORT_StringDescentI : public std::binary_function<TTYPE, TTYPE, bool> {
+private:
+	CValueArray &a;
+
+public:
+	CSFSORT_StringDescentI(CValueArray &ain) : a(ain) { }
+	CSFSORT_StringDescentI(CSFSORT_StringDescentI &ain) : a(ain.a) { }
+
+    inline bool operator()(const TTYPE& x, const TTYPE& y) const {
+		return wcsicmp(a[x].GetValueString().c_str(),a[y].GetValueString().c_str()) > 0;
 	}
 };
 
-template<class T>
-struct CSFSORT_StringAscentL : public std::binary_function<T, T, bool> {
-    inline bool operator()(const T& x, const T& y) const {
-		return x.GetValueString().size() < y.GetValueString().size();
+//string,ascent,length
+template <class TTYPE>
+class CSFSORT_StringAscentL : public std::binary_function<TTYPE, TTYPE, bool> {
+private:
+	CValueArray &a;
+
+public:
+	CSFSORT_StringAscentL(CValueArray &ain) : a(ain) { }
+	CSFSORT_StringAscentL(CSFSORT_StringAscentL &ain) : a(ain.a) { }
+
+    inline bool operator()(const TTYPE& x, const TTYPE& y) const {
+		return a[x].GetValueString().size() < a[y].GetValueString().size();
 	}
 };
 
-template<class T>
-struct CSFSORT_StringDescentL : public std::binary_function<T, T, bool> {
-    inline bool operator()(const T& x, const T& y) const {
-		return x.GetValueString().size() > y.GetValueString().size();
+//string,descent,length
+template <class TTYPE>
+class CSFSORT_StringDescentL : public std::binary_function<TTYPE, TTYPE, bool> {
+private:
+	CValueArray &a;
+
+public:
+	CSFSORT_StringDescentL(CValueArray &ain) : a(ain) { }
+	CSFSORT_StringDescentL(CSFSORT_StringDescentL &ain) : a(ain.a) { }
+
+    inline bool operator()(const TTYPE& x, const TTYPE& y) const {
+		return a[x].GetValueString().size() > a[y].GetValueString().size();
 	}
 };
 
-template<class T>
-struct CSFSORT_IntAscent : public std::binary_function<T, T, bool> {
-    inline bool operator()(const T& x, const T& y) const {
-		return x.GetValueInt() < y.GetValueInt();
+//int,ascent
+template <class TTYPE>
+class CSFSORT_IntAscent : public std::binary_function<TTYPE, TTYPE, bool> {
+private:
+	CValueArray &a;
+
+public:
+	CSFSORT_IntAscent(CValueArray &ain) : a(ain) { }
+	CSFSORT_IntAscent(CSFSORT_IntAscent &ain) : a(ain.a) { }
+
+    inline bool operator()(const TTYPE& x, const TTYPE& y) const {
+		return a[x].GetValueInt() < a[y].GetValueInt();
 	}
 };
 
-template<class T>
-struct CSFSORT_IntDescent : public std::binary_function<T, T, bool> {
-    inline bool operator()(const T& x, const T& y) const {
-		return x.GetValueInt() > y.GetValueInt();
+//int,descent
+template <class TTYPE>
+class CSFSORT_IntDescent : public std::binary_function<TTYPE, TTYPE, bool> {
+private:
+	CValueArray &a;
+
+public:
+	CSFSORT_IntDescent(CValueArray &ain) : a(ain) { }
+	CSFSORT_IntDescent(CSFSORT_IntDescent &ain) : a(ain.a) { }
+
+    inline bool operator()(const TTYPE& x, const TTYPE& y) const {
+		return a[x].GetValueInt() > a[y].GetValueInt();
 	}
 };
 
-template<class T>
-struct CSFSORT_DoubleAscent : public std::binary_function<T, T, bool> {
-    inline bool operator()(const T& x, const T& y) const {
-		return x.GetValueDouble() < y.GetValueDouble();
+//double,ascent
+template <class TTYPE>
+class CSFSORT_DoubleAscent : public std::binary_function<TTYPE, TTYPE, bool> {
+private:
+	CValueArray &a;
+
+public:
+	CSFSORT_DoubleAscent(CValueArray &ain) : a(ain) { }
+	CSFSORT_DoubleAscent(CSFSORT_DoubleAscent &ain) : a(ain.a) { }
+
+    inline bool operator()(const TTYPE& x, const TTYPE& y) const {
+		return a[x].GetValueDouble() < a[y].GetValueDouble();
 	}
 };
 
-template<class T>
-struct CSFSORT_DoubleDescent : public std::binary_function<T, T, bool> {
-    inline bool operator()(const T& x, const T& y) const {
-		return x.GetValueDouble() > y.GetValueDouble();
+//double,descent
+template <class TTYPE>
+class CSFSORT_DoubleDescent : public std::binary_function<TTYPE, TTYPE, bool> {
+private:
+	CValueArray &a;
+
+public:
+	CSFSORT_DoubleDescent(CValueArray &ain) : a(ain) { }
+	CSFSORT_DoubleDescent(CSFSORT_DoubleDescent &ain) : a(ain.a) { }
+
+    inline bool operator()(const TTYPE& x, const TTYPE& y) const {
+		return a[x].GetValueDouble() > a[y].GetValueDouble();
 	}
 };
 
@@ -5098,56 +5178,77 @@ CValue	CSystemFunction::ASORT(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	CValue val(F_TAG_ARRAY, 0/*dmy*/);
+	unsigned int counter = 0;
+	std::vector<unsigned int> sort_vector;
+
 	for ( int i = 1 ; i < sz ; ++i ) {
 		val.array().push_back(arg.array()[i]);
+		sort_vector.push_back(counter);
+
+		counter += 1;
 	}
 
 	bool isDescent = (option.find(L"des") != yaya::string_t::npos);
 
 	if ( option.find(L"int") != yaya::string_t::npos ) { //int
 		if ( isDescent ) {
-			std::sort(val.array().begin(),val.array().end(),CSFSORT_IntDescent<CValueSub>());
+			std::sort(sort_vector.begin(),sort_vector.end(),CSFSORT_IntDescent<unsigned int>(val.array()));
 		}
 		else {
-			std::sort(val.array().begin(),val.array().end(),CSFSORT_IntAscent<CValueSub>());
+			std::sort(sort_vector.begin(),sort_vector.end(),CSFSORT_IntAscent<unsigned int>(val.array()));
 		}
 	}
 	else if ( option.find(L"double") != yaya::string_t::npos ) { //double
 		if ( isDescent ) {
-			std::sort(val.array().begin(),val.array().end(),CSFSORT_DoubleDescent<CValueSub>());
+			std::sort(sort_vector.begin(),sort_vector.end(),CSFSORT_DoubleDescent<unsigned int>(val.array()));
 		}
 		else {
-			std::sort(val.array().begin(),val.array().end(),CSFSORT_DoubleAscent<CValueSub>());
+			std::sort(sort_vector.begin(),sort_vector.end(),CSFSORT_DoubleAscent<unsigned int>(val.array()));
 		}
 	}
 	else /*if ( option.find(L"str") != yaya::string_t::npos )*/ {
 		if ( option.find(L"len") != yaya::string_t::npos ) { //strlen
 			if ( isDescent ) {
-				std::sort(val.array().begin(),val.array().end(),CSFSORT_StringDescentL<CValueSub>());
+				std::sort(sort_vector.begin(),sort_vector.end(),CSFSORT_StringDescentL<unsigned int>(val.array()));
 			}
 			else {
-				std::sort(val.array().begin(),val.array().end(),CSFSORT_StringAscentL<CValueSub>());
+				std::sort(sort_vector.begin(),sort_vector.end(),CSFSORT_StringAscentL<unsigned int>(val.array()));
 			}
 		}
 		else if ( option.find(L"case") != yaya::string_t::npos ) { //string,case
 			if ( isDescent ) {
-				std::sort(val.array().begin(),val.array().end(),CSFSORT_StringDescent<CValueSub>());
+				std::sort(sort_vector.begin(),sort_vector.end(),CSFSORT_StringDescent<unsigned int>(val.array()));
 			}
 			else {
-				std::sort(val.array().begin(),val.array().end(),CSFSORT_StringAscent<CValueSub>());
+				std::sort(sort_vector.begin(),sort_vector.end(),CSFSORT_StringAscent<unsigned int>(val.array()));
 			}
 		}
 		else /*if ( option.find(L"case") != yaya::string_t::npos )*/ { //string
 			if ( isDescent ) {
-				std::sort(val.array().begin(),val.array().end(),CSFSORT_StringDescentI<CValueSub>());
+				std::sort(sort_vector.begin(),sort_vector.end(),CSFSORT_StringDescentI<unsigned int>(val.array()));
 			}
 			else {
-				std::sort(val.array().begin(),val.array().end(),CSFSORT_StringAscentI<CValueSub>());
+				std::sort(sort_vector.begin(),sort_vector.end(),CSFSORT_StringAscentI<unsigned int>(val.array()));
 			}
 		}
 	}
 
-	return val;
+	CValue rval(F_TAG_ARRAY, 0/*dmy*/);
+
+	if ( option.find(L"index") != yaya::string_t::npos ) {
+		unsigned int n = sort_vector.size();
+		for ( unsigned int i = 0 ; i < n ; ++i ) {
+			rval.array().push_back(CValueSub((int)sort_vector[i]));
+		}
+	}
+	else {
+		unsigned int n = sort_vector.size();
+		for ( unsigned int i = 0 ; i < n ; ++i ) {
+			rval.array().push_back(val.array()[sort_vector[i]]);
+		}
+	}
+
+	return rval;
 }
 
 /* -----------------------------------------------------------------------
