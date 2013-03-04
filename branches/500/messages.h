@@ -153,6 +153,7 @@ const wchar_t	msgwj[][128] = {
 	L"warning W0018 : 変数を指定してください.",
 	L"warning W0019 : 割り算にゼロを指定することはできません.",
 	L"warning W0020 : 連想配列の生成には偶数個の要素が必要です.",
+	L"warning W0021 : 空のヒアドキュメントがあります.",
 };
 
 // 注記文字列（日本語）
@@ -313,6 +314,7 @@ const wchar_t	msgwe[][128] = {
 	L"warning W0018 : It is necessary to specify the variable.",
 	L"warning W0019 : Integer/Double divided by zero.",
 	L"warning W0020 : Requires even number of elements to create hash.",
+	L"warning W0021 : Empty here document found.",
 };
 
 // 注記文字列（英語）
