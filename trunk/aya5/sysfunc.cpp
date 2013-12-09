@@ -1166,9 +1166,14 @@ static const yaya::char_t han_support_kana[] =
 	L"ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜｦﾝｧｨｩｪｫｬｭｮﾞﾟ､｡";
 
 static const yaya::char_t zen_support_kana2[] = 
-	L"ガギグゲゴザジズゼゾダヂヅデドバビブベボ";
+	L"ガギグゲゴザジズゼゾダヂヅデドバビブベボヴ";
 static const yaya::char_t han_support_kana2[] = 
-	L"ｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾊﾋﾌﾍﾎ";
+	L"ｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾊﾋﾌﾍﾎｳ";
+
+static const yaya::char_t zen_support_kana3[] = 
+	L"パピプペポ";
+static const yaya::char_t han_support_kana3[] = 
+	L"ﾊﾋﾌﾍﾎ";
 
 
 #define ZH_FLAG_NUMBER   0x1U
@@ -1207,6 +1212,7 @@ static const yaya::char_t char_zen_lower_a = 0xff41;
 static const yaya::char_t char_zen_lower_z = 0xff5a;
 
 static const yaya::char_t char_dakuten = 0xff9e;
+static const yaya::char_t char_handakuten = 0xff9f;
 
 CValue CSystemFunction::ZEN2HAN(const CValue &arg, yaya::string_t &d, int &l)
 {
@@ -1257,6 +1263,12 @@ CValue CSystemFunction::ZEN2HAN(const CValue &arg, yaya::string_t &d, int &l)
 					*it = han_support_kana2[found - zen_support_kana2];
 					it = str.insert(it+1,char_dakuten);
 				}
+				
+				found = wcschr(zen_support_kana3,*it);
+				if ( found ) {
+					*it = han_support_kana3[found - zen_support_kana3];
+					it = str.insert(it+1,char_handakuten);
+				}
 			}
 		}
 	}
@@ -1305,11 +1317,20 @@ CValue CSystemFunction::HAN2ZEN(const CValue &arg, yaya::string_t &d, int &l)
 			if ( flag & ZH_FLAG_KANA ) {
 				const yaya::char_t *found = wcschr(han_support_kana,*it);
 				if ( found ) {
-					if ( it < str.end()-1 && *(it+1) == char_dakuten ) {
-						found = wcschr(han_support_kana2,*it);
-						if ( found ) {
-							*it = zen_support_kana2[found - han_support_kana2];
-							it = str.erase(it+1) - 1;
+					if ( it < str.end()-1 && ((*(it+1) == char_dakuten) || (*(it+1) == char_handakuten)) ) {
+						if ( *(it+1) == char_dakuten ) {
+							found = wcschr(han_support_kana2,*it);
+							if ( found ) {
+								*it = zen_support_kana2[found - han_support_kana2];
+								it = str.erase(it+1) - 1;
+							}
+						}
+						else /*if char_handakuten*/ {
+							found = wcschr(han_support_kana3,*it);
+							if ( found ) {
+								*it = zen_support_kana3[found - han_support_kana3];
+								it = str.erase(it+1) - 1;
+							}
 						}
 					}
 					else {
