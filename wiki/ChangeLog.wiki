@@ -1,7 +1,8 @@
 #labels Featured
 =Tc546-1=
-  * HAN2ZEN/ZEN2HANの反省から、汎用文字変換関数TRANSLATEを実装
+  * 汎用文字変換関数TRANSLATEを実装
    * Perlのオプションなしtr///です。
+   * http://emily.shillest.net/ayaya/index.php?%E3%83%9E%E3%83%8B%E3%83%A5%E3%82%A2%E3%83%AB%2F%E9%96%A2%E6%95%B0%2FTRANSLATE
 
 =Tc545-2=
   * HAN2ZEN/ZEN2HANで一部の文字をちゃんと変換できていなかった問題を修正
