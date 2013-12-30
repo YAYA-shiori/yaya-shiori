@@ -71,12 +71,15 @@ public:
 
 	void	SetLso(int order) { lso = order; }
 
+	CValue	Execute(int index, const CValue &arg, const std::vector<CCell *> &pcellarg,
+				CValueArgArray &valuearg, CLocalVariable &lvar, int l, CFunction *thisfunc);
+
+private:
 	CValue	*GetReStrPtr(void) { return &re_str; }
 	CValue	*GetRePosPtr(void) { return &re_pos; }
 	CValue	*GetReLenPtr(void) { return &re_len; }
 
-	CValue	Execute(int index, const CValue &arg, const std::vector<CCell *> &pcellarg,
-				CValueArgArray &valuearg, CLocalVariable &lvar, int l, CFunction *thisfunc);
+	bool ProcessTranslateSyntax(std::vector<yaya::char_t> &array,yaya::string_t &str, yaya::string_t &d, int &l);
 
 protected:
 	CValue	TOINT(const CValue &arg, yaya::string_t &d, int &l);
@@ -237,6 +240,7 @@ protected:
 	CValue	EXECUTE_WAIT(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue	DUMPVAR(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	TRANSLATE(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue	LICENSE(void);
 
