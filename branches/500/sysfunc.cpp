@@ -83,7 +83,7 @@ extern "C" {
 #endif
 #endif
 
-#define	SYSFUNC_NUM					133 //システム関数の全数
+#define	SYSFUNC_NUM					134 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -271,7 +271,9 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"RE_ASEARCHEX",
 	L"RE_ASEARCH",
 	// 配列(5)
-	L"ASORT"
+	L"ASORT",
+	// 文字列操作(9)
+	L"TRANSLATE"
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -665,6 +667,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return RE_ASEARCH(arg, d, l);
 	case 132:
 		return ASORT(arg, d, l);
+	case 133:
+		return TRANSLATE(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -6031,6 +6035,103 @@ CValue	CSystemFunction::EXECUTE(const CValue &arg, yaya::string_t &d, int &l)
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::TRANSLATE
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::TRANSLATE(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if (arg.array_size() < 3) {
+		vm.logger().Error(E_W, 8, L"TRANSLATE", d, l);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	yaya::string_t str          = arg.array()[0].GetValueString();
+	yaya::string_t rep_from_str = arg.array()[1].GetValueString();
+	yaya::string_t rep_to_str   = arg.array()[2].GetValueString();
+
+	std::vector<yaya::char_t> rep_from;
+	std::vector<yaya::char_t> rep_to;
+
+	if ( ! ProcessTranslateSyntax(rep_from,rep_from_str,d,l) ) {
+		return CValue(-1);
+	}
+	if ( ! ProcessTranslateSyntax(rep_to,rep_to_str,d,l) ) {
+		return CValue(-1);
+	}
+
+	if ( rep_from.size() > rep_to.size() ) {
+		//置き換え先のほうが小さいっぽい？
+		vm.logger().Error(E_W, 12, L"TRANSLATE", d, l);
+		SetError(12);
+		//警告を吐いた後で、一番最後の文字で埋めておく
+		yaya::char_t cx = *(rep_to.end()-1);
+		while ( rep_from.size() > rep_to.size() ) {
+			rep_to.push_back(cx);
+		}
+	}
+
+	size_t n = str.length();
+	size_t rep_size = rep_from.size();
+
+	for ( size_t i = 0 ; i < n ; ++i ) {
+		yaya::char_t cx = str[i];
+		for ( size_t r = 0 ; r < rep_size ; ++r ) {
+			if ( cx == rep_from[r] ) {
+				str[i] = rep_to[r];
+				break;
+			}
+		}
+	}
+
+	return CValue(str);
+}
+
+bool CSystemFunction::ProcessTranslateSyntax(std::vector<yaya::char_t> &array,yaya::string_t &str, yaya::string_t &d, int &l)
+{
+	size_t n = str.length();
+
+	for ( size_t i = 0 ; i < n ; ++i ) {
+		if ( str[i] == L'-' ) {
+			yaya::char_t start = *(array.end()-1);
+			array.erase(array.end()-1,array.end());
+			i += 1;
+			if ( i >= n ) {
+				//-が閉じてない：明らかな不具合なので停止
+				vm.logger().Error(E_W, 12, L"TRANSLATE", d, l);
+				SetError(12);
+				return false;
+			}
+			yaya::char_t end = str[i];
+			if ( start > end ) {
+				//startのほうがでかい：ゼロ要素として処理可能なので続行
+				vm.logger().Error(E_W, 12, L"TRANSLATE", d, l);
+				SetError(12);
+			}
+			else if ( start == end ) {
+				array.push_back(start);
+			}
+			else {
+				if ( (end - start) >= 256 ) {
+					//範囲がでかすぎる：ちょん切って続行
+					vm.logger().Error(E_W, 12, L"TRANSLATE", d, l);
+					SetError(12);
+					end = start + 255;
+				}
+
+				for ( yaya::char_t cx = start ; cx <= end ; ++cx ) {
+					array.push_back(cx);
+				}
+			}
+		}
+		else {
+			array.push_back(str[i]);
+		}
+	}
+	return true;
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::DUMPVAR
  * -----------------------------------------------------------------------
  */
@@ -6050,7 +6151,7 @@ CValue	CSystemFunction::LICENSE()
 	CValue v(F_TAG_ARRAY, 0/*dmy*/);
 
 	v.array().push_back(yaya::string_t(aya_name) + aya_version);
-	v.array().push_back(yaya::string_t(L"Copyright (C) 2007 - 2008, ") + aya_author);
+	v.array().push_back(yaya::string_t(L"Copyright (C) 2007 - 2013, ") + aya_author);
 	v.array().push_back(L"All rights reserved.");
 	v.array().push_back(L"");
 	v.array().push_back(L"Redistribution and use in source and binary forms, with or without");
