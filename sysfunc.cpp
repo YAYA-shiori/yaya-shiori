@@ -6093,15 +6093,16 @@ bool CSystemFunction::ProcessTranslateSyntax(std::vector<yaya::char_t> &array,ya
 
 	for ( size_t i = 0 ; i < n ; ++i ) {
 		if ( str[i] == L'-' ) {
-			yaya::char_t start = *(array.end()-1);
-			array.erase(array.end()-1,array.end());
-			i += 1;
-			if ( i >= n ) {
-				//-が閉じてない：明らかな不具合なので停止
+			if ( (i >= (n-1)) || (array.size() == 0) ) {
+				//-が閉じてない、もしくは開いてない
 				vm.logger().Error(E_W, 12, L"TRANSLATE", d, l);
 				SetError(12);
-				return false;
+				array.push_back(L'-');
+				continue;
 			}
+			i += 1;
+			yaya::char_t start = *(array.end()-1);
+			array.erase(array.end()-1,array.end());
 			yaya::char_t end = str[i];
 			if ( start > end ) {
 				//startのほうがでかい：ゼロ要素として処理可能なので続行
@@ -6122,6 +6123,42 @@ bool CSystemFunction::ProcessTranslateSyntax(std::vector<yaya::char_t> &array,ya
 				for ( yaya::char_t cx = start ; cx <= end ; ++cx ) {
 					array.push_back(cx);
 				}
+			}
+		}
+		else if ( str[i] == L'\\' ) {
+			if ( i >= (n-1) ) {
+				//エスケープ後の文字がない
+				vm.logger().Error(E_W, 12, L"TRANSLATE", d, l);
+				SetError(12);
+				array.push_back(L'-');
+				continue;
+			}
+			i += 1;
+			yaya::char_t esc_char = *(array.end()-1);
+
+			if ( esc_char == L'a' ) {
+				array.push_back(L'\a');
+			}
+			else if ( esc_char == L'b' ) {
+				array.push_back(L'\b');
+			}
+			else if ( esc_char == L'e' ) {
+				array.push_back(0x1bU);
+			}
+			else if ( esc_char == L'f' ) {
+				array.push_back(L'\f');
+			}
+			else if ( esc_char == L'n' ) {
+				array.push_back(L'\n');
+			}
+			else if ( esc_char == L'r' ) {
+				array.push_back(L'\r');
+			}
+			else if ( esc_char == L't' ) {
+				array.push_back(L'\t');
+			}
+			else {
+				array.push_back(esc_char);
 			}
 		}
 		else {
