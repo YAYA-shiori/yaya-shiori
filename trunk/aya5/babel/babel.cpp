@@ -71,15 +71,27 @@
 //inline unsigned char & unsignize(char & X) {
 //	return (unsigned char &)X;
 //}
+#if defined(__GNUC__)
+inline const unsigned char unsignize(const char X) {
+	return (const unsigned char)X;
+}
+#else
 inline const unsigned char & unsignize(const char & X) {
 	return (const unsigned char &)X;
 }
+#endif
 //inline unsigned int & unsignize(int & X) {
 //	return (unsigned int &)X;
 //}
+#if defined(__GNUC__)
+inline const unsigned int unsignize(const int X) {
+	return (const unsigned int)X;
+}
+#else
 inline const unsigned int & unsignize(const int & X) {
 	return (const unsigned int &)X;
 }
+#endif
 //inline wchar_t & unsignize(wchar_t & X) {
 //	return (wchar_t &)X;
 //}
@@ -3799,7 +3811,7 @@ const bbl_binary code_aspect("\x00\x0F\x1B"
 	"\xE0\xE1\xE2\xE3\xE4\xE5\xE6\xE7\xE8\xE9\xEA\xEB\xEC\xED\xEE\xEF"
 	"\xF0\xF1\xF2\xF3\xF4\xF5\xF6\xF7\xF8\xF9\xFA\xFB\xFC\xFD\xFE\xFF", 0x83);
 
-bbl_binary::size_type babel::get_aspect_position(const bbl_binary &X) {
+bbl_binary::size_type get_aspect_position(const bbl_binary &X) {
 	bbl_binary::size_type pos = X.find_first_of(code_aspect);
 	if (bbl_binary::npos == pos) {
 		return pos;
@@ -3809,7 +3821,7 @@ bbl_binary::size_type babel::get_aspect_position(const bbl_binary &X) {
 }
 
 analyze_result
-babel::analyze_base_encoding(const bbl_binary &org_X, const unsigned int max_scan_size) {
+analyze_base_encoding(const bbl_binary &org_X, const unsigned int max_scan_size) {
 
 //	assert(max_scan_size <= 5000);
 
@@ -4242,7 +4254,7 @@ babel::analyze_base_encoding(const bbl_binary &org_X, const unsigned int max_sca
 //	return result;
 }
 
-void babel::init_babel() {
+void init_babel() {
 static bool initialized = false;
 	if (initialized) {
 		return;
