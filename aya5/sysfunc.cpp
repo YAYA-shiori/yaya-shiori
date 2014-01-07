@@ -6389,7 +6389,7 @@ bool CSystemFunction::ProcessTranslateSyntax(std::vector<yaya::char_t> &array,ya
 				continue;
 			}
 			i += 1;
-			yaya::char_t esc_char = *(array.end()-1);
+			yaya::char_t esc_char = str[i];
 
 			if ( esc_char == L'a' ) {
 				array.push_back(L'\a');
