@@ -2095,13 +2095,19 @@ CValue	CSystemFunction::HEXSTRTOI(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	if (!IsIntHexString(arg.array()[0].GetValueString(), 0)) {
+	yaya::string_t str = arg.array()[0].GetValueString();
+
+	if ( wcsnicmp(str.c_str(),L"0x",2) == 0 ) {
+		str.erase(0,2);
+	}
+
+	if (!IsIntHexString(str, 0)) {
 		vm.logger().Error(E_W, 12, L"HEXSTRTOI", d, l);
 		SetError(12);
 		return CValue(0);
 	}
 
-	return CValue(yaya::ws_atoi(arg.array()[0].GetValueString(), 16));
+	return CValue(yaya::ws_atoi(str, 16));
 }
 
 /* -----------------------------------------------------------------------
@@ -6316,24 +6322,36 @@ CValue	CSystemFunction::TRANSLATE(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	if ( rep_from.size() > rep_to.size() ) {
-		//置き換え先のほうが小さいっぽい？
-		vm.logger().Error(E_W, 12, L"TRANSLATE", d, l);
-		SetError(12);
-		//警告を吐いた後で、一番最後の文字で埋めておく
-		yaya::char_t cx = *(rep_to.end()-1);
-		while ( rep_from.size() > rep_to.size() ) {
-			rep_to.push_back(cx);
+		if ( rep_to.size() > 0 ) {
+			//置き換え先のほうが小さいっぽい？
+			vm.logger().Error(E_W, 12, L"TRANSLATE", d, l);
+			SetError(12);
+			//警告を吐いた後で、一番最後の文字で埋めておく
+			yaya::char_t cx = *(rep_to.end()-1);
+			while ( rep_from.size() > rep_to.size() ) {
+				rep_to.push_back(cx);
+			}
 		}
 	}
 
-	size_t n = str.length();
-	size_t rep_size = rep_from.size();
+	bool is_delete = (rep_to.size() == 0);
 
-	for ( size_t i = 0 ; i < n ; ++i ) {
+	//signedでカウントしないと erase時にひどいことになる
+	int n = str.length();
+	int rep_size = rep_from.size();
+
+	for ( int i = 0 ; i < n ; ++i ) {
 		yaya::char_t cx = str[i];
-		for ( size_t r = 0 ; r < rep_size ; ++r ) {
+		for ( int r = 0 ; r < rep_size ; ++r ) {
 			if ( cx == rep_from[r] ) {
-				str[i] = rep_to[r];
+				if ( is_delete ) {
+					str.erase(i,1);
+					n -= 1;
+					i -= 1;
+				}
+				else {
+					str[i] = rep_to[r];
+				}
 				break;
 			}
 		}
