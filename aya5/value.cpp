@@ -595,6 +595,89 @@ int CValue::CalcEscalationTypeStr(const int rhs) const
 }
 
 /* -----------------------------------------------------------------------
+ *  配列演算用補助テンプレートとファンクタ
+ * -----------------------------------------------------------------------
+ */
+template<class Fn>
+CValue CValue_ArrayCalc(const CValue &v1,const CValue &v2,Fn calc_fn)
+{
+	CValue result;
+	if (v1.GetType() == F_TAG_ARRAY && v2.GetType() == F_TAG_ARRAY) {
+		if ( v1.array_size() == 0 ) {
+			return v2;
+		}
+		else {
+			if ( v2.array_size() == 0 ) {
+				return v1;
+			}
+			else {
+				result.SetType(F_TAG_ARRAY);
+				CValueArray::const_iterator it, it2;
+				for(it = v1.array().begin() ; it != v1.array().end() ; ++it) {
+					for(it2 = v2.array().begin() ; it2 != v2.array().end() ; ++it2) {
+						result.array().push_back(calc_fn((*it),(*it2)));
+					}
+				}
+			}
+		}
+	}
+	else if (v1.GetType() == F_TAG_ARRAY) {
+		if ( v1.array_size() == 0 ) {
+			return v2;
+		}
+		else {
+			result.SetType(F_TAG_ARRAY);
+			const CValueSub t_vs(v2);
+			for(CValueArray::const_iterator it = v1.array().begin(); it != v1.array().end(); it++)
+				result.array().push_back(calc_fn(*it,t_vs));
+		}
+	}
+	else if (v2.GetType() == F_TAG_ARRAY) {
+		if ( v2.array_size() == 0 ) {
+			return v1;
+		}
+		else {
+			result.SetType(F_TAG_ARRAY);
+			const CValueSub t_vs(v1);
+			for(CValueArray::const_iterator it = v2.array().begin(); it != v2.array().end(); it++)
+				result.array().push_back(calc_fn(t_vs,*it));
+		}
+	}
+	return result;
+}
+
+class CValueSub_Add {
+public:
+	CValueSub operator()(const CValueSub &v1,const CValueSub &v2) const {
+		return v1 + v2;
+	}
+};
+class CValueSub_Sub {
+public:
+	CValueSub operator()(const CValueSub &v1,const CValueSub &v2) const {
+		return v1 - v2;
+	}
+};
+class CValueSub_Mul {
+public:
+	CValueSub operator()(const CValueSub &v1,const CValueSub &v2) const {
+		return v1 * v2;
+	}
+};
+class CValueSub_Div {
+public:
+	CValueSub operator()(const CValueSub &v1,const CValueSub &v2) const {
+		return v1 / v2;
+	}
+};
+class CValueSub_Mod {
+public:
+	CValueSub operator()(const CValueSub &v1,const CValueSub &v2) const {
+		return v1 % v2;
+	}
+};
+
+/* -----------------------------------------------------------------------
  *  operator + (CValue)
  * -----------------------------------------------------------------------
  */
@@ -609,51 +692,8 @@ CValue CValue::operator +(const CValue &value) const
 		return CValue(GetValueDouble() + value.GetValueDouble());
 	case F_TAG_STRING:
 		return CValue(GetValueString() + value.GetValueString());
-	case F_TAG_ARRAY: {
-			CValue result;
-			if (type == F_TAG_ARRAY && value.type == F_TAG_ARRAY) {
-				if ( array_size() == 0 ) {
-					return value;
-				}
-				else {
-					if ( value.array_size() == 0 ) {
-						return *this;
-					}
-					else {
-						result.type = F_TAG_ARRAY;
-						CValueArray::const_iterator it, it2;
-						for(it = array().begin() ; it != array().end() ; ++it) {
-							for(it2 = value.array().begin() ; it2 != value.array().end() ; ++it2) {
-								result.array().push_back((*it) + (*it2));
-							}
-						}
-					}
-				}
-			}
-			else if (type == F_TAG_ARRAY) {
-				if ( array_size() == 0 ) {
-					return value;
-				}
-				else {
-					result.type = F_TAG_ARRAY;
-					const CValueSub t_vs(value);
-					for(CValueArray::const_iterator it = array().begin(); it != array().end(); it++)
-						result.array().push_back(*it + t_vs);
-				}
-			}
-			else if (value.type == F_TAG_ARRAY) {
-				if ( value.array_size() == 0 ) {
-					return *this;
-				}
-				else {
-					result.type = F_TAG_ARRAY;
-					const CValueSub t_vs(*this);
-					for(CValueArray::const_iterator it = value.array().begin(); it != value.array().end(); it++)
-						result.array().push_back(t_vs + *it);
-				}
-			}
-			return result;
-		}
+	case F_TAG_ARRAY:
+		return CValue_ArrayCalc(*this,value,CValueSub_Add());
 	};
 	
 	return CValue(value);
@@ -672,29 +712,8 @@ CValue CValue::operator -(const CValue &value) const
 		return CValue(GetValueInt() - value.GetValueInt());
 	case F_TAG_DOUBLE:
 		return CValue(GetValueDouble() - value.GetValueDouble());
-	case F_TAG_ARRAY: {
-			CValue result;
-			if (type == F_TAG_ARRAY && value.type == F_TAG_ARRAY) {
-				result.type = F_TAG_ARRAY;
-				CValueArray::const_iterator it, it2;
-				for(it = array().begin(), it2 = value.array().begin();
-					it != array().end() && it2 != value.array().end(); it++, it2++)
-					result.array().push_back((*it) - (*it2));
-			}
-			else if (type == F_TAG_ARRAY) {
-				result.type = F_TAG_ARRAY;
-				const CValueSub t_vs(value);
-				for(CValueArray::const_iterator it = array().begin(); it != array().end(); it++)
-					result.array().push_back(*it - t_vs);
-			}
-			else if (value.type == F_TAG_ARRAY) {
-				result.type = F_TAG_ARRAY;
-				const CValueSub t_vs(*this);
-				for(CValueArray::const_iterator it = value.array().begin(); it != value.array().end(); it++)
-					result.array().push_back(t_vs - *it);
-			}
-			return result;
-		}
+	case F_TAG_ARRAY:
+		return CValue_ArrayCalc(*this,value,CValueSub_Sub());
 	};
 	
 	return CValue(value);
@@ -713,29 +732,8 @@ CValue CValue::operator *(const CValue &value) const
 		return CValue(GetValueInt() * value.GetValueInt());
 	case F_TAG_DOUBLE:
 		return CValue(GetValueDouble() * value.GetValueDouble());
-	case F_TAG_ARRAY: {
-			CValue result;
-			if (type == F_TAG_ARRAY && value.type == F_TAG_ARRAY) {
-				result.type = F_TAG_ARRAY;
-				CValueArray::const_iterator it, it2;
-				for(it = array().begin(), it2 = value.array().begin();
-					it != array().end() && it2 != value.array().end(); it++, it2++)
-					result.array().push_back((*it) * (*it2));
-			}
-			else if (type == F_TAG_ARRAY) {
-				result.type = F_TAG_ARRAY;
-				const CValueSub t_vs(value);
-				for(CValueArray::const_iterator it = array().begin(); it != array().end(); it++)
-					result.array().push_back(*it * t_vs);
-			}
-			else if (value.type == F_TAG_ARRAY) {
-				result.type = F_TAG_ARRAY;
-				const CValueSub t_vs(*this);
-				for(CValueArray::const_iterator it = value.array().begin(); it != value.array().end(); it++)
-					result.array().push_back(t_vs * *it);
-			}
-			return result;
-		}
+	case F_TAG_ARRAY:
+		return CValue_ArrayCalc(*this,value,CValueSub_Mul());
 	};
 	
 	return CValue(value);
@@ -770,29 +768,8 @@ CValue CValue::operator /(const CValue &value) const
 				return CValue(GetValueDouble());
 			}
 		}
-	case F_TAG_ARRAY: {
-			CValue result;
-			if (type == F_TAG_ARRAY && value.type == F_TAG_ARRAY) {
-				result.type = F_TAG_ARRAY;
-				CValueArray::const_iterator it, it2;
-				for(it = array().begin(), it2 = value.array().begin();
-					it != array().end() && it2 != value.array().end(); it++, it2++)
-					result.array().push_back((*it) / (*it2));
-			}
-			else if (type == F_TAG_ARRAY) {
-				result.type = F_TAG_ARRAY;
-				const CValueSub t_vs(value);
-				for(CValueArray::const_iterator it = array().begin(); it != array().end(); it++)
-					result.array().push_back(*it / t_vs);
-			}
-			else if (value.type == F_TAG_ARRAY) {
-				result.type = F_TAG_ARRAY;
-				const CValueSub t_vs(*this);
-				for(CValueArray::const_iterator it = value.array().begin(); it != value.array().end(); it++)
-					result.array().push_back(t_vs / *it);
-			}
-			return result;
-		}
+	case F_TAG_ARRAY:
+		return CValue_ArrayCalc(*this,value,CValueSub_Div());
 	};
 	
 	return CValue(value);
@@ -818,29 +795,8 @@ CValue CValue::operator %(const CValue &value) const
 				return CValue(GetValueInt());
 			}
 		}
-	case F_TAG_ARRAY: {
-			CValue result;
-			if (type == F_TAG_ARRAY && value.type == F_TAG_ARRAY) {
-				result.type = F_TAG_ARRAY;
-				CValueArray::const_iterator it, it2;
-				for(it = array().begin(), it2 = value.array().begin();
-					it != array().end() && it2 != value.array().end(); it++, it2++)
-					result.array().push_back((*it) % (*it2));
-			}
-			else if (type == F_TAG_ARRAY) {
-				result.type = F_TAG_ARRAY;
-				const CValueSub t_vs(value);
-				for(CValueArray::const_iterator it = array().begin(); it != array().end(); it++)
-					result.array().push_back(*it % t_vs);
-			}
-			else if (value.type == F_TAG_ARRAY) {
-				result.type = F_TAG_ARRAY;
-				const CValueSub t_vs(*this);
-				for(CValueArray::const_iterator it = value.array().begin(); it != value.array().end(); it++)
-					result.array().push_back(t_vs % *it);
-			}
-			return result;
-		}
+	case F_TAG_ARRAY:
+		return CValue_ArrayCalc(*this,value,CValueSub_Mod());
 	};
 	
 	return CValue(value);
