@@ -209,7 +209,8 @@ CValue CSelecter::StructArray()
 	if (areanum) {
 		CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 		for(int i = 0; i <= areanum; i++)
-			result = result + StructArray1(i).GetValueString();
+			result = result + StructArray1(i);
+//			result = result + StructArray1(i).GetValueString();
 		return result;
 	}
 	else
