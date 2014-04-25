@@ -170,7 +170,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				ShowProgress="0"
-				OutputFile="D:\ssp_src_set\ssp\ghost\probatio_diabolica\ghost\master\saori\yaya.dll"
+				OutputFile="D:\ssp_src_set\ssp\ghost\slapstick_navy_base\ghost\master\yaya.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
