@@ -559,23 +559,45 @@ CValue CValue::operator +(const CValue &value) const
 	case F_TAG_ARRAY: {
 			CValue result;
 			if (type == F_TAG_ARRAY && value.type == F_TAG_ARRAY) {
-				result.type = F_TAG_ARRAY;
-				CValueArray::const_iterator it, it2;
-				for(it = array().begin(), it2 = value.array().begin();
-					it != array().end() && it2 != value.array().end(); it++, it2++)
-					result.array().push_back((*it) + (*it2));
+				if ( array_size() == 0 ) {
+					return value;
+				}
+				else {
+					if ( value.array_size() == 0 ) {
+						return *this;
+					}
+					else {
+						result.type = F_TAG_ARRAY;
+						CValueArray::const_iterator it, it2;
+						for(it = array().begin() ; it != array().end() ; ++it) {
+							for(it2 = value.array().begin() ; it2 != value.array().end() ; ++it2) {
+								result.array().push_back((*it) + (*it2));
+							}
+						}
+					}
+				}
 			}
 			else if (type == F_TAG_ARRAY) {
-				result.type = F_TAG_ARRAY;
-				const CValueSub t_vs(value);
-				for(CValueArray::const_iterator it = array().begin(); it != array().end(); it++)
-					result.array().push_back(*it + t_vs);
+				if ( array_size() == 0 ) {
+					return value;
+				}
+				else {
+					result.type = F_TAG_ARRAY;
+					const CValueSub t_vs(value);
+					for(CValueArray::const_iterator it = array().begin(); it != array().end(); it++)
+						result.array().push_back(*it + t_vs);
+				}
 			}
 			else if (value.type == F_TAG_ARRAY) {
-				result.type = F_TAG_ARRAY;
-				const CValueSub t_vs(*this);
-				for(CValueArray::const_iterator it = value.array().begin(); it != value.array().end(); it++)
-					result.array().push_back(t_vs + *it);
+				if ( value.array_size() == 0 ) {
+					return *this;
+				}
+				else {
+					result.type = F_TAG_ARRAY;
+					const CValueSub t_vs(*this);
+					for(CValueArray::const_iterator it = value.array().begin(); it != value.array().end(); it++)
+						result.array().push_back(t_vs + *it);
+				}
 			}
 			return result;
 		}
