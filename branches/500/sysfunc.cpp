@@ -1792,6 +1792,15 @@ CValue	CSystemFunction::REPLACE(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
+	int count = 0;
+	if ( arg.array_size() >= 4 ) {
+		if (!arg.array()[3].IsInt()) {
+			vm.logger().Error(E_W, 9, L"RE_REPLACE", d, l);
+			SetError(9);
+		}
+		count = arg.array()[3].GetValueInt();
+	}
+
 	yaya::string_t	result = arg.array()[0].GetValueString();
 	yaya::string_t  before = arg.array()[1].GetValueString();
 	yaya::string_t  after  = arg.array()[2].GetValueString();
@@ -1799,7 +1808,7 @@ CValue	CSystemFunction::REPLACE(const CValue &arg, yaya::string_t &d, int &l)
 	//int	sz_after  = after->size();
 
 	if (!before.empty()) {
-		yaya::ws_replace(result, before.c_str(), after.c_str());
+		yaya::ws_replace(result, before.c_str(), after.c_str(), count);
 	}
 
 	return CValue(result);
@@ -4135,6 +4144,16 @@ CValue	CSystemFunction::RE_REPLACE(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
+	int count = 0x7fffffff;
+	if ( arg.array_size() >= 4 ) {
+		if (!arg.array()[3].IsInt()) {
+			vm.logger().Error(E_W, 9, L"RE_REPLACE", d, l);
+			SetError(9);
+		}
+		count = arg.array()[3].GetValueInt();
+		if ( count <= 0 ) { count = 0x7fffffff; }
+	}
+
 	// ‚Ü‚¸split‚·‚é
 	CValue	splits = RE_SPLIT_CORE(arg, d, l, L"RE_REPLACE", NULL, 0);
 	int	num = splits.array_size();
@@ -4145,9 +4164,30 @@ CValue	CSystemFunction::RE_REPLACE(const CValue &arg, yaya::string_t &d, int &l)
 	yaya::string_t	result;
 	int	i = 0;
 	for(i = 0; i < num; i++) {
-		if (i)
-			result += arg.array()[2].GetValueString();
+		if (i) {
+			if ( count > 0 ) {
+				result += arg.array()[2].GetValueString();
+			}
+			else {
+				if ( re_str.array_size() >= i ) {
+					result += re_str.array()[i-1].GetValueString();
+				}
+			}
+			count -= 1;
+		}
 		result += splits.array()[i].GetValueString();
+	}
+
+	//ÅŒã‚É‘ÎÛ‚ª‚ ‚ê‚Î•â‚¤
+	if ( re_str.array_size() >= splits.array_size() ) {
+		if ( count > 0 ) {
+			result += arg.array()[2].GetValueString();
+		}
+		else {
+			if ( re_str.array_size() >= i ) {
+				result += re_str.array()[re_str.array_size()-1].GetValueString();
+			}
+		}
 	}
 
 	return CValue(result);
@@ -4175,6 +4215,16 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
 		SetError(9);
 	}
 
+	int count = 0x7fffffff;
+	if ( arg.array_size() >= 4 ) {
+		if (!arg.array()[3].IsInt()) {
+			vm.logger().Error(E_W, 9, L"RE_REPLACE", d, l);
+			SetError(9);
+		}
+		count = arg.array()[3].GetValueInt();
+		if ( count <= 0 ) { count = 0x7fffffff; }
+	}
+
 	// ’uŠ·Œã•¶Žš—ñ‚Ì—pˆÓ
 	std::vector<yaya::string_t> replace_array;
 
@@ -4188,9 +4238,30 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
 	yaya::string_t	result;
 	int	i = 0;
 	for(i = 0; i < num; i++) {
-		if (i)
-			result += replace_array[i-1];
+		if (i) {
+			if ( count > 0 ) {
+				result += replace_array[i-1];
+			}
+			else {
+				if ( re_str.array_size() > i ) {
+					result += re_str.array()[i-1].GetValueString();
+				}
+			}
+			count -= 1;
+		}
 		result += splits.array()[i].GetValueString();
+	}
+
+	//ÅŒã‚É‘ÎÛ‚ª‚ ‚ê‚Î•â‚¤
+	if ( replace_array.size() >= splits.array_size() ) {
+		if ( count > 0 ) {
+			result += replace_array[replace_array.size()-1];
+		}
+		else {
+			if ( re_str.array_size() >= i ) {
+				result += re_str.array()[re_str.array_size()-1].GetValueString();
+			}
+		}
 	}
 
 	return CValue(result);
