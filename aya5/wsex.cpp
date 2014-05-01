@@ -140,17 +140,22 @@ void	yaya::ws_eraseend(yaya::string_t &str,wchar_t c)
 *  機能概要：  str内のbeforeをすべてafterに置換します
 * -----------------------------------------------------------------------
 */
-void	yaya::ws_replace(yaya::string_t &str, const wchar_t *before, const wchar_t *after)
+void	yaya::ws_replace(yaya::string_t &str, const wchar_t *before, const wchar_t *after, int count)
 {
 	if ( ! after ) { after = L""; }
 
 	size_t sz_bef = wcslen(before);
 	size_t sz_aft = wcslen(after);
+
 	for(size_t rp_pos = 0; ; rp_pos += sz_aft) {
 		rp_pos = str.find(before, rp_pos);
 		if (rp_pos == yaya::string_t::npos)
 			break;
 		str.replace(rp_pos, sz_bef, after);
+		if ( count > 0 ) {
+			count -= 1;
+			if ( count <= 0 ) { break; }
+		}
 	}
 }
 
