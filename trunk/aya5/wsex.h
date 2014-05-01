@@ -28,7 +28,7 @@ namespace yaya {
 	yaya::string_t	ws_ftoa(double num);
 
 	void	ws_eraseend(yaya::string_t &str, wchar_t c);
-	void	ws_replace(yaya::string_t &str, const wchar_t *before, const wchar_t *after);
+	void	ws_replace(yaya::string_t &str, const wchar_t *before, const wchar_t *after, int count = 0);
 
 	FILE	*w_fopen(const wchar_t *fname, const wchar_t *mode); 
 	//void	write_utf8bom(FILE *fp);
