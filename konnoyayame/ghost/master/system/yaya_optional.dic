@@ -3,9 +3,6 @@
 //オプション関数
 //******************************************************************************
 
-#define	C_CRLF2			CHR(0xd,0xa,0xd,0xa)			/* 改行コードx2   */
-#define	C_CRLF			CHR(0xd,0xa)					/* 改行コード     */
-#define	C_BYTE1			CHR(0x1)						/* バイト値1      */
 #define	ESCAPE_TAG_1	CHR(0x3,0x3)
 #define	ESCAPE_TAG_2	CHR(0x4,0x4)
 

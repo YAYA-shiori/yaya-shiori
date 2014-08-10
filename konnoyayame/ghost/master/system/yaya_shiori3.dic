@@ -56,11 +56,6 @@ OnSHIORI3FW.ChangeSelfInfo
 //以下のdefineは基本的に弄らないで下さい
 //------------------------------------------------------------------------------
 
-// 文字/文字列定数
-#define	C_CRLF2		CHR(0xd,0xa,0xd,0xa)			/* 改行コードx2   */
-#define	C_CRLF		CHR(0xd,0xa)					/* 改行コード     */
-#define	C_BYTE1		CHR(0x1)						/* バイト値1      */
-
 // チェイン
 #globaldefine	CHAIN{{		{{CHAIN	/* どうも誤記される場合があるようなので */
 #globaldefine	CHAIN}}		}}CHAIN	/* 同上 */
@@ -80,6 +75,11 @@ OnSHIORI3FW.ChangeSelfInfo
 //------------------------------------------------------------------------------
 load
 {
+	// 文字/文字列定数
+	C_CRLF2 = CHR(0xd,0xa,0xd,0xa)
+	C_CRLF = CHR(0xd,0xa)
+	C_BYTE1 = CHR(0x1)
+
 	REQ.COMMAND   = "LOAD"
 	REQ.PROTOCOL  = "AYA/5.0"
 	var.req.key   = (IARRAY, "Path")
@@ -124,8 +124,12 @@ load
 	SHIORI3FW.LastAITalkTime = _sec
 	SHIORI3FW.TalkEndTime  = _sec
 	SHIORI3FW.IsTalking    = 0
-	SHIORI3FW.LastSurface  = (0,10)
-	SHIORI3FW.IsVisible    = (1,1)
+	
+	if GETTYPE(SHIORI3FW.LastSurface) != 4 {
+		SHIORI3FW.LastSurface  = (0,10)
+		SHIORI3FW.IsVisible    = (1,1)
+	}
+	
 	SHIORI3FW.HWnd         = (0,0)
 	SHIORI3FW.HWndOld      = (0,0)
 	SHIORI3FW.BalloonHWnd  = (0,0)
@@ -169,7 +173,7 @@ load
 	On_craftman
 	On_craftmanw
 	'>>
-	_fa = SPLIT(_ft,CHR(0xd,0xa))
+	_fa = SPLIT(_ft,C_CRLF)
 	
 	foreach _fa;_f {
 		if ISFUNC(_f) {
@@ -249,8 +253,6 @@ SHIORI3FW.CanTalkFlag
 SHIORI3FW.IsSurfaceRestoreComplete
 SHIORI3FW.IsAITalkComplete
 SHIORI3FW.SaveVarCount
-SHIORI3FW.LastSurface
-SHIORI3FW.IsVisible
 SHIORI3FW.HWnd
 SHIORI3FW.HWndOld
 SHIORI3FW.BalloonHWnd
@@ -263,6 +265,9 @@ SHIORI3FW.DelayEventTime
 SHIORI3FW.DelayEvent
 SHIORI3FW.DelayEventReference
 SHIORI3FW.GhostName
+C_CRLF2
+C_CRLF
+C_BYTE1
 '>>
 	//以下は保存
 	//SHIORI3FW.ShellName
@@ -270,7 +275,9 @@ SHIORI3FW.GhostName
 	//SHIORI3FW.ShellPath
 	//SHIORI3FW.BalloonName
 	//SHIORI3FW.BalloonPath
-	
+	//SHIORI3FW.LastSurface
+	//SHIORI3FW.IsVisible
+
 	ERASEVAR(SPLIT(_var,C_CRLF))
 	
 	_n = ARRAYSIZE(tempvarname)
@@ -1681,7 +1688,7 @@ SHIORI3EV.On_ShioriEcho
 
 DUMP : void
 {
-	void FOPEN('dump.txt','w+')
+	void FOPEN('dump.txt','ab')
 	void FWRITE('dump.txt',JOIN(_argv,',') + C_CRLF)
 	void FCLOSE('dump.txt')
 }
