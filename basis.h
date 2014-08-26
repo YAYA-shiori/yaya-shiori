@@ -82,7 +82,6 @@ protected:
 	CBasisFuncPos loadindex;				// 関数 load の位置
 	CBasisFuncPos unloadindex;				// 関数 unload の位置
 	CBasisFuncPos requestindex;				// 関数 request の位置
-	CBasisFuncPos request_debug_index;		// 関数 request_debug の位置
 
 	char	run;					// load完了で0→1へ
 

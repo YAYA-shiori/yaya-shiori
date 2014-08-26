@@ -256,7 +256,6 @@ void	CBasis::Termination(void)
 	loadindex.Init();
 	unloadindex.Init();
 	requestindex.Init();
-	request_debug_index.Init();
 }
 
 /* -----------------------------------------------------------------------
@@ -980,14 +979,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 		return NULL;
 	}
 
-	int funcpos;
-
-	if ( is_debug ) {
-		funcpos = request_debug_index.Find(vm,L"request_debug");
-	}
-	else {
-		funcpos = requestindex.Find(vm,L"request");
-	}
+	int funcpos = requestindex.Find(vm,L"request");
 
 	if ( funcpos < 0 ) {
 		GlobalFree(h);
@@ -1065,14 +1057,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 		return NULL;
     }
 
-	int funcpos;
-
-	if ( is_debug ) {
-		funcpos = request_debug_index.Find(vm,L"request_debug");
-	}
-	else {
-		funcpos = requestindex.Find(vm,L"request");
-	}
+	int funcpos = requestindex.Find(vm,L"request");
 
 	if ( funcpos < 0 ) {
 		free(h);
