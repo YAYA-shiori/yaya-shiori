@@ -180,7 +180,17 @@ extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB multi_unload(long id)
 extern "C" DLLEXPORT yaya::global_t FUNCATTRIB request(yaya::global_t h, long *len)
 {
 	if ( vm[0] ) {
-		return vm[0]->basis().ExecuteRequest(h, len);
+		return vm[0]->basis().ExecuteRequest(h, len, false);
+	}
+	else {
+		return NULL;
+	}
+}
+
+extern "C" DLLEXPORT yaya::global_t FUNCATTRIB request_debug(yaya::global_t h, long *len)
+{
+	if ( vm[0] ) {
+		return vm[0]->basis().ExecuteRequest(h, len, true);
 	}
 	else {
 		return NULL;
@@ -194,12 +204,27 @@ extern "C" DLLEXPORT yaya::global_t FUNCATTRIB multi_request(long id, yaya::glob
 	}
 
 	if ( vm[id] ) {
-		return vm[id]->basis().ExecuteRequest(h, len);
+		return vm[id]->basis().ExecuteRequest(h, len, false);
 	}
 	else {
 		return NULL;
 	}
 }
+
+extern "C" DLLEXPORT yaya::global_t FUNCATTRIB multi_request_debug(long id, yaya::global_t h, long *len)
+{
+	if ( id <= 0 || id > (long)vm.size() || vm[id] == NULL ) { //1から 0番は従来用
+		return 0;
+	}
+
+	if ( vm[id] ) {
+		return vm[id]->basis().ExecuteRequest(h, len, true);
+	}
+	else {
+		return NULL;
+	}
+}
+
 
 /* -----------------------------------------------------------------------
  *  logsend（AYA固有　チェックツールから使用）
@@ -289,15 +314,28 @@ int main( int argc, char *argv[ ], char *envp[ ] )
 			fflush(stdout);
 			break;
 		}
-		else if ( strncmp(bufptr,"request:",8) == 0 ) {
+		else if ( (strncmp(bufptr,"request:",8) == 0) || (strncmp(bufptr,"request_debug:",8+6) == 0) ) {
 			bufptr += 8;
+			
+			bool is_debug = false;
+			if ( strncmp(bufptr,"debug:",6) == 0 ) {
+				is_debug = true;
+				bufptr += 6;
+			}
+
 			long size = atoi(bufptr);
 			if ( size > 0 ) {
 				char *read_ptr = (char*)::GlobalAlloc(GMEM_FIXED,size+1);
 				fread(read_ptr,1,size,stdin);
 				read_ptr[size] = 0;
 				
-				yaya::global_t res = request(read_ptr,&size);
+				yaya::global_t res;
+				if ( is_debug ) {
+					res = request_debug(read_ptr,&size);
+				}
+				else {
+					res = request(read_ptr,&size);
+				}
 
 				char write_header[64];
 				sprintf(write_header,"request:%d\r\n",size);
