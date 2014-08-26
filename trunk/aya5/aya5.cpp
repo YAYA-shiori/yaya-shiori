@@ -180,7 +180,7 @@ extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB multi_unload(long id)
 extern "C" DLLEXPORT yaya::global_t FUNCATTRIB request(yaya::global_t h, long *len)
 {
 	if ( vm[0] ) {
-		return vm[0]->basis().ExecuteRequest(h, len);
+		return vm[0]->basis().ExecuteRequest(h, len, false);
 	}
 	else {
 		return NULL;
@@ -194,12 +194,13 @@ extern "C" DLLEXPORT yaya::global_t FUNCATTRIB multi_request(long id, yaya::glob
 	}
 
 	if ( vm[id] ) {
-		return vm[id]->basis().ExecuteRequest(h, len);
+		return vm[id]->basis().ExecuteRequest(h, len, false);
 	}
 	else {
 		return NULL;
 	}
 }
+
 
 /* -----------------------------------------------------------------------
  *  logsend（AYA固有　チェックツールから使用）
@@ -289,8 +290,9 @@ int main( int argc, char *argv[ ], char *envp[ ] )
 			fflush(stdout);
 			break;
 		}
-		else if ( strncmp(bufptr,"request:",8) == 0 ) {
+		else if ( (strncmp(bufptr,"request:",8) == 0) ) {
 			bufptr += 8;
+			
 			long size = atoi(bufptr);
 			if ( size > 0 ) {
 				char *read_ptr = (char*)::GlobalAlloc(GMEM_FIXED,size+1);

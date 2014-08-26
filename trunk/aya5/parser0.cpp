@@ -49,7 +49,7 @@
  *  返値　　：  0/1=正常/エラー
  * -----------------------------------------------------------------------
  */
-char	CParser0::Parse(int charset, const std::vector<CDic1>& dics, int &lindex, int &ulindex, int &rindex)
+char	CParser0::Parse(int charset, const std::vector<CDic1>& dics)
 {
 	// 読み取り、構文解析、中間コードの生成
 	vm.logger().Message(3);
@@ -71,22 +71,6 @@ char	CParser0::Parse(int charset, const std::vector<CDic1>& dics, int &lindex, i
 	// 中間コード生成の後処理と検査
 	errcount += vm.parser1().CheckExecutionCode();
 
-	// load/unload/request関数の位置を取得
-	lindex  = GetFunctionIndexFromName(FUNCNAME_LOAD);
-//	if (lindex == -1) {
-//		vm.logger().Error(E_E, 32, FUNCNAME_LOAD);
-//		errcount++;
-//	}
-	ulindex = GetFunctionIndexFromName(FUNCNAME_UNLOAD);
-//	if (ulindex == -1) {
-//		vm.logger().Error(E_E, 32, FUNCNAME_UNLOAD);
-//		errcount++;
-//	}
-	rindex  = GetFunctionIndexFromName(FUNCNAME_REQUEST);
-//	if (rindex == -1) {
-//		vm.logger().Error(E_E, 32, FUNCNAME_REQUEST);
-//		errcount++;
-//	}
 	vm.logger().Message(8);
 
 	return (errcount) ? 1 : 0;
@@ -196,37 +180,41 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 			// 不要な空白（インデント等）を消す
 			CutStartSpace(readline);
 		}
+
+		/*--------------------------------------------------------
+			ヒアドキュメントのエスケープ
+			\xFFFF\x0001 -> 改行
+			\xFFFF\x0002 -> "
+			\xFFFF\x0003 -> '
+			\xFFFFはUnicodeとして不適切、現れることはない…たぶん
+		--------------------------------------------------------*/
 		
 		// 読み取り済バッファへ結合
 		if ( isInHereDocument ) {
 			//ヒアドキュメント解除部
 			if ( isInHereDocument == 1 ) {
 				if (readline.compare(0,3,L"'>>") == 0) {
-					readline.erase(0,3);
+					readline.erase(1,3);
 					isInHereDocument = 0;
 					
 					if ( isHereDocumentFirstLine ) {
 						linebuffer.append(L"'' ");
 						vm.logger().Error(E_W, 21, filename, i);
 					}
-					else {
-						linebuffer.append(L") ");
-					}
+
 					linebuffer.append(readline);
 				}
 			}
 			else {
 				if (readline.compare(0,3,L"\">>") == 0) {
-					readline.erase(0,3);
+					readline.erase(1,3);
 					isInHereDocument = 0;
 					
 					if ( isHereDocumentFirstLine ) {
 						linebuffer.append(L"'' ");
 						vm.logger().Error(E_W, 21, filename, i);
 					}
-					else {
-						linebuffer.append(L") ");
-					}
+
 					linebuffer.append(readline);
 				}
 			}
@@ -234,25 +222,52 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 			//解除されていない（ヒアドキュメント内＝テキストをそのまんま結合）
 			if ( isInHereDocument ) {
 				if ( isHereDocumentFirstLine ) {
-					linebuffer.append(L" (");
 					isHereDocumentFirstLine = false;
 				}
 				else {
-					linebuffer.append(L" + CHR(0xd,0xa) + ");
+					linebuffer.append(L"\xFFFF\x0001");
+				}
+
+				yaya::string_t::size_type it1 = find_last_str(readline,L"<<'");
+				yaya::string_t::size_type it2 = find_last_str(readline,L"<<\"");
+
+				if ( (it1 != yaya::string_t::npos) || (it2 != yaya::string_t::npos) ) {
+					yaya::string_t::size_type it = it1;
+					if ( it == yaya::string_t::npos ) {
+						it = it2;
+					}
+					else {
+						if ( (it2 != yaya::string_t::npos) && (it1 < it2) ) {
+							it = it2;
+						}
+					}
+
+					it += 3;
+
+					bool is_not_space = false;
+					yaya::string_t::size_type itend = readline.size();
+
+					while ( it < itend ) {
+						if ( ! IsSpace(readline[it]) ) {
+							is_not_space = true;
+							break;
+						}
+						it += 1;
+					}
+
+					if ( ! is_not_space ) {
+						vm.logger().Error(E_W, 22, filename, i);
+					}
 				}
 
 				if ( isInHereDocument == 1 ) {
-					yaya::ws_replace(readline, L"\'", L"\' + CHR(0x27) + \'");
-					linebuffer.append(L"'");
-					linebuffer.append(readline);
-					linebuffer.append(L"'");
+					yaya::ws_replace(readline, L"\'", L"\xFFFF\x0003");
 				}
 				else {
-					yaya::ws_replace(readline, L"\"", L"\" + CHR(0x22) + \"");
-					linebuffer.append(L"\"");
-					linebuffer.append(readline);
-					linebuffer.append(L"\"");
+					yaya::ws_replace(readline, L"\"", L"\xFFFF\x0002");
 				}
+				linebuffer.append(readline);
+
 				continue;
 			}
 		}
@@ -269,14 +284,14 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 					isInHereDocument = 1;
 					isHereDocumentFirstLine = true;
 					
-					linebuffer.erase(linebuffer.size() - 3,3);
+					linebuffer.erase(linebuffer.size() - 3,2);
 					continue;
 				}
 				else if ( readline.compare(readline.size()-3,3,L"<<\"") == 0 ) {
 					isInHereDocument = 2;
 					isHereDocumentFirstLine = true;
 
-					linebuffer.erase(linebuffer.size() - 3,3);
+					linebuffer.erase(linebuffer.size() - 3,2);
 					continue;
 				}
 			}
@@ -1304,22 +1319,23 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 	i = IsLegalStrLiteral(scell.value_const().s_value);
 	if (!i) {
 		CutDoubleQuote(scell.value().s_value);
-		if (!emb)
+		UnescapeSpecialString(scell.value().s_value);
+		
+		if (!emb) {
 			scell.value_SetType(F_TAG_STRING);
+		}
 		else {
-			if (!scell.value_const().s_value.size())
-				scell.value_SetType(F_TAG_STRING);
+			if ( scell.value_const().s_value.size() <= 1 ) { //1文字以下ならそもそも埋め込みすらない
+				scell.value_SetType(F_TAG_STRING_PLAIN);
+			}
 			else {
 				if (scell.value_const().s_value[0] == L'%') {
-					if (scell.value_const().s_value.size() == 1)
-						scell.value_SetType(F_TAG_STRING);
-					else {
-						scell.value().s_value.erase(0, 1);
-						scell.value_SetType(F_TAG_STRING_EMBED);
-					}
+					scell.value().s_value.erase(0, 1);
+					scell.value_SetType(F_TAG_STRING_EMBED);
 				}
-				else
+				else {
 					scell.value_SetType(F_TAG_STRING);
+				}
 			}
 		}
 		return 0;
@@ -1338,6 +1354,7 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 	i = IsLegalPlainStrLiteral(scell.value_const().s_value);
 	if (!i) {
 		CutSingleQuote(scell.value().s_value);
+		UnescapeSpecialString(scell.value().s_value);
 		scell.value_SetType(F_TAG_STRING_PLAIN);
 		return 0;
 	}
@@ -1549,6 +1566,14 @@ void	CParser0::ConvertPlainString1(CStatement& st, const yaya::string_t& /*dicfi
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
+
+static void AddDoubleQuoteAndEscape(yaya::string_t &str)
+{
+	yaya::ws_replace(str, L"\r\n", L"\xFFFF\x0001");
+	yaya::ws_replace(str, L"\"", L"\xFFFF\x0002");
+	AddDoubleQuote(str);
+}
+
 char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::string_t& dicfilename, int linecount)
 {
 	yaya::string_t	resstr;
@@ -1567,7 +1592,7 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 		if (p_pers > 0) {
 			yaya::string_t	prestr;
 			prestr.assign(str, 0, p_pers);
-			AddDoubleQuote(prestr);
+			AddDoubleQuoteAndEscape(prestr);
 			resstr += prestr;
 			str.erase(0, p_pers);
 			resstr += L"+";
@@ -1617,7 +1642,7 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 			if (p_pers == -1) {
 				embedstr = str;
 				if (embedstr.size()) {
-					AddDoubleQuote(embedstr);
+					AddDoubleQuoteAndEscape(embedstr);
 					resstr += L"+";
 					resstr += embedstr;
 				}
@@ -1675,7 +1700,7 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 				yaya::string_t embedstr;
 				embedstr = str;
 				if (embedstr.size()) {
-					AddDoubleQuote(embedstr);
+					AddDoubleQuoteAndEscape(embedstr);
 					resstr += L"+";
 					resstr += embedstr;
 				}
@@ -1691,14 +1716,14 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 			// 見つからなければこれが最後の項
 			if (p_pers == -1) {
 				yaya::string_t	embedstr = str;
-				AddDoubleQuote(embedstr);
+				AddDoubleQuoteAndEscape(embedstr);
 				resstr += embedstr;
 				break;
 			}
 			// 見つかったので追加
 			yaya::string_t	embedstr;
 			embedstr.assign(str, 0, p_pers);
-			AddDoubleQuote(embedstr);
+			AddDoubleQuoteAndEscape(embedstr);
 			resstr += embedstr;
 			str.erase(0, p_pers);
 		}

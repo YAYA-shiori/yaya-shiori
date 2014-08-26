@@ -198,7 +198,7 @@ void	CBasis::Configure(void)
 	SetLogger();
 
 	// 辞書読み込みと構文解析
-	if (vm.parser0().Parse(dic_charset, dics, loadindex, unloadindex, requestindex))
+	if (vm.parser0().Parse(dic_charset, dics))
 		SetSuppress();
 
 	{
@@ -251,6 +251,11 @@ void	CBasis::Termination(void)
 
 	// ロギングを終了
 	vm.logger().Termination();
+
+	//
+	loadindex.Init();
+	unloadindex.Init();
+	requestindex.Init();
 }
 
 /* -----------------------------------------------------------------------
@@ -1059,8 +1064,14 @@ void	CBasis::RestoreHashVariable(CValue &var, yaya::string_t &value)
  */
 void	CBasis::ExecuteLoad(void)
 {
-	if (IsSuppress() || loadindex == -1)
+	if (IsSuppress() || loadindex.IsNotFound()) {
 		return;
+	}
+
+	int funcpos = loadindex.Find(vm,L"load");
+	if ( funcpos < 0 ) {
+		return;
+	}
 
 	// 第一引数（dllのパス）を作成
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
@@ -1071,7 +1082,7 @@ void	CBasis::ExecuteLoad(void)
 	CLocalVariable	lvar;
 	vm.logger().Io(0, path);
 	CValue	result;
-	vm.function()[loadindex].Execute(result, arg, lvar);
+	vm.function()[funcpos].Execute(result, arg, lvar);
 	yaya::string_t empty;
 	vm.logger().Io(1, empty);
 }
@@ -1082,9 +1093,18 @@ void	CBasis::ExecuteLoad(void)
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32) || defined(_WIN32_WCE)
-yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len)
+yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug)
 {
-	if (IsSuppress() || requestindex == -1) {
+	if (IsSuppress() || requestindex.IsNotFound()) {
+		GlobalFree(h);
+		h = NULL;
+		*len = 0;
+		return NULL;
+	}
+
+	int funcpos = requestindex.Find(vm,L"request");
+
+	if ( funcpos < 0 ) {
 		GlobalFree(h);
 		h = NULL;
 		*len = 0;
@@ -1113,7 +1133,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len)
 	vm.calldepth().Init();
 	CLocalVariable	lvar;
 	CValue	result;
-	vm.function()[requestindex].Execute(result, arg, lvar);
+	vm.function()[funcpos].Execute(result, arg, lvar);
 
 	// 結果を文字列として取得し、文字コードをMBCSに変換
 	yaya::string_t	res = result.GetValueString();
@@ -1151,30 +1171,40 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len)
 	return r_h;
 }
 #elif defined(POSIX)
-yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len)
+yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug)
 {
-    if (IsSuppress() || requestindex == -1) {
-	free(h);
-	h = NULL;
-	*len = 0;
-	return NULL;
+    if (IsSuppress() || requestindex.IsNotFound()) {
+		free(h);
+		h = NULL;
+		*len = 0;
+		return NULL;
     }
-    
+
+	int funcpos = requestindex.Find(vm,L"request");
+
+	if ( funcpos < 0 ) {
+		free(h);
+		h = NULL;
+		*len = 0;
+		return NULL;
+	}
+
     // 入力文字列を取得
 	std::string istr(h, *len);
     // 第一引数（入力文字列）を作成　ここで文字コードをUCS-2へ変換
     CValue arg(F_TAG_ARRAY, 0/*dmy*/);
     wchar_t *wistr = Ccct::MbcsToUcs2(istr, output_charset);
+	
     if (wistr != NULL) {
-	CValueSub arg0 = wistr;
-	vm.logger().Io(0, arg0.s_value);
-	arg.array().push_back(arg0);
-	free(wistr);
-	wistr = NULL;
+		CValueSub arg0 = wistr;
+		vm.logger().Io(0, arg0.s_value);
+		arg.array().push_back(arg0);
+		free(wistr);
+		wistr = NULL;
     }
     else {
 		yaya::string_t empty;
-	vm.logger().Io(0, empty);
+		vm.logger().Io(0, empty);
     }
     
     // 実行
@@ -1188,12 +1218,14 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len)
 	yaya::string_t	res = result.GetValueString();
     vm.logger().Io(1, res);
     char *mostr = Ccct::Ucs2ToMbcs(res, output_charset);
+
     if (mostr == NULL) {
-	// 文字コード変換失敗、NULLを返す
-	*len = 0;
-	return NULL;
+		// 文字コード変換失敗、NULLを返す
+		*len = 0;
+		return NULL;
     }
-    // 文字コード変換が成功したので、結果をGMEMへコピーして返す
+    
+	// 文字コード変換が成功したので、結果をGMEMへコピーして返す
     *len = (long)strlen(mostr);
     char* r_h = static_cast<char*>(malloc(*len));
     memcpy(r_h, mostr, *len);
@@ -1210,8 +1242,14 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len)
  */
 void	CBasis::ExecuteUnload(void)
 {
-	if (IsSuppress()|| loadindex == -1)
+	if ( IsSuppress() || unloadindex.IsNotFound() ) {
 		return;
+	}
+
+	int funcpos = unloadindex.Find(vm,L"unload");
+	if ( funcpos < 0 ) {
+		return;
+	}
 
 	// 実行　引数無し　結果は使用しないのでそのまま捨てる
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
@@ -1220,6 +1258,28 @@ void	CBasis::ExecuteUnload(void)
 	yaya::string_t empty;
 	vm.logger().Io(0, empty);
 	CValue result;
-	vm.function()[unloadindex].Execute(result, arg, lvar);
+	vm.function()[funcpos].Execute(result, arg, lvar);
 	vm.logger().Io(1, empty);
 }
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CBasisFuncPos::CBasisFuncPos
+ *  機能概要：  関数位置を探し、位置と「探したかどうか」をキャッシュします
+ * -----------------------------------------------------------------------
+ */
+int CBasisFuncPos::Find(CAyaVM &vm,yaya::char_t *name)
+{
+	if ( is_try_find ) {
+		return pos_saved;
+	}
+
+	pos_saved = vm.parser0().GetFunctionIndexFromName(name);
+	is_try_find = true;
+
+	if ( pos_saved < 0 ) {
+		vm.logger().Error(E_W, 32, name);
+	}
+
+	return pos_saved;
+}
+

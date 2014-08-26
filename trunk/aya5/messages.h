@@ -154,6 +154,7 @@ const wchar_t	msgwj[][128] = {
 	L"warning W0019 : 割り算にゼロを指定することはできません.",
 	L"warning W0020 : 連想配列の生成には偶数個の要素が必要です.",
 	L"warning W0021 : 空のヒアドキュメントがあります.",
+	L"warning W0022 : ヒアドキュメント開始文字列が(ヒアドキュメント中に)見つかりました.",
 };
 
 // 注記文字列（日本語）
@@ -315,6 +316,7 @@ const wchar_t	msgwe[][128] = {
 	L"warning W0019 : Integer/Double divided by zero.",
 	L"warning W0020 : Requires even number of elements to create hash.",
 	L"warning W0021 : Empty here document found.",
+	L"warning W0022 : Here document start sequence found.",
 };
 
 // 注記文字列（英語）
