@@ -21,6 +21,9 @@
 yaya::string_t::size_type Find_IgnoreDQ(const yaya::string_t &str, const yaya::char_t *findstr);
 yaya::string_t::size_type Find_IgnoreDQ(const yaya::string_t &str, const yaya::string_t &findstr);
 
+yaya::string_t::size_type find_last_str(const yaya::string_t &str, const yaya::char_t *findstr);
+yaya::string_t::size_type find_last_str(const yaya::string_t &str, const yaya::string_t &findstr);
+
 char	Split(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::char_t *sepstr);
 char	Split(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::string_t &sepstr);
 char	SplitOnly(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, yaya::char_t *sepstr);
@@ -34,6 +37,7 @@ void	CutEndSpace(yaya::string_t &str);
 
 void	CutDoubleQuote(yaya::string_t &str);
 void	CutSingleQuote(yaya::string_t &str);
+void	UnescapeSpecialString(yaya::string_t &str);
 void	AddDoubleQuote(yaya::string_t &str);
 void	CutCrLf(yaya::string_t &str);
 
