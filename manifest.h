@@ -36,11 +36,6 @@ extern const yaya::char_t *aya_author;
 #define	MSGLANG_JAPANESE		0				/* デフォルト */
 #define	MSGLANG_ENGLISH			1
 
-// load/unload/requestハンドラの名前
-#define	FUNCNAME_LOAD			L"load"
-#define	FUNCNAME_UNLOAD			L"unload"
-#define	FUNCNAME_REQUEST		L"request"
-
 // 基底プレフィックス文字列
 #define	PREFIX_BASE_LEN	2
 #define	PREFIX_BIN	L"0b"

@@ -142,6 +142,30 @@ yaya::string_t::size_type Find_IgnoreDQ(const yaya::string_t &str, const yaya::s
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  find_last_str
+ *  機能概要：  一番最後に見つかった文字列の位置を返す
+ *
+ *  返値　　：  npos=失敗   0・正=成功
+ * -----------------------------------------------------------------------
+ */
+yaya::string_t::size_type find_last_str(const yaya::string_t &str, const yaya::char_t *findstr)
+{
+	yaya::string_t::size_type it = yaya::string_t::npos;
+	yaya::string_t::size_type found;
+
+	while ( (found = str.find(findstr,it)) != yaya::string_t::npos ) {
+		it = found;
+	}
+
+	return it;
+}
+
+yaya::string_t::size_type find_last_str(const yaya::string_t &str, const yaya::string_t &findstr)
+{
+	return find_last_str(str,findstr.c_str());
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  Split_IgnoreDQ
  *  機能概要：  文字列を分割して余分な空白を削除します
  *  　　　　　  ただしダブル/シングルクォート内では分割しません
@@ -260,6 +284,40 @@ void	CutEndSpace(yaya::string_t &str)
 	}
 }
 
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  UnescapeSpecialString
+ *  機能概要：  (ヒアドキュメント仕様用の)有害文字エスケープを戻します
+ *              CParser0::LoadDictionary1 も参照してください
+ * -----------------------------------------------------------------------
+ */
+void	UnescapeSpecialString(yaya::string_t &str)
+{
+	if ( str.size() <= 1 ) {
+		return;
+	}
+
+	size_t len = str.size()-1; //1文字手前まで
+	for ( size_t i = 0 ; i < len ; ++i ) {
+		if ( str[i] == 0xFFFFU ) {
+			if ( str[i+1] == 0x0001U ) {
+				str[i]   = L'\r';
+				str[i+1] = L'\n';
+			}
+			else if ( str[i+1] == 0x0002U ) {
+				str.erase(i, 1);
+				str[i] = L'"';
+				len -= 1;
+			}
+			else if ( str[i+1] == 0x0003U ) {
+				str.erase(i, 1);
+				str[i] = L'\'';
+				len -= 1;
+			}
+		}
+	}
+}
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CutDoubleQuote
  *  機能概要：  与えられた文字列の前後にダブルクォートがあった場合削除します
@@ -267,7 +325,7 @@ void	CutEndSpace(yaya::string_t &str)
  */
 void	CutDoubleQuote(yaya::string_t &str)
 {
-	int	len = str.size();
+	size_t len = str.size();
 	if (!len)
 		return;
 	// 前方
@@ -289,7 +347,7 @@ void	CutDoubleQuote(yaya::string_t &str)
  */
 void	CutSingleQuote(yaya::string_t &str)
 {
-	int	len = str.size();
+	size_t len = str.size();
 	if (!len)
 		return;
 	// 前方

@@ -32,6 +32,23 @@ public:
 	}
 };
 
+class   CBasisFuncPos
+{
+private:
+	bool is_try_find;
+	int pos_saved;
+
+public:
+	CBasisFuncPos() : is_try_find(false) , pos_saved(-1) { }
+	~CBasisFuncPos() { }
+
+	void Init() { is_try_find = false; pos_saved = -1; }
+
+	bool IsNotFound() { return is_try_find && (pos_saved == -1); }
+
+	int Find(CAyaVM &vm,yaya::char_t *name);
+};
+
 class	CBasis
 {
 public:
@@ -62,9 +79,10 @@ protected:
 	char	checkparser;			// 構文解析結果のログへの記録を指示するフラグ
 	char	iolog;					// 入出力のログへの記録を指示するフラグ
 
-	int	loadindex;					// 関数 load の位置
-	int	unloadindex;				// 関数 unload の位置
-	int	requestindex;				// 関数 request の位置
+	CBasisFuncPos loadindex;				// 関数 load の位置
+	CBasisFuncPos unloadindex;				// 関数 unload の位置
+	CBasisFuncPos requestindex;				// 関数 request の位置
+	CBasisFuncPos request_debug_index;		// 関数 request_debug の位置
 
 	char	run;					// load完了で0→1へ
 
@@ -96,7 +114,7 @@ public:
 	yaya::string_t GetSavefilePath(void) const { return path + modulename + L"_variable.cfg"; }
 
 	void	ExecuteLoad(void);
-	yaya::global_t	ExecuteRequest(yaya::global_t h, long *len);
+	yaya::global_t	ExecuteRequest(yaya::global_t h, long *len, bool is_debug);
 	void	ExecuteUnload(void);
 
 	void	SaveVariable(const yaya::char_t* pName = NULL);
