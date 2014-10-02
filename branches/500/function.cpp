@@ -69,6 +69,10 @@ int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
 	ExecuteInBrace(0, result, lvar, BRACE_DEFAULT, exitcode);
 	pvm->calldepth().Del();
 
+	for ( size_t i = 0 ; i < statement.size() ; ++i ) {
+		statement[i].cell_cleanup();
+	}
+
 	return exitcode;
 }
 
@@ -96,6 +100,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 	CValue		t_value;
 
 	int	t_statelenm1 = statelenm1;
+
 	int i = 0;
 	for(i = line; i < t_statelenm1; i++) {
 		switch(statement[i].type) {
@@ -853,7 +858,8 @@ char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<int> &sid, CSta
 	const CValue *v_argv = &(t_lvar.GetArgvPtr()->value_const());
 	int	i = 0;
 	int	errcount = 0;
-	for(it = sid.begin() + 1; it != sid.end(); it++, i++)
+
+	for(it = sid.begin() + 1; it != sid.end(); it++, i++) {
 		if (st.cell()[*it].value_GetType() == F_TAG_FEEDBACK) {
 			CValue	v_value;
 			v_value = v_argv->array()[i];
@@ -873,6 +879,8 @@ char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<int> &sid, CSta
 				};
 			}
 		}
+	}
+
 	assert((errcount == 0)||(errcount == 1));
 	return errcount ? 1 : 0;
 }
