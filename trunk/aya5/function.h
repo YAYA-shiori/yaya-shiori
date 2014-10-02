@@ -102,6 +102,14 @@ public:
 		}
 		return *m_serial;
 	}
+	//////////////////////////////////////////////
+	void cell_cleanup(void) const {
+		const std::vector<CCell>& c = cell();
+
+		for ( size_t i = 0 ; i < c.size() ; ++i ) {
+			c[i].tmpdata_cleanup();
+		}
+	}
 };
 
 //----
