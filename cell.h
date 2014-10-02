@@ -185,6 +185,21 @@ public:
 		}
 		return *m_emb_ansv;
 	}
+	//////////////////////////////////////
+	void tmpdata_cleanup(void) const {
+		{
+			const CValue &c = ansv_const();
+			if ( (c.s_value.size() > 10000) || c.array_size() ) {
+				m_ansv.reset((CValue*)NULL);
+			}
+		}
+		{
+			const CValue &c = emb_ansv_const();
+			if ( (c.s_value.size() > 10000) || c.array_size() ) {
+				m_emb_ansv.reset((CValue*)NULL);
+			}
+		}
+	}
 };
 
 //----
