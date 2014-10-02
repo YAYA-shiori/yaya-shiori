@@ -1,4 +1,7 @@
 #labels Featured
+=Tc548-2=
+  * 実行中に適宜計算結果の一時保存領域を解放することで、大きなデータを扱う際の実行中のメモリ使用量を削減
+
 =Tc548-1=
   * REPLACE・RE_REPLACE・RE_REPLACEEXに置換回数オプション追加
    * http://emily.shillest.net/ayaya/index.php?%E3%83%9E%E3%83%8B%E3%83%A5%E3%82%A2%E3%83%AB%2F%E9%96%A2%E6%95%B0%2FREPLACE
