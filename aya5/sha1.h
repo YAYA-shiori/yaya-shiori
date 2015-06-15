@@ -17,6 +17,7 @@
 #ifndef _SHA1_H_
 #define _SHA1_H_
 
+/*
 #ifndef _STDINT_H
 #ifndef _SYS_STDINT_H_
 typedef unsigned long uint32_t;
@@ -24,6 +25,8 @@ typedef unsigned char uint8_t;
 typedef int int_least16_t;
 #endif
 #endif
+*/
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
