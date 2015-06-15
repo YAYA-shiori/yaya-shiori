@@ -922,8 +922,10 @@ class bbl_translater {
   private:
 	bbl_smart_shell<engine_type> engine;
   public:
-	bbl_translater(engine_type *X_engine)	:engine(X_engine) { }
-	bbl_translater(const bbl_translater &X = dull_engine_type::create())
+	bbl_translater()
+		:engine(dull_engine_type::create().engine) { }
+	bbl_translater(engine_type *X_engine) :engine(X_engine) { }
+	bbl_translater(const bbl_translater &X)
 										:engine(X.engine) { }
 	~bbl_translater() { }
 
