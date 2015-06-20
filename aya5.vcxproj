@@ -116,7 +116,6 @@
     <Link>
       <OutputFile>Release_EXE/yaya.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>D:\boost\libs\regex\build\vc6-stlport;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ProgramDatabaseFile>.\Release_EXE/yaya.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>.\Release_EXE/yaya.map</MapFileName>
@@ -157,7 +156,7 @@
     </ResourceCompile>
     <Link>
       <ShowProgress>NotSet</ShowProgress>
-      <OutputFile>D:\ssp_src_set\ssp\ghost\slapstick_navy_base\ghost\master\yaya.dll</OutputFile>
+      <OutputFile>D:\ssp_src_set\ssp\ghost\DE10_3001\ghost\master\yaya.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\Debug/yaya.pdb</ProgramDatabaseFile>

@@ -4,14 +4,6 @@
 // システム関数を実行するクラス　CSystemFunction
 // written by umeici. 2004
 // 
-// 正規表現系の関数ではboost::regexを使用しています。
-// http://www.boost.org/
-// http://www.boost.org/libs/regex/doc/index.html
-// 邦訳
-// http://boost.cppll.jp/HEAD/libs/regex/index.htm
-// boost::regexにおける正規表現構文については以下を参照
-// http://boost.cppll.jp/HEAD/libs/regex/syntax.htm
-//
 
 #ifndef	SYSFUNCH
 #define	SYSFUNCH
@@ -24,8 +16,7 @@
 
 #include <vector>
 
-#include <boost/regex.hpp>	/* boost::regexを使用します */
-#define	BOOST_REGEX_STATIC_LINK
+#include "deelx.h"
 
 #include "globaldef.h"
 #include "value.h"
@@ -52,7 +43,7 @@ private:
 	CValue	re_pos;						// 正規表現処理結果の詳細情報（一致した位置）
 	CValue	re_len;						// 正規表現処理結果の詳細情報（一致した長さ）
 
-	boost::regex_constants::syntax_option_type re_option; //正規表現オプション
+	int re_option; //正規表現オプション
 
 private:
 	CSystemFunction(void);
@@ -248,9 +239,9 @@ protected:
 	CValue	FTELL(const CValue &arg, yaya::string_t &d, int &l);
 
 
-	CValue	RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int &l, const yaya::char_t *fncname, std::vector<yaya::string_t> *replace_array, size_t num);
+	CValue	RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int &l, const yaya::char_t *fncname, size_t num);
 
-	void	StoreReResultDetails(boost::match_results<yaya::string_t::const_iterator> &result);
+	void	StoreReResultDetails(const yaya::string_t &str,MatchResult &result);
 	void	ClearReResultDetails(void);
 	void	AppendReResultDetail(const yaya::string_t &str, int pos, int len);
 	void	SetError(int code);

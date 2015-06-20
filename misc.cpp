@@ -9,9 +9,7 @@
 # include "stdafx.h"
 #endif
 
-#if defined(POSIX)
-# include <ctime>
-#endif
+#include <ctime>
 #include <string>
 #include <vector>
 

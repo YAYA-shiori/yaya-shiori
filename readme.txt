@@ -4,6 +4,14 @@ Copyright (c) 2007-, 整備班
 All rights reserved.
 http://ms.shillest.net/
 
+文字コード変換ライブラリ
+　バベル -babel-
+　http://tricklib.com/cxx/ex/babel/
+
+正規表現ライブラリ
+　DEELX - Regular Expression Engine
+　http://www.regexlab.com/en/deelx/
+
 ----------------------------------------------------------------
 YAYAは、以下の2.で明記したライセンスに従って利用できます。
 ただし、「伺かゴースト」とその周辺プログラムに組み込んで利用する場合は、原著作者umeici氏に敬意を表して1.のライセンスを適用するものとします。

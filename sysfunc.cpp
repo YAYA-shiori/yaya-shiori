@@ -1795,7 +1795,7 @@ CValue	CSystemFunction::REPLACE(const CValue &arg, yaya::string_t &d, int &l)
 	int count = 0;
 	if ( arg.array_size() >= 4 ) {
 		if (!arg.array()[3].IsInt()) {
-			vm.logger().Error(E_W, 9, L"RE_REPLACE", d, l);
+			vm.logger().Error(E_W, 9, L"REPLACE", d, l);
 			SetError(9);
 		}
 		count = arg.array()[3].GetValueInt();
@@ -3759,31 +3759,29 @@ CValue	CSystemFunction::RE_SEARCH(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 
 	// 実行
-	int	t_result;
+	MatchResult	t_result;
 	try {
-		boost::basic_regex<yaya::char_t> regex(arg1.c_str(),boost::regex::perl | boost::regex::collate | re_option);
-		boost::match_results<yaya::string_t::const_iterator>	result;
-		t_result = (int)boost::regex_search(arg0, result, regex);
-		if (t_result)
-			StoreReResultDetails(result);
+		CRegexpT<yaya::char_t> regex(arg1.c_str(),re_option);
+		t_result = regex.Match(arg0.c_str());
+		if (t_result.IsMatched()) {
+			StoreReResultDetails(arg0,t_result);
+		}
 	}
-	catch(const boost::bad_expression &) {
+	/*catch(const boost::bad_expression &) {
 		t_result = 0;
 		vm.logger().Error(E_W, 16, L"RE_SEARCH", d, l);
 		SetError(16);
-	}
+	}*/
 	catch(const std::runtime_error &) {
-		t_result = 0;
 		vm.logger().Error(E_W, 16, L"RE_SEARCH", d, l);
 		SetError(16);
 	}
 	catch(...) {
-		t_result = 0;
 		vm.logger().Error(E_W, 17, L"RE_SEARCH", d, l);
 		SetError(17);
 	}
 
-	return CValue(t_result);
+	return CValue(t_result.IsMatched() ? 1 : 0);
 }
 
 /* -----------------------------------------------------------------------
@@ -3804,15 +3802,12 @@ CValue	CSystemFunction::RE_ASEARCH(const CValue &arg, yaya::string_t &d, int &l)
 	const CValueSub &key = arg.array()[0];
 
 	try {
-		boost::basic_regex<yaya::char_t> regex(key.GetValueString(),boost::regex::perl | boost::regex::collate | re_option);
+		CRegexpT<yaya::char_t> regex(key.GetValueString().c_str(),re_option);
 
 		for(int i = 1; i < sz; i++) {
 			try {
-				boost::match_results<yaya::string_t::const_iterator> result;
-				int t_result = (int)boost::regex_search(arg.array()[i].GetValueString(), result, regex);
-				if (t_result) {
-					//結果ためこんでもあまり意味ないので
-					//StoreReResultDetails(result);
+				MatchResult t_result = regex.Match(arg.array()[i].GetValueString().c_str());
+				if (t_result.IsMatched()) {
 					return CValue(i-1);
 				}
 			}
@@ -3827,11 +3822,11 @@ CValue	CSystemFunction::RE_ASEARCH(const CValue &arg, yaya::string_t &d, int &l)
 		}
 
 	}
-	catch(const boost::bad_expression &) {
+	/*catch(const boost::bad_expression &) {
 		vm.logger().Error(E_W, 16, L"RE_ASEARCHEX", d, l);
 		SetError(16);
-		return CValue(F_TAG_ARRAY, 0/*dmy*/);
-	}
+		return CValue(F_TAG_ARRAY, 0);
+	}*/
 	catch(...) {
 		vm.logger().Error(E_W, 17, L"RE_ASEARCHEX", d, l);
 		SetError(17);
@@ -3855,15 +3850,12 @@ CValue	CSystemFunction::RE_ASEARCHEX(const CValue &arg, yaya::string_t &d, int &
 	CValue res(F_TAG_ARRAY, 0/*dmy*/);
 
 	try {
-		boost::basic_regex<yaya::char_t> regex(key.GetValueString(),boost::regex::perl | boost::regex::collate | re_option);
+		CRegexpT<yaya::char_t> regex(key.GetValueString().c_str(),re_option);
 
 		for(int i = 1; i < sz; i++) {
 			try {
-				boost::match_results<yaya::string_t::const_iterator> result;
-				int t_result = (int)boost::regex_search(arg.array()[i].GetValueString(), result, regex);
-				if (t_result) {
-					//結果ためこんでもあまり意味ないので
-					//StoreReResultDetails(result);
+				MatchResult t_result = regex.Match(arg.array()[i].GetValueString().c_str());
+				if (t_result.IsMatched()) {
 					res.array().push_back(CValueSub(i-1));
 				}
 			}
@@ -3878,11 +3870,11 @@ CValue	CSystemFunction::RE_ASEARCHEX(const CValue &arg, yaya::string_t &d, int &
 		}
 
 	}
-	catch(const boost::bad_expression &) {
+	/*catch(const boost::bad_expression &) {
 		vm.logger().Error(E_W, 16, L"RE_ASEARCHEX", d, l);
 		SetError(16);
-		return CValue(F_TAG_ARRAY, 0/*dmy*/);
-	}
+		return CValue(F_TAG_ARRAY, 0);
+	}*/
 	catch(...) {
 		vm.logger().Error(E_W, 17, L"RE_ASEARCHEX", d, l);
 		SetError(17);
@@ -3921,31 +3913,28 @@ CValue	CSystemFunction::RE_MATCH(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 
 	// 実行
-	int	t_result;
+	MatchResult	t_result;
 	try {
-		boost::basic_regex<yaya::char_t> regex(arg1.c_str(),boost::regex::perl | boost::regex::collate | re_option);
-		boost::match_results<yaya::string_t::const_iterator>	result;
-		t_result = (int)boost::regex_match(arg0, result, regex);
-		if (t_result)
-			StoreReResultDetails(result);
+		CRegexpT<yaya::char_t> regex(arg1.c_str(),re_option);
+		t_result = regex.MatchExact(arg0.c_str());
+		if (t_result.IsMatched()) {
+			StoreReResultDetails(arg0,t_result);
+		}
 	}
-	catch(const boost::bad_expression &) {
-		t_result = 0;
+	/*catch(const boost::bad_expression &) {
 		vm.logger().Error(E_W, 16, L"RE_MATCH", d, l);
 		SetError(16);
-	}
+	}*/
 	catch(const std::runtime_error &) {
-		t_result = 0;
 		vm.logger().Error(E_W, 16, L"RE_MATCH", d, l);
 		SetError(16);
 	}
 	catch(...) {
-		t_result = 0;
 		vm.logger().Error(E_W, 17, L"RE_MATCH", d, l);
 		SetError(17);
 	}
 
-	return CValue(t_result);
+	return CValue(t_result.IsMatched() ? 1 : 0);
 }
 
 /* -----------------------------------------------------------------------
@@ -3978,40 +3967,44 @@ CValue	CSystemFunction::RE_GREP(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 
 	// 実行
-	yaya::string_t::const_iterator str = arg0.begin();
-	yaya::string_t::const_iterator search_end = arg0.end();
-	yaya::string_t::const_iterator search_point = str;
-	int	t_pos    = 0;
-	int	t_result = 0;
+	int	match_count = 0;
 
 	try {
-		boost::basic_regex<yaya::char_t> regex(arg1.c_str(),boost::regex::perl | boost::regex::collate | re_option);
-		boost::match_results<yaya::string_t::const_iterator>	result;
+		CRegexpT<yaya::char_t> regex(arg1.c_str(),re_option);
+		CContext *pCtx = regex.PrepareMatch(arg0.c_str());
+
 		for( ; ; ) {
-			if (!boost::regex_search(search_point, search_end, result, regex))
+			MatchResult result = regex.Match(pCtx);
+			if ( ! result.IsMatched() ) {
 				break;
-			t_result++;
-			AppendReResultDetail(result.str(0), result.position(static_cast<unsigned int>(0)) + t_pos, result.length(0));
-			search_point = str + (t_pos += (result.position(static_cast<unsigned int>(0)) + result.length(0)));
+			}
+			match_count++;
+
+			AppendReResultDetail(
+				arg0.substr(result.GetStart(),result.GetEnd()-result.GetStart()),
+				result.GetStart(),
+				result.GetEnd()-result.GetStart());
 		}
+
+		regex.ReleaseContext(pCtx);
 	}
-	catch(const boost::bad_expression &) {
+	/*catch(const boost::bad_expression &) {
 		t_result = 0;
 		vm.logger().Error(E_W, 16, L"RE_GREP", d, l);
 		SetError(16);
-	}
+	}*/
 	catch(const std::runtime_error &) {
-		t_result = 0;
+		match_count = 0;
 		vm.logger().Error(E_W, 16, L"RE_GREP", d, l);
 		SetError(16);
 	}
 	catch(...) {
-		t_result = 0;
+		match_count = 0;
 		vm.logger().Error(E_W, 17, L"RE_GREP", d, l);
 		SetError(17);
 	}
 
-	return CValue(t_result);
+	return CValue(match_count);
 }
 
 /* -----------------------------------------------------------------------
@@ -4049,32 +4042,32 @@ CValue	CSystemFunction::RE_OPTION(const CValue &arg, yaya::string_t &d, int &l)
 		yaya::string_t opt = arg.array()[0].GetValueString();
 
 		re_option = 0;
-		if ( opt.find(L"m") == yaya::string_t::npos ) {
-			re_option |= boost::regex::no_mod_m;
+		if ( opt.find(L"m") != yaya::string_t::npos ) {
+			re_option |= MULTILINE;
 		}
 		if ( opt.find(L"s") != yaya::string_t::npos ) {
-			re_option |= boost::regex::mod_s;
+			re_option |= SINGLELINE;
 		}
 		if ( opt.find(L"x") != yaya::string_t::npos ) {
-			re_option |= boost::regex::mod_x;
+			re_option |= EXTENDED;
 		}
 		if ( opt.find(L"i") != yaya::string_t::npos ) {
-			re_option |= boost::regex::icase;
+			re_option |= IGNORECASE;
 		}
 	}
 
 	yaya::string_t result = L"";
 
-	if ( (re_option & boost::regex::no_mod_m) == 0 ) {
+	if ( (re_option & MULTILINE) != 0 ) {
 		result += L"m";
 	}
-	if ( (re_option & boost::regex::mod_s) != 0 ) {
+	if ( (re_option & SINGLELINE) != 0 ) {
 		result += L"s";
 	}
-	if ( (re_option & boost::regex::mod_x) != 0 ) {
+	if ( (re_option & EXTENDED) != 0 ) {
 		result += L"x";
 	}
-	if ( (re_option & boost::regex::icase) != 0 ) {
+	if ( (re_option & IGNORECASE) != 0 ) {
 		result += L"i";
 	}
 
@@ -4119,7 +4112,7 @@ CValue	CSystemFunction::RE_SPLIT(const CValue &arg, yaya::string_t &d, int &l)
 		}
 	}
 
-	return RE_SPLIT_CORE(arg, d, l, L"RE_SPLIT", NULL, nums);
+	return RE_SPLIT_CORE(arg, d, l, L"RE_SPLIT", nums);
 }
 
 /* -----------------------------------------------------------------------
@@ -4155,18 +4148,27 @@ CValue	CSystemFunction::RE_REPLACE(const CValue &arg, yaya::string_t &d, int &l)
 		else { count += 1; }
 	}
 
+	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
+	const yaya::string_t &arg1 = arg.array()[1].GetValueString();
+	const yaya::string_t &arg2 = arg.array()[2].GetValueString();
+
+	if (!arg0.size())
+		return CValue(L"");
+	if (!arg1.size())
+		return CValue(arg0);
+
 	// まずsplitする
-	CValue	splits = RE_SPLIT_CORE(arg, d, l, L"RE_REPLACE", NULL, (size_t)count);
+	CValue	splits = RE_SPLIT_CORE(arg, d, l, L"RE_REPLACE", (size_t)count);
 	int	num = splits.array_size();
 	if (!num || num == 1)
-		return CValue(arg.array()[0].GetValueString());
+		return CValue(arg0);
 
 	// 置換後文字列の作成
 	yaya::string_t	result;
 	int	i = 0;
 	for(i = 0; i < num; i++) {
 		if (i) {
-			result += arg.array()[2].GetValueString();
+			result += arg2;
 		}
 		result += splits.array()[i].GetValueString();
 	}
@@ -4184,7 +4186,7 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
 
 	// 引数の数/型チェック
 	if (arg.array_size() < 3) {
-		vm.logger().Error(E_W, 8, L"RE_REPLACE", d, l);
+		vm.logger().Error(E_W, 8, L"RE_REPLACEEX", d, l);
 		SetError(8);
 		return CValue(arg.array()[0].GetValueString());
 	}
@@ -4196,37 +4198,96 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
 		SetError(9);
 	}
 
-	int count = 0;
+	int count = -1;
 	if ( arg.array_size() >= 4 ) {
 		if (!arg.array()[3].IsInt()) {
-			vm.logger().Error(E_W, 9, L"RE_REPLACE", d, l);
+			vm.logger().Error(E_W, 9, L"RE_REPLACEEX", d, l);
 			SetError(9);
 		}
 		count = arg.array()[3].GetValueInt();
-		if ( count <= 0 ) { count = 0; }
-		else { count += 1; }
+		if ( count <= 0 ) { count = -1; }
 	}
 
-	// 置換後文字列の用意
-	std::vector<yaya::string_t> replace_array;
+	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
+	const yaya::string_t &arg1 = arg.array()[1].GetValueString();
+	const yaya::string_t &arg2_orig = arg.array()[2].GetValueString();
 
-	// まずsplitする
-	CValue	splits = RE_SPLIT_CORE(arg, d, l, L"RE_REPLACEEX", &replace_array, (size_t)count);
-	int	num = splits.array_size();
-	if (!num || num == 1)
-		return CValue(arg.array()[0].GetValueString());
+	if (!arg0.size())
+		return CValue(L"");
+	if (!arg1.size())
+		return CValue(arg0);
 
-	// 置換後文字列の作成
-	yaya::string_t	result;
-	int	i = 0;
-	for(i = 0; i < num; i++) {
-		if (i) {
-			result += replace_array[i-1];
+	yaya::string_t arg2 = arg2_orig;
+
+	//最後から1文字手前まで
+	for ( yaya::string_t::iterator it = arg2.begin() ; it < (arg2.end()-1) ; ++it ) {
+		if ( *it == L'\\' ) {
+			yaya::char_t c = *(it+1);
+			
+			if ( c == L'\\' ) {
+				arg2.replace(it,it+2,L"\\");
+			}
+			else if ( c == L'a' ) {
+				arg2.replace(it,it+2,L"\a");
+			}
+			else if ( c == L'e' ) {
+				arg2.replace(it,it+2,L"\x1B");
+			}
+			else if ( c == L'f' ) {
+				arg2.replace(it,it+2,L"\f");
+			}
+			else if ( c == L'n' ) {
+				arg2.replace(it,it+2,L"\n");
+			}
+			else if ( c == L'r' ) {
+				arg2.replace(it,it+2,L"\r");
+			}
+			else if ( c == L't' ) {
+				arg2.replace(it,it+2,L"\t");
+			}
+			else if ( c == L'v' ) {
+				arg2.replace(it,it+2,L"\v");
+			}
+			else if ( c >= L'0' && c <= L'9' ) {
+				yaya::char_t rep[3] = L"$0";
+				rep[1] = c;
+				arg2.replace(it,it+2,rep);
+				it += 1; //次の文字は読み飛ばして良い
+			}
 		}
-		result += splits.array()[i].GetValueString();
 	}
 
-	return CValue(result);
+	// 実行
+	yaya::string_t str_result;
+
+	try {
+		CRegexpT<yaya::char_t> regex(arg1.c_str(),re_option);
+
+		MatchResult t_result;
+		yaya::char_t *result = regex.Replace(arg0.c_str(),arg2.c_str(),0,count,&t_result);
+
+		str_result = result;
+
+		if (t_result.IsMatched()) {
+			StoreReResultDetails(str_result,t_result);
+		}
+
+		regex.ReleaseString(result);
+	}
+	/*catch(const boost::bad_expression &) {
+		t_result = 0;
+		vm.logger().Error(E_W, 16, L"RE_GREP", d, l);
+		SetError(16);
+	}*/
+	catch(const std::runtime_error &) {
+		vm.logger().Error(E_W, 16, L"RE_GREP", d, l);
+		SetError(16);
+	}
+	catch(...) {
+		vm.logger().Error(E_W, 17, L"RE_GREP", d, l);
+		SetError(17);
+	}
+	return CValue(str_result);
 }
 
 /* -----------------------------------------------------------------------
@@ -4235,7 +4296,7 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
  *  RE_SPLITの主処理部分です。RE_REPLACEでも使用します。
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int &l, const yaya::char_t *fncname, std::vector<yaya::string_t> *replace_array, size_t num)
+CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int &l, const yaya::char_t *fncname, size_t num)
 {
 	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
 	const yaya::string_t &arg1 = arg.array()[1].GetValueString();
@@ -4243,45 +4304,50 @@ CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int 
 	if (!arg0.size() || !arg1.size())
 		return CValue(arg0);
 
-	yaya::string_t::const_iterator str = arg0.begin();
-	yaya::string_t::const_iterator search_point = str;
-	yaya::string_t::const_iterator search_end = arg0.end();
-
 	int	t_pos = 0;
 	size_t count = 1;
 	CValue	splits(F_TAG_ARRAY, 0/*dmy*/);
 
 	try {
-		boost::basic_regex<yaya::char_t> regex(arg1.c_str(),boost::regex::perl | boost::regex::collate | re_option);
-		boost::match_results<yaya::string_t::const_iterator>	result;
+		CRegexpT<yaya::char_t> regex(arg1.c_str(),re_option);
+		CContext *pCtx = regex.PrepareMatch(arg0.c_str());
+
 		for( ; ; ) {
-			if (!boost::regex_search(search_point, search_end, result, regex))
+			MatchResult result = regex.Match(pCtx);
+
+			if ( ! result.IsMatched() )
 				break;
 
-			splits.array().push_back(arg0.substr(t_pos, result.position(static_cast<unsigned int>(0))));
+			count += 1;
 
-			AppendReResultDetail(result.str(0), result.position(static_cast<unsigned int>(0)) + t_pos, result.length(0));
+			splits.array().push_back(arg0.substr(t_pos, result.GetStart()-t_pos));
+			t_pos = result.GetEnd();
+
+			AppendReResultDetail(
+				arg0.substr(result.GetStart(),result.GetEnd()-result.GetStart()),
+				result.GetStart(),
+				result.GetEnd()-result.GetStart());
 			
-			if ( replace_array ) {
-				replace_array->push_back(result.format(arg.array()[2].GetValueString(),boost::format_perl));
-			}
-
-			search_point = str + (t_pos += (result.position(static_cast<unsigned int>(0)) + result.length(0)));
-			++count;
-
 			if ( num != 0 && (count >= num) ) {
 				break;
 			}
 		}
-        int len = std::distance(search_point, search_end);
-//		if (len)
+		
+		regex.ReleaseContext(pCtx);
+
+		int len = arg0.size() - t_pos;
+		if ( len > 0 ) {
 			splits.array().push_back(arg0.substr(t_pos, len));
+		}
+		else {
+			splits.array().push_back(L"");
+		}
 	}
-	catch(const boost::bad_expression &) {
-		splits = CValue(F_TAG_ARRAY, 0/*dmy*/);
+	/*catch(const boost::bad_expression &) {
+		splits = CValue(F_TAG_ARRAY, 0);
 		vm.logger().Error(E_W, 16, fncname, d, l);
 		SetError(16);
-	}
+	}*/
 	catch(const std::runtime_error &) {
 		splits = CValue(F_TAG_ARRAY, 0/*dmy*/);
 		vm.logger().Error(E_W, 16, fncname, d, l);
@@ -4860,6 +4926,12 @@ CValue	CSystemFunction::GETSTRBYTES(const CValue &arg, yaya::string_t &d, int &l
  *  関数名  ：  CSystemFunction::STRENCODE
  * -----------------------------------------------------------------------
  */
+
+//std::tolowerの定義がへちょい処理系対策
+struct ToLower {
+	yaya::char_t operator()(yaya::char_t c) { return ::tolower(c); }
+};
+
 CValue	CSystemFunction::STRENCODE(const CValue &arg, yaya::string_t &d, int &l)
 {
 	int	sz = arg.array_size();
@@ -4883,7 +4955,7 @@ CValue	CSystemFunction::STRENCODE(const CValue &arg, yaya::string_t &d, int &l)
 	yaya::string_t type = L"url";
 	if ( sz > 2 ) {
 		type = arg.array()[2].GetValueString();
-		std::transform(type.begin(), type.end(), type.begin(), (int (*)(int))std::tolower);
+		std::transform(type.begin(), type.end(), type.begin(), ToLower());
 	}
 	
 	// 主処理
@@ -4938,7 +5010,7 @@ CValue	CSystemFunction::STRDECODE(const CValue &arg, yaya::string_t &d, int &l)
 	yaya::string_t type = L"url";
 	if ( sz > 2 ) {
 		type = arg.array()[2].GetValueString();
-		std::transform(type.begin(), type.end(), type.begin(), (int (*)(int))std::tolower);
+		std::transform(type.begin(), type.end(), type.begin(), ToLower());
 	}
 	
 	// 主処理
@@ -5771,11 +5843,17 @@ CValue	CSystemFunction::GETCALLSTACK(const CValue &arg, yaya::string_t &/*d*/, i
  *  機能概要：  正規表現系関数の処理結果詳細を蓄積します
  * -----------------------------------------------------------------------
  */
-void	CSystemFunction::StoreReResultDetails(boost::match_results<yaya::string_t::const_iterator> &result)
+void	CSystemFunction::StoreReResultDetails(const yaya::string_t &str,MatchResult &result)
 {
-	int	sz = result.size();
-	for(int i = 0; i < sz; i++)
-		AppendReResultDetail(result.str(i), result.position(i), result.length(i));
+	int	sz = result.MaxGroupNumber();
+	for(int i = 0; i <= sz; i++) {
+		if ( result.GetGroupStart(i) >= 0 ) {
+			AppendReResultDetail(
+				str.substr(result.GetGroupStart(i),result.GetGroupEnd(i)-result.GetGroupStart(i)),
+				result.GetGroupStart(i),
+				result.GetGroupEnd(i)-result.GetGroupStart(i));
+		}
+	}
 }
 
 /* -----------------------------------------------------------------------
