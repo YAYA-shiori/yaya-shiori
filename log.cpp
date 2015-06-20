@@ -9,8 +9,6 @@
 # include "stdafx.h"
 #endif
 
-#include <boost/lexical_cast.hpp>
-
 #include "ccct.h"
 #include "log.h"
 #include "manifest.h"

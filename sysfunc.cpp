@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <ctime>
 
 #include <math.h>
 #include <stdio.h>
@@ -28,7 +29,6 @@
 # include <sys/time.h>
 #endif
 
-#include <boost/format.hpp>
 #if defined(POSIX)
 # include <boost/scoped_array.hpp>
 #endif
@@ -4152,9 +4152,7 @@ CValue	CSystemFunction::RE_REPLACE(const CValue &arg, yaya::string_t &d, int &l)
 	const yaya::string_t &arg1 = arg.array()[1].GetValueString();
 	const yaya::string_t &arg2 = arg.array()[2].GetValueString();
 
-	if (!arg0.size())
-		return CValue(L"");
-	if (!arg1.size())
+	if (!arg0.size() || !arg1.size())
 		return CValue(arg0);
 
 	// ‚Ü‚¸split‚·‚é
@@ -4212,9 +4210,7 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
 	const yaya::string_t &arg1 = arg.array()[1].GetValueString();
 	const yaya::string_t &arg2_orig = arg.array()[2].GetValueString();
 
-	if (!arg0.size())
-		return CValue(L"");
-	if (!arg1.size())
+	if (!arg0.size() || !arg1.size())
 		return CValue(arg0);
 
 	yaya::string_t arg2 = arg2_orig;
@@ -4300,9 +4296,6 @@ CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int 
 {
 	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
 	const yaya::string_t &arg1 = arg.array()[1].GetValueString();
-
-	if (!arg0.size() || !arg1.size())
-		return CValue(arg0);
 
 	int	t_pos = 0;
 	size_t count = 1;

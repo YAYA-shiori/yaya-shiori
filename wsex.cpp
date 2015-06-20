@@ -15,7 +15,6 @@
 #endif
 #include <string>
 #include <stdarg.h>
-#include <boost/lexical_cast.hpp>
 #include <string.h>
 
 #include "ccct.h"
