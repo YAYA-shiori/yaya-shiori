@@ -1,0 +1,16 @@
+*.aps
+*.ncb
+*.opt
+*.plg
+*.sdf
+*.suo
+*.user
+*.bak
+UpgradeLog.htm
+Backup
+Debug
+Debug_EXE
+Release
+Release_EXE
+tmp
+_UpgradeReport_Files
