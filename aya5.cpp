@@ -61,7 +61,7 @@ static CAyaVMPrepare prepare; //これはコンストラクタ・デストラクタ作動用
 
 static void AYA_InitModule(HMODULE hModule)
 {
-	char path[MAX_PATH];
+	char path[MAX_PATH] = "";
 	GetModuleFileName(hModule, path, sizeof(path));
 	char drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
 	_splitpath(path, drive, dir, fname, ext);

@@ -2973,7 +2973,7 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 
 	for ( unsigned int i = 0 ; i < digest_len ; ++i ) {
 #if (_MSC_VER > 1200) || defined(POSIX)
-		swprintf(md5str+i*2,sizeof(md5str), L"%02X",digest_result[i]);
+		swprintf(md5str+i*2,sizeof(md5str)/sizeof(md5str[0]), L"%02X",digest_result[i]);
 #else
 		swprintf(md5str+i*2, L"%02X",digest_result[i]);
 #endif

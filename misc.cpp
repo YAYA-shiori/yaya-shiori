@@ -389,10 +389,10 @@ void	CutCrLf(yaya::string_t &str)
 
 yaya::string_t GetDateString()
 {
-    char buf[64];
+    char buf[128];
     time_t t = time(NULL);
     struct tm* tm = localtime(&t);
-    strftime(buf, 128, "%Y/%m/%d %H:%M:%S", tm);
+    strftime(buf, 127, "%Y/%m/%d %H:%M:%S", tm);
 
 #if !defined(POSIX) && !defined(__MINGW32__)
 	yaya::char_t wbuf[64];
