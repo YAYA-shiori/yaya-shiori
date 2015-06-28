@@ -4216,39 +4216,41 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
 	yaya::string_t arg2 = arg2_orig;
 
 	//ÅŒã‚©‚ç1•¶šè‘O‚Ü‚Å
-	for ( yaya::string_t::iterator it = arg2.begin() ; it < (arg2.end()-1) ; ++it ) {
-		if ( *it == L'\\' ) {
-			yaya::char_t c = *(it+1);
-			
-			if ( c == L'\\' ) {
-				arg2.replace(it,it+2,L"\\");
-			}
-			else if ( c == L'a' ) {
-				arg2.replace(it,it+2,L"\a");
-			}
-			else if ( c == L'e' ) {
-				arg2.replace(it,it+2,L"\x1B");
-			}
-			else if ( c == L'f' ) {
-				arg2.replace(it,it+2,L"\f");
-			}
-			else if ( c == L'n' ) {
-				arg2.replace(it,it+2,L"\n");
-			}
-			else if ( c == L'r' ) {
-				arg2.replace(it,it+2,L"\r");
-			}
-			else if ( c == L't' ) {
-				arg2.replace(it,it+2,L"\t");
-			}
-			else if ( c == L'v' ) {
-				arg2.replace(it,it+2,L"\v");
-			}
-			else if ( c >= L'0' && c <= L'9' ) {
-				yaya::char_t rep[3] = L"$0";
-				rep[1] = c;
-				arg2.replace(it,it+2,rep);
-				it += 1; //Ÿ‚Ì•¶š‚Í“Ç‚İ”ò‚Î‚µ‚Ä—Ç‚¢
+	if ( arg2.size() > 0 ) {
+		for ( yaya::string_t::iterator it = arg2.begin() ; it < (arg2.end()-1) ; ++it ) {
+			if ( *it == L'\\' ) {
+				yaya::char_t c = *(it+1);
+				
+				if ( c == L'\\' ) {
+					arg2.replace(it,it+2,L"\\");
+				}
+				else if ( c == L'a' ) {
+					arg2.replace(it,it+2,L"\a");
+				}
+				else if ( c == L'e' ) {
+					arg2.replace(it,it+2,L"\x1B");
+				}
+				else if ( c == L'f' ) {
+					arg2.replace(it,it+2,L"\f");
+				}
+				else if ( c == L'n' ) {
+					arg2.replace(it,it+2,L"\n");
+				}
+				else if ( c == L'r' ) {
+					arg2.replace(it,it+2,L"\r");
+				}
+				else if ( c == L't' ) {
+					arg2.replace(it,it+2,L"\t");
+				}
+				else if ( c == L'v' ) {
+					arg2.replace(it,it+2,L"\v");
+				}
+				else if ( c >= L'0' && c <= L'9' ) {
+					yaya::char_t rep[3] = L"$0";
+					rep[1] = c;
+					arg2.replace(it,it+2,rep);
+					it += 1; //Ÿ‚Ì•¶š‚Í“Ç‚İ”ò‚Î‚µ‚Ä—Ç‚¢
+				}
 			}
 		}
 	}
@@ -4260,7 +4262,14 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
 		CRegexpT<yaya::char_t> regex(arg1.c_str(),re_option);
 
 		MatchResult t_result;
-		yaya::char_t *result = regex.Replace(arg0.c_str(),arg2.c_str(),0,count,&t_result);
+		yaya::char_t *result;
+
+		if ( arg2.size() > 0 ) {
+			result = regex.Replace(arg0.c_str(),arg2.c_str(),0,count,&t_result);
+		}
+		else {
+			result = regex.Replace(arg0.c_str(),L"",0,count,&t_result);
+		}
 
 		str_result = result;
 
