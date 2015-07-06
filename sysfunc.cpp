@@ -30,7 +30,7 @@
 #endif
 
 #if defined(POSIX)
-# include <boost/scoped_array.hpp>
+# include <memory>
 #endif
 
 #include "sysfunc.h"
@@ -2530,7 +2530,7 @@ CValue CSystemFunction::FCOPY(const CValue &arg, yaya::string_t &d, int &l) {
     if (is.good()) {
 		std::ofstream os(dest.c_str());
 	if (os.good()) {
-		boost::scoped_array<char> buf(new char[512]);
+        std::unique_ptr<char[]> buf(new char[512]);
 	    while (is.good()) {
 		is.read(buf.get(), 512);
 		int len = is.gcount();
