@@ -27,7 +27,7 @@
 
 #include <vector>
 #include <map>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "cell.h"
 #include "globaldef.h"
@@ -45,7 +45,7 @@ public:
 protected:
 	char	erased;					// 消去されたことを示すフラグ（グローバル変数で使用）
 									// 0/1=有効/消去された
-	mutable boost::shared_ptr<CValue> m_value;				// 値
+	mutable std::shared_ptr<CValue> m_value;				// 値
 
 public:
 	CVariable(const yaya::string_t &n)
@@ -82,7 +82,7 @@ public:
 	char	IsErased(void) { return erased; }
 
 	//////////////////////////////////////
-	boost::shared_ptr<CValue> &value_shared(void) const {
+	std::shared_ptr<CValue> &value_shared(void) const {
 		return m_value;
 	}
 	const CValue &value_const(void) const {

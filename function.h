@@ -18,7 +18,7 @@
 #endif
 
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "cell.h"
 #include "selecter.h"
@@ -40,8 +40,8 @@ public:
 	int	linecount;					// 辞書ファイル中の行番号
 
 private:
-	mutable boost::shared_ptr<std::vector<CCell> >   m_cell;			// 数式の項の群　
-	mutable boost::shared_ptr<std::vector<CSerial> > m_serial;			// 数式の演算順序
+	mutable std::shared_ptr<std::vector<CCell> >   m_cell;			// 数式の項の群　
+	mutable std::shared_ptr<std::vector<CSerial> > m_serial;			// 数式の演算順序
 
 public:
 	CStatement(int t, int l)

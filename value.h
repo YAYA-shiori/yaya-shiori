@@ -19,7 +19,7 @@
 #endif
 
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "manifest.h"
 #include "globaldef.h"
@@ -121,7 +121,7 @@ public:
 	int		i_value;				// 整数値
 
 private:
-	mutable boost::shared_ptr<CValueArray> m_array;		// 汎用配列
+	mutable std::shared_ptr<CValueArray> m_array;		// 汎用配列
 
 private:
 	int CalcEscalationTypeNum(const int rhs) const;
@@ -295,7 +295,7 @@ public:
 			return m_array->size();
 		}
 	}
-	boost::shared_ptr<CValueArray> &array_shared(void) const {
+	std::shared_ptr<CValueArray> &array_shared(void) const {
 		return m_array;
 	}
 	const CValueArray& array(void) const {

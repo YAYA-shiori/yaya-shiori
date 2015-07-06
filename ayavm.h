@@ -12,7 +12,7 @@
 
 #include <vector>
 #include <map>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include "log.h"
 #include "mt19937ar.h"
 
@@ -29,20 +29,20 @@ class CParser1;
 class CAyaVM
 {
 private:
-	boost::shared_ptr<CBasis>					m_basis;
+	std::shared_ptr<CBasis>					m_basis;
 
-	boost::shared_ptr< std::vector<CFunction> >	m_function;
-	boost::shared_ptr< yaya::indexmap > m_functionmap;
+	std::shared_ptr< std::vector<CFunction> >	m_function;
+	std::shared_ptr< yaya::indexmap > m_functionmap;
 
-	boost::shared_ptr<CCallDepth>				m_calldepth;
-	boost::shared_ptr<CSystemFunction>			m_sysfunction;
-	boost::shared_ptr<CGlobalVariable>			m_variable;
+	std::shared_ptr<CCallDepth>				m_calldepth;
+	std::shared_ptr<CSystemFunction>			m_sysfunction;
+	std::shared_ptr<CGlobalVariable>			m_variable;
 
-	boost::shared_ptr<CFile>					m_files;
-	boost::shared_ptr<CLib>						m_libs;
+	std::shared_ptr<CFile>					m_files;
+	std::shared_ptr<CLib>						m_libs;
 
-	boost::shared_ptr<CParser0>					m_parser0;
-	boost::shared_ptr<CParser1>					m_parser1;
+	std::shared_ptr<CParser0>					m_parser0;
+	std::shared_ptr<CParser1>					m_parser1;
 
 	CLog	m_logger;
 
