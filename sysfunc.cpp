@@ -3767,11 +3767,6 @@ CValue	CSystemFunction::RE_SEARCH(const CValue &arg, yaya::string_t &d, int &l)
 			StoreReResultDetails(arg0,t_result);
 		}
 	}
-	/*catch(const boost::bad_expression &) {
-		t_result = 0;
-		vm.logger().Error(E_W, 16, L"RE_SEARCH", d, l);
-		SetError(16);
-	}*/
 	catch(const std::runtime_error &) {
 		vm.logger().Error(E_W, 16, L"RE_SEARCH", d, l);
 		SetError(16);
@@ -3822,11 +3817,6 @@ CValue	CSystemFunction::RE_ASEARCH(const CValue &arg, yaya::string_t &d, int &l)
 		}
 
 	}
-	/*catch(const boost::bad_expression &) {
-		vm.logger().Error(E_W, 16, L"RE_ASEARCHEX", d, l);
-		SetError(16);
-		return CValue(F_TAG_ARRAY, 0);
-	}*/
 	catch(...) {
 		vm.logger().Error(E_W, 17, L"RE_ASEARCHEX", d, l);
 		SetError(17);
@@ -3870,11 +3860,6 @@ CValue	CSystemFunction::RE_ASEARCHEX(const CValue &arg, yaya::string_t &d, int &
 		}
 
 	}
-	/*catch(const boost::bad_expression &) {
-		vm.logger().Error(E_W, 16, L"RE_ASEARCHEX", d, l);
-		SetError(16);
-		return CValue(F_TAG_ARRAY, 0);
-	}*/
 	catch(...) {
 		vm.logger().Error(E_W, 17, L"RE_ASEARCHEX", d, l);
 		SetError(17);
@@ -3921,10 +3906,6 @@ CValue	CSystemFunction::RE_MATCH(const CValue &arg, yaya::string_t &d, int &l)
 			StoreReResultDetails(arg0,t_result);
 		}
 	}
-	/*catch(const boost::bad_expression &) {
-		vm.logger().Error(E_W, 16, L"RE_MATCH", d, l);
-		SetError(16);
-	}*/
 	catch(const std::runtime_error &) {
 		vm.logger().Error(E_W, 16, L"RE_MATCH", d, l);
 		SetError(16);
@@ -3988,11 +3969,6 @@ CValue	CSystemFunction::RE_GREP(const CValue &arg, yaya::string_t &d, int &l)
 
 		regex.ReleaseContext(pCtx);
 	}
-	/*catch(const boost::bad_expression &) {
-		t_result = 0;
-		vm.logger().Error(E_W, 16, L"RE_GREP", d, l);
-		SetError(16);
-	}*/
 	catch(const std::runtime_error &) {
 		match_count = 0;
 		vm.logger().Error(E_W, 16, L"RE_GREP", d, l);
@@ -4279,11 +4255,6 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
 
 		regex.ReleaseString(result);
 	}
-	/*catch(const boost::bad_expression &) {
-		t_result = 0;
-		vm.logger().Error(E_W, 16, L"RE_GREP", d, l);
-		SetError(16);
-	}*/
 	catch(const std::runtime_error &) {
 		vm.logger().Error(E_W, 16, L"RE_GREP", d, l);
 		SetError(16);
@@ -4345,11 +4316,6 @@ CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int 
 			splits.array().push_back(L"");
 		}
 	}
-	/*catch(const boost::bad_expression &) {
-		splits = CValue(F_TAG_ARRAY, 0);
-		vm.logger().Error(E_W, 16, fncname, d, l);
-		SetError(16);
-	}*/
 	catch(const std::runtime_error &) {
 		splits = CValue(F_TAG_ARRAY, 0/*dmy*/);
 		vm.logger().Error(E_W, 16, fncname, d, l);
