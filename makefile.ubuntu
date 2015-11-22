@@ -31,8 +31,7 @@ LDFLAGS = -shared
 
 ################## これより下は弄らなくてもコンパイル出来ます ##################
 
-CXXFLAGS_ADD = -DPOSIX -I. 
-
+CXXFLAGS_ADD = -DPOSIX -I.
 
 LIBAYA5_OBJ = \
 	aya5.o \
@@ -96,3 +95,4 @@ $(LIBAYA5): $(LIBAYA5_OBJ)
 #-include .depend
 
 .PHONY: all clean depend
+

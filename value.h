@@ -20,6 +20,9 @@
 
 #include <vector>
 #include <memory>
+//modified by Neo 2015.oct
+#include <climits>
+//modified by Neo 2015.oct
 
 #include "manifest.h"
 #include "globaldef.h"

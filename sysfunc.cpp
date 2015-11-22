@@ -15,11 +15,17 @@
 #include <exception>
 #if defined(POSIX)
 # include <fstream>
+#define stricmp strcasecmp
+#define strnicmp strncasecmp
+#define wcsnicmp wcsncasecmp
 #endif
 #include <string>
 #include <vector>
 #include <map>
 #include <ctime>
+
+#include <cstring>
+#include <unistd.h>
 
 #include <math.h>
 #include <stdio.h>
@@ -3569,7 +3575,7 @@ static bool Utils_HTTPToTM(const char *pText,struct tm &outTime)
 		outTime.tm_wday = 0;
 	}
 	else {
-		outTime.tm_wday = static_cast<WORD>(i);
+		outTime.tm_wday = static_cast<unsigned short>(i);
 	}
 
 	if ( isdigit(pTokArray[1][0]) ) { //RFC Format
