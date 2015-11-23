@@ -10,6 +10,8 @@
 # include "stdafx.h"
 #endif
 
+#include <assert.h>
+
 #include <vector>
 
 #include "function.h"

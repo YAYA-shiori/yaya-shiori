@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include <stack>
+#include <unistd.h>
 
 #if defined(POSIX)
 # include <dirent.h>
@@ -1089,7 +1090,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
     CLocalVariable	lvar;
 
     CValue	result;
-	vm.function()[requestindex].Execute(result, arg, lvar);
+	vm.function()[funcpos].Execute(result, arg, lvar);
     
 	// 結果を文字列として取得し、文字コードをMBCSに変換
 	yaya::string_t	res = result.GetValueString();

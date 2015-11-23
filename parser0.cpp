@@ -441,7 +441,7 @@ void	CParser0::ExecInternalPreProcess(yaya::string_t &str,const yaya::string_t &
 
 	if ( str.find_first_of(L"__AYA_SYSTEM_LINE__") != yaya::string_t::npos ) {
 		yaya::char_t line_str[32];
-		swprintf(line_str,L"%d",line);
+		swprintf(line_str,31,L"%d",line);
 
 		yaya::ws_replace(str, L"__AYA_SYSTEM_LINE__", line_str);
 	}
