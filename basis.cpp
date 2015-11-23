@@ -586,7 +586,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 #if defined(WIN32)
 		DeleteFile(s_filestr);
 #else
-		unlink(s_filestr);
+    std::remove(s_filestr);
 #endif
 		free(s_filestr);
 		s_filestr=0;
@@ -600,7 +600,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 #if defined(WIN32)
 		DeleteFile(s_filestr);
 #else
-		unlink(s_filestr);
+    std::remove(s_filestr);
 #endif
 		free(s_filestr);
 		s_filestr=0;
