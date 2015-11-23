@@ -2524,7 +2524,7 @@ CValue CSystemFunction::FCOPY(const CValue &arg, yaya::string_t &d, int &l) {
     }
 
     // 実行
-    unlink(dest.c_str()); // コピー先がシンボリックリンクとかだと嫌。
+    std::remove(dest.c_str()); // コピー先がシンボリックリンクとかだと嫌。
 	std::ifstream is(src.c_str());
     int result = 0;
     if (is.good()) {
@@ -2793,7 +2793,7 @@ CValue CSystemFunction::FDEL(const CValue &arg, yaya::string_t &d, int &l) {
     fix_filepath(filestr);
 
     // 実行
-    int result = (unlink(filestr.c_str()) ? 0 : 1);
+    int result = (std::remove(filestr.c_str()) ? 0 : 1);
 
     return CValue(result);
 }
