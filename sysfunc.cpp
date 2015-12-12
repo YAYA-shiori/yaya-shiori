@@ -2742,7 +2742,7 @@ CValue CSystemFunction::RMDIR(const CValue &arg, yaya::string_t &d, int &l) {
     fix_filepath(dirstr);
 
     // é¿çsÅB
-    int result = (rmdir(dirstr.c_str()) ? 0 : 1);
+    int result = (std::remove(dirstr.c_str()) ? 0 : 1);
 
     return CValue(result);
 }

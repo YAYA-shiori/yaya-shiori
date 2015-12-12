@@ -29,6 +29,7 @@
 #endif
 
 #include <string>
+#include <cstdlib>
 
 #include "globaldef.h"
 
