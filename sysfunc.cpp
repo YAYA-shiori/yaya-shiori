@@ -25,7 +25,8 @@
 #include <ctime>
 
 #include <cstring>
-#include <unistd.h>
+
+#include "fix_unistd.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -2978,11 +2979,7 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 	md5str[digest_len*2] = 0; //É[ÉçèIí[
 
 	for ( unsigned int i = 0 ; i < digest_len ; ++i ) {
-#if (_MSC_VER > 1200) || defined(POSIX)
-		swprintf(md5str+i*2,sizeof(md5str)/sizeof(md5str[0]), L"%02X",digest_result[i]);
-#else
-		swprintf(md5str+i*2, L"%02X",digest_result[i]);
-#endif
+		yaya::snprintf(md5str+i*2,sizeof(md5str)/sizeof(md5str[0]), L"%02X",digest_result[i]);
 	}
 
 	return CValue(yaya::string_t(md5str));

@@ -21,6 +21,7 @@
 #include <memory>
 
 #include "value.h"
+#include "fix_old_compiler.h"
 
 class	CSerial
 {
@@ -47,10 +48,10 @@ public:
 private:
 	int     m_type;									// m_valueにタイプしか格納しない場合に使用
 
-	mutable std::shared_ptr<CValue> m_value;		// 値（thisがリテラル値の際に使用します）
-	mutable std::shared_ptr<CValue> m_ansv;		// 値（thisが変数/ローカル変数/関数の際に、その内容/返値を格納します）
-	mutable std::shared_ptr<CValue> m_order;		// 演算時に使用（配列の序数を一時的に保持します）
-	mutable std::shared_ptr<CValue> m_emb_ansv;	// 値（%[n]で参照される値を保持します）
+	mutable std_shared_ptr<CValue> m_value;		// 値（thisがリテラル値の際に使用します）
+	mutable std_shared_ptr<CValue> m_ansv;		// 値（thisが変数/ローカル変数/関数の際に、その内容/返値を格納します）
+	mutable std_shared_ptr<CValue> m_order;		// 演算時に使用（配列の序数を一時的に保持します）
+	mutable std_shared_ptr<CValue> m_emb_ansv;	// 値（%[n]で参照される値を保持します）
 
 public:
 	CCell(int t)
@@ -88,7 +89,7 @@ public:
 		}
 	}
 	//-------------------//
-	std::shared_ptr<CValue> &value_shared(void) const {
+	std_shared_ptr<CValue> &value_shared(void) const {
 		return m_value;
 	}
 	const CValue &value_const(void) const {
@@ -117,7 +118,7 @@ public:
 		}
 	}
 	//////////////////////////////////////
-	std::shared_ptr<CValue> &ansv_shared(void) const {
+	std_shared_ptr<CValue> &ansv_shared(void) const {
 		return m_ansv;
 	}
 	const CValue &ansv_const(void) const {
@@ -140,7 +141,7 @@ public:
 		return *m_ansv;
 	}
 	//////////////////////////////////////
-	std::shared_ptr<CValue> &order_shared(void) const {
+	std_shared_ptr<CValue> &order_shared(void) const {
 		return m_order;
 	}
 	const CValue &order_const(void) const {
@@ -163,7 +164,7 @@ public:
 		return *m_order;
 	}
 	//////////////////////////////////////
-	std::shared_ptr<CValue> &emb_ansv_shared(void) const {
+	std_shared_ptr<CValue> &emb_ansv_shared(void) const {
 		return m_emb_ansv;
 	}
 	const CValue &emb_ansv_const(void) const {

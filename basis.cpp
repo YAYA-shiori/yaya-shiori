@@ -15,7 +15,8 @@
 #include <string>
 #include <vector>
 #include <stack>
-#include <unistd.h>
+
+#include "fix_unistd.h"
 
 #if defined(POSIX)
 # include <dirent.h>

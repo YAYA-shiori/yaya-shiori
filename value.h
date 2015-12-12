@@ -26,6 +26,7 @@
 
 #include "manifest.h"
 #include "globaldef.h"
+#include "fix_old_compiler.h"
 
 class CValue;
 class CValueSub;
@@ -124,7 +125,7 @@ public:
 	int		i_value;				// 整数値
 
 private:
-	mutable std::shared_ptr<CValueArray> m_array;		// 汎用配列
+	mutable std_shared_ptr<CValueArray> m_array;		// 汎用配列
 
 private:
 	int CalcEscalationTypeNum(const int rhs) const;
@@ -298,7 +299,7 @@ public:
 			return m_array->size();
 		}
 	}
-	std::shared_ptr<CValueArray> &array_shared(void) const {
+	std_shared_ptr<CValueArray> &array_shared(void) const {
 		return m_array;
 	}
 	const CValueArray& array(void) const {

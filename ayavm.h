@@ -15,6 +15,7 @@
 #include <memory>
 #include "log.h"
 #include "mt19937ar.h"
+#include "fix_old_compiler.h"
 
 class CBasis;
 class CFunction;
@@ -29,20 +30,20 @@ class CParser1;
 class CAyaVM
 {
 private:
-	std::shared_ptr<CBasis>					m_basis;
+	std_shared_ptr<CBasis>					m_basis;
 
-	std::shared_ptr< std::vector<CFunction> >	m_function;
-	std::shared_ptr< yaya::indexmap > m_functionmap;
+	std_shared_ptr< std::vector<CFunction> >	m_function;
+	std_shared_ptr< yaya::indexmap > m_functionmap;
 
-	std::shared_ptr<CCallDepth>				m_calldepth;
-	std::shared_ptr<CSystemFunction>			m_sysfunction;
-	std::shared_ptr<CGlobalVariable>			m_variable;
+	std_shared_ptr<CCallDepth>				m_calldepth;
+	std_shared_ptr<CSystemFunction>			m_sysfunction;
+	std_shared_ptr<CGlobalVariable>			m_variable;
 
-	std::shared_ptr<CFile>					m_files;
-	std::shared_ptr<CLib>						m_libs;
+	std_shared_ptr<CFile>					m_files;
+	std_shared_ptr<CLib>						m_libs;
 
-	std::shared_ptr<CParser0>					m_parser0;
-	std::shared_ptr<CParser1>					m_parser1;
+	std_shared_ptr<CParser0>					m_parser0;
+	std_shared_ptr<CParser1>					m_parser1;
 
 	CLog	m_logger;
 

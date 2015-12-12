@@ -25,6 +25,7 @@
 #include "globaldef.h"
 #include "variable.h"
 #include "value.h"
+#include "fix_old_compiler.h"
 
 class CAyaVM;
 class CCell;
@@ -40,8 +41,8 @@ public:
 	int	linecount;					// «‘ƒtƒ@ƒCƒ‹’†‚Ìs”Ô†
 
 private:
-	mutable std::shared_ptr<std::vector<CCell> >   m_cell;			// ”®‚Ì€‚ÌŒQ@
-	mutable std::shared_ptr<std::vector<CSerial> > m_serial;			// ”®‚Ì‰‰Z‡˜
+	mutable std_shared_ptr<std::vector<CCell> >   m_cell;			// ”®‚Ì€‚ÌŒQ@
+	mutable std_shared_ptr<std::vector<CSerial> > m_serial;			// ”®‚Ì‰‰Z‡˜
 
 public:
 	CStatement(int t, int l)
