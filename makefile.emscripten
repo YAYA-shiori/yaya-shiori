@@ -8,7 +8,7 @@ MKDEP = mkdep
 # 作るライブラリ名の設定
 # これはdarwin用の設定で、libaya5.bundleを生成する。
 # LinuxやBSDならpostfixを.soにする必要がある筈。
-DYLIB_NAME_PREFIX = lib
+DYLIB_NAME_PREFIX = 
 DYLIB_NAME_POSTFIX = .js
 
 # 注意:
