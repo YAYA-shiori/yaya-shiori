@@ -76,7 +76,7 @@ std::string::size_type file_content_search(const std::string& file, const std::s
 
 std::string::size_type bm_search(const std::string& world, const std::string& data) {
 	std::string::size_type data_len = data.length();
-  std::unique_ptr<std::string::size_type[]> skip(new std::string::size_type[256]);
+	std::unique_ptr<std::string::size_type[]> skip(new std::string::size_type[256]);
 	for (std::string::size_type i = 0; i < 256; i++) {
 		skip[i] = data_len;
 	}
