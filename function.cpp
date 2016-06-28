@@ -725,30 +725,29 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<int> &sid, CStatemen
 			answer.array_clear();
 
 			switch(type) {
-				//TODO += Ç∆Ç©Ç‡Ç»ÇÒÇ∆Ç©ÇµÇΩÇ¢
 			case F_TAG_EQUAL:
 			case F_TAG_EQUAL_D:
 				substTo = GetValueRefForCalc(*sid_1_cell, st, lvar);
 				break;
 			case F_TAG_PLUSEQUAL:
 			case F_TAG_PLUSEQUAL_D:
-				substTo = GetValueRefForCalc(*sid_0_cell, st, lvar) + GetValueRefForCalc(*sid_1_cell, st, lvar);
+				substTo += GetValueRefForCalc(*sid_1_cell, st, lvar);
 				break;
 			case F_TAG_MINUSEQUAL:
 			case F_TAG_MINUSEQUAL_D:
-				substTo = GetValueRefForCalc(*sid_0_cell, st, lvar) - GetValueRefForCalc(*sid_1_cell, st, lvar);
+				substTo -= GetValueRefForCalc(*sid_1_cell, st, lvar);
 				break;
 			case F_TAG_MULEQUAL:
 			case F_TAG_MULEQUAL_D:
-				substTo = GetValueRefForCalc(*sid_0_cell, st, lvar) * GetValueRefForCalc(*sid_1_cell, st, lvar);
+				substTo *= GetValueRefForCalc(*sid_1_cell, st, lvar);
 				break;
 			case F_TAG_DIVEQUAL:
 			case F_TAG_DIVEQUAL_D:
-				substTo = GetValueRefForCalc(*sid_0_cell, st, lvar) / GetValueRefForCalc(*sid_1_cell, st, lvar);
+				substTo /= GetValueRefForCalc(*sid_1_cell, st, lvar);
 				break;
 			case F_TAG_SURPEQUAL:
 			case F_TAG_SURPEQUAL_D:
-				substTo = GetValueRefForCalc(*sid_0_cell, st, lvar) % GetValueRefForCalc(*sid_1_cell, st, lvar);
+				substTo %= GetValueRefForCalc(*sid_1_cell, st, lvar);
 				break;
 
 				//ÉJÉìÉ}ì¡éÍèàóù

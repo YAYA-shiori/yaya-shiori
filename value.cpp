@@ -552,53 +552,114 @@ int CValue::CalcEscalationTypeStr(const int rhs) const
  * -----------------------------------------------------------------------
  */
 template<class Fn>
-CValue CValue_ArrayCalc(const CValue &v1,const CValue &v2,Fn calc_fn)
+CValue CValue_ArrayCalc(const CValue &param1_left,const CValue &param2_right,Fn calc_fn)
 {
 	CValue result;
-	if (v1.GetType() == F_TAG_ARRAY && v2.GetType() == F_TAG_ARRAY) {
-		if ( v1.array_size() == 0 ) {
-			return v2;
+	if (param1_left.GetType() == F_TAG_ARRAY && param2_right.GetType() == F_TAG_ARRAY) {
+		if ( param1_left.array_size() == 0 ) {
+			return param2_right;
 		}
 		else {
-			if ( v2.array_size() == 0 ) {
-				return v1;
+			if ( param2_right.array_size() == 0 ) {
+				return param1_left;
 			}
 			else {
 				result.SetType(F_TAG_ARRAY);
 				CValueArray::const_iterator it, it2;
-				for(it = v1.array().begin() ; it != v1.array().end() ; ++it) {
-					for(it2 = v2.array().begin() ; it2 != v2.array().end() ; ++it2) {
+				for(it = param1_left.array().begin() ; it != param1_left.array().end() ; ++it) {
+					for(it2 = param2_right.array().begin() ; it2 != param2_right.array().end() ; ++it2) {
 						result.array().push_back(calc_fn((*it),(*it2)));
 					}
 				}
 			}
 		}
 	}
-	else if (v1.GetType() == F_TAG_ARRAY) {
-		if ( v1.array_size() == 0 ) {
-			return v2;
+	else if (param1_left.GetType() == F_TAG_ARRAY) {
+		if ( param1_left.array_size() == 0 ) {
+			return param2_right;
 		}
 		else {
 			result.SetType(F_TAG_ARRAY);
-			const CValueSub t_vs(v2);
-			for(CValueArray::const_iterator it = v1.array().begin(); it != v1.array().end(); it++)
+			const CValueSub t_vs(param2_right);
+			for(CValueArray::const_iterator it = param1_left.array().begin(); it != param1_left.array().end(); it++) {
 				result.array().push_back(calc_fn(*it,t_vs));
+			}
 		}
 	}
-	else if (v2.GetType() == F_TAG_ARRAY) {
-		if ( v2.array_size() == 0 ) {
-			return v1;
+	else if (param2_right.GetType() == F_TAG_ARRAY) {
+		if ( param2_right.array_size() == 0 ) {
+			return param1_left;
 		}
 		else {
 			result.SetType(F_TAG_ARRAY);
-			const CValueSub t_vs(v1);
-			for(CValueArray::const_iterator it = v2.array().begin(); it != v2.array().end(); it++)
+			const CValueSub t_vs(param1_left);
+			for(CValueArray::const_iterator it = param2_right.array().begin(); it != param2_right.array().end(); it++) {
 				result.array().push_back(calc_fn(t_vs,*it));
+			}
 		}
 	}
 	return result;
 }
 
+template<class Fn>
+void CValue_ArrayCalc_Subst(CValue &param1_subst,const CValue &param2_right,Fn calc_fn_subst)
+{
+	CValue result;
+
+	if (param1_subst.GetType() == F_TAG_ARRAY && param2_right.GetType() == F_TAG_ARRAY) {
+		if ( param1_subst.array_size() == 0 ) { //演算対象がない
+			param1_subst = param2_right;
+			return;
+		}
+		else {
+			if ( param2_right.array_size() == 0 ) { //演算相手がない
+				return;
+			}
+			else {
+				param1_subst.SetType(F_TAG_ARRAY);
+				CValueArray::iterator it;
+				CValueArray::const_iterator it2;
+				for(it = param1_subst.array().begin() ; it != param1_subst.array().end() ; ++it) {
+					for(it2 = param2_right.array().begin() ; it2 != param2_right.array().end() ; ++it2) {
+						calc_fn_subst((*it),(*it2));
+					}
+				}
+			}
+		}
+	}
+	else if (param1_subst.GetType() == F_TAG_ARRAY) {
+		if ( param1_subst.array_size() == 0 ) { //演算対象がない
+			param1_subst = param2_right;
+			return;
+		}
+		else {
+			param1_subst.SetType(F_TAG_ARRAY);
+			const CValueSub t_vs(param2_right);
+			for(CValueArray::iterator it = param1_subst.array().begin(); it != param1_subst.array().end(); it++) {
+				calc_fn_subst(*it,t_vs);
+			}
+		}
+	}
+	else if (param2_right.GetType() == F_TAG_ARRAY) {
+		if ( param2_right.array_size() == 0 ) { //演算対象がない
+			return;
+		}
+		else {
+			param1_subst.SetType(F_TAG_ARRAY);
+			param1_subst.array_clear();
+
+			CValueSub t_vs(param1_subst);
+
+			for(CValueArray::const_iterator it = param2_right.array().begin(); it != param2_right.array().end(); it++) {
+				CValueSub t_result = t_vs;
+				calc_fn_subst(t_result,*it);
+				param1_subst.array().push_back(t_result);
+			}
+		}
+	}
+}
+
+//for normal
 class CValueSub_Add {
 public:
 	CValueSub operator()(const CValueSub &v1,const CValueSub &v2) const {
@@ -630,6 +691,39 @@ public:
 	}
 };
 
+//for subst
+class CValueSub_Add_Subst {
+public:
+	void operator()(CValueSub &v1,const CValueSub &v2) const {
+		v1 += v2;
+	}
+};
+class CValueSub_Sub_Subst {
+public:
+	void operator()(CValueSub &v1,const CValueSub &v2) const {
+		v1 -= v2;
+	}
+};
+class CValueSub_Mul_Subst {
+public:
+	void operator()(CValueSub &v1,const CValueSub &v2) const {
+		v1 *= v2;
+	}
+};
+class CValueSub_Div_Subst {
+public:
+	void operator()(CValueSub &v1,const CValueSub &v2) const {
+		v1 /= v2;
+	}
+};
+class CValueSub_Mod_Subst {
+public:
+	void operator()(CValueSub &v1,const CValueSub &v2) const {
+		v1 %= v2;
+	}
+};
+
+
 /* -----------------------------------------------------------------------
  *  operator + (CValue)
  * -----------------------------------------------------------------------
@@ -652,6 +746,17 @@ CValue CValue::operator +(const CValue &value) const
 	return CValue(value);
 }
 
+void CValue::operator +=(const CValue &value)
+{
+	int t = CalcEscalationTypeStr(value.type);
+	if ( t == F_TAG_ARRAY ) { //配列時のみパフォーマンス向上コード追加
+		if ( type == F_TAG_ARRAY ) {
+			CValue_ArrayCalc_Subst(*this,value,CValueSub_Add_Subst());
+		}
+	}
+	*this = operator+(value);
+}
+
 /* -----------------------------------------------------------------------
  *  operator - (CValue)
  * -----------------------------------------------------------------------
@@ -672,6 +777,17 @@ CValue CValue::operator -(const CValue &value) const
 	return CValue(value);
 }
 
+void CValue::operator -=(const CValue &value)
+{
+	int t = CalcEscalationTypeStr(value.type);
+	if ( t == F_TAG_ARRAY ) { //配列時のみパフォーマンス向上コード追加
+		if ( type == F_TAG_ARRAY ) {
+			CValue_ArrayCalc_Subst(*this,value,CValueSub_Sub_Subst());
+		}
+	}
+	*this = operator-(value);
+}
+
 /* -----------------------------------------------------------------------
  *  operator * (CValue)
  * -----------------------------------------------------------------------
@@ -690,6 +806,17 @@ CValue CValue::operator *(const CValue &value) const
 	};
 	
 	return CValue(value);
+}
+
+void CValue::operator *=(const CValue &value)
+{
+	int t = CalcEscalationTypeStr(value.type);
+	if ( t == F_TAG_ARRAY ) { //配列時のみパフォーマンス向上コード追加
+		if ( type == F_TAG_ARRAY ) {
+			CValue_ArrayCalc_Subst(*this,value,CValueSub_Mul_Subst());
+		}
+	}
+	*this = operator*(value);
 }
 
 /* -----------------------------------------------------------------------
@@ -728,6 +855,17 @@ CValue CValue::operator /(const CValue &value) const
 	return CValue(value);
 }
 
+void CValue::operator /=(const CValue &value)
+{
+	int t = CalcEscalationTypeStr(value.type);
+	if ( t == F_TAG_ARRAY ) { //配列時のみパフォーマンス向上コード追加
+		if ( type == F_TAG_ARRAY ) {
+			CValue_ArrayCalc_Subst(*this,value,CValueSub_Div_Subst());
+		}
+	}
+	*this = operator/(value);
+}
+
 /* -----------------------------------------------------------------------
  *  operator % (CValue)
  * -----------------------------------------------------------------------
@@ -753,6 +891,17 @@ CValue CValue::operator %(const CValue &value) const
 	};
 	
 	return CValue(value);
+}
+
+void CValue::operator %=(const CValue &value)
+{
+	int t = CalcEscalationTypeStr(value.type);
+	if ( t == F_TAG_ARRAY ) { //配列時のみパフォーマンス向上コード追加
+		if ( type == F_TAG_ARRAY ) {
+			CValue_ArrayCalc_Subst(*this,value,CValueSub_Mod_Subst());
+		}
+	}
+	*this = operator%(value);
 }
 
 /* -----------------------------------------------------------------------

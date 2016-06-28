@@ -97,6 +97,12 @@ public:
 	CValueSub	operator /(const CValueSub &value) const;
 	CValueSub	operator %(const CValueSub &value) const;
 
+	void	operator +=(const CValueSub &value);
+	void	operator -=(const CValueSub &value);
+	void	operator *=(const CValueSub &value);
+	void	operator /=(const CValueSub &value);
+	void	operator %=(const CValueSub &value);
+
 	inline CValueSub operator ==(const CValueSub &value) const {
 		return CValueSub(Compare(value));
 	}
@@ -263,6 +269,12 @@ public:
 	CValue	operator *(const CValue &value) const;
 	CValue	operator /(const CValue &value) const;
 	CValue	operator %(const CValue &value) const;
+
+	void	operator +=(const CValue &value);
+	void	operator -=(const CValue &value);
+	void	operator *=(const CValue &value);
+	void	operator /=(const CValue &value);
+	void	operator %=(const CValue &value);
 
 	CValue	operator [](const CValue &value) const;
 
