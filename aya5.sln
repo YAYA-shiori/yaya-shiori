@@ -1,11 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "aya5", "aya5.vcxproj", "{A793B473-75BE-45AE-8BF3-17029A14B9F9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{30538F7D-94BD-4DE8-BCE5-835885B8C444}"
+	ProjectSection(SolutionItems) = preProject
+		パフォーマンス1.psess = パフォーマンス1.psess
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug EXE|Win32 = Debug EXE|Win32
 		Debug|Win32 = Debug|Win32

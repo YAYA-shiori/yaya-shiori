@@ -473,6 +473,12 @@ CValue &CValue::operator =(const CValueArray &value)
 	return *this;
 }
 
+void CValue::SubstToArray(CValueArray &value)
+{
+	type    = F_TAG_ARRAY;
+	array().swap(value);
+}
+
 /* -----------------------------------------------------------------------
  *  operator = (CValueSub)
  * -----------------------------------------------------------------------

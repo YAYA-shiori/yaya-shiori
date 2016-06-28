@@ -158,6 +158,7 @@ protected:
 	void	SolveEmbedCell(CCell &cell, CStatement &st, CLocalVariable &lvar);
 
 	char	Comma(CValue &answer, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar);
+	char	CommaAdd(CValue &answer, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar);
 	char	Subst(int type, CValue &answer, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar);
 	char	SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatement &st, CLocalVariable &lvar);
 	char	Array(CCell &anscell, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar);

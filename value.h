@@ -256,6 +256,8 @@ public:
 	CValue	&operator =(const CValueArray &value);
 	CValue	&operator =(const CValueSub &value);
 
+	void SubstToArray(CValueArray &value);
+
 	CValue	operator +(const CValue &value) const;
 	CValue	operator -(const CValue &value) const;
 	CValue	operator *(const CValue &value) const;
@@ -317,6 +319,9 @@ public:
 			m_array.reset(new CValueArray(*pV));
 		}
 		return *m_array;
+	}
+	inline void array_clear(void) {
+		m_array.reset((CValueArray*)NULL);
 	}
 };
 

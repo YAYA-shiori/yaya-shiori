@@ -156,7 +156,6 @@
     </ResourceCompile>
     <Link>
       <ShowProgress>NotSet</ShowProgress>
-      <OutputFile>D:\ssp_src_set\ssp\ghost\DE10_3001\ghost\master\yaya.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\Debug/yaya.pdb</ProgramDatabaseFile>
@@ -165,6 +164,7 @@
       <BaseAddress>0x14900000</BaseAddress>
       <ImportLibrary>.\Debug/yaya.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
+      <OutputFile>D:\ssp_src_set\ssp\ghost\DE10_3001\ghost\master\yaya.dll</OutputFile>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>

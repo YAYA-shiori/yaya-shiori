@@ -650,6 +650,7 @@ char	CFunction::Comma(CValue &answer, std::vector<int> &sid, CStatement &st, CLo
 {
 	// 結合して配列値を作成
 	CValueArray	t_array;
+
 	for(std::vector<int>::iterator it = sid.begin(); it != sid.end(); it++) {
 		const CValue &addv = GetValueRefForCalc(st.cell()[*it], st, lvar);
 		
@@ -661,7 +662,35 @@ char	CFunction::Comma(CValue &answer, std::vector<int> &sid, CStatement &st, CLo
 		}
 	}
 
-	answer = t_array;
+	answer.SubstToArray(t_array);
+	return 0;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFunction::CommaAdd
+ *  機能概要：  ,=演算子を処理します
+ *
+ *  返値　　：  0/1=成功/エラー
+ * -----------------------------------------------------------------------
+ */
+char	CFunction::CommaAdd(CValue &answer, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar)
+{
+	CValueArray &t_array = answer.array();
+
+	std::vector<int>::iterator it = sid.begin();
+	it++; //最初＝左辺は代入先なので飛ばす
+
+	for( ; it != sid.end(); it++) {
+		const CValue &addv = GetValueRefForCalc(st.cell()[*it], st, lvar);
+		
+		if (addv.GetType() == F_TAG_ARRAY) {
+			t_array.insert(t_array.end(), addv.array().begin(), addv.array().end());
+		}
+		else {
+			t_array.push_back(CValueSub(addv));
+		}
+	}
+
 	return 0;
 }
 
@@ -674,34 +703,95 @@ char	CFunction::Comma(CValue &answer, std::vector<int> &sid, CStatement &st, CLo
  */
 char	CFunction::Subst(int type, CValue &answer, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar)
 {
-	CCell	*s_cell = &(st.cell()[sid[0]]);
-	CCell	*d_cell = &(st.cell()[sid[1]]);
+	CCell	*sid_0_cell = &(st.cell()[sid[0]]);
+	CCell	*sid_1_cell = &(st.cell()[sid[1]]);
+
+	int sid_0_cell_type = sid_0_cell->value_GetType();
+
+	//既存変数への代入の場合だけは特殊扱いする
+	if ( sid_0_cell_type == F_TAG_VARIABLE || sid_0_cell_type == F_TAG_LOCALVARIABLE ) {
+		CValue* pSubstTo;
+
+		if ( sid_0_cell_type == F_TAG_VARIABLE ) {
+			pSubstTo = pvm->variable().GetValuePtr(sid_0_cell->index);
+		}
+		else {
+			pSubstTo = lvar.GetValuePtr(sid_0_cell->name);
+		}
+
+		if ( pSubstTo ) {
+			CValue &substTo = *pSubstTo;
+
+			answer.array_clear();
+
+			switch(type) {
+				//TODO += とかもなんとかしたい
+			case F_TAG_EQUAL:
+			case F_TAG_EQUAL_D:
+				substTo = GetValueRefForCalc(*sid_1_cell, st, lvar);
+				break;
+			case F_TAG_PLUSEQUAL:
+			case F_TAG_PLUSEQUAL_D:
+				substTo = GetValueRefForCalc(*sid_0_cell, st, lvar) + GetValueRefForCalc(*sid_1_cell, st, lvar);
+				break;
+			case F_TAG_MINUSEQUAL:
+			case F_TAG_MINUSEQUAL_D:
+				substTo = GetValueRefForCalc(*sid_0_cell, st, lvar) - GetValueRefForCalc(*sid_1_cell, st, lvar);
+				break;
+			case F_TAG_MULEQUAL:
+			case F_TAG_MULEQUAL_D:
+				substTo = GetValueRefForCalc(*sid_0_cell, st, lvar) * GetValueRefForCalc(*sid_1_cell, st, lvar);
+				break;
+			case F_TAG_DIVEQUAL:
+			case F_TAG_DIVEQUAL_D:
+				substTo = GetValueRefForCalc(*sid_0_cell, st, lvar) / GetValueRefForCalc(*sid_1_cell, st, lvar);
+				break;
+			case F_TAG_SURPEQUAL:
+			case F_TAG_SURPEQUAL_D:
+				substTo = GetValueRefForCalc(*sid_0_cell, st, lvar) % GetValueRefForCalc(*sid_1_cell, st, lvar);
+				break;
+
+				//カンマ特殊処理
+			case F_TAG_COMMAEQUAL:
+				if (CommaAdd(substTo, sid, st, lvar)) {
+					return 1;
+				}
+				break;
+			};
+
+			// **HACK** constにしてarrayの場合answerと強制共有
+			// 後で代入演算がもしあった時に配列の時の代入コストを省略できる
+			answer = const_cast<const CValue&>(substTo);
+
+			return 0;
+		}
+	}
 
 	// 代入元の値を取得　演算子つきなら演算も行う
 	switch(type) {
 	case F_TAG_EQUAL:
 	case F_TAG_EQUAL_D:
-		answer = GetValueRefForCalc(*d_cell, st, lvar);
+		answer = GetValueRefForCalc(*sid_1_cell, st, lvar);
 		break;
 	case F_TAG_PLUSEQUAL:
 	case F_TAG_PLUSEQUAL_D:
-		answer = GetValueRefForCalc(*s_cell, st, lvar) + GetValueRefForCalc(*d_cell, st, lvar);
+		answer = GetValueRefForCalc(*sid_0_cell, st, lvar) + GetValueRefForCalc(*sid_1_cell, st, lvar);
 		break;
 	case F_TAG_MINUSEQUAL:
 	case F_TAG_MINUSEQUAL_D:
-		answer = GetValueRefForCalc(*s_cell, st, lvar) - GetValueRefForCalc(*d_cell, st, lvar);
+		answer = GetValueRefForCalc(*sid_0_cell, st, lvar) - GetValueRefForCalc(*sid_1_cell, st, lvar);
 		break;
 	case F_TAG_MULEQUAL:
 	case F_TAG_MULEQUAL_D:
-		answer = GetValueRefForCalc(*s_cell, st, lvar) * GetValueRefForCalc(*d_cell, st, lvar);
+		answer = GetValueRefForCalc(*sid_0_cell, st, lvar) * GetValueRefForCalc(*sid_1_cell, st, lvar);
 		break;
 	case F_TAG_DIVEQUAL:
 	case F_TAG_DIVEQUAL_D:
-		answer = GetValueRefForCalc(*s_cell, st, lvar) / GetValueRefForCalc(*d_cell, st, lvar);
+		answer = GetValueRefForCalc(*sid_0_cell, st, lvar) / GetValueRefForCalc(*sid_1_cell, st, lvar);
 		break;
 	case F_TAG_SURPEQUAL:
 	case F_TAG_SURPEQUAL_D:
-		answer = GetValueRefForCalc(*s_cell, st, lvar) % GetValueRefForCalc(*d_cell, st, lvar);
+		answer = GetValueRefForCalc(*sid_0_cell, st, lvar) % GetValueRefForCalc(*sid_1_cell, st, lvar);
 		break;
 	case F_TAG_COMMAEQUAL:
 		if (Comma(answer, sid, st, lvar))
@@ -712,22 +802,22 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<int> &sid, CStatemen
 	};
 
 	// 代入を実行
-	// 配列要素への代入は操作が複雑なので、さらに他の関数へ処理を渡す
-	switch(s_cell->value_GetType()) {
+ 	// 配列要素への代入は操作が複雑なので、さらに他の関数へ処理を渡す
+	switch(sid_0_cell->value_GetType()) {
 	case F_TAG_VARIABLE:
-		pvm->variable().SetValue(s_cell->index, answer);
+		pvm->variable().SetValue(sid_0_cell->index, answer);
 		return 0;
 	case F_TAG_LOCALVARIABLE:
-		lvar.SetValue(s_cell->name, answer);
+		lvar.SetValue(sid_0_cell->name, answer);
 		return 0;
 	case F_TAG_ARRAYORDER: {
 			if (sid[0] > 0)
-				return SubstToArray(st.cell()[sid[0] - 1], *s_cell, answer, st, lvar);
+				return SubstToArray(st.cell()[sid[0] - 1], *sid_0_cell, answer, st, lvar);
 			else
 				return 1;
 		}
 	default:
-		return 1;
+ 		return 1;
 	};
 }
 
