@@ -77,6 +77,12 @@
     <Report>
       <Path>tama160628(2).vspx</Path>
     </Report>
+    <Report>
+      <Path>tama160629.vspx</Path>
+    </Report>
+    <Report>
+      <Path>tama160629(1).vspx</Path>
+    </Report>
   </Reports>
   <Launches>
     <Binary>

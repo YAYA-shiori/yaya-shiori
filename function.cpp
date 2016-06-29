@@ -675,6 +675,11 @@ char	CFunction::Comma(CValue &answer, std::vector<int> &sid, CStatement &st, CLo
  */
 char	CFunction::CommaAdd(CValue &answer, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar)
 {
+	if ( answer.GetType() != F_TAG_ARRAY ) {
+		CValueSub st(answer);
+		answer.SetType(F_TAG_ARRAY);
+		answer.array().push_back(st);
+	}
 	CValueArray &t_array = answer.array();
 
 	std::vector<int>::iterator it = sid.begin();

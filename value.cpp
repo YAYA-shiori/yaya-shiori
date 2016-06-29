@@ -749,16 +749,24 @@ CValue CValue::operator +(const CValue &value) const
 void CValue::operator +=(const CValue &value)
 {
 	int t = CalcEscalationTypeStr(value.type);
-	if ( t == type ) { //左辺(自身)の型が違う場合は
+	if ( t == type ) { //左辺(自身)の型と同じ場合に限り
+		if ( t == F_TAG_INT ) {
+			i_value += value.GetValueInt();
+			return;
+		}
+		if ( t == F_TAG_DOUBLE ) {
+			d_value += value.GetValueDouble();
+			return;
+		}
+		if ( t == F_TAG_STRING ) { //文字列時用パフォーマンス向上コード 長い文字列結合時にだいぶマシに
+			s_value += value.GetValueString();
+			return;
+		}
 		if ( t == F_TAG_ARRAY ) { //配列時用パフォーマンス向上コード
 			if ( type == F_TAG_ARRAY ) {
 				CValue_ArrayCalc_Subst(*this,value,CValueSub_Add_Subst());
 				return;
 			}
-		}
-		if ( t == F_TAG_STRING ) { //文字列時用パフォーマンス向上コード 長い文字列結合時にだいぶマシに
-			s_value += value.GetValueString();
-			return;
 		}
 	}
 	*this = operator+(value);
@@ -787,9 +795,18 @@ CValue CValue::operator -(const CValue &value) const
 void CValue::operator -=(const CValue &value)
 {
 	int t = CalcEscalationTypeStr(value.type);
-	if ( t == F_TAG_ARRAY ) { //配列時のみパフォーマンス向上コード追加
-		if ( type == F_TAG_ARRAY ) {
+	if ( t == type ) { //左辺(自身)の型と同じ場合に限り
+		if ( t == F_TAG_INT ) {
+			i_value -= value.GetValueInt();
+			return;
+		}
+		if ( t == F_TAG_DOUBLE ) {
+			d_value -= value.GetValueDouble();
+			return;
+		}
+		if ( t == F_TAG_ARRAY ) { //配列時用パフォーマンス向上コード
 			CValue_ArrayCalc_Subst(*this,value,CValueSub_Sub_Subst());
+			return;
 		}
 	}
 	*this = operator-(value);
@@ -818,9 +835,10 @@ CValue CValue::operator *(const CValue &value) const
 void CValue::operator *=(const CValue &value)
 {
 	int t = CalcEscalationTypeStr(value.type);
-	if ( t == F_TAG_ARRAY ) { //配列時のみパフォーマンス向上コード追加
-		if ( type == F_TAG_ARRAY ) {
+	if ( t == type ) { //左辺(自身)の型と同じ場合に限り
+		if ( t == F_TAG_ARRAY ) { //配列時用パフォーマンス向上コード
 			CValue_ArrayCalc_Subst(*this,value,CValueSub_Mul_Subst());
+			return;
 		}
 	}
 	*this = operator*(value);
@@ -865,9 +883,10 @@ CValue CValue::operator /(const CValue &value) const
 void CValue::operator /=(const CValue &value)
 {
 	int t = CalcEscalationTypeStr(value.type);
-	if ( t == F_TAG_ARRAY ) { //配列時のみパフォーマンス向上コード追加
-		if ( type == F_TAG_ARRAY ) {
+	if ( t == type ) { //左辺(自身)の型と同じ場合に限り
+		if ( t == F_TAG_ARRAY ) { //配列時用パフォーマンス向上コード
 			CValue_ArrayCalc_Subst(*this,value,CValueSub_Div_Subst());
+			return;
 		}
 	}
 	*this = operator/(value);
@@ -903,9 +922,10 @@ CValue CValue::operator %(const CValue &value) const
 void CValue::operator %=(const CValue &value)
 {
 	int t = CalcEscalationTypeStr(value.type);
-	if ( t == F_TAG_ARRAY ) { //配列時のみパフォーマンス向上コード追加
-		if ( type == F_TAG_ARRAY ) {
+	if ( t == type ) { //左辺(自身)の型と同じ場合に限り
+		if ( t == F_TAG_ARRAY ) { //配列時用パフォーマンス向上コード
 			CValue_ArrayCalc_Subst(*this,value,CValueSub_Mod_Subst());
+			return;
 		}
 	}
 	*this = operator%(value);
