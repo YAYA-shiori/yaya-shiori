@@ -218,6 +218,8 @@ public:
 	void	SetValue(int index, const CValueSub &value) { var[index].Enable(); var[index].value() = value; }
 	void	SetDelimiter(int index, const yaya::string_t value) { var[index].Enable(); var[index].delimiter = value; }
 
+	void	EnableValue(int index) { var[index].Enable(); }
+
 	void	Erase(const yaya::string_t &name)
 	{
 		int	index = GetIndex(name);

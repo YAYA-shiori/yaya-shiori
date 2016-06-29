@@ -164,7 +164,7 @@
       <BaseAddress>0x14900000</BaseAddress>
       <ImportLibrary>.\Debug/yaya.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
-      <OutputFile>D:\ssp_src_set\ssp\ghost\DE10_3001\ghost\master\yaya.dll</OutputFile>
+      <OutputFile>D:\ssp_src_set\ssp\ghost\Lost_You_Somewhere\ghost\master\saori\yaya.dll</OutputFile>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>

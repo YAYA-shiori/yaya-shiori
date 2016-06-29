@@ -756,11 +756,18 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<int> &sid, CStatemen
 					return 1;
 				}
 				break;
+			default:
+				return 1;
 			};
 
 			// **HACK** constにしてarrayの場合answerと強制共有
 			// 後で代入演算がもしあった時に配列の時の代入コストを省略できる
 			answer = const_cast<const CValue&>(substTo);
+
+			// グローバル変数の場合、削除済みの場合があるのでここで再Enable
+			if ( sid_0_cell_type == F_TAG_VARIABLE ) {
+				pvm->variable().EnableValue(sid_0_cell->index);
+			}
 
 			return 0;
 		}

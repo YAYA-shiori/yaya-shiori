@@ -259,6 +259,7 @@ void CValueSub::operator +=(const CValueSub &value)
 	int t = CalcEscalationTypeStr(value.type);
 	if ( t != type ) {
 		*this = operator+(value);
+		return;
 	}
 
 	switch(t) {
@@ -269,6 +270,7 @@ void CValueSub::operator +=(const CValueSub &value)
 	case F_TAG_STRING:
 		s_value += value.GetValueString();
 	}
+	SetType(t);
 }
 
 /* -----------------------------------------------------------------------
