@@ -1555,7 +1555,7 @@ void utf8_to_unicode_engine::translate() {
 					unicode[j++] = (wchar_t)current_code;
 				} else {
 					if (current_code <= 0x10FFFF) {
-						const bbl_code lead_char = (current_code /0x400) |0xD800;
+						const bbl_code lead_char = ((current_code-0x10000) /0x400) |0xD800;
 						const bbl_code trail_char = (current_code &0x3FF) |0xDC00;
 						unicode[j++] = (wchar_t)lead_char;
 						unicode[j++] = (wchar_t)trail_char;
