@@ -110,9 +110,16 @@ void	CBasis::SetPath(yaya::global_t h, int len)
 	mbpath.assign((char *)h, 0, len);
 	GlobalFree(h);
 	h = NULL;
+
 	// 文字コードをUCS-2へ変換（ここでのマルチバイト文字コードはOSデフォルト）
 	wchar_t	*wcpath = Ccct::MbcsToUcs2(mbpath, CHARSET_DEFAULT);
-	path = wcpath;
+	load_path = wcpath;
+
+	//最後が\でも/でもなければ足す
+	if (load_path.length() == 0 || ( (load_path[load_path.length()-1] != L'/') && (load_path[load_path.length()-1] != L'\\') ) ) {
+		load_path += L"\\";
+	}
+
 	free(wcpath);
 	wcpath = NULL;
 }
@@ -125,7 +132,7 @@ void	CBasis::SetPath(yaya::global_t h, int len)
 	h = NULL;
     // スラッシュで終わってなければ付ける。
     if (path.length() == 0 || path[path.length() - 1] != L'/') {
-	path += L'/';
+		path += L'/';
     }
     // モジュールハンドルの取得は出来ないので、力技で位置を知る。
     // このディレクトリにある全ての*.dll(case insensitive)を探し、
@@ -314,7 +321,7 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 	// 設定ファイル("name".txt)読み取り
 
 	// ファイルを開く
-	yaya::string_t	filename = path + modulename + L".txt";
+	yaya::string_t	filename = load_path + modulename + L".txt";
 	FILE	*fp = yaya::w_fopen(filename.c_str(), L"r");
 	if (fp == NULL) {
 		SetSuppress();
@@ -357,7 +364,7 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 		// パラメータを設定
 		if (Split(readline, cmd, param, L",")) {
 			if ( cmd.compare(L"include") == 0 ) {
-				filename = path + param;
+				filename = load_path + param;
 				fp = yaya::w_fopen(filename.c_str(), L"r");
 
 				if (fp == NULL) { //エラーが起きたので復旧
@@ -391,7 +398,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		yaya::string_t param1,param2;
 		Split(param, param1, param2, L",");
 
-		yaya::string_t	filename = path + param1;
+		yaya::string_t	filename = load_path + param1;
 
 		char cset = dic_charset;
 		if ( param2.size() ) {
@@ -409,7 +416,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 			logpath.erase();
 		}
 		else {
-			logpath = path + param;
+			logpath = load_path + param;
 		}
 		return true;
 	}
@@ -570,6 +577,8 @@ yaya::string_t CBasis::GetParameter(const yaya::string_t &cmd)
 void	CBasis::SaveVariable(const yaya::char_t* pName)
 {
 	// 変数の保存
+	std::string old_locale = setlocale(LC_NUMERIC,NULL);
+	setlocale(LC_NUMERIC,"English"); //小数点問題回避
 
 	bool ayc = encode_savefile;
 
@@ -579,7 +588,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 		filename = GetSavefilePath();
 	}
 	else {
-		filename = path + pName;
+		filename = load_path + pName;
 	}
 
 	if ( ayc ) {
@@ -728,6 +737,9 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 	// ファイルを閉じる
 	fclose(fp);
 
+	// 小数点問題修正を戻す
+	setlocale(LC_NUMERIC,old_locale.c_str());
+
 	vm.logger().Message(8);
 }
 /* -----------------------------------------------------------------------
@@ -737,6 +749,9 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
  */
 void	CBasis::RestoreVariable(const yaya::char_t* pName)
 {
+	std::string old_locale = setlocale(LC_NUMERIC,NULL);
+	setlocale(LC_NUMERIC,"English"); //小数点問題回避
+
 	bool ayc = encode_savefile;
 
 	// ファイルを開く
@@ -745,7 +760,7 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 		filename = GetSavefilePath();
 	}
 	else {
-		filename = path + pName;
+		filename = load_path + pName;
 	}
 
 	vm.logger().Message(6);
@@ -891,6 +906,8 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 	// ファイルを閉じる
 	fclose(fp);
 
+	setlocale(LC_NUMERIC,old_locale.c_str());
+
 	vm.logger().Message(8);
 }
 
@@ -954,12 +971,12 @@ void	CBasis::ExecuteLoad(void)
 
 	// 第一引数（dllのパス）を作成
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
-	CValueSub	arg0(path);
+	CValueSub	arg0(load_path);
 	arg.array().push_back(arg0);
 	// 実行　結果は使用しないのでそのまま捨てる
 	vm.calldepth().Init();
 	CLocalVariable	lvar;
-	vm.logger().Io(0, path);
+	vm.logger().Io(0, load_path);
 	CValue	result;
 	vm.function()[funcpos].Execute(result, arg, lvar);
 	yaya::string_t empty;

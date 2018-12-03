@@ -385,7 +385,7 @@ int	CLib1::Request(const yaya::string_t &istr, yaya::string_t &ostr)
 
 	long	len = (long)strlen(t_istr);
 
-	// パス文字列をヒープにコピー
+	// request文字列をヒープにコピー
 	HGLOBAL	igmem = ::GlobalAlloc(GMEM_FIXED, len);
 	memcpy(igmem, t_istr, len);
 	free(t_istr);

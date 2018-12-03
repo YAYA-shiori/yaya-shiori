@@ -54,7 +54,7 @@ class	CBasis
 public:
 	CAyaVM &vm;
 
-	yaya::string_t	path;					// 上位モジュールからload時に渡されるパス
+	yaya::string_t	load_path;					// 上位モジュールからload時に渡されるパス
 
 protected:
 	char	msglang;				// ログに記録するメッセージの言語（日/英）
@@ -109,8 +109,8 @@ public:
 	const yaya::string_t& GetLogPath(void) const  { return logpath; }
 	char	GetMsgLang(void)  { return msglang; }
 	char	GetDicCharset(void)  { return dic_charset; }
-	const yaya::string_t& GetRootPath(void) const { return path;    }
-	yaya::string_t GetSavefilePath(void) const { return path + modulename + L"_variable.cfg"; }
+	const yaya::string_t& GetRootPath(void) const { return load_path;    }
+	yaya::string_t GetSavefilePath(void) const { return load_path + modulename + L"_variable.cfg"; }
 
 	void	ExecuteLoad(void);
 	yaya::global_t	ExecuteRequest(yaya::global_t h, long *len, bool is_debug);

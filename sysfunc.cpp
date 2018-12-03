@@ -2469,12 +2469,12 @@ CValue	CSystemFunction::FCOPY(const CValue &arg, yaya::string_t &d, int &l)
 	// 絶対パス化
 	yaya::char_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
 	_wsplitpath(arg.array()[0].s_value.c_str(), drive, dir, fname, ext);
-	yaya::string_t	s_path = ((::wcslen(drive)) ? yaya::string_t(L"") : vm.basis().path) + arg.array()[0].s_value;
+	yaya::string_t	s_path = ((::wcslen(drive)) ? yaya::string_t(L"") : vm.basis().load_path) + arg.array()[0].s_value;
 
 	yaya::char_t	fname2[_MAX_FNAME], ext2[_MAX_EXT];
 	_wsplitpath(arg.array()[1].s_value.c_str(), drive, dir, fname2, ext2);
 	yaya::string_t	d_path = ((::wcslen(drive)) ?
-						yaya::string_t(L"") : vm.basis().path) + arg.array()[1].s_value + L"\\" + fname + ext;
+						yaya::string_t(L"") : vm.basis().load_path) + arg.array()[1].s_value + L"\\" + fname + ext;
 
 	// パスをMBCSに変換
 	char	*s_pstr = Ccct::Ucs2ToMbcs(s_path, CHARSET_DEFAULT);
@@ -2577,12 +2577,12 @@ CValue	CSystemFunction::FMOVE(const CValue &arg, yaya::string_t &d, int &l)
 	// 絶対パス化
 	yaya::char_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
 	_wsplitpath(arg.array()[0].s_value.c_str(), drive, dir, fname, ext);
-	yaya::string_t	s_path = ((::wcslen(drive)) ? yaya::string_t(L"") : vm.basis().path) + arg.array()[0].s_value;
+	yaya::string_t	s_path = ((::wcslen(drive)) ? yaya::string_t(L"") : vm.basis().load_path) + arg.array()[0].s_value;
 
 	yaya::char_t	fname2[_MAX_FNAME], ext2[_MAX_EXT];
 	_wsplitpath(arg.array()[1].s_value.c_str(), drive, dir, fname2, ext2);
 	yaya::string_t	d_path = ((::wcslen(drive)) ?
-						yaya::string_t(L"") : vm.basis().path) + arg.array()[1].s_value + L"\\" + fname + ext;
+						yaya::string_t(L"") : vm.basis().load_path) + arg.array()[1].s_value + L"\\" + fname + ext;
 
 	// パスをMBCSに変換
 	char	*s_pstr = Ccct::Ucs2ToMbcs(s_path, CHARSET_DEFAULT);
@@ -5897,7 +5897,7 @@ yaya::string_t	CSystemFunction::ToFullPath(const yaya::string_t &str)
 	_wsplitpath(str.c_str(), drive, dir, fname, ext);
 
 	if (!::wcslen(drive))
-		return vm.basis().path + str;
+		return vm.basis().load_path + str;
 
 	return str;
 }

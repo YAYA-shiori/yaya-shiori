@@ -359,7 +359,7 @@ char *Ccct::utf16be_to_mbcs(const yaya::char_t *pUcsStr, int charset)
     if (!pUcsStr)
 		return NULL;
 
-	ccct_setlocale(LC_ALL, charset);
+	ccct_setlocale(LC_CTYPE, charset);
 
     nLen = wcslen( pUcsStr);
 
@@ -374,7 +374,7 @@ char *Ccct::utf16be_to_mbcs(const yaya::char_t *pUcsStr, int charset)
 	//文字長×マルチバイト最大長＋ゼロ終端
     pAnsiStr = (char *)malloc((nLen*MB_CUR_MAX)+1);
     if (!pAnsiStr) {
-		if (charset != CHARSET_UTF8 && charset != CHARSET_BINARY) ccct_setlocale(LC_ALL, charset);
+		if (charset != CHARSET_UTF8 && charset != CHARSET_BINARY) ccct_setlocale(LC_CTYPE, charset);
 		return NULL;
 	}
 
@@ -401,7 +401,7 @@ char *Ccct::utf16be_to_mbcs(const yaya::char_t *pUcsStr, int charset)
 
 	pAnsiStr[nMbpos] = 0;
 
-	if (charset != CHARSET_UTF8 && charset != CHARSET_BINARY) ccct_setlocale(LC_ALL, charset);
+	if (charset != CHARSET_UTF8 && charset != CHARSET_BINARY) ccct_setlocale(LC_CTYPE, charset);
     return pAnsiStr;
 }
 
@@ -415,13 +415,13 @@ yaya::char_t *Ccct::mbcs_to_utf16be(const char *pAnsiStr, int charset)
     if (!pAnsiStr)
 		return NULL;
 
-	ccct_setlocale(LC_ALL, charset);
+	ccct_setlocale(LC_CTYPE, charset);
 
     size_t nLen = strlen(pAnsiStr);
 
     yaya::char_t *pUcsStr = (yaya::char_t *)malloc(sizeof(yaya::char_t)*(nLen+7));
     if (!pUcsStr) {
-		if (charset != CHARSET_UTF8 && charset != CHARSET_BINARY) ccct_setlocale(LC_ALL, charset);
+		if (charset != CHARSET_UTF8 && charset != CHARSET_BINARY) ccct_setlocale(LC_CTYPE, charset);
 		return NULL;
 	}
 
@@ -450,6 +450,6 @@ yaya::char_t *Ccct::mbcs_to_utf16be(const char *pAnsiStr, int charset)
 
 	pUcsStr[nMbpos] = 0;
 
-	if (charset != CHARSET_UTF8 && charset != CHARSET_BINARY) ccct_setlocale(LC_ALL, charset);
+	if (charset != CHARSET_UTF8 && charset != CHARSET_BINARY) ccct_setlocale(LC_CTYPE, charset);
     return pUcsStr;
 }
