@@ -71,21 +71,25 @@
     <OutDir>.\Release_EXE\</OutDir>
     <IntDir>.\Release_EXE\</IntDir>
     <LinkIncremental>false</LinkIncremental>
+    <TargetName>yaya</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>.\Debug\</OutDir>
     <IntDir>.\Debug\</IntDir>
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>yaya</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>.\Release\</OutDir>
     <IntDir>.\Release\</IntDir>
     <LinkIncremental>false</LinkIncremental>
+    <TargetName>yaya</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug EXE|Win32'">
     <OutDir>.\Debug_EXE\</OutDir>
     <IntDir>.\Debug_EXE\</IntDir>
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>yaya</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release EXE|Win32'">
     <Midl>
