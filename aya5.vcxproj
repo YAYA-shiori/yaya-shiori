@@ -105,7 +105,6 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;AYA5_EXPORTS;WINVER=0x400;_WIN32_IE=0;_WIN32_WINNT=0x400;TIXML_USE_STL;__BBL_WSTRING_DEFAULT__;__BBL_USE_UNICODE_MAP_CP932__;_SCL_SECURE_NO_WARNINGS;AYA_MAKE_EXE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeaderOutputFile>.\Release_EXE/aya5.pch</PrecompiledHeaderOutputFile>
@@ -189,7 +188,6 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;AYA5_EXPORTS;WINVER=0x400;_WIN32_IE=0;_WIN32_WINNT=0x400;TIXML_USE_STL;__BBL_WSTRING_DEFAULT__;__BBL_USE_UNICODE_MAP_CP932__;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeaderOutputFile>.\Release/aya5.pch</PrecompiledHeaderOutputFile>
