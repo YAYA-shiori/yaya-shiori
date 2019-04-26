@@ -20,29 +20,31 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A793B473-75BE-45AE-8BF3-17029A14B9F9}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <CodePage>932</CodePage>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug EXE|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release EXE|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -139,7 +141,6 @@
       <AdditionalOptions>/Zm800  %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;AYA5_EXPORTS;WINVER=0x400;_WIN32_IE=0;_WIN32_WINNT=0x400;TIXML_USE_STL;__BBL_WSTRING_DEFAULT__;__BBL_USE_UNICODE_MAP_CP932__;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeaderOutputFile>.\Debug/aya5.pch</PrecompiledHeaderOutputFile>
@@ -164,7 +165,6 @@
       <BaseAddress>0x14900000</BaseAddress>
       <ImportLibrary>.\Debug/yaya.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
-      <OutputFile>D:\ssp_src_set\ssp\ghost\DE10_3001\ghost\master\yaya.dll</OutputFile>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -228,7 +228,6 @@
       <AdditionalOptions>/Zm800  %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;AYA5_EXPORTS;WINVER=0x400;_WIN32_IE=0;_WIN32_WINNT=0x400;TIXML_USE_STL;__BBL_WSTRING_DEFAULT__;__BBL_USE_UNICODE_MAP_CP932__;_SCL_SECURE_NO_WARNINGS;AYA_MAKE_EXE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeaderOutputFile>.\Debug_EXE/aya5.pch</PrecompiledHeaderOutputFile>
