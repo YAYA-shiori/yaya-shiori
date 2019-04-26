@@ -25,6 +25,7 @@
 #include <ctime>
 
 #include <cstring>
+#include <stdexcept>
 
 #include "fix_unistd.h"
 
