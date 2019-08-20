@@ -47,12 +47,21 @@ private:
 
 	CLog	m_logger;
 
+	MersenneTwister rs_sysfunc;
+	MersenneTwister rs_internal;
+
 public:
 	void Load(void);
 	void Unload(void);
 
 	unsigned int genrand(void);
 	int genrand_int(int n);
+
+	unsigned int genrand_sysfunc(void);
+	int genrand_sysfunc_int(int n);
+
+	void genrand_sysfunc_srand(int n);
+	void genrand_sysfunc_srand_array(const unsigned long a[],const int n);
 
 	// å§Œä
 	CBasis&					basis();

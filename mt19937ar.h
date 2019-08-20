@@ -46,32 +46,39 @@
 #ifndef	MTRANDH
 #define	MTRANDH
 
+typedef struct tagMersenneTwister {
+	unsigned long state[624]; /* the array for the state vector  */
+	int left;
+//	int initf;
+	unsigned long *next;
+} MersenneTwister;
+
 /* initializes mt[N] with a seed */
-void init_genrand(unsigned long s);
+void init_genrand(MersenneTwister &rs,unsigned long s);
 
 /* initialize by an array with array-length */
 /* init_key is the array for initializing keys */
 /* key_length is its length */
 /* slight change for C++, 2004/2/26 */
-void init_by_array(unsigned long init_key[], int key_length);
+void init_by_array(MersenneTwister &rs,const unsigned long init_key[],const int key_length);
 
 /* generates a random number on [0,0xffffffff]-interval */
-unsigned long genrand_int32(void);
+unsigned long genrand_int32(MersenneTwister &rs);
 
 /* generates a random number on [0,0x7fffffff]-interval */
-long genrand_int31(void);
+long genrand_int31(MersenneTwister &rs);
 
 /* These real versions are due to Isaku Wada, 2002/01/09 added */
 /* generates a random number on [0,1]-real-interval */
-double genrand_real1(void);
+double genrand_real1(MersenneTwister &rs);
 
 /* generates a random number on [0,1)-real-interval */
-double genrand_real2(void);
+double genrand_real2(MersenneTwister &rs);
 
 /* generates a random number on (0,1)-real-interval */
-double genrand_real3(void);
+double genrand_real3(MersenneTwister &rs);
 
 /* generates a random number on [0,1) with 53-bit resolution*/
-double genrand_res53(void);
+double genrand_res53(MersenneTwister &rs);
 
 #endif

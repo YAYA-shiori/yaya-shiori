@@ -89,6 +89,7 @@ protected:
 	CValue	REQUESTLIB(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	CHARSETLIB(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	RAND(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	SRAND(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FLOOR(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	CEIL(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	ROUND(const CValue &arg, yaya::string_t &d, int &l);

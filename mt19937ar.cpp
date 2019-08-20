@@ -44,6 +44,7 @@
 */
 
 #include <stdio.h>
+#include "mt19937ar.h"
 
 /* Period parameters */  
 #define N 624
@@ -54,68 +55,68 @@
 #define MIXBITS(u,v) ( ((u) & UMASK) | ((v) & LMASK) )
 #define TWIST(u,v) ((MIXBITS(u,v) >> 1) ^ ((v)&1UL ? MATRIX_A : 0UL))
 
-static unsigned long state[N]; /* the array for the state vector  */
+/*static unsigned long state[N]; //the array for the state vector
 static int left = 1;
 static int initf = 0;
-static unsigned long *next;
+static unsigned long *next;  */
 
 /* initializes state[N] with a seed */
-void init_genrand(unsigned long s)
+void init_genrand(MersenneTwister &rs,unsigned long s)
 {
     int j;
-    state[0]= s & 0xffffffffUL;
+    rs.state[0]= s & 0xffffffffUL;
     for (j=1; j<N; j++) {
-        state[j] = (1812433253UL * (state[j-1] ^ (state[j-1] >> 30)) + j); 
+        rs.state[j] = (1812433253UL * (rs.state[j-1] ^ (rs.state[j-1] >> 30)) + j); 
         /* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
         /* In the previous versions, MSBs of the seed affect   */
-        /* only MSBs of the array state[].                        */
+        /* only MSBs of the array rs.state[].                        */
         /* 2002/01/09 modified by Makoto Matsumoto             */
-        state[j] &= 0xffffffffUL;  /* for >32 bit machines */
+        rs.state[j] &= 0xffffffffUL;  /* for >32 bit machines */
     }
-    left = 1; initf = 1;
+    rs.left = 1; /*rs.initf = 1;*/
 }
 
 /* initialize by an array with array-length */
 /* init_key is the array for initializing keys */
 /* key_length is its length */
 /* slight change for C++, 2004/2/26 */
-void init_by_array(unsigned long init_key[], int key_length)
+void init_by_array(MersenneTwister &rs,const unsigned long init_key[], const int key_length)
 {
     int i, j, k;
-    init_genrand(19650218UL);
+    init_genrand(rs,19650218UL);
     i=1; j=0;
     k = (N>key_length ? N : key_length);
     for (; k; k--) {
-        state[i] = (state[i] ^ ((state[i-1] ^ (state[i-1] >> 30)) * 1664525UL))
+        rs.state[i] = (rs.state[i] ^ ((rs.state[i-1] ^ (rs.state[i-1] >> 30)) * 1664525UL))
           + init_key[j] + j; /* non linear */
-        state[i] &= 0xffffffffUL; /* for WORDSIZE > 32 machines */
+        rs.state[i] &= 0xffffffffUL; /* for WORDSIZE > 32 machines */
         i++; j++;
-        if (i>=N) { state[0] = state[N-1]; i=1; }
+        if (i>=N) { rs.state[0] = rs.state[N-1]; i=1; }
         if (j>=key_length) j=0;
     }
     for (k=N-1; k; k--) {
-        state[i] = (state[i] ^ ((state[i-1] ^ (state[i-1] >> 30)) * 1566083941UL))
+        rs.state[i] = (rs.state[i] ^ ((rs.state[i-1] ^ (rs.state[i-1] >> 30)) * 1566083941UL))
           - i; /* non linear */
-        state[i] &= 0xffffffffUL; /* for WORDSIZE > 32 machines */
+        rs.state[i] &= 0xffffffffUL; /* for WORDSIZE > 32 machines */
         i++;
-        if (i>=N) { state[0] = state[N-1]; i=1; }
+        if (i>=N) { rs.state[0] = rs.state[N-1]; i=1; }
     }
 
-    state[0] = 0x80000000UL; /* MSB is 1; assuring non-zero initial array */ 
-    left = 1; initf = 1;
+    rs.state[0] = 0x80000000UL; /* MSB is 1; assuring non-zero initial array */ 
+    rs.left = 1; /*rs.initf = 1;*/
 }
 
-static void next_state(void)
+static void next_state(MersenneTwister &rs)
 {
-    unsigned long *p=state;
+    unsigned long *p=rs.state;
     int j;
 
     /* if init_genrand() has not been called, */
     /* a default initial seed is used         */
-    if (initf==0) init_genrand(5489UL);
+    //if (rs.initf==0) init_genrand(rs,5489UL);
 
-    left = N;
-    next = state;
+    rs.left = N;
+    rs.next = rs.state;
     
     for (j=N-M+1; --j; p++) 
         *p = p[M] ^ TWIST(p[0], p[1]);
@@ -123,16 +124,16 @@ static void next_state(void)
     for (j=M; --j; p++) 
         *p = p[M-N] ^ TWIST(p[0], p[1]);
 
-    *p = p[M-N] ^ TWIST(p[0], state[0]);
+    *p = p[M-N] ^ TWIST(p[0], rs.state[0]);
 }
 
 /* generates a random number on [0,0xffffffff]-interval */
-unsigned long genrand_int32(void)
+unsigned long genrand_int32(MersenneTwister &rs)
 {
     unsigned long y;
 
-    if (--left == 0) next_state();
-    y = *next++;
+    if (--rs.left == 0) next_state(rs);
+    y = *rs.next++;
 
     /* Tempering */
     y ^= (y >> 11);
@@ -144,12 +145,12 @@ unsigned long genrand_int32(void)
 }
 
 /* generates a random number on [0,0x7fffffff]-interval */
-long genrand_int31(void)
+long genrand_int31(MersenneTwister &rs)
 {
     unsigned long y;
 
-    if (--left == 0) next_state();
-    y = *next++;
+    if (--rs.left == 0) next_state(rs);
+    y = *rs.next++;
 
     /* Tempering */
     y ^= (y >> 11);
@@ -161,12 +162,12 @@ long genrand_int31(void)
 }
 
 /* generates a random number on [0,1]-real-interval */
-double genrand_real1(void)
+double genrand_real1(MersenneTwister &rs)
 {
     unsigned long y;
 
-    if (--left == 0) next_state();
-    y = *next++;
+    if (--rs.left == 0) next_state(rs);
+    y = *rs.next++;
 
     /* Tempering */
     y ^= (y >> 11);
@@ -179,12 +180,12 @@ double genrand_real1(void)
 }
 
 /* generates a random number on [0,1)-real-interval */
-double genrand_real2(void)
+double genrand_real2(MersenneTwister &rs)
 {
     unsigned long y;
 
-    if (--left == 0) next_state();
-    y = *next++;
+    if (--rs.left == 0) next_state(rs);
+    y = *rs.next++;
 
     /* Tempering */
     y ^= (y >> 11);
@@ -197,12 +198,12 @@ double genrand_real2(void)
 }
 
 /* generates a random number on (0,1)-real-interval */
-double genrand_real3(void)
+double genrand_real3(MersenneTwister &rs)
 {
     unsigned long y;
 
-    if (--left == 0) next_state();
-    y = *next++;
+    if (--rs.left == 0) next_state(rs);
+    y = *rs.next++;
 
     /* Tempering */
     y ^= (y >> 11);
@@ -215,9 +216,9 @@ double genrand_real3(void)
 }
 
 /* generates a random number on [0,1) with 53-bit resolution*/
-double genrand_res53(void) 
+double genrand_res53(MersenneTwister &rs) 
 { 
-    unsigned long a=genrand_int32()>>5, b=genrand_int32()>>6; 
+    unsigned long a=genrand_int32(rs)>>5, b=genrand_int32(rs)>>6; 
     return(a*67108864.0+b)*(1.0/9007199254740992.0); 
 } 
 /* These real versions are due to Isaku Wada, 2002/01/09 added */

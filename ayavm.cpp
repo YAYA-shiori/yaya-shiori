@@ -64,7 +64,8 @@ void CAyaVM::Load(void)
 	dwSeed = ::GetTickCount();
 #endif
 
-	init_genrand(dwSeed);
+	init_genrand(rs_internal,dwSeed);
+	init_genrand(rs_sysfunc,dwSeed);
 }
 
 /*-----------------------------------------------
@@ -79,12 +80,31 @@ void CAyaVM::Unload(void)
 -----------------------------------------------*/
 unsigned int CAyaVM::genrand(void)
 {
-	return genrand_int32();
+	return genrand_int32(rs_internal);
 }
 
 int CAyaVM::genrand_int(int n)
 {
-	return genrand_int32() % n;
+	return genrand_int32(rs_internal) % n;
+}
+unsigned int CAyaVM::genrand_sysfunc(void)
+{
+	return genrand_int32(rs_sysfunc);
+}
+
+int CAyaVM::genrand_sysfunc_int(int n)
+{
+	return genrand_int32(rs_sysfunc) % n;
+}
+
+void CAyaVM::genrand_sysfunc_srand(int n)
+{
+	init_genrand(rs_sysfunc,n);
+}
+
+void CAyaVM::genrand_sysfunc_srand_array(const unsigned long a[],const int n)
+{
+	init_by_array(rs_sysfunc,a,n);
 }
 
 // ちょっとひどいハックですが……

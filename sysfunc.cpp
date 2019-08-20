@@ -91,7 +91,7 @@ extern "C" {
 #endif
 #endif
 
-#define	SYSFUNC_NUM					134 //システム関数の全数
+#define	SYSFUNC_NUM					135 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -281,7 +281,9 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	// 配列(5)
 	L"ASORT",
 	// 文字列操作(9)
-	L"TRANSLATE"
+	L"TRANSLATE",
+	// 数値(4)
+	L"SRAND",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -677,6 +679,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return ASORT(arg, d, l);
 	case 133:
 		return TRANSLATE(arg, d, l);
+	case 134:
+		return SRAND(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -1404,7 +1408,7 @@ CValue	CSystemFunction::CHARSETLIBEX(const CValue &arg, yaya::string_t &d, int &
 CValue	CSystemFunction::RAND(const CValue &arg, yaya::string_t &d, int &l)
 {
 	if (!arg.array_size())
-	        return vm.genrand_int(100);
+	        return vm.genrand_sysfunc_int(100);
 
 	if (!arg.array()[0].IsNum()) {
 		vm.logger().Error(E_W, 9, L"RAND", d, l);
@@ -1419,8 +1423,64 @@ CValue	CSystemFunction::RAND(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 
-	return vm.genrand_int(num);
+	return vm.genrand_sysfunc_int(num);
 }
+
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::SRAND
+ *
+ *  RANDのseed。パラメータは文字列も可。
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::SRAND(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if (!arg.array_size()) {
+		vm.logger().Error(E_W, 19, L"SRAND", d, l);
+		SetError(19);
+		return CValue(0);
+	}
+
+	if (arg.array()[0].IsInt()) {
+		int num = arg.array()[0].GetValueInt();
+		vm.genrand_sysfunc_srand(num);
+	}
+	else if (arg.array()[0].IsDouble()) {
+		union {
+			double d;
+			unsigned long i[2];
+		} num;
+
+		num.d = arg.array()[0].GetValueDouble();
+
+		vm.genrand_sysfunc_srand_array(num.i,2);
+	}
+	else if (arg.array()[0].IsString()) {
+		std::vector<unsigned long> num;
+
+		yaya::string_t str = arg.array()[0].GetValueString();
+
+		int nlen = str.length();
+		int n = nlen / 2;
+
+		for ( int i = 0 ; i < n ; ++i ) {
+			num.push_back( static_cast<unsigned long>(str[i]) | (static_cast<unsigned long>(str[i+1]) << 16) );
+		}
+		if ( (n*2) != nlen ) { //奇数
+			num.push_back( static_cast<unsigned long>(str[nlen-1]) );
+		}
+
+		vm.genrand_sysfunc_srand_array(&(num[0]),num.size());
+	}
+	else {
+		vm.logger().Error(E_W, 9, L"SRAND", d, l);
+		SetError(9);
+		return CValue(0);
+	}
+
+	return CValue(1);
+}
+
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::FLOOR
