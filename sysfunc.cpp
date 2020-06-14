@@ -91,7 +91,7 @@ extern "C" {
 #endif
 #endif
 
-#define	SYSFUNC_NUM					135 //システム関数の全数
+#define	SYSFUNC_NUM					136 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -284,6 +284,8 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"TRANSLATE",
 	// 数値(4)
 	L"SRAND",
+	// 特殊(8)
+	L"GETENV",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -681,6 +683,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return TRANSLATE(arg, d, l);
 	case 134:
 		return SRAND(arg, d, l);
+	case 135:
+		return GETENV(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -6128,6 +6132,49 @@ CValue	CSystemFunction::EXECUTE_WAIT(const CValue &arg, yaya::string_t &d, int &
 
 	// 実行
 	return CValue(result);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::GETENV
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::GETENV(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if (!arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"GETENV", d, l);
+		SetError(8);
+		return CValue(L"");
+	}
+
+	if (!arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"GETENV", d, l);
+		SetError(9);
+		return CValue(L"");
+	}
+
+	char *s_name = Ccct::Ucs2ToMbcs(arg.array()[0].s_value, CHARSET_DEFAULT);
+	if (s_name == NULL) {
+		vm.logger().Error(E_E, 89, L"GETENV", d, l);
+		SetError(89);
+		return CValue(L"");
+	}
+
+	const char *s_env = getenv(s_name);
+
+	if (s_env == NULL) {
+		vm.logger().Error(E_W, 12, L"GETENV", d, l);
+		SetError(12);
+		return CValue(L"");
+	}
+
+	yaya::char_t	*t_env = Ccct::MbcsToUcs2(s_env, CHARSET_DEFAULT);
+	if (t_env == NULL) {
+		vm.logger().Error(E_E, 89, L"GETENV", d, l);
+		SetError(89);
+		return CValue(L"");
+	}
+
+	return CValue(t_env);
 }
 
 /* -----------------------------------------------------------------------

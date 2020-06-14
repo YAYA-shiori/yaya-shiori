@@ -230,6 +230,7 @@ protected:
 
 	CValue	EXECUTE(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	EXECUTE_WAIT(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	GETENV(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue	DUMPVAR(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	TRANSLATE(const CValue &arg, yaya::string_t &d, int &l);
