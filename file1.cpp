@@ -264,7 +264,7 @@ int	CFile1::ReadEncode(yaya::string_t &ostr, size_t len, const yaya::string_t &t
 			EncodeBase64(s,f_buffer,done);
 		}
 		else if ( enc_type == 2 ) { //form
-			EncodeBase64(s,f_buffer,done,true);
+			EncodeURL(s,f_buffer,done,true);
 		}
 		else {
 			EncodeURL(s,f_buffer,done,false);
