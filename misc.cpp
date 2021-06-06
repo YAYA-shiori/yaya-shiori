@@ -941,7 +941,7 @@ void EncodeBase64(yaya::string_t &out,const char *in,size_t in_len)
  * -----------------------------------------------------------------------
  */
 
-void EncodeURL(yaya::string_t &out,const char *in,size_t in_len)
+void EncodeURL(yaya::string_t &out,const char *in,size_t in_len,bool isPlusPercent)
 {
 	yaya::char_t chr[4] = L"%00";
 	const unsigned char* p = reinterpret_cast<const unsigned char*>(in);
@@ -951,7 +951,7 @@ void EncodeURL(yaya::string_t &out,const char *in,size_t in_len)
 		if ( (current >= 'a' && current <= 'z') || (current >= 'A' && current <= 'Z') || (current >= '0' && current <= '9') || current == '.' || current == '_' || current == '-' ) {
 			out.append(1,current);
 		}
-		else if ( current == L' ' ) {
+		else if ( (current == L' ') && isPlusPercent ) {
 			out.append(1,L'+');
 		}
 		else {

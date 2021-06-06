@@ -244,6 +244,9 @@ int	CFile1::ReadEncode(yaya::string_t &ostr, size_t len, const yaya::string_t &t
 	if ( wcsicmp(type.c_str(),L"base64") == 0 ) {
 		enc_type = 1;
 	}
+	else if ( wcsicmp(type.c_str(),L"form") == 0 ) {
+		enc_type = 2;
+	}
 
 	while ( true ) {
 		size_t lenread = len - read;
@@ -260,8 +263,11 @@ int	CFile1::ReadEncode(yaya::string_t &ostr, size_t len, const yaya::string_t &t
 		if ( enc_type == 1 ) { //b64
 			EncodeBase64(s,f_buffer,done);
 		}
+		else if ( enc_type == 2 ) { //form
+			EncodeBase64(s,f_buffer,done,true);
+		}
 		else {
-			EncodeURL(s,f_buffer,done);
+			EncodeURL(s,f_buffer,done,false);
 		}
 		ostr += s;
 

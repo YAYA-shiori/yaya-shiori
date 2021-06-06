@@ -5009,8 +5009,11 @@ CValue	CSystemFunction::STRENCODE(const CValue &arg, yaya::string_t &d, int &l)
 	if ( wcsicmp(type.c_str(),L"base64") == 0 ) {
 		EncodeBase64(result,t_str,strlen(t_str));
 	}
+	else if ( wcsicmp(type.c_str(),L"form") == 0 ) {
+		EncodeURL(result,t_str,strlen(t_str),true);
+	}
 	else {
-		EncodeURL(result,t_str,strlen(t_str));
+		EncodeURL(result,t_str,strlen(t_str),false);
 	}
 
 	free(t_str);
