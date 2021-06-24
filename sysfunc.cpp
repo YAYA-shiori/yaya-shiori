@@ -91,7 +91,7 @@ extern "C" {
 #endif
 #endif
 
-#define	SYSFUNC_NUM					136 //システム関数の全数
+#define	SYSFUNC_NUM					137 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -286,6 +286,8 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"SRAND",
 	// 特殊(8)
 	L"GETENV",
+	// ファイル操作(7)
+	L"FWRITEDECODE",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -685,6 +687,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return SRAND(arg, d, l);
 	case 135:
 		return GETENV(arg, d, l);
+	case 136:
+		return FWRITEDECODE(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -2435,6 +2439,34 @@ CValue	CSystemFunction::FWRITEBIN(const CValue &arg, yaya::string_t &d, int &l)
 	return CValue(F_TAG_NOP, 0/*dmy*/);
 }
 
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FWRITEDECODE
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FWRITEDECODE(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if (arg.array_size() < 3) {
+		vm.logger().Error(E_W, 8, L"FWRITEDECODE", d, l);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+    if (!arg.array()[0].IsString() ||
+		!arg.array()[1].IsString() ||
+		!arg.array()[2].IsString()) {
+		vm.logger().Error(E_W, 9, L"FWRITEDECODE", d, l);
+		SetError(9);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	if (!vm.files().WriteDecode(ToFullPath(arg.array()[0].s_value), arg.array()[1].s_value, arg.array()[2].s_value) ) {
+		vm.logger().Error(E_W, 13, L"FWRITEDECODE", d, l);
+		SetError(13);
+	}
+
+	return CValue(F_TAG_NOP, 0/*dmy*/);
+}
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::FWRITE2
@@ -5054,61 +5086,18 @@ CValue	CSystemFunction::STRDECODE(const CValue &arg, yaya::string_t &d, int &l)
 	
 	// 主処理
 	yaya::string_t src = arg.array()[0].GetValueString();
-	yaya::string_t::iterator end = src.end();
 
 	std::string str;
 	str.reserve(src.size());
 
 	if ( wcsicmp(type.c_str(),L"base64") == 0 ) {
-		static const unsigned char reverse_64[] = {
-			//0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
-			  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   // 0x00 - 0x0F
-			  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   // 0x10 - 0x1F
-			  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 62,  0,  0,  0, 63,   // 0x20 - 0x2F
-			 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,  0,  0,  0,  0,  0,  0,   // 0x30 - 0x3F
-			  0,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,   // 0x40 - 0x4F
-			 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,  0,  0,  0,  0,  0,   // 0x50 - 0x5F
-			  0, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,   // 0x60 - 0x6F
-			 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51,  0,  0,  0,  0,  0    // 0x70 - 0x7F
-		};
-
-		const yaya::char_t* p = src.c_str();
-		while (*p!='=')
-		{
-			//11111122:22223333:33444444
-			if ( (*p=='\0') || (*(p+1)=='=') ) break;
-			str.append(1,static_cast<unsigned char>((reverse_64[*p&0x7f] <<2) & 0xFC | (reverse_64[*(p+1)&0x7f] >>4) & 0x03));
-			++p;
-
-			if ( (*p=='\0') || (*(p+1)=='=') ) break;
-			str.append(1,static_cast<unsigned char>((reverse_64[*p&0x7f] <<4) & 0xF0 | (reverse_64[*(p+1)&0x7f] >>2) & 0x0F));
-			++p;
-
-			if ( (*p=='\0') || (*(p+1)=='=') ) break;
-			str.append(1,static_cast<unsigned char>((reverse_64[*p&0x7f] <<6) & 0xC0 | reverse_64[*(p+1)&0x7f] & 0x3f ));
-			++p;
-
-			if ( (*p=='\0') || (*(p+1)=='=') ) break;
-			++p;
-		}
+		DecodeBase64(str,src.c_str(),src.length());
+	}
+	else if ( wcsicmp(type.c_str(),L"form") == 0 ) {
+		DecodeURL(str,src.c_str(),src.length(),true);
 	}
 	else { //if url
-		char ch[3] = {0,0,0};
-
-		for ( yaya::string_t::iterator it = src.begin() ; it < end ; ++it ) {
-			if ( *it == L'%' && (end - it) >= 3) {
-				ch[0] = static_cast<char>(*(it+1));
-				ch[1] = static_cast<char>(*(it+2));
-				str.append(1,static_cast<char>(strtol(ch,NULL,16)));
-				it += 2;
-			}
-			else if ( *it == L'+' ) {
-				str.append(1,' ');
-			}
-			else {
-				str.append(1,static_cast<char>(*it));
-			}
-		}
+		DecodeURL(str,src.c_str(),src.length(),false);
 	}
 
 	yaya::char_t *t_str = Ccct::MbcsToUcs2(str, charset);

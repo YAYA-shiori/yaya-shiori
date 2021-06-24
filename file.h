@@ -56,6 +56,7 @@ public:
 
 	int	Write(const yaya::string_t &istr);
 	int	WriteBin(const yaya::string_t &istr, const yaya::char_t alt);
+	int	WriteDecode(const yaya::string_t &istr, const yaya::string_t &type);
 
 	int	Read(yaya::string_t &ostr);
 	int	ReadBin(yaya::string_t &ostr, size_t len, yaya::char_t alt);
@@ -86,6 +87,7 @@ public:
 
 	int		Write(const yaya::string_t &name, const yaya::string_t &istr);
 	int		WriteBin(const yaya::string_t &name, const yaya::string_t &istr, const yaya::char_t alt);
+	int		WriteDecode(const yaya::string_t &name, const yaya::string_t &istr, const yaya::string_t &type);
 
 	int		Read(const yaya::string_t &name, yaya::string_t &ostr);
 	int		ReadBin(const yaya::string_t &name, yaya::string_t &ostr, size_t len, yaya::char_t alt);

@@ -130,6 +130,7 @@ protected:
 	CValue	FWRITE(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FWRITE2(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FWRITEBIN(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	FWRITEDECODE(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FCOPY(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	FMOVE(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	MKDIR(const CValue &arg, yaya::string_t &d, int &l);

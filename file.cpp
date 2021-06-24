@@ -187,6 +187,31 @@ int	CFile::WriteBin(const yaya::string_t &name, const yaya::string_t &istr, cons
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CFile::WriteDecode
+ *  機能概要：  ファイルにバイナリデータをデコードしながら書き込みます
+ *
+ *  返値　　：　0/1=失敗/成功
+ * -----------------------------------------------------------------------
+ */
+int CFile::WriteDecode(const yaya::string_t &name, const yaya::string_t &istr, const yaya::string_t &type)
+{
+	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
+	if ( it != filelist.end() ) {
+		return it->WriteDecode(istr,type);
+	}
+
+	CFile1 tempfile(name, charset, L"wb");
+	if ( ! tempfile.Open() ) {
+		return 0;
+	}
+	int result = tempfile.WriteDecode(istr,type);
+	tempfile.Close();
+	return result;
+
+	return 0;
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CFile::Read
  *  機能概要：  ファイルから文字列を1行読み取ります
  *

@@ -149,6 +149,36 @@ int	CFile1::WriteBin(const yaya::string_t &istr, const yaya::char_t alt)
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CFile1::WriteDecode
+ *  機能概要：  ファイルにバイナリデータをデコードしながら書き込みます
+ *
+ *  返値　　：　0/1=失敗/成功
+ * -----------------------------------------------------------------------
+ */
+int	CFile1::WriteDecode(const yaya::string_t &istr, const yaya::string_t &type)
+{
+	if (fp == NULL)
+		return 0;
+
+	std::string out;
+
+	if ( wcsicmp(type.c_str(),L"base64") == 0 ) {
+		DecodeBase64(out,istr.c_str(),istr.length());
+	}
+	else if ( wcsicmp(type.c_str(),L"form") == 0 ) {
+		DecodeURL(out,istr.c_str(),istr.length(),true);
+	}
+	else {
+		DecodeURL(out,istr.c_str(),istr.length(),false);
+	}
+
+	// 書き込み
+	size_t write = fwrite(out.c_str(), sizeof(unsigned char), out.length(), fp);
+
+	return write;
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CFile1::Read
  *  機能概要：  ファイルから文字列を1行読み取ります
  *

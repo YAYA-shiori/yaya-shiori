@@ -937,6 +937,47 @@ void EncodeBase64(yaya::string_t &out,const char *in,size_t in_len)
 }
 
 /* -----------------------------------------------------------------------
+ *  ä÷êîñº  ÅF  DecodeBase64
+ * -----------------------------------------------------------------------
+ */
+
+void DecodeBase64(std::string &out,const yaya::char_t *in,size_t in_len)
+{
+	static const unsigned char reverse_64[] = {
+		//0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
+		  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   // 0x00 - 0x0F
+		  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   // 0x10 - 0x1F
+		  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 62,  0,  0,  0, 63,   // 0x20 - 0x2F
+		 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,  0,  0,  0,  0,  0,  0,   // 0x30 - 0x3F
+		  0,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,   // 0x40 - 0x4F
+		 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,  0,  0,  0,  0,  0,   // 0x50 - 0x5F
+		  0, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,   // 0x60 - 0x6F
+		 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51,  0,  0,  0,  0,  0    // 0x70 - 0x7F
+	};
+
+	const yaya::char_t* p = in;
+
+	while (*p!='=')
+	{
+		//11111122:22223333:33444444
+		if ( (*p=='\0') || (*(p+1)=='=') ) break;
+		out.append(1,static_cast<unsigned char>((reverse_64[*p&0x7f] <<2) & 0xFC | (reverse_64[*(p+1)&0x7f] >>4) & 0x03));
+		++p;
+
+		if ( (*p=='\0') || (*(p+1)=='=') ) break;
+		out.append(1,static_cast<unsigned char>((reverse_64[*p&0x7f] <<4) & 0xF0 | (reverse_64[*(p+1)&0x7f] >>2) & 0x0F));
+		++p;
+
+		if ( (*p=='\0') || (*(p+1)=='=') ) break;
+		out.append(1,static_cast<unsigned char>((reverse_64[*p&0x7f] <<6) & 0xC0 | reverse_64[*(p+1)&0x7f] & 0x3f ));
+		++p;
+
+		if ( (*p=='\0') || (*(p+1)=='=') ) break;
+		++p;
+	}
+}
+
+/* -----------------------------------------------------------------------
  *  ä÷êîñº  ÅF  EncodeURL
  * -----------------------------------------------------------------------
  */
@@ -960,3 +1001,32 @@ void EncodeURL(yaya::string_t &out,const char *in,size_t in_len,bool isPlusPerce
 		}
 	}
 }
+
+/* -----------------------------------------------------------------------
+ *  ä÷êîñº  ÅF  DecodeURL
+ * -----------------------------------------------------------------------
+ */
+
+void DecodeURL(std::string &out,const yaya::char_t *in,size_t in_len,bool isPlusPercent)
+{
+	char ch[3] = {0,0,0};
+
+	for ( size_t pos = 0 ; pos < in_len ; ++pos ) {
+
+		if ( in[pos] == L'%' && (in_len - pos) >= 3) {
+			ch[0] = static_cast<char>(in[pos+1]);
+			ch[1] = static_cast<char>(in[pos+2]);
+
+			out.append(1,static_cast<char>(strtol(ch,NULL,16)));
+
+			pos += 2;
+		}
+		else if ( isPlusPercent && in[pos] == L'+' ) {
+			out.append(1,' ');
+		}
+		else {
+			out.append(1,static_cast<char>(in[pos]));
+		}
+	}
+}
+
