@@ -323,6 +323,16 @@ void	CBasis::ResetSuppress(void)
  *  ありません（文字コード0x7F以下のASCII文字のみで記述すべきです）。
  * -----------------------------------------------------------------------
  */
+class CBasisFileStack {
+public:
+	FILE *fp;
+	yaya::string_t filename;
+	int line;
+
+	CBasisFileStack(FILE *fparg,yaya::string_t &fn,int larg) : fp(fparg) , filename(fn) , line(larg) {
+	}
+};
+
 void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 {
 	// 設定ファイル("name".txt)読み取り
@@ -340,34 +350,39 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 	yaya::string_t	readline;
 	yaya::string_t	cmd, param;
 
-	std::stack<FILE*> fpstack;
-	std::stack<yaya::string_t> fnstack;
-	fpstack.push(fp);
-	fnstack.push(filename);
+	std::stack<CBasisFileStack> fstack;
+	fstack.push(CBasisFileStack(fp,filename,0));
 
-	for (int i = 1; ; i++) {
+	while ( true ) {
+		fstack.top().line += 1;
+
 		// 1行読み込み
-		if (yaya::ws_fgets(readline, fp, dic_charset, 0, i) == yaya::WS_EOF) {
+		if (yaya::ws_fgets(readline, fp, dic_charset, 0, fstack.top().line) == yaya::WS_EOF) {
 			// ファイルを閉じる
-			fclose(fpstack.top());
-			fpstack.pop();
-			fnstack.pop();
-			if ( fpstack.empty() ) {
+			fclose(fstack.top().fp);
+			fstack.pop();
+
+			if ( fstack.empty() ) {
 				break;
 			}
-			fp = fpstack.top();
-			filename = fnstack.top();
+
+			fp = fstack.top().fp;
+			filename = fstack.top().filename;
 		}
 
 		// 改行は消去
 		CutCrLf(readline);
+		
 		// コメントアウト処理
 		comment.Process_Top(readline);
 		comment.Process(readline);
 		comment.Process_Tail(readline);
+		
 		// 空行、もしくは全体がコメント行だった場合は次の行へ
-		if (readline.size() == 0)
+		if (readline.size() == 0) {
 			continue;
+		}
+
 		// パラメータを設定
 		if (Split(readline, cmd, param, L",")) {
 			if ( cmd.compare(L"include") == 0 ) {
@@ -375,12 +390,11 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 				fp = yaya::w_fopen(filename.c_str(), L"r");
 
 				if (fp == NULL) { //エラーが起きたので復旧
-					fp = fpstack.top();
-					filename = fnstack.top();
+					fp = fstack.top().fp;
+					filename = fstack.top().filename;
 				}
 				else {
-					fpstack.push(fp);
-					fnstack.push(filename);
+					fstack.push(CBasisFileStack(fp,filename,0));
 				}
 			}
 			else {
@@ -388,8 +402,9 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 			}
 		}
 		else {
-			vm.logger().Error(E_W, 0, filename, i);
+			vm.logger().Error(E_W, 0, filename, fstack.top().line);
 		}
+
 	}
 }
 

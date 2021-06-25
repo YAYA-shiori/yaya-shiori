@@ -307,7 +307,7 @@ const wchar_t	msgwe[][128] = {
 	L"warning W0008 : Missing arguments.",
 	L"warning W0009 : Mismatced type of argument(s).",
 	L"warning W0010 : Null string is invalid.",
-	L"warinig W0011 : The result can't be set to the variable.",
+	L"warning W0011 : The result can't be set to the variable.",
 	L"warning W0012 : The numeric value is out of range or invalid.",
 	L"warning W0013 : Processing failed.",
 	L"warning W0014 : Requested library isn't loaded.",

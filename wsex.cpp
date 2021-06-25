@@ -272,16 +272,19 @@ int yaya::ws_fgets(yaya::string_t &str, FILE *stream, int charset, int ayc, int 
 			}
 		}
 	}
+
+	if ( lc == 1 && buf.length() >= 3 ) {
+		if ( static_cast<unsigned char>(buf[0]) == 0xEFU &&
+			 static_cast<unsigned char>(buf[1]) == 0xBBU &&
+			 static_cast<unsigned char>(buf[2]) == 0xBFU ) { //UTF-8 bom
+			buf.erase(0,3);
+		}
+	}
 	
 	wchar_t *wstr_result = Ccct::MbcsToUcs2(buf, charset);
 	if ( ! wstr_result ) { return 0; }
 
 	wchar_t *wstr = wstr_result;
-	if (charset == CHARSET_UTF8 && lc == 1) {
-		if (wstr[0] == static_cast<yaya::char_t>(0xfeff) || wstr[0] == static_cast<yaya::char_t>(0xffef)) {
-			wstr += 1;
-		}
-	}
 	if (cutspace) {
 		while (IsSpace(*wstr)) { ++wstr; }
 	}
