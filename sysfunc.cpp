@@ -2381,7 +2381,7 @@ CValue	CSystemFunction::FREADENCODE(const CValue &arg, yaya::string_t &d, int &l
 		readsize = arg.array()[1].GetValueInt();
 	}
 
-	yaya::string_t type = L"";
+	yaya::string_t type = L"base64";
 	if ( arg.array_size() >= 3 ) {
 		type = arg.array()[2].GetValueString();
 	}
