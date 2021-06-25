@@ -30,6 +30,8 @@
 #endif
 ////////////////////////////////////////
 
+#define MAX_ERROR_LOG_HISTORY 20
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CLog::Start
  *  機能概要：  ロギングを開始します
@@ -222,9 +224,9 @@ void	CLog::Filename(const yaya::string_t &filename)
  *  機能概要：  idで指定された既定のメッセージをログに書き込みます
  * -----------------------------------------------------------------------
  */
-void	CLog::Message(int id)
+void	CLog::Message(int id, int mode)
 {
-	Write((msglang) ? (yaya::char_t *)msge[id] : (yaya::char_t *)msgj[id], 0);
+	Write((msglang) ? (yaya::char_t *)msge[id] : (yaya::char_t *)msgj[id], mode);
 }
 
 /* -----------------------------------------------------------------------
@@ -241,11 +243,9 @@ void	CLog::Message(int id)
  */
 void	CLog::Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t &dicfilename, int linecount)
 {
-	if (!enable)
-		return;
-
 	// ログに書き込み文字列を作成（辞書ファイル名と行番号）
 	yaya::string_t	logstr;
+
 	if (dicfilename.empty())
 		logstr = L"-(-) : ";
 	else {
@@ -285,7 +285,20 @@ void	CLog::Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t
 		logstr += L" : ";
 		logstr += ref;
 	}
+
+	// 念の為改行コードを消しておく
+	for(yaya::string_t::iterator it = logstr.begin(); it != logstr.end(); it++){
+		if ( *it == '\r' || *it == '\n' ) {
+			*it = ' ';
+		}
+	}
+
+	AddErrorLogHistory(logstr);
+
 	// 書き込み
+	if (!enable)
+		return;
+
 	logstr += L'\n';
 	Write(logstr, mode);
 }
@@ -470,3 +483,36 @@ void	CLog::AddIgnoreIologString(const yaya::string_t &ignorestr){
 void	CLog::ClearIgnoreIologString(){
 	ignore_iolog_strings.clear();
 }
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CLog::AddErrorLogHistory
+ *  機能概要：  内部エラーログ履歴に追加します
+ * -----------------------------------------------------------------------
+ */
+void    CLog::AddErrorLogHistory(const yaya::string_t &err) {
+	if ( error_log_history.size() >= MAX_ERROR_LOG_HISTORY ) {
+		error_log_history.pop_back();
+	}
+	error_log_history.push_front(err);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CLog::GetErrorLogHistory
+ *  機能概要：  内部エラーログ履歴を返します
+ * -----------------------------------------------------------------------
+ */
+std::deque<yaya::string_t> & CLog::GetErrorLogHistory(void) {
+	return error_log_history;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CLog::SetErrorLogHistory
+ *  機能概要：  内部エラーログ履歴を直接設定します
+ * -----------------------------------------------------------------------
+ */
+void CLog::SetErrorLogHistory(std::deque<yaya::string_t> &log) {
+	for ( std::deque<yaya::string_t>::iterator it = log.begin() ; it != log.end() ; ++it ) {
+		error_log_history.push_front(*it);
+	}
+}
+

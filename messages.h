@@ -175,6 +175,8 @@ const wchar_t	msgj[][96] = {
 	L"// 変数値の保存 ",
 	L"...完了.\n\n",
 	L"// 辞書の構文解析と中間コード生成\n",
+	L"// 辞書エラーを検出：緊急モードで再読み込み中...\n",
+	L"// 辞書エラーを検出：緊急モードで再読み込みしました\n",
 };
 #else
 /* 残念ながら、ワイド文字の埋め込みは文字コードを明示的に指定する方法が無いため
@@ -337,6 +339,8 @@ const wchar_t	msge[][96] = {
 	L"// Saving of variable value ",
 	L"...Done.\n\n",
 	L"// Parsing of dictionary\n",
+	L"// Dictionary error found : Emergency mode loading...\n",
+	L"// Dictionary error found : Emergency mode loaded.\n",
 };
 
 //----

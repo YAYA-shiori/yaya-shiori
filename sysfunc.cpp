@@ -91,7 +91,7 @@ extern "C" {
 #endif
 #endif
 
-#define	SYSFUNC_NUM					137 //システム関数の全数
+#define	SYSFUNC_NUM					138 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -288,6 +288,8 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"GETENV",
 	// ファイル操作(7)
 	L"FWRITEDECODE",
+	// デバッグ用(4)
+	L"GETERRORLOG",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -689,6 +691,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return GETENV(arg, d, l);
 	case 136:
 		return FWRITEDECODE(arg, d, l);
+	case 137:
+		return GETERRORLOG(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -953,6 +957,27 @@ CValue	CSystemFunction::LOGGING(const CValue &arg, yaya::string_t &/*d*/, int &/
 	vm.logger().Write(L"\n");
 
 	return CValue(F_TAG_NOP, 0/*dmy*/);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::GETERRORLOG
+ *
+ *  エラーログを配列で返します
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::GETERRORLOG(const CValue &arg, yaya::string_t &d, int &l)
+{
+
+	CValue result(F_TAG_ARRAY, 0/*dmy*/);
+
+	//絞りこみ文字列がない場合
+	std::deque<yaya::string_t> &log = vm.logger().GetErrorLogHistory();
+
+	for(std::deque<yaya::string_t>::iterator it = log.begin(); it != log.end(); it++) {
+		result.array().push_back(CValueSub(*it));
+	}
+
+	return result;
 }
 
 /* -----------------------------------------------------------------------
@@ -2446,21 +2471,31 @@ CValue	CSystemFunction::FWRITEBIN(const CValue &arg, yaya::string_t &d, int &l)
  */
 CValue	CSystemFunction::FWRITEDECODE(const CValue &arg, yaya::string_t &d, int &l)
 {
-	if (arg.array_size() < 3) {
+	if (arg.array_size() < 2) {
 		vm.logger().Error(E_W, 8, L"FWRITEDECODE", d, l);
 		SetError(8);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
     if (!arg.array()[0].IsString() ||
-		!arg.array()[1].IsString() ||
-		!arg.array()[2].IsString()) {
+		!arg.array()[1].IsString()) {
 		vm.logger().Error(E_W, 9, L"FWRITEDECODE", d, l);
 		SetError(9);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	if (!vm.files().WriteDecode(ToFullPath(arg.array()[0].s_value), arg.array()[1].s_value, arg.array()[2].s_value) ) {
+	yaya::string_t type = L"base64";
+
+	if (arg.array_size() >= 3) {
+		if (!arg.array()[2].IsString()) {
+			vm.logger().Error(E_W, 9, L"FWRITEBIN", d, l);
+			SetError(9);
+			return CValue(F_TAG_NOP, 0/*dmy*/);
+		}
+		type = arg.array()[2].s_value;
+	}
+
+	if (!vm.files().WriteDecode(ToFullPath(arg.array()[0].s_value), arg.array()[1].s_value, type) ) {
 		vm.logger().Error(E_W, 13, L"FWRITEDECODE", d, l);
 		SetError(13);
 	}

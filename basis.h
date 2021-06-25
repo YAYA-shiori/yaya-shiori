@@ -75,6 +75,7 @@ protected:
 
 	yaya::string_t	logpath;				// ログファイルのパス
 	yaya::string_t	modulename;				// モジュールの主ファイル名（例えばa.dllの場合は"a"）
+	yaya::string_t  config_file_name_trailer;  // 主設定ファイル名生成時のトレイラー(通常は空)
 	char	suppress;				// 自律動作抑止（構文解析でエラーが起きた際に動作をマスクするために使用します）
 	char	checkparser;			// 構文解析結果のログへの記録を指示するフラグ
 	char	iolog;					// 入出力のログへの記録を指示するフラグ
@@ -94,7 +95,7 @@ public:
 
 	char	IsRun(void) { return run; }
 
-	void	SetModuleName(const yaya::string_t &s);
+	void	SetModuleName(const yaya::string_t &s,const yaya::char_t *trailer = NULL);
 #if defined(WIN32) || defined(_WIN32_WCE)
 	void	SetLogRcvWnd(long hwnd);
 #endif
@@ -125,8 +126,9 @@ public:
 
 	void    SetOutputCharset(char cst) { output_charset = cst; }
 
-protected:
 	char	IsSuppress(void);
+
+protected:
 	void	SetSuppress(void);
 	void	ResetSuppress(void);
 

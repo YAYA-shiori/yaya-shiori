@@ -92,14 +92,21 @@ CBasis::CBasis(CAyaVM &vmr) : vm(vmr)
  *  ついでにモジュールの主ファイル名取得も行います
  * -----------------------------------------------------------------------
  */
-void	CBasis::SetModuleName(const yaya::string_t &s)
+void	CBasis::SetModuleName(const yaya::string_t &s,const yaya::char_t *trailer)
 {
 	modulename = s;
+
+	if ( trailer ) {
+		config_file_name_trailer = trailer;
+	}
+	else {
+		config_file_name_trailer.erase(config_file_name_trailer.begin(), config_file_name_trailer.end());
+	}
 }
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CBasis::SetPath
- *  機能概要：  HGLOBALに格納されたファイルパスを取得し、HGLOBALは開放します
+ *  機能概要：  HGLOBALに格納されたファイルパスを取得します HGLOBALは開放しません
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32) || defined(_WIN32_WCE)
@@ -108,7 +115,7 @@ void	CBasis::SetPath(yaya::global_t h, int len)
 	// 取得と領域開放
 	std::string	mbpath;
 	mbpath.assign((char *)h, 0, len);
-	GlobalFree(h);
+	//GlobalFree(h); //load側で開放
 	h = NULL;
 
 	// 文字コードをUCS-2へ変換（ここでのマルチバイト文字コードはOSデフォルト）
@@ -128,7 +135,7 @@ void	CBasis::SetPath(yaya::global_t h, int len)
 {
     // 取得と領域開放
     path = widen(std::string(h, static_cast<std::string::size_type>(len)));
-    free(h);
+    //free(h); //load側で開放
 	h = NULL;
     // スラッシュで終わってなければ付ける。
     if (path.length() == 0 || path[path.length() - 1] != L'/') {
@@ -321,7 +328,7 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 	// 設定ファイル("name".txt)読み取り
 
 	// ファイルを開く
-	yaya::string_t	filename = load_path + modulename + L".txt";
+	yaya::string_t	filename = load_path + modulename + config_file_name_trailer + L".txt";
 	FILE	*fp = yaya::w_fopen(filename.c_str(), L"r");
 	if (fp == NULL) {
 		SetSuppress();

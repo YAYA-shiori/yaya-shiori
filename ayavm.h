@@ -51,6 +51,9 @@ private:
 	MersenneTwister rs_internal;
 
 public:
+	CAyaVM() {}
+	virtual ~CAyaVM() {}
+
 	void Load(void);
 	void Unload(void);
 

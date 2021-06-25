@@ -15,6 +15,7 @@
 #endif
 
 #include <vector>
+#include <deque>
 
 #include "globaldef.h"
 
@@ -41,6 +42,7 @@ protected:
 	std::vector<yaya::string_t> ignore_iolog_strings;
 	char		ignore_iolog_noresult;//ª‚Ì“ü—ÍŒã‚Éo—Í‚à—}§‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
 
+	std::deque<yaya::string_t> error_log_history;
 
 public:
 	CLog(void)
@@ -61,7 +63,7 @@ public:
 	void	Write(const yaya::string_t &str, int mode = 0);
 	void	Write(const yaya::char_t *str, int mode = 0);
 
-	void	Message(int id);
+	void	Message(int id, int mode = 0);
 	void	Filename(const yaya::string_t &filename);
 
 	void	Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t &dicfilename, int linecount);
@@ -82,10 +84,15 @@ public:
 	void	AddIgnoreIologString(const yaya::string_t &ignorestr);
 	void	ClearIgnoreIologString();
 
+	std::deque<yaya::string_t> & GetErrorLogHistory(void);
+	void SetErrorLogHistory(std::deque<yaya::string_t> &log);
+
 protected:
 #if defined(WIN32)
 	HWND	GetCheckerWnd(void);
 #endif
+
+	void    AddErrorLogHistory(const yaya::string_t &err);
 
 };
 

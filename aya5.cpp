@@ -22,8 +22,11 @@
 #include "ayavm.h"
 #include "ccct.h"
 #include "manifest.h"
+#include "messages.h"
 
-static std::vector<CAyaVM*> vm;
+class CAyaVMWrapper;
+
+static std::vector<CAyaVMWrapper*> vm;
 static yaya::string_t modulename;
 
 //////////DEBUG/////////////////////////
@@ -34,6 +37,70 @@ static yaya::string_t modulename;
 #endif
 #endif
 ////////////////////////////////////////
+
+class CAyaVMWrapper {
+private:
+	CAyaVM *vm;
+
+public:
+	CAyaVMWrapper(const yaya::string_t &path, yaya::global_t h, long len) {
+		vm = new CAyaVM();
+
+		vm->basis().SetModuleName(modulename);
+
+		vm->Load();
+
+		vm->basis().SetPath(h, len);
+		vm->basis().Configure();
+
+		if ( vm->basis().IsSuppress() ) {
+			vm->logger().Message(10,E_E);
+
+			CAyaVM *vme = new CAyaVM();
+
+			vme->basis().SetModuleName(modulename,L"_emerg");
+
+			vme->Load();
+
+			vme->basis().SetPath(h, len);
+			vme->basis().Configure();
+
+			vme->logger().Message(11,E_E);
+
+			if ( ! vme->basis().IsSuppress() ) {
+				vme->logger().SetErrorLogHistory(vm->logger().GetErrorLogHistory()); //ƒGƒ‰[ƒƒO‚ðˆø‚«Œp‚®
+
+				delete vm;
+				vm = vme;
+			}
+		}
+	}
+	virtual ~CAyaVMWrapper() {
+		vm->basis().Termination();
+
+		vm->Unload();
+
+		delete vm;
+	}
+
+	bool IsSuppress(void) {
+		if ( ! vm ) { return true; }
+		return vm->basis().IsSuppress() != 0;
+	}
+
+	yaya::global_t ExecuteRequest(yaya::global_t h, long *len, bool is_debug)
+	{
+		if ( ! vm ) { return NULL; }
+		return vm->basis().ExecuteRequest(h,len,is_debug);
+	}
+
+	void SetLogRcvWnd(long hwnd)
+	{
+		if ( ! vm ) { return; }
+		vm->basis().SetLogRcvWnd(hwnd);
+	}
+
+};
 
 class CAyaVMPrepare {
 public:
@@ -101,14 +168,15 @@ extern "C" BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPV
  */
 extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB load(yaya::global_t h, long len)
 {
-	vm[0] = new CAyaVM;
+	if ( vm[0] ) { delete vm[0]; }
 
-	vm[0]->basis().SetModuleName(modulename);
+	vm[0] = new CAyaVMWrapper(modulename,h,len);
 
-	vm[0]->Load();
-
-	vm[0]->basis().SetPath(h, len);
-	vm[0]->basis().Configure();
+#if defined(WIN32) || defined(_WIN32_WCE)
+	::GlobalFree(h);
+#elif defined(POSIX)
+    free(h);
+#endif
 
     return 1;
 }
@@ -129,16 +197,15 @@ extern "C" DLLEXPORT long FUNCATTRIB multi_load(yaya::global_t h, long len)
 		id = (long)vm.size() - 1;
 	}
 
-	vm[id] = new CAyaVM;
+	vm[id] = new CAyaVMWrapper(modulename,h,len);
 
-	vm[id]->basis().SetModuleName(modulename);
+#if defined(WIN32) || defined(_WIN32_WCE)
+	::GlobalFree(h);
+#elif defined(POSIX)
+    free(h);
+#endif
 
-	vm[id]->Load();
-
-	vm[id]->basis().SetPath(h, len);
-	vm[id]->basis().Configure();
-
-    return id;
+	return id;
 }
 
 /* -----------------------------------------------------------------------
@@ -147,12 +214,10 @@ extern "C" DLLEXPORT long FUNCATTRIB multi_load(yaya::global_t h, long len)
  */
 extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB unload()
 {
-	vm[0]->basis().Termination();
-
-	vm[0]->Unload();
-
-	delete vm[0];
-	vm[0] = NULL;
+	if ( vm[0] ) {
+		delete vm[0];
+		vm[0] = NULL;
+	}
 
     return 1;
 }
@@ -162,10 +227,6 @@ extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB multi_unload(long id)
 	if ( id <= 0 || id > (long)vm.size() || vm[id] == NULL ) { //1‚©‚ç 0”Ô‚Í]—ˆ—p
 		return 0;
 	}
-
-	vm[id]->basis().Termination();
-
-	vm[id]->Unload();
 
 	delete vm[id];
 	vm[id] = NULL;
@@ -180,7 +241,7 @@ extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB multi_unload(long id)
 extern "C" DLLEXPORT yaya::global_t FUNCATTRIB request(yaya::global_t h, long *len)
 {
 	if ( vm[0] ) {
-		return vm[0]->basis().ExecuteRequest(h, len, false);
+		return vm[0]->ExecuteRequest(h, len, false);
 	}
 	else {
 		return NULL;
@@ -194,7 +255,7 @@ extern "C" DLLEXPORT yaya::global_t FUNCATTRIB multi_request(long id, yaya::glob
 	}
 
 	if ( vm[id] ) {
-		return vm[id]->basis().ExecuteRequest(h, len, false);
+		return vm[id]->ExecuteRequest(h, len, false);
 	}
 	else {
 		return NULL;
@@ -211,10 +272,10 @@ extern "C" DLLEXPORT yaya::global_t FUNCATTRIB multi_request(long id, yaya::glob
 extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB logsend(long hwnd)
 {
 	if ( vm[0] ) {
-		vm[0]->basis().SetLogRcvWnd(hwnd);
+		vm[0]->SetLogRcvWnd(hwnd);
 	}
 	else if ( vm.size() >= 2 && vm[1] ) {
-		vm[1]->basis().SetLogRcvWnd(hwnd);
+		vm[1]->SetLogRcvWnd(hwnd);
 	}
 
 	return TRUE;

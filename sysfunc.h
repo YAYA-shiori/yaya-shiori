@@ -84,6 +84,7 @@ protected:
 	CValue	ISFUNC(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	ISVAR(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l);
 	CValue	LOGGING(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	GETERRORLOG(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	LOADLIB(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	UNLOADLIB(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	REQUESTLIB(const CValue &arg, yaya::string_t &d, int &l);
