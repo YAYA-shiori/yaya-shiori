@@ -2381,7 +2381,7 @@ CValue	CSystemFunction::FREADENCODE(const CValue &arg, yaya::string_t &d, int &l
 		readsize = arg.array()[1].GetValueInt();
 	}
 
-	yaya::string_t type = L"";
+	yaya::string_t type = L"base64";
 	if ( arg.array_size() >= 3 ) {
 		type = arg.array()[2].GetValueString();
 	}
@@ -2488,7 +2488,7 @@ CValue	CSystemFunction::FWRITEDECODE(const CValue &arg, yaya::string_t &d, int &
 
 	if (arg.array_size() >= 3) {
 		if (!arg.array()[2].IsString()) {
-			vm.logger().Error(E_W, 9, L"FWRITEBIN", d, l);
+			vm.logger().Error(E_W, 9, L"FWRITEDECODE", d, l);
 			SetError(9);
 			return CValue(F_TAG_NOP, 0/*dmy*/);
 		}
