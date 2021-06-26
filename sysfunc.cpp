@@ -3756,7 +3756,7 @@ CValue	CSystemFunction::GETSECCOUNT(const CValue &arg, yaya::string_t &d, int &l
 		return CValue((int)ltime);
 	}
 
-	struct tm input_time;
+	struct tm input_time{};
 	time(&ltime);
 	struct tm *today = localtime(&ltime);
 	if ( today ) {

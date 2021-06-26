@@ -1185,7 +1185,7 @@ void	CBasis::ExecuteUnload(void)
  *  機能概要：  関数位置を探し、位置と「探したかどうか」をキャッシュします
  * -----------------------------------------------------------------------
  */
-int CBasisFuncPos::Find(CAyaVM &vm,yaya::char_t *name)
+int CBasisFuncPos::Find(CAyaVM &vm,const yaya::char_t *name)
 {
 	if ( is_try_find ) {
 		return pos_saved;
