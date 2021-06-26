@@ -38,7 +38,20 @@
 #endif
 #endif
 ////////////////////////////////////////
-
+CAyaVM CAyaVM::get_a_deep_copy(){
+	CAyaVM aret=*this;
+	#define copy_new(name) aret.name=new decltype(*(CAyaVM().name)) (*name)
+	copy_new(m_basis);
+	copy_new(m_function);
+	copy_new(m_functionmap);
+	copy_new(m_gdefines);
+	copy_new(m_calldepth);
+	copy_new(m_sysfunction);
+	copy_new(m_variable);
+	copy_new(m_files);
+	copy_new(m_libs);
+	#undef copy_new
+}
 
 /*-----------------------------------------------
 	初期化
@@ -127,6 +140,8 @@ void CAyaVM::genrand_sysfunc_srand_array(const unsigned long a[],const int n)
 
 
 FACTORY_DEFINE_PLAIN(yaya::indexmap,functionmap)
+
+FACTORY_DEFINE_PLAIN(std::vector<CDefine>,m_gdefines)
 
 FACTORY_DEFINE_THIS(CBasis,basis)
 

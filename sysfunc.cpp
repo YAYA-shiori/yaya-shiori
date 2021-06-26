@@ -3116,7 +3116,35 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 
 	return CValue(yaya::string_t(md5str));
 }
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::DICLOAD
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::DICLOAD(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if (!arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"DICLOAD", d, l);
+		SetError(8);
+		return CValue(-1);
+	}
 
+	if (!arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"DICLOAD", d, l);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	yaya::string_t fullpath = ToFullPath(arg.array()[0].s_value);
+	char cset = dic_charset;
+	if ( arg.array()[1].size() ) {
+		char cx = Ccct::CharsetTextToID(arg.array()[1].c_str());
+		if ( cx != CHARSET_DEFAULT ) {
+			cset = cx;
+		}
+	}
+
+	return CValue((int)vm.parser0().LoadDictionary(fullpath,cset));
+}
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::FSIZE
  *
@@ -3756,7 +3784,7 @@ CValue	CSystemFunction::GETSECCOUNT(const CValue &arg, yaya::string_t &d, int &l
 		return CValue((int)ltime);
 	}
 
-	struct tm input_time;
+	struct tm input_time{};
 	time(&ltime);
 	struct tm *today = localtime(&ltime);
 	if ( today ) {
