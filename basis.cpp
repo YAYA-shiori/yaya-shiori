@@ -503,7 +503,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 	// fncdepth
 	if ( cmd.compare(L"fncdepth") == 0 ) {
 		int	f_depth = yaya::ws_atoi(param, 10);
-		vm.calldepth().SetMaxDepth((f_depth < 2) ? 2 : f_depth);
+		vm.calldepth().SetMaxDepth((f_depth < 2 && f_depth != 0) ? 2 : f_depth);
 		return true;
 	}
 	// checkparser closed function
