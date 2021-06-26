@@ -1,11 +1,11 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// o—Í‚Ì‘I‘ğ‚ğs‚È‚¤ƒNƒ‰ƒX@CSelecter/CDuplEvInfo
+// å‡ºåŠ›ã®é¸æŠã‚’è¡Œãªã†ã‚¯ãƒ©ã‚¹ã€€CSelecter/CDuplEvInfo
 // written by umeici. 2004
 // 
-// CSelecter‚Ío—Í‚Ì‘I‘ğ‚ğs‚È‚¢‚Ü‚·B
-// CDuplEvInfo‚Íd•¡‰ñ”ğ‚ğs‚È‚¢‚Ü‚·B
+// CSelecterã¯å‡ºåŠ›ã®é¸æŠã‚’è¡Œãªã„ã¾ã™ã€‚
+// CDuplEvInfoã¯é‡è¤‡å›é¿ã‚’è¡Œãªã„ã¾ã™ã€‚
 //
 
 #ifndef	SELECTERH
@@ -23,11 +23,11 @@
 #include "value.h"
 #include "variable.h"
 
-#define	CHOICETYPE_RANDOM		0	/* í‚É–³ìˆ×‚Éƒ‰ƒ“ƒ_ƒ€iƒfƒtƒHƒ‹ƒgj*/
-#define	CHOICETYPE_NONOVERLAP	1	/* ƒ‰ƒ“ƒ_ƒ€‚¾‚ªˆê„‚·‚é‚Ü‚Åd•¡‘I‘ğ‚µ‚È‚¢ */
-#define	CHOICETYPE_SEQUENTIAL	2	/* ‡”Ô‚É‘I‘ğ‚·‚é */
-#define	CHOICETYPE_VOID			3	/* o—Í‚È‚µ */
-#define	CHOICETYPE_ARRAY		4	/* ŠÈˆÕ”z—ñ•Ò¬ */
+#define	CHOICETYPE_RANDOM		0	/* å¸¸ã«ç„¡ä½œç‚ºã«ãƒ©ãƒ³ãƒ€ãƒ ï¼ˆãƒ‡ãƒ•ã‚©ãƒ«ãƒˆï¼‰*/
+#define	CHOICETYPE_NONOVERLAP	1	/* ãƒ©ãƒ³ãƒ€ãƒ ã ãŒä¸€å·¡ã™ã‚‹ã¾ã§é‡è¤‡é¸æŠã—ãªã„ */
+#define	CHOICETYPE_SEQUENTIAL	2	/* é †ç•ªã«é¸æŠã™ã‚‹ */
+#define	CHOICETYPE_VOID			3	/* å‡ºåŠ›ãªã— */
+#define	CHOICETYPE_ARRAY		4	/* ç°¡æ˜“é…åˆ—ç·¨æˆ */
 
 #define	CHOICETYPE_NUM			5
 
@@ -54,14 +54,14 @@ public:
 class	CDuplEvInfo
 {
 protected:
-	int				type;			// ‘I‘ğí•Ê
+	int				type;			// é¸æŠç¨®åˆ¥
 
-	std::vector<int>	num;			// --‚Å‹æØ‚ç‚ê‚½—Ìˆæ–ˆ‚ÌŒó•â”
-	std::vector<int>	roundorder;		// „‰ñ‡˜
+	std::vector<int>	num;			// --ã§åŒºåˆ‡ã‚‰ã‚ŒãŸé ˜åŸŸæ¯ã®å€™è£œæ•°
+	std::vector<int>	roundorder;		// å·¡å›é †åº
 
-	int				lastroundorder; // ’¼‘O‚Ì„‰ñ‡˜’l
-	int				total;			// o—ÍŒó•â’l‚Ì‘”
-	int				index;			// Œ»İ‚Ì„‰ñˆÊ’u
+	int				lastroundorder; // ç›´å‰ã®å·¡å›é †åºå€¤
+	int				total;			// å‡ºåŠ›å€™è£œå€¤ã®ç·æ•°
+	int				index;			// ç¾åœ¨ã®å·¡å›ä½ç½®
 
 private:
 	CDuplEvInfo(void);
@@ -91,10 +91,10 @@ class CSelecter
 {
 protected:
 	CAyaVM &vm;
-	std::vector<CVecValue>	values;			// o—ÍŒó•â’l
-	int					areanum;		// o—ÍŒó•â‚ğ’~Ï‚·‚é—Ìˆæ‚Ì”
-	CDuplEvInfo			*duplctl;		// ‘Î‰‚·‚éd•¡‰ñ”ğî•ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^
-	int					aindex;			// switch\•¶‚Åg—p
+	std::vector<CVecValue>	values;			// å‡ºåŠ›å€™è£œå€¤
+	int					areanum;		// å‡ºåŠ›å€™è£œã‚’è“„ç©ã™ã‚‹é ˜åŸŸã®æ•°
+	CDuplEvInfo			*duplctl;		// å¯¾å¿œã™ã‚‹é‡è¤‡å›é¿æƒ…å ±ã¸ã®ãƒã‚¤ãƒ³ã‚¿
+	int					aindex;			// switchæ§‹æ–‡ã§ä½¿ç”¨
 
 private:
 	CSelecter(void);

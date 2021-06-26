@@ -1,56 +1,56 @@
-/******************************************************************************
-	ƒoƒxƒ‹ -babel-
-		ƒoƒxƒ‹ƒ‚ƒWƒ…[ƒ‹ƒ\[ƒXƒtƒ@ƒCƒ‹
+ï»¿/******************************************************************************
+	ãƒãƒ™ãƒ« -babel-
+		ãƒãƒ™ãƒ«ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã‚½ãƒ¼ã‚¹ãƒ•ã‚¡ã‚¤ãƒ«
 											Coded by Wraith	in July 14, 2002.
 ******************************************************************************/
 
-//@Tab•‚ğ‚S•¶š‚Éİ’è‚µ‚Ä•\¦‚³‚¹‚Ä‚­‚¾‚³‚¢B
+//ã€€Tabå¹…ã‚’ï¼”æ–‡å­—ã«è¨­å®šã—ã¦è¡¨ç¤ºã•ã›ã¦ãã ã•ã„ã€‚
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	¡ babel.cpp
+//	â–  babel.cpp
 //		http://tricklib.com/cxx/ex/babel/babel.cpp
 //
-//	  ŠÖ˜Aƒtƒ@ƒCƒ‹
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Ìƒwƒbƒ_ƒtƒ@ƒCƒ‹
+//	â–¡ é–¢é€£ãƒ•ã‚¡ã‚¤ãƒ«
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã®ãƒ˜ãƒƒãƒ€ãƒ•ã‚¡ã‚¤ãƒ«
 //		http://tricklib.com/cxx/ex/babel/bbl.h
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éƒXƒRƒAƒ}ƒbƒsƒ“ƒOCSV
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹ã‚¹ã‚³ã‚¢ãƒãƒƒãƒ”ãƒ³ã‚°CSV
 //		http://tricklib.com/cxx/ex/babel/scoremap.csv
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éCP932ƒ}ƒbƒsƒ“ƒOCSV
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹CP932ãƒãƒƒãƒ”ãƒ³ã‚°CSV
 //		http://tricklib.com/cxx/ex/babel/cp932.csv
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éUTCƒ}ƒbƒsƒ“ƒOCSV
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹UTCãƒãƒƒãƒ”ãƒ³ã‚°CSV
 //		http://tricklib.com/cxx/ex/babel/utc.csv
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éƒAƒbƒvƒ‹ƒ}ƒbƒsƒ“ƒOCSV
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹ã‚¢ãƒƒãƒ—ãƒ«ãƒãƒƒãƒ”ãƒ³ã‚°CSV
 //		http://tricklib.com/cxx/ex/babel/apple.csv
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éSJIS-EUCƒ}ƒbƒsƒ“ƒOCSV
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹SJIS-EUCãƒãƒƒãƒ”ãƒ³ã‚°CSV
 //		http://tricklib.com/cxx/ex/babel/sjis-euc.csv
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éEUC-UNICODEƒ}ƒbƒsƒ“ƒOCSV
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹EUC-UNICODEãƒãƒƒãƒ”ãƒ³ã‚°CSV
 //		http://tricklib.com/cxx/ex/babel/euc-uni.csv
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éCP932ƒ}ƒbƒsƒ“ƒOƒf[ƒ^ƒtƒ@ƒCƒ‹
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹CP932ãƒãƒƒãƒ”ãƒ³ã‚°ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«
 //		http://tricklib.com/cxx/ex/babel/c932-uni.dat
 //		http://tricklib.com/cxx/ex/babel/uni-c932.dat
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éUTCƒ}ƒbƒsƒ“ƒOƒf[ƒ^ƒtƒ@ƒCƒ‹
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹UTCãƒãƒƒãƒ”ãƒ³ã‚°ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«
 //		http://tricklib.com/cxx/ex/babel/utc-uni.dat
 //		http://tricklib.com/cxx/ex/babel/uni-utc.dat
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éSJIS-EUCƒ}ƒbƒsƒ“ƒOƒf[ƒ^ƒtƒ@ƒCƒ‹
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹SJIS-EUCãƒãƒƒãƒ”ãƒ³ã‚°ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«
 //		http://tricklib.com/cxx/ex/babel/sjis-euc.dat
 //		http://tricklib.com/cxx/ex/babel/euc-sjis.dat
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éEUC-UNICODEƒ}ƒbƒsƒ“ƒOƒf[ƒ^ƒtƒ@ƒCƒ‹
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹EUC-UNICODEãƒãƒƒãƒ”ãƒ³ã‚°ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«
 //		http://tricklib.com/cxx/ex/babel/uni-euc.dat
 //		http://tricklib.com/cxx/ex/babel/euc2-uni.dat
 //		http://tricklib.com/cxx/ex/babel/euc3-uni.dat
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éƒXƒRƒAƒ}ƒbƒsƒ“ƒOƒf[ƒ^ƒtƒ@ƒCƒ‹
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹ã‚¹ã‚³ã‚¢ãƒãƒƒãƒ”ãƒ³ã‚°ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«
 //		http://tricklib.com/cxx/ex/babel/sjis-scr.dat
 //		http://tricklib.com/cxx/ex/babel/euc-scr.dat
 //		http://tricklib.com/cxx/ex/babel/uni-scr.dat
-//		‘Sƒtƒ@ƒCƒ‹ƒpƒbƒN
+//		å…¨ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‘ãƒƒã‚¯
 //		http://tricklib.com/cxx/ex/babel/babel.lzh
 //		http://tricklib.com/cxx/ex/babel/babel.zip
 //
-//	  ƒŠƒtƒ@ƒŒƒ“ƒXEƒTƒ|[ƒgƒy[ƒW
+//	â–¡ ãƒªãƒ•ã‚¡ãƒ¬ãƒ³ã‚¹ãƒ»ã‚µãƒãƒ¼ãƒˆãƒšãƒ¼ã‚¸
 //		http://tricklib.com/cxx/ex/babel/
 //
-//	  ƒ‰ƒCƒZƒ“ƒXî•ñ
+//	â–¡ ãƒ©ã‚¤ã‚»ãƒ³ã‚¹æƒ…å ±
 //		http://tricklib.com/license.htm
 //
 
@@ -61,8 +61,8 @@
 #pragma warning(disable: 4309 4065 4101 4172 4305)
 
 /******************************************************************************
-	 ¡ ¡                      TrickPalace                        ¡ ¡
-	¡ ¡               http://www.trickpalace.net/               ¡ ¡ 
+	â–¡â– â–¡â–                       TrickPalace                       â–¡â– â–¡â– 
+	â– â–¡â– â–¡              http://www.trickpalace.net/               â– â–¡â– â–¡
 ******************************************************************************/
 
 #define ARRAY_SIZE(X)  		(sizeof(X)/sizeof(X[0]))
@@ -102,17 +102,17 @@ inline const wchar_t & unsignize(const wchar_t & X) {
 }
 
 /******************************************************************************
-	 ¡ ¡                       cppll ML                          ¡ ¡
-	¡ ¡            http://www.trickpalace.net/cppll/            ¡ ¡ 
+	â–¡â– â–¡â–                        cppll ML                         â–¡â– â–¡â– 
+	â– â–¡â– â–¡           http://www.trickpalace.net/cppll/            â– â–¡â– â–¡
 ******************************************************************************/
 
 //
-//  œbabel
+//  â—babel
 //
 namespace babel {
 
 //
-//  ¥ŠeíŠî–{ƒf[ƒ^ƒNƒ‰ƒX [ Y ]
+//  â–¼å„ç¨®åŸºæœ¬ãƒ‡ãƒ¼ã‚¿ã‚¯ãƒ©ã‚¹ [ ã€† ]
 //
 
 //	variation one for performance
@@ -208,7 +208,7 @@ typedef const bbl_table bbl_score_map;
 
 
 //
-//  œ•ÏŠ·ƒe[ƒuƒ‹
+//  â—å¤‰æ›ãƒ†ãƒ¼ãƒ–ãƒ«
 //
 namespace bbl_transmap {
 
@@ -230,10 +230,10 @@ namespace bbl_transmap {
 #	if defined(__BBL_USING_STDMAP_TABLE__)
 	const bbl_code cp932_map[] = {
 #		include	"cp932.csv"
-	//	¡source file
+	//	â– source file
 	//	http://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WINDOWS/CP932.TXT
 	//
-	//	¡perl script
+	//	â– perl script
 	//	open(TXT, "CP932.TXT");
 	//	open(CSV, "> cp932.csv");
 	//	while($line = <TXT>) {
@@ -244,18 +244,18 @@ namespace bbl_transmap {
 	//	close(TXT);
 	//	close(CSV);
 	//
-	//	¡information
-	//	ã‹LƒXƒNƒŠƒvƒg‚Å¶¬‚µ‚½ƒtƒ@ƒCƒ‹‚Ì‚Ü‚Ü‚Å‚à\‚í‚È‚¢‚Ì‚Å‚·‚ªA
-	//	ƒvƒƒOƒ‰ƒ€ãÀÛ‚É‚Í 0x00 ` 0x7F ‚Ìƒ}ƒbƒsƒ“ƒO‚ÉŠÖ‚µ‚Ä‚Íg—p
-	//	‚µ‚Ä‚¢‚È‚¢‚Ì‚ÅáŠ±‚ÌŒø—¦‰»‚Ìˆ×‚É“Y•t‚Ì cp932.csv ‚Í‚»‚Ìæ“ª
-	//	‚Ì128s‚ğíœ‚µ‚Ä‚¢‚Ü‚·B‚Ü‚½AˆÙ‚È‚éƒ}ƒbƒsƒ“ƒO‚ÅUNICODE‚É
-	//	•ÏŠ·‚³‚ê‚½ƒeƒLƒXƒg‚ğ‚æ‚èãY—í‚ÈŒ`‚ÅSJIS‚É–ß‚¹‚é‚æ‚¤‚Éƒf[ƒ^‚ğ
-	//	’Ç‰Á‚µ‚Ä‚¢‚Ü‚·B
+	//	â– information
+	//	ä¸Šè¨˜ã‚¹ã‚¯ãƒªãƒ—ãƒˆã§ç”Ÿæˆã—ãŸãƒ•ã‚¡ã‚¤ãƒ«ã®ã¾ã¾ã§ã‚‚æ§‹ã‚ãªã„ã®ã§ã™ãŒã€
+	//	ãƒ—ãƒ­ã‚°ãƒ©ãƒ ä¸Šå®Ÿéš›ã«ã¯ 0x00 ï½ 0x7F ã®ãƒãƒƒãƒ”ãƒ³ã‚°ã«é–¢ã—ã¦ã¯ä½¿ç”¨
+	//	ã—ã¦ã„ãªã„ã®ã§è‹¥å¹²ã®åŠ¹ç‡åŒ–ã®ç‚ºã«æ·»ä»˜ã® cp932.csv ã¯ãã®å…ˆé ­
+	//	ã®128è¡Œã‚’å‰Šé™¤ã—ã¦ã„ã¾ã™ã€‚ã¾ãŸã€ç•°ãªã‚‹ãƒãƒƒãƒ”ãƒ³ã‚°ã§UNICODEã«
+	//	å¤‰æ›ã•ã‚ŒãŸãƒ†ã‚­ã‚¹ãƒˆã‚’ã‚ˆã‚Šç¶ºéº—ãªå½¢ã§SJISã«æˆ»ã›ã‚‹ã‚ˆã†ã«ãƒ‡ãƒ¼ã‚¿ã‚’
+	//	è¿½åŠ ã—ã¦ã„ã¾ã™ã€‚
 
-	//	‚±‚ê‚Í MS-Winddows ‚Ås‚í‚ê‚é•ÏŠ·‚Ég—p‚³‚ê‚éƒ}ƒbƒsƒ“ƒO‚Å‚·‚ªA
-	//	UTC‚ªŒö•\‚µ‚Ä‚éƒ}ƒbƒsƒ“ƒO‚âƒAƒbƒvƒ‹‚Ìƒ}ƒbƒsƒ“ƒO‚ğg—p‚·‚éê‡
-	//	‚Í‚»‚ê‚¼‚ê __BBL_UNICODE_MAP_UTC__ ‚à‚µ‚­‚Í __BBL_UNICODE_MAP_APPLE__
-	//	 ƒ}ƒNƒ‚ğw’è‚µ‚Ä‚­‚¾‚³‚¢B
+	//	ã“ã‚Œã¯ MS-Winddows ã§è¡Œã‚ã‚Œã‚‹å¤‰æ›ã«ä½¿ç”¨ã•ã‚Œã‚‹ãƒãƒƒãƒ”ãƒ³ã‚°ã§ã™ãŒã€
+	//	UTCãŒå…¬è¡¨ã—ã¦ã‚‹ãƒãƒƒãƒ”ãƒ³ã‚°ã‚„ã‚¢ãƒƒãƒ—ãƒ«ã®ãƒãƒƒãƒ”ãƒ³ã‚°ã‚’ä½¿ç”¨ã™ã‚‹å ´åˆ
+	//	ã¯ãã‚Œãã‚Œ __BBL_UNICODE_MAP_UTC__ ã‚‚ã—ãã¯ __BBL_UNICODE_MAP_APPLE__
+	//	 ãƒã‚¯ãƒ­ã‚’æŒ‡å®šã—ã¦ãã ã•ã„ã€‚
 	};
 #	endif	//	defined(__BBL_USING_STDMAP_TABLE__)
 
@@ -292,10 +292,10 @@ namespace bbl_transmap {
 #	if defined(__BBL_USING_STDMAP_TABLE__)
 	const bbl_code utc_map[] = {
 #		include	"utc.csv"
-	//	¡source file
+	//	â– source file
 	//	http://www.unicode.org/Public/MAPPINGS/OBSOLETE/EASTASIA/JIS/SHIFTJIS.TXT
 	//
-	//	¡perl script
+	//	â– perl script
 	//	open(TXT, "SHIFTJIS.TXT");
 	//	open(CSV, "> utc.csv");
 	//	while($line = <TXT>) {
@@ -306,11 +306,11 @@ namespace bbl_transmap {
 	//	close(TXT);
 	//	close(CSV);
 	//
-	//	¡information
-	//	cp932.csv ‚Æˆá‚¢‚±‚Ìƒ}ƒbƒsƒ“ƒO‚Å‚Í•\¦‚ª—Dæ‚³‚ê 0x5C ‚ª 0x00A5 ‚ÉŠ„‚è
-	//	“–‚Ä‚ç‚ê‚Ä‚¢‚Ü‚·‚Ì‚Å’ˆÓ‚µ‚Ä‚­‚¾‚³‚¢B‚Ü‚½A‚±‚Ìƒ}ƒbƒsƒ“ƒO‚É‚Í”¼ŠpƒJƒi
-	//	‚Ì•”•ª‚Ìƒ}ƒbƒsƒ“ƒO‚ª‘¶İ‚µ‚È‚¢‚Ì‚Å“Y•t‚Ì utc.csv ‚É‚Í•Ö‹Xã cp932.csv
-	//	‚æ‚èŠY“–•”•ª‚ğƒRƒsƒy‚µ‚Ä‚¢‚Ü‚·B
+	//	â– information
+	//	cp932.csv ã¨é•ã„ã“ã®ãƒãƒƒãƒ”ãƒ³ã‚°ã§ã¯è¡¨ç¤ºãŒå„ªå…ˆã•ã‚Œ 0x5C ãŒ 0x00A5 ã«å‰²ã‚Š
+	//	å½“ã¦ã‚‰ã‚Œã¦ã„ã¾ã™ã®ã§æ³¨æ„ã—ã¦ãã ã•ã„ã€‚ã¾ãŸã€ã“ã®ãƒãƒƒãƒ”ãƒ³ã‚°ã«ã¯åŠè§’ã‚«ãƒŠ
+	//	ã®éƒ¨åˆ†ã®ãƒãƒƒãƒ”ãƒ³ã‚°ãŒå­˜åœ¨ã—ãªã„ã®ã§æ·»ä»˜ã® utc.csv ã«ã¯ä¾¿å®œä¸Š cp932.csv
+	//	ã‚ˆã‚Šè©²å½“éƒ¨åˆ†ã‚’ã‚³ãƒ”ãƒšã—ã¦ã„ã¾ã™ã€‚
 	};
 #	endif	//	defined(__BBL_USING_STDMAP_TABLE__)
 
@@ -327,10 +327,10 @@ namespace bbl_transmap {
 #if defined(__BBL_LOAD_UNICODE_MAP_APPLE__)
 	const bbl_code appll_map[] = {
 #		include	"apple.csv"
-	//	¡source file
+	//	â– source file
 	//	http://www.unicode.org/Public/MAPPINGS/VENDORS/APPLE/JAPANESE.TXT
 	//
-	//	¡perl script
+	//	â– perl script
 	//	open(TXT, "JAPANESE.TXT");
 	//	open(CSV, "> apple.csv");
 	//	while($line = <TXT>) {
@@ -345,28 +345,28 @@ namespace bbl_transmap {
 	//	close(TXT);
 	//	close(CSV);
 	//
-	//	¡information
-	//	cp932.csv ‚Æˆá‚¢‚±‚Ìƒ}ƒbƒsƒ“ƒO‚Å‚Í•\¦‚ª—Dæ‚³‚ê 0x5C ‚ª 0x00A5 ‚ÉŠ„‚è
-	//	“–‚Ä‚ç‚ê‚Ä‚¢‚Ü‚·‚Ì‚Å’ˆÓ‚µ‚Ä‚­‚¾‚³‚¢B‚Ü‚½A‚±‚Ìƒ}ƒbƒsƒ“ƒO‚Í‘¼‚Ì“ñ‚Â‚Ì
-	//	ƒ}ƒbƒsƒ“ƒO‚Æ‚ÍˆÙ‚È‚è Shift_JIS ã‚Å‚Ì‚P•¶š‚ª•¡”ƒ[ƒh‚ÉŠ„‚è“–‚Ä‚ç‚ê‚Ä
-	//	‚¢‚é•¶š‚à‘¶İ‚µ‚Ü‚·B‚Ü‚½A‚±‚Ì•¡”ƒ[ƒh‚ÉŠ„‚è“–‚Ä‚ç‚ê‚Ä‚¢‚é•¶š‚Í
-	//	ƒvƒ‰ƒCƒx[ƒg—Ìˆæ‚ÌƒR[ƒh‚ªg—p‚³‚ê‚Ä‚¢‚½‚èAWindows ‚È‚Ç‚Å‚Í‘Î‰‚³‚ê‚Ä
-	//	‚¢‚È‚¢ƒR[ƒh‚ªg—p‚³‚ê‚Ä‚¢‚éˆ×‚ÉAApple Ğ‚Ìƒ}ƒVƒ“ˆÈŠO‚Å‚»‚ê‚ç‚Ì•¶š‚ª
-	//	³‚µ‚­•\¦‚³‚ê‚é‚±‚Æ‚ÍŠú‘Ò‚Å‚«‚Ü‚¹‚ñB
+	//	â– information
+	//	cp932.csv ã¨é•ã„ã“ã®ãƒãƒƒãƒ”ãƒ³ã‚°ã§ã¯è¡¨ç¤ºãŒå„ªå…ˆã•ã‚Œ 0x5C ãŒ 0x00A5 ã«å‰²ã‚Š
+	//	å½“ã¦ã‚‰ã‚Œã¦ã„ã¾ã™ã®ã§æ³¨æ„ã—ã¦ãã ã•ã„ã€‚ã¾ãŸã€ã“ã®ãƒãƒƒãƒ”ãƒ³ã‚°ã¯ä»–ã®äºŒã¤ã®
+	//	ãƒãƒƒãƒ”ãƒ³ã‚°ã¨ã¯ç•°ãªã‚Š Shift_JIS ä¸Šã§ã®ï¼‘æ–‡å­—ãŒè¤‡æ•°ãƒ¯ãƒ¼ãƒ‰ã«å‰²ã‚Šå½“ã¦ã‚‰ã‚Œã¦
+	//	ã„ã‚‹æ–‡å­—ã‚‚å­˜åœ¨ã—ã¾ã™ã€‚ã¾ãŸã€ã“ã®è¤‡æ•°ãƒ¯ãƒ¼ãƒ‰ã«å‰²ã‚Šå½“ã¦ã‚‰ã‚Œã¦ã„ã‚‹æ–‡å­—ã¯
+	//	ãƒ—ãƒ©ã‚¤ãƒ™ãƒ¼ãƒˆé ˜åŸŸã®ã‚³ãƒ¼ãƒ‰ãŒä½¿ç”¨ã•ã‚Œã¦ã„ãŸã‚Šã€Windows ãªã©ã§ã¯å¯¾å¿œã•ã‚Œã¦
+	//	ã„ãªã„ã‚³ãƒ¼ãƒ‰ãŒä½¿ç”¨ã•ã‚Œã¦ã„ã‚‹ç‚ºã«ã€Apple ç¤¾ã®ãƒã‚·ãƒ³ä»¥å¤–ã§ãã‚Œã‚‰ã®æ–‡å­—ãŒ
+	//	æ­£ã—ãè¡¨ç¤ºã•ã‚Œã‚‹ã“ã¨ã¯æœŸå¾…ã§ãã¾ã›ã‚“ã€‚
 	};
 #endif	//	defined(__BBL_LOAD_UNICODE_MAP_APPLE__)
 
-	const bbl_code half_to_full_jis_map1[] = {	//	‘÷“_
+	const bbl_code half_to_full_jis_map1[] = {	//	æ¿ç‚¹
 		0x33, 0x2574,
 		0x36, 0x252C, 0x37, 0x252E, 0x38, 0x2530, 0x39, 0x2532, 0x3A, 0x2534,
 		0x3B, 0x2536, 0x3C, 0x2538, 0x3D, 0x253A, 0x3E, 0x253C, 0x3F, 0x253E,
 		0x40, 0x2540, 0x41, 0x2542, 0x42, 0x2545, 0x43, 0x2547, 0x44, 0x2549,
 		0x4A, 0x2550, 0x4B, 0x2553, 0x4C, 0x2556, 0x4D, 0x2559, 0x4E, 0x255C,
 	};
-	const bbl_code half_to_full_jis_map2[] = {	//	”¼‘÷“_
+	const bbl_code half_to_full_jis_map2[] = {	//	åŠæ¿ç‚¹
 		0x4A, 0x2551, 0x4B, 0x2554, 0x4C, 0x2557, 0x4D, 0x255A, 0x4E, 0x255D,
 	};
-	const bbl_code half_to_full_jis_map3[] = {	//	’P•¶š
+	const bbl_code half_to_full_jis_map3[] = {	//	å˜æ–‡å­—
 				0x2123, 0x2156, 0x2157, 0x2122, 0x2126, 0x2572, 0x2521,
 		0x2523, 0x2525, 0x2527, 0x2529, 0x2563, 0x2565, 0x2567, 0x2543,
 		0x213C, 0x2522, 0x2524, 0x2526, 0x2528, 0x252A, 0x252B, 0x252D,
@@ -434,7 +434,7 @@ namespace bbl_transmap {
 };	//	bbl_transmap
 
 //
-//  œƒXƒRƒAƒe[ƒuƒ‹
+//  â—ã‚¹ã‚³ã‚¢ãƒ†ãƒ¼ãƒ–ãƒ«
 //
 namespace bbl_scoremap {
 #if defined(__BBL_USING_STDMAP_TABLE__)
@@ -442,11 +442,11 @@ namespace bbl_scoremap {
 		//	score, sjis-code, euc-code, utf8-code,	//	sjis-char
 #		include	"scoremap.csv"
 		//
-		//	babel ©g‚ğ—˜—p‚µAƒ[ƒJƒ‹ƒ}ƒVƒ“‚Ì Temporary Internet Files ’†‚Ì
-		//	‘SƒeƒLƒXƒg‚©‚çƒXƒRƒA‚ğì¬BoŒ»”‚ğƒXƒRƒA‚Æ‚µAƒXƒRƒA‚ª 100 ‚É–‚½
-		//	‚È‚¢•¶š‚â UNICODE ã‚Å 0xFF ˆÈ‰º‚ÌƒR[ƒh‚Æ‚È‚é•¶š‚ÍœŠOB
-		//	“ú–{ŒêˆÈŠO(ŠO‘Œê)‚ÌƒeƒLƒXƒg‚àŠÜ‚Ü‚ê‚éˆ×AáŠ±‚ÌƒmƒCƒY‚à¬‚¶‚Á‚Ä‚¢
-		//	‚é‚Æv‚í‚ê‚éB
+		//	babel è‡ªèº«ã‚’åˆ©ç”¨ã—ã€ãƒ­ãƒ¼ã‚«ãƒ«ãƒã‚·ãƒ³ã® Temporary Internet Files ä¸­ã®
+		//	å…¨ãƒ†ã‚­ã‚¹ãƒˆã‹ã‚‰ã‚¹ã‚³ã‚¢ã‚’ä½œæˆã€‚å‡ºç¾æ•°ã‚’ã‚¹ã‚³ã‚¢ã¨ã—ã€ã‚¹ã‚³ã‚¢ãŒ 100 ã«æº€ãŸ
+		//	ãªã„æ–‡å­—ã‚„ UNICODE ä¸Šã§ 0xFF ä»¥ä¸‹ã®ã‚³ãƒ¼ãƒ‰ã¨ãªã‚‹æ–‡å­—ã¯é™¤å¤–ã€‚
+		//	æ—¥æœ¬èªä»¥å¤–(å¤–å›½èª)ã®ãƒ†ã‚­ã‚¹ãƒˆã‚‚å«ã¾ã‚Œã‚‹ç‚ºã€è‹¥å¹²ã®ãƒã‚¤ã‚ºã‚‚æ··ã˜ã£ã¦ã„
+		//	ã‚‹ã¨æ€ã‚ã‚Œã‚‹ã€‚
 	};
 
 	bbl_score_map sjis_score;
@@ -602,7 +602,7 @@ void unicode_to_ansi_engine::translate() {
 #endif	//	defined(__BBL_USE_UNICODE__)
 
 
-const bool sjis_lead_byte[] = { // 0x81`0x9F || 0xE0`0xFC
+const bool sjis_lead_byte[] = { // 0x81ï½0x9F || 0xE0ï½0xFC
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -628,7 +628,7 @@ inline bool is_sjis_lead_byte(bbl_char lead_byte) {
 //			0xE0 <= lead_byte && lead_byte <= 0xFC;
 }
 
-const bool sjis_trail_byte[] = { // 0x40`0x7E || 0x80`0xFC
+const bool sjis_trail_byte[] = { // 0x40ï½0x7E || 0x80ï½0xFC
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -686,7 +686,7 @@ void sjis_to_euc_engine::translate() {
 			}
 			bbl_char lead_char = unsignize(untranslated_buffer.at(i));
 			if (is_sjis_lead_byte(lead_char)) {
-			//	Š¿š(‘SŠp•¶š)EEE
+			//	æ¼¢å­—(å…¨è§’æ–‡å­—)ãƒ»ãƒ»ãƒ»
 				unsigned int k = i +1;
 				if (untranslated_length <= k) {
 					break;
@@ -735,12 +735,12 @@ void sjis_to_euc_engine::translate() {
 					++i;
 				}
 			} else if (0xA1 <= lead_char && lead_char <= 0xDF) {
-			//	”¼ŠpƒJƒiEEE
+			//	åŠè§’ã‚«ãƒŠãƒ»ãƒ»ãƒ»
 				euc[j++] = 0x8E;
 				euc[j++] = lead_char;
 				++i;
 			} else {
-			//	‚»‚Ì‘¼‚Ì”¼ŠpEEE
+			//	ãã®ä»–ã®åŠè§’ãƒ»ãƒ»ãƒ»
 				euc[j++] = lead_char;
 				++i;
 			}
@@ -823,14 +823,14 @@ void euc_to_sjis_engine::translate() {
 			}
 			bbl_char lead_char = unsignize(untranslated_buffer.at(i));
 			if (is_euc_lead_byte(lead_char)) {
-			//	Š¿š(‘SŠp•¶š) or ”¼ŠpƒJƒiEEE
+			//	æ¼¢å­—(å…¨è§’æ–‡å­—) or åŠè§’ã‚«ãƒŠãƒ»ãƒ»ãƒ»
 				unsigned int k = i +1;
 				if (untranslated_length <= k) {
 					break;
 				}
 				bbl_char trail_char = unsignize(untranslated_buffer.at(k));
 				if (0x8E == lead_char && 0xA1 <= trail_char && trail_char <= 0xDF) {
-				//	”¼ŠpƒJƒiEEE
+				//	åŠè§’ã‚«ãƒŠãƒ»ãƒ»ãƒ»
 					sjis[j++] = trail_char;
 					i+=2;
 				} else if (0x80 <= trail_char) {
@@ -876,16 +876,16 @@ void euc_to_sjis_engine::translate() {
 					++i;
 				}
 			} else if (is_euc_aux_lead_byte(lead_char)) {
-			//	•â•Š¿šEEE
+			//	è£œåŠ©æ¼¢å­—ãƒ»ãƒ»ãƒ»
 				unsigned int k = i +2;
 				if (untranslated_length <= k) {
 					break;
 				}
-				//	SJIS ‚É‚Í•â•Š¿š‚ğŠi”[‚Å‚«‚È‚¢B
+				//	SJIS ã«ã¯è£œåŠ©æ¼¢å­—ã‚’æ ¼ç´ã§ããªã„ã€‚
 				append_broken_char(&j, sjis);
 				i+=3;
 			} else {
-			//	‚»‚Ì‘¼‚Ì”¼ŠpEEE
+			//	ãã®ä»–ã®åŠè§’ãƒ»ãƒ»ãƒ»
 				sjis[j++] = lead_char;
 				++i;
 			}
@@ -927,7 +927,7 @@ void sjis_cp932_to_unicode_engine::translate() {
 			}
 			bbl_char lead_char = unsignize(untranslated_buffer.at(i));
 			if (is_sjis_lead_byte(lead_char)) {
-			//	Š¿š(‘SŠp•¶š)EEE
+			//	æ¼¢å­—(å…¨è§’æ–‡å­—)ãƒ»ãƒ»ãƒ»
 				unsigned int k = i +1;
 				if (untranslated_length <= k) {
 					break;
@@ -948,12 +948,12 @@ void sjis_cp932_to_unicode_engine::translate() {
 					++i;
 				}
 			} else if (0xA1 <= lead_char && lead_char <= 0xDF) {
-			//	”¼ŠpƒJƒiEEE
+			//	åŠè§’ã‚«ãƒŠãƒ»ãƒ»ãƒ»
 				bbl_code unicode_code = bbl_transmap::cp932_unicode[lead_char];
 				unicode[j++] = (wchar_t)unicode_code;
 				++i;
 			} else {
-			//	‚»‚Ì‘¼‚Ì”¼ŠpEEE
+			//	ãã®ä»–ã®åŠè§’ãƒ»ãƒ»ãƒ»
 				unicode[j++] = lead_char;
 				++i;
 			}
@@ -1062,7 +1062,7 @@ void sjis_utc_to_unicode_engine::translate() {
 			}
 			bbl_char lead_char = unsignize(untranslated_buffer.at(i));
 			if (is_sjis_lead_byte(lead_char)) {
-			//	Š¿š(‘SŠp•¶š)EEE
+			//	æ¼¢å­—(å…¨è§’æ–‡å­—)ãƒ»ãƒ»ãƒ»
 				unsigned int k = i +1;
 				if (untranslated_length <= k) {
 					break;
@@ -1083,7 +1083,7 @@ void sjis_utc_to_unicode_engine::translate() {
 					++i;
 				}
 			} else {
-			//	”¼ŠpƒJƒi•‚»‚Ì‘¼‚Ì”¼ŠpEEE
+			//	åŠè§’ã‚«ãƒŠï¼†ãã®ä»–ã®åŠè§’ãƒ»ãƒ»ãƒ»
 				bbl_code unicode_code = bbl_transmap::utc_unicode[lead_char];
 				if (0 != unicode_code) {
 					unicode[j++] = (wchar_t)unicode_code;
@@ -1195,7 +1195,7 @@ void sjis_apple_to_unicode_engine::translate() {
 			}
 			bbl_char lead_char = unsignize(untranslated_buffer.at(i));
 			if (is_sjis_lead_byte(lead_char)) {
-			//	Š¿š(‘SŠp•¶š)EEE
+			//	æ¼¢å­—(å…¨è§’æ–‡å­—)ãƒ»ãƒ»ãƒ»
 				const unsigned int k = i +1;
 				if (untranslated_length <= k) {
 					break;
@@ -1222,7 +1222,7 @@ void sjis_apple_to_unicode_engine::translate() {
 					++i;
 				}
 			} else {
-			//	”¼ŠpƒJƒi•‚»‚Ì‘¼‚Ì”¼ŠpEEE
+			//	åŠè§’ã‚«ãƒŠï¼†ãã®ä»–ã®åŠè§’ãƒ»ãƒ»ãƒ»
 				bbl_code unicode_code = bbl_transmap::apple_unicode[lead_char];
 				if (0 != unicode_code) {
 					unicode[j++] = (wchar_t)unicode_code;
@@ -1279,9 +1279,9 @@ void unicode_to_sjis_apple_engine::translate() {
 			//	0x????	+0xF87E
 			//	0x????	+0xF87F
 
-			//	0xF860	+‚Q•¶š
-			//	0xF861	+‚R•¶š
-			//	0xF862	+‚S•¶š
+			//	0xF860	+ï¼’æ–‡å­—
+			//	0xF861	+ï¼“æ–‡å­—
+			//	0xF862	+ï¼”æ–‡å­—
 
 			unsigned int code_length;
 			switch(current_wchar) {
@@ -1401,7 +1401,7 @@ void unicode_to_sjis_apple_engine::flush() {
 }
 #endif	//	defined(__BBL_LOAD_UNICODE_MAP_APPLE__)
 
-const unsigned int utf8_char_length[] = { // 0xA1`0xFE
+const unsigned int utf8_char_length[] = { // 0xA1ï½0xFE
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -1491,7 +1491,7 @@ void unicode_to_utf8_engine::translate() {
 				utf8[j++] = 0x80 | 0x3F & current_wchar;
 				++i;
 			} else if (current_wchar < 0x400000) {
-				assert(false);	//	‘½•ª‚Ç‚Á‚©‚ªƒoƒO‚Á‚Ä‚é‚©A•¶š‚ª‰ó‚ê‚Ä‚¢‚éB
+				assert(false);	//	å¤šåˆ†ã©ã£ã‹ãŒãƒã‚°ã£ã¦ã‚‹ã‹ã€æ–‡å­—ãŒå£Šã‚Œã¦ã„ã‚‹ã€‚
 				utf8[j++] = 0xF8 | (current_wchar >> 24);
 				utf8[j++] = 0x80 | 0x3F & (current_wchar >> 18);
 				utf8[j++] = 0x80 | 0x3F & (current_wchar >> 12);
@@ -1499,7 +1499,7 @@ void unicode_to_utf8_engine::translate() {
 				utf8[j++] = 0x80 | 0x3F & current_wchar;
 				++i;
 			} else {
-				assert(false);	//	‘½•ª‚Ç‚Á‚©‚ªƒoƒO‚Á‚Ä‚é‚©A•¶š‚ª‰ó‚ê‚Ä‚¢‚éB
+				assert(false);	//	å¤šåˆ†ã©ã£ã‹ãŒãƒã‚°ã£ã¦ã‚‹ã‹ã€æ–‡å­—ãŒå£Šã‚Œã¦ã„ã‚‹ã€‚
 				utf8[j++] = 0xFC | (current_wchar >> 30);
 				utf8[j++] = 0x80 | 0x3F & (current_wchar >> 24);
 				utf8[j++] = 0x80 | 0x3F & (current_wchar >> 18);
@@ -1583,7 +1583,7 @@ const bbl_string jis_KO_roma = "\x1B(J";
 const bbl_string jis_KI_2byte = "\x1B$B";
 const bbl_string jis_KI_1byte = "\x1B(I";
 const bbl_string jis_KI_3byte_aux = "\x1B$(D";
-//const bbl_string jis_KI_3byte_aux = "\x1B$D"; ©‚±‚ê‚Í’P‚È‚éŠÔˆá‚¢H
+//const bbl_string jis_KI_3byte_aux = "\x1B$D"; â†ã“ã‚Œã¯å˜ãªã‚‹é–“é•ã„ï¼Ÿ
 const bbl_string jis_SO = "\x0E";
 const bbl_string jis_SI = "\x0F";
 
@@ -1625,7 +1625,7 @@ void sjis_to_jis_engine::translate() {
 			}
 			bbl_char lead_char = unsignize(untranslated_buffer.at(i));
 			if (is_sjis_lead_byte(lead_char)) {
-			//	Š¿š(‘SŠp•¶š)EEE
+			//	æ¼¢å­—(å…¨è§’æ–‡å­—)ãƒ»ãƒ»ãƒ»
 				unsigned int k = i +1;
 				if (untranslated_length <= k) {
 					break;
@@ -1684,7 +1684,7 @@ void sjis_to_jis_engine::translate() {
 					++i;
 				}
 			} else if (0xA1 <= lead_char && lead_char <= 0xDF) {
-			//	”¼ŠpƒJƒiEEE
+			//	åŠè§’ã‚«ãƒŠãƒ»ãƒ»ãƒ»
 				if (jis_K1 != status) {
 					next_status = jis_K1;
 					break;
@@ -1692,7 +1692,7 @@ void sjis_to_jis_engine::translate() {
 				jis[j++] = lead_char -0x80;
 				++i;
 			} else {
-			//	‚»‚Ì‘¼‚Ì”¼ŠpEEE
+			//	ãã®ä»–ã®åŠè§’ãƒ»ãƒ»ãƒ»
 				if (jis_ascii != status) {
 					next_status = jis_ascii;
 					break;
@@ -1778,7 +1778,7 @@ void euc_to_jis_engine::translate() {
 			}
 			bbl_char lead_char = unsignize(untranslated_buffer.at(i));
 			if (is_euc_lead_byte(lead_char)) {
-			//	Š¿š(‘SŠp•¶š) or ”¼ŠpƒJƒiEEE
+			//	æ¼¢å­—(å…¨è§’æ–‡å­—) or åŠè§’ã‚«ãƒŠãƒ»ãƒ»ãƒ»
 				unsigned int k = i +1;
 				if (untranslated_length <= k) {
 					break;
@@ -1786,7 +1786,7 @@ void euc_to_jis_engine::translate() {
 				bbl_char trail_char = unsignize(untranslated_buffer.at(k));
 				bool is_broken_char = false;
 				if (0x8E == lead_char && 0xA1 <= trail_char && trail_char <= 0xDF) {
-				//	”¼ŠpƒJƒiEEE
+				//	åŠè§’ã‚«ãƒŠãƒ»ãƒ»ãƒ»
 					if (jis_K1 != status) {
 						next_status = jis_K1;
 						break;
@@ -1813,7 +1813,7 @@ void euc_to_jis_engine::translate() {
 					++i;
 				}
 			} else if (is_euc_aux_lead_byte(lead_char)) {
-			//	•â•Š¿šEEE
+			//	è£œåŠ©æ¼¢å­—ãƒ»ãƒ»ãƒ»
 				unsigned int k = i +2;
 				if (untranslated_length <= k) {
 					break;
@@ -1838,7 +1838,7 @@ void euc_to_jis_engine::translate() {
 					i+=3;
 				}
 			} else {
-			//	‚»‚Ì‘¼‚Ì”¼ŠpEEE
+			//	ãã®ä»–ã®åŠè§’ãƒ»ãƒ»ãƒ»
 				if (jis_ascii != status) {
 					next_status = jis_ascii;
 					break;
@@ -1931,7 +1931,7 @@ void euc_to_unicode_engine::translate() {
 			}
 			bbl_char lead_char = unsignize(untranslated_buffer.at(i));
 			if (is_euc_lead_byte(lead_char)) {
-			//	Š¿š(‘SŠp•¶š) or ”¼ŠpƒJƒiEEE
+			//	æ¼¢å­—(å…¨è§’æ–‡å­—) or åŠè§’ã‚«ãƒŠãƒ»ãƒ»ãƒ»
 				unsigned int k = i +1;
 				if (untranslated_length <= k) {
 					break;
@@ -1952,7 +1952,7 @@ void euc_to_unicode_engine::translate() {
 					++i;
 				}
 			} else if (is_euc_aux_lead_byte(lead_char)) {
-			//	•â•Š¿šEEE
+			//	è£œåŠ©æ¼¢å­—ãƒ»ãƒ»ãƒ»
 				unsigned int k = i +2;
 				if (untranslated_length <= k) {
 					break;
@@ -1977,7 +1977,7 @@ void euc_to_unicode_engine::translate() {
 					i+=3;
 				}
 			} else {
-			//	‚»‚Ì‘¼‚Ì”¼ŠpEEE
+			//	ãã®ä»–ã®åŠè§’ãƒ»ãƒ»ãƒ»
 				unicode[j++] = lead_char;
 				++i;
 			}
@@ -2180,7 +2180,7 @@ void jis_to_sjis_engine::translate() {
 				if (untranslated_length <= k) {
 					break;
 				}
-				//	SJIS ‚É‚Í•â•Š¿š‚ğŠi”[‚Å‚«‚È‚¢B
+				//	SJIS ã«ã¯è£œåŠ©æ¼¢å­—ã‚’æ ¼ç´ã§ããªã„ã€‚
 				append_broken_char(&j, sjis);
 				i+=2;
 			} else if (jis_ascii == status) {
@@ -2517,8 +2517,8 @@ void jis_to_iso2022jp_engine::flush() {
 }
 
 /******************************************************************************
-	 ¡ ¡                          cuppa                          ¡ ¡
-	¡ ¡                  http://www.unittest.org/               ¡ ¡ 
+	â–¡â– â–¡â–                           cuppa                         â–¡â– â–¡â– 
+	â– â–¡â– â–¡                 http://www.unittest.org/               â– â–¡â– â–¡
 ******************************************************************************/
 
 #if defined(__BBL_USE_BINARY__)
@@ -2878,75 +2878,75 @@ inline void binary_engine_flush(unsigned int mask, from_string_type &untranslate
 }
 
 void WORD_to_unicode_engine::translate() {
-	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
 	binary_engine_translate<from_string_type, to_string_type>(1, untranslated_buffer, translated_buffer, WORD_to_unicode);
 }
 void WORD_to_unicode_engine::flush() {
-	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
 	binary_engine_flush<from_string_type, to_string_type>(1, untranslated_buffer, translated_buffer, WORD_to_unicode);
 }
 
 void unicode_to_WORD_engine::translate() {
-	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
 	binary_engine_translate<from_string_type, to_string_type>(1, untranslated_buffer, translated_buffer, unicode_to_WORD);
 }
 void unicode_to_WORD_engine::flush() {
-	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
 	binary_engine_flush<from_string_type, to_string_type>(1, untranslated_buffer, translated_buffer, unicode_to_WORD);
 }
 
 void cross_WORD_to_unicode_engine::translate() {
-	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
 	binary_engine_translate<from_string_type, to_string_type>(1, untranslated_buffer, translated_buffer, cross_WORD_to_unicode);
 }
 void cross_WORD_to_unicode_engine::flush() {
-	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
 	binary_engine_flush<from_string_type, to_string_type>(1, untranslated_buffer, translated_buffer, cross_WORD_to_unicode);
 }
 
 void unicode_to_cross_WORD_engine::translate() {
-	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
 	binary_engine_translate<from_string_type, to_string_type>(1, untranslated_buffer, translated_buffer, unicode_to_cross_WORD);
 }
 void unicode_to_cross_WORD_engine::flush() {
-	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
 	binary_engine_flush<from_string_type, to_string_type>(1, untranslated_buffer, translated_buffer, unicode_to_cross_WORD);
 }
 
 #if	defined(__BBL_USE_UTF32__)
 void DWORD_to_unicode_engine::translate() {
-	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
 	binary_engine_translate<from_string_type, to_string_type>(3, untranslated_buffer, translated_buffer, DWORD_to_unicode);
 }
 void DWORD_to_unicode_engine::flush() {
-	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
 	binary_engine_flush<from_string_type, to_string_type>(3, untranslated_buffer, translated_buffer, DWORD_to_unicode);
 }
 
 void unicode_to_DWORD_engine::translate() {
-	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
 	binary_engine_translate<from_string_type, to_string_type>(3, untranslated_buffer, translated_buffer, unicode_to_DWORD);
 }
 void unicode_to_DWORD_engine::flush() {
-	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
 	binary_engine_flush<from_string_type, to_string_type>(3, untranslated_buffer, translated_buffer, unicode_to_DWORD);
 }
 
 void cross_DWORD_to_unicode_engine::translate() {
-	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
 	binary_engine_translate<from_string_type, to_string_type>(3, untranslated_buffer, translated_buffer, cross_DWORD_to_unicode);
 }
 void cross_DWORD_to_unicode_engine::flush() {
-	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
 	binary_engine_flush<from_string_type, to_string_type>(3, untranslated_buffer, translated_buffer, cross_DWORD_to_unicode);
 }
 
 void unicode_to_cross_DWORD_engine::translate() {
-	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
 	binary_engine_translate<from_string_type, to_string_type>(3, untranslated_buffer, translated_buffer, unicode_to_cross_DWORD);
 }
 void unicode_to_cross_DWORD_engine::flush() {
-	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
 	binary_engine_flush<from_string_type, to_string_type>(3, untranslated_buffer, translated_buffer, unicode_to_cross_DWORD);
 }
 #endif	//	defined(__BBL_USE_UTF32__)
@@ -2954,8 +2954,8 @@ void unicode_to_cross_DWORD_engine::flush() {
 
 
 /******************************************************************************
-	 ¡ ¡                          cuppa                          ¡ ¡
-	¡ ¡                  http://www.unittest.org/               ¡ ¡ 
+	â–¡â– â–¡â–                           cuppa                         â–¡â– â–¡â– 
+	â– â–¡â– â–¡                 http://www.unittest.org/               â– â–¡â– â–¡
 ******************************************************************************/
 
 #if defined(__BBL_USE_SELECTORS__)
@@ -3092,8 +3092,8 @@ int cross_base_encoding(int X_base_encoding) {
 #endif
 
 //
-//	__UNKNOWN_ENDIAN_COMPUTER__ ‚Ìê‡A‚±‚±‚Å‚Í __LITTLE_ENDIAN_COMPUTER__
-//	‚Æ“¯—l‚É‚µ‚Ä‚¨‚­B cf. method_base::get_order_code()
+//	__UNKNOWN_ENDIAN_COMPUTER__ ã®å ´åˆã€ã“ã“ã§ã¯ __LITTLE_ENDIAN_COMPUTER__
+//	ã¨åŒæ§˜ã«ã—ã¦ãŠãã€‚ cf. method_base::get_order_code()
 //
 #if	defined(__BBL_USE_UNICODE__)
 #	if	defined(__BBL_USE_BINARY__)
@@ -3829,9 +3829,9 @@ analyze_base_encoding(const bbl_binary &org_X, const unsigned int max_scan_size)
 
 	const unsigned int core_scan_size = 0x100;
 	assert(core_scan_size <= 5000);
-	//	‚±‚êˆÈã’l‚ğ‘å‚«‚­‚·‚é‚ÆƒXƒRƒA‚ªƒI[ƒo[ƒtƒ[‚·‚éŠëŒ¯«‚ª‚Å‚Ä‚«‚Ü‚·B
-	//	ƒI[ƒo[ƒtƒ[‚ğ‹N‚±‚·‚±‚Æ‚Í•ªÍ‚Ì¸”s‚ğˆÓ–¡‚µA‚Ü‚Æ‚È•ªÍŒ‹‰Ê‚ğŠú‘Ò
-	//	‚·‚é‚±‚Æ‚Í‚Å‚«‚Ü‚¹‚ñB
+	//	ã“ã‚Œä»¥ä¸Šå€¤ã‚’å¤§ããã™ã‚‹ã¨ã‚¹ã‚³ã‚¢ãŒã‚ªãƒ¼ãƒãƒ¼ãƒ•ãƒ­ãƒ¼ã™ã‚‹å±é™ºæ€§ãŒã§ã¦ãã¾ã™ã€‚
+	//	ã‚ªãƒ¼ãƒãƒ¼ãƒ•ãƒ­ãƒ¼ã‚’èµ·ã“ã™ã“ã¨ã¯åˆ†æã®å¤±æ•—ã‚’æ„å‘³ã—ã€ã¾ã¨ãªåˆ†æçµæœã‚’æœŸå¾…
+	//	ã™ã‚‹ã“ã¨ã¯ã§ãã¾ã›ã‚“ã€‚
 
 	const unsigned int length = org_X.length();
 	const unsigned int scan_size = (length < max_scan_size) ? length: max_scan_size;
@@ -3985,19 +3985,19 @@ analyze_base_encoding(const bbl_binary &org_X, const unsigned int max_scan_size)
 				if (encode_scorer::neutral == mode) {
 					current_code = X;
 					if (babel::is_euc_lead_byte(X)) {
-					//	Š¿š(‘SŠp•¶š) or ”¼ŠpƒJƒi‚Ì‚PƒoƒCƒg–ÚEEE
+					//	æ¼¢å­—(å…¨è§’æ–‡å­—) or åŠè§’ã‚«ãƒŠã®ï¼‘ãƒã‚¤ãƒˆç›®ãƒ»ãƒ»ãƒ»
 						mode = encode_scorer::first_byte;
 					} else if (babel::is_euc_aux_lead_byte(X)) {
-					//	•â•Š¿šEEE
+					//	è£œåŠ©æ¼¢å­—ãƒ»ãƒ»ãƒ»
 						mode = -2;
 					} else {
-						//	SJIS ˆÈŠO‚Å‚PƒoƒCƒg•¶š‚ª“¾“_‚·‚é‚±‚Æ‚Í‚È‚¢‚Ì‚ÅƒRƒƒ“ƒgƒAƒEƒg
+						//	SJIS ä»¥å¤–ã§ï¼‘ãƒã‚¤ãƒˆæ–‡å­—ãŒå¾—ç‚¹ã™ã‚‹ã“ã¨ã¯ãªã„ã®ã§ã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆ
 						//	up_point += score_map[current_code];
 					}
 				} else {
 					if (encode_scorer::first_byte == mode) {
 						if (babel::is_euc_trail_byte(X)) {
-						//	Š¿š(‘SŠp•¶š) or ”¼ŠpƒJƒi‚Ì‚QƒoƒCƒg–ÚEEE
+						//	æ¼¢å­—(å…¨è§’æ–‡å­—) or åŠè§’ã‚«ãƒŠã®ï¼’ãƒã‚¤ãƒˆç›®ãƒ»ãƒ»ãƒ»
 							current_code *= 0x100;
 							current_code += X;
 							up_point += score_map[current_code];
@@ -4006,9 +4006,9 @@ analyze_base_encoding(const bbl_binary &org_X, const unsigned int max_scan_size)
 							on_error();
 						}
 					} else if (mode < 0) {
-					//	•â•Š¿šEEE
+					//	è£œåŠ©æ¼¢å­—ãƒ»ãƒ»ãƒ»
 						++mode;
-						//	•â•Š¿š‚ª“¾“_‚·‚é‚±‚Æ‚Í‚È‚¢‚Ì‚Å“¾“_‚Ìˆ—‚Ís‚í‚È‚¢B
+						//	è£œåŠ©æ¼¢å­—ãŒå¾—ç‚¹ã™ã‚‹ã“ã¨ã¯ãªã„ã®ã§å¾—ç‚¹ã®å‡¦ç†ã¯è¡Œã‚ãªã„ã€‚
 					} else {
 						on_error();
 					}
@@ -4045,7 +4045,7 @@ analyze_base_encoding(const bbl_binary &org_X, const unsigned int max_scan_size)
 #	endif	//	defined(__BBL_USING_STATIC_TABLE__)
 						mode = 1 -char_length;
 						if (encode_scorer::neutral == mode) {
-							//	SJIS ˆÈŠO‚Å‚PƒoƒCƒg•¶š‚ª“¾“_‚·‚é‚±‚Æ‚Í‚È‚¢‚Ì‚ÅƒRƒƒ“ƒgƒAƒEƒg
+							//	SJIS ä»¥å¤–ã§ï¼‘ãƒã‚¤ãƒˆæ–‡å­—ãŒå¾—ç‚¹ã™ã‚‹ã“ã¨ã¯ãªã„ã®ã§ã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆ
 							//	up_point += score_map[current_code];
 						}
 					}
@@ -4164,7 +4164,7 @@ analyze_base_encoding(const bbl_binary &org_X, const unsigned int max_scan_size)
 		if (sjis_point == euc_point && sjis_point == utf8_point) {
 
 			//
-			//	‰üsƒR[ƒh‚Ìƒ`ƒFƒbƒN
+			//	æ”¹è¡Œã‚³ãƒ¼ãƒ‰ã®ãƒã‚§ãƒƒã‚¯
 			//
 			if (bbl_binary::npos != X.find("\n")) {
 				if (bbl_binary::npos != X.find("\r\n") || bbl_binary::npos != X.find("\n\r")) {
@@ -4180,7 +4180,7 @@ analyze_base_encoding(const bbl_binary &org_X, const unsigned int max_scan_size)
 			}
 
 			//
-			//	ƒGƒ“ƒR[ƒhw’è‚ÌƒJƒ“ƒjƒ“ƒO
+			//	ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰æŒ‡å®šã®ã‚«ãƒ³ãƒ‹ãƒ³ã‚°
 			//
 			const char **i;
 			bbl_binary::size_type utf8_pos = X.find("UTF-8");
@@ -4219,7 +4219,7 @@ analyze_base_encoding(const bbl_binary &org_X, const unsigned int max_scan_size)
 				return base_encoding::euc;
 			}
 
-			//	‚¨èã‚°
+			//	ãŠæ‰‹ä¸Šã’
 			return get_base_encoding();
 		}
 		if (euc_point < sjis_point) {
@@ -4395,7 +4395,7 @@ static bool initialized = false;
 }	//	namespace babel
 
 /******************************************************************************
-	 ¡ ¡                  Wraith the Trickster                   ¡ ¡
-	¡ ¡  `I'll go with heaven's advantage and fool's wisdom.` ¡ ¡ 
+	â–¡â– â–¡â–                   Wraith the Trickster                  â–¡â– â–¡â– 
+	â– â–¡â– â–¡ ï½I'll go with heaven's advantage and fool's wisdom.ï½ â– â–¡â– â–¡
 ******************************************************************************/
 

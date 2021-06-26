@@ -1,10 +1,10 @@
-// 
+﻿// 
 // AYA version 5
 //
-// �t�@�C���������N���X�@CFile/CFile1
+// ファイルを扱うクラス　CFile/CFile1
 // written by umeici. 2004
 // 
-// CFile���S�̂��Ǘ����܂��B�X�̃t�@�C����CFile1�ŊǗ����܂��B
+// CFileが全体を管理します。個々のファイルはCFile1で管理します。
 //
 
 #ifndef	FILEH

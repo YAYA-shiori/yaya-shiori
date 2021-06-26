@@ -1,56 +1,56 @@
-/******************************************************************************
-	ƒoƒxƒ‹ -babel-
-		ƒoƒxƒ‹ƒ‚ƒWƒ…[ƒ‹ƒwƒbƒ_ƒtƒ@ƒCƒ‹
+ï»¿/******************************************************************************
+	ãƒãƒ™ãƒ« -babel-
+		ãƒãƒ™ãƒ«ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ãƒ˜ãƒƒãƒ€ãƒ•ã‚¡ã‚¤ãƒ«
 											Coded by Wraith	in July 14, 2002.
 ******************************************************************************/
 
-//@Tab•‚ğ‚S•¶š‚Éİ’è‚µ‚Ä•\¦‚³‚¹‚Ä‚­‚¾‚³‚¢B
+//ã€€Tabå¹…ã‚’ï¼”æ–‡å­—ã«è¨­å®šã—ã¦è¡¨ç¤ºã•ã›ã¦ãã ã•ã„ã€‚
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	¡ babel.h
+//	â–  babel.h
 //		http://tricklib.com/cxx/ex/babel/babel.h
 //
-//	  ŠÖ˜Aƒtƒ@ƒCƒ‹
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Ì–{‘Ì
+//	â–¡ é–¢é€£ãƒ•ã‚¡ã‚¤ãƒ«
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã®æœ¬ä½“
 //		http://tricklib.com/cxx/ex/babel/babel.cpp
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éƒXƒRƒAƒ}ƒbƒsƒ“ƒOCSV
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹ã‚¹ã‚³ã‚¢ãƒãƒƒãƒ”ãƒ³ã‚°CSV
 //		http://tricklib.com/cxx/ex/babel/scoremap.csv
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éCP932ƒ}ƒbƒsƒ“ƒOCSV
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹CP932ãƒãƒƒãƒ”ãƒ³ã‚°CSV
 //		http://tricklib.com/cxx/ex/babel/cp932.csv
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éUTCƒ}ƒbƒsƒ“ƒOCSV
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹UTCãƒãƒƒãƒ”ãƒ³ã‚°CSV
 //		http://tricklib.com/cxx/ex/babel/utc.csv
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éƒAƒbƒvƒ‹ƒ}ƒbƒsƒ“ƒOCSV
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹ã‚¢ãƒƒãƒ—ãƒ«ãƒãƒƒãƒ”ãƒ³ã‚°CSV
 //		http://tricklib.com/cxx/ex/babel/apple.csv
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éSJIS-EUCƒ}ƒbƒsƒ“ƒOCSV
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹SJIS-EUCãƒãƒƒãƒ”ãƒ³ã‚°CSV
 //		http://tricklib.com/cxx/ex/babel/sjis-euc.csv
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éEUC-UNICODEƒ}ƒbƒsƒ“ƒOCSV
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹EUC-UNICODEãƒãƒƒãƒ”ãƒ³ã‚°CSV
 //		http://tricklib.com/cxx/ex/babel/euc-uni.csv
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éCP932ƒ}ƒbƒsƒ“ƒOƒf[ƒ^ƒtƒ@ƒCƒ‹
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹CP932ãƒãƒƒãƒ”ãƒ³ã‚°ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«
 //		http://tricklib.com/cxx/ex/babel/c932-uni.dat
 //		http://tricklib.com/cxx/ex/babel/uni-c932.dat
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éUTCƒ}ƒbƒsƒ“ƒOƒf[ƒ^ƒtƒ@ƒCƒ‹
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹UTCãƒãƒƒãƒ”ãƒ³ã‚°ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«
 //		http://tricklib.com/cxx/ex/babel/utc-uni.dat
 //		http://tricklib.com/cxx/ex/babel/uni-utc.dat
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éSJIS-EUCƒ}ƒbƒsƒ“ƒOƒf[ƒ^ƒtƒ@ƒCƒ‹
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹SJIS-EUCãƒãƒƒãƒ”ãƒ³ã‚°ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«
 //		http://tricklib.com/cxx/ex/babel/sjis-euc.dat
 //		http://tricklib.com/cxx/ex/babel/euc-sjis.dat
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éEUC-UNICODEƒ}ƒbƒsƒ“ƒOƒf[ƒ^ƒtƒ@ƒCƒ‹
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹EUC-UNICODEãƒãƒƒãƒ”ãƒ³ã‚°ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«
 //		http://tricklib.com/cxx/ex/babel/uni-euc.dat
 //		http://tricklib.com/cxx/ex/babel/euc2-uni.dat
 //		http://tricklib.com/cxx/ex/babel/euc3-uni.dat
-//		–{ƒ‚ƒWƒ…[ƒ‹‚Åg—p‚·‚éƒXƒRƒAƒ}ƒbƒsƒ“ƒOƒf[ƒ^ƒtƒ@ƒCƒ‹
+//		æœ¬ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä½¿ç”¨ã™ã‚‹ã‚¹ã‚³ã‚¢ãƒãƒƒãƒ”ãƒ³ã‚°ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«
 //		http://tricklib.com/cxx/ex/babel/sjis-scr.dat
 //		http://tricklib.com/cxx/ex/babel/euc-scr.dat
 //		http://tricklib.com/cxx/ex/babel/uni-scr.dat
-//		‘Sƒtƒ@ƒCƒ‹ƒpƒbƒN
+//		å…¨ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‘ãƒƒã‚¯
 //		http://tricklib.com/cxx/ex/babel/babel.lzh
 //		http://tricklib.com/cxx/ex/babel/babel.zip
 //
-//	  ƒŠƒtƒ@ƒŒƒ“ƒXEƒTƒ|[ƒgƒy[ƒW
+//	â–¡ ãƒªãƒ•ã‚¡ãƒ¬ãƒ³ã‚¹ãƒ»ã‚µãƒãƒ¼ãƒˆãƒšãƒ¼ã‚¸
 //		http://tricklib.com/cxx/ex/babel/
 //
-//	  ƒ‰ƒCƒZƒ“ƒXî•ñ
+//	â–¡ ãƒ©ã‚¤ã‚»ãƒ³ã‚¹æƒ…å ±
 //		http://tricklib.com/license.htm
 //
 
@@ -73,7 +73,7 @@ namespace {
 };
 
 //
-//	šƒRƒ“ƒpƒCƒ‰î•ñ‚É‚æ‚éŠeí©“®”»•Ê
+//	â˜…ã‚³ãƒ³ãƒ‘ã‚¤ãƒ©æƒ…å ±ã«ã‚ˆã‚‹å„ç¨®è‡ªå‹•åˆ¤åˆ¥
 //
 
 	//	Borland ...
@@ -112,13 +112,13 @@ namespace {
 
 
 //
-//	™ƒx[ƒXƒGƒ“ƒR[ƒfƒBƒ“ƒOw’èƒ}ƒNƒ
+//	â˜†ãƒ™ãƒ¼ã‚¹ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°æŒ‡å®šãƒã‚¯ãƒ­
 //
 
-//	ƒRƒ“ƒpƒCƒ‹‚Éw’è‚·‚é‚Ì‚ª–Ê“|‚Èê‡‚ÍˆÈ‰º‚ÌƒRƒƒ“ƒgs‚©‚ç“KØ‚Èw’è‚ğ
-//	(ƒRƒƒ“ƒg‚ğ‰ğœ‚µ‚Ä)—LŒø‚É‚µ‚Ä‚­‚¾‚³‚¢B‚¢‚Á‚³‚¢w’è‚ª‚È‚³‚ê‚È‚¢ê‡‚Å
-//	‚à©“®”»•Ê‚³‚ê‚Ü‚·‚ªA³Šm‚É”»’f‚³‚ê‚È‚Á‚©‚½‚è”»•Ê‚Ìˆ×‚É(—]•ª)ƒR[ƒh‚ª
-//	¶¬‚³‚ê‚½‚è‚·‚é‰Â”\«‚ª‚ ‚è‚Ü‚·B
+//	ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«æ™‚ã«æŒ‡å®šã™ã‚‹ã®ãŒé¢å€’ãªå ´åˆã¯ä»¥ä¸‹ã®ã‚³ãƒ¡ãƒ³ãƒˆè¡Œã‹ã‚‰é©åˆ‡ãªæŒ‡å®šã‚’
+//	(ã‚³ãƒ¡ãƒ³ãƒˆã‚’è§£é™¤ã—ã¦)æœ‰åŠ¹ã«ã—ã¦ãã ã•ã„ã€‚ã„ã£ã•ã„æŒ‡å®šãŒãªã•ã‚Œãªã„å ´åˆã§
+//	ã‚‚è‡ªå‹•åˆ¤åˆ¥ã•ã‚Œã¾ã™ãŒã€æ­£ç¢ºã«åˆ¤æ–­ã•ã‚Œãªã£ã‹ãŸã‚Šåˆ¤åˆ¥ã®ç‚ºã«(ä½™åˆ†)ã‚³ãƒ¼ãƒ‰ãŒ
+//	ç”Ÿæˆã•ã‚ŒãŸã‚Šã™ã‚‹å¯èƒ½æ€§ãŒã‚ã‚Šã¾ã™ã€‚
 //
 //#define __UNICODE_CHAR_SIZE_2__
 //#define __UNICODE_CHAR_SIZE_4__
@@ -129,13 +129,13 @@ namespace {
 
 
 //
-//	™ƒGƒ“ƒfƒBƒAƒ“w’èƒ}ƒNƒ
+//	â˜†ã‚¨ãƒ³ãƒ‡ã‚£ã‚¢ãƒ³æŒ‡å®šãƒã‚¯ãƒ­
 //
 
-//	ƒRƒ“ƒpƒCƒ‹‚Éw’è‚·‚é‚Ì‚ª–Ê“|‚Èê‡‚ÍˆÈ‰º‚ÌƒRƒƒ“ƒgs‚©‚ç“KØ‚Èw’è‚ğ
-//	(ƒRƒƒ“ƒg‚ğ‰ğœ‚µ‚Ä)—LŒø‚É‚µ‚Ä‚­‚¾‚³‚¢B‚¢‚Á‚³‚¢w’è‚ª‚È‚³‚ê‚È‚¢ê‡‚Å
-//	‚à©“®”»•Ê‚³‚ê‚Ü‚·‚ªA³Šm‚É”»’f‚³‚ê‚È‚Á‚©‚½‚è”»•Ê‚Ìˆ×‚É(—]•ª)ƒR[ƒh‚ª
-//	¶¬‚³‚ê‚½‚è‚·‚é‰Â”\«‚ª‚ ‚è‚Ü‚·B
+//	ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«æ™‚ã«æŒ‡å®šã™ã‚‹ã®ãŒé¢å€’ãªå ´åˆã¯ä»¥ä¸‹ã®ã‚³ãƒ¡ãƒ³ãƒˆè¡Œã‹ã‚‰é©åˆ‡ãªæŒ‡å®šã‚’
+//	(ã‚³ãƒ¡ãƒ³ãƒˆã‚’è§£é™¤ã—ã¦)æœ‰åŠ¹ã«ã—ã¦ãã ã•ã„ã€‚ã„ã£ã•ã„æŒ‡å®šãŒãªã•ã‚Œãªã„å ´åˆã§
+//	ã‚‚è‡ªå‹•åˆ¤åˆ¥ã•ã‚Œã¾ã™ãŒã€æ­£ç¢ºã«åˆ¤æ–­ã•ã‚Œãªã£ã‹ãŸã‚Šåˆ¤åˆ¥ã®ç‚ºã«(ä½™åˆ†)ã‚³ãƒ¼ãƒ‰ãŒ
+//	ç”Ÿæˆã•ã‚ŒãŸã‚Šã™ã‚‹å¯èƒ½æ€§ãŒã‚ã‚Šã¾ã™ã€‚
 //
 //#define __LITTLE_ENDIAN_COMPUTER__
 //#define __BIG_ENDIAN_COMPUTER__
@@ -146,13 +146,13 @@ namespace {
 
 
 //
-//	™ƒx[ƒXƒGƒ“ƒR[ƒfƒBƒ“ƒOw’èƒ}ƒNƒ
+//	â˜†ãƒ™ãƒ¼ã‚¹ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°æŒ‡å®šãƒã‚¯ãƒ­
 //
 
-//	ƒRƒ“ƒpƒCƒ‹‚Éw’è‚·‚é‚Ì‚ª–Ê“|‚Èê‡‚ÍˆÈ‰º‚ÌƒRƒƒ“ƒgs‚©‚ç“KØ‚Èw’è‚ğ
-//	(ƒRƒƒ“ƒg‚ğ‰ğœ‚µ‚Ä)—LŒø‚É‚µ‚Ä‚­‚¾‚³‚¢B‚¢‚Á‚³‚¢w’è‚ª‚È‚³‚ê‚È‚¢ê‡‚Å
-//	‚à©“®”»•Ê‚³‚ê‚Ü‚·‚ªA³Šm‚É”»’f‚³‚ê‚È‚Á‚©‚½‚è”»•Ê‚Ìˆ×‚É(—]•ª)ƒR[ƒh‚ª
-//	¶¬‚³‚ê‚½‚è‚·‚é‰Â”\«‚ª‚ ‚è‚Ü‚·B
+//	ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«æ™‚ã«æŒ‡å®šã™ã‚‹ã®ãŒé¢å€’ãªå ´åˆã¯ä»¥ä¸‹ã®ã‚³ãƒ¡ãƒ³ãƒˆè¡Œã‹ã‚‰é©åˆ‡ãªæŒ‡å®šã‚’
+//	(ã‚³ãƒ¡ãƒ³ãƒˆã‚’è§£é™¤ã—ã¦)æœ‰åŠ¹ã«ã—ã¦ãã ã•ã„ã€‚ã„ã£ã•ã„æŒ‡å®šãŒãªã•ã‚Œãªã„å ´åˆã§
+//	ã‚‚è‡ªå‹•åˆ¤åˆ¥ã•ã‚Œã¾ã™ãŒã€æ­£ç¢ºã«åˆ¤æ–­ã•ã‚Œãªã£ã‹ãŸã‚Šåˆ¤åˆ¥ã®ç‚ºã«(ä½™åˆ†)ã‚³ãƒ¼ãƒ‰ãŒ
+//	ç”Ÿæˆã•ã‚ŒãŸã‚Šã™ã‚‹å¯èƒ½æ€§ãŒã‚ã‚Šã¾ã™ã€‚
 //
 //#define __USING_ANSI__
 //#define __USING_SJIS__
@@ -165,13 +165,13 @@ namespace {
 
 
 //
-//	™ƒfƒtƒHƒ‹ƒg•¶š—ñŒ^w’èƒ}ƒNƒ
+//	â˜†ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆæ–‡å­—åˆ—å‹æŒ‡å®šãƒã‚¯ãƒ­
 //
 
-//	ƒRƒ“ƒpƒCƒ‹‚Éw’è‚·‚é‚Ì‚ª–Ê“|‚Èê‡‚ÍˆÈ‰º‚ÌƒRƒƒ“ƒgs‚©‚ç“KØ‚Èw’è‚ğ
-//	(ƒRƒƒ“ƒg‚ğ‰ğœ‚µ‚Ä)—LŒø‚É‚µ‚Ä‚­‚¾‚³‚¢Bw’è‚³‚ê‚½Œ^‚ªŠeíƒeƒ“ƒvƒŒ[ƒg
-//	‚ÌƒfƒtƒHƒ‹ƒg‚ÌŒ^‚Æ‚µ‚Ä’è‹`‚³‚êA(ˆê•”‚Ì)ƒeƒ“ƒvƒŒ[ƒg‚ğg—p‚·‚éÛ‚ÉŒ^‚Ì
-//	w’è‚ğÈ—ª‚Å‚«‚Ü‚·B
+//	ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«æ™‚ã«æŒ‡å®šã™ã‚‹ã®ãŒé¢å€’ãªå ´åˆã¯ä»¥ä¸‹ã®ã‚³ãƒ¡ãƒ³ãƒˆè¡Œã‹ã‚‰é©åˆ‡ãªæŒ‡å®šã‚’
+//	(ã‚³ãƒ¡ãƒ³ãƒˆã‚’è§£é™¤ã—ã¦)æœ‰åŠ¹ã«ã—ã¦ãã ã•ã„ã€‚æŒ‡å®šã•ã‚ŒãŸå‹ãŒå„ç¨®ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆ
+//	ã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®å‹ã¨ã—ã¦å®šç¾©ã•ã‚Œã€(ä¸€éƒ¨ã®)ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã‚’ä½¿ç”¨ã™ã‚‹éš›ã«å‹ã®
+//	æŒ‡å®šã‚’çœç•¥ã§ãã¾ã™ã€‚
 //
 //#define __BBL_STRING_DEFAULT__
 //#define __BBL_WSTRING_DEFAULT__
@@ -182,32 +182,32 @@ namespace {
 
 
 //
-//	™¸–§•ÏŠ·w’èƒ}ƒNƒ
+//	â˜†ç²¾å¯†å¤‰æ›æŒ‡å®šãƒã‚¯ãƒ­
 //
 
-//	ƒRƒ“ƒpƒCƒ‹‚Éw’è‚·‚é‚Ì‚ª–Ê“|‚Èê‡‚ÍˆÈ‰º‚ÌƒRƒƒ“ƒgs‚ğ(ƒRƒƒ“ƒg‚ğ‰ğœ
-//	‚µ‚Ä)—LŒø‚É‚µ‚Ä‚­‚¾‚³‚¢B‚±‚Ìƒ}ƒNƒ‚ªw’è‚³‚ê‚é‚Æ EUC ‹y‚Ñ JIS ‚©‚ç SJIS
-//	‚Ö‚Ì•ÏŠ·‚ğ UNICODE ‚ğŒo—R‚µ‚Äs‚¢‚Ü‚·BUNICODE ‚ğŒo—R‚·‚é‚±‚Æ‚É‚æ‚è SJIS
-//	‚Å‚à•\Œ»‰Â”\‚Èˆê•”‚Ì•â•Š¿š‚ğ³‚µ‚­ƒ}ƒbƒsƒ“ƒO‚µ‚Ü‚·B‚½‚¾‚µAUNICODE
-//	‚ğŒo—R‚·‚é•ªˆ—‘¬“x‚Í—‚¿‚Ü‚·B‚Ü‚½A__BBL_DISABLE_UNICODE__ ‚ª’è‹`‚³
-//	‚ê‚Ä‚¢‚È‚¢‚±‚Æ‚ª‘O’ñ‚Æ‚È‚è‚Ü‚·B
+//	ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«æ™‚ã«æŒ‡å®šã™ã‚‹ã®ãŒé¢å€’ãªå ´åˆã¯ä»¥ä¸‹ã®ã‚³ãƒ¡ãƒ³ãƒˆè¡Œã‚’(ã‚³ãƒ¡ãƒ³ãƒˆã‚’è§£é™¤
+//	ã—ã¦)æœ‰åŠ¹ã«ã—ã¦ãã ã•ã„ã€‚ã“ã®ãƒã‚¯ãƒ­ãŒæŒ‡å®šã•ã‚Œã‚‹ã¨ EUC åŠã³ JIS ã‹ã‚‰ SJIS
+//	ã¸ã®å¤‰æ›ã‚’ UNICODE ã‚’çµŒç”±ã—ã¦è¡Œã„ã¾ã™ã€‚UNICODE ã‚’çµŒç”±ã™ã‚‹ã“ã¨ã«ã‚ˆã‚Š SJIS
+//	ã§ã‚‚è¡¨ç¾å¯èƒ½ãªä¸€éƒ¨ã®è£œåŠ©æ¼¢å­—ã‚’æ­£ã—ããƒãƒƒãƒ”ãƒ³ã‚°ã—ã¾ã™ã€‚ãŸã ã—ã€UNICODE
+//	ã‚’çµŒç”±ã™ã‚‹åˆ†å‡¦ç†é€Ÿåº¦ã¯è½ã¡ã¾ã™ã€‚ã¾ãŸã€__BBL_DISABLE_UNICODE__ ãŒå®šç¾©ã•
+//	ã‚Œã¦ã„ãªã„ã“ã¨ãŒå‰æã¨ãªã‚Šã¾ã™ã€‚
 //
 //#define __BBL_STRICT_TRANSLATE__
 
 
 //
-//	™ƒ}ƒbƒsƒ“ƒOÀ‘••û–@w’èƒ}ƒNƒ
+//	â˜†ãƒãƒƒãƒ”ãƒ³ã‚°å®Ÿè£…æ–¹æ³•æŒ‡å®šãƒã‚¯ãƒ­
 //
 
-//	ƒRƒ“ƒpƒCƒ‹‚Éw’è‚·‚é‚Ì‚ª–Ê“|‚Èê‡‚ÍˆÈ‰º‚ÌƒRƒƒ“ƒgs‚©‚ç“KØ‚Èw’è‚ğ
-//	(ƒRƒƒ“ƒg‚ğ‰ğœ‚µ‚Ä)—LŒø‚É‚µ‚Ä‚­‚¾‚³‚¢BƒfƒtƒHƒ‹ƒg‚Ìƒ}ƒbƒsƒ“ƒO‚ÉŠÖ‚µ‚Ä
-//	‚ÍÀ‘•w’èƒ}ƒNƒ‚ª’è‹`‚³‚ê‚Ä‚¢‚È‚­‚Ä‚àÀ‘•‚³‚ê‚Ü‚·B
+//	ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«æ™‚ã«æŒ‡å®šã™ã‚‹ã®ãŒé¢å€’ãªå ´åˆã¯ä»¥ä¸‹ã®ã‚³ãƒ¡ãƒ³ãƒˆè¡Œã‹ã‚‰é©åˆ‡ãªæŒ‡å®šã‚’
+//	(ã‚³ãƒ¡ãƒ³ãƒˆã‚’è§£é™¤ã—ã¦)æœ‰åŠ¹ã«ã—ã¦ãã ã•ã„ã€‚ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ãƒãƒƒãƒ”ãƒ³ã‚°ã«é–¢ã—ã¦
+//	ã¯å®Ÿè£…æŒ‡å®šãƒã‚¯ãƒ­ãŒå®šç¾©ã•ã‚Œã¦ã„ãªãã¦ã‚‚å®Ÿè£…ã•ã‚Œã¾ã™ã€‚
 //
 //#define __BBL_USING_STATIC_TABLE__
 //#define __BBL_USING_STDMAP_TABLE__
 
 #	if defined(__BBL_USING_STATIC_TABLE__) && defined(__BBL_USING_STDMAP_TABLE__)
-#		error	ƒ}ƒbƒsƒ“ƒOÀ‘••û–@w’èƒ}ƒNƒ‚Í‚Ç‚ê‚©ˆê‚Â‚É‚µ‚Ä‚­‚¾‚³‚¢B
+#		error	ãƒãƒƒãƒ”ãƒ³ã‚°å®Ÿè£…æ–¹æ³•æŒ‡å®šãƒã‚¯ãƒ­ã¯ã©ã‚Œã‹ä¸€ã¤ã«ã—ã¦ãã ã•ã„ã€‚
 #	endif
 
 #	if !(defined(__BBL_USING_STATIC_TABLE__) || defined(__BBL_USING_STDMAP_TABLE__))
@@ -217,14 +217,14 @@ namespace {
 
 
 //
-//	™UNICODEÌShift_JISƒ}ƒbƒsƒ“ƒOÀ‘•w’èƒ}ƒNƒ
+//	â˜†UNICODEâ‡”Shift_JISãƒãƒƒãƒ”ãƒ³ã‚°å®Ÿè£…æŒ‡å®šãƒã‚¯ãƒ­
 //
 
-//	ƒRƒ“ƒpƒCƒ‹‚Éw’è‚·‚é‚Ì‚ª–Ê“|‚Èê‡‚ÍˆÈ‰º‚ÌƒRƒƒ“ƒgs‚©‚ç“KØ‚Èw’è‚ğ
-//	(ƒRƒƒ“ƒg‚ğ‰ğœ‚µ‚Ä)—LŒø‚É‚µ‚Ä‚­‚¾‚³‚¢BƒfƒtƒHƒ‹ƒg‚Ìƒ}ƒbƒsƒ“ƒO‚ÉŠÖ‚µ‚Ä
-//	‚ÍÀ‘•w’èƒ}ƒNƒ‚ª’è‹`‚³‚ê‚Ä‚¢‚È‚­‚Ä‚àÀ‘•‚³‚ê‚Ü‚·B
+//	ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«æ™‚ã«æŒ‡å®šã™ã‚‹ã®ãŒé¢å€’ãªå ´åˆã¯ä»¥ä¸‹ã®ã‚³ãƒ¡ãƒ³ãƒˆè¡Œã‹ã‚‰é©åˆ‡ãªæŒ‡å®šã‚’
+//	(ã‚³ãƒ¡ãƒ³ãƒˆã‚’è§£é™¤ã—ã¦)æœ‰åŠ¹ã«ã—ã¦ãã ã•ã„ã€‚ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ãƒãƒƒãƒ”ãƒ³ã‚°ã«é–¢ã—ã¦
+//	ã¯å®Ÿè£…æŒ‡å®šãƒã‚¯ãƒ­ãŒå®šç¾©ã•ã‚Œã¦ã„ãªãã¦ã‚‚å®Ÿè£…ã•ã‚Œã¾ã™ã€‚
 //
-//		cf. ŠeíUNICODEƒ}ƒbƒsƒ“ƒO‚É‚Â‚¢‚Ä
+//		cf. å„ç¨®UNICODEãƒãƒƒãƒ”ãƒ³ã‚°ã«ã¤ã„ã¦
 //			http://tricklib.com/cxx/ex/babel/#unicode_map
 //
 //#define __BBL_LOAD_UNICODE_MAP_CP932__
@@ -233,13 +233,13 @@ namespace {
 
 
 //
-//	™UNICODEÌShift_JISƒ}ƒbƒsƒ“ƒOƒfƒtƒHƒ‹ƒgw’èƒ}ƒNƒ
+//	â˜†UNICODEâ‡”Shift_JISãƒãƒƒãƒ”ãƒ³ã‚°ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆæŒ‡å®šãƒã‚¯ãƒ­
 //
 
-//	ƒRƒ“ƒpƒCƒ‹‚Éw’è‚·‚é‚Ì‚ª–Ê“|‚Èê‡‚ÍˆÈ‰º‚ÌƒRƒƒ“ƒgs‚©‚ç“KØ‚Èw’è‚ğ
-//	(ƒRƒƒ“ƒg‚ğ‰ğœ‚µ‚Ä)—LŒø‚É‚µ‚Ä‚­‚¾‚³‚¢B
+//	ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«æ™‚ã«æŒ‡å®šã™ã‚‹ã®ãŒé¢å€’ãªå ´åˆã¯ä»¥ä¸‹ã®ã‚³ãƒ¡ãƒ³ãƒˆè¡Œã‹ã‚‰é©åˆ‡ãªæŒ‡å®šã‚’
+//	(ã‚³ãƒ¡ãƒ³ãƒˆã‚’è§£é™¤ã—ã¦)æœ‰åŠ¹ã«ã—ã¦ãã ã•ã„ã€‚
 //
-//		cf. ŠeíUNICODEƒ}ƒbƒsƒ“ƒO‚É‚Â‚¢‚Ä
+//		cf. å„ç¨®UNICODEãƒãƒƒãƒ”ãƒ³ã‚°ã«ã¤ã„ã¦
 //			http://tricklib.com/cxx/ex/babel/#unicode_map
 //
 //#define __BBL_USE_UNICODE_MAP_CP932__
@@ -249,14 +249,14 @@ namespace {
 #	if defined(__BBL_USE_UNICODE_MAP_CP932__) && defined(__BBL_USE_UNICODE_MAP_UTC__) || \
 		defined(__BBL_USE_UNICODE_MAP_CP932__) && defined(__BBL_USE_UNICODE_MAP_APPLE__) || \
 		defined(__BBL_USE_UNICODE_MAP_UTC__) && defined(__BBL_USE_UNICODE_MAP_APPLE__)
-#		error	UNICODEÌShift_JISƒ}ƒbƒsƒ“ƒOƒfƒtƒHƒ‹ƒgw’èƒ}ƒNƒ‚Í‚Ç‚ê‚©ˆê‚Â‚É‚µ‚Ä‚­‚¾‚³‚¢B
+#		error	UNICODEâ‡”Shift_JISãƒãƒƒãƒ”ãƒ³ã‚°ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆæŒ‡å®šãƒã‚¯ãƒ­ã¯ã©ã‚Œã‹ä¸€ã¤ã«ã—ã¦ãã ã•ã„ã€‚
 #	endif
 
 #	if !(defined(__BBL_USE_UNICODE_MAP_CP932__) || defined(__BBL_USE_UNICODE_MAP_UTC__) || defined(__BBL_USE_UNICODE_MAP_APPLE__))
 #		define	__BBL_USE_UNICODE_MAP_CP932__
 #	endif
 
-//	‹tˆÓ’è‹`
+//	é€†æ„å®šç¾©
 
 #	if defined(__BBL_USE_UNICODE_MAP_CP932__) && !defined(__BBL_LOAD_UNICODE_MAP_CP932__)
 #		define	__BBL_LOAD_UNICODE_MAP_CP932__
@@ -272,34 +272,34 @@ namespace {
 
 
 //
-//	™Private Use Area ƒR[ƒhœ‹‰ñ”ğw’èƒ}ƒNƒ
+//	â˜†Private Use Area ã‚³ãƒ¼ãƒ‰é™¤å»å›é¿æŒ‡å®šãƒã‚¯ãƒ­
 //
 
-//	ƒRƒ“ƒpƒCƒ‹‚Éw’è‚·‚é‚Ì‚ª–Ê“|‚Èê‡‚ÍˆÈ‰º‚ÌƒRƒƒ“ƒgs‚ğ(ƒRƒƒ“ƒg‚ğ‰ğœ
-//	‚µ‚Ä)—LŒø‚É‚µ‚Ä‚­‚¾‚³‚¢BƒfƒtƒHƒ‹ƒg‚Ì“®ì‚Å‚ÍUNICODE•¶š—ñ(UTF-8‚ğŠÜ‚Ş)
-//	‚ğ”ñUNICODE•¶š—ñ(SJIS,JIS,EUC)‚É•ÏŠ·‚·‚éÛAPrivate Use Area ‚Ì•¶šƒR[
-//	ƒh‚Íœ‹‚³‚ê‚Ü‚·‚ªA‚±‚Ìƒ}ƒNƒ‚ªw’è‚³‚ê‚Ä‚¢‚éê‡‚Íœ‹‚µ‚Ü‚¹‚ñB(‚½‚¾‚µ
-//	Private Use Area ‚Ì•¶šƒR[ƒh‚Íˆê”Ê“I‚É”ñUNICODE•¶š—ñ‚É³‚µ‚­•ÏŠ·‚Å‚«
-//	‚Ü‚¹‚ñ‚Ì‚Å babel::bbl_term::broken_char ‚É’u‚«Š·‚¦‚ç‚ê‚é‚¾‚¯‚Å‚·B)
+//	ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«æ™‚ã«æŒ‡å®šã™ã‚‹ã®ãŒé¢å€’ãªå ´åˆã¯ä»¥ä¸‹ã®ã‚³ãƒ¡ãƒ³ãƒˆè¡Œã‚’(ã‚³ãƒ¡ãƒ³ãƒˆã‚’è§£é™¤
+//	ã—ã¦)æœ‰åŠ¹ã«ã—ã¦ãã ã•ã„ã€‚ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®å‹•ä½œã§ã¯UNICODEæ–‡å­—åˆ—(UTF-8ã‚’å«ã‚€)
+//	ã‚’éUNICODEæ–‡å­—åˆ—(SJIS,JIS,EUC)ã«å¤‰æ›ã™ã‚‹éš›ã€Private Use Area ã®æ–‡å­—ã‚³ãƒ¼
+//	ãƒ‰ã¯é™¤å»ã•ã‚Œã¾ã™ãŒã€ã“ã®ãƒã‚¯ãƒ­ãŒæŒ‡å®šã•ã‚Œã¦ã„ã‚‹å ´åˆã¯é™¤å»ã—ã¾ã›ã‚“ã€‚(ãŸã ã—
+//	Private Use Area ã®æ–‡å­—ã‚³ãƒ¼ãƒ‰ã¯ä¸€èˆ¬çš„ã«éUNICODEæ–‡å­—åˆ—ã«æ­£ã—ãå¤‰æ›ã§ã
+//	ã¾ã›ã‚“ã®ã§ babel::bbl_term::broken_char ã«ç½®ãæ›ãˆã‚‰ã‚Œã‚‹ã ã‘ã§ã™ã€‚)
 
 //
 //#define	__BBL_DISABLE_DISPEL_PRIVATE_USE_AREA__
 
 
 //
-//	™À‘•‹‘”Ûw’èƒ}ƒNƒ
+//	â˜†å®Ÿè£…æ‹’å¦æŒ‡å®šãƒã‚¯ãƒ­
 //
 
-//	ƒRƒ“ƒpƒCƒ‹‚Éw’è‚·‚é‚Ì‚ª–Ê“|‚Èê‡‚ÍˆÈ‰º‚ÌƒRƒƒ“ƒgs‚©‚ç“KØ‚Èw’è‚ğ
-//	(ƒRƒƒ“ƒg‚ğ‰ğœ‚µ‚Ä)—LŒø‚É‚µ‚Ä‚­‚¾‚³‚¢BƒfƒtƒHƒ‹ƒg‚Ìƒ}ƒbƒsƒ“ƒO‚ÉŠÖ‚µ‚Ä
-//	‚ÍÀ‘•w’èƒ}ƒNƒ‚ª’è‹`‚³‚ê‚Ä‚¢‚È‚­‚Ä‚àÀ‘•‚³‚ê‚Ü‚·B
+//	ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«æ™‚ã«æŒ‡å®šã™ã‚‹ã®ãŒé¢å€’ãªå ´åˆã¯ä»¥ä¸‹ã®ã‚³ãƒ¡ãƒ³ãƒˆè¡Œã‹ã‚‰é©åˆ‡ãªæŒ‡å®šã‚’
+//	(ã‚³ãƒ¡ãƒ³ãƒˆã‚’è§£é™¤ã—ã¦)æœ‰åŠ¹ã«ã—ã¦ãã ã•ã„ã€‚ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ãƒãƒƒãƒ”ãƒ³ã‚°ã«é–¢ã—ã¦
+//	ã¯å®Ÿè£…æŒ‡å®šãƒã‚¯ãƒ­ãŒå®šç¾©ã•ã‚Œã¦ã„ãªãã¦ã‚‚å®Ÿè£…ã•ã‚Œã¾ã™ã€‚
 //
 //#define	__BBL_DISABLE_UNICODE__
 //#define	__BBL_DISABLE_BINARY__
-#define	__BBL_DISABLE_UTF32__	//	UTF-32 ‚ÌÀ‘•‚ğ‘¼‚Å‚ÍŒ©‚©‚¯‚È‚¢‚Ì‚Åƒoƒxƒ‹‚Å‚à(À‘•‚µ‚Ä‚à‚ ‚Ü‚èˆÓ–¡‚ª‚È‚¢‚Ì‚Å)ƒfƒtƒHƒ‹ƒg‚Å‚Í off B
+#define	__BBL_DISABLE_UTF32__	//	UTF-32 ã®å®Ÿè£…ã‚’ä»–ã§ã¯è¦‹ã‹ã‘ãªã„ã®ã§ãƒãƒ™ãƒ«ã§ã‚‚(å®Ÿè£…ã—ã¦ã‚‚ã‚ã¾ã‚Šæ„å‘³ãŒãªã„ã®ã§)ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§ã¯ off ã€‚
 //#define	__BBL_DISABLE_SELECTORS__
 
-//	ˆË‘¶ŠÖŒW
+//	ä¾å­˜é–¢ä¿‚
 
 #	if defined(__BBL_DISABLE_UNICODE__)
 #		if	defined(__BBL_LOAD_UNICODE_MAP_CP932__)
@@ -328,7 +328,7 @@ namespace {
 #		endif
 #	endif
 
-//	‹tˆÓ’è‹`
+//	é€†æ„å®šç¾©
 
 #	if !defined(__BBL_DISABLE_UNICODE__)
 #		if	!defined(__BBL_USE_UNICODE__)
@@ -356,7 +356,7 @@ namespace {
 
 
 //
-//	EnBOM/DeBOMˆ—À‘••û–@
+//	EnBOM/DeBOMå‡¦ç†å®Ÿè£…æ–¹æ³•
 //
 
 //#define __BBL_SMALL_BOM_LOGIC__
@@ -364,8 +364,8 @@ namespace {
 
 
 /******************************************************************************
-	 ¡ ¡                      TrickPalace                        ¡ ¡
-	¡ ¡               http://www.trickpalace.net/               ¡ ¡ 
+	â–¡â– â–¡â–                       TrickPalace                       â–¡â– â–¡â– 
+	â– â–¡â– â–¡              http://www.trickpalace.net/               â– â–¡â– â–¡
 ******************************************************************************/
 
 #	if defined(__BORLANDC__)
@@ -374,16 +374,16 @@ namespace {
 
 
 //
-//  œbabel
+//  â—babel
 //
 namespace babel {
 
-//	šƒoƒxƒ‹ƒ‚ƒWƒ…[ƒ‹‰Šú‰»ŠÖ”š
+//	â˜…ãƒãƒ™ãƒ«ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«åˆæœŸåŒ–é–¢æ•°â˜…
 void init_babel();
 
 
 //
-//	ƒNƒ‰ƒX‰»ŠÖ”Šî–{ƒNƒ‰ƒXƒeƒ“ƒvƒŒ[ƒg(‚Æ‚µ‚Ä demi ‚ğg‚¤)
+//	ã‚¯ãƒ©ã‚¹åŒ–é–¢æ•°åŸºæœ¬ã‚¯ãƒ©ã‚¹ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆ(ã¨ã—ã¦ demi ã‚’ä½¿ã†)
 //
 	template<class T> class bbl_demi {
 		public:
@@ -407,19 +407,19 @@ void init_babel();
 	//
 
 //
-//  ¥g—p‚·‚é•¶š—ñƒNƒ‰ƒX [ Y ]
+//  â–¼ä½¿ç”¨ã™ã‚‹æ–‡å­—åˆ—ã‚¯ãƒ©ã‚¹ [ ã€† ]
 //
 }
 #include <string>
 
 //
-//	ƒoƒxƒ‹‚É‘Î‚·‚éƒoƒOƒxƒA[ƒh‚Ì“K—p
+//	ãƒãƒ™ãƒ«ã«å¯¾ã™ã‚‹ãƒã‚°ãƒ™ã‚¢ãƒ¼ãƒ‰ã®é©ç”¨
 //
 #if defined(__BABEL_WITH_BUG__)
 //
-//	ƒXƒe[ƒgƒƒ“ƒgƒnƒbƒN‚n‚mI
+//	ã‚¹ãƒ†ãƒ¼ãƒˆãƒ¡ãƒ³ãƒˆãƒãƒƒã‚¯ï¼¯ï¼®ï¼
 //
-#define __BUG_STATEMENT_HACK__	//	ƒXƒe[ƒgƒƒ“ƒgƒnƒbƒN‚Ìw’è
+#define __BUG_STATEMENT_HACK__	//	ã‚¹ãƒ†ãƒ¼ãƒˆãƒ¡ãƒ³ãƒˆãƒãƒƒã‚¯ã®æŒ‡å®š
 #include "..\bugbeard\bug.h"
 #endif	//	defined(__BABEL_WITH_BUG__)
 
@@ -427,7 +427,7 @@ namespace babel {
 typedef std::string bbl_binary;
 typedef std::string bbl_string;
 #if	defined(__BBL_USE_UNICODE__)
-//  typedef std::wstring bbl_wstring;	//	g++ ‚ÌR(M„DL)ƒmƒ{ƒPƒFI
+//  typedef std::wstring bbl_wstring;	//	g++ ã®ãƒ½(ï½€Ğ”Â´)ãƒãƒœã‚±ã‚§ï¼
 typedef std::basic_string<wchar_t> bbl_wstring;
 #endif	//	defined(__BBL_USE_UNICODE__)
 
@@ -442,27 +442,27 @@ typedef	bbl_wstring	bbl_default_string;
 
 
 //
-//  œƒ^[ƒ€ [ Y ]
+//  â—ã‚¿ãƒ¼ãƒ  [ ã€† ]
 //
 namespace bbl_term {
-	const bbl_string broken_char = "?";		//	‚Q•¶šˆÈã‚Å‚à‰ÂAANSIˆÈŠO‚Í•s‰ÂB
+	const bbl_string broken_char = "?";		//	ï¼’æ–‡å­—ä»¥ä¸Šã§ã‚‚å¯ã€ANSIä»¥å¤–ã¯ä¸å¯ã€‚
 	const bbl_string empty = "";
 #if	defined(__BBL_USE_UNICODE__)
-	const bbl_wstring broken_wchar = L"?";	//	‚Q•¶šˆÈã‚Å‚à‰ÂAANSIˆÈŠO‚Í•s‰ÂB
+	const bbl_wstring broken_wchar = L"?";	//	ï¼’æ–‡å­—ä»¥ä¸Šã§ã‚‚å¯ã€ANSIä»¥å¤–ã¯ä¸å¯ã€‚
 	const bbl_wstring wempty = L"";
 #endif	//	defined(__BBL_USE_UNICODE__)
 #if	defined(__BBL_USE_UNICODE__)
 	const bbl_string utf8_FEFF = "\xEF\xBB\xBF";
-//	const bbl_wstring unicode_bom = L"\uFEFF";	//	g++ ‚ÌR(M„DL)ƒmƒ{ƒPƒFI
+//	const bbl_wstring unicode_bom = L"\uFEFF";	//	g++ ã®ãƒ½(ï½€Ğ”Â´)ãƒãƒœã‚±ã‚§ï¼
 	const bbl_wstring unicode_bom((bbl_wstring::size_type)1, (bbl_wstring::value_type)0xFEFF);
 #endif	//	defined(__BBL_USE_UNICODE__)
 	const bbl_string babel_version = "information>\n"
 											"\tmodule>\tid=babel\n"
-											"\t\tname=ƒoƒxƒ‹  -babel- \n"
+											"\t\tname=ãƒãƒ™ãƒ«  -babel- \n"
 											"\t\turl=http://tricklib.com/cxx/ex/babel/\n"
-											"\t\tversion=ƒx[ƒ^\n"
+											"\t\tversion=ãƒ™ãƒ¼ã‚¿\n"
 											"\tauthor>\tid=wraith\n"
-											"\t\tname=“¹‰»t\n"
+											"\t\tname=é“åŒ–å¸«\n"
 											"\t\turl=http://www.trickpalace.net/\n"
 											"\t\tmail=wraith@trickpalace.net\n";
 
@@ -489,8 +489,8 @@ namespace bbl_term {
 }
 
 /******************************************************************************
-	 ¡ ¡                       cppll ML                          ¡ ¡
-	¡ ¡            http://www.trickpalace.net/cppll/            ¡ ¡ 
+	â–¡â– â–¡â–                        cppll ML                         â–¡â– â–¡â– 
+	â– â–¡â– â–¡           http://www.trickpalace.net/cppll/            â– â–¡â– â–¡
 ******************************************************************************/
 
 #if	defined(__BBL_USE_UNICODE__)
@@ -559,7 +559,7 @@ namespace base_encoding {
 	};
 };
 
-//	«‚¿‚å‚Á‚Æ—V‚ñ‚Å‚½‚¾‚¯‚©‚ç‹C‚É‚µ‚È‚¢‚ÅB
+//	â†“ã¡ã‚‡ã£ã¨éŠã‚“ã§ãŸã ã‘ã‹ã‚‰æ°—ã«ã—ãªã„ã§ã€‚
 
 /*
 template<class T, int size> class auto_array_class :public bbl_demi<T[size]>{
@@ -620,12 +620,12 @@ template<class T> const T & get_array_item(unsigned int index, const T &first_it
 }
 */
 
-//	ª‚¿‚å‚Á‚Æ—V‚ñ‚Å‚½‚¾‚¯‚©‚ç‹C‚É‚µ‚È‚¢‚ÅB
+//	â†‘ã¡ã‚‡ã£ã¨éŠã‚“ã§ãŸã ã‘ã‹ã‚‰æ°—ã«ã—ãªã„ã§ã€‚
 
 
 namespace profile_for_UI {
-	//	get_list_size_for_UI(), get_id_for_UI(), get_name_for_UI() ‚ÍO‚Â‚Å
-	//	ƒZƒbƒg‚ÌŠÖ”‚Å‚·Bƒ†[ƒU‚ÉƒGƒ“ƒR[ƒh‚ğw’è‚³‚¹‚éê‡‚É‚²Šˆ—p‚­‚¾‚³‚¢B
+	//	get_list_size_for_UI(), get_id_for_UI(), get_name_for_UI() ã¯ä¸‰ã¤ã§
+	//	ã‚»ãƒƒãƒˆã®é–¢æ•°ã§ã™ã€‚ãƒ¦ãƒ¼ã‚¶ã«ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã‚’æŒ‡å®šã•ã›ã‚‹å ´åˆã«ã”æ´»ç”¨ãã ã•ã„ã€‚
 	inline const unsigned int get_list_size_for_UI() {
 #if	defined(__BBL_USE_UNICODE__)
 		return 5;
@@ -667,8 +667,8 @@ namespace profile_for_UI {
 		assert(index < get_list_size_for_UI());
 		const char * name_for_UI[] = {
 			"ANSI",
-			"ƒVƒtƒgJIS",
-			"JIS(”¼ŠpƒJƒi‰Â)",
+			"ã‚·ãƒ•ãƒˆJIS",
+			"JIS(åŠè§’ã‚«ãƒŠå¯)",
 			"EUC-JP",
 			"ISO-2022-JP",
 #if	defined(__BBL_USE_UNICODE__)
@@ -682,20 +682,20 @@ namespace profile_for_UI {
 #endif	//	defined(__BBL_USE_UNICODE__)
 		};
 		return name_for_UI[index];
-	//	return auto_array("ANSI")("ƒVƒtƒgJIS")("JIS(”¼ŠpƒJƒi‰Â)")("EUC-JP")
+	//	return auto_array("ANSI")("ã‚·ãƒ•ãƒˆJIS")("JIS(åŠè§’ã‚«ãƒŠå¯)")("EUC-JP")
 	//						("ISO-2022-JP")("UTF-8")("UTF-16")
 	//						("UTF-16le")("UTF-32")("UTF-32le")[index];
 	}
 
-	//	get_base_encoding_name()‚ÍƒGƒ“ƒR[ƒh‚ÌID‚©‚ç•\¦—p‚Ì•¶š—ñ‚ğæ“¾‚·‚éˆ×
-	//	‚ÌŠÖ”‚Å‚·‚ªAget_name_for_UI()‚Æ¬“¯‚µ‚È‚¢‚æ‚¤‚É‹C‚ğ‚Â‚¯‚Ä‚­‚¾‚³‚¢B
+	//	get_base_encoding_name()ã¯ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã®IDã‹ã‚‰è¡¨ç¤ºç”¨ã®æ–‡å­—åˆ—ã‚’å–å¾—ã™ã‚‹ç‚º
+	//	ã®é–¢æ•°ã§ã™ãŒã€get_name_for_UI()ã¨æ··åŒã—ãªã„ã‚ˆã†ã«æ°—ã‚’ã¤ã‘ã¦ãã ã•ã„ã€‚
 	inline const bbl_string get_base_encoding_name(unsigned int index) {
 		const char *base_encoding_name[] = {
-			"•s–¾",
-			"ƒoƒCƒiƒŠ",
+			"ä¸æ˜",
+			"ãƒã‚¤ãƒŠãƒª",
 			"ANSI",
-			"ƒVƒtƒgJIS",
-			"JIS(”¼ŠpƒJƒi‰Â)",
+			"ã‚·ãƒ•ãƒˆJIS",
+			"JIS(åŠè§’ã‚«ãƒŠå¯)",
 			"EUC-JP",
 			"ISO-2022-JP",
 			"UTF-8",
@@ -726,7 +726,7 @@ inline const int get_base_encoding() {
 	return utf8;
 #endif
 #ifdef	__USING_UNKNOWN__
-	const int fingerprint = ((unsigned char*)("Š¿š"))[0];
+	const int fingerprint = ((unsigned char*)("æ¼¢å­—"))[0];
 	if (0x8A == fingerprint) {
 		return sjis;
 	}
@@ -855,7 +855,7 @@ class bbl_translate_engine :public bbl_smart_base {
 	typedef from_string		from_string_type;
 	typedef to_string		to_string_type;
 //	friend class bbl_translater_type;
-	friend class bbl_translater<from_string, to_string>; //	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+	friend class bbl_translater<from_string, to_string>; //	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	from_string_type untranslated_buffer;
 	to_string_type translated_buffer;
@@ -881,7 +881,7 @@ class bbl_translate_engine :public bbl_smart_base {
 };
 
 //
-//	¡–³”\•ÏŠ·ƒGƒ“ƒWƒ“
+//	â– ç„¡èƒ½å¤‰æ›ã‚¨ãƒ³ã‚¸ãƒ³
 //
 template<class from_string = bbl_default_string, class to_string = bbl_default_string>
 class dull_engine :public bbl_translate_engine<from_string, to_string> {
@@ -891,12 +891,12 @@ class dull_engine :public bbl_translate_engine<from_string, to_string> {
 	typedef typename base_type::bbl_translater_type	bbl_translater_type;
 //	typedef typename base_type::from_string_type	from_string_type;
 //	typedef typename base_type::to_string_type		to_string_type;
-	typedef from_string						from_string_type;	//	bcc ‚ÌR(M„DL)ƒm‚Î‚©‚ŸI
-	typedef to_string						to_string_type;		//	bcc ‚ÌR(M„DL)ƒm‚Î‚©‚ŸI
+	typedef from_string						from_string_type;	//	bcc ã®ãƒ½(ï½€Ğ”Â´)ãƒã°ã‹ãï¼
+	typedef to_string						to_string_type;		//	bcc ã®ãƒ½(ï½€Ğ”Â´)ãƒã°ã‹ãï¼
   private:
 	dull_engine() {}
-  public:	//	©–³‘Ê‚ÈŒx‰ñ”ğ‚Ìˆ× ... g++ ‚ÌR(M„DL)ƒmƒ{ƒPƒFI
-	~dull_engine() {}	//	bcc ‚ÌR(M„DL)ƒm‚Î‚©‚ŸI
+  public:	//	â†ç„¡é§„ãªè­¦å‘Šå›é¿ã®ç‚º ... g++ ã®ãƒ½(ï½€Ğ”Â´)ãƒãƒœã‚±ã‚§ï¼
+	~dull_engine() {}	//	bcc ã®ãƒ½(ï½€Ğ”Â´)ãƒã°ã‹ãï¼
   protected:
 	void translate() { }
 	void flush() { base_type::untranslated_buffer = bbl_term::get_empty(); }
@@ -908,9 +908,9 @@ static const to_string_type ignite(const from_string_type &X) { return bbl_term:
 template<class first_engine, class second_engine> class twin_translate_engine;
 
 //
-//	¡ƒR[ƒh•ÏŠ·ƒNƒ‰ƒX(ƒGƒ“ƒWƒ“‚ÌƒVƒFƒ‹)
+//	â– ã‚³ãƒ¼ãƒ‰å¤‰æ›ã‚¯ãƒ©ã‚¹(ã‚¨ãƒ³ã‚¸ãƒ³ã®ã‚·ã‚§ãƒ«)
 //
-template<class from_string, class to_string>	//	æséŒ¾‚ÅŠù‚Éw’è‚µ‚Ä‚¢‚é‚Ì‚Å‚±‚±‚Å‚ÍƒfƒtƒHƒ‹ƒg‚ğw’è‚µ‚È‚¢B
+template<class from_string, class to_string>	//	å…ˆè¡Œå®£è¨€ã§æ—¢ã«æŒ‡å®šã—ã¦ã„ã‚‹ã®ã§ã“ã“ã§ã¯ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚’æŒ‡å®šã—ãªã„ã€‚
 class bbl_translater {
   public:
 	typedef bbl_translater this_type;
@@ -956,7 +956,7 @@ class bbl_translater {
 	}
 	this_type & clear() {
 		engine->clear();
-		//«•K‚¸‚µ‚àƒoƒbƒtƒ@‚ªƒNƒŠƒA‚³‚ê‚é‚Æ‚ÍŒÀ‚ç‚È‚¢‚Ì‚Å‚±‚Ì“ñ‚Â‚Ì assert ‚ÍƒRƒƒ“ƒgƒAƒEƒg‚µ‚Ü‚µ‚½B
+		//â†“å¿…ãšã—ã‚‚ãƒãƒƒãƒ•ã‚¡ãŒã‚¯ãƒªã‚¢ã•ã‚Œã‚‹ã¨ã¯é™ã‚‰ãªã„ã®ã§ã“ã®äºŒã¤ã® assert ã¯ã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆã—ã¾ã—ãŸã€‚
 		//assert(0 == engine->untranslated_buffer.length());
 		//assert(0 == engine->translated_buffer.length());
 		return *this;
@@ -968,7 +968,7 @@ class bbl_translater {
 	const char * c_str() const { return get_string().c_str(); }
 	const to_string_type pook_buffer() {
 		to_string_type buffer = engine->translated_buffer;
-//		engine->translated_buffer.clear();	//	g++ ‚ÌR(M„DL)ƒmƒ{ƒPƒFI
+//		engine->translated_buffer.clear();	//	g++ ã®ãƒ½(ï½€Ğ”Â´)ãƒãƒœã‚±ã‚§ï¼
 		engine->translated_buffer.erase();
 		return buffer;
 	}
@@ -976,7 +976,7 @@ class bbl_translater {
 	this_type & operator << (const from_string_type &X) { return translate(X); }
 	this_type & operator >> (to_string_type &X) {
 		X = engine->translated_buffer;
-//		engine->translated_buffer.clear();	//	g++ ‚ÌR(M„DL)ƒmƒ{ƒPƒFI
+//		engine->translated_buffer.clear();	//	g++ ã®ãƒ½(ï½€Ğ”Â´)ãƒãƒœã‚±ã‚§ï¼
 		engine->translated_buffer.erase();
 		return *this;
 	}
@@ -993,13 +993,13 @@ class through_engine :public bbl_translate_engine<target_string, target_string> 
 	typedef typename base_type::bbl_translater_type	bbl_translater_type;
 	typedef typename base_type::from_string_type	from_string_type;
 	typedef typename base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	through_engine() {}
   protected:
 	void translate() {
 		base_type::translated_buffer += base_type::untranslated_buffer;
-//		untranslated_buffer.clear();	//	g++ ‚ÌR(M„DL)ƒmƒ{ƒPƒFI
+//		untranslated_buffer.clear();	//	g++ ã®ãƒ½(ï½€Ğ”Â´)ãƒãƒœã‚±ã‚§ï¼
 		base_type::untranslated_buffer.erase();
 	}
 	void flush() { }
@@ -1017,7 +1017,7 @@ class ansi_to_unicode_engine :public bbl_translate_engine<bbl_string, bbl_wstrin
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	ansi_to_unicode_engine() { }
   protected:
@@ -1034,7 +1034,7 @@ class unicode_to_ansi_engine :public bbl_translate_engine<bbl_wstring, bbl_strin
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	unicode_to_ansi_engine() { }
   protected:
@@ -1052,7 +1052,7 @@ class sjis_to_euc_engine :public bbl_translate_engine<bbl_string, bbl_string> {
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	sjis_to_euc_engine() { }
   protected:
@@ -1068,7 +1068,7 @@ class sjis_to_jis_engine :public bbl_translate_engine<bbl_string, bbl_string> {
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	int status;
 	sjis_to_jis_engine() :status(0) { }
@@ -1116,7 +1116,7 @@ class euc_to_sjis_engine :public bbl_translate_engine<bbl_string, bbl_string> {
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	euc_to_sjis_engine() { }
   protected:
@@ -1133,7 +1133,7 @@ class euc_to_jis_engine :public bbl_translate_engine<bbl_string, bbl_string> {
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	int status;
 	euc_to_jis_engine() :status(0) { }
@@ -1157,7 +1157,7 @@ class euc_to_unicode_engine :public bbl_translate_engine<bbl_string, bbl_wstring
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	euc_to_unicode_engine() {
 #ifdef	__BBL_SMALL_BOM_LOGIC__
@@ -1183,7 +1183,7 @@ class unicode_to_euc_engine :public bbl_translate_engine<bbl_wstring, bbl_string
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	unicode_to_euc_engine() { }
   protected:
@@ -1205,7 +1205,7 @@ class jis_to_sjis_engine :public bbl_translate_engine<bbl_string, bbl_string> {
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	int status;
 	jis_to_sjis_engine() :status(0) { }
@@ -1228,7 +1228,7 @@ class jis_to_euc_engine :public bbl_translate_engine<bbl_string, bbl_string> {
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	int status;
 	jis_to_euc_engine() :status(0) { }
@@ -1250,7 +1250,7 @@ class jis_to_iso2022jp_engine :public bbl_translate_engine<bbl_string, bbl_strin
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	int from_status;
 	int to_status;
@@ -1276,7 +1276,7 @@ class sjis_cp932_to_unicode_engine :public bbl_translate_engine<bbl_string, bbl_
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	sjis_cp932_to_unicode_engine() {
 #ifdef	__BBL_SMALL_BOM_LOGIC__
@@ -1302,7 +1302,7 @@ class unicode_to_sjis_cp932_engine :public bbl_translate_engine<bbl_wstring, bbl
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	unicode_to_sjis_cp932_engine() { }
   protected:
@@ -1321,7 +1321,7 @@ class sjis_utc_to_unicode_engine :public bbl_translate_engine<bbl_string, bbl_ws
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	sjis_utc_to_unicode_engine() {
 #ifdef	__BBL_SMALL_BOM_LOGIC__
@@ -1347,7 +1347,7 @@ class unicode_to_sjis_utc_engine :public bbl_translate_engine<bbl_wstring, bbl_s
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	unicode_to_sjis_utc_engine() { }
   protected:
@@ -1366,7 +1366,7 @@ class sjis_apple_to_unicode_engine :public bbl_translate_engine<bbl_string, bbl_
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	sjis_apple_to_unicode_engine() {
 #ifdef	__BBL_SMALL_BOM_LOGIC__
@@ -1392,7 +1392,7 @@ class unicode_to_sjis_apple_engine :public bbl_translate_engine<bbl_wstring, bbl
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	unicode_to_sjis_apple_engine() { }
   protected:
@@ -1412,7 +1412,7 @@ class unicode_to_utf8_engine :public bbl_translate_engine<bbl_wstring, bbl_strin
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	unicode_to_utf8_engine() { }
   protected:
@@ -1428,7 +1428,7 @@ class utf8_to_unicode_engine :public bbl_translate_engine<bbl_string, bbl_wstrin
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	utf8_to_unicode_engine() { }
   protected:
@@ -1458,7 +1458,7 @@ class enbom_engine :public through_engine<target_string> {
 	}
   public:
 static bbl_translater_type create() { return new this_type; }
-//static const to_string_type ignite(const from_string_type &X) { return this_type().base_type::ignite(X); }	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//static const to_string_type ignite(const from_string_type &X) { return this_type().base_type::ignite(X); }	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
 static const to_string_type ignite(const from_string_type &X) { return enbom_engine<target_string>().through_engine<target_string>::ignite(X); }
 };
 
@@ -1482,7 +1482,7 @@ class debom_engine :public through_engine<target_string> {
 	}
   public:
 static bbl_translater_type create() { return new this_type; }
-//static const to_string_type ignite(const from_string_type &X) { return this_type().base_type::ignite(X); }	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//static const to_string_type ignite(const from_string_type &X) { return this_type().base_type::ignite(X); }	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
 static const to_string_type ignite(const from_string_type &X) { return debom_engine<target_string>().through_engine<target_string>::ignite(X); }
 };
 #endif	//	__BBL_LARGE_BOM_LOGIC__
@@ -1490,13 +1490,13 @@ static const to_string_type ignite(const from_string_type &X) { return debom_eng
 
 #endif	//	defined(__BBL_USE_UNICODE__)
 
-const int translate_buffer_full_size = 1024;	//	8`4096
-const int translate_buffer_size = 1000;			//	translate_buffer_full_size -ƒ¿
-//const int translate_buffer_full_size = 128;		//	8`4096
-//const int translate_buffer_size = 100;			//	translate_buffer_full_size -ƒ¿
+const int translate_buffer_full_size = 1024;	//	8ï½4096
+const int translate_buffer_size = 1000;			//	translate_buffer_full_size -Î±
+//const int translate_buffer_full_size = 128;		//	8ï½4096
+//const int translate_buffer_size = 100;			//	translate_buffer_full_size -Î±
 
 //
-//	¡‡¬•ÏŠ·ƒGƒ“ƒWƒ“
+//	â– åˆæˆå¤‰æ›ã‚¨ãƒ³ã‚¸ãƒ³
 //
 template<class first_engine, class second_engine>
 class twin_translate_engine :public bbl_translate_engine<typename first_engine::from_string_type, typename second_engine::to_string_type> {
@@ -1508,7 +1508,7 @@ class twin_translate_engine :public bbl_translate_engine<typename first_engine::
 	typedef typename base_type::bbl_translater_type	bbl_translater_type;
 	typedef typename base_type::from_string_type	from_string_type;
 	typedef typename base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	typename first_engine_type::bbl_translater_type engine1;
 	typename second_engine_type::bbl_translater_type engine2;
@@ -1520,7 +1520,7 @@ class twin_translate_engine :public bbl_translate_engine<typename first_engine::
   protected:
 	void translate() {
 		engine1.translate(base_type::untranslated_buffer);
-//		untranslated_buffer.clear();	//	g++ ‚ÌR(M„DL)ƒmƒ{ƒPƒFI
+//		untranslated_buffer.clear();	//	g++ ã®ãƒ½(ï½€Ğ”Â´)ãƒãƒœã‚±ã‚§ï¼
 		base_type::untranslated_buffer.erase();
 		engine2.translate(engine1.pook_buffer());
 		base_type::translated_buffer += engine2.pook_buffer();
@@ -1528,7 +1528,7 @@ class twin_translate_engine :public bbl_translate_engine<typename first_engine::
 	void flush() {
 		engine1.flush();
 
-//		untranslated_buffer.clear();	//	g++ ‚ÌR(M„DL)ƒmƒ{ƒPƒFI
+//		untranslated_buffer.clear();	//	g++ ã®ãƒ½(ï½€Ğ”Â´)ãƒãƒœã‚±ã‚§ï¼
 		base_type::untranslated_buffer.erase();
 		engine2.translate(engine1.pook_buffer()).flush();
 		base_type::translated_buffer += engine2.pook_buffer();
@@ -1560,7 +1560,7 @@ typedef twin_translate_engine<utf8_to_euc_engine, euc_to_jis_engine> utf8_to_jis
 #endif	//	defined(__BBL_USE_UNICODE__)
 
 //
-//	 ƒR[ƒh•ÏŠ·ŠÖ”(ƒGƒCƒŠƒAƒX)
+//	â–¡ã‚³ãƒ¼ãƒ‰å¤‰æ›é–¢æ•°(ã‚¨ã‚¤ãƒªã‚¢ã‚¹)
 //
 const bbl_string (* const sjis_to_euc)(const bbl_string &) = sjis_to_euc_engine::ignite;
 const bbl_string (* const sjis_to_jis)(const bbl_string &) = sjis_to_jis_engine::ignite;
@@ -1588,8 +1588,8 @@ const bbl_string (* const unicode_to_utf8)(const bbl_wstring &) = unicode_to_utf
 
 
 /******************************************************************************
-	 ¡ ¡                          cuppa                          ¡ ¡
-	¡ ¡                  http://www.unittest.org/               ¡ ¡ 
+	â–¡â– â–¡â–                           cuppa                         â–¡â– â–¡â– 
+	â– â–¡â– â–¡                 http://www.unittest.org/               â– â–¡â– â–¡
 ******************************************************************************/
 
 #if defined(__BBL_USE_BINARY__)
@@ -1600,7 +1600,7 @@ class WORD_to_unicode_engine :public bbl_translate_engine<bbl_binary, bbl_wstrin
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	WORD_to_unicode_engine() { }
   protected:
@@ -1617,7 +1617,7 @@ class unicode_to_WORD_engine :public bbl_translate_engine<bbl_wstring, bbl_binar
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	unicode_to_WORD_engine() { }
   protected:
@@ -1634,7 +1634,7 @@ class cross_WORD_to_unicode_engine :public bbl_translate_engine<bbl_binary, bbl_
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	cross_WORD_to_unicode_engine() { }
   protected:
@@ -1651,7 +1651,7 @@ class unicode_to_cross_WORD_engine :public bbl_translate_engine<bbl_wstring, bbl
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	unicode_to_cross_WORD_engine() { }
   protected:
@@ -1682,7 +1682,7 @@ class DWORD_to_unicode_engine :public bbl_translate_engine<bbl_binary, bbl_wstri
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	DWORD_to_unicode_engine() { }
   protected:
@@ -1699,7 +1699,7 @@ class unicode_to_DWORD_engine :public bbl_translate_engine<bbl_wstring, bbl_bina
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	unicode_to_DWORD_engine() { }
   protected:
@@ -1716,7 +1716,7 @@ class cross_DWORD_to_unicode_engine :public bbl_translate_engine<bbl_binary, bbl
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	cross_DWORD_to_unicode_engine() { }
   protected:
@@ -1733,7 +1733,7 @@ class unicode_to_cross_DWORD_engine :public bbl_translate_engine<bbl_wstring, bb
 	typedef base_type::bbl_translater_type	bbl_translater_type;
 	typedef base_type::from_string_type		from_string_type;
 	typedef base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	unicode_to_cross_DWORD_engine() { }
   protected:
@@ -1762,21 +1762,21 @@ inline const unsigned int DWORD_cross_endian(const unsigned int &X) {
 
 #if defined(__BBL_USE_SELECTORS__)
 //
-//	¡translate_to_string-, auto_translate-, translate_to_binary-, manual_translate-
+//	â– translate_to_string-, auto_translate-, translate_to_binary-, manual_translate-
 //
 
-//	 g‚¢•ª‚¯
+//	â–¡ä½¿ã„åˆ†ã‘
 //
-//	translate_engine get_translate_engine(–Ú“I, ƒGƒ“ƒR[ƒhƒ^ƒCƒv‚ª•ª‚©‚Á‚Ä‚¢‚é = false) {
-//		switch(–Ú“I) {
-//			case “ü—Í:
-//				if(ƒGƒ“ƒR[ƒhƒ^ƒCƒv‚ª•ª‚©‚Á‚Ä‚¢‚é) {
+//	translate_engine get_translate_engine(ç›®çš„, ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã‚¿ã‚¤ãƒ—ãŒåˆ†ã‹ã£ã¦ã„ã‚‹ = false) {
+//		switch(ç›®çš„) {
+//			case å…¥åŠ›:
+//				if(ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã‚¿ã‚¤ãƒ—ãŒåˆ†ã‹ã£ã¦ã„ã‚‹) {
 //					return translate_to_string_engine;
 //				} else {
 //					return auto_translate_engine;
 //				}
 //
-//			case o—Í:
+//			case å‡ºåŠ›:
 //				return translate_to_binary_engine;
 //
 //			default:
@@ -1784,23 +1784,23 @@ inline const unsigned int DWORD_cross_endian(const unsigned int &X) {
 //		}
 //	}
 
-//	 ƒNƒ‰ƒXŠK‘w}
+//	â–¡ã‚¯ãƒ©ã‚¹éšå±¤å›³
 //
 //			[manual_translate_engine]
-//			@„ 
-//			@„¥„Ÿ[translate_to_string_engine]
-//			@„ @@„ 
-//			@„ @@„¤„Ÿ[auto_translate_engine]
-//			@„ 
-//			@„¤„Ÿ[translate_to_binary_engine]
+//			ã€€â”‚
+//			ã€€â”œâ”€[translate_to_string_engine]
+//			ã€€â”‚ã€€ã€€â”‚
+//			ã€€â”‚ã€€ã€€â””â”€[auto_translate_engine]
+//			ã€€â”‚
+//			ã€€â””â”€[translate_to_binary_engine]
 //
 
 
-//	ƒNƒ‰ƒXƒƒ“ƒo
-//		ƒRƒ“ƒXƒgƒ‰ƒNƒ^
-//		traslateŒn
-//		orderŒn
-//	ŠÈˆÕŠÖ”ƒCƒ“ƒ^[ƒtƒFƒCƒX
+//	ã‚¯ãƒ©ã‚¹ãƒ¡ãƒ³ãƒ
+//		ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+//		traslateç³»
+//		orderç³»
+//	ç°¡æ˜“é–¢æ•°ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹
 
 template<class from_string = bbl_default_string, class to_string = bbl_default_string>
 class manual_translate_engine :public bbl_translate_engine<from_string, to_string> {
@@ -1810,7 +1810,7 @@ class manual_translate_engine :public bbl_translate_engine<from_string, to_strin
 	typedef typename base_type::bbl_translater_type	bbl_translater_type;
 	typedef typename base_type::from_string_type	from_string_type;
 	typedef typename base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	bbl_translater_type	engine;
 	manual_translate_engine(int from_base_encoding, int to_base_encoding = babel::get_base_encoding())
@@ -1822,13 +1822,13 @@ class manual_translate_engine :public bbl_translate_engine<from_string, to_strin
   protected:
 	void translate() {
 		engine.translate(base_type::untranslated_buffer);
-//		untranslated_buffer.clear();	//	g++ ‚ÌR(M„DL)ƒmƒ{ƒPƒFI
+//		untranslated_buffer.clear();	//	g++ ã®ãƒ½(ï½€Ğ”Â´)ãƒãƒœã‚±ã‚§ï¼
 		base_type::untranslated_buffer.erase();
 		base_type::translated_buffer += engine.pook_buffer();
 	}
 	void flush() {
 		engine.flush();
-//		untranslated_buffer.clear();	//	g++ ‚ÌR(M„DL)ƒmƒ{ƒPƒFI
+//		untranslated_buffer.clear();	//	g++ ã®ãƒ½(ï½€Ğ”Â´)ãƒãƒœã‚±ã‚§ï¼
 		base_type::untranslated_buffer.erase();
 		base_type::translated_buffer += engine.pook_buffer();
 	}
@@ -1848,7 +1848,7 @@ static const to_string_type ignite(const from_string_type &X, int from_base_enco
 static bbl_translater_type order(int from_base_encoding, int to_base_encoding = babel::get_base_encoding());
 };
 
-//	specialize ‚ÌæséŒ¾
+//	specialize ã®å…ˆè¡Œå®£è¨€
 
 template<>
 manual_translate_engine<bbl_string, bbl_string>::bbl_translater_type
@@ -1884,10 +1884,10 @@ const bbl_wstring manual_translate_engine<bbl_wstring, bbl_wstring>::ignite(cons
 template<class string_type = bbl_default_string>
 class translate_to_string_engine :public manual_translate_engine<bbl_binary, string_type> {
 //
-//	‚±‚ÌƒNƒ‰ƒX‚Í from_string_type ‚ª bbl_binary ‚ÉŒÅ’è‚³‚ê‚Ä‚¢‚éˆÈŠO‚Í‹@”\“I‚É
-//	manual_translate_engine ‚Æ‘S‚­“¯ˆê‚Å‚·B
+//	ã“ã®ã‚¯ãƒ©ã‚¹ã¯ from_string_type ãŒ bbl_binary ã«å›ºå®šã•ã‚Œã¦ã„ã‚‹ä»¥å¤–ã¯æ©Ÿèƒ½çš„ã«
+//	manual_translate_engine ã¨å…¨ãåŒä¸€ã§ã™ã€‚
 //
-//	EEE‚±‚ÌƒNƒ‰ƒX‚É‚Í«—ˆ“I‚ÉBOMŠÖ˜A‚Ì¬×H‚ğ{‚·‚©‚à‚µ‚ê‚Ü‚¹‚ñB
+//	ãƒ»ãƒ»ãƒ»ã“ã®ã‚¯ãƒ©ã‚¹ã«ã¯å°†æ¥çš„ã«BOMé–¢é€£ã®å°ç´°å·¥ã‚’æ–½ã™ã‹ã‚‚ã—ã‚Œã¾ã›ã‚“ã€‚
 //
 public:
 	typedef translate_to_string_engine<string_type> this_type;
@@ -1896,7 +1896,7 @@ public:
 	typedef typename base_type::bbl_translater_type	bbl_translater_type;
 	typedef typename base_type::from_string_type		from_string_type;
 	typedef typename base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 #ifdef	__BBL_LARGE_BOM_LOGIC__
 	translate_to_string_engine(int from_base_encoding, int to_base_encoding = babel::get_base_encoding())
@@ -1925,7 +1925,7 @@ class auto_translate_engine :public translate_to_string_engine<to_string> {
 	typedef typename base_type::bbl_translater_type	bbl_translater_type;
 	typedef typename base_type::from_string_type		from_string_type;
 	typedef typename base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 	int from_base_encoding, to_base_encoding;
 	auto_translate_engine(int X_to_base_encoding = babel::get_base_encoding())
@@ -1940,7 +1940,7 @@ class auto_translate_engine :public translate_to_string_engine<to_string> {
 //			engine.clear();
 		}
 		base_type::engine.translate(base_type::untranslated_buffer);
-//		untranslated_buffer.clear();	//	g++ ‚ÌR(M„DL)ƒmƒ{ƒPƒFI
+//		untranslated_buffer.clear();	//	g++ ã®ãƒ½(ï½€Ğ”Â´)ãƒãƒœã‚±ã‚§ï¼
 		base_type::untranslated_buffer.erase();
 		base_type::translated_buffer = base_type::engine.pook_buffer();
 	}
@@ -1950,7 +1950,7 @@ static bbl_translater_type create(int X_to_base_encoding = babel::get_base_encod
 	}
 static const to_string_type ignite(const from_string_type &X, int X_to_base_encoding = babel::get_base_encoding()) {
 #if defined(__BORLANDC__)
-		//  ——R‚Í‚æ‚­‚í‚©‚ç‚ñ‚ª«‚±‚¤‚µ‚Ä‚¨‚©‚È‚¢‚Æ Borland ‚ÌƒRƒ“ƒpƒCƒ‰‚Íƒgƒ`‹¶‚Á‚½ƒR[ƒh‚ğ“f‚­B
+		//  ç†ç”±ã¯ã‚ˆãã‚ã‹ã‚‰ã‚“ãŒâ†“ã“ã†ã—ã¦ãŠã‹ãªã„ã¨ Borland ã®ã‚³ãƒ³ãƒ‘ã‚¤ãƒ©ã¯ãƒˆãƒç‹‚ã£ãŸã‚³ãƒ¼ãƒ‰ã‚’åãã€‚
 		this_type temp(X_to_base_encoding);
 		return temp.base_type::ignite(X, analyze_base_encoding(X), X_to_base_encoding);
 #else
@@ -1985,11 +1985,11 @@ class auto_translate :public bbl_demi<to_string> {
 template<class string_type = bbl_default_string>
 class translate_to_binary_engine :public manual_translate_engine<string_type, bbl_binary> {
 //
-//	‚±‚ÌƒNƒ‰ƒX‚Í to_string_type ‚ª bbl_binary ‚ÉŒÅ’è‚³‚ê‚Ä‚¢‚é‚±‚Æ‚Æ
-//	from_base_encoding ‚ÌƒfƒtƒHƒ‹ƒg’l‚ªİ’è‚³‚ê‚Ä‚¢‚é‚±‚ÆˆÈŠO‚Í‹@”\“I‚É
-//	manual_translate_engine ‚Æ‘S‚­“¯ˆê‚Å‚·B
+//	ã“ã®ã‚¯ãƒ©ã‚¹ã¯ to_string_type ãŒ bbl_binary ã«å›ºå®šã•ã‚Œã¦ã„ã‚‹ã“ã¨ã¨
+//	from_base_encoding ã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤ãŒè¨­å®šã•ã‚Œã¦ã„ã‚‹ã“ã¨ä»¥å¤–ã¯æ©Ÿèƒ½çš„ã«
+//	manual_translate_engine ã¨å…¨ãåŒä¸€ã§ã™ã€‚
 //
-//	EEE‚±‚ÌƒNƒ‰ƒX‚É‚Í«—ˆ“I‚ÉBOMŠÖ˜A‚Ì¬×H‚ğ{‚·‚©‚à‚µ‚ê‚Ü‚¹‚ñB
+//	ãƒ»ãƒ»ãƒ»ã“ã®ã‚¯ãƒ©ã‚¹ã«ã¯å°†æ¥çš„ã«BOMé–¢é€£ã®å°ç´°å·¥ã‚’æ–½ã™ã‹ã‚‚ã—ã‚Œã¾ã›ã‚“ã€‚
 //
 public:
 	typedef translate_to_binary_engine<string_type> this_type;
@@ -1998,7 +1998,7 @@ public:
 	typedef typename base_type::bbl_translater_type	bbl_translater_type;
 	typedef typename base_type::from_string_type		from_string_type;
 	typedef typename base_type::to_string_type		to_string_type;
-//  private:	//	VC ‚ÌR(M„DL)ƒmƒAƒzƒHI
+//  private:	//	VC ã®ãƒ½(ï½€Ğ”Â´)ãƒã‚¢ãƒ›ã‚©ï¼
   protected:
 #ifdef	__BBL_LARGE_BOM_LOGIC__
 	translate_to_binary_engine(int from_base_encoding = babel::get_base_encoding(), int to_base_encoding = babel::get_base_encoding())
@@ -2029,8 +2029,8 @@ inline const bbl_binary translate_to_binary(const bbl_wstring &X, int X_to_base_
 #endif	//	defined(__BBL_USE_SELECTORS__)
 
 /******************************************************************************
-	 ¡ ¡                 Trick Library 'dagger'                  ¡ ¡
-	¡ ¡              http://tricklib.com/cxx/dagger/            ¡ ¡ 
+	â–¡â– â–¡â–                  Trick Library 'dagger'                 â–¡â– â–¡â– 
+	â– â–¡â– â–¡             http://tricklib.com/cxx/dagger/            â– â–¡â– â–¡
 ******************************************************************************/
 
 }	//	namespace babel
@@ -2042,7 +2042,7 @@ inline const bbl_binary translate_to_binary(const bbl_wstring &X, int X_to_base_
 #endif	//	__BABEL_BBL_H__
 
 /******************************************************************************
-	 ¡ ¡                  Wraith the Trickster                   ¡ ¡
-	¡ ¡  `I'll go with heaven's advantage and fool's wisdom.` ¡ ¡ 
+	â–¡â– â–¡â–                   Wraith the Trickster                  â–¡â– â–¡â– 
+	â– â–¡â– â–¡ ï½I'll go with heaven's advantage and fool's wisdom.ï½ â– â–¡â– â–¡
 ******************************************************************************/
 

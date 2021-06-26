@@ -1,8 +1,8 @@
-// stdafx.cpp : •W€ƒCƒ“ƒNƒ‹[ƒhƒtƒ@ƒCƒ‹‚ðŠÜ‚Þƒ\[ƒX ƒtƒ@ƒCƒ‹
-//              aya5.pch ¶¬‚³‚ê‚éƒvƒŠƒRƒ“ƒpƒCƒ‹Ïƒwƒbƒ_[
-//              stdafx.obj ¶¬‚³‚ê‚éƒvƒŠƒRƒ“ƒpƒCƒ‹Ïƒ^ƒCƒvî•ñ
+ï»¿// stdafx.cpp : æ¨™æº–ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å«ã‚€ã‚½ãƒ¼ã‚¹ ãƒ•ã‚¡ã‚¤ãƒ«
+//              aya5.pch ç”Ÿæˆã•ã‚Œã‚‹ãƒ—ãƒªã‚³ãƒ³ãƒ‘ã‚¤ãƒ«æ¸ˆãƒ˜ãƒƒãƒ€ãƒ¼
+//              stdafx.obj ç”Ÿæˆã•ã‚Œã‚‹ãƒ—ãƒªã‚³ãƒ³ãƒ‘ã‚¤ãƒ«æ¸ˆã‚¿ã‚¤ãƒ—æƒ…å ±
 
 #include "stdafx.h"
 
-// TODO: STDAFX.H ‚ÉŠÜ‚Ü‚ê‚Ä‚¢‚ÄA‚±‚Ìƒtƒ@ƒCƒ‹‚É‹Lq‚³‚ê‚Ä‚¢‚È‚¢
-// ƒwƒbƒ_[ƒtƒ@ƒCƒ‹‚ð’Ç‰Á‚µ‚Ä‚­‚¾‚³‚¢B
+// TODO: STDAFX.H ã«å«ã¾ã‚Œã¦ã„ã¦ã€ã“ã®ãƒ•ã‚¡ã‚¤ãƒ«ã«è¨˜è¿°ã•ã‚Œã¦ã„ãªã„
+// ãƒ˜ãƒƒãƒ€ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«ã‚’è¿½åŠ ã—ã¦ãã ã•ã„ã€‚

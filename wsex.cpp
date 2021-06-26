@@ -1,7 +1,7 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// stl::yaya::string_t‚ğchar*•—‚Ég‚¤‚½‚ß‚ÌŠÖ”‚È‚Ç
+// stl::yaya::string_tã‚’char*é¢¨ã«ä½¿ã†ãŸã‚ã®é–¢æ•°ãªã©
 // written by umeici. 2004
 // 
 
@@ -36,8 +36,8 @@
 ////////////////////////////////////////
 
 /* -----------------------------------------------------------------------
-*  ŠÖ”–¼  F  yaya::ws_atoi
-*  ‹@”\ŠT—vF  yaya::string_t‚ğint‚Ö•ÏŠ·
+*  é–¢æ•°å  ï¼š  yaya::ws_atoi
+*  æ©Ÿèƒ½æ¦‚è¦ï¼š  yaya::string_tã‚’intã¸å¤‰æ›
 * -----------------------------------------------------------------------
 */
 int	yaya::ws_atoi(const yaya::string_t &str, int base)
@@ -50,8 +50,8 @@ int	yaya::ws_atoi(const yaya::string_t &str, int base)
 }
 
 /* -----------------------------------------------------------------------
-*  ŠÖ”–¼  F  yaya::ws_atof
-*  ‹@”\ŠT—vF  yaya::string_t‚ğdouble‚Ö•ÏŠ·
+*  é–¢æ•°å  ï¼š  yaya::ws_atof
+*  æ©Ÿèƒ½æ¦‚è¦ï¼š  yaya::string_tã‚’doubleã¸å¤‰æ›
 * -----------------------------------------------------------------------
 */
 double	yaya::ws_atof(const yaya::string_t &str)
@@ -64,8 +64,8 @@ double	yaya::ws_atof(const yaya::string_t &str)
 }
 
 /* -----------------------------------------------------------------------
-*  ŠÖ”–¼  F  yaya::ws_itoa
-*  ‹@”\ŠT—vF  int‚ğyaya::string_t‚Ö•ÏŠ·
+*  é–¢æ•°å  ï¼š  yaya::ws_itoa
+*  æ©Ÿèƒ½æ¦‚è¦ï¼š  intã‚’yaya::string_tã¸å¤‰æ›
 * -----------------------------------------------------------------------
 */
 yaya::string_t yaya::ws_itoa(int num, int rdx)
@@ -109,8 +109,8 @@ yaya::string_t yaya::ws_itoa(int num, int rdx)
 }
 
 /* -----------------------------------------------------------------------
-*  ŠÖ”–¼  F  yaya::ws_ftoa
-*  ‹@”\ŠT—vF  double‚ğyaya::string_t‚Ö•ÏŠ·
+*  é–¢æ•°å  ï¼š  yaya::ws_ftoa
+*  æ©Ÿèƒ½æ¦‚è¦ï¼š  doubleã‚’yaya::string_tã¸å¤‰æ›
 * -----------------------------------------------------------------------
 */
 yaya::string_t	yaya::ws_ftoa(double num)
@@ -121,8 +121,8 @@ yaya::string_t	yaya::ws_ftoa(double num)
 }
 
 /* -----------------------------------------------------------------------
-*  ŠÖ”–¼  F  yaya::ws_eraseend
-*  ‹@”\ŠT—vF  yaya::string_t‚ÌI’[‚©‚çc‚ğí‚é
+*  é–¢æ•°å  ï¼š  yaya::ws_eraseend
+*  æ©Ÿèƒ½æ¦‚è¦ï¼š  yaya::string_tã®çµ‚ç«¯ã‹ã‚‰cã‚’å‰Šã‚‹
 * -----------------------------------------------------------------------
 */
 void	yaya::ws_eraseend(yaya::string_t &str,wchar_t c)
@@ -135,8 +135,8 @@ void	yaya::ws_eraseend(yaya::string_t &str,wchar_t c)
 }
 
 /* -----------------------------------------------------------------------
-*  ŠÖ”–¼  F  yaya::ws_replace
-*  ‹@”\ŠT—vF  str“à‚Ìbefore‚ğ‚·‚×‚Äafter‚É’uŠ·‚µ‚Ü‚·
+*  é–¢æ•°å  ï¼š  yaya::ws_replace
+*  æ©Ÿèƒ½æ¦‚è¦ï¼š  strå†…ã®beforeã‚’ã™ã¹ã¦afterã«ç½®æ›ã—ã¾ã™
 * -----------------------------------------------------------------------
 */
 void	yaya::ws_replace(yaya::string_t &str, const wchar_t *before, const wchar_t *after, int count)
@@ -159,16 +159,16 @@ void	yaya::ws_replace(yaya::string_t &str, const wchar_t *before, const wchar_t 
 }
 
 /* -----------------------------------------------------------------------
-*  ŠÖ”–¼  F  w_fopen
-*  ‹@”\ŠT—vF  UCS-2•¶š—ñ‚Ìƒtƒ@ƒCƒ‹–¼‚ÅƒI[ƒvƒ“‚Å‚«‚éfopen
+*  é–¢æ•°å  ï¼š  w_fopen
+*  æ©Ÿèƒ½æ¦‚è¦ï¼š  UCS-2æ–‡å­—åˆ—ã®ãƒ•ã‚¡ã‚¤ãƒ«åã§ã‚ªãƒ¼ãƒ—ãƒ³ã§ãã‚‹fopen
 *
-*  •â‘«@wchar_t*‚ğ’¼Ú“n‚¹‚é_wfopen‚ÍWin9xŒn–¢ƒTƒ|[ƒg‚Ì‚½‚ßg‚¦‚È‚¢‚Ì‚Å‚·B–³”OB
+*  è£œè¶³ã€€wchar_t*ã‚’ç›´æ¥æ¸¡ã›ã‚‹_wfopenã¯Win9xç³»æœªã‚µãƒãƒ¼ãƒˆã®ãŸã‚ä½¿ãˆãªã„ã®ã§ã™ã€‚ç„¡å¿µã€‚
 * -----------------------------------------------------------------------
 */
 #if defined(WIN32) || defined(_WIN32_WCE)
 FILE	*yaya::w_fopen(const wchar_t *fname, const wchar_t *mode)
 {
-	// ƒtƒ@ƒCƒ‹–¼‚ÆƒI[ƒvƒ“ƒ‚[ƒh‚ğ‚ğMBCS‚Ö•ÏŠ·
+	// ãƒ•ã‚¡ã‚¤ãƒ«åã¨ã‚ªãƒ¼ãƒ—ãƒ³ãƒ¢ãƒ¼ãƒ‰ã‚’ã‚’MBCSã¸å¤‰æ›
 	char	*mfname = Ccct::Ucs2ToMbcs(fname, CHARSET_DEFAULT);
 	if (mfname == NULL)
 		return NULL;
@@ -178,7 +178,7 @@ FILE	*yaya::w_fopen(const wchar_t *fname, const wchar_t *mode)
 		mfname = NULL;
 		return NULL;
 	}
-	// ƒI[ƒvƒ“
+	// ã‚ªãƒ¼ãƒ—ãƒ³
 	FILE	*fp = fopen(mfname, mmode);
 	free(mfname);
 	mfname = NULL;
@@ -199,8 +199,8 @@ FILE* yaya::w_fopen(const wchar_t* fname, const wchar_t* mode) {
 #endif
 
 /* -----------------------------------------------------------------------
-*  ŠÖ”–¼  F  write_utf8bom
-*  ‹@”\ŠT—vF  UTF-8 BOM‚ğ‘‚«‚Ş
+*  é–¢æ•°å  ï¼š  write_utf8bom
+*  æ©Ÿèƒ½æ¦‚è¦ï¼š  UTF-8 BOMã‚’æ›¸ãè¾¼ã‚€
 * -----------------------------------------------------------------------
 */
 /*
@@ -213,10 +213,10 @@ fputc(0xbf, fp);
 */
 
 /* -----------------------------------------------------------------------
-*  ŠÖ”–¼  F  decode/encodecipher
-*  ‹@”\ŠT—vF  AYAˆÃ†‰»‚³‚ê‚½•¶š‚ğ•œ†‚·‚é
+*  é–¢æ•°å  ï¼š  decode/encodecipher
+*  æ©Ÿèƒ½æ¦‚è¦ï¼š  AYAæš—å·åŒ–ã•ã‚ŒãŸæ–‡å­—ã‚’å¾©å·ã™ã‚‹
 *
-*  ‚½‚¾‚Ìƒrƒbƒg”½“]‚Æ‚©‚«¬‚º‚Å‚·
+*  ãŸã ã®ãƒ“ãƒƒãƒˆåè»¢ã¨ã‹ãæ··ãœã§ã™
 * -----------------------------------------------------------------------
 */
 static int decodecipher(const int c)
@@ -230,15 +230,15 @@ static int encodecipher(const int c)
 }
 
 /* -----------------------------------------------------------------------
-*  ŠÖ”–¼  F  ws_fgets
-*  ‹@”\ŠT—vF  yaya::string_t‚Éæ‚èo‚¹‚éŠÈˆÕ”ÅfgetsAˆÃ†•œ†‚ÆUCS-2 BOMíœ‚às‚È‚¤
+*  é–¢æ•°å  ï¼š  ws_fgets
+*  æ©Ÿèƒ½æ¦‚è¦ï¼š  yaya::string_tã«å–ã‚Šå‡ºã›ã‚‹ç°¡æ˜“ç‰ˆfgetsã€æš—å·å¾©å·ã¨UCS-2 BOMå‰Šé™¤ã‚‚è¡Œãªã†
 * -----------------------------------------------------------------------
 */
 int yaya::ws_fgets(yaya::string_t &str, FILE *stream, int charset, int ayc, int lc, int cutspace)
 {
-	//ayc = 1 •œ†‰»
-	//lc = 1 BOMíœ
-	//cutspace = 1 æ“ª‚Ì‹ó”’íœ
+	//ayc = 1 å¾©å·åŒ–
+	//lc = 1 BOMå‰Šé™¤
+	//cutspace = 1 å…ˆé ­ã®ç©ºç™½å‰Šé™¤
 
 	str.erase();
 	std::string buf;
@@ -254,7 +254,7 @@ int yaya::ws_fgets(yaya::string_t &str, FILE *stream, int charset, int ayc, int 
 			c = decodecipher(c);
 			buf += static_cast<char>(c);
 			if (c == '\x0a') {
-				// s‚ÌI‚í‚è
+				// è¡Œã®çµ‚ã‚ã‚Š
 				break;
 			}
 		}
@@ -267,7 +267,7 @@ int yaya::ws_fgets(yaya::string_t &str, FILE *stream, int charset, int ayc, int 
 			}
 			buf += static_cast<char>(c);
 			if (c == '\x0a') {
-				// s‚ÌI‚í‚è
+				// è¡Œã®çµ‚ã‚ã‚Š
 				break;
 			}
 		}
@@ -302,13 +302,13 @@ int yaya::ws_fgets(yaya::string_t &str, FILE *stream, int charset, int ayc, int 
 }
 
 /* -----------------------------------------------------------------------
-*  ŠÖ”–¼  F  ws_fputs
-*  ‹@”\ŠT—vF  yaya::string_t‚ğ‘‚«‚ŞŠÈˆÕ”ÅfputsAˆÃ†‰»‚às‚È‚¤
+*  é–¢æ•°å  ï¼š  ws_fputs
+*  æ©Ÿèƒ½æ¦‚è¦ï¼š  yaya::string_tã‚’æ›¸ãè¾¼ã‚€ç°¡æ˜“ç‰ˆfputsã€æš—å·åŒ–ã‚‚è¡Œãªã†
 * -----------------------------------------------------------------------
 */
 int yaya::ws_fputs(const yaya::char_t *str, FILE *stream, int charset, int ayc)
 {
-	//ayc = 1 •œ†‰»
+	//ayc = 1 å¾©å·åŒ–
 	char *str_result = Ccct::Ucs2ToMbcs(str, charset);
 	if ( ! str_result ) { return 0; }
 
@@ -331,8 +331,8 @@ int yaya::ws_fputs(const yaya::char_t *str, FILE *stream, int charset, int ayc)
 }
 
 /* -----------------------------------------------------------------------
-*  ŠÖ”–¼  F  snprintf
-*  ‹@”\ŠT—vF  snprintfŒİŠ·ˆ—
+*  é–¢æ•°å  ï¼š  snprintf
+*  æ©Ÿèƒ½æ¦‚è¦ï¼š  snprintfäº’æ›å‡¦ç†
 * -----------------------------------------------------------------------
 */
 int yaya::snprintf(yaya::char_t *buf,size_t count,const yaya::char_t *format,...)
@@ -344,7 +344,7 @@ int yaya::snprintf(yaya::char_t *buf,size_t count,const yaya::char_t *format,...
 
 #ifdef _MSC_VER
 #if _MSC_VER <= 1300
-	//•W€”ñŒİŠ·
+	//æ¨™æº–éäº’æ›
 	result = _vsnwprintf(buf,count,format,list);
 #else
 	result = vswprintf(buf,count*2,format,list);

@@ -1,4 +1,4 @@
-#ifndef YAYA_STRTYPE_H__
+﻿#ifndef YAYA_STRTYPE_H__
 #define YAYA_STRTYPE_H__
 
 #include <cwchar>

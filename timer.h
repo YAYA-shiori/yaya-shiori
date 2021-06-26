@@ -1,7 +1,7 @@
-// 
+Ôªø// 
 // AYA version 5
 //
-// É^ÉCÉ}Å[ÉNÉâÉX CTimer
+// „Çø„Ç§„Éû„Éº„ÇØ„É©„Çπ CTimer
 // written by fifthmoon. 2005
 // 
 

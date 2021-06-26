@@ -1,7 +1,7 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// ’è”
+// å®šæ•°
 // written by umeici. 2004
 // 
 
@@ -18,53 +18,53 @@ extern const yaya::char_t *aya_author;
 
 //----
 
-// ”Ä—p
-#define	STRMAX					1024			/* ”Ä—p‚Ì•¶Žš—ñƒoƒbƒtƒ@ƒTƒCƒY */
+// æ±Žç”¨
+#define	STRMAX					1024			/* æ±Žç”¨ã®æ–‡å­—åˆ—ãƒãƒƒãƒ•ã‚¡ã‚µã‚¤ã‚º */
 
-// •¶ŽšƒR[ƒhƒZƒbƒg
-#define	CHARSET_SJIS			0				/* ƒfƒtƒHƒ‹ƒg */
+// æ–‡å­—ã‚³ãƒ¼ãƒ‰ã‚»ãƒƒãƒˆ
+#define	CHARSET_SJIS			0				/* ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆ */
 #define	CHARSET_UTF8			1
 #define	CHARSET_EUCJP			2
 #define	CHARSET_BIG5			3
 #define	CHARSET_GB2312			4
 #define	CHARSET_EUCKR			5
 #define	CHARSET_JIS				6
-#define	CHARSET_BINARY	126						/* •ÏŠ·‚µ‚È‚¢iˆê•”‚Å‚Ì‚Ý—˜—pj */
-#define	CHARSET_DEFAULT	127						/* OSƒfƒtƒHƒ‹ƒg‚ÌŒ¾Œê‚ðŽg—p‚·‚é */
+#define	CHARSET_BINARY	126						/* å¤‰æ›ã—ãªã„ï¼ˆä¸€éƒ¨ã§ã®ã¿åˆ©ç”¨ï¼‰ */
+#define	CHARSET_DEFAULT	127						/* OSãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®è¨€èªžã‚’ä½¿ç”¨ã™ã‚‹ */
 
-// ƒƒbƒZ[ƒW‚ÌŒ¾Œê
-#define	MSGLANG_JAPANESE		0				/* ƒfƒtƒHƒ‹ƒg */
+// ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®è¨€èªž
+#define	MSGLANG_JAPANESE		0				/* ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆ */
 #define	MSGLANG_ENGLISH			1
 
-// Šî’êƒvƒŒƒtƒBƒbƒNƒX•¶Žš—ñ
+// åŸºåº•ãƒ—ãƒ¬ãƒ•ã‚£ãƒƒã‚¯ã‚¹æ–‡å­—åˆ—
 #define	PREFIX_BASE_LEN	2
 #define	PREFIX_BIN	L"0b"
 #define	PREFIX_HEX	L"0x"
 
-// \•¶‰ðÍŒ‹‰ÊƒfƒoƒbƒOo—ÍŽž‚ÌƒCƒ“ƒfƒ“ƒg
+// æ§‹æ–‡è§£æžçµæžœãƒ‡ãƒãƒƒã‚°å‡ºåŠ›æ™‚ã®ã‚¤ãƒ³ãƒ‡ãƒ³ãƒˆ
 #define	OUTDIC_INDENT			L"    "
 #define	OUTDIC_INDENT_SIZE		4
 
-// case•¶‚Ì•]‰¿’l‚ðŠi”[‚·‚éƒ[ƒJƒ‹•Ï”‚ÌƒvƒŠƒtƒBƒbƒNƒX
+// caseæ–‡ã®è©•ä¾¡å€¤ã‚’æ ¼ç´ã™ã‚‹ãƒ­ãƒ¼ã‚«ãƒ«å¤‰æ•°ã®ãƒ—ãƒªãƒ•ã‚£ãƒƒã‚¯ã‚¹
 #define	PREFIX_CASE_VAR			L"_CaSe_ExPr_PrEfIx_"
 #define	PREFIX_CASE_VAR_SIZE	18
 
-// •W€‚ÌŠÈˆÕ”z—ñƒfƒŠƒ~ƒ^
+// æ¨™æº–ã®ç°¡æ˜“é…åˆ—ãƒ‡ãƒªãƒŸã‚¿
 #define	VAR_DELIMITER			L","
 
-// ƒtƒ@ƒCƒ‹•Û‘¶/•œŒ³Žž‚Éƒ_ƒuƒ‹ƒNƒH[ƒg/§Œä•¶Žš(0x0000`0x001f)‚ðƒGƒXƒP[ƒv‚·‚é•¶Žš—ñ
+// ãƒ•ã‚¡ã‚¤ãƒ«ä¿å­˜/å¾©å…ƒæ™‚ã«ãƒ€ãƒ–ãƒ«ã‚¯ã‚©ãƒ¼ãƒˆ/åˆ¶å¾¡æ–‡å­—(0x0000ï½ž0x001f)ã‚’ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—ã™ã‚‹æ–‡å­—åˆ—
 #define	ESC_DQ					L"_EsC_DoUbLe_QuOtE_"
 #define	ESC_CTRL				L"_EsC_CtRl_CoDe_"
 
 #define	CTRL_CH_START			'@'
 #define	END_OF_CTRL_CH			0x1f
 
-// ƒtƒ@ƒCƒ‹•Û‘¶/•œŒ³Žž‚É‚¨‚¯‚é”Ä—p”z—ñ/ƒnƒbƒVƒ…‚Ì‹ó—v‘f
+// ãƒ•ã‚¡ã‚¤ãƒ«ä¿å­˜/å¾©å…ƒæ™‚ã«ãŠã‘ã‚‹æ±Žç”¨é…åˆ—/ãƒãƒƒã‚·ãƒ¥ã®ç©ºè¦ç´ 
 #define	ESC_IARRAY				L"IARRAY"
 #define ESC_IHASH				L"IHASH"
 #define ESC_IVOID				L"IVOID"
 
-// ƒXƒe[ƒgƒƒ“ƒg‚ÌŽí•Ê
+// ã‚¹ãƒ†ãƒ¼ãƒˆãƒ¡ãƒ³ãƒˆã®ç¨®åˆ¥
 #define	ST_UNKNOWN				-1
 #define	ST_NOP					0				/* no operation */
 
@@ -77,27 +77,27 @@ extern const yaya::char_t *aya_author;
 #define	ST_RETURN				18				/* return */
 #define	ST_ELSE					19				/* else */
 
-#define	ST_FORMULA				32				/* ”Ž®i‚±‚Ì’l‚Í\•¶‰ðÍŽž‚Ì‚Ýƒtƒ‰ƒO‚Æ‚µ‚ÄŽg‚í‚ê‚Ü‚·) */
-								// 33A34Œ‡”Ô
-#define	ST_FORMULA_OUT_FORMULA	35				/* o—Íi”Ž®B”z—ñAˆø”‚Â‚«ŠÖ”‚àŠÜ‚Ü‚ê‚Ü‚·j */
-#define	ST_FORMULA_SUBST		36				/* ‘ã“ü */
+#define	ST_FORMULA				32				/* æ•°å¼ï¼ˆã“ã®å€¤ã¯æ§‹æ–‡è§£æžæ™‚ã®ã¿ãƒ•ãƒ©ã‚°ã¨ã—ã¦ä½¿ã‚ã‚Œã¾ã™) */
+								// 33ã€34æ¬ ç•ª
+#define	ST_FORMULA_OUT_FORMULA	35				/* å‡ºåŠ›ï¼ˆæ•°å¼ã€‚é…åˆ—ã€å¼•æ•°ã¤ãé–¢æ•°ã‚‚å«ã¾ã‚Œã¾ã™ï¼‰ */
+#define	ST_FORMULA_SUBST		36				/* ä»£å…¥ */
 #define	ST_IF					37				/* if */
 #define	ST_ELSEIF				38				/* elseif */
 #define	ST_WHILE				39				/* while */
 #define	ST_SWITCH				40				/* switch */
 #define	ST_FOR					41				/* for */
 #define	ST_FOREACH				42				/* foreach */
-#define	ST_WHEN					44				/* wheni‚±‚Ì’l‚Í\•¶‰ðÍŽž‚Ì‚Ýƒtƒ‰ƒO‚Æ‚µ‚ÄŽg‚í‚ê‚Ü‚·) */
-												/* AYA5‚Å‚Ícase-when-others\•¶‚Í“à•”‚Åif-elseif-else\•¶‚É•ÏŠ·‚³‚ê‚Ü‚· */
+#define	ST_WHEN					44				/* whenï¼ˆã“ã®å€¤ã¯æ§‹æ–‡è§£æžæ™‚ã®ã¿ãƒ•ãƒ©ã‚°ã¨ã—ã¦ä½¿ã‚ã‚Œã¾ã™) */
+												/* AYA5ã§ã¯case-when-othersæ§‹æ–‡ã¯å†…éƒ¨ã§if-elseif-elseæ§‹æ–‡ã«å¤‰æ›ã•ã‚Œã¾ã™ */
 #define	ST_PARALLEL				45				/* parallel */
 #define	ST_VOID					46				/* void */
 
-// ”Ž®‚Ì€‚ÌŽí•Ê
+// æ•°å¼ã®é …ã®ç¨®åˆ¥
 #define	F_TAG_UNKNOWN			-2
 #define	F_TAG_NOP				-1
-#define F_TAG_VOID				-1				/* –¢’è‹`•Ï” */
+#define F_TAG_VOID				-1				/* æœªå®šç¾©å¤‰æ•° */
 
-#define	F_TAG_ORIGIN			0				/* ‰‰ŽZŽq‚Ì’è‹`ŠJŽnˆÊ’u */
+#define	F_TAG_ORIGIN			0				/* æ¼”ç®—å­ã®å®šç¾©é–‹å§‹ä½ç½® */
 
 #define	F_TAG_COMMA				0				/* , */
 #define	F_TAG_PLUS				1				/* + */
@@ -117,8 +117,8 @@ extern const yaya::char_t *aya_author;
 #define	F_TAG_AND				15				/* && */
 #define	F_TAG_FEEDBACK			16				/* & */
 #define	F_TAG_EXC				17				/* ! */
-#define	F_TAG_INCREMENT			18				/* ++i“à•”‚Å"+= 1"‚É•ÏŠ·‚³‚ê‚é‚Ì‚ÅŽÀsŽž‚É‚Í‘¶Ý‚µ‚È‚¢j */
-#define	F_TAG_DECREMENT			19				/* --i“à•”‚Å"-= 1"‚É•ÏŠ·‚³‚ê‚é‚Ì‚ÅŽÀsŽž‚É‚Í‘¶Ý‚µ‚È‚¢j */
+#define	F_TAG_INCREMENT			18				/* ++ï¼ˆå†…éƒ¨ã§"+= 1"ã«å¤‰æ›ã•ã‚Œã‚‹ã®ã§å®Ÿè¡Œæ™‚ã«ã¯å­˜åœ¨ã—ãªã„ï¼‰ */
+#define	F_TAG_DECREMENT			19				/* --ï¼ˆå†…éƒ¨ã§"-= 1"ã«å¤‰æ›ã•ã‚Œã‚‹ã®ã§å®Ÿè¡Œæ™‚ã«ã¯å­˜åœ¨ã—ãªã„ï¼‰ */
 
 #define	F_TAG_EQUAL				20				/* = */
 #define	F_TAG_PLUSEQUAL			21				/* += */
@@ -126,12 +126,12 @@ extern const yaya::char_t *aya_author;
 #define	F_TAG_MULEQUAL			23				/* *= */
 #define	F_TAG_DIVEQUAL			24				/* /= */
 #define	F_TAG_SURPEQUAL			25				/* %= */
-#define	F_TAG_EQUAL_D			26				/* := iAYA5‚É‚¨‚¢‚Ä‚Í= ‚Æ“¯ˆêj */
-#define	F_TAG_PLUSEQUAL_D		27				/* +:=iAYA5‚É‚¨‚¢‚Ä‚Í+=‚Æ“¯ˆêj */
-#define	F_TAG_MINUSEQUAL_D		28				/* -:=iAYA5‚É‚¨‚¢‚Ä‚Í-=‚Æ“¯ˆêj */
-#define	F_TAG_MULEQUAL_D		29				/* *:=iAYA5‚É‚¨‚¢‚Ä‚Í*=‚Æ“¯ˆêj */
-#define	F_TAG_DIVEQUAL_D		30				/* /:=iAYA5‚É‚¨‚¢‚Ä‚Í/=‚Æ“¯ˆêj */
-#define	F_TAG_SURPEQUAL_D		31				/* %:=iAYA5‚É‚¨‚¢‚Ä‚Í%=‚Æ“¯ˆêj */
+#define	F_TAG_EQUAL_D			26				/* := ï¼ˆAYA5ã«ãŠã„ã¦ã¯= ã¨åŒä¸€ï¼‰ */
+#define	F_TAG_PLUSEQUAL_D		27				/* +:=ï¼ˆAYA5ã«ãŠã„ã¦ã¯+=ã¨åŒä¸€ï¼‰ */
+#define	F_TAG_MINUSEQUAL_D		28				/* -:=ï¼ˆAYA5ã«ãŠã„ã¦ã¯-=ã¨åŒä¸€ï¼‰ */
+#define	F_TAG_MULEQUAL_D		29				/* *:=ï¼ˆAYA5ã«ãŠã„ã¦ã¯*=ã¨åŒä¸€ï¼‰ */
+#define	F_TAG_DIVEQUAL_D		30				/* /:=ï¼ˆAYA5ã«ãŠã„ã¦ã¯/=ã¨åŒä¸€ï¼‰ */
+#define	F_TAG_SURPEQUAL_D		31				/* %:=ï¼ˆAYA5ã«ãŠã„ã¦ã¯%=ã¨åŒä¸€ï¼‰ */
 #define	F_TAG_COMMAEQUAL		32				/* ,= */
 
 #define	F_TAG_BRACKETIN			33				/* ( */
@@ -139,29 +139,29 @@ extern const yaya::char_t *aya_author;
 #define	F_TAG_HOOKBRACKETIN		35				/* [ */
 #define	F_TAG_HOOKBRACKETOUT	36				/* ] */
 
-#define	F_TAG_FUNCPARAM			37				/* ˆø”‚ðŠÖ”‚É“n‚·‚½‚ß‚Ì‰‰ŽZŽq */
-#define	F_TAG_ARRAYORDER		38				/* ”z—ñ‚Ì˜”‚ð•Ï”‚É“n‚·‚½‚ß‚Ì‰‰ŽZŽq */
-#define	F_TAG_SYSFUNCPARAM		39				/* ˆø”‚ðƒVƒXƒeƒ€ŠÖ”‚É“n‚·‚½‚ß‚Ì‰‰ŽZŽq */
+#define	F_TAG_FUNCPARAM			37				/* å¼•æ•°ã‚’é–¢æ•°ã«æ¸¡ã™ãŸã‚ã®æ¼”ç®—å­ */
+#define	F_TAG_ARRAYORDER		38				/* é…åˆ—ã®åºæ•°ã‚’å¤‰æ•°ã«æ¸¡ã™ãŸã‚ã®æ¼”ç®—å­ */
+#define	F_TAG_SYSFUNCPARAM		39				/* å¼•æ•°ã‚’ã‚·ã‚¹ãƒ†ãƒ é–¢æ•°ã«æ¸¡ã™ãŸã‚ã®æ¼”ç®—å­ */
 
-#define	F_TAG_ORIGIN_VALUE		128				/* €‚Ì’è‹`ŠJŽnˆÊ’u */
+#define	F_TAG_ORIGIN_VALUE		128				/* é …ã®å®šç¾©é–‹å§‹ä½ç½® */
 
-#define	F_TAG_INT				128				/* ®”€ */
-#define	F_TAG_DOUBLE			131				/* ŽÀ”€ */
-#define	F_TAG_STRING			132				/* •¶Žš—ñ€ */
-#define	F_TAG_STRING_EMBED		133				/* æ“ª‚É•Ï”‚à‚µ‚­‚ÍŠÖ”‚ª–„‚ßž‚Ü‚ê‚Ä‚¢‚é‰Â”\«‚ª‚ ‚é•¶Žš—ñ€ */
-#define	F_TAG_STRING_PLAIN		134				/* –„‚ßž‚Ý“WŠJ‚³‚ê‚È‚¢•¶Žš—ñ€ */
+#define	F_TAG_INT				128				/* æ•´æ•°é … */
+#define	F_TAG_DOUBLE			131				/* å®Ÿæ•°é … */
+#define	F_TAG_STRING			132				/* æ–‡å­—åˆ—é … */
+#define	F_TAG_STRING_EMBED		133				/* å…ˆé ­ã«å¤‰æ•°ã‚‚ã—ãã¯é–¢æ•°ãŒåŸ‹ã‚è¾¼ã¾ã‚Œã¦ã„ã‚‹å¯èƒ½æ€§ãŒã‚ã‚‹æ–‡å­—åˆ—é … */
+#define	F_TAG_STRING_PLAIN		134				/* åŸ‹ã‚è¾¼ã¿å±•é–‹ã•ã‚Œãªã„æ–‡å­—åˆ—é … */
 
-#define	F_TAG_SYSFUNC			256				/* ƒVƒXƒeƒ€ŠÖ” */
-#define	F_TAG_USERFUNC			512				/* ƒ†[ƒU[ŠÖ” */
+#define	F_TAG_SYSFUNC			256				/* ã‚·ã‚¹ãƒ†ãƒ é–¢æ•° */
+#define	F_TAG_USERFUNC			512				/* ãƒ¦ãƒ¼ã‚¶ãƒ¼é–¢æ•° */
 
-#define	F_TAG_VARIABLE			1024			/* •Ï” */
-#define	F_TAG_LOCALVARIABLE		2048			/* ƒ[ƒJƒ‹•Ï” */
+#define	F_TAG_VARIABLE			1024			/* å¤‰æ•° */
+#define	F_TAG_LOCALVARIABLE		2048			/* ãƒ­ãƒ¼ã‚«ãƒ«å¤‰æ•° */
 
-#define	F_TAG_ARRAY				4096			/* ”Ä—p”z—ñ */
-#define F_TAG_HASH              8192            /* ƒnƒbƒVƒ… */
+#define	F_TAG_ARRAY				4096			/* æ±Žç”¨é…åˆ— */
+#define F_TAG_HASH              8192            /* ãƒãƒƒã‚·ãƒ¥ */
 
-// —LŒø‚È‰‰ŽZŽq‚Ì”
-// ‰‰ŽZŽq‚Ì–¼‘O
+// æœ‰åŠ¹ãªæ¼”ç®—å­ã®æ•°
+// æ¼”ç®—å­ã®åå‰
 const yaya::char_t	formulatag[][19] = {
 	L",",   L"+",   L"-",    L"*",     L"/",
 	L"%",   L"==",  L"!=",   L">=",    L"<=",
@@ -179,7 +179,7 @@ const yaya::char_t	formulatag[][19] = {
 
 #define	FORMULATAG_NUM			(sizeof(formulatag) / sizeof(formulatag[0]))
 
-// ‰‰ŽZŽq‚Ì–¼‘O‚Ì’·‚³
+// æ¼”ç®—å­ã®åå‰ã®é•·ã•
 const int	formulatag_len[FORMULATAG_NUM] = {
 	1, 1, 1, 1, 1,
 	1, 2, 2, 2, 2,
@@ -195,7 +195,7 @@ const int	formulatag_len[FORMULATAG_NUM] = {
 	15, 16, 18
 };
 
-// ‰‰ŽZŽq‚ÅŠÖŒW‚·‚é€‚Ì”‚ÌÅ¬’lFƒGƒ‰[ŒŸo—pi’P€‰‰ŽZŽq‚©“ñ€‰‰ŽZŽq‚©j
+// æ¼”ç®—å­ã§é–¢ä¿‚ã™ã‚‹é …ã®æ•°ã®æœ€å°å€¤ï¼šã‚¨ãƒ©ãƒ¼æ¤œå‡ºç”¨ï¼ˆå˜é …æ¼”ç®—å­ã‹äºŒé …æ¼”ç®—å­ã‹ï¼‰
 const int	formulatag_params[FORMULATAG_NUM] = {
 	2, 2, 2, 2, 2,
 	2, 2, 2, 2, 2,
@@ -212,9 +212,9 @@ const int	formulatag_params[FORMULATAG_NUM] = {
 };
 
 
-// ‰‰ŽZŽq‚Ì—Dæ‡ˆÊ
-// ”’l‚ª‘å‚«‚¢‚Ù‚Ç—Dæ“x‚Í‚‚­‚È‚è‚Ü‚·B
-// ()‚Æ[]‚Å‚ÍA‚»‚Ì’†‚É“ü‚éÛ‚É—Dæ“x‚ðã‚°Ao‚éÛ‚É–ß‚·‚æ‚¤‚É‚µ‚Ü‚·B
+// æ¼”ç®—å­ã®å„ªå…ˆé †ä½
+// æ•°å€¤ãŒå¤§ãã„ã»ã©å„ªå…ˆåº¦ã¯é«˜ããªã‚Šã¾ã™ã€‚
+// ()ã¨[]ã§ã¯ã€ãã®ä¸­ã«å…¥ã‚‹éš›ã«å„ªå…ˆåº¦ã‚’ä¸Šã’ã€å‡ºã‚‹éš›ã«æˆ»ã™ã‚ˆã†ã«ã—ã¾ã™ã€‚
 const int	formulatag_depth[FORMULATAG_NUM] = {
 	0, 7, 7, 8,  8,
 	8, 5, 5, 5,  5,
@@ -230,7 +230,7 @@ const int	formulatag_depth[FORMULATAG_NUM] = {
 	11, 11, 11
 };
 
-// §Œä\•¶
+// åˆ¶å¾¡æ§‹æ–‡
 #define	FLOWCOM_NUM	(sizeof(flowcom) / sizeof(flowcom[0]))
 
 const yaya::char_t	flowcom[][16] = {
@@ -251,11 +251,11 @@ const yaya::char_t	flowcom[][16] = {
 	L"void",
 };
 
-// {}‚ÌŽí•Ê
-										// 0`‚Íswitch\•¶‚ÌŒó•â’ŠoˆÊ’u
-#define	BRACE_SWITCH_OUT_OF_RANGE	-1	/* switch\•¶‚É‚¨‚¯‚é”ÍˆÍŠO‚ÌŒó•â’ŠoˆÊ’u */
-#define	BRACE_DEFAULT				-2	/* ƒfƒtƒHƒ‹ƒg */
-#define	BRACE_LOOP					-3	/* ƒ‹[ƒv\•¶ */
+// {}ã®ç¨®åˆ¥
+										// 0ï½žã¯switchæ§‹æ–‡ã®å€™è£œæŠ½å‡ºä½ç½®
+#define	BRACE_SWITCH_OUT_OF_RANGE	-1	/* switchæ§‹æ–‡ã«ãŠã‘ã‚‹ç¯„å›²å¤–ã®å€™è£œæŠ½å‡ºä½ç½® */
+#define	BRACE_DEFAULT				-2	/* ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆ */
+#define	BRACE_LOOP					-3	/* ãƒ«ãƒ¼ãƒ—æ§‹æ–‡ */
 
 //----
 

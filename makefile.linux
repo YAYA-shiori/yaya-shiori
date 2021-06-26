@@ -1,4 +1,4 @@
-# -*- makefile -*-
+﻿# -*- makefile -*-
 
 # 使用するツール類の設定
 CXX = g++

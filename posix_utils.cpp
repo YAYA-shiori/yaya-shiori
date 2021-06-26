@@ -1,5 +1,5 @@
-/* -*- c++ -*-
-   POSIXŠÂ‹«‰º‚Åg‚¤ƒ†[ƒeƒBƒŠƒeƒB—ŞB
+ï»¿/* -*- c++ -*-
+   POSIXç’°å¢ƒä¸‹ã§ä½¿ã†ãƒ¦ãƒ¼ãƒ†ã‚£ãƒªãƒ†ã‚£é¡ã€‚
    */
 #include <fstream>
 #include <string>
@@ -125,7 +125,7 @@ std::string narrow(const std::wstring& str) {
 }
 
 void fix_filepath(std::string& str) {
-	// \‚Í/‚É‚µAd•¡‚µ‚½/‚ğÁ‚µ‚Äˆê‚Â‚É‚·‚éB
+	// \ã¯/ã«ã—ã€é‡è¤‡ã—ãŸ/ã‚’æ¶ˆã—ã¦ä¸€ã¤ã«ã™ã‚‹ã€‚
 	for (std::string::iterator ite = str.begin(); ite != str.end(); ite++) {
 		if (*ite == '\\') {
 			*ite = '/';
@@ -141,7 +141,7 @@ void fix_filepath(std::string& str) {
 }
 
 void fix_filepath(std::wstring& str) {
-	// \‚Í/‚É‚µAd•¡‚µ‚½/‚ğÁ‚µ‚Äˆê‚Â‚É‚·‚éB
+	// \ã¯/ã«ã—ã€é‡è¤‡ã—ãŸ/ã‚’æ¶ˆã—ã¦ä¸€ã¤ã«ã™ã‚‹ã€‚
 	for (std::wstring::iterator ite = str.begin(); ite != str.end(); ite++) {
 		if (*ite == L'\\') {
 			*ite = L'/';
