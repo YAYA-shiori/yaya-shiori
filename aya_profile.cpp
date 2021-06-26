@@ -1,6 +1,6 @@
-/*
-  g++ -pg ...‚ÅŽg‚¤Ž–‚ð‘z’è‚µ‚½Aƒ_ƒ~[‚ÌmainB
-  ƒJƒŒƒ“ƒgƒfƒBƒŒƒNƒgƒŠ ./ ‚ðˆø”‚Éload‚ðŒÄ‚ñ‚ÅA‚·‚®unload‚µI—¹‚·‚éB
+ï»¿/*
+  g++ -pg ...ã§ä½¿ã†äº‹ã‚’æƒ³å®šã—ãŸã€ãƒ€ãƒŸãƒ¼ã®mainã€‚
+  ã‚«ãƒ¬ãƒ³ãƒˆãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª ./ ã‚’å¼•æ•°ã«loadã‚’å‘¼ã‚“ã§ã€ã™ãunloadã—çµ‚äº†ã™ã‚‹ã€‚
 */
 
 #include "stdafx.h"

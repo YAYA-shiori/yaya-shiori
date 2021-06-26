@@ -1,4 +1,4 @@
-/* GLOBAL.H - RSAREF types and constants
+﻿/* GLOBAL.H - RSAREF types and constants
  */
 
 /* PROTOTYPES should be set to one if and only if the compiler supports

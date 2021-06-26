@@ -1,7 +1,7 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// ’l‚ğˆµ‚¤ƒNƒ‰ƒX@CValue
+// å€¤ã‚’æ‰±ã†ã‚¯ãƒ©ã‚¹ã€€CValue
 // written by umeici. 2004
 // 
 
@@ -27,14 +27,14 @@
 #endif
 ////////////////////////////////////////
 
-//‚©‚ç‚Á‚Û•Ï”iƒ_ƒ~[—pj
+//ã‹ã‚‰ã£ã½å¤‰æ•°ï¼ˆãƒ€ãƒŸãƒ¼ç”¨ï¼‰
 const CValue emptyvalue;
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CValue::GetValueInt
- *  ‹@”\ŠT—vF  ’l‚ğint‚Å•Ô‚µ‚Ü‚·
+ *  é–¢æ•°å  ï¼š  CValue::GetValueInt
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  å€¤ã‚’intã§è¿”ã—ã¾ã™
  *
- *  Œ^‚ª”z—ñ‚Å‚ ‚Á‚½ê‡‚Í0‚ğ•Ô‚µ‚Ü‚·
+ *  å‹ãŒé…åˆ—ã§ã‚ã£ãŸå ´åˆã¯0ã‚’è¿”ã—ã¾ã™
  * -----------------------------------------------------------------------
  */
 int	CValue::GetValueInt(void) const
@@ -64,10 +64,10 @@ int	CValue::GetValueInt(void) const
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CValue::GetValueDouble
- *  ‹@”\ŠT—vF  ’l‚ğdouble‚Å•Ô‚µ‚Ü‚·
+ *  é–¢æ•°å  ï¼š  CValue::GetValueDouble
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  å€¤ã‚’doubleã§è¿”ã—ã¾ã™
  *
- *  Œ^‚ª”z—ñ‚Å‚ ‚Á‚½ê‡‚Í0.0‚ğ•Ô‚µ‚Ü‚·
+ *  å‹ãŒé…åˆ—ã§ã‚ã£ãŸå ´åˆã¯0.0ã‚’è¿”ã—ã¾ã™
  * -----------------------------------------------------------------------
  */
 double	CValue::GetValueDouble(void) const
@@ -87,10 +87,10 @@ double	CValue::GetValueDouble(void) const
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CValue::GetValueString
- *  ‹@”\ŠT—vF  ’l‚ğyaya::string_t‚Å•Ô‚µ‚Ü‚·
+ *  é–¢æ•°å  ï¼š  CValue::GetValueString
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  å€¤ã‚’yaya::string_tã§è¿”ã—ã¾ã™
  *
- *  Œ^‚ª”z—ñ‚Å‚ ‚Á‚½ê‡‚ÍƒfƒŠƒ~ƒ^‚ÅŒ‹‡‚µ‚½•¶š—ñ‚É•ÏŠ·‚µ‚Ä•Ô‚µ‚Ü‚·
+ *  å‹ãŒé…åˆ—ã§ã‚ã£ãŸå ´åˆã¯ãƒ‡ãƒªãƒŸã‚¿ã§çµåˆã—ãŸæ–‡å­—åˆ—ã«å¤‰æ›ã—ã¦è¿”ã—ã¾ã™
  * -----------------------------------------------------------------------
  */
 yaya::string_t	CValue::GetValueString(void) const
@@ -120,10 +120,10 @@ yaya::string_t	CValue::GetValueString(void) const
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CValue::GetValueStringForLogging
- *  ‹@”\ŠT—vF  ’l‚ğyaya::string_t‚Å•Ô‚µ‚Ü‚·iƒƒK[—pj
+ *  é–¢æ•°å  ï¼š  CValue::GetValueStringForLogging
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  å€¤ã‚’yaya::string_tã§è¿”ã—ã¾ã™ï¼ˆãƒ­ã‚¬ãƒ¼ç”¨ï¼‰
  *
- *  GetValueString‚Æ‚Ìˆá‚¢‚ÍA•¶š—ñ‚ğƒ_ƒuƒ‹ƒNƒH[ƒg‚·‚é‚©”Û‚©‚Å‚·B
+ *  GetValueStringã¨ã®é•ã„ã¯ã€æ–‡å­—åˆ—ã‚’ãƒ€ãƒ–ãƒ«ã‚¯ã‚©ãƒ¼ãƒˆã™ã‚‹ã‹å¦ã‹ã§ã™ã€‚
  * -----------------------------------------------------------------------
  */
 yaya::string_t	CValue::GetValueStringForLogging(void) const
@@ -160,29 +160,29 @@ yaya::string_t	CValue::GetValueStringForLogging(void) const
 	};
 }
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CValue::SetArrayValue
- *  ‹@”\ŠT—vF  ”z—ñ‚Ìw’è‚µ‚½ˆÊ’u‚Ö’l‚ğİ’è‚µ‚Ü‚·B•K—v‚É‰‚¶‚ÄŒ^•ÏŠ·‚ğs‚¢‚Ü‚·
+ *  é–¢æ•°å  ï¼š  CValue::SetArrayValue
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  é…åˆ—ã®æŒ‡å®šã—ãŸä½ç½®ã¸å€¤ã‚’è¨­å®šã—ã¾ã™ã€‚å¿…è¦ã«å¿œã˜ã¦å‹å¤‰æ›ã‚’è¡Œã„ã¾ã™
  *
- *  Œ³‚ÌŒ^‚ªŠÈˆÕ”z—ñ‚Æ”Ä—p”z—ñ‚Ìê‡‚Í‚»‚Ì‚Ü‚Üˆ—‚µ‚Ü‚·‚ªA®”/À”‚¾‚Á‚½ê‡‚Í
- *  ”Ä—p”z—ñ‚ÉŒ^•ÏŠ·‚³‚êAŒ³‚Ì’l‚Í[0]‚ÉŠi”[‚³‚ê‚Ü‚·B
+ *  å…ƒã®å‹ãŒç°¡æ˜“é…åˆ—ã¨æ±ç”¨é…åˆ—ã®å ´åˆã¯ãã®ã¾ã¾å‡¦ç†ã—ã¾ã™ãŒã€æ•´æ•°/å®Ÿæ•°ã ã£ãŸå ´åˆã¯
+ *  æ±ç”¨é…åˆ—ã«å‹å¤‰æ›ã•ã‚Œã€å…ƒã®å€¤ã¯[0]ã«æ ¼ç´ã•ã‚Œã¾ã™ã€‚
  * -----------------------------------------------------------------------
  */
 void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 {
-	// ˜”‚ÆƒfƒŠƒ~ƒ^‚Ìæ“¾
+	// åºæ•°ã¨ãƒ‡ãƒªãƒŸã‚¿ã®å–å¾—
 	int	order, order1;
 	yaya::string_t	delimiter;
 	int	aoflg = oval.DecodeArrayOrder(order, order1, delimiter);
 
-	// ’l‚ğXV‚·‚é
+	// å€¤ã‚’æ›´æ–°ã™ã‚‹
 	if ( type == F_TAG_STRING ) {
-		// ŠÈˆÕ”z—ñ
-		// Œ³‚Ì•¶š—ñ‚ğƒfƒŠƒ~ƒ^‚Å•ªŠ„
+		// ç°¡æ˜“é…åˆ—
+		// å…ƒã®æ–‡å­—åˆ—ã‚’ãƒ‡ãƒªãƒŸã‚¿ã§åˆ†å‰²
 		std::vector<yaya::string_t>	s_array;
 		int	sz = SplitToMultiString(s_value, &s_array, delimiter);
-		// XV
+		// æ›´æ–°
 		if (aoflg) {
-			// ”ÍˆÍ‚Â‚«
+			// ç¯„å›²ã¤ã
 			if (order1 < 0)
 				return;
 			else if (order < sz) {
@@ -225,7 +225,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 			}
 		}
 		else {
-			// ”ÍˆÍ‚È‚µ
+			// ç¯„å›²ãªã—
 			if (order < 0)
 				return;
 			else if (order < sz) {
@@ -263,7 +263,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 				}
 			}
 		}
-		// •¶š—ñ‚Ì•œŒ³
+		// æ–‡å­—åˆ—ã®å¾©å…ƒ
 		sz = s_array.size();
 		if (!sz)
 			s_value = L"";
@@ -275,7 +275,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 		}
 	}
 	else {
-		// ”Ä—p”z—ñi‚à‚µ‚­‚Í–¢‰Šú‰»j
+		// æ±ç”¨é…åˆ—ï¼ˆã‚‚ã—ãã¯æœªåˆæœŸåŒ–ï¼‰
 		if ( type != F_TAG_ARRAY ) {
 			type = F_TAG_ARRAY;
 			array().clear();
@@ -284,11 +284,11 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 
 		if (aoflg) {
 			int	sz = array_size();
-			// ”ÍˆÍ‚Â‚«
+			// ç¯„å›²ã¤ã
 			if (order1 < 0)
 				return;
 			if (order < sz) {
-				// ”z—ñ’†“r‚Ì‘‚«Š·‚¦
+				// é…åˆ—ä¸­é€”ã®æ›¸ãæ›ãˆ
 				int	s_index   = __GETMAX(order, 0);
 				int	e_index   = __GETMIN(order1 + 1, sz);
 				
@@ -304,7 +304,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 				}
 			}
 			else {
-				// Œã’[‚Ö‚Ì’Ç‰Á
+				// å¾Œç«¯ã¸ã®è¿½åŠ 
 				int	addsize = order - array().size();
 				for(int i = 1; i <= addsize; i++) {
 					array().push_back(CValueSub());
@@ -321,11 +321,11 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 			}
 		}
 		else {
-			// ”ÍˆÍ‚È‚µ
+			// ç¯„å›²ãªã—
 			if (order < 0)
 				return;
 			if (order < static_cast<int>(array_size()) ) {
-				// ”z—ñ’†“r‚Ì‘‚«Š·‚¦				
+				// é…åˆ—ä¸­é€”ã®æ›¸ãæ›ãˆ				
 				if (value.GetType() == F_TAG_ARRAY ) {
 					CValueArray::iterator it = array().erase(array().begin() + order);
 					if ( ! value.array().empty() ) {
@@ -337,7 +337,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 				}
 			}
 			else {
-				// Œã’[‚Ö‚Ì’Ç‰Á
+				// å¾Œç«¯ã¸ã®è¿½åŠ 
 				int	addsize = order - array().size();
 				for(int i = 1; i <= addsize; i++) {
 					array().push_back(CValueSub());
@@ -357,10 +357,10 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CValue::DecodeArrayOrder
- *  ‹@”\ŠT—vF  Šù’è‚Ì‘®‚Å”z—ñ˜”‚ğŠi”[‚µ‚Ä‚¢‚éthis‚©‚ç˜”‚ÆƒfƒŠƒ~ƒ^‚ğæ“¾‚µ‚Ü‚·
+ *  é–¢æ•°å  ï¼š  CValue::DecodeArrayOrder
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  æ—¢å®šã®æ›¸å¼ã§é…åˆ—åºæ•°ã‚’æ ¼ç´ã—ã¦ã„ã‚‹thisã‹ã‚‰åºæ•°ã¨ãƒ‡ãƒªãƒŸã‚¿ã‚’å–å¾—ã—ã¾ã™
  *
- *  •Ô’l@@F  0/1=order1(”ÍˆÍw’è)–³Œø/—LŒø
+ *  è¿”å€¤ã€€ã€€ï¼š  0/1=order1(ç¯„å›²æŒ‡å®š)ç„¡åŠ¹/æœ‰åŠ¹
  * -----------------------------------------------------------------------
  */
 int	CValue::DecodeArrayOrder(int &order, int &order1, yaya::string_t &delimiter) const
@@ -372,7 +372,7 @@ int	CValue::DecodeArrayOrder(int &order, int &order1, yaya::string_t &delimiter)
 	if (type == F_TAG_ARRAY) {
 		int	sz = array_size();
 		if (sz) {
-			// —v‘f0:˜”
+			// è¦ç´ 0:åºæ•°
 			if (array()[0].GetType() == F_TAG_INT)
 				order = array()[0].i_value;
 			else if (array()[0].GetType() == F_TAG_DOUBLE)
@@ -381,7 +381,7 @@ int	CValue::DecodeArrayOrder(int &order, int &order1, yaya::string_t &delimiter)
 				return 0;
 			if (sz == 1)
 				return 0;
-			// —v‘f1:”’l‚È‚ç”ÍˆÍw’èA•¶š—ñ‚È‚çƒfƒŠƒ~ƒ^
+			// è¦ç´ 1:æ•°å€¤ãªã‚‰ç¯„å›²æŒ‡å®šã€æ–‡å­—åˆ—ãªã‚‰ãƒ‡ãƒªãƒŸã‚¿
 			switch(array()[1].GetType()) {
 			case F_TAG_INT:
 				order1  = array()[1].i_value;
@@ -402,7 +402,7 @@ int	CValue::DecodeArrayOrder(int &order, int &order1, yaya::string_t &delimiter)
 			};
 			if (sz == 2)
 				return 1;
-			// —v‘f2:—v‘f1‚ª”ÍˆÍw’è‚¾‚Á‚½ê‡‚ÍƒfƒŠƒ~ƒ^
+			// è¦ç´ 2:è¦ç´ 1ãŒç¯„å›²æŒ‡å®šã ã£ãŸå ´åˆã¯ãƒ‡ãƒªãƒŸã‚¿
 			if (array()[2].GetType() == F_TAG_STRING &&
 				array()[2].s_value.size())
 				delimiter = array()[2].s_value;
@@ -512,8 +512,8 @@ CValue &CValue::operator =(const CValueSub &value)
 /* -----------------------------------------------------------------------
  *  CalcEscalationTypeNum
  *
- *  Œ^‚Ì¸Šiƒ‹[ƒ‹‚ğˆµ‚¢‚Ü‚·i”’l—Dæj
- *  Šî–{“I‚ÉARRAY>DOUBLE>INT‚Å‚·B
+ *  å‹ã®æ˜‡æ ¼ãƒ«ãƒ¼ãƒ«ã‚’æ‰±ã„ã¾ã™ï¼ˆæ•°å€¤å„ªå…ˆï¼‰
+ *  åŸºæœ¬çš„ã«ARRAY>DOUBLE>INTã§ã™ã€‚
  * -----------------------------------------------------------------------
  */
 int CValue::CalcEscalationTypeNum(const int rhs) const
@@ -537,9 +537,9 @@ int CValue::CalcEscalationTypeNum(const int rhs) const
 /* -----------------------------------------------------------------------
  *  CalcEscalationTypeStr
  *
- *  Œ^‚Ì¸Šiƒ‹[ƒ‹‚ğˆµ‚¢‚Ü‚·i•¶š—ñ—Dæj
- *  Šî–{“I‚ÉARRAY>STRING>DOUBLE>INT>VOID‚Å‚·B
- *  Œ^‚Ì#define‚É‚»‚¤‚È‚é‚æ‚¤‚É’è‹`‚³‚ê‚Ä‚¢‚é‚½‚ßA’l”äŠr‚Å‘å‚«‚¢‚Ù‚¤‚ğ•Ô‚µ‚Ü‚·B
+ *  å‹ã®æ˜‡æ ¼ãƒ«ãƒ¼ãƒ«ã‚’æ‰±ã„ã¾ã™ï¼ˆæ–‡å­—åˆ—å„ªå…ˆï¼‰
+ *  åŸºæœ¬çš„ã«ARRAY>STRING>DOUBLE>INT>VOIDã§ã™ã€‚
+ *  å‹ã®#defineæ™‚ã«ãã†ãªã‚‹ã‚ˆã†ã«å®šç¾©ã•ã‚Œã¦ã„ã‚‹ãŸã‚ã€å€¤æ¯”è¼ƒã§å¤§ãã„ã»ã†ã‚’è¿”ã—ã¾ã™ã€‚
  * -----------------------------------------------------------------------
  */
 int CValue::CalcEscalationTypeStr(const int rhs) const
@@ -548,7 +548,7 @@ int CValue::CalcEscalationTypeStr(const int rhs) const
 }
 
 /* -----------------------------------------------------------------------
- *  ”z—ñ‰‰Z—p•â•ƒeƒ“ƒvƒŒ[ƒg‚Æƒtƒ@ƒ“ƒNƒ^
+ *  é…åˆ—æ¼”ç®—ç”¨è£œåŠ©ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã¨ãƒ•ã‚¡ãƒ³ã‚¯ã‚¿
  * -----------------------------------------------------------------------
  */
 template<class Fn>
@@ -607,12 +607,12 @@ void CValue_ArrayCalc_Subst(CValue &param1_subst,const CValue &param2_right,Fn c
 	CValue result;
 
 	if (param1_subst.GetType() == F_TAG_ARRAY && param2_right.GetType() == F_TAG_ARRAY) {
-		if ( param1_subst.array_size() == 0 ) { //‰‰Z‘ÎÛ‚ª‚È‚¢
+		if ( param1_subst.array_size() == 0 ) { //æ¼”ç®—å¯¾è±¡ãŒãªã„
 			param1_subst = param2_right;
 			return;
 		}
 		else {
-			if ( param2_right.array_size() == 0 ) { //‰‰Z‘Šè‚ª‚È‚¢
+			if ( param2_right.array_size() == 0 ) { //æ¼”ç®—ç›¸æ‰‹ãŒãªã„
 				return;
 			}
 			else {
@@ -628,7 +628,7 @@ void CValue_ArrayCalc_Subst(CValue &param1_subst,const CValue &param2_right,Fn c
 		}
 	}
 	else if (param1_subst.GetType() == F_TAG_ARRAY) {
-		if ( param1_subst.array_size() == 0 ) { //‰‰Z‘ÎÛ‚ª‚È‚¢
+		if ( param1_subst.array_size() == 0 ) { //æ¼”ç®—å¯¾è±¡ãŒãªã„
 			param1_subst = param2_right;
 			return;
 		}
@@ -641,7 +641,7 @@ void CValue_ArrayCalc_Subst(CValue &param1_subst,const CValue &param2_right,Fn c
 		}
 	}
 	else if (param2_right.GetType() == F_TAG_ARRAY) {
-		if ( param2_right.array_size() == 0 ) { //‰‰Z‘ÎÛ‚ª‚È‚¢
+		if ( param2_right.array_size() == 0 ) { //æ¼”ç®—å¯¾è±¡ãŒãªã„
 			return;
 		}
 		else {
@@ -749,7 +749,7 @@ CValue CValue::operator +(const CValue &value) const
 void CValue::operator +=(const CValue &value)
 {
 	int t = CalcEscalationTypeStr(value.type);
-	if ( t == type ) { //¶•Ó(©g)‚ÌŒ^‚Æ“¯‚¶ê‡‚ÉŒÀ‚è
+	if ( t == type ) { //å·¦è¾º(è‡ªèº«)ã®å‹ã¨åŒã˜å ´åˆã«é™ã‚Š
 		if ( t == F_TAG_INT ) {
 			i_value += value.GetValueInt();
 			return;
@@ -758,11 +758,11 @@ void CValue::operator +=(const CValue &value)
 			d_value += value.GetValueDouble();
 			return;
 		}
-		if ( t == F_TAG_STRING ) { //•¶š—ñ—pƒpƒtƒH[ƒ}ƒ“ƒXŒüãƒR[ƒh ’·‚¢•¶š—ñŒ‹‡‚É‚¾‚¢‚Ôƒ}ƒV‚É
+		if ( t == F_TAG_STRING ) { //æ–‡å­—åˆ—æ™‚ç”¨ãƒ‘ãƒ•ã‚©ãƒ¼ãƒãƒ³ã‚¹å‘ä¸Šã‚³ãƒ¼ãƒ‰ é•·ã„æ–‡å­—åˆ—çµåˆæ™‚ã«ã ã„ã¶ãƒã‚·ã«
 			s_value += value.GetValueString();
 			return;
 		}
-		if ( t == F_TAG_ARRAY ) { //”z—ñ—pƒpƒtƒH[ƒ}ƒ“ƒXŒüãƒR[ƒh
+		if ( t == F_TAG_ARRAY ) { //é…åˆ—æ™‚ç”¨ãƒ‘ãƒ•ã‚©ãƒ¼ãƒãƒ³ã‚¹å‘ä¸Šã‚³ãƒ¼ãƒ‰
 			if ( type == F_TAG_ARRAY ) {
 				CValue_ArrayCalc_Subst(*this,value,CValueSub_Add_Subst());
 				return;
@@ -795,7 +795,7 @@ CValue CValue::operator -(const CValue &value) const
 void CValue::operator -=(const CValue &value)
 {
 	int t = CalcEscalationTypeStr(value.type);
-	if ( t == type ) { //¶•Ó(©g)‚ÌŒ^‚Æ“¯‚¶ê‡‚ÉŒÀ‚è
+	if ( t == type ) { //å·¦è¾º(è‡ªèº«)ã®å‹ã¨åŒã˜å ´åˆã«é™ã‚Š
 		if ( t == F_TAG_INT ) {
 			i_value -= value.GetValueInt();
 			return;
@@ -804,7 +804,7 @@ void CValue::operator -=(const CValue &value)
 			d_value -= value.GetValueDouble();
 			return;
 		}
-		if ( t == F_TAG_ARRAY ) { //”z—ñ—pƒpƒtƒH[ƒ}ƒ“ƒXŒüãƒR[ƒh
+		if ( t == F_TAG_ARRAY ) { //é…åˆ—æ™‚ç”¨ãƒ‘ãƒ•ã‚©ãƒ¼ãƒãƒ³ã‚¹å‘ä¸Šã‚³ãƒ¼ãƒ‰
 			CValue_ArrayCalc_Subst(*this,value,CValueSub_Sub_Subst());
 			return;
 		}
@@ -835,8 +835,8 @@ CValue CValue::operator *(const CValue &value) const
 void CValue::operator *=(const CValue &value)
 {
 	int t = CalcEscalationTypeStr(value.type);
-	if ( t == type ) { //¶•Ó(©g)‚ÌŒ^‚Æ“¯‚¶ê‡‚ÉŒÀ‚è
-		if ( t == F_TAG_ARRAY ) { //”z—ñ—pƒpƒtƒH[ƒ}ƒ“ƒXŒüãƒR[ƒh
+	if ( t == type ) { //å·¦è¾º(è‡ªèº«)ã®å‹ã¨åŒã˜å ´åˆã«é™ã‚Š
+		if ( t == F_TAG_ARRAY ) { //é…åˆ—æ™‚ç”¨ãƒ‘ãƒ•ã‚©ãƒ¼ãƒãƒ³ã‚¹å‘ä¸Šã‚³ãƒ¼ãƒ‰
 			CValue_ArrayCalc_Subst(*this,value,CValueSub_Mul_Subst());
 			return;
 		}
@@ -883,8 +883,8 @@ CValue CValue::operator /(const CValue &value) const
 void CValue::operator /=(const CValue &value)
 {
 	int t = CalcEscalationTypeStr(value.type);
-	if ( t == type ) { //¶•Ó(©g)‚ÌŒ^‚Æ“¯‚¶ê‡‚ÉŒÀ‚è
-		if ( t == F_TAG_ARRAY ) { //”z—ñ—pƒpƒtƒH[ƒ}ƒ“ƒXŒüãƒR[ƒh
+	if ( t == type ) { //å·¦è¾º(è‡ªèº«)ã®å‹ã¨åŒã˜å ´åˆã«é™ã‚Š
+		if ( t == F_TAG_ARRAY ) { //é…åˆ—æ™‚ç”¨ãƒ‘ãƒ•ã‚©ãƒ¼ãƒãƒ³ã‚¹å‘ä¸Šã‚³ãƒ¼ãƒ‰
 			CValue_ArrayCalc_Subst(*this,value,CValueSub_Div_Subst());
 			return;
 		}
@@ -922,8 +922,8 @@ CValue CValue::operator %(const CValue &value) const
 void CValue::operator %=(const CValue &value)
 {
 	int t = CalcEscalationTypeStr(value.type);
-	if ( t == type ) { //¶•Ó(©g)‚ÌŒ^‚Æ“¯‚¶ê‡‚ÉŒÀ‚è
-		if ( t == F_TAG_ARRAY ) { //”z—ñ—pƒpƒtƒH[ƒ}ƒ“ƒXŒüãƒR[ƒh
+	if ( t == type ) { //å·¦è¾º(è‡ªèº«)ã®å‹ã¨åŒã˜å ´åˆã«é™ã‚Š
+		if ( t == F_TAG_ARRAY ) { //é…åˆ—æ™‚ç”¨ãƒ‘ãƒ•ã‚©ãƒ¼ãƒãƒ³ã‚¹å‘ä¸Šã‚³ãƒ¼ãƒ‰
 			CValue_ArrayCalc_Subst(*this,value,CValueSub_Mod_Subst());
 			return;
 		}
@@ -934,13 +934,13 @@ void CValue::operator %=(const CValue &value)
 /* -----------------------------------------------------------------------
  *  operator [] (CValue)
  *
- *  this‚ÌŒ^‚ªyaya::string_t‚Ìê‡‚ÍŠÈˆÕ”z—ñAarray()‚Ìê‡‚Í”z—ñˆµ‚¢‚Å‚·B
- *  int/double‚Å‚Í˜”‚É‚æ‚ç‚¸‚»‚Ì’l‚ª•Ô‚³‚ê‚Ü‚·B
+ *  thisã®å‹ãŒyaya::string_tã®å ´åˆã¯ç°¡æ˜“é…åˆ—ã€array()ã®å ´åˆã¯é…åˆ—æ‰±ã„ã§ã™ã€‚
+ *  int/doubleã§ã¯åºæ•°ã«ã‚ˆã‚‰ãšãã®å€¤ãŒè¿”ã•ã‚Œã¾ã™ã€‚
  *
- *  ˜”‚ª”ÍˆÍŠO‚Ìê‡‚Í‹ó•¶š—ñ‚ğ•Ô‚µ‚Ü‚·B
+ *  åºæ•°ãŒç¯„å›²å¤–ã®å ´åˆã¯ç©ºæ–‡å­—åˆ—ã‚’è¿”ã—ã¾ã™ã€‚
  *
- *  ˆø”‚ÌŒ^‚Íí‚Éarray()‚Å‚ ‚èA“Á’è‚ÌƒtƒH[ƒ}ƒbƒg‚É€‹’‚µ‚Ä‚¢‚é•K—v‚ª‚ ‚è‚Ü‚·B
- *  iŒÄ‚Ño‚µ‘¤‚Å‚»‚Ì‚æ‚¤‚É¬Œ`‚·‚é•K—v‚ª‚ ‚è‚Ü‚·j
+ *  å¼•æ•°ã®å‹ã¯å¸¸ã«array()ã§ã‚ã‚Šã€ç‰¹å®šã®ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã«æº–æ‹ ã—ã¦ã„ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™ã€‚
+ *  ï¼ˆå‘¼ã³å‡ºã—å´ã§ãã®ã‚ˆã†ã«æˆå½¢ã™ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™ï¼‰
  * -----------------------------------------------------------------------
  */
 CValue CValue::operator [](const CValue &value) const
@@ -950,21 +950,21 @@ CValue CValue::operator [](const CValue &value) const
 	int	aoflg = value.DecodeArrayOrder(order, order1, delimiter);
 
 	if (type == F_TAG_INT || type == F_TAG_DOUBLE) {
-		// ”’l@˜”‚ª0‚È‚çthisA1ˆÈŠO‚Å‚Í‹ó•¶š—ñ‚ğ•Ô‚·
+		// æ•°å€¤ã€€åºæ•°ãŒ0ãªã‚‰thisã€1ä»¥å¤–ã§ã¯ç©ºæ–‡å­—åˆ—ã‚’è¿”ã™
 		if (!order)
 			return *this;
 		else
 			return CValue();
 	}
 	if (type == F_TAG_STRING) {
-		// ŠÈˆÕ”z—ñ
+		// ç°¡æ˜“é…åˆ—
 
-		// •¶š—ñ‚ğƒfƒŠƒ~ƒ^‚Å•ªŠ„
+		// æ–‡å­—åˆ—ã‚’ãƒ‡ãƒªãƒŸã‚¿ã§åˆ†å‰²
 		std::vector<yaya::string_t>	s_array;
 		int	sz = SplitToMultiString(s_value, &s_array, delimiter);
-		// ’l‚Ìæ“¾
+		// å€¤ã®å–å¾—
 		if (aoflg) {
-			// ”ÍˆÍ‚ ‚è
+			// ç¯„å›²ã‚ã‚Š
 			if (order1 < 0 || order >= sz)
 				return CValue();
 			else {
@@ -988,7 +988,7 @@ CValue CValue::operator [](const CValue &value) const
 			}
 		}
 		else {
-			// ”ÍˆÍ‚È‚µ
+			// ç¯„å›²ãªã—
 			if (0 <= order && order < sz)
 				return CValue(s_array[order]);
 			else 
@@ -996,12 +996,12 @@ CValue CValue::operator [](const CValue &value) const
 		}
 	}
 	else if (type == F_TAG_ARRAY) {
-		// ”Ä—p”z—ñ
+		// æ±ç”¨é…åˆ—
 
 		int	sz = array_size();
-		// ’l‚Ìæ“¾
+		// å€¤ã®å–å¾—
 		if (aoflg) {
-			// ”ÍˆÍ‚ ‚è
+			// ç¯„å›²ã‚ã‚Š
 			if (order1 < 0 || order >= sz)
 				return CValue(F_TAG_ARRAY, 0/*dmy*/);
 			else {
@@ -1020,7 +1020,7 @@ CValue CValue::operator [](const CValue &value) const
 			}
 		}
 		else {
-			// ”ÍˆÍ‚È‚µ
+			// ç¯„å›²ãªã—
 			if (0 <= order && order < sz) {
 				return CValue(array()[order]);
 			}
@@ -1043,7 +1043,7 @@ int CValue::Compare(const CValue &value) const
 
 	switch(t) {
 	case F_TAG_VOID:
-		return 1; //VOIDŒ^“¯m‚Ì‰‰Z‚ÍTRUE
+		return 1; //VOIDå‹åŒå£«ã®æ¼”ç®—ã¯TRUE
 	case F_TAG_INT:
 		return GetValueInt() == value.GetValueInt();
 	case F_TAG_DOUBLE:

@@ -1,11 +1,11 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// \•¶‰ğÍ/’†ŠÔƒR[ƒh‚Ì¶¬‚ğs‚¤ƒNƒ‰ƒX@CParser0
+// æ§‹æ–‡è§£æ/ä¸­é–“ã‚³ãƒ¼ãƒ‰ã®ç”Ÿæˆã‚’è¡Œã†ã‚¯ãƒ©ã‚¹ã€€CParser0
 // written by umeici. 2004
 // 
-// \•¶‰ğÍ‚ÉCBasis‚©‚çˆê“x‚¾‚¯CParser0::Parse‚ªÀs‚³‚ê‚Ü‚·B
-// CParser0::ParseEmbedString‚ÍevalŒn‚Ìˆ—‚Åg—p‚³‚ê‚Ü‚·B
+// æ§‹æ–‡è§£ææ™‚ã«CBasisã‹ã‚‰ä¸€åº¦ã ã‘CParser0::ParseãŒå®Ÿè¡Œã•ã‚Œã¾ã™ã€‚
+// CParser0::ParseEmbedStringã¯evalç³»ã®å‡¦ç†ã§ä½¿ç”¨ã•ã‚Œã¾ã™ã€‚
 //
 
 #ifndef	PARSER0H

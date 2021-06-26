@@ -1,10 +1,10 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// ŠO•”ƒ‰ƒCƒuƒ‰ƒŠ‚ðˆµ‚¤ƒNƒ‰ƒX@CLib/CLib1
+// å¤–éƒ¨ãƒ©ã‚¤ãƒ–ãƒ©ãƒªã‚’æ‰±ã†ã‚¯ãƒ©ã‚¹ã€€CLib/CLib1
 // written by umeici. 2004
 // 
-// CLib‚ª‘S‘Ì‚ðŠÇ—‚µ‚Ü‚·BŒÂX‚ÌDLL‚ÍCLib1‚ÅŠÇ—‚µ‚Ü‚·B
+// CLibãŒå…¨ä½“ã‚’ç®¡ç†ã—ã¾ã™ã€‚å€‹ã€…ã®DLLã¯CLib1ã§ç®¡ç†ã—ã¾ã™ã€‚
 //
 
 #ifndef	LIBH

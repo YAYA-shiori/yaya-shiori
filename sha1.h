@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  sha1.h
  *
  *  Description:

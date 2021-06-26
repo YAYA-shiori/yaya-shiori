@@ -1,4 +1,4 @@
-bbl_wire<
+﻿bbl_wire<
 	bbl_null_line, bbl_null_line, bbl_null_line, bbl_null_line, bbl_null_line, 
 	bbl_line<
 		0x0, 0x0, 0x8191, 0x8192, 0x0, 0x0, 0x0, 0x8198, 
