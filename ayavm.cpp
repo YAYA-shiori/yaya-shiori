@@ -40,7 +40,7 @@
 ////////////////////////////////////////
 CAyaVM CAyaVM::get_a_deep_copy(){
 	CAyaVM aret=*this;
-	#define copy_new(name) aret.name=new decltype(*name) (*name)
+	#define copy_new(name) aret.name=new decltype(*(CAyaVM().name)) (*name)
 	copy_new(m_basis);
 	copy_new(m_function);
 	copy_new(m_functionmap);
