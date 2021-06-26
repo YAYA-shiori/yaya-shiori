@@ -1,7 +1,7 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// ’†ŠÔƒR[ƒh‚ğƒƒO‚Éo—Í‚·‚éƒNƒ‰ƒX@CLogExCode
+// ä¸­é–“ã‚³ãƒ¼ãƒ‰ã‚’ãƒ­ã‚°ã«å‡ºåŠ›ã™ã‚‹ã‚¯ãƒ©ã‚¹ã€€CLogExCode
 // written by umeici. 2004
 // 
 
@@ -31,8 +31,8 @@
 ////////////////////////////////////////
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CLogExCode::OutExecutionCodeForCheck
- *  ‹@”\ŠT—vF  \•¶‰ğÍŒ‹‰Êi’†ŠÔƒR[ƒhj‚ğƒƒO‚É‹L˜^‚µ‚Ü‚·
+ *  é–¢æ•°å  ï¼š  CLogExCode::OutExecutionCodeForCheck
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  æ§‹æ–‡è§£æçµæœï¼ˆä¸­é–“ã‚³ãƒ¼ãƒ‰ï¼‰ã‚’ãƒ­ã‚°ã«è¨˜éŒ²ã—ã¾ã™
  * -----------------------------------------------------------------------
  */
 void	CLogExCode::OutExecutionCodeForCheck(void)
@@ -42,31 +42,31 @@ void	CLogExCode::OutExecutionCodeForCheck(void)
     yaya::string_t tmpstr;
 	int	i = 0;
 	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++, i++) {
-		// ŠÖ”‚Ì’è‹`”Ô†
+		// é–¢æ•°ã®å®šç¾©ç•ªå·
 		tmpstr = L"[" + yaya::ws_itoa(i) + L"] ";
 		vm.logger().Write(tmpstr);
 		vm.logger().Write(L"------------------------------------------------------------------------\n");
-		// ŠÖ”‚Ì–¼‘O
+		// é–¢æ•°ã®åå‰
 		vm.logger().Write(L"       ");
 		vm.logger().Write(it->name);
 		vm.logger().Write(L"\n");
 		vm.logger().Write(L"       ------------------------------------------------------------------------\n");
-		// ŠÖ”‚Ìd•¡‰ñ”ğƒ‚[ƒh
+		// é–¢æ•°ã®é‡è¤‡å›é¿ãƒ¢ãƒ¼ãƒ‰
 		vm.logger().Write(L"Duplication evasion mode : ");
 		vm.logger().Write((wchar_t *)choicetype[it->dupl.GetType()]);
 		vm.logger().Write(L"\n");
-		// ŠÖ”‚ª‹Lq‚³‚ê‚Ä‚¢‚é«‘ƒtƒ@ƒCƒ‹–¼
+		// é–¢æ•°ãŒè¨˜è¿°ã•ã‚Œã¦ã„ã‚‹è¾æ›¸ãƒ•ã‚¡ã‚¤ãƒ«å
 		vm.logger().Write(L"dic filename : ");
 		vm.logger().Write(it->dicfilename);
 		vm.logger().Write(L"\n");
-		// ŠÖ”‚Ì“®ì‹Lq
+		// é–¢æ•°ã®å‹•ä½œè¨˜è¿°
 		yaya::string_t indent = L" ";
 		int	j = 0;
 		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++, j++) {
-			// s”Ô†i[ŠÖ”“à‚Ìs”Ô†/«‘ƒtƒ@ƒCƒ‹’†‚Ìs”Ô†]j
+			// è¡Œç•ªå·ï¼ˆ[é–¢æ•°å†…ã®è¡Œç•ªå·/è¾æ›¸ãƒ•ã‚¡ã‚¤ãƒ«ä¸­ã®è¡Œç•ªå·]ï¼‰
 			tmpstr = L"[" + yaya::ws_itoa(j) + L" / " + yaya::ws_itoa(it2->linecount) + L"] ";
 			vm.logger().Write(tmpstr);
-			// ƒXƒe[ƒgƒƒ“ƒg‚Ìí—Ş•Ê‚ÉƒƒO‚É‹L˜^
+			// ã‚¹ãƒ†ãƒ¼ãƒˆãƒ¡ãƒ³ãƒˆã®ç¨®é¡åˆ¥ã«ãƒ­ã‚°ã«è¨˜éŒ²
 			yaya::string_t	formula;
 			switch(it2->type) {
 			case ST_UNKNOWN:
@@ -268,8 +268,8 @@ void	CLogExCode::OutExecutionCodeForCheck(void)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CLogExCode::StructCellString
- *  ‹@”\ŠT—vF  OutDicInfoForCheck‚©‚çŒÄ‚Î‚ê‚Ü‚·B”®‚ğ•¶š—ñ‰»‚µ‚Ü‚·
+ *  é–¢æ•°å  ï¼š  CLogExCode::StructCellString
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  OutDicInfoForCheckã‹ã‚‰å‘¼ã°ã‚Œã¾ã™ã€‚æ•°å¼ã‚’æ–‡å­—åˆ—åŒ–ã—ã¾ã™
  * -----------------------------------------------------------------------
  */
 void	CLogExCode::StructCellString(std::vector<CCell> *cellvector, yaya::string_t &formula)
@@ -342,8 +342,8 @@ void	CLogExCode::StructCellString(std::vector<CCell> *cellvector, yaya::string_t
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CLogExCode::StructSerialString
- *  ‹@”\ŠT—vF  OutDicInfoForCheck‚©‚çŒÄ‚Î‚ê‚Ü‚·B”®‚Ì‰‰Z‡˜‚ğ•¶š—ñ‰»‚µ‚Ü‚·
+ *  é–¢æ•°å  ï¼š  CLogExCode::StructSerialString
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  OutDicInfoForCheckã‹ã‚‰å‘¼ã°ã‚Œã¾ã™ã€‚æ•°å¼ã®æ¼”ç®—é †åºã‚’æ–‡å­—åˆ—åŒ–ã—ã¾ã™
  * -----------------------------------------------------------------------
  */
 void	CLogExCode::StructSerialString(CStatement *st, yaya::string_t &formula)
@@ -351,7 +351,7 @@ void	CLogExCode::StructSerialString(CStatement *st, yaya::string_t &formula)
 	formula = L"";
     yaya::string_t	tmpstr;
 
-	if ( st->serial_size() ) { //‚‘¬‰»—p
+	if ( st->serial_size() ) { //é«˜é€ŸåŒ–ç”¨
 		for(std::vector<CSerial>::iterator it = st->serial().begin(); it != st->serial().end(); it++) {
 			if (it != st->serial().begin())
 				formula += L" | ";
@@ -390,8 +390,8 @@ void	CLogExCode::StructSerialString(CStatement *st, yaya::string_t &formula)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CLogExCode::OutVariableInfoForCheck
- *  ‹@”\ŠT—vF  •Ï”‚Ì’è‹`ó‘Ô‚ğƒƒO‚É‹L˜^‚µ‚Ü‚·
+ *  é–¢æ•°å  ï¼š  CLogExCode::OutVariableInfoForCheck
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  å¤‰æ•°ã®å®šç¾©çŠ¶æ…‹ã‚’ãƒ­ã‚°ã«è¨˜éŒ²ã—ã¾ã™
  * -----------------------------------------------------------------------
  */
 void	CLogExCode::OutVariableInfoForCheck(void)
@@ -403,13 +403,13 @@ void	CLogExCode::OutVariableInfoForCheck(void)
 	size_t	var_num = vm.variable().GetNumber();
 	for(size_t	i = 0; i < var_num; i++) {
 		CVariable	*var = vm.variable().GetPtr(i);
-		// •Ï”‚Ì’è‹`”Ô†
+		// å¤‰æ•°ã®å®šç¾©ç•ªå·
 		tmpstr = L"[" + yaya::ws_itoa(i) + L"] ";
 		vm.logger().Write(tmpstr);
-		// •Ï”‚Ì–¼‘O
+		// å¤‰æ•°ã®åå‰
 		vm.logger().Write(var->name);
 		vm.logger().Write(L" = ");
-		// •Ï”‚Ì’l
+		// å¤‰æ•°ã®å€¤
 		switch(var->value().GetType()) {
 		case F_TAG_INT:
 			tmpstr = L"(int)" + yaya::ws_itoa(var->value_const().i_value) + L"\n";
@@ -443,8 +443,8 @@ void	CLogExCode::OutVariableInfoForCheck(void)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CLogExCode::StructArrayString
- *  ‹@”\ŠT—vF  OutVariableInfoForCheck‚©‚çŒÄ‚Î‚ê‚Ü‚·B”z—ñ•Ï”‚Ì“à—e‚ğ•¶š—ñ‰»‚µ‚Ü‚·
+ *  é–¢æ•°å  ï¼š  CLogExCode::StructArrayString
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  OutVariableInfoForCheckã‹ã‚‰å‘¼ã°ã‚Œã¾ã™ã€‚é…åˆ—å¤‰æ•°ã®å†…å®¹ã‚’æ–‡å­—åˆ—åŒ–ã—ã¾ã™
  * -----------------------------------------------------------------------
  */
 void	CLogExCode::StructArrayString(const CValueArray &vs, yaya::string_t &enlist)

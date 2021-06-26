@@ -1,12 +1,12 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// ƒRƒƒ“ƒgƒAƒEƒgˆ—ƒNƒ‰ƒX@CComment
+// ã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆå‡¦ç†ã‚¯ãƒ©ã‚¹ã€€CComment
 // written by umeici. 2004
 // 
 #ifdef _MSC_VER
-#pragma warning( disable : 4786 ) //uƒfƒoƒbƒOî•ñ“à‚Å‚Ì¯•ÊqØÌ‚Äv
-#pragma warning( disable : 4503 ) //u‘•ü‚³‚ê‚½–¼‘O‚Ì’·‚³‚ªŒÀŠE‚ğ‰z‚¦‚Ü‚µ‚½B–¼‘O‚ÍØ‚èÌ‚Ä‚ç‚ê‚Ü‚·Bv
+#pragma warning( disable : 4786 ) //ã€Œãƒ‡ãƒãƒƒã‚°æƒ…å ±å†…ã§ã®è­˜åˆ¥å­åˆ‡æ¨ã¦ã€
+#pragma warning( disable : 4503 ) //ã€Œè£…é£¾ã•ã‚ŒãŸåå‰ã®é•·ã•ãŒé™ç•Œã‚’è¶Šãˆã¾ã—ãŸã€‚åå‰ã¯åˆ‡ã‚Šæ¨ã¦ã‚‰ã‚Œã¾ã™ã€‚ã€
 #endif
 
 #if defined(WIN32) || defined(_WIN32_WCE)
@@ -27,8 +27,8 @@
 ////////////////////////////////////////
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CComment::Process
- *  ‹@”\ŠT—vF  ƒRƒƒ“ƒgƒAƒEƒgˆ—i/–`–/j
+ *  é–¢æ•°å  ï¼š  CComment::Process
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  ã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆå‡¦ç†ï¼ˆ/ï¼Šï½ï¼Š/ï¼‰
  * -----------------------------------------------------------------------
  */
 void	CComment::Process(yaya::string_t &str)
@@ -39,37 +39,37 @@ void	CComment::Process(yaya::string_t &str)
 	yaya::string_t::size_type found1;
 
 	while ( true ) {
-		//‘Os‚©‚çƒRƒƒ“ƒg‚ª‘±‚¢‚Ä‚é
+		//å‰è¡Œã‹ã‚‰ã‚³ãƒ¡ãƒ³ãƒˆãŒç¶šã„ã¦ã‚‹
 		if ( flag ) {
-			found1 = str.find(L"*/"); //ƒRƒƒ“ƒgI—¹ˆÊ’u‚ğ’Tõ ‚±‚ê‚ÍƒNƒH[ƒg‚É‰e‹¿‚³‚ê‚È‚¢
+			found1 = str.find(L"*/"); //ã‚³ãƒ¡ãƒ³ãƒˆçµ‚äº†ä½ç½®ã‚’æ¢ç´¢ ã“ã‚Œã¯ã‚¯ã‚©ãƒ¼ãƒˆã«å½±éŸ¿ã•ã‚Œãªã„
 
 			if ( found1 != yaya::string_t::npos ) {
-				str.erase(0,found1+2); //+2‚Í */ ‚Ì•ª
+				str.erase(0,found1+2); //+2ã¯ */ ã®åˆ†
 				flag = 0;
 			}
 			else {
-				str.erase(); //‘S•”‚È‚©‚Á‚½‚±‚Æ‚É
+				str.erase(); //å…¨éƒ¨ãªã‹ã£ãŸã“ã¨ã«
 				break;
 			}
 		}
-		//‘±‚¢‚Ä‚È‚¢
+		//ç¶šã„ã¦ãªã„
 		else {
-			found0 = Find_IgnoreDQ(str,L"/*");//ƒXƒ^[ƒg‚Ì‚İƒNƒH[ƒg‚ğl—¶
+			found0 = Find_IgnoreDQ(str,L"/*");//ã‚¹ã‚¿ãƒ¼ãƒˆã®ã¿ã‚¯ã‚©ãƒ¼ãƒˆã‚’è€ƒæ…®
 
-			if ( found0 != yaya::string_t::npos ) { //ƒXƒ^[ƒgˆÊ’u‚ª“¯‚¶s“à‚ÅŒ©‚Â‚©‚Á‚½
+			if ( found0 != yaya::string_t::npos ) { //ã‚¹ã‚¿ãƒ¼ãƒˆä½ç½®ãŒåŒã˜è¡Œå†…ã§è¦‹ã¤ã‹ã£ãŸ
 
 				found1 = str.find(L"*/",found0+2);
 
-				if ( found1 != yaya::string_t::npos ) { //ƒXƒgƒbƒvˆÊ’u‚à“¯‚¶s“à‚ÅŒ©‚Â‚©‚Á‚½
-					str.erase(found0,(found1+2-found0)); //+2‚Í */ ‚Ì•ª
+				if ( found1 != yaya::string_t::npos ) { //ã‚¹ãƒˆãƒƒãƒ—ä½ç½®ã‚‚åŒã˜è¡Œå†…ã§è¦‹ã¤ã‹ã£ãŸ
+					str.erase(found0,(found1+2-found0)); //+2ã¯ */ ã®åˆ†
 				}
 				else {
-					str.erase(found0,str.size()-found0); //c‚è‘S•”‚Î‚Á‚³‚è
+					str.erase(found0,str.size()-found0); //æ®‹ã‚Šå…¨éƒ¨ã°ã£ã•ã‚Š
 					flag = 1;
-					break; //‚Æ‚è‚ ‚¦‚¸‚±‚Ìs‚Íˆ—I—¹
+					break; //ã¨ã‚Šã‚ãˆãšã“ã®è¡Œã¯å‡¦ç†çµ‚äº†
 				}
 			}
-			else { //‚à‚¤ƒRƒƒ“ƒg‚Í‚È‚¢
+			else { //ã‚‚ã†ã‚³ãƒ¡ãƒ³ãƒˆã¯ãªã„
 				break;
 			}
 		}
@@ -77,8 +77,8 @@ void	CComment::Process(yaya::string_t &str)
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CComment::Process_Top
- *  ‹@”\ŠT—vF  ƒRƒƒ“ƒgƒAƒEƒgˆ—iæ“ª‚Ì//j
+ *  é–¢æ•°å  ï¼š  CComment::Process_Top
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  ã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆå‡¦ç†ï¼ˆå…ˆé ­ã®//ï¼‰
  * -----------------------------------------------------------------------
  */
 void	CComment::Process_Top(yaya::string_t &str)
@@ -89,16 +89,16 @@ void	CComment::Process_Top(yaya::string_t &str)
 	
 	while ( *pt == L' ' || *pt == L'\t' ) { ++pt; }
 	
-	//ƒRƒƒ“ƒg
+	//ã‚³ãƒ¡ãƒ³ãƒˆ
 	if ( *pt == L'/' && *(pt+1) == L'/' ) { str.erase(); }
 	
-	//‚Â‚¢‚Å‚É‹ó”’‚¾‚¯‚Ìs‚à‚È‚©‚Á‚½‚±‚Æ‚É
+	//ã¤ã„ã§ã«ç©ºç™½ã ã‘ã®è¡Œã‚‚ãªã‹ã£ãŸã“ã¨ã«
 	if ( *pt == 0 ) { str.erase(); }
 }
 
 /* -----------------------------------------------------------------------
- *  ŠÖ”–¼  F  CComment::Process_Tail
- *  ‹@”\ŠT—vF  ƒRƒƒ“ƒgƒAƒEƒgˆ—i’†“r‚Ì//j
+ *  é–¢æ•°å  ï¼š  CComment::Process_Tail
+ *  æ©Ÿèƒ½æ¦‚è¦ï¼š  ã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆå‡¦ç†ï¼ˆä¸­é€”ã®//ï¼‰
  * -----------------------------------------------------------------------
  */
 void	CComment::Process_Tail(yaya::string_t &str)

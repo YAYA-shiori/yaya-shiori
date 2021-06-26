@@ -1,7 +1,7 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// stl::wstring‚ğchar*•—‚Ég‚¤‚½‚ß‚ÌŠÖ”‚È‚Ç
+// stl::wstringã‚’char*é¢¨ã«ä½¿ã†ãŸã‚ã®é–¢æ•°ãªã©
 // written by umeici. 2004
 // 
 

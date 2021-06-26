@@ -1,19 +1,19 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// •Ï”‚ğˆµ‚¤ƒNƒ‰ƒX@CVariable/CLVSubStack/CLocalVariable/CGlobalVariable
+// å¤‰æ•°ã‚’æ‰±ã†ã‚¯ãƒ©ã‚¹ã€€CVariable/CLVSubStack/CLocalVariable/CGlobalVariable
 // written by umeici. 2004
 // 
-// CVariableƒNƒ‰ƒX‚Í’l‚Ì•Û‚µ‚©s‚È‚¢‚Ü‚¹‚ñB
+// CVariableã‚¯ãƒ©ã‚¹ã¯å€¤ã®ä¿æŒã—ã‹è¡Œãªã„ã¾ã›ã‚“ã€‚
 //
-// CLVSubStack/CLocalVariable‚Íƒ[ƒJƒ‹•Ï”‚ğŠÇ—‚µ‚Ü‚·B
-// ƒXƒ^ƒbƒN‚Æ‚Í–¼‚Î‚©‚è‚ÅÀÛ‚Ì\‘¢‚Í‰Â•Ï’·”z—ñ‚Å‚·iƒ‰ƒ“ƒ_ƒ€ƒAƒNƒZƒX‚µ‚½‚©‚Á‚½‚Ì‚Åj
+// CLVSubStack/CLocalVariableã¯ãƒ­ãƒ¼ã‚«ãƒ«å¤‰æ•°ã‚’ç®¡ç†ã—ã¾ã™ã€‚
+// ã‚¹ã‚¿ãƒƒã‚¯ã¨ã¯åã°ã‹ã‚Šã§å®Ÿéš›ã®æ§‹é€ ã¯å¯å¤‰é•·é…åˆ—ã§ã™ï¼ˆãƒ©ãƒ³ãƒ€ãƒ ã‚¢ã‚¯ã‚»ã‚¹ã—ãŸã‹ã£ãŸã®ã§ï¼‰
 //
-// CLocalVariable‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚ÍŠÖ”ÀsŠJn‚Éì¬‚³‚êAŠÖ”‚©‚ç•Ô‚éÛ‚É”jŠü‚³‚ê‚Ü‚·B
-// \‘¢‚Æ‚µ‚Ä‚Í vector<vector<CVariable>> ‚ÅA{}“ü‚êq‚Ì[‚³–ˆ‚Éƒ[ƒJƒ‹•Ï”‚Ì”z—ñ‚ğ
-// ‚Á‚Ä‚¢‚é‚±‚Æ‚É‚È‚è‚Ü‚·B{}“ü‚êq‚É“ü‚éÛ‚É”z—ñ‚ª’Ç‰Á‚³‚êAo‚éÛ‚É”jŠü‚³‚ê‚Ü‚·B
+// CLocalVariableã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã¯é–¢æ•°å®Ÿè¡Œé–‹å§‹æ™‚ã«ä½œæˆã•ã‚Œã€é–¢æ•°ã‹ã‚‰è¿”ã‚‹éš›ã«ç ´æ£„ã•ã‚Œã¾ã™ã€‚
+// æ§‹é€ ã¨ã—ã¦ã¯ vector<vector<CVariable>> ã§ã€{}å…¥ã‚Œå­ã®æ·±ã•æ¯ã«ãƒ­ãƒ¼ã‚«ãƒ«å¤‰æ•°ã®é…åˆ—ã‚’
+// æŒã£ã¦ã„ã‚‹ã“ã¨ã«ãªã‚Šã¾ã™ã€‚{}å…¥ã‚Œå­ã«å…¥ã‚‹éš›ã«é…åˆ—ãŒè¿½åŠ ã•ã‚Œã€å‡ºã‚‹éš›ã«ç ´æ£„ã•ã‚Œã¾ã™ã€‚
 //
-// CGlobalVariable‚ÍƒOƒ[ƒoƒ‹•Ï”‚ğŠÇ—‚µ‚Ü‚·B
+// CGlobalVariableã¯ã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°ã‚’ç®¡ç†ã—ã¾ã™ã€‚
 //
 
 #ifndef	VARIABLEH
@@ -39,14 +39,14 @@ class CAyaVM;
 class	CVariable
 {
 public:
-	yaya::string_t	name;					// –¼‘O
-	yaya::string_t	delimiter;				// ƒfƒŠƒ~ƒ^
+	yaya::string_t	name;					// åå‰
+	yaya::string_t	delimiter;				// ãƒ‡ãƒªãƒŸã‚¿
 
 
 protected:
-	char	erased;					// Á‹‚³‚ê‚½‚±‚Æ‚ğ¦‚·ƒtƒ‰ƒOiƒOƒ[ƒoƒ‹•Ï”‚Åg—pj
-									// 0/1=—LŒø/Á‹‚³‚ê‚½
-	mutable std_shared_ptr<CValue> m_value;				// ’l
+	char	erased;					// æ¶ˆå»ã•ã‚ŒãŸã“ã¨ã‚’ç¤ºã™ãƒ•ãƒ©ã‚°ï¼ˆã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°ã§ä½¿ç”¨ï¼‰
+									// 0/1=æœ‰åŠ¹/æ¶ˆå»ã•ã‚ŒãŸ
+	mutable std_shared_ptr<CValue> m_value;				// å€¤
 
 public:
 	CVariable(const yaya::string_t &n)
