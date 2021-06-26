@@ -98,7 +98,7 @@ public:
 	void	Init(void) { depth = 0; }
 
 	char	Add(const yaya::string_t &str) {
-		if (depth > maxdepth)
+		if (maxdepth && depth > maxdepth)
 			return 0;
 
 		depth++;
