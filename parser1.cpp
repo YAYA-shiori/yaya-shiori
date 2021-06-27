@@ -636,8 +636,6 @@ void	CParser1::CompleteSetting(void)
 	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++)
 		it->CompleteSetting();
 
-	std::vector<CFunction>(vm.function()).swap(vm.function());
-
 	vm.variable().CompleteSetting();
 }
 

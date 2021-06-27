@@ -47,10 +47,15 @@ private:
 public:
 	CStatement(int t, int l)
 	{
-		type      = t;
+		type = t;
 		linecount = l;
+		jumpto = 0;
 	}
-	CStatement(void) {}
+	CStatement(void) {
+		type = ST_NOP;
+		linecount = 0;
+		jumpto = 0;
+	}
 	~CStatement(void) {}
 
 	//////////////////////////////////////////////

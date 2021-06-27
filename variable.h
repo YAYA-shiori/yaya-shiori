@@ -187,7 +187,6 @@ public:
 	}
 	void	CompleteSetting(void)
 	{
-		std::vector<CVariable>(var).swap(var);
 	}
 
 	int		Make(const yaya::string_t &name, char erased);
