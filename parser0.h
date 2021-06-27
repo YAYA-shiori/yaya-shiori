@@ -56,7 +56,7 @@ public:
 	}
 	char	Parse(int charset, const std::vector<CDic1>& dics);
 	char	ParseEmbedString(yaya::string_t& str, CStatement &st, const yaya::string_t &dicfilename, int linecount);
-	char	LoadDictionary(const yaya::string_t& filename, int charset);
+	int		DynamicLoadDictionary(const yaya::string_t& filename, int charset);
 
 	int		GetFunctionIndexFromName(const yaya::string_t& str);
 
@@ -94,6 +94,8 @@ protected:
 	char	CheckDepth1(CStatement& st, const yaya::string_t& dicfilename);
 	char	CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dicfilename);
 	char	MakeCompleteConvertionWhenToIf(const yaya::string_t& dicfilename);
+
+	char	IsDicFileAlreadyExist(const yaya::string_t& dicfilename);
 
 	void	RemoveFunctionAndDefineByName(const yaya::string_t& dicfilename);
 };

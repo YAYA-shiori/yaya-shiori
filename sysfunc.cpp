@@ -3148,7 +3148,13 @@ CValue	CSystemFunction::DICLOAD(const CValue &arg, yaya::string_t &d, int &l)
 		}
 	}
 
-	return CValue((int)vm.parser0().LoadDictionary(fullpath,cset));
+	int err = vm.parser0().DynamicLoadDictionary(fullpath,cset);
+
+	if ( err > 1 ) {
+		SetError(err);
+	}
+
+	return CValue(err != 0 ? 1 : 0);
 }
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::FSIZE
