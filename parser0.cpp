@@ -62,13 +62,29 @@ char	CParser0::Parse(int charset, const std::vector<CDic1>& dics)
 		vm.logger().Write(L"// ");
 		vm.logger().Filename(it->path);
 
-		errcount += LoadDictionary1(it->path, gdefines, it->charset);
+		if ( IsDicFileAlreadyExist(it->path) ) {
+			vm.logger().Error(E_E, 95, it->path);
+			continue; //skip it
+		}
+
+		char err = LoadDictionary1(it->path, gdefines, it->charset);
+		if ( err == 2 ) {
+			; //NOOP skip it
+		}
+		else if ( err != 0 ) {
+			errcount += 1;
+		}
 	}
 
 	// チェックコードを仕掛ける (関数がないエラー対策)
+	vm.logger().Message(8);
+	vm.logger().Message(9);
+
 	for(std::vector<CDic1>::const_iterator it = dics.begin(); it != dics.end(); it++) {
 		errcount += ParseAfterLoad(it->path);
 	}
+
+	vm.logger().Message(8);
 	
 	return bool(errcount != 0);
 }
@@ -77,9 +93,6 @@ bool	CParser0::ParseAfterLoad(const yaya::string_t &dicfilename)
 {
 	int aret=0;
 
-	vm.logger().Message(8);
-	vm.logger().Message(9);
-
 	aret += AddSimpleIfBrace(dicfilename);
 
 	aret += SetCellType(dicfilename);
@@ -87,8 +100,6 @@ bool	CParser0::ParseAfterLoad(const yaya::string_t &dicfilename)
 
 	// 中間コード生成の後処理と検査
 	aret += vm.parser1().CheckExecutionCode(dicfilename);
-
-	vm.logger().Message(8);
 
 	return aret != 0;
 }
@@ -139,9 +150,25 @@ char	CParser0::ParseEmbedString(yaya::string_t& str, CStatement &st, const yaya:
 	return 0;
 }
 
-char CParser0::LoadDictionary(const yaya::string_t& filename, int charset)
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CParser0::DynamicLoadDictionary
+ *  機能概要：  DICLOADの実装本体
+ *
+ *  返値　　：  0=正常 1=文法エラー 5=ファイルなし 95=重複
+ * -----------------------------------------------------------------------
+ */
+int CParser0::DynamicLoadDictionary(const yaya::string_t& filename, int charset)
 {
+	if ( IsDicFileAlreadyExist(filename) ) {
+		vm.logger().Error(E_E, 95, filename);
+		return 95;
+	}
+
 	char t = LoadDictionary1(filename,vm.gdefines(),charset);
+	if ( t == 2 ) {
+		return 5;
+	}
+
 	t += ParseAfterLoad(filename);
 
 	if ( t != 0 ) {
@@ -149,6 +176,27 @@ char CParser0::LoadDictionary(const yaya::string_t& filename, int charset)
 	}
 
 	return t != 0;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CParser0::IsDicFileAlreadyExist
+ *  機能概要：  すでに当該辞書が読み込まれているかの判定
+ *
+ *  返値　　：  0/1=ない/あった
+ * -----------------------------------------------------------------------
+ */
+char CParser0::IsDicFileAlreadyExist(const yaya::string_t& dicfilename)
+{
+	std::vector<CFunction> &functions = vm.function();
+	std::vector<CFunction>::iterator itf = functions.begin();
+
+	while (itf != functions.end()) {
+		if ( itf->dicfilename == dicfilename ) {
+			return 1;
+		}
+		++itf;
+	}
+	return 0;
 }
 
 /* -----------------------------------------------------------------------
@@ -162,9 +210,9 @@ void	CParser0::RemoveFunctionAndDefineByName(const yaya::string_t& dicfilename)
 	yaya::indexmap& functionmap = vm.functionmap();
 	std::vector<CFunction>::iterator itf = functions.begin();
 
+	//remove function
 	while (itf != functions.end()) {
 		if ( itf->dicfilename == dicfilename ) {
-			functionmap.erase(itf->name);
 			itf = functions.erase(itf);
 		}
 		else {
@@ -172,6 +220,13 @@ void	CParser0::RemoveFunctionAndDefineByName(const yaya::string_t& dicfilename)
 		}
 	}
 
+	//rebuild function map
+	functionmap.clear();
+	for (size_t fcnt = 0; fcnt < functions.size(); ++fcnt) {
+		functionmap.insert(yaya::indexmap::value_type(functions[fcnt].name, static_cast<int>(vm.function().size() - 1)));
+	}
+
+	//remove globaldefine
 	std::vector<CDefine> &gdefines = vm.gdefines();
 	std::vector<CDefine>::iterator itg = gdefines.begin();
 
@@ -189,7 +244,7 @@ void	CParser0::RemoveFunctionAndDefineByName(const yaya::string_t& dicfilename)
  *  関数名  ：  CParser0::LoadDictionary1
  *  機能概要：  一つの辞書ファイルを読み取り、大雑把に構文を解釈して蓄積していきます
  *
- *  返値　　：  1/0=エラー/正常
+ *  返値　　：  2/1/0=ファイルがないエラー/エラー/正常
  * -----------------------------------------------------------------------
  */
 char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefine>& gdefines, int charset)
@@ -202,7 +257,7 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 	FILE	*fp = yaya::w_fopen((wchar_t *)file.c_str(), L"r");
 	if (fp == NULL) {
 		vm.logger().Error(E_E, 5, file);
-		return 1;
+		return 2;
 	}
 
 	// 読み取り
@@ -380,8 +435,9 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 		factors.clear();
 		SeparateFactor(factors, linebuffer);
 		// 分割された文字列を解析して関数を作成し、内部のステートメントを蓄積していく
-		if (DefineFunctions(factors, file, i, depth, targetfunction))
+		if (DefineFunctions(factors, file, i, depth, targetfunction)) {
 			errcount = 1;
+		}
 	}
 
 	// ファイルを閉じる
@@ -392,7 +448,7 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 		errcount = 1;
 	}
 
-	return errcount;
+	return errcount != 0 ? 1 : 0;
 }
 
 /* -----------------------------------------------------------------------

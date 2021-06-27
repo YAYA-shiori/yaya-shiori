@@ -128,6 +128,7 @@ const wchar_t	msgej[][128] = {
 	L"error E0092 : ()、もしくは[]に続く演算子が見つかりません.",
 	L"error E0093 : 不正なシングルクォーテーションです.",
 	L"error E0094 : 辞書内部で{}が不正、もしくは閉じていません.",
+	L"error E0095 : 読み込み済の辞書ファイルを再度読もうとしました.",
 };
 
 // ワーニング文字列（日本語）
@@ -292,6 +293,7 @@ const wchar_t	msgee[][256] = {
 	L"error E0092 : There was no operator which should follow () or [].",
 	L"error E0093 : Invalid singlequote exists.",
 	L"error E0094 : The parenthesis {} is invalid or has not been closed correctly.",
+	L"error E0095 : Tried to load duplicate dictionary.",
 };
 
 // ワーニング文字列（英語）
