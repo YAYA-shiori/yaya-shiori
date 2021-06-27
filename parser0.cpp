@@ -57,29 +57,36 @@ char	CParser0::Parse(int charset, const std::vector<CDic1>& dics)
 
 	int	errcount = 0;
 	
+	// すべて一旦読み込んでから…
 	for(std::vector<CDic1>::const_iterator it = dics.begin(); it != dics.end(); it++) {
 		vm.logger().Write(L"// ");
 		vm.logger().Filename(it->path);
+
 		errcount += LoadDictionary1(it->path, gdefines, it->charset);
 	}
+
+	// チェックコードを仕掛ける (関数がないエラー対策)
+	for(std::vector<CDic1>::const_iterator it = dics.begin(); it != dics.end(); it++) {
+		errcount += ParseAfterLoad(it->path);
+	}
 	
-	return bool((errcount+ParseAfterLoad()) != 0);
+	return bool(errcount != 0);
 }
 
-bool	CParser0::ParseAfterLoad()
+bool	CParser0::ParseAfterLoad(const yaya::string_t &dicfilename)
 {
 	int aret=0;
 
 	vm.logger().Message(8);
 	vm.logger().Message(9);
 
-	aret += AddSimpleIfBrace();
+	aret += AddSimpleIfBrace(dicfilename);
 
-	aret += SetCellType();
-	aret += MakeCompleteFormula();
+	aret += SetCellType(dicfilename);
+	aret += MakeCompleteFormula(dicfilename);
 
 	// 中間コード生成の後処理と検査
-	aret += vm.parser1().CheckExecutionCode();
+	aret += vm.parser1().CheckExecutionCode(dicfilename);
 
 	vm.logger().Message(8);
 
@@ -132,19 +139,50 @@ char	CParser0::ParseEmbedString(yaya::string_t& str, CStatement &st, const yaya:
 	return 0;
 }
 
-char	CParser0::LoadDictionary(const yaya::string_t& filename, int charset)
+char CParser0::LoadDictionary(const yaya::string_t& filename, int charset)
 {
-	CAyaVM* vm_backup = vm.get_a_deep_copy();
+	char t = LoadDictionary1(filename,vm.gdefines(),charset);
+	t += ParseAfterLoad(filename);
 
-	bool t = LoadDictionary1(filename,vm.gdefines(),charset) || ParseAfterLoad();
-
-	if ( t ) {
-		vm = *vm_backup;
+	if ( t != 0 ) {
+		RemoveFunctionAndDefineByName(filename);
 	}
 
-	delete vm_backup;
+	return t != 0;
+}
 
-	return t;
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CParser0::RemoveFunctionAndDefineByName
+ *  機能概要：  特定のファイル名に関係する関数とdefineを削除します
+ * -----------------------------------------------------------------------
+ */
+void	CParser0::RemoveFunctionAndDefineByName(const yaya::string_t& dicfilename)
+{
+	std::vector<CFunction> &functions = vm.function();
+	yaya::indexmap& functionmap = vm.functionmap();
+	std::vector<CFunction>::iterator itf = functions.begin();
+
+	while (itf != functions.end()) {
+		if ( itf->dicfilename == dicfilename ) {
+			functionmap.erase(itf->name);
+			itf = functions.erase(itf);
+		}
+		else {
+			++itf;
+		}
+	}
+
+	std::vector<CDefine> &gdefines = vm.gdefines();
+	std::vector<CDefine>::iterator itg = gdefines.begin();
+
+	while (itg != gdefines.end()) {
+		if ( itg->dicfilename == dicfilename ) {
+			itg = gdefines.erase(itg);
+		}
+		else {
+			++itg;
+		}
+	}
 }
 
 /* -----------------------------------------------------------------------
@@ -419,11 +457,11 @@ char	CParser0::GetPreProcess(yaya::string_t &str, std::vector<CDefine>& defines,
 
 	// 種別の判定と情報の保持
 	if (!pname.compare(L"#define")) {
-		CDefine	adddefine(bef, aft);
+		CDefine	adddefine(bef, aft, dicfilename);
 		defines.push_back(adddefine);
 	}
 	else if (!pname.compare(L"#globaldefine")) {
-		CDefine	adddefine(bef, aft);
+		CDefine	adddefine(bef, aft, dicfilename);
 		gdefines.push_back(adddefine);
 	}
 	else {
@@ -1213,9 +1251,11 @@ void	CParser0::StructFormulaCell(yaya::string_t &str, std::vector<CCell> &cells)
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser0::AddSimpleIfBrace(void)
+char	CParser0::AddSimpleIfBrace(const yaya::string_t &dicfilename)
 {
 	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+		if ( it->dicfilename != dicfilename ) { continue; }
+
 		int	beftype = ST_UNKNOWN;
 		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++) {
 			if (beftype == ST_IF ||
@@ -1244,11 +1284,13 @@ char	CParser0::AddSimpleIfBrace(void)
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser0::SetCellType(void)
+char	CParser0::SetCellType(const yaya::string_t &dicfilename)
 {
 	int	errorflg = 0;
 
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++)
+	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+		if ( it->dicfilename != dicfilename ) { continue; }
+
 		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++) {
 			// 数式以外は飛ばす
 			if (it2->type < ST_FORMULA)
@@ -1276,6 +1318,7 @@ char	CParser0::SetCellType(void)
 				}
 			}
 		}
+	}
 	
 	return (errorflg) ? 1 : 0;
 }
@@ -1440,13 +1483,13 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser0::MakeCompleteFormula(void)
+char	CParser0::MakeCompleteFormula(const yaya::string_t &dicfilename)
 {
 	int	errcount = 0;
 
-	errcount += ParseEmbeddedFactor();
-	ConvertPlainString();
-	errcount += CheckDepthAndSerialize();
+	errcount += ParseEmbeddedFactor(dicfilename);
+	ConvertPlainString(dicfilename);
+	errcount += CheckDepthAndSerialize(dicfilename);
 
 	return (errcount) ? 1 : 0;
 }
@@ -1458,13 +1501,17 @@ char	CParser0::MakeCompleteFormula(void)
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser0::ParseEmbeddedFactor(void)
+char	CParser0::ParseEmbeddedFactor(const yaya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++)
-		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++)
+	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+		if ( it->dicfilename != dicfilename ) { continue; }
+
+		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++) {
 		    errcount += ParseEmbeddedFactor1(*it2, it->dicfilename);
+		}
+	}
 
 	return (errcount) ? 1 : 0;
 }
@@ -1561,11 +1608,15 @@ char	CParser0::ParseEmbeddedFactor1(CStatement& st, const yaya::string_t& dicfil
  *  機能概要：  シングルクォート文字列を通常文字列へ置換します
  * -----------------------------------------------------------------------
  */
-void	CParser0::ConvertPlainString(void)
+void	CParser0::ConvertPlainString(const yaya::string_t& dicfilename)
 {
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++)
-		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++)
+	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+		if ( it->dicfilename != dicfilename ) { continue; }
+
+		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++) {
 		    ConvertPlainString1(*it2, it->dicfilename);
+		}
+	}
 }
 
 /* -----------------------------------------------------------------------
@@ -1767,30 +1818,38 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser0::CheckDepthAndSerialize(void)
+char	CParser0::CheckDepthAndSerialize(const yaya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
 	// 数式のカッコ検査
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++)
+	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+		if ( it->dicfilename != dicfilename ) { continue; }
+
 		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++) {
-			if (it2->type < ST_FORMULA)
+			if (it2->type < ST_FORMULA) {
 				continue;
+			}
 
 			errcount += CheckDepth1(*it2, it->dicfilename);
 		}
+	}
 
 	// whenのif変換の最終処理　仮の数式をifで処理可能な判定式に整形する
-	errcount += MakeCompleteConvertionWhenToIf();
+	errcount += MakeCompleteConvertionWhenToIf(dicfilename);
 
 	// 演算順序の決定
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++)
+	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+		if ( it->dicfilename != dicfilename ) { continue; }
+
 		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++) {
-			if (it2->type < ST_FORMULA)
+			if (it2->type < ST_FORMULA) {
 				continue;
+			}
 
 			errcount += CheckDepthAndSerialize1(*it2, it->dicfilename);
 		}
+	}
 
 	return (errcount) ? 1 : 0;
 }
@@ -1802,11 +1861,13 @@ char	CParser0::CheckDepthAndSerialize(void)
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser0::MakeCompleteConvertionWhenToIf(void)
+char	CParser0::MakeCompleteConvertionWhenToIf(const yaya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
 	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+		if ( it->dicfilename != dicfilename ) { continue; }
+
 		std::vector<yaya::string_t>	caseary;
 		yaya::string_t	dmystr = L"";
 		caseary.push_back(dmystr);
