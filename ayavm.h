@@ -26,6 +26,8 @@ class CFile;
 class CLib;
 class CParser0;
 class CParser1;
+class CDefine;
+class CAyaVM;
 
 class CAyaVM
 {
@@ -34,6 +36,8 @@ private:
 
 	std_shared_ptr< std::vector<CFunction> >	m_function;
 	std_shared_ptr< yaya::indexmap > m_functionmap;
+	
+	std_shared_ptr< std::vector<CDefine> >	m_gdefines;
 
 	std_shared_ptr<CCallDepth>				m_calldepth;
 	std_shared_ptr<CSystemFunction>			m_sysfunction;
@@ -52,7 +56,10 @@ private:
 
 public:
 	CAyaVM() {}
+	CAyaVM(CAyaVM &vm);
 	virtual ~CAyaVM() {}
+
+	CAyaVM* get_a_deep_copy();
 
 	void Load(void);
 	void Unload(void);
@@ -72,6 +79,8 @@ public:
 	// 関数/システム関数/グローバル変数
 	std::vector<CFunction>&	function();
 	yaya::indexmap& functionmap();
+
+	std::vector<CDefine>&	gdefines();
 
 	CCallDepth&				calldepth();
 	CSystemFunction&		sysfunction();

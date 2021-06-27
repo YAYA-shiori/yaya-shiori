@@ -273,6 +273,7 @@
     <ClCompile Include="ccct.cpp" />
     <ClCompile Include="comment.cpp" />
     <ClCompile Include="crc32.c" />
+    <ClCompile Include="dir_enum.cpp" />
     <ClCompile Include="duplevinfo.cpp" />
     <ClCompile Include="file.cpp" />
     <ClCompile Include="file1.cpp" />
@@ -314,6 +315,7 @@
     <ClInclude Include="cell.h" />
     <ClInclude Include="comment.h" />
     <ClInclude Include="crc32.h" />
+    <ClInclude Include="dir_enum.h" />
     <ClInclude Include="file.h" />
     <ClInclude Include="function.h" />
     <ClInclude Include="global.h" />

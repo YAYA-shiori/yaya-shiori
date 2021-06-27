@@ -60,14 +60,14 @@ std::string::size_type file_content_search(const std::string& file, const std::s
 
 	std::ifstream is(file.c_str());
 	char buf[1024];
-	int len;
+	std::streamsize len;
 
 	while (is.good()) {
 		len = is.read(buf, sizeof buf).gcount();
 		if (len == 0) {
 			break;
 		}
-		content.append(buf, len);
+		content.append(buf,(size_t)len);
 	}
 	is.close();
 

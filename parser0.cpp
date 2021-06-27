@@ -53,27 +53,37 @@ char	CParser0::Parse(int charset, const std::vector<CDic1>& dics)
 {
 	// 読み取り、構文解析、中間コードの生成
 	vm.logger().Message(3);
-	std::vector<CDefine>	gdefines;
+	std::vector<CDefine> &gdefines =vm.gdefines();
+
 	int	errcount = 0;
+	
 	for(std::vector<CDic1>::const_iterator it = dics.begin(); it != dics.end(); it++) {
 		vm.logger().Write(L"// ");
 		vm.logger().Filename(it->path);
 		errcount += LoadDictionary1(it->path, gdefines, it->charset);
 	}
+	
+	return bool((errcount+ParseAfterLoad()) != 0);
+}
+
+bool	CParser0::ParseAfterLoad()
+{
+	int aret=0;
+
 	vm.logger().Message(8);
 	vm.logger().Message(9);
 
-	errcount += AddSimpleIfBrace();
+	aret += AddSimpleIfBrace();
 
-	errcount += SetCellType();
-	errcount += MakeCompleteFormula();
+	aret += SetCellType();
+	aret += MakeCompleteFormula();
 
 	// 中間コード生成の後処理と検査
-	errcount += vm.parser1().CheckExecutionCode();
+	aret += vm.parser1().CheckExecutionCode();
 
 	vm.logger().Message(8);
 
-	return (errcount) ? 1 : 0;
+	return aret != 0;
 }
 
 /* -----------------------------------------------------------------------
@@ -120,6 +130,21 @@ char	CParser0::ParseEmbedString(yaya::string_t& str, CStatement &st, const yaya:
 		return 1;
 
 	return 0;
+}
+
+char	CParser0::LoadDictionary(const yaya::string_t& filename, int charset)
+{
+	CAyaVM* vm_backup = vm.get_a_deep_copy();
+
+	bool t = CParser0::LoadDictionary1(filename,vm.gdefines(),charset) || ParseAfterLoad();
+
+	if ( t ) {
+		vm = *vm_backup;
+	}
+
+	delete vm_backup;
+
+	return t;
 }
 
 /* -----------------------------------------------------------------------

@@ -46,7 +46,7 @@ public:
 
 	bool IsNotFound() { return is_try_find && (pos_saved == -1); }
 
-	int Find(CAyaVM &vm,yaya::char_t *name);
+	int Find(CAyaVM &vm,const yaya::char_t *name);
 };
 
 class	CBasis

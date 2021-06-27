@@ -56,10 +56,12 @@ public:
 	}
 	char	Parse(int charset, const std::vector<CDic1>& dics);
 	char	ParseEmbedString(yaya::string_t& str, CStatement &st, const yaya::string_t &dicfilename, int linecount);
+	char	LoadDictionary(const yaya::string_t& filename, int charset);
 
 	int		GetFunctionIndexFromName(const yaya::string_t& str);
 
 protected:
+	bool	ParseAfterLoad();
 	char	LoadDictionary1(const yaya::string_t& filename, std::vector<CDefine>& gdefines, int charset);
 	char	GetPreProcess(yaya::string_t& str, std::vector<CDefine>& defines, std::vector<CDefine>& gdefines, const yaya::string_t& dicfilename,
 					int linecount);

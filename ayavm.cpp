@@ -39,6 +39,41 @@
 #endif
 ////////////////////////////////////////
 
+/*-----------------------------------------------
+	コピーコンストラクタ
+	shared_ptrをディープコピーする点に注意
+-----------------------------------------------*/
+
+template<class T> void shared_ptr_deep_copy(std_shared_ptr<T> &in,std_shared_ptr<T> &out) {
+	out.reset(new T(*in));
+}
+
+CAyaVM::CAyaVM(CAyaVM &ovm)
+{
+	#define copy_new(name) shared_ptr_deep_copy(ovm.name,name);
+	copy_new(m_basis);
+	copy_new(m_function);
+	copy_new(m_functionmap);
+	copy_new(m_gdefines);
+	copy_new(m_calldepth);
+	copy_new(m_sysfunction);
+	copy_new(m_variable);
+	copy_new(m_files);
+	copy_new(m_libs);
+	copy_new(m_parser0);
+	copy_new(m_parser1);
+	#undef copy_new
+
+	m_logger = ovm.m_logger;
+	rs_sysfunc = ovm.rs_sysfunc;
+	rs_internal = ovm.rs_internal;
+}
+
+CAyaVM* CAyaVM::get_a_deep_copy()
+{
+	CAyaVM *nvm = new CAyaVM(*this);
+	return nvm;
+}
 
 /*-----------------------------------------------
 	初期化
@@ -127,6 +162,8 @@ void CAyaVM::genrand_sysfunc_srand_array(const unsigned long a[],const int n)
 
 
 FACTORY_DEFINE_PLAIN(yaya::indexmap,functionmap)
+
+FACTORY_DEFINE_PLAIN(std::vector<CDefine>,gdefines)
 
 FACTORY_DEFINE_THIS(CBasis,basis)
 

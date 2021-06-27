@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include <stack>
+//#include <filesystem>
 
 #include "fix_unistd.h"
 
@@ -45,6 +46,7 @@
 #include "globaldef.h"
 #include "wsex.h"
 #include "ayavm.h"
+#include "dir_enum.h"
 
 //////////DEBUG/////////////////////////
 #ifdef _WINDOWS
@@ -430,6 +432,29 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 			}
 		}
 		dics->push_back(CDic1(filename,cset));
+		return true;
+	}
+	// dicdir
+	if ( cmd.compare(L"dicdir") == 0 && dics) {
+		yaya::string_t param1,param2;
+		Split(param, param1, param2, L",");
+
+		yaya::string_t dirname = load_path + param1;
+
+		CDirEnum ef(dirname);
+		CDirEnumEntry entry;
+
+		while ( ef.next(entry) ) {
+			yaya::string_t relpath_and_cs = param1 + L"\\" + entry.name + L"," + param2;
+
+			if ( entry.isdir ) {
+				SetParameter(L"dicdir",relpath_and_cs,dics);
+			}
+			else {
+				SetParameter(L"dic",relpath_and_cs,dics);
+			}
+		}
+
 		return true;
 	}
 	// log
@@ -1185,7 +1210,7 @@ void	CBasis::ExecuteUnload(void)
  *  機能概要：  関数位置を探し、位置と「探したかどうか」をキャッシュします
  * -----------------------------------------------------------------------
  */
-int CBasisFuncPos::Find(CAyaVM &vm,yaya::char_t *name)
+int CBasisFuncPos::Find(CAyaVM &vm,const yaya::char_t *name)
 {
 	if ( is_try_find ) {
 		return pos_saved;
