@@ -105,6 +105,9 @@
     <ClCompile Include="wsex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dir_enum.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="aya5.rc">
@@ -197,6 +200,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="wsex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dir_enum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

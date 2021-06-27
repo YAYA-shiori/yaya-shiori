@@ -53,17 +53,23 @@ char	CParser0::Parse(int charset, const std::vector<CDic1>& dics)
 {
 	// 読み取り、構文解析、中間コードの生成
 	vm.logger().Message(3);
-	auto&gdefines =vm.gdefines();
+	std::vector<CDefine> &gdefines =vm.gdefines();
+
 	int	errcount = 0;
+	
 	for(std::vector<CDic1>::const_iterator it = dics.begin(); it != dics.end(); it++) {
 		vm.logger().Write(L"// ");
 		vm.logger().Filename(it->path);
 		errcount += LoadDictionary1(it->path, gdefines, it->charset);
 	}
-	return bool(errcount+ParseAfterLoad());
+	
+	return bool((errcount+ParseAfterLoad()) != 0);
 }
-bool	CParser0::ParseAfterLoad(){
+
+bool	CParser0::ParseAfterLoad()
+{
 	int aret=0;
+
 	vm.logger().Message(8);
 	vm.logger().Message(9);
 
@@ -77,7 +83,7 @@ bool	CParser0::ParseAfterLoad(){
 
 	vm.logger().Message(8);
 
-	return aret;
+	return aret != 0;
 }
 
 /* -----------------------------------------------------------------------
@@ -126,13 +132,21 @@ char	CParser0::ParseEmbedString(yaya::string_t& str, CStatement &st, const yaya:
 	return 0;
 }
 
-char	CParser0::LoadDictionary(const yaya::string_t& filename, int charset){
-	auto vm_backup=vm.get_a_deep_copy();
-	bool t=CParser0::LoadDictionary1(filename,gdefines,charset) || ParseAfterLoad();
-	if(t)
-		vm=vm_backup;
+char	CParser0::LoadDictionary(const yaya::string_t& filename, int charset)
+{
+	CAyaVM* vm_backup = vm.get_a_deep_copy();
+
+	bool t = CParser0::LoadDictionary1(filename,vm.gdefines(),charset) || ParseAfterLoad();
+
+	if ( t ) {
+		vm = *vm_backup;
+	}
+
+	delete vm_backup;
+
 	return t;
 }
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CParser0::LoadDictionary1
  *  機能概要：  一つの辞書ファイルを読み取り、大雑把に構文を解釈して蓄積していきます

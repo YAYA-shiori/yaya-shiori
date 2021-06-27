@@ -32,7 +32,6 @@
 #include <math.h>
 #include <stdio.h>
 #if defined(POSIX)
-# include <dirent.h>
 # include <sys/stat.h>
 # include <sys/time.h>
 #endif
@@ -62,6 +61,7 @@
 #include "value.h"
 #include "variable.h"
 #include "wsex.h"
+#include "dir_enum.h"
 
 extern "C" {
 #define PROTOTYPES 1
@@ -3135,9 +3135,10 @@ CValue	CSystemFunction::DICLOAD(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	yaya::string_t fullpath = ToFullPath(arg.array()[0].s_value);
-	char cset = dic_charset;
-	if ( arg.array()[1].size() ) {
-		char cx = Ccct::CharsetTextToID(arg.array()[1].c_str());
+	char cset = vm.basis().GetDicCharset();
+
+	if ( arg.array()[1].s_value.size() ) {
+		char cx = Ccct::CharsetTextToID(arg.array()[1].s_value.c_str());
 		if ( cx != CHARSET_DEFAULT ) {
 			cset = cx;
 		}
@@ -3225,7 +3226,6 @@ CValue CSystemFunction::FSIZE(const CValue &arg, yaya::string_t &d, int &l) {
  *  関数名  ：  CSystemFunction::FENUM
  * -----------------------------------------------------------------------
  */
-#if defined(WIN32)
 CValue	CSystemFunction::FENUM(const CValue &arg, yaya::string_t &d, int &l)
 {
 	int	sz = arg.array_size();
@@ -3255,118 +3255,21 @@ CValue	CSystemFunction::FENUM(const CValue &arg, yaya::string_t &d, int &l)
 		}
 	}
 
-	// パスをMBCSに変換
-	yaya::string_t tmp_str = arg.array()[0].s_value + L"\\*.*";
-	char	*s_filestr = Ccct::Ucs2ToMbcs(ToFullPath(tmp_str), CHARSET_DEFAULT);
-	if (s_filestr == NULL) {
-		vm.logger().Error(E_E, 89, L"FENUM", d, l);
-		return CValue();
-	}
-
-	// 実行
+	CDirEnum ef(ToFullPath(arg.array()[0].s_value));
+	CDirEnumEntry entry;
+	int count = 0;
 	CValue result(F_TAG_STRING,0);
-	HANDLE hFile;
-	WIN32_FIND_DATA	w32FindData;
-	hFile = FindFirstFile(s_filestr, &w32FindData);
-	free(s_filestr);
-	s_filestr = NULL;
-	if(hFile != INVALID_HANDLE_VALUE) {
-		int i = 0;
-		do {
-			// 1つ取得
-			std::string	t_file =w32FindData.cFileName;
-			// もし"."or".."なら飛ばす
-			if (!t_file.compare(".") || !t_file.compare(".."))
-				continue;
-			// UCS2へ変換
-			yaya::char_t	*t_wfile = Ccct::MbcsToUcs2(t_file, CHARSET_DEFAULT);
-			if (t_wfile == NULL)
-				continue;
-			// 追加
-			if (i)
-				result.s_value += delimiter;
-			if (w32FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-				result.s_value +=  L"\\";
-			result.s_value +=  t_wfile;
-			free(t_wfile);
-			t_wfile = NULL;
-			i++;
-		}
-		while(FindNextFile(hFile, &w32FindData));
 
-		FindClose(hFile);
+	while ( ef.next(entry) ) {
+		if ( count ) { result.s_value += delimiter; }
+		if ( entry.isdir ) { result.s_value +=  L"\\"; }
+		result.s_value += entry.name;
+
+		count += 1;
 	}
 
-	return CValue(result);
-}
-#elif defined(POSIX)
-CValue CSystemFunction::FENUM(const CValue &arg, yaya::string_t &d, int &l) {
-    int	sz = arg.array_size();
-    
-    if (!sz) {
-	vm.logger().Error(E_W, 8, L"FENUM", d, l);
-	SetError(8);
-	return CValue();
-    }
-    
-    if (!arg.array()[0].IsString()) {
-	vm.logger().Error(E_W, 9, L"FENUM", d, l);
-	SetError(9);
-	return CValue();
-    }
-    
-    // デリミタ取得
-    yaya::string_t delimiter = VAR_DELIMITER;
-    if (sz >= 2) {
-	if (arg.array()[1].IsString() &&
-	    arg.array()[1].s_value.size()) {
-	    delimiter = arg.array()[1].s_value;
-	}
-	else {
-	    vm.logger().Error(E_W, 9, L"FENUM", d, l);
-	    SetError(9);
-	    return CValue();
-	}
-    }
-
-	std::string path = narrow(ToFullPath(arg.array()[0].s_value));
-    fix_filepath(path);
-
-    // 実行
-	CValue result(F_TAG_STRING,0);
-    DIR* dh = opendir(path.c_str());
-    if (dh == NULL) {
 	return result;
-    }
-    bool first_entry = true;
-    while (true) {
-	struct dirent* ent = readdir(dh);
-	if (ent == NULL) {
-	    break; // もう無い。
-	}
-	
-	std::string name(ent->d_name, strlen(ent->d_name)/*ent->d_namlen*/);	// by umeici. 2005/1/16 5.6.0.232
-	if (name == "." || name == "..") {
-	    continue; // .と..は飛ばす
-	}
-	if (!first_entry) {
-	    result.s_value += delimiter;
-	}
-	first_entry = false;
-
-	struct stat sb;
-	if (stat((path+'/'+name).c_str(), &sb) == 0) {
-	    if (sb.st_mode & S_IFDIR) {
-		name.insert(name.begin(), '\\');
-	    }
-	}
-	result.s_value += widen(name);
-    }
-    closedir(dh);
-
-    return CValue(result);
 }
-#endif
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::FCHARSET
@@ -3784,9 +3687,11 @@ CValue	CSystemFunction::GETSECCOUNT(const CValue &arg, yaya::string_t &d, int &l
 		return CValue((int)ltime);
 	}
 
-	struct tm input_time{};
+	struct tm input_time = {0};
+
 	time(&ltime);
 	struct tm *today = localtime(&ltime);
+
 	if ( today ) {
 		input_time = *today;
 		input_time.tm_yday = 0;

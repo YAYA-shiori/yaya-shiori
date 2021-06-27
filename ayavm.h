@@ -26,6 +26,8 @@ class CFile;
 class CLib;
 class CParser0;
 class CParser1;
+class CDefine;
+class CAyaVM;
 
 class CAyaVM
 {
@@ -54,9 +56,10 @@ private:
 
 public:
 	CAyaVM() {}
+	CAyaVM(CAyaVM &vm);
 	virtual ~CAyaVM() {}
 
-	CAyaVM get_a_deep_copy();
+	CAyaVM* get_a_deep_copy();
 
 	void Load(void);
 	void Unload(void);

@@ -208,6 +208,10 @@ SOURCE=.\crc32.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\dir_enum.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\duplevinfo.cpp
 # End Source File
 # Begin Source File
@@ -349,6 +353,10 @@ SOURCE=.\comment.h
 # Begin Source File
 
 SOURCE=.\crc32.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dir_enum.h
 # End Source File
 # Begin Source File
 

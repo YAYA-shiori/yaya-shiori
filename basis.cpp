@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 #include <stack>
-#include <filesystem>
+//#include <filesystem>
 
 #include "fix_unistd.h"
 
@@ -46,6 +46,7 @@
 #include "globaldef.h"
 #include "wsex.h"
 #include "ayavm.h"
+#include "dir_enum.h"
 
 //////////DEBUG/////////////////////////
 #ifdef _WINDOWS
@@ -438,15 +439,22 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		yaya::string_t param1,param2;
 		Split(param, param1, param2, L",");
 
-		yaya::string_t	dirname = load_path + param1;
+		yaya::string_t dirname = load_path + param1;
 
-		using namespace std::filesystem;
+		CDirEnum ef(dirname);
+		CDirEnumEntry entry;
 
-		for(auto&L : recursive_directory_iterator(dirname))
-			if directory_entry(L).is_directory()
-				SetParameter("dicdir",param1+L+","+param2,dics);
-			else
-				SetParameter("dic",param1+L+","+param2,dics);
+		while ( ef.next(entry) ) {
+			yaya::string_t relpath_and_cs = param1 + L"\\" + entry.name + L"," + param2;
+
+			if ( entry.isdir ) {
+				SetParameter(L"dicdir",relpath_and_cs,dics);
+			}
+			else {
+				SetParameter(L"dic",relpath_and_cs,dics);
+			}
+		}
+
 		return true;
 	}
 	// log
