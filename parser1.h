@@ -43,7 +43,7 @@ public:
 		; //NOOP
 	}
 
-	char	CheckExecutionCode(void);
+	char	CheckExecutionCode(const yaya::string_t& dicfilename);
 	char	CheckExecutionCode1(CStatement& st, const yaya::string_t& dicfilename);
 
 protected:
@@ -51,13 +51,13 @@ protected:
 	char	CheckSubstSyntax(CStatement& st, const yaya::string_t& dicfilename);
 	char	CheckFeedbackOperatorPos(CStatement& st, const yaya::string_t& dicfilename);
 	char	SetFormulaType(CStatement& st, const yaya::string_t& dicfilename);
-	char	SetBreakJumpNo(void);
-	char	CheckCaseSyntax(void);
-	char	CheckIfSyntax(void);
-	char	CheckElseSyntax(void);
-	char	CheckForSyntax(void);
-	char	CheckForeachSyntax(void);
-	char	SetIfJumpNo(void);
+	char	SetBreakJumpNo(const yaya::string_t& dicfilename);
+	char	CheckCaseSyntax(const yaya::string_t& dicfilename);
+	char	CheckIfSyntax(const yaya::string_t& dicfilename);
+	char	CheckElseSyntax(const yaya::string_t& dicfilename);
+	char	CheckForSyntax(const yaya::string_t& dicfilename);
+	char	CheckForeachSyntax(const yaya::string_t& dicfilename);
+	char	SetIfJumpNo(const yaya::string_t& dicfilename);
 	char	CheckFunctionArgument(CStatement& st, const yaya::string_t& dicfilename);
 
 	void	CompleteSetting(void);

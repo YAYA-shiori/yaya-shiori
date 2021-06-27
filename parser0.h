@@ -25,11 +25,11 @@ class	CDefine
 public:
 	yaya::string_t	before;
 	yaya::string_t	after;
+	yaya::string_t	dicfilename;
 public:
-	CDefine(yaya::string_t &bef, yaya::string_t &aft)
+	CDefine(const yaya::string_t &bef, const yaya::string_t &aft, const yaya::string_t &df) : 
+	  before(bef) , after(aft) , dicfilename(df)
 	{
-		before = bef;
-		after  = aft;
 	}
 
 	CDefine(void) {}
@@ -61,7 +61,7 @@ public:
 	int		GetFunctionIndexFromName(const yaya::string_t& str);
 
 protected:
-	bool	ParseAfterLoad();
+	bool	ParseAfterLoad(const yaya::string_t &dicfilename);
 	char	LoadDictionary1(const yaya::string_t& filename, std::vector<CDefine>& gdefines, int charset);
 	char	GetPreProcess(yaya::string_t& str, std::vector<CDefine>& defines, std::vector<CDefine>& gdefines, const yaya::string_t& dicfilename,
 					int linecount);
@@ -79,21 +79,23 @@ protected:
 	char	StructFormula(yaya::string_t &str, std::vector<CCell> &cells, const yaya::string_t& dicfilename, int linecount);
 	void	StructFormulaCell(yaya::string_t &str, std::vector<CCell> &cells);
 
-	char	AddSimpleIfBrace(void);
+	char	AddSimpleIfBrace(const yaya::string_t &dicfilename);
 
-	char	SetCellType(void);
+	char	SetCellType(const yaya::string_t &dicfilename);
 	char	SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfilename, int linecount);
 
-	char	MakeCompleteFormula(void);
-	char	ParseEmbeddedFactor(void);
+	char	MakeCompleteFormula(const yaya::string_t &dicfilename);
+	char	ParseEmbeddedFactor(const yaya::string_t& dicfilename);
 	char	ParseEmbeddedFactor1(CStatement& st, const yaya::string_t& dicfilename);
-	void	ConvertPlainString(void);
+	void	ConvertPlainString(const yaya::string_t& dicfilename);
 	void	ConvertPlainString1(CStatement& st, const yaya::string_t& dicfilename);
 	char	ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::string_t& dicfilename, int linecount);
-	char	CheckDepthAndSerialize(void);
+	char	CheckDepthAndSerialize(const yaya::string_t& dicfilename);
 	char	CheckDepth1(CStatement& st, const yaya::string_t& dicfilename);
 	char	CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dicfilename);
-	char	MakeCompleteConvertionWhenToIf(void);
+	char	MakeCompleteConvertionWhenToIf(const yaya::string_t& dicfilename);
+
+	void	RemoveFunctionAndDefineByName(const yaya::string_t& dicfilename);
 };
 
 //----
