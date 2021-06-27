@@ -42,8 +42,6 @@
 void	CFunction::CompleteSetting(void)
 {
 	statelenm1 = statement.size() - 1;
-
-	std::vector<CStatement>(statement).swap(statement);
 }
 
 /* -----------------------------------------------------------------------

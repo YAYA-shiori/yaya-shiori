@@ -32,7 +32,7 @@ public:
 public:
 	CSerial(int t) { tindex = t; }
 
-	CSerial(void) {}
+	CSerial(void) { tindex = 0;  }
 	~CSerial(void) {}
 };
 

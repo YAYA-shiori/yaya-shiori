@@ -136,7 +136,7 @@ char	CParser0::LoadDictionary(const yaya::string_t& filename, int charset)
 {
 	CAyaVM* vm_backup = vm.get_a_deep_copy();
 
-	bool t = CParser0::LoadDictionary1(filename,vm.gdefines(),charset) || ParseAfterLoad();
+	bool t = LoadDictionary1(filename,vm.gdefines(),charset) || ParseAfterLoad();
 
 	if ( t ) {
 		vm = *vm_backup;

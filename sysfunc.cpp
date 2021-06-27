@@ -91,7 +91,7 @@ extern "C" {
 #endif
 #endif
 
-#define	SYSFUNC_NUM					138 //システム関数の全数
+#define	SYSFUNC_NUM					139 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -290,6 +290,8 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"FWRITEDECODE",
 	// デバッグ用(4)
 	L"GETERRORLOG",
+	// 特殊(9)
+	L"DICLOAD",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -693,6 +695,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return FWRITEDECODE(arg, d, l);
 	case 137:
 		return GETERRORLOG(arg, d, l);
+	case 138:
+		return DICLOAD(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -3137,7 +3141,7 @@ CValue	CSystemFunction::DICLOAD(const CValue &arg, yaya::string_t &d, int &l)
 	yaya::string_t fullpath = ToFullPath(arg.array()[0].s_value);
 	char cset = vm.basis().GetDicCharset();
 
-	if ( arg.array()[1].s_value.size() ) {
+	if ( arg.array_size() >= 2 && arg.array()[1].s_value.size() ) {
 		char cx = Ccct::CharsetTextToID(arg.array()[1].s_value.c_str());
 		if ( cx != CHARSET_DEFAULT ) {
 			cset = cx;
