@@ -94,9 +94,10 @@ CBasis::CBasis(CAyaVM &vmr) : vm(vmr)
  *  ついでにモジュールの主ファイル名取得も行います
  * -----------------------------------------------------------------------
  */
-void	CBasis::SetModuleName(const yaya::string_t &s,const yaya::char_t *trailer)
+void	CBasis::SetModuleName(const yaya::string_t &s,const yaya::char_t *trailer,const yaya::char_t *mode)
 {
 	modulename = s;
+	modename = mode;
 
 	if ( trailer ) {
 		config_file_name_trailer = trailer;

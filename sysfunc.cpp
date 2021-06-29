@@ -5459,20 +5459,23 @@ CValue	CSystemFunction::GETSETTING(const CValue &arg, yaya::string_t &d, int &l)
 	if (arg.array()[0].IsString()) {
 		const yaya::string_t str = arg.array()[0].GetValueString();
 		
-		if ( !str.compare(L"coreinfo.version") ) {
+		if ( str.compare(L"coreinfo.version") == 0 ) {
 			return CValue(yaya::string_t(aya_version));
 		}
-		if ( !str.compare(L"coreinfo.path") ) {
+		if ( str.compare(L"coreinfo.path") == 0 ) {
 			return CValue(vm.basis().GetRootPath());
 		}
-		if ( !str.compare(L"coreinfo.name") ) {
+		if ( str.compare(L"coreinfo.name") == 0 ) {
 			return CValue(yaya::string_t(aya_name));
 		}
-		if ( !str.compare(L"coreinfo.author") ) {
+		if ( str.compare(L"coreinfo.author") == 0 ) {
 			return CValue(yaya::string_t(aya_author));
 		}
-		if ( !str.compare(L"coreinfo.savefile") ) {
+		if ( str.compare(L"coreinfo.savefile") == 0 ) {
 			return CValue(vm.basis().GetSavefilePath());
+		}
+		if ( str.compare(L"coreinfo.mode") == 0 ) {
+			return CValue(vm.basis().GetModeName());
 		}
 
 		return vm.basis().GetParameter(str);

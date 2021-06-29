@@ -46,7 +46,7 @@ public:
 	CAyaVMWrapper(const yaya::string_t &path, yaya::global_t h, long len) {
 		vm = new CAyaVM();
 
-		vm->basis().SetModuleName(modulename);
+		vm->basis().SetModuleName(modulename,L"",L"normal");
 
 		vm->Load();
 
@@ -58,7 +58,7 @@ public:
 
 			CAyaVM *vme = new CAyaVM();
 
-			vme->basis().SetModuleName(modulename,L"_emerg");
+			vme->basis().SetModuleName(modulename,L"_emerg",L"emergency");
 
 			vme->Load();
 

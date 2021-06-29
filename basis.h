@@ -76,6 +76,7 @@ protected:
 	yaya::string_t	logpath;				// ログファイルのパス
 	yaya::string_t	modulename;				// モジュールの主ファイル名（例えばa.dllの場合は"a"）
 	yaya::string_t  config_file_name_trailer;  // 主設定ファイル名生成時のトレイラー(通常は空)
+	yaya::string_t	modename;				// 現在のモード (emergency or normal)
 	char	suppress;				// 自律動作抑止（構文解析でエラーが起きた際に動作をマスクするために使用します）
 	char	checkparser;			// 構文解析結果のログへの記録を指示するフラグ
 	char	iolog;					// 入出力のログへの記録を指示するフラグ
@@ -95,7 +96,7 @@ public:
 
 	char	IsRun(void) { return run; }
 
-	void	SetModuleName(const yaya::string_t &s,const yaya::char_t *trailer = NULL);
+	void	SetModuleName(const yaya::string_t &s,const yaya::char_t *trailer,const yaya::char_t *mode);
 #if defined(WIN32) || defined(_WIN32_WCE)
 	void	SetLogRcvWnd(long hwnd);
 #endif
@@ -112,6 +113,7 @@ public:
 	char	GetDicCharset(void)  { return dic_charset; }
 	const yaya::string_t& GetRootPath(void) const { return load_path;    }
 	yaya::string_t GetSavefilePath(void) const { return load_path + modulename + L"_variable.cfg"; }
+	const yaya::char_t* GetModeName(void) const { return modename.c_str(); }
 
 	void	ExecuteLoad(void);
 	yaya::global_t	ExecuteRequest(yaya::global_t h, long *len, bool is_debug);
