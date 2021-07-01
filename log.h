@@ -28,7 +28,6 @@ class	CLog
 protected:
 	yaya::string_t		path;		// ログファイルのパス
 	int			charset;	// 文字コードセット
-	int			msglang;	// メッセージの言語
 #if defined(WIN32)
 	HWND		hWnd;		// チェックツールのHWND
 #endif

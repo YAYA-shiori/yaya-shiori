@@ -69,7 +69,6 @@ CBasis::CBasis(CAyaVM &vmr) : vm(vmr)
 
 	checkparser = 0;
 	iolog       = 1;
-	msglang     = MSGLANG_JAPANESE;
 
 	dic_charset       = CHARSET_SJIS;
 	output_charset    = CHARSET_UTF8;
@@ -196,7 +195,7 @@ void	CBasis::SetLogRcvWnd(long hwnd)
  */
 void CBasis::SetLogger(void)
 {
-	vm.logger().Start(logpath, output_charset, msglang, hlogrcvWnd, iolog);
+	vm.logger().Start(logpath, output_charset, hlogrcvWnd, iolog);
 }
 
 /* -----------------------------------------------------------------------
@@ -483,14 +482,6 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		auto_save = param.compare(L"off") != 0;
 		return true;
 	}
-	// エラーメッセージ言語
-	if ( cmd.compare(L"msglang") == 0 ) {
-		if (!param.compare(L"english"))
-			msglang = MSGLANG_ENGLISH;
-		else
-			msglang = MSGLANG_JAPANESE;
-		return true;
-	}
 	// charset
 	if ( cmd.compare(L"charset") == 0 ) {
 		dic_charset       = Ccct::CharsetTextToID(param.c_str());
@@ -567,10 +558,6 @@ yaya::string_t CBasis::GetParameter(const yaya::string_t &cmd)
 	// save.auto
 	else if (!cmd.compare(L"save.auto")) {
 		return yaya::string_t(auto_save ? L"on" : L"off");
-	}
-	// msglang
-	else if (!cmd.compare(L"msglang")) {
-		return yaya::string_t(msglang == MSGLANG_ENGLISH ? L"english" : L"japanese");
 	}
 	// charset
 	else if (!cmd.compare(L"charset")) {
