@@ -13,7 +13,8 @@
 #define	MESSAGESH
 
 //----
-
+#include <vector>
+#include <string>
 // メッセージ種別
 #define	E_I			0	/* 標準のメッセージ */
 #define	E_F			1	/* フェータルエラー */
@@ -25,13 +26,17 @@
 #define	E_UTF8		17	/* マルチバイト文字コード＝UTF-8 */
 #define	E_DEFAULT	32	/* マルチバイト文字コード＝OSデフォルトのコード */
 
+void LoadMassageFromTxt(const yaya::string_t &file,char cset){
+	//some code
+}
+typedef std::vector<std::wstring> MassageArray;
 // フェータルエラー文字列（日本語）
-const wchar_t	msgf[][] = {
+MassageArray msgf={
 	L"",
 };
 
 // エラー文字列（日本語）
-const wchar_t	msge[][] = {
+MassageArray msg= {
 	L"error E0000 : 未知のエラーです.",
 	L"error E0001 : 対応する関数名が見つかりません.",
 	L"error E0002 : '}' 過多です.",
@@ -131,7 +136,7 @@ const wchar_t	msge[][] = {
 };
 
 // ワーニング文字列（日本語）
-const wchar_t	msgw[][] = {
+MassageArray msgw = {
 	L"warning W0000 : 文法エラー. この行は無視します.",
 	L"warning W0001 : この行の変数の復元に失敗しました. この行を解析できません.",
 	L"warning W0002 : この行の変数の復元に失敗しました. 変数名を取得できませんでした.",
@@ -158,13 +163,13 @@ const wchar_t	msgw[][] = {
 };
 
 // 注記文字列（日本語）
-const wchar_t	msgn[][] = {
+MassageArray msgn = {
 	L"note N0000 : 前回実行時の変数値の復元は行われませんでした.",
 	L"note N0001 : 無効な文字コードセットが指定されました. OSのデフォルト値を使用します.",
 };
 
 // その他のログ文字列（日本語）
-const wchar_t	msgj[][] = {
+MassageArray msgj = {
 	L"// 文　リクエストログ\n// load 時刻 : ",
 	L"// unload 時刻 : ",
 	L"",	// 欠番
@@ -178,3 +183,5 @@ const wchar_t	msgj[][] = {
 	L"// 辞書エラーを検出：緊急モードで再読み込み中...\n",
 	L"// 辞書エラーを検出：緊急モードで再読み込みしました\n",
 };
+
+#endif

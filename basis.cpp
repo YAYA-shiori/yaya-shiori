@@ -457,6 +457,19 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 
 		return true;
 	}
+	// massagetxt
+	if ( cmd.compare(L"massagetxt") == 0 ) {//本土化
+		Split(param, param1, param2, L",");
+		char cset = extension_charset;
+		if ( param2.size() ) {
+			char cx = Ccct::CharsetTextToID(param2.c_str());
+			if ( cx != CHARSET_DEFAULT ) {
+				cset = cx;
+			}
+		}
+		LoadMassageFromTxt(param1,cset);
+		return true;
+	}
 	// log
 	if ( cmd.compare(L"log") == 0 ) {
 		if ( param.empty() ) {
