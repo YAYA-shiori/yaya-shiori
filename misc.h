@@ -80,30 +80,20 @@ inline bool IsSpace(const aya::char_t &c) {
 
 // 関数呼び出しの深さを検査するためのクラス
 
-#define	CALLDEPTH_MAX	32	/* 呼び出し深さ上限のデフォルト値 */
-
 class	CCallDepth
 {
 protected:
-	int	depth;
-	int	maxdepth;
+	size_t	depth;
 	std::vector<aya::string_t> stack;
 
 public:
-	CCallDepth(void) { depth = 0; maxdepth = CALLDEPTH_MAX; }
-
-	void	SetMaxDepth(int value) { maxdepth = value; }
-	int 	GetMaxDepth(void) { return maxdepth; }
+	CCallDepth(void) { depth = 0; }
 
 	void	Init(void) { depth = 0; }
 
-	char	Add(const aya::string_t &str) {
-		if (maxdepth && depth > maxdepth)
-			return 0;
-
+	void	Add(const aya::string_t &str) {
 		depth++;
 		stack.push_back(str);
-		return 1;
 	}
 
 	void	Del(void) {

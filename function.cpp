@@ -62,10 +62,7 @@ int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
 	lvar.SetValue(L"_argc", t_argc);
 
 	// ŽÀs
-	if (!pvm->calldepth().Add(name)) {
-		result.SetType(F_TAG_VOID);
-		return exitcode;
-	}
+	pvm->calldepth().Add(name);
 	ExecuteInBrace(0, result, lvar, BRACE_DEFAULT, exitcode);
 	pvm->calldepth().Del();
 

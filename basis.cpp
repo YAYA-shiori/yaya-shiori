@@ -517,12 +517,6 @@ bool CBasis::SetParameter(const aya::string_t &cmd, const aya::string_t &param, 
 		extension_charset = Ccct::CharsetTextToID(param.c_str());
 		return true;
 	}
-	// fncdepth
-	if ( cmd.compare(L"fncdepth") == 0 ) {
-		int	f_depth = aya::ws_atoi(param, 10);
-		vm.calldepth().SetMaxDepth((f_depth < 2 && f_depth != 0) ? 2 : f_depth);
-		return true;
-	}
 	// checkparser closed function
 	if ( cmd.compare(L"checkparser") == 0 ) {
 		checkparser = param.compare(L"on") == 0;
@@ -581,11 +575,6 @@ aya::string_t CBasis::GetParameter(const aya::string_t &cmd)
 	}
 	else if (!cmd.compare(L"charset.extension")) {
 		return Ccct::CharsetIDToTextW(extension_charset);
-	}
-	// fncdepth
-	else if (!cmd.compare(L"fncdepth")) {
-		aya::string_t str;
-		return aya::ws_itoa(vm.calldepth().GetMaxDepth(),10);
 	}
 	return L"";
 }
