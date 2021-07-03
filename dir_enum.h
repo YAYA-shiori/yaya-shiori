@@ -28,7 +28,7 @@
 class CDirEnumEntry
 {
 public:
-	yaya::string_t name;
+	aya::string_t name;
 	bool isdir;
 };
 
@@ -41,10 +41,10 @@ private:
 	DIR* dh;
 #endif
 	bool is_init;
-	yaya::string_t enumpath;
+	aya::string_t enumpath;
 
 public:
-	CDirEnum(const yaya::string_t &enumpath);
+	CDirEnum(const aya::string_t &enumpath);
 	~CDirEnum();
 
 	bool next(CDirEnumEntry &entry);

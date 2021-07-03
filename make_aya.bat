@@ -1,19 +1,19 @@
 del *.bak
 mkdir tmp\
 
-del /F /S /Q tmp\yaya\*
+del /F /S /Q tmp\aya\*
 
-mkdir tmp\yaya\
-copy /B /Y .\Release\yaya.dll tmp\yaya\yaya.dll
-rem copy /B /Y .\Release_EXE\yaya.exe tmp\yaya\yaya.exe
-copy /B /Y .\readme.txt tmp\yaya\readme.txt
-copy /B /Y .\readme-original.txt tmp\yaya\readme-original.txt
-rem upx --best tmp\yaya\yaya.dll
-rem upx --best tmp\yaya\yaya.exe
+mkdir tmp\aya\
+copy /B /Y .\Release\aya.dll tmp\aya\aya.dll
+rem copy /B /Y .\Release_EXE\aya.exe tmp\aya\aya.exe
+copy /B /Y .\readme.txt tmp\aya\readme.txt
+copy /B /Y .\readme-original.txt tmp\aya\readme-original.txt
+rem upx --best tmp\aya\aya.dll
+rem upx --best tmp\aya\aya.exe
 
-del /F /S /Q tmp\yaya.zip
+del /F /S /Q tmp\aya.zip
 
-chdir tmp\yaya\
-zip -r -9 -q ..\yaya.zip *
+chdir tmp\aya\
+zip -r -9 -q ..\aya.zip *
 chdir ..\..
 

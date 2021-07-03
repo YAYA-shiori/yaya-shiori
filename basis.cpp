@@ -93,7 +93,7 @@ CBasis::CBasis(CAyaVM &vmr) : vm(vmr)
  *  ついでにモジュールの主ファイル名取得も行います
  * -----------------------------------------------------------------------
  */
-void	CBasis::SetModuleName(const yaya::string_t &s,const yaya::char_t *trailer,const yaya::char_t *mode)
+void	CBasis::SetModuleName(const aya::string_t &s,const aya::char_t *trailer,const aya::char_t *mode)
 {
 	modulename = s;
 	modename = mode;
@@ -112,7 +112,7 @@ void	CBasis::SetModuleName(const yaya::string_t &s,const yaya::char_t *trailer,c
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32) || defined(_WIN32_WCE)
-void	CBasis::SetPath(yaya::global_t h, int len)
+void	CBasis::SetPath(aya::global_t h, int len)
 {
 	// 取得と領域開放
 	std::string	mbpath;
@@ -133,7 +133,7 @@ void	CBasis::SetPath(yaya::global_t h, int len)
 	wcpath = NULL;
 }
 #elif defined(POSIX)
-void	CBasis::SetPath(yaya::global_t h, int len)
+void	CBasis::SetPath(aya::global_t h, int len)
 {
     // 取得と領域開放
     path = widen(std::string(h, static_cast<std::string::size_type>(len)));
@@ -145,9 +145,9 @@ void	CBasis::SetPath(yaya::global_t h, int len)
     }
     // モジュールハンドルの取得は出来ないので、力技で位置を知る。
     // このディレクトリにある全ての*.dll(case insensitive)を探し、
-    // 中身にyaya.dllという文字列を含んでいたら、それを選ぶ。
+    // 中身にaya.dllという文字列を含んでいたら、それを選ぶ。
     // ただし対応する*.txtが無ければdllの中身は見ずに次へ行く。
-    modulename = L"yaya";
+    modulename = L"aya";
     DIR* dh = opendir(narrow(path).c_str());
     if (dh == NULL) {
 		std::cerr << narrow(path) << "is not a directory!" << std::endl;
@@ -164,8 +164,8 @@ void	CBasis::SetPath(yaya::global_t h, int len)
 	    struct stat sb;
 	    if (::stat(txt_file.c_str(), &sb) == 0) {
 		// txtファイルがあるので、中身を見てみる。
-		if (file_content_search(narrow(path) + fname, "yaya.dll") != std::string::npos) {
-		    // これはYAYAのDLLである。
+		if (file_content_search(narrow(path) + fname, "aya.dll") != std::string::npos) {
+		    // これはAYAのDLLである。
 		    modulename = widen(drop_extension(fname));
 		    break;
 		}
@@ -328,10 +328,10 @@ void	CBasis::ResetSuppress(void)
 class CBasisFileStack {
 public:
 	FILE *fp;
-	yaya::string_t filename;
+	aya::string_t filename;
 	int line;
 
-	CBasisFileStack(FILE *fparg,yaya::string_t &fn,int larg) : fp(fparg) , filename(fn) , line(larg) {
+	CBasisFileStack(FILE *fparg,aya::string_t &fn,int larg) : fp(fparg) , filename(fn) , line(larg) {
 	}
 };
 
@@ -340,8 +340,8 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 	// 設定ファイル("name".txt)読み取り
 
 	// ファイルを開く
-	yaya::string_t	filename = load_path + modulename + config_file_name_trailer + L".txt";
-	FILE	*fp = yaya::w_fopen(filename.c_str(), L"r");
+	aya::string_t	filename = load_path + modulename + config_file_name_trailer + L".txt";
+	FILE	*fp = aya::w_fopen(filename.c_str(), L"r");
 	if (fp == NULL) {
 		SetSuppress();
 		return;
@@ -349,8 +349,8 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 
 	// 読み取り処理
 	CComment	comment;
-	yaya::string_t	readline;
-	yaya::string_t	cmd, param;
+	aya::string_t	readline;
+	aya::string_t	cmd, param;
 
 	std::stack<CBasisFileStack> fstack;
 	fstack.push(CBasisFileStack(fp,filename,0));
@@ -359,7 +359,7 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 		fstack.top().line += 1;
 
 		// 1行読み込み
-		if (yaya::ws_fgets(readline, fp, dic_charset, 0, fstack.top().line) == yaya::WS_EOF) {
+		if (aya::ws_fgets(readline, fp, dic_charset, 0, fstack.top().line) == aya::WS_EOF) {
 			// ファイルを閉じる
 			fclose(fstack.top().fp);
 			fstack.pop();
@@ -389,7 +389,7 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 		if (Split(readline, cmd, param, L",")) {
 			if ( cmd.compare(L"include") == 0 ) {
 				filename = load_path + param;
-				fp = yaya::w_fopen(filename.c_str(), L"r");
+				fp = aya::w_fopen(filename.c_str(), L"r");
 
 				if (fp == NULL) { //エラーが起きたので復旧
 					fp = fstack.top().fp;
@@ -415,14 +415,14 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
  *  機能概要：  LoadBaseConfigureFileから呼ばれます。各種パラメータを設定します
  * -----------------------------------------------------------------------
  */
-bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param, std::vector<CDic1> *dics)
+bool CBasis::SetParameter(const aya::string_t &cmd, const aya::string_t &param, std::vector<CDic1> *dics)
 {
 	// dic
 	if ( cmd.compare(L"dic") == 0 && dics) {
-		yaya::string_t param1,param2;
+		aya::string_t param1,param2;
 		Split(param, param1, param2, L",");
 
-		yaya::string_t	filename = load_path + param1;
+		aya::string_t	filename = load_path + param1;
 
 		char cset = dic_charset;
 		if ( param2.size() ) {
@@ -436,16 +436,16 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 	}
 	// dicdir
 	if ( cmd.compare(L"dicdir") == 0 && dics) {
-		yaya::string_t param1,param2;
+		aya::string_t param1,param2;
 		Split(param, param1, param2, L",");
 
-		yaya::string_t dirname = load_path + param1;
+		aya::string_t dirname = load_path + param1;
 
 		CDirEnum ef(dirname);
 		CDirEnumEntry entry;
 
 		while ( ef.next(entry) ) {
-			yaya::string_t relpath_and_cs = param1 + L"\\" + entry.name + L"," + param2;
+			aya::string_t relpath_and_cs = param1 + L"\\" + entry.name + L"," + param2;
 
 			if ( entry.isdir ) {
 				SetParameter(L"dicdir",relpath_and_cs,dics);
@@ -519,7 +519,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 	}
 	// fncdepth
 	if ( cmd.compare(L"fncdepth") == 0 ) {
-		int	f_depth = yaya::ws_atoi(param, 10);
+		int	f_depth = aya::ws_atoi(param, 10);
 		vm.calldepth().SetMaxDepth((f_depth < 2 && f_depth != 0) ? 2 : f_depth);
 		return true;
 	}
@@ -541,7 +541,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
  *  機能概要：  各種パラメータを文字列で返します
  * -----------------------------------------------------------------------
  */
-yaya::string_t CBasis::GetParameter(const yaya::string_t &cmd)
+aya::string_t CBasis::GetParameter(const aya::string_t &cmd)
 {
 	// log
 	if (!cmd.compare(L"log")) {
@@ -549,15 +549,15 @@ yaya::string_t CBasis::GetParameter(const yaya::string_t &cmd)
 	}
 	// iolog
 	else if (!cmd.compare(L"iolog")) {
-		return yaya::string_t(iolog ? L"on" : L"off");
+		return aya::string_t(iolog ? L"on" : L"off");
 	}
 	// save.encode
 	else if (!cmd.compare(L"save.encode")) {
-		return yaya::string_t(encode_savefile ? L"on" : L"off");
+		return aya::string_t(encode_savefile ? L"on" : L"off");
 	}
 	// save.auto
 	else if (!cmd.compare(L"save.auto")) {
-		return yaya::string_t(auto_save ? L"on" : L"off");
+		return aya::string_t(auto_save ? L"on" : L"off");
 	}
 	// charset
 	else if (!cmd.compare(L"charset")) {
@@ -584,8 +584,8 @@ yaya::string_t CBasis::GetParameter(const yaya::string_t &cmd)
 	}
 	// fncdepth
 	else if (!cmd.compare(L"fncdepth")) {
-		yaya::string_t str;
-		return yaya::ws_itoa(vm.calldepth().GetMaxDepth(),10);
+		aya::string_t str;
+		return aya::ws_itoa(vm.calldepth().GetMaxDepth(),10);
 	}
 	return L"";
 }
@@ -609,7 +609,7 @@ yaya::string_t CBasis::GetParameter(const yaya::string_t &cmd)
  *  基礎設定ファイルで設定した文字コードで保存されます。
  * -----------------------------------------------------------------------
  */
-void	CBasis::SaveVariable(const yaya::char_t* pName)
+void	CBasis::SaveVariable(const aya::char_t* pName)
 {
 	// 変数の保存
 	std::string old_locale = setlocale(LC_NUMERIC,NULL);
@@ -618,7 +618,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 	bool ayc = encode_savefile;
 
 	// ファイルを開く
-	yaya::string_t	filename;
+	aya::string_t	filename;
 	if ( ! pName || ! *pName ) {
 		filename = GetSavefilePath();
 	}
@@ -655,7 +655,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 
 	vm.logger().Message(7);
 	vm.logger().Filename(filename);
-	FILE	*fp = yaya::w_fopen((wchar_t *)filename.c_str(), L"w");
+	FILE	*fp = aya::w_fopen((wchar_t *)filename.c_str(), L"w");
 	if (fp == NULL) {
 		vm.logger().Error(E_E, 57, filename);
 		return;
@@ -677,15 +677,15 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 */
 
 	// 文字コード
-	yaya::string_t str;
-	yaya::string_t wstr;
+	aya::string_t str;
+	aya::string_t wstr;
 	str.reserve(1000);
 
 	str = L"//savefile_charset,";
 	str += Ccct::CharsetIDToTextW(save_charset);
 	str += L"\n";
 
-	yaya::ws_fputs(str,fp,save_charset,ayc);
+	aya::ws_fputs(str,fp,save_charset,ayc);
 
 	// 順次保存
 	size_t	var_num = vm.variable().GetNumber();
@@ -712,11 +712,11 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 		// 値の保存
 		switch(var->value_const().GetType()) {
 		case F_TAG_INT:	
-			str += yaya::ws_itoa(var->value_const().i_value);
+			str += aya::ws_itoa(var->value_const().i_value);
 			str += L",";
 			break;
 		case F_TAG_DOUBLE:
-			str += yaya::ws_ftoa(var->value_const().d_value);
+			str += aya::ws_ftoa(var->value_const().d_value);
 			str += L",";
 			break;
 		case F_TAG_STRING:
@@ -766,7 +766,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 		str += var->delimiter;
 		str += L"\n";
 
-		yaya::ws_fputs(str,fp,save_charset,ayc);
+		aya::ws_fputs(str,fp,save_charset,ayc);
 	}
 
 	// ファイルを閉じる
@@ -782,7 +782,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
  *  機能概要：  前回保存した変数内容を復元します
  * -----------------------------------------------------------------------
  */
-void	CBasis::RestoreVariable(const yaya::char_t* pName)
+void	CBasis::RestoreVariable(const aya::char_t* pName)
 {
 	std::string old_locale = setlocale(LC_NUMERIC,NULL);
 	setlocale(LC_NUMERIC,"English"); //小数点問題回避
@@ -790,7 +790,7 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 	bool ayc = encode_savefile;
 
 	// ファイルを開く
-	yaya::string_t	filename;
+	aya::string_t	filename;
 	if ( ! pName || ! *pName ) {
 		filename = GetSavefilePath();
 	}
@@ -806,10 +806,10 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 	//暗号化セーブファイル対応
 	if ( ayc ) {
 		filename += L".ays";
-		fp = yaya::w_fopen((wchar_t *)filename.c_str(), L"r");
+		fp = aya::w_fopen((wchar_t *)filename.c_str(), L"r");
 		if (!fp) {
 			filename.erase(filename.size()-4,4);
-			fp = yaya::w_fopen((wchar_t *)filename.c_str(), L"r");
+			fp = aya::w_fopen((wchar_t *)filename.c_str(), L"r");
 			if (!fp) {
 				vm.logger().Error(E_N, 0);
 				return;
@@ -820,10 +820,10 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 		}
 	}
 	else {
-		fp = yaya::w_fopen((wchar_t *)filename.c_str(), L"r");
+		fp = aya::w_fopen((wchar_t *)filename.c_str(), L"r");
 		if (!fp) {
 			filename += L".ays";
-			fp = yaya::w_fopen((wchar_t *)filename.c_str(), L"r");
+			fp = aya::w_fopen((wchar_t *)filename.c_str(), L"r");
 			if (!fp) {
 				vm.logger().Error(E_N, 0);
 				return;
@@ -836,16 +836,16 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 	}
 
 	// 内容を読み取り、順次復元していく
-	yaya::string_t	linebuffer;
-	yaya::string_t	readline;
-	yaya::string_t	parseline;
-	yaya::string_t	varname, value, delimiter;
+	aya::string_t	linebuffer;
+	aya::string_t	readline;
+	aya::string_t	parseline;
+	aya::string_t	varname, value, delimiter;
 
 	char savefile_charset = save_old_charset;
 
 	for (int i = 1; ; i++) {
 		// 1行読み込み
-		if (yaya::ws_fgets(readline, fp, savefile_charset, ayc, i, false) == yaya::WS_EOF)
+		if (aya::ws_fgets(readline, fp, savefile_charset, ayc, i, false) == aya::WS_EOF)
 			break;
 		// 改行は消去
 		CutCrLf(readline);
@@ -898,7 +898,7 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 			type = F_TAG_STRING;
 		}
 		else {
-			if (Find_IgnoreDQ(value,L":") == yaya::string_t::npos) {
+			if (Find_IgnoreDQ(value,L":") == aya::string_t::npos) {
 				vm.logger().Error(E_W, 4, filename, i);
 				continue;
 			}
@@ -915,11 +915,11 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 		
 		if (type == F_TAG_INT) {
 			// 整数型
-			vm.variable().SetValue(index, yaya::ws_atoi(value, 10));
+			vm.variable().SetValue(index, aya::ws_atoi(value, 10));
 		}
 		else if (type == F_TAG_DOUBLE) {
 			// 実数型
-			vm.variable().SetValue(index, yaya::ws_atof(value));
+			vm.variable().SetValue(index, aya::ws_atof(value));
 		}
 		else if (type == F_TAG_STRING) {
 			// 文字列型
@@ -951,11 +951,11 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
  *  機能概要：  RestoreVariableから呼ばれます。配列変数の内容を復元します
  * -----------------------------------------------------------------------
  */
-void	CBasis::RestoreArrayVariable(CValue &var, yaya::string_t &value)
+void	CBasis::RestoreArrayVariable(CValue &var, aya::string_t &value)
 {
 	var.array().clear();
 
-	yaya::string_t	par, remain;
+	aya::string_t	par, remain;
 	char splitResult;
 
 	for( ; ; ) {
@@ -969,10 +969,10 @@ void	CBasis::RestoreArrayVariable(CValue &var, yaya::string_t &value)
 				var.array().push_back(CValueSub());
 			}
 			else if (IsIntString(par)) {
-				var.array().push_back(CValueSub( yaya::ws_atoi(par, 10) ));
+				var.array().push_back(CValueSub( aya::ws_atoi(par, 10) ));
 			}
 			else if (IsDoubleButNotIntString(par)) {
-				var.array().push_back(CValueSub( yaya::ws_atof(par) ));
+				var.array().push_back(CValueSub( aya::ws_atof(par) ));
 			}
 			else {
 				CutDoubleQuote(par);
@@ -1014,7 +1014,7 @@ void	CBasis::ExecuteLoad(void)
 	vm.logger().Io(0, load_path);
 	CValue	result;
 	vm.function()[funcpos].Execute(result, arg, lvar);
-	yaya::string_t empty;
+	aya::string_t empty;
 	vm.logger().Io(1, empty);
 }
 
@@ -1024,7 +1024,7 @@ void	CBasis::ExecuteLoad(void)
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32) || defined(_WIN32_WCE)
-yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug)
+aya::global_t	CBasis::ExecuteRequest(aya::global_t h, long *len, bool is_debug)
 {
 	if (IsSuppress() || requestindex.IsNotFound()) {
 		GlobalFree(h);
@@ -1067,7 +1067,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 	vm.function()[funcpos].Execute(result, arg, lvar);
 
 	// 結果を文字列として取得し、文字コードをMBCSに変換
-	yaya::string_t	res = result.GetValueString();
+	aya::string_t	res = result.GetValueString();
 	vm.logger().Io(1, res);
 	char	*mostr = Ccct::Ucs2ToMbcs(res, output_charset);
 	if (mostr == NULL) {
@@ -1102,7 +1102,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 	return r_h;
 }
 #elif defined(POSIX)
-yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug)
+aya::global_t	CBasis::ExecuteRequest(aya::global_t h, long *len, bool is_debug)
 {
     if (IsSuppress() || requestindex.IsNotFound()) {
 		free(h);
@@ -1134,7 +1134,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 		wistr = NULL;
     }
     else {
-		yaya::string_t empty;
+		aya::string_t empty;
 		vm.logger().Io(0, empty);
     }
     
@@ -1146,7 +1146,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 	vm.function()[funcpos].Execute(result, arg, lvar);
     
 	// 結果を文字列として取得し、文字コードをMBCSに変換
-	yaya::string_t	res = result.GetValueString();
+	aya::string_t	res = result.GetValueString();
     vm.logger().Io(1, res);
     char *mostr = Ccct::Ucs2ToMbcs(res, output_charset);
 
@@ -1186,7 +1186,7 @@ void	CBasis::ExecuteUnload(void)
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
 	vm.calldepth().Init();
 	CLocalVariable	lvar;
-	yaya::string_t empty;
+	aya::string_t empty;
 	vm.logger().Io(0, empty);
 	CValue result;
 	vm.function()[funcpos].Execute(result, arg, lvar);
@@ -1198,7 +1198,7 @@ void	CBasis::ExecuteUnload(void)
  *  機能概要：  関数位置を探し、位置と「探したかどうか」をキャッシュします
  * -----------------------------------------------------------------------
  */
-int CBasisFuncPos::Find(CAyaVM &vm,const yaya::char_t *name)
+int CBasisFuncPos::Find(CAyaVM &vm,const aya::char_t *name)
 {
 	if ( is_try_find ) {
 		return pos_saved;

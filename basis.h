@@ -25,10 +25,10 @@ class CAyaVM;
 class   CDic1
 {
 public:
-	yaya::string_t path;
+	aya::string_t path;
 	char charset;
 
-	CDic1(const yaya::string_t &p,char c) : path(p), charset(c) {
+	CDic1(const aya::string_t &p,char c) : path(p), charset(c) {
 	}
 };
 
@@ -46,7 +46,7 @@ public:
 
 	bool IsNotFound() { return is_try_find && (pos_saved == -1); }
 
-	int Find(CAyaVM &vm,const yaya::char_t *name);
+	int Find(CAyaVM &vm,const aya::char_t *name);
 };
 
 class	CBasis
@@ -54,7 +54,7 @@ class	CBasis
 public:
 	CAyaVM &vm;
 
-	yaya::string_t	load_path;					// 上位モジュールからload時に渡されるパス
+	aya::string_t	load_path;					// 上位モジュールからload時に渡されるパス
 
 protected:
 	char	dic_charset;				// 文字コードセット（Shift_JIS/UTF-8/OSデフォルト）
@@ -71,10 +71,10 @@ protected:
 #endif
 	HWND	hlogrcvWnd;				// チェックツールのhWnd
 
-	yaya::string_t	logpath;				// ログファイルのパス
-	yaya::string_t	modulename;				// モジュールの主ファイル名（例えばa.dllの場合は"a"）
-	yaya::string_t  config_file_name_trailer;  // 主設定ファイル名生成時のトレイラー(通常は空)
-	yaya::string_t	modename;				// 現在のモード (emergency or normal)
+	aya::string_t	logpath;				// ログファイルのパス
+	aya::string_t	modulename;				// モジュールの主ファイル名（例えばa.dllの場合は"a"）
+	aya::string_t  config_file_name_trailer;  // 主設定ファイル名生成時のトレイラー(通常は空)
+	aya::string_t	modename;				// 現在のモード (emergency or normal)
 	char	suppress;				// 自律動作抑止（構文解析でエラーが起きた際に動作をマスクするために使用します）
 	char	checkparser;			// 構文解析結果のログへの記録を指示するフラグ
 	char	iolog;					// 入出力のログへの記録を指示するフラグ
@@ -94,11 +94,11 @@ public:
 
 	char	IsRun(void) { return run; }
 
-	void	SetModuleName(const yaya::string_t &s,const yaya::char_t *trailer,const yaya::char_t *mode);
+	void	SetModuleName(const aya::string_t &s,const aya::char_t *trailer,const aya::char_t *mode);
 #if defined(WIN32) || defined(_WIN32_WCE)
 	void	SetLogRcvWnd(long hwnd);
 #endif
-	void	SetPath(yaya::global_t h, int len);
+	void	SetPath(aya::global_t h, int len);
 
 	void	Configure(void);
 	void	Termination(void);
@@ -106,21 +106,21 @@ public:
 #if defined(WIN32)
 	HWND	GetLogHWnd(void) { return hlogrcvWnd; }
 #endif
-	const yaya::string_t& GetLogPath(void) const  { return logpath; }
+	const aya::string_t& GetLogPath(void) const  { return logpath; }
 	char	GetDicCharset(void)  { return dic_charset; }
-	const yaya::string_t& GetRootPath(void) const { return load_path;    }
-	yaya::string_t GetSavefilePath(void) const { return load_path + modulename + L"_variable.cfg"; }
-	const yaya::char_t* GetModeName(void) const { return modename.c_str(); }
+	const aya::string_t& GetRootPath(void) const { return load_path;    }
+	aya::string_t GetSavefilePath(void) const { return load_path + modulename + L"_variable.cfg"; }
+	const aya::char_t* GetModeName(void) const { return modename.c_str(); }
 
 	void	ExecuteLoad(void);
-	yaya::global_t	ExecuteRequest(yaya::global_t h, long *len, bool is_debug);
+	aya::global_t	ExecuteRequest(aya::global_t h, long *len, bool is_debug);
 	void	ExecuteUnload(void);
 
-	void	SaveVariable(const yaya::char_t* pName = NULL);
-	void	RestoreVariable(const yaya::char_t* pName = NULL);
+	void	SaveVariable(const aya::char_t* pName = NULL);
+	void	RestoreVariable(const aya::char_t* pName = NULL);
 
-	yaya::string_t GetParameter(const yaya::string_t &cmd);
-	bool SetParameter(const yaya::string_t &cmd, const yaya::string_t &param, std::vector<CDic1> *dics = NULL);
+	aya::string_t GetParameter(const aya::string_t &cmd);
+	bool SetParameter(const aya::string_t &cmd, const aya::string_t &param, std::vector<CDic1> *dics = NULL);
 	void SetLogger(void);
 
 	void    SetOutputCharset(char cst) { output_charset = cst; }
@@ -133,7 +133,7 @@ protected:
 
 	void	LoadBaseConfigureFile(std::vector<CDic1> &dics);
 
-	void	RestoreArrayVariable(CValue &var, yaya::string_t &value);
+	void	RestoreArrayVariable(CValue &var, aya::string_t &value);
 };
 
 //----

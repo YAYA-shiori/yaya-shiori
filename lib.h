@@ -26,11 +26,11 @@ class CAyaVM;
 class	CLib1
 {
 protected:
-	yaya::string_t	name;
+	aya::string_t	name;
 #if defined(WIN32)
 	typedef HMODULE	module_t;
 
-	bool (*loadlib)(yaya::global_t h, long len);
+	bool (*loadlib)(aya::global_t h, long len);
 	bool (*unloadlib)(void);
 #elif defined(POSIX)
 	typedef void*	module_t;
@@ -38,7 +38,7 @@ protected:
 	int (*loadlib)(char* h, long len);
 	int (*unloadlib)(void);
 #endif
-	yaya::global_t (*requestlib)(yaya::global_t h, long *len);
+	aya::global_t (*requestlib)(aya::global_t h, long *len);
 
 	module_t hDLL;
 	bool    isAlreadyLoaded;
@@ -50,7 +50,7 @@ private:
 	CAyaVM &vm;
 
 public:
-	CLib1(CAyaVM &vmr, const yaya::string_t &n, int cs) : vm(vmr)
+	CLib1(CAyaVM &vmr, const aya::string_t &n, int cs) : vm(vmr)
 	{
 		name    = n;
 		charset = cs;
@@ -63,7 +63,7 @@ public:
 
 	~CLib1(void) { Unload(); Release(); }
 
-	yaya::string_t	GetName(void) { return name; }
+	aya::string_t	GetName(void) { return name; }
 
 	int		LoadLib(void);
 	int		Load(void);
@@ -73,12 +73,12 @@ public:
 	void	SetCharset(int cs) { charset = cs; }
 	int		GetCharset(void) { return charset; }
 
-	int		Request(const yaya::string_t &istr, yaya::string_t &ostr);
+	int		Request(const aya::string_t &istr, aya::string_t &ostr);
 };
 
 //----
 
-typedef std::map<yaya::string_t,int> charset_map;
+typedef std::map<aya::string_t,int> charset_map;
 
 class	CLib
 {
@@ -98,16 +98,16 @@ public:
 	~CLib(void) { DeleteAll(); }
 
 	void	SetCharset(int cs) { charset = cs; }
-	int		SetCharsetDynamic(const yaya::string_t &name,int cs);
+	int		SetCharsetDynamic(const aya::string_t &name,int cs);
 
 	int		GetCharset(void) { return charset; }
-	int		GetCharsetDynamic(const yaya::string_t &name);
+	int		GetCharsetDynamic(const aya::string_t &name);
 
-	int		Add(const yaya::string_t &name);
-	int		Delete(const yaya::string_t &name);
+	int		Add(const aya::string_t &name);
+	int		Delete(const aya::string_t &name);
 	void	DeleteAll(void);
 
-	int		Request(const yaya::string_t &name, const yaya::string_t &istr, yaya::string_t &ostr);
+	int		Request(const aya::string_t &name, const aya::string_t &istr, aya::string_t &ostr);
 };
 
 //----

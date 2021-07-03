@@ -55,7 +55,7 @@ int	CValue::GetValueInt(void) const
 			}
 		}
 	case F_TAG_STRING:
-		return yaya::ws_atoi(s_value, 10);
+		return aya::ws_atoi(s_value, 10);
 	case F_TAG_ARRAY:
 		return 0;
 	default:
@@ -78,7 +78,7 @@ double	CValue::GetValueDouble(void) const
 	case F_TAG_DOUBLE:
 		return d_value;
 	case F_TAG_STRING:
-		return yaya::ws_atof(s_value);
+		return aya::ws_atof(s_value);
 	case F_TAG_ARRAY:
 		return 0.0;
 	default:
@@ -88,24 +88,24 @@ double	CValue::GetValueDouble(void) const
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CValue::GetValueString
- *  機能概要：  値をyaya::string_tで返します
+ *  機能概要：  値をaya::string_tで返します
  *
  *  型が配列であった場合はデリミタで結合した文字列に変換して返します
  * -----------------------------------------------------------------------
  */
-yaya::string_t	CValue::GetValueString(void) const
+aya::string_t	CValue::GetValueString(void) const
 {
 	switch(type) {
 	case F_TAG_INT: {
-			return yaya::ws_itoa(i_value, 10);
+			return aya::ws_itoa(i_value, 10);
 		}
 	case F_TAG_DOUBLE: {
-			return yaya::ws_ftoa(d_value);
+			return aya::ws_ftoa(d_value);
 		}
 	case F_TAG_STRING:
 		return s_value;
 	case F_TAG_ARRAY: {
-			yaya::string_t	result;
+			aya::string_t	result;
 			for(CValueArray::const_iterator it = array().begin();
 				it != array().end(); it++) {
 				if (it != array().begin())
@@ -115,34 +115,34 @@ yaya::string_t	CValue::GetValueString(void) const
 			return result;
 		}
 	default:
-		return yaya::string_t(L"");
+		return aya::string_t(L"");
 	};
 }
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CValue::GetValueStringForLogging
- *  機能概要：  値をyaya::string_tで返します（ロガー用）
+ *  機能概要：  値をaya::string_tで返します（ロガー用）
  *
  *  GetValueStringとの違いは、文字列をダブルクォートするか否かです。
  * -----------------------------------------------------------------------
  */
-yaya::string_t	CValue::GetValueStringForLogging(void) const
+aya::string_t	CValue::GetValueStringForLogging(void) const
 {
 	switch(type) {
 	case F_TAG_INT: {
-			return yaya::ws_itoa(i_value);
+			return aya::ws_itoa(i_value);
 		}
 	case F_TAG_DOUBLE: {
-			return yaya::ws_ftoa(d_value);
+			return aya::ws_ftoa(d_value);
 		}
 	case F_TAG_STRING: {
-			yaya::string_t	result = s_value;
+			aya::string_t	result = s_value;
 			AddDoubleQuote(result);
 			return result;
 		}
 	case F_TAG_ARRAY: {
-			yaya::string_t	result;
-			yaya::string_t	tmpstr;
+			aya::string_t	result;
+			aya::string_t	tmpstr;
 
 			for(CValueArray::const_iterator it = array().begin();
 				it != array().end(); it++) {
@@ -156,7 +156,7 @@ yaya::string_t	CValue::GetValueStringForLogging(void) const
 			return result;
 		}
 	default:
-		return yaya::string_t(L"");
+		return aya::string_t(L"");
 	};
 }
 /* -----------------------------------------------------------------------
@@ -171,14 +171,14 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 {
 	// 序数とデリミタの取得
 	int	order, order1;
-	yaya::string_t	delimiter;
+	aya::string_t	delimiter;
 	int	aoflg = oval.DecodeArrayOrder(order, order1, delimiter);
 
 	// 値を更新する
 	if ( type == F_TAG_STRING ) {
 		// 簡易配列
 		// 元の文字列をデリミタで分割
-		std::vector<yaya::string_t>	s_array;
+		std::vector<aya::string_t>	s_array;
 		int	sz = SplitToMultiString(s_value, &s_array, delimiter);
 		// 更新
 		if (aoflg) {
@@ -190,7 +190,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 				int	e_index   = __GETMIN(order1 + 1, sz);
 
 				if ( value.GetType() == F_TAG_ARRAY ) {
-					std::vector<yaya::string_t>::iterator it = s_array.erase(s_array.begin() + s_index,s_array.begin() + e_index);
+					std::vector<aya::string_t>::iterator it = s_array.erase(s_array.begin() + s_index,s_array.begin() + e_index);
 					
 					if ( ! value.array().empty() ) {
 						for ( CValueArray::const_iterator ita = value.array().begin() ;
@@ -208,7 +208,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 			else {
 				int	addsize = order - sz;
 				for(int i = 0; i < addsize; i++) {
-					s_array.push_back(yaya::string_t());
+					s_array.push_back(aya::string_t());
 				}
 	
 				if ( value.GetType() == F_TAG_ARRAY ) {
@@ -230,7 +230,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 				return;
 			else if (order < sz) {
 				if ( value.GetType() == F_TAG_ARRAY ) {
-					std::vector<yaya::string_t>::iterator it = s_array.erase(s_array.begin() + order);
+					std::vector<aya::string_t>::iterator it = s_array.erase(s_array.begin() + order);
 					
 					if ( ! value.array().empty() ) {
 						for ( CValueArray::const_iterator ita = value.array().begin() ;
@@ -247,7 +247,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 			else {
 				int	addsize = order - sz;
 				for(int i = 0; i < addsize; i++) {
-					s_array.push_back(yaya::string_t());
+					s_array.push_back(aya::string_t());
 				}
 
 				if ( value.GetType() == F_TAG_ARRAY ) {
@@ -363,7 +363,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
  *  返値　　：  0/1=order1(範囲指定)無効/有効
  * -----------------------------------------------------------------------
  */
-int	CValue::DecodeArrayOrder(int &order, int &order1, yaya::string_t &delimiter) const
+int	CValue::DecodeArrayOrder(int &order, int &order1, aya::string_t &delimiter) const
 {
 	order  = 0;
 	order1 = 0;
@@ -438,10 +438,10 @@ CValue &CValue::operator =(double value)
 }
 
 /* -----------------------------------------------------------------------
- *  operator = (yaya::string_t)
+ *  operator = (aya::string_t)
  * -----------------------------------------------------------------------
  */
-CValue &CValue::operator =(const yaya::string_t &value)
+CValue &CValue::operator =(const aya::string_t &value)
 {
 	type    = F_TAG_STRING;
 	s_value = value;
@@ -450,10 +450,10 @@ CValue &CValue::operator =(const yaya::string_t &value)
 }
 
 /* -----------------------------------------------------------------------
- *  operator = (yaya::char_t*)
+ *  operator = (aya::char_t*)
  * -----------------------------------------------------------------------
  */
-CValue &CValue::operator =(const yaya::char_t *value)
+CValue &CValue::operator =(const aya::char_t *value)
 {
 	type    = F_TAG_STRING;
 	s_value = value;
@@ -934,7 +934,7 @@ void CValue::operator %=(const CValue &value)
 /* -----------------------------------------------------------------------
  *  operator [] (CValue)
  *
- *  thisの型がyaya::string_tの場合は簡易配列、array()の場合は配列扱いです。
+ *  thisの型がaya::string_tの場合は簡易配列、array()の場合は配列扱いです。
  *  int/doubleでは序数によらずその値が返されます。
  *
  *  序数が範囲外の場合は空文字列を返します。
@@ -946,7 +946,7 @@ void CValue::operator %=(const CValue &value)
 CValue CValue::operator [](const CValue &value) const
 {
 	int	order, order1;
-	yaya::string_t	delimiter;
+	aya::string_t	delimiter;
 	int	aoflg = value.DecodeArrayOrder(order, order1, delimiter);
 
 	if (type == F_TAG_INT || type == F_TAG_DOUBLE) {
@@ -960,7 +960,7 @@ CValue CValue::operator [](const CValue &value) const
 		// 簡易配列
 
 		// 文字列をデリミタで分割
-		std::vector<yaya::string_t>	s_array;
+		std::vector<aya::string_t>	s_array;
 		int	sz = SplitToMultiString(s_value, &s_array, delimiter);
 		// 値の取得
 		if (aoflg) {
@@ -972,8 +972,8 @@ CValue CValue::operator [](const CValue &value) const
 				int	e_index   = __GETMIN(order1 + 1, sz);
 				int	i         = 0;
 				int	j         = 0;
-				yaya::string_t	result_str;
-				for(std::vector<yaya::string_t>::iterator it = s_array.begin();
+				aya::string_t	result_str;
+				for(std::vector<aya::string_t>::iterator it = s_array.begin();
 					it != s_array.end(); it++, i++) {
 					if (s_index <= i && i < e_index) {
 						if (j)

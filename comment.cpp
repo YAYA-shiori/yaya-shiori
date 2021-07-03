@@ -31,19 +31,19 @@
  *  機能概要：  コメントアウト処理（/＊～＊/）
  * -----------------------------------------------------------------------
  */
-void	CComment::Process(yaya::string_t &str)
+void	CComment::Process(aya::string_t &str)
 {
 	if (str.empty()) { return; }
 
-	yaya::string_t::size_type found0;
-	yaya::string_t::size_type found1;
+	aya::string_t::size_type found0;
+	aya::string_t::size_type found1;
 
 	while ( true ) {
 		//前行からコメントが続いてる
 		if ( flag ) {
 			found1 = str.find(L"*/"); //コメント終了位置を探索 これはクォートに影響されない
 
-			if ( found1 != yaya::string_t::npos ) {
+			if ( found1 != aya::string_t::npos ) {
 				str.erase(0,found1+2); //+2は */ の分
 				flag = 0;
 			}
@@ -56,11 +56,11 @@ void	CComment::Process(yaya::string_t &str)
 		else {
 			found0 = Find_IgnoreDQ(str,L"/*");//スタートのみクォートを考慮
 
-			if ( found0 != yaya::string_t::npos ) { //スタート位置が同じ行内で見つかった
+			if ( found0 != aya::string_t::npos ) { //スタート位置が同じ行内で見つかった
 
 				found1 = str.find(L"*/",found0+2);
 
-				if ( found1 != yaya::string_t::npos ) { //ストップ位置も同じ行内で見つかった
+				if ( found1 != aya::string_t::npos ) { //ストップ位置も同じ行内で見つかった
 					str.erase(found0,(found1+2-found0)); //+2は */ の分
 				}
 				else {
@@ -81,7 +81,7 @@ void	CComment::Process(yaya::string_t &str)
  *  機能概要：  コメントアウト処理（先頭の//）
  * -----------------------------------------------------------------------
  */
-void	CComment::Process_Top(yaya::string_t &str)
+void	CComment::Process_Top(aya::string_t &str)
 {
 	if (str.empty()) { return; }
 	
@@ -101,12 +101,12 @@ void	CComment::Process_Top(yaya::string_t &str)
  *  機能概要：  コメントアウト処理（中途の//）
  * -----------------------------------------------------------------------
  */
-void	CComment::Process_Tail(yaya::string_t &str)
+void	CComment::Process_Tail(aya::string_t &str)
 {
 	if (str.empty()) { return; }
 
-	yaya::string_t::size_type found = Find_IgnoreDQ(str, L"//");
-	if ( found != yaya::string_t::npos ) {
+	aya::string_t::size_type found = Find_IgnoreDQ(str, L"//");
+	if ( found != aya::string_t::npos ) {
 		str.erase(found, (int)str.size() - found);
 		CutSpace(str);
 	}

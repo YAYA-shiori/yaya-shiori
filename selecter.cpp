@@ -130,7 +130,7 @@ CValue	CSelecter::Output(void)
 CValue	CSelecter::ChoiceRandom(void)
 {
 	if (areanum) {
-		yaya::string_t	result;
+		aya::string_t	result;
 		for(int i = 0; i <= areanum; i++)
 			result += ChoiceRandom1(i).GetValueString();
 		return CValue(result);
@@ -175,7 +175,7 @@ CValue	CSelecter::ChoiceByIndex()
 
 	// Žåˆ—
 	if (areanum) {
-		yaya::string_t	result;
+		aya::string_t	result;
 		for(int i = 0; i <= areanum; i++)
 			result += ChoiceByIndex1(i).GetValueString();
 		return CValue(result);

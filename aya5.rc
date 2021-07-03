@@ -28,8 +28,6 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,56,2,0
- PRODUCTVERSION 5,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x29L
@@ -44,18 +42,7 @@ BEGIN
     BEGIN
         BLOCK "000004b0"
         BEGIN
-            VALUE "Comments", "YAYA\0"
-            VALUE "CompanyName", "YAYA Development Team\0"
-            VALUE "FileDescription", "yaya\0"
-            VALUE "FileVersion", "5, 56, 2, 0\0"
-            VALUE "InternalName", "Yet Another AYA5\0"
-            VALUE "LegalCopyright", " \0"
-            VALUE "LegalTrademarks", " \0"
-            VALUE "OriginalFilename", "yaya.dll\0"
-            VALUE "PrivateBuild", " \0"
-            VALUE "ProductName", "Yet Another AYA5\0"
-            VALUE "ProductVersion", "5, 0, 0, 0\0"
-            VALUE "SpecialBuild", " \0"
+            VALUE "Comments", "AYA\0"
         END
     END
     BLOCK "VarFileInfo"

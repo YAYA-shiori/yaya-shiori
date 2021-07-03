@@ -84,7 +84,7 @@ void	CLocalVariable::DelDepth(void)
  *  機能概要：  ローカル変数を作成します
  * -----------------------------------------------------------------------
  */
-void	CLocalVariable::Make(const yaya::char_t *name)
+void	CLocalVariable::Make(const aya::char_t *name)
 {
 	CVariable	addlv(name);
 	stack[depth].substack.push_back(addlv);
@@ -92,7 +92,7 @@ void	CLocalVariable::Make(const yaya::char_t *name)
 
 //----
 
-void	CLocalVariable::Make(const yaya::string_t &name)
+void	CLocalVariable::Make(const aya::string_t &name)
 {
 	CVariable	addlv(name);
 	stack[depth].substack.push_back(addlv);
@@ -100,16 +100,7 @@ void	CLocalVariable::Make(const yaya::string_t &name)
 
 //----
 
-void	CLocalVariable::Make(const yaya::char_t *name, const CValue &value)
-{
-	CVariable	addlv(name);
-	addlv.value() = value;
-	stack[depth].substack.push_back(addlv);
-}
-
-//----
-
-void	CLocalVariable::Make(const yaya::string_t &name, const CValue &value)
+void	CLocalVariable::Make(const aya::char_t *name, const CValue &value)
 {
 	CVariable	addlv(name);
 	addlv.value() = value;
@@ -118,7 +109,7 @@ void	CLocalVariable::Make(const yaya::string_t &name, const CValue &value)
 
 //----
 
-void	CLocalVariable::Make(const yaya::string_t &name, const CValueSub &value)
+void	CLocalVariable::Make(const aya::string_t &name, const CValue &value)
 {
 	CVariable	addlv(name);
 	addlv.value() = value;
@@ -127,7 +118,16 @@ void	CLocalVariable::Make(const yaya::string_t &name, const CValueSub &value)
 
 //----
 
-void	CLocalVariable::Make(const yaya::char_t *name, const yaya::string_t &delimiter)
+void	CLocalVariable::Make(const aya::string_t &name, const CValueSub &value)
+{
+	CVariable	addlv(name);
+	addlv.value() = value;
+	stack[depth].substack.push_back(addlv);
+}
+
+//----
+
+void	CLocalVariable::Make(const aya::char_t *name, const aya::string_t &delimiter)
 {
 	CVariable	addlv(name);
 	addlv.delimiter = delimiter;
@@ -136,7 +136,7 @@ void	CLocalVariable::Make(const yaya::char_t *name, const yaya::string_t &delimi
 
 //----
 
-void	CLocalVariable::Make(const yaya::string_t &name, const yaya::string_t &delimiter)
+void	CLocalVariable::Make(const aya::string_t &name, const aya::string_t &delimiter)
 {
 	CVariable	addlv(name);
 	addlv.delimiter = delimiter;
@@ -150,7 +150,7 @@ void	CLocalVariable::Make(const yaya::string_t &name, const yaya::string_t &deli
  *  見つからなかった場合は-1を返します
  * -----------------------------------------------------------------------
  */
-void	CLocalVariable::GetIndex(const yaya::char_t *name, int &id, int &dp)
+void	CLocalVariable::GetIndex(const aya::char_t *name, int &id, int &dp)
 {
 	for(int i = stack.size() - 1; i >= 0; i--)
 		for(int j = stack[i].substack.size() - 1; j >= 0; j--)
@@ -172,7 +172,7 @@ void	CLocalVariable::GetIndex(const yaya::char_t *name, int &id, int &dp)
 
 //----
 
-void	CLocalVariable::GetIndex(const yaya::string_t &name, int &id, int &dp)
+void	CLocalVariable::GetIndex(const aya::string_t &name, int &id, int &dp)
 {
 	for(int i = stack.size() - 1; i >= 0; i--)
 		for(int j = stack[i].substack.size() - 1; j >= 0; j--)
@@ -200,7 +200,7 @@ void	CLocalVariable::GetIndex(const yaya::string_t &name, int &id, int &dp)
  * -----------------------------------------------------------------------
  */
 
-const CValue& CLocalVariable::GetValue(const yaya::char_t *name)
+const CValue& CLocalVariable::GetValue(const aya::char_t *name)
 {
 	int	dp, id;
 	GetIndex(name, id, dp);
@@ -212,7 +212,7 @@ const CValue& CLocalVariable::GetValue(const yaya::char_t *name)
 
 //----
 
-const CValue& CLocalVariable::GetValue(const yaya::string_t &name)
+const CValue& CLocalVariable::GetValue(const aya::string_t &name)
 {
 	int	dp, id;
 	GetIndex(name, id, dp);
@@ -230,7 +230,7 @@ const CValue& CLocalVariable::GetValue(const yaya::string_t &name)
  * -----------------------------------------------------------------------
  */
 
-CValue*	CLocalVariable::GetValuePtr(const yaya::char_t *name)
+CValue*	CLocalVariable::GetValuePtr(const aya::char_t *name)
 {
 	int	dp, id;
 	GetIndex(name, id, dp);
@@ -242,7 +242,7 @@ CValue*	CLocalVariable::GetValuePtr(const yaya::char_t *name)
 
 //----
 
-CValue*	CLocalVariable::GetValuePtr(const yaya::string_t &name)
+CValue*	CLocalVariable::GetValuePtr(const aya::string_t &name)
 {
 	int	dp, id;
 	GetIndex(name, id, dp);
@@ -286,26 +286,26 @@ CVariable	*CLocalVariable::GetPtr(size_t depth,size_t index)
  *  機能概要：  指定されたローカル変数のデリミタを取得します
  * -----------------------------------------------------------------------
  */
-yaya::string_t	CLocalVariable::GetDelimiter(const yaya::char_t *name)
+aya::string_t	CLocalVariable::GetDelimiter(const aya::char_t *name)
 {
 	int	dp, id;
 	GetIndex(name, id, dp);
 	if (id >= 0)
 		return stack[dp].substack[id].delimiter;
 
-	return yaya::string_t(L"");
+	return aya::string_t(L"");
 }
 
 //----
 
-yaya::string_t	CLocalVariable::GetDelimiter(const yaya::string_t &name)
+aya::string_t	CLocalVariable::GetDelimiter(const aya::string_t &name)
 {
 	int	dp, id;
 	GetIndex(name, id, dp);
 	if (id >= 0)
 		return stack[dp].substack[id].delimiter;
 
-	return yaya::string_t(L"");
+	return aya::string_t(L"");
 }
 
 /* -----------------------------------------------------------------------
@@ -313,7 +313,7 @@ yaya::string_t	CLocalVariable::GetDelimiter(const yaya::string_t &name)
  *  機能概要：  指定されたローカル変数に値を格納します
  * -----------------------------------------------------------------------
  */
-void	CLocalVariable::SetDelimiter(const yaya::char_t *name, const yaya::string_t &value)
+void	CLocalVariable::SetDelimiter(const aya::char_t *name, const aya::string_t &value)
 {
 	int	dp, id;
 	GetIndex(name, id, dp);
@@ -328,7 +328,7 @@ void	CLocalVariable::SetDelimiter(const yaya::char_t *name, const yaya::string_t
 
 //----
 
-void	CLocalVariable::SetDelimiter(const yaya::string_t &name, const yaya::string_t &value)
+void	CLocalVariable::SetDelimiter(const aya::string_t &name, const aya::string_t &value)
 {
 	int	dp, id;
 	GetIndex(name, id, dp);
@@ -346,7 +346,7 @@ void	CLocalVariable::SetDelimiter(const yaya::string_t &name, const yaya::string
  *  機能概要：  指定されたローカル変数に値を格納します
  * -----------------------------------------------------------------------
  */
-void	CLocalVariable::SetValue(const yaya::char_t *name, const CValue &value)
+void	CLocalVariable::SetValue(const aya::char_t *name, const CValue &value)
 {
 	int	dp, id;
 	GetIndex(name, id, dp);
@@ -361,7 +361,7 @@ void	CLocalVariable::SetValue(const yaya::char_t *name, const CValue &value)
 
 //----
 
-void	CLocalVariable::SetValue(const yaya::string_t &name, const CValue &value)
+void	CLocalVariable::SetValue(const aya::string_t &name, const CValue &value)
 {
 	int	dp, id;
 	GetIndex(name, id, dp);
@@ -381,12 +381,12 @@ void	CLocalVariable::SetValue(const yaya::string_t &name, const CValue &value)
  *  複数見つかった場合は最長のものを返します。見つからなかった場合は0を返します
  * -----------------------------------------------------------------------
  */
-size_t	CLocalVariable::GetMacthedLongestNameLength(const yaya::string_t &name)
+size_t	CLocalVariable::GetMacthedLongestNameLength(const aya::string_t &name)
 {
 	size_t	max_len = 0;
 
-	for(yaya::native_signed i = stack.size() - 1; i >= 0; i--)
-		for(yaya::native_signed j = stack[i].substack.size() - 1; j >= 0; j--) {
+	for(aya::native_signed i = stack.size() - 1; i >= 0; i--)
+		for(aya::native_signed j = stack[i].substack.size() - 1; j >= 0; j--) {
 			size_t	len = stack[i].substack[j].name.size();
 			if (!stack[i].substack[j].IsErased() &&
 				max_len < len &&
@@ -404,7 +404,7 @@ size_t	CLocalVariable::GetMacthedLongestNameLength(const yaya::string_t &name)
  *  実際に配列から消すわけではなく、空文字列を代入するだけです
  * -----------------------------------------------------------------------
  */
-void	CLocalVariable::Erase(const yaya::string_t &name)
+void	CLocalVariable::Erase(const aya::string_t &name)
 {
 	int	id, dp;
 	GetIndex(name, id, dp);

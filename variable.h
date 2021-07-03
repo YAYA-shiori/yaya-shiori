@@ -39,8 +39,8 @@ class CAyaVM;
 class	CVariable
 {
 public:
-	yaya::string_t	name;					// 名前
-	yaya::string_t	delimiter;				// デリミタ
+	aya::string_t	name;					// 名前
+	aya::string_t	delimiter;				// デリミタ
 
 
 protected:
@@ -49,7 +49,7 @@ protected:
 	mutable std_shared_ptr<CValue> m_value;				// 値
 
 public:
-	CVariable(const yaya::string_t &n)
+	CVariable(const aya::string_t &n)
 	{
 		name       = n;
 		delimiter  = VAR_DELIMITER;
@@ -57,7 +57,7 @@ public:
 		erased     = 0;
 	}
 
-	CVariable(yaya::char_t *n)
+	CVariable(aya::char_t *n)
 	{
 		name       = n;
 		delimiter  = VAR_DELIMITER;
@@ -138,35 +138,35 @@ public:
 	CVariable	*GetPtr(size_t depth,size_t index);
 
 public:
-	void	GetIndex(const yaya::char_t *name, int &id, int &dp);
-	void	GetIndex(const yaya::string_t &name, int &id, int &dp);
+	void	GetIndex(const aya::char_t *name, int &id, int &dp);
+	void	GetIndex(const aya::string_t &name, int &id, int &dp);
 
-	void	Make(const yaya::char_t *name);
-	void	Make(const yaya::string_t &name);
-	void	Make(const yaya::char_t *name, const CValue &value);
-	void	Make(const yaya::string_t &name, const CValue &value);
-	void	Make(const yaya::string_t &name, const CValueSub &value);
-	void	Make(const yaya::char_t *name, const yaya::string_t &delimiter);
-	void	Make(const yaya::string_t &name, const yaya::string_t &delimiter);
+	void	Make(const aya::char_t *name);
+	void	Make(const aya::string_t &name);
+	void	Make(const aya::char_t *name, const CValue &value);
+	void	Make(const aya::string_t &name, const CValue &value);
+	void	Make(const aya::string_t &name, const CValueSub &value);
+	void	Make(const aya::char_t *name, const aya::string_t &delimiter);
+	void	Make(const aya::string_t &name, const aya::string_t &delimiter);
 
-	const CValue& GetValue(const yaya::char_t *name);
-	const CValue& GetValue(const yaya::string_t &name);
+	const CValue& GetValue(const aya::char_t *name);
+	const CValue& GetValue(const aya::string_t &name);
 
-	CValue*	GetValuePtr(const yaya::char_t *name);
-	CValue*	GetValuePtr(const yaya::string_t &name);
+	CValue*	GetValuePtr(const aya::char_t *name);
+	CValue*	GetValuePtr(const aya::string_t &name);
 
-	yaya::string_t	GetDelimiter(const yaya::char_t *name);
-	yaya::string_t	GetDelimiter(const yaya::string_t &name);
+	aya::string_t	GetDelimiter(const aya::char_t *name);
+	aya::string_t	GetDelimiter(const aya::string_t &name);
 
-	void	SetDelimiter(const yaya::char_t *name, const yaya::string_t &value);
-	void	SetDelimiter(const yaya::string_t &name, const yaya::string_t &value);
+	void	SetDelimiter(const aya::char_t *name, const aya::string_t &value);
+	void	SetDelimiter(const aya::string_t &name, const aya::string_t &value);
 
-	void	SetValue(const yaya::char_t *name, const CValue &value);
-	void	SetValue(const yaya::string_t &name, const CValue &value);
+	void	SetValue(const aya::char_t *name, const CValue &value);
+	void	SetValue(const aya::string_t &name, const CValue &value);
 
-	size_t	GetMacthedLongestNameLength(const yaya::string_t &name);
+	size_t	GetMacthedLongestNameLength(const aya::string_t &name);
 
-	void	Erase(const yaya::string_t &name);
+	void	Erase(const aya::string_t &name);
 };
 
 //----
@@ -175,7 +175,7 @@ class	CGlobalVariable
 {
 protected:
 	std::vector<CVariable> var;
-	yaya::indexmap varmap;
+	aya::indexmap varmap;
 
 private:
 	CAyaVM &vm;
@@ -189,13 +189,13 @@ public:
 	{
 	}
 
-	int		Make(const yaya::string_t &name, char erased);
+	int		Make(const aya::string_t &name, char erased);
 
-	size_t	GetMacthedLongestNameLength(const yaya::string_t &name);
+	size_t	GetMacthedLongestNameLength(const aya::string_t &name);
 
-	int		GetIndex(const yaya::string_t &name);
+	int		GetIndex(const aya::string_t &name);
 
-	yaya::string_t	GetName(int index) { return var[index].name; }
+	aya::string_t	GetName(int index) { return var[index].name; }
 	size_t		GetNumber(void) { return var.size(); }
 	CVariable	*GetPtr(size_t index) { return &(var[index]); }
 
@@ -206,20 +206,20 @@ public:
 
 	const CValue&	GetValue(int index) const { return var[index].value_const(); }
 
-	yaya::string_t&	GetDelimiter(int index) { return var[index].delimiter; }
+	aya::string_t&	GetDelimiter(int index) { return var[index].delimiter; }
 
 	void	SetValue(int index, const CValue &value) { var[index].Enable(); var[index].value() = value; }
 	void	SetValue(int index, int value) { var[index].Enable(); var[index].value() = value; }
 	void	SetValue(int index, double value) { var[index].Enable(); var[index].value() = value; }
-	void	SetValue(int index, const yaya::string_t &value) { var[index].Enable(); var[index].value() = value; }
-	void	SetValue(int index, const yaya::char_t *value) { var[index].Enable(); var[index].value() = value; }
+	void	SetValue(int index, const aya::string_t &value) { var[index].Enable(); var[index].value() = value; }
+	void	SetValue(int index, const aya::char_t *value) { var[index].Enable(); var[index].value() = value; }
 	void	SetValue(int index, const CValueArray &value) { var[index].Enable(); var[index].value() = value; }
 	void	SetValue(int index, const CValueSub &value) { var[index].Enable(); var[index].value() = value; }
-	void	SetDelimiter(int index, const yaya::string_t value) { var[index].Enable(); var[index].delimiter = value; }
+	void	SetDelimiter(int index, const aya::string_t value) { var[index].Enable(); var[index].delimiter = value; }
 
 	void	EnableValue(int index) { var[index].Enable(); }
 
-	void	Erase(const yaya::string_t &name)
+	void	Erase(const aya::string_t &name)
 	{
 		int	index = GetIndex(name);
 		if (index >= 0) {

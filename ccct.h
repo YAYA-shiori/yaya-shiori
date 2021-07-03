@@ -38,7 +38,7 @@
 class Ccct {
 public:
 	static char		*Ucs2ToMbcs(const wchar_t *wstr, int charset);
-	static char		*Ucs2ToMbcs(const yaya::string_t &wstr, int charset);
+	static char		*Ucs2ToMbcs(const aya::string_t &wstr, int charset);
 	static wchar_t	*MbcsToUcs2(const char *mstr, int charset);
 	static wchar_t	*MbcsToUcs2(const std::string &mstr, int charset);
 
@@ -52,8 +52,8 @@ public:
 	static char		*ccct_setlocale(int category, int charset);
 
 private:
-	static char *utf16be_to_mbcs(const yaya::char_t *pUcsStr, int charset);
-	static yaya::char_t *mbcs_to_utf16be(const char *pAnsiStr, int charset);
+	static char *utf16be_to_mbcs(const aya::char_t *pUcsStr, int charset);
+	static aya::char_t *mbcs_to_utf16be(const char *pAnsiStr, int charset);
 
 };
 

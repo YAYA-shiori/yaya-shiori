@@ -36,10 +36,10 @@
  *  指定された名前の変数が既に存在していた場合は追加は行わず、既存の位置を返します
  * -----------------------------------------------------------------------
  */
-int	CGlobalVariable::Make(const yaya::string_t &name, char erased)
+int	CGlobalVariable::Make(const aya::string_t &name, char erased)
 {
 	// 既に存在するか調べ、存在していたらそれを返す
-	yaya::indexmap::const_iterator it = varmap.find(name);
+	aya::indexmap::const_iterator it = varmap.find(name);
 	if ( it != varmap.end() ) {
 		int idx = it->second;
 		if (!vm.basis().IsRun()) {
@@ -60,7 +60,7 @@ int	CGlobalVariable::Make(const yaya::string_t &name, char erased)
 	var.push_back(addvariable);
 
 	int idx = var.size() - 1;
-	varmap.insert(yaya::indexmap::value_type(name,idx));
+	varmap.insert(aya::indexmap::value_type(name,idx));
 	return idx;
 }
 
@@ -71,7 +71,7 @@ int	CGlobalVariable::Make(const yaya::string_t &name, char erased)
  *  複数見つかった場合は最長のものを返します。見つからなかった場合は0を返します
  * -----------------------------------------------------------------------
  */
-size_t	CGlobalVariable::GetMacthedLongestNameLength(const yaya::string_t &name)
+size_t	CGlobalVariable::GetMacthedLongestNameLength(const aya::string_t &name)
 {
 	size_t	max_len = 0;
 
@@ -91,9 +91,9 @@ size_t	CGlobalVariable::GetMacthedLongestNameLength(const yaya::string_t &name)
  *  見つからなかった場合は-1を返します
  * -----------------------------------------------------------------------
  */
-int		CGlobalVariable::GetIndex(const yaya::string_t &name)
+int		CGlobalVariable::GetIndex(const aya::string_t &name)
 {
-	yaya::indexmap::const_iterator it = varmap.find(name);
+	aya::indexmap::const_iterator it = varmap.find(name);
 	if ( it != varmap.end() ) {
 		int idx = it->second;
 		return var[idx].IsErased() ? -1 : idx;

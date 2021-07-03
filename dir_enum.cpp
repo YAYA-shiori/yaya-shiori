@@ -27,7 +27,7 @@
 ////////////////////////////////////////
 
 
-CDirEnum::CDirEnum(const yaya::string_t &ep)
+CDirEnum::CDirEnum(const aya::string_t &ep)
 {
 	enumpath = ep;
 	is_init = false;
@@ -55,7 +55,7 @@ bool CDirEnum::next(CDirEnumEntry &entry)
 
 			WIN32_FIND_DATA w32FindData;
 
-			yaya::string_t tmp_str = enumpath + L"\\*.*";
+			aya::string_t tmp_str = enumpath + L"\\*.*";
 			char *s_filestr = Ccct::Ucs2ToMbcs(tmp_str, CHARSET_DEFAULT);
 			if ( ! s_filestr ) { return false; }
 
@@ -114,7 +114,7 @@ bool CDirEnum::next(CDirEnumEntry &entry)
 	}
 
 #if defined(WIN32)
-	yaya::char_t *t_wfile = Ccct::MbcsToUcs2(name, CHARSET_DEFAULT);
+	aya::char_t *t_wfile = Ccct::MbcsToUcs2(name, CHARSET_DEFAULT);
 	if (! t_wfile ) { return false; }
 
 	entry.name = t_wfile;

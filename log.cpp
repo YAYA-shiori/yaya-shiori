@@ -37,7 +37,7 @@
  *  機能概要：  ロギングを開始します
  * -----------------------------------------------------------------------
  */
-void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
+void	CLog::Start(const aya::string_t &p, int cs, HWND hw, char il)
 {
 	iolog   = il;
 
@@ -92,7 +92,7 @@ void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 	}
 
 	// 文字列作成
-	yaya::string_t	str = msgj[0];
+	aya::string_t	str = msgj[0];
 	str += GetDateString();
 	str += L"\n\n";
 
@@ -100,7 +100,7 @@ void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 	if (fileen) {
 		char	*tmpstr = Ccct::Ucs2ToMbcs(str, charset);
 		if (tmpstr != NULL) {
-			FILE	*fp = yaya::w_fopen((yaya::char_t *)path.c_str(), L"w");
+			FILE	*fp = aya::w_fopen((aya::char_t *)path.c_str(), L"w");
 			if (fp != NULL) {
 /*				if (charset == CHARSET_UTF8)
 					write_utf8bom(fp);*/
@@ -138,7 +138,7 @@ void	CLog::Termination(void)
 
 	Message(1);
 
-	yaya::string_t	str = GetDateString();
+	aya::string_t	str = GetDateString();
 	str += L"\n\n";
 
 	Write(str);
@@ -155,7 +155,7 @@ void	CLog::Termination(void)
  *  機能概要：  ログに文字列を書き込みます
  * -----------------------------------------------------------------------
  */
-void	CLog::Write(const yaya::char_t *str, int mode)
+void	CLog::Write(const aya::char_t *str, int mode)
 {
 	if (!enable)
 		return;
@@ -165,7 +165,7 @@ void	CLog::Write(const yaya::char_t *str, int mode)
 		return;
 
 	// 文字列中の\rは消す
-	yaya::string_t	cstr = str;
+	aya::string_t	cstr = str;
 	int	len = cstr.size();
 	for(int i = 0; i < len; ) {
 		if (cstr[i] == L'\r') {
@@ -181,7 +181,7 @@ void	CLog::Write(const yaya::char_t *str, int mode)
 		if (! path.empty()) {
 			char	*tmpstr = Ccct::Ucs2ToMbcs(cstr, charset);
 			if (tmpstr != NULL) {
-				FILE	*fp = yaya::w_fopen((yaya::char_t *)path.c_str(), L"a");
+				FILE	*fp = aya::w_fopen((aya::char_t *)path.c_str(), L"a");
 				if (fp != NULL) {
 					fprintf(fp, "%s", tmpstr);
 					fclose(fp);
@@ -200,7 +200,7 @@ void	CLog::Write(const yaya::char_t *str, int mode)
 
 //----
 
-void	CLog::Write(const yaya::string_t &str, int mode)
+void	CLog::Write(const aya::string_t &str, int mode)
 {
 	Write(str.c_str(), mode);
 }
@@ -210,9 +210,9 @@ void	CLog::Write(const yaya::string_t &str, int mode)
  *  機能概要：  既定のフォーマットでファイル名をログに記録します
  * -----------------------------------------------------------------------
  */
-void	CLog::Filename(const yaya::string_t &filename)
+void	CLog::Filename(const aya::string_t &filename)
 {
-	yaya::string_t	str =  L"- ";
+	aya::string_t	str =  L"- ";
 	str += filename;
 	str += L"\n";
 	Write(str);
@@ -225,7 +225,7 @@ void	CLog::Filename(const yaya::string_t &filename)
  */
 void	CLog::Message(int id, int mode)
 {
-	Write((yaya::char_t *)msgj[id], mode);
+	Write((aya::char_t *)msgj[id], mode);
 }
 
 /* -----------------------------------------------------------------------
@@ -240,10 +240,10 @@ void	CLog::Message(int id, int mode)
  *  　　　　　  非表示にできます
  * -----------------------------------------------------------------------
  */
-void	CLog::Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t &dicfilename, int linecount)
+void	CLog::Error(int mode, int id, const aya::char_t *ref, const aya::string_t &dicfilename, int linecount)
 {
 	// ログに書き込み文字列を作成（辞書ファイル名と行番号）
-	yaya::string_t	logstr;
+	aya::string_t	logstr;
 
 	if (dicfilename.empty())
 		logstr = L"-(-) : ";
@@ -252,7 +252,7 @@ void	CLog::Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t
 		if (linecount == -1)
 			logstr += L"-) : ";
 		else {
-			logstr += yaya::ws_itoa(linecount);
+			logstr += aya::ws_itoa(linecount);
 			logstr += L") : ";
 		}
 	}
@@ -272,7 +272,7 @@ void	CLog::Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t
 	}
 
 	// 念の為改行コードを消しておく
-	for(yaya::string_t::iterator it = logstr.begin(); it != logstr.end(); it++){
+	for(aya::string_t::iterator it = logstr.begin(); it != logstr.end(); it++){
 		if ( *it == '\r' || *it == '\n' ) {
 			*it = ' ';
 		}
@@ -290,37 +290,37 @@ void	CLog::Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t
 
 //----
 
-void	CLog::Error(int mode, int id, const yaya::string_t& ref, const yaya::string_t& dicfilename, int linecount)
+void	CLog::Error(int mode, int id, const aya::string_t& ref, const aya::string_t& dicfilename, int linecount)
 {
-	Error(mode, id, (yaya::char_t *)ref.c_str(), dicfilename, linecount);
+	Error(mode, id, (aya::char_t *)ref.c_str(), dicfilename, linecount);
 }
 
 //----
 
-void	CLog::Error(int mode, int id, const yaya::char_t *ref)
+void	CLog::Error(int mode, int id, const aya::char_t *ref)
 {
-        Error(mode, id, ref, yaya::string_t(), -1);
+        Error(mode, id, ref, aya::string_t(), -1);
 }
 
 //----
 
-void	CLog::Error(int mode, int id, const yaya::string_t& ref)
+void	CLog::Error(int mode, int id, const aya::string_t& ref)
 {
-        Error(mode, id, (yaya::char_t *)ref.c_str(), yaya::string_t(), -1);
+        Error(mode, id, (aya::char_t *)ref.c_str(), aya::string_t(), -1);
 }
 
 //----
 
-void	CLog::Error(int mode, int id, const yaya::string_t& dicfilename, int linecount)
+void	CLog::Error(int mode, int id, const aya::string_t& dicfilename, int linecount)
 {
-	Error(mode, id, (yaya::char_t *)NULL, dicfilename, linecount);
+	Error(mode, id, (aya::char_t *)NULL, dicfilename, linecount);
 }
 
 //----
 
 void	CLog::Error(int mode, int id)
 {
-        Error(mode, id, (yaya::char_t *)NULL, yaya::string_t(), -1);
+        Error(mode, id, (aya::char_t *)NULL, aya::string_t(), -1);
 }
 
 /* -----------------------------------------------------------------------
@@ -329,21 +329,21 @@ void	CLog::Error(int mode, int id)
  *  引数　　：  io 0/1=開始時/終了時
  * -----------------------------------------------------------------------
  */
-void	CLog::Io(char io, const yaya::char_t *str)
+void	CLog::Io(char io, const aya::char_t *str)
 {
 	if (!enable || !iolog)
 		return;
 
-	static	yaya::timer		timer;
+	static	aya::timer		timer;
 
 	if (!io) {
 		//ignoreiolog機能。
 		if(ignore_iolog_strings.size()!=0){
-			yaya::string_t cstr=str;
-			std::vector<yaya::string_t>::iterator it;
+			aya::string_t cstr=str;
+			std::vector<aya::string_t>::iterator it;
 
 			for(it = ignore_iolog_strings.begin(); it != ignore_iolog_strings.end(); it++){
-				if(cstr.find(*it) != yaya::string_t::npos){
+				if(cstr.find(*it) != aya::string_t::npos){
 					//次の出力のログを抑制する。
 					//美しい実装ではないけどbasis側に手を加えたくないので。
 					//現状、basis側で必ず入力と出力はワンセットで出るはず
@@ -369,7 +369,7 @@ void	CLog::Io(char io, const yaya::char_t *str)
 		}
 
 		int elapsed_time = timer.elapsed();
-		yaya::string_t t_str = L"// response (Execution time : " + yaya::ws_itoa(elapsed_time) + L"[ms])\n";
+		aya::string_t t_str = L"// response (Execution time : " + aya::ws_itoa(elapsed_time) + L"[ms])\n";
 
 		Write(t_str);
 		Write(str);
@@ -377,7 +377,7 @@ void	CLog::Io(char io, const yaya::char_t *str)
 	}
 }
 
-void	CLog::Io(char io, const yaya::string_t &str)
+void	CLog::Io(char io, const aya::string_t &str)
 {
 	Io(io,str.c_str());
 }
@@ -388,12 +388,12 @@ void	CLog::Io(char io, const yaya::string_t &str)
  *  引数　　：  io 0/1=開始時/終了時
  * -----------------------------------------------------------------------
  */
-void	CLog::IoLib(char io, const yaya::string_t &str, const yaya::string_t &name)
+void	CLog::IoLib(char io, const aya::string_t &str, const aya::string_t &name)
 {
 	if (!enable || !iolog)
 		return;
 
-	static	yaya::timer		timer;
+	static	aya::timer		timer;
 
 	if (!io) {
 		Write(L"// request to library\n// name : ");
@@ -404,7 +404,7 @@ void	CLog::IoLib(char io, const yaya::string_t &str, const yaya::string_t &name)
 	}
 	else {
 		int elapsed_time = timer.elapsed();
-		yaya::string_t t_str = L"// response (Execution time : " + yaya::ws_itoa(elapsed_time) + L"[ms])\n";
+		aya::string_t t_str = L"// response (Execution time : " + aya::ws_itoa(elapsed_time) + L"[ms])\n";
 
 		Write(t_str);
 		Write(str + L"\n");
@@ -417,14 +417,14 @@ void	CLog::IoLib(char io, const yaya::string_t &str, const yaya::string_t &name)
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
-void	CLog::SendLogToWnd(const yaya::char_t *str, int mode)
+void	CLog::SendLogToWnd(const aya::char_t *str, int mode)
 {
 	if (hWnd == NULL)
 		return;
 
 	COPYDATASTRUCT cds;
 	cds.dwData = mode;
-	cds.cbData = (wcslen(str) + 1)*sizeof(yaya::char_t);
+	cds.cbData = (wcslen(str) + 1)*sizeof(aya::char_t);
 	cds.lpData = (LPVOID)str;
 
 	DWORD res_dword = 0;
@@ -433,9 +433,9 @@ void	CLog::SendLogToWnd(const yaya::char_t *str, int mode)
 
 //----
 
-void	CLog::SendLogToWnd(const yaya::string_t &str, int mode)
+void	CLog::SendLogToWnd(const aya::string_t &str, int mode)
 {
-	SendLogToWnd((yaya::char_t *)str.c_str(), mode);
+	SendLogToWnd((aya::char_t *)str.c_str(), mode);
 }
 #endif
 
@@ -456,7 +456,7 @@ HWND	CLog::GetCheckerWnd(void)
  *  機能概要：  IOログの無視する文字列リストを追加します
  * -----------------------------------------------------------------------
  */
-void	CLog::AddIgnoreIologString(const yaya::string_t &ignorestr){
+void	CLog::AddIgnoreIologString(const aya::string_t &ignorestr){
 	ignore_iolog_strings.push_back(ignorestr);
 }
 
@@ -474,7 +474,7 @@ void	CLog::ClearIgnoreIologString(){
  *  機能概要：  内部エラーログ履歴に追加します
  * -----------------------------------------------------------------------
  */
-void    CLog::AddErrorLogHistory(const yaya::string_t &err) {
+void    CLog::AddErrorLogHistory(const aya::string_t &err) {
 	if ( error_log_history.size() >= MAX_ERROR_LOG_HISTORY ) {
 		error_log_history.pop_back();
 	}
@@ -486,7 +486,7 @@ void    CLog::AddErrorLogHistory(const yaya::string_t &err) {
  *  機能概要：  内部エラーログ履歴を返します
  * -----------------------------------------------------------------------
  */
-std::deque<yaya::string_t> & CLog::GetErrorLogHistory(void) {
+std::deque<aya::string_t> & CLog::GetErrorLogHistory(void) {
 	return error_log_history;
 }
 
@@ -495,8 +495,8 @@ std::deque<yaya::string_t> & CLog::GetErrorLogHistory(void) {
  *  機能概要：  内部エラーログ履歴を直接設定します
  * -----------------------------------------------------------------------
  */
-void CLog::SetErrorLogHistory(std::deque<yaya::string_t> &log) {
-	for ( std::deque<yaya::string_t>::iterator it = log.begin() ; it != log.end() ; ++it ) {
+void CLog::SetErrorLogHistory(std::deque<aya::string_t> &log) {
+	for ( std::deque<aya::string_t>::iterator it = log.begin() ; it != log.end() ; ++it ) {
 		error_log_history.push_front(*it);
 	}
 }

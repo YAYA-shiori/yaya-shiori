@@ -138,7 +138,7 @@ CValue	CDuplEvInfo::GetValue(CAyaVM &vm,int areanum, const std::vector<CVecValue
 	vm.sysfunction().SetLso(t_index);
 
 	if (areanum) {
-		yaya::string_t	result;
+		aya::string_t	result;
 		for ( int i = 0; i <= areanum; i++ ) {
 			if ( num[i] ) {
 				int	next = t_index/num[i];

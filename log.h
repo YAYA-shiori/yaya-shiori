@@ -26,7 +26,7 @@
 class	CLog
 {
 protected:
-	yaya::string_t		path;		// ログファイルのパス
+	aya::string_t		path;		// ログファイルのパス
 	int			charset;	// 文字コードセット
 #if defined(WIN32)
 	HWND		hWnd;		// チェックツールのHWND
@@ -38,10 +38,10 @@ protected:
 	char		iolog;		// 入出力ロギング有効フラグ
 
 	//入力でこの文字列があったらログ出力しないリスト
-	std::vector<yaya::string_t> ignore_iolog_strings;
+	std::vector<aya::string_t> ignore_iolog_strings;
 	char		ignore_iolog_noresult;//↑の入力後に出力も抑制するためのフラグ
 
-	std::deque<yaya::string_t> error_log_history;
+	std::deque<aya::string_t> error_log_history;
 
 public:
 	CLog(void)
@@ -56,42 +56,42 @@ public:
 #if defined(POSIX)
 	typedef void* HWND;
 #endif
-	void	Start(const yaya::string_t &p, int cs, HWND hw, char il);
+	void	Start(const aya::string_t &p, int cs, HWND hw, char il);
 	void	Termination(void);
 
-	void	Write(const yaya::string_t &str, int mode = 0);
-	void	Write(const yaya::char_t *str, int mode = 0);
+	void	Write(const aya::string_t &str, int mode = 0);
+	void	Write(const aya::char_t *str, int mode = 0);
 
 	void	Message(int id, int mode = 0);
-	void	Filename(const yaya::string_t &filename);
+	void	Filename(const aya::string_t &filename);
 
-	void	Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t &dicfilename, int linecount);
-	void	Error(int mode, int id, const yaya::string_t &ref, const yaya::string_t &dicfilename, int linecount);
-	void	Error(int mode, int id, const yaya::char_t *ref);
-	void	Error(int mode, int id, const yaya::string_t &ref);
-	void	Error(int mode, int id, const yaya::string_t &dicfilename, int linecount);
+	void	Error(int mode, int id, const aya::char_t *ref, const aya::string_t &dicfilename, int linecount);
+	void	Error(int mode, int id, const aya::string_t &ref, const aya::string_t &dicfilename, int linecount);
+	void	Error(int mode, int id, const aya::char_t *ref);
+	void	Error(int mode, int id, const aya::string_t &ref);
+	void	Error(int mode, int id, const aya::string_t &dicfilename, int linecount);
 	void	Error(int mode, int id);
 
-	void	Io(char io, const yaya::char_t *str);
-	void	Io(char io, const yaya::string_t &str);
+	void	Io(char io, const aya::char_t *str);
+	void	Io(char io, const aya::string_t &str);
 
-	void	IoLib(char io, const yaya::string_t &str, const yaya::string_t &name);
+	void	IoLib(char io, const aya::string_t &str, const aya::string_t &name);
 
-	void	SendLogToWnd(const yaya::char_t *str, int mode);
-	void	SendLogToWnd(const yaya::string_t &str, int mode);
+	void	SendLogToWnd(const aya::char_t *str, int mode);
+	void	SendLogToWnd(const aya::string_t &str, int mode);
 
-	void	AddIgnoreIologString(const yaya::string_t &ignorestr);
+	void	AddIgnoreIologString(const aya::string_t &ignorestr);
 	void	ClearIgnoreIologString();
 
-	std::deque<yaya::string_t> & GetErrorLogHistory(void);
-	void SetErrorLogHistory(std::deque<yaya::string_t> &log);
+	std::deque<aya::string_t> & GetErrorLogHistory(void);
+	void SetErrorLogHistory(std::deque<aya::string_t> &log);
 
 protected:
 #if defined(WIN32)
 	HWND	GetCheckerWnd(void);
 #endif
 
-	void    AddErrorLogHistory(const yaya::string_t &err);
+	void    AddErrorLogHistory(const aya::string_t &err);
 
 };
 

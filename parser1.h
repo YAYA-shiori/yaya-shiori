@@ -43,22 +43,22 @@ public:
 		; //NOOP
 	}
 
-	char	CheckExecutionCode(const yaya::string_t& dicfilename);
-	char	CheckExecutionCode1(CStatement& st, const yaya::string_t& dicfilename);
+	char	CheckExecutionCode(const aya::string_t& dicfilename);
+	char	CheckExecutionCode1(CStatement& st, const aya::string_t& dicfilename);
 
 protected:
-	char	CheckNomialCount(CStatement& st, const yaya::string_t& dicfilename);
-	char	CheckSubstSyntax(CStatement& st, const yaya::string_t& dicfilename);
-	char	CheckFeedbackOperatorPos(CStatement& st, const yaya::string_t& dicfilename);
-	char	SetFormulaType(CStatement& st, const yaya::string_t& dicfilename);
-	char	SetBreakJumpNo(const yaya::string_t& dicfilename);
-	char	CheckCaseSyntax(const yaya::string_t& dicfilename);
-	char	CheckIfSyntax(const yaya::string_t& dicfilename);
-	char	CheckElseSyntax(const yaya::string_t& dicfilename);
-	char	CheckForSyntax(const yaya::string_t& dicfilename);
-	char	CheckForeachSyntax(const yaya::string_t& dicfilename);
-	char	SetIfJumpNo(const yaya::string_t& dicfilename);
-	char	CheckFunctionArgument(CStatement& st, const yaya::string_t& dicfilename);
+	char	CheckNomialCount(CStatement& st, const aya::string_t& dicfilename);
+	char	CheckSubstSyntax(CStatement& st, const aya::string_t& dicfilename);
+	char	CheckFeedbackOperatorPos(CStatement& st, const aya::string_t& dicfilename);
+	char	SetFormulaType(CStatement& st, const aya::string_t& dicfilename);
+	char	SetBreakJumpNo(const aya::string_t& dicfilename);
+	char	CheckCaseSyntax(const aya::string_t& dicfilename);
+	char	CheckIfSyntax(const aya::string_t& dicfilename);
+	char	CheckElseSyntax(const aya::string_t& dicfilename);
+	char	CheckForSyntax(const aya::string_t& dicfilename);
+	char	CheckForeachSyntax(const aya::string_t& dicfilename);
+	char	SetIfJumpNo(const aya::string_t& dicfilename);
+	char	CheckFunctionArgument(CStatement& st, const aya::string_t& dicfilename);
 
 	void	CompleteSetting(void);
 };

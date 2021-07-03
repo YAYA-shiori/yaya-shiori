@@ -39,10 +39,10 @@
  *  返値　　：  0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-char	Split(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::char_t *sepstr)
+char	Split(const aya::string_t &str, aya::string_t &dstr0, aya::string_t &dstr1, const aya::char_t *sepstr)
 {
-	yaya::string_t::size_type seppoint = str.find(sepstr);
-	if (seppoint == yaya::string_t::npos) {
+	aya::string_t::size_type seppoint = str.find(sepstr);
+	if (seppoint == aya::string_t::npos) {
 		dstr0 = str;
 		dstr1 = L"";
 		return 0;
@@ -60,10 +60,10 @@ char	Split(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dst
 
 //----
 
-char	Split(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::string_t &sepstr)
+char	Split(const aya::string_t &str, aya::string_t &dstr0, aya::string_t &dstr1, const aya::string_t &sepstr)
 {
-	yaya::string_t::size_type seppoint = str.find(sepstr);
-	if (seppoint == yaya::string_t::npos) {
+	aya::string_t::size_type seppoint = str.find(sepstr);
+	if (seppoint == aya::string_t::npos) {
 		dstr0 = str;
 		dstr1 = L"";
 		return 0;
@@ -86,10 +86,10 @@ char	Split(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dst
  *  返値　　：  0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-char	SplitOnly(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::char_t *sepstr)
+char	SplitOnly(const aya::string_t &str, aya::string_t &dstr0, aya::string_t &dstr1, const aya::char_t *sepstr)
 {
-	yaya::string_t::size_type seppoint = str.find(sepstr);
-	if (seppoint == yaya::string_t::npos) {
+	aya::string_t::size_type seppoint = str.find(sepstr);
+	if (seppoint == aya::string_t::npos) {
 		dstr0 = str;
 		dstr1 = L"";
 		return 0;
@@ -109,20 +109,20 @@ char	SplitOnly(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t 
  *  返値　　：  負=失敗   0・正=成功
  * -----------------------------------------------------------------------
  */
-yaya::string_t::size_type Find_IgnoreDQ(const yaya::string_t &str, const yaya::char_t *findstr)
+aya::string_t::size_type Find_IgnoreDQ(const aya::string_t &str, const aya::char_t *findstr)
 {
-	yaya::string_t::size_type findpoint = 0;
-	yaya::string_t::size_type nextdq = 0;
+	aya::string_t::size_type findpoint = 0;
+	aya::string_t::size_type nextdq = 0;
 
 	while(true){
 		findpoint = str.find(findstr, findpoint);
-		if (findpoint == yaya::string_t::npos)
-			return yaya::string_t::npos;
+		if (findpoint == aya::string_t::npos)
+			return aya::string_t::npos;
 
 		nextdq = IsInDQ(str, nextdq, findpoint);
 		if (nextdq >= IsInDQ_npos) {
 			if (nextdq == IsInDQ_runaway) { //クオートが終わらないまま終了
-				return yaya::string_t::npos;
+				return aya::string_t::npos;
 			}
 			break; //みつかった
 		}
@@ -134,7 +134,7 @@ yaya::string_t::size_type Find_IgnoreDQ(const yaya::string_t &str, const yaya::c
 	return findpoint;
 }
 
-yaya::string_t::size_type Find_IgnoreDQ(const yaya::string_t &str, const yaya::string_t &findstr)
+aya::string_t::size_type Find_IgnoreDQ(const aya::string_t &str, const aya::string_t &findstr)
 {
 	return Find_IgnoreDQ(str,findstr.c_str());
 }
@@ -146,19 +146,19 @@ yaya::string_t::size_type Find_IgnoreDQ(const yaya::string_t &str, const yaya::s
  *  返値　　：  npos=失敗   0・正=成功
  * -----------------------------------------------------------------------
  */
-yaya::string_t::size_type find_last_str(const yaya::string_t &str, const yaya::char_t *findstr)
+aya::string_t::size_type find_last_str(const aya::string_t &str, const aya::char_t *findstr)
 {
-	yaya::string_t::size_type it = yaya::string_t::npos;
-	yaya::string_t::size_type found;
+	aya::string_t::size_type it = aya::string_t::npos;
+	aya::string_t::size_type found;
 
-	while ( (found = str.find(findstr,it)) != yaya::string_t::npos ) {
+	while ( (found = str.find(findstr,it)) != aya::string_t::npos ) {
 		it = found;
 	}
 
 	return it;
 }
 
-yaya::string_t::size_type find_last_str(const yaya::string_t &str, const yaya::string_t &findstr)
+aya::string_t::size_type find_last_str(const aya::string_t &str, const aya::string_t &findstr)
 {
 	return find_last_str(str,findstr.c_str());
 }
@@ -172,10 +172,10 @@ yaya::string_t::size_type find_last_str(const yaya::string_t &str, const yaya::s
  * -----------------------------------------------------------------------
  */
 
-char	Split_IgnoreDQ(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::char_t *sepstr)
+char	Split_IgnoreDQ(const aya::string_t &str, aya::string_t &dstr0, aya::string_t &dstr1, const aya::char_t *sepstr)
 {
-	yaya::string_t::size_type seppoint = Find_IgnoreDQ(str,sepstr);
-	if ( seppoint == yaya::string_t::npos ) {
+	aya::string_t::size_type seppoint = Find_IgnoreDQ(str,sepstr);
+	if ( seppoint == aya::string_t::npos ) {
 		dstr0 = str;
 		dstr1 = L"";
 		return 0;
@@ -193,7 +193,7 @@ char	Split_IgnoreDQ(const yaya::string_t &str, yaya::string_t &dstr0, yaya::stri
 
 //----
 
-char	Split_IgnoreDQ(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::string_t &sepstr)
+char	Split_IgnoreDQ(const aya::string_t &str, aya::string_t &dstr0, aya::string_t &dstr1, const aya::string_t &sepstr)
 {
 	return Split_IgnoreDQ(str,dstr0,dstr1,sepstr.c_str());
 }
@@ -205,27 +205,27 @@ char	Split_IgnoreDQ(const yaya::string_t &str, yaya::string_t &dstr0, yaya::stri
  *　返値　　：　分割数(array.size())
  * -----------------------------------------------------------------------
  */
-int	SplitToMultiString(const yaya::string_t &str, std::vector<yaya::string_t> *array, const yaya::string_t &delimiter)
+int	SplitToMultiString(const aya::string_t &str, std::vector<aya::string_t> *array, const aya::string_t &delimiter)
 {
 	if (!str.size())
 		return 0;
 
-	const yaya::string_t::size_type dlmlen = delimiter.size();
-	yaya::string_t::size_type beforepoint = 0,seppoint;
+	const aya::string_t::size_type dlmlen = delimiter.size();
+	aya::string_t::size_type beforepoint = 0,seppoint;
 	size_t count = 1;
 
 	for( ; ; ) {
 		// デリミタの発見
 		seppoint = str.find(delimiter,beforepoint);
-		if (seppoint == yaya::string_t::npos) {
+		if (seppoint == aya::string_t::npos) {
 			if ( array ) {
-				array->push_back(yaya::string_t(str.begin()+beforepoint,str.end()));
+				array->push_back(aya::string_t(str.begin()+beforepoint,str.end()));
 			}
 			break;
 		}
 		// 取り出しとvectorへの追加
 		if ( array ) {
-			array->push_back(yaya::string_t(str.begin()+beforepoint,str.begin()+seppoint));
+			array->push_back(aya::string_t(str.begin()+beforepoint,str.begin()+seppoint));
 		}
 		// 取り出した分を削除
 		beforepoint = seppoint + dlmlen;
@@ -240,13 +240,13 @@ int	SplitToMultiString(const yaya::string_t &str, std::vector<yaya::string_t> *a
  *  機能概要：  与えられた文字列の前後に半角空白かタブがあった場合、すべて削除します
  * -----------------------------------------------------------------------
  */
-void	CutSpace(yaya::string_t &str)
+void	CutSpace(aya::string_t &str)
 {
 	CutEndSpace(str);
 	CutStartSpace(str);
 }
 
-void	CutStartSpace(yaya::string_t &str)
+void	CutStartSpace(aya::string_t &str)
 {
 	int	len = str.size();
 	// 前方
@@ -264,7 +264,7 @@ void	CutStartSpace(yaya::string_t &str)
 	}
 }
 
-void	CutEndSpace(yaya::string_t &str)
+void	CutEndSpace(aya::string_t &str)
 {
 	int	len = str.size();
 	// 後方
@@ -289,7 +289,7 @@ void	CutEndSpace(yaya::string_t &str)
  *              CParser0::LoadDictionary1 も参照してください
  * -----------------------------------------------------------------------
  */
-void	UnescapeSpecialString(yaya::string_t &str)
+void	UnescapeSpecialString(aya::string_t &str)
 {
 	if ( str.size() <= 1 ) {
 		return;
@@ -321,7 +321,7 @@ void	UnescapeSpecialString(yaya::string_t &str)
  *  機能概要：  与えられた文字列の前後にダブルクォートがあった場合削除します
  * -----------------------------------------------------------------------
  */
-void	CutDoubleQuote(yaya::string_t &str)
+void	CutDoubleQuote(aya::string_t &str)
 {
 	size_t len = str.size();
 	if (!len)
@@ -343,7 +343,7 @@ void	CutDoubleQuote(yaya::string_t &str)
  *  機能概要：  与えられた文字列の前後にシングルクォートがあった場合削除します
  * -----------------------------------------------------------------------
  */
-void	CutSingleQuote(yaya::string_t &str)
+void	CutSingleQuote(aya::string_t &str)
 {
 	size_t len = str.size();
 	if (!len)
@@ -365,7 +365,7 @@ void	CutSingleQuote(yaya::string_t &str)
  *  機能概要：  与えられた文字列をダブルクォートで囲みます
  * -----------------------------------------------------------------------
  */
-void	AddDoubleQuote(yaya::string_t &str)
+void	AddDoubleQuote(aya::string_t &str)
 {
 	str = L"\"" + str + L"\"";
 }
@@ -375,10 +375,10 @@ void	AddDoubleQuote(yaya::string_t &str)
  *  機能概要：  与えられた文字列の後端に改行(CRLF)があった場合削除します
  * -----------------------------------------------------------------------
  */
-void	CutCrLf(yaya::string_t &str)
+void	CutCrLf(aya::string_t &str)
 {
-	yaya::ws_eraseend(str, L'\n');
-	yaya::ws_eraseend(str, L'\r');
+	aya::ws_eraseend(str, L'\n');
+	aya::ws_eraseend(str, L'\r');
 }
 
 /* -----------------------------------------------------------------------
@@ -387,7 +387,7 @@ void	CutCrLf(yaya::string_t &str)
  * -----------------------------------------------------------------------
  */
 
-yaya::string_t GetDateString()
+aya::string_t GetDateString()
 {
     char buf[128];
     time_t t = time(NULL);
@@ -395,7 +395,7 @@ yaya::string_t GetDateString()
     strftime(buf, 127, "%Y/%m/%d %H:%M:%S", tm);
 
 #if !defined(POSIX) && !defined(__MINGW32__)
-	yaya::char_t wbuf[64];
+	aya::char_t wbuf[64];
 	for ( size_t i = 0 ; i < 64 ; ++i ) {
 		wbuf[i] = buf[i];
 		if ( wbuf[i] == 0 ) { break; }
@@ -416,17 +416,17 @@ yaya::string_t GetDateString()
  *                >=0 = 次に外部になる位置
  * -----------------------------------------------------------------------
  */
-const yaya::string_t::size_type IsInDQ_notindq = static_cast<yaya::string_t::size_type>(-1);
-const yaya::string_t::size_type IsInDQ_runaway = static_cast<yaya::string_t::size_type>(-2);
-const yaya::string_t::size_type IsInDQ_npos    = static_cast<yaya::string_t::size_type>(-2);
+const aya::string_t::size_type IsInDQ_notindq = static_cast<aya::string_t::size_type>(-1);
+const aya::string_t::size_type IsInDQ_runaway = static_cast<aya::string_t::size_type>(-2);
+const aya::string_t::size_type IsInDQ_npos    = static_cast<aya::string_t::size_type>(-2);
 
-yaya::string_t::size_type IsInDQ(const yaya::string_t &str, yaya::string_t::size_type startpoint, yaya::string_t::size_type checkpoint)
+aya::string_t::size_type IsInDQ(const aya::string_t &str, aya::string_t::size_type startpoint, aya::string_t::size_type checkpoint)
 {
 	bool dq    = false;
 	bool quote = false;
 
-	yaya::string_t::size_type len    = str.size();
-	yaya::string_t::size_type found  = startpoint;
+	aya::string_t::size_type len    = str.size();
+	aya::string_t::size_type found  = startpoint;
 
 	while(true) {
 		if (found >= len) {
@@ -435,7 +435,7 @@ yaya::string_t::size_type IsInDQ(const yaya::string_t &str, yaya::string_t::size
 		}
 		
 		found = str.find_first_of(L"'\"",found);
-		if (found == yaya::string_t::npos) {
+		if (found == aya::string_t::npos) {
 			found = IsInDQ_runaway;
 			break;
 		}
@@ -481,7 +481,7 @@ yaya::string_t::size_type IsInDQ(const yaya::string_t &str, yaya::string_t::size
  *  返値　　：  0/1=×/○
  * -----------------------------------------------------------------------
  */
-char	IsDoubleButNotIntString(const yaya::string_t &str)
+char	IsDoubleButNotIntString(const aya::string_t &str)
 {
 	int	len = str.size();
 	if (!len)
@@ -513,7 +513,7 @@ char	IsDoubleButNotIntString(const yaya::string_t &str)
  *  返値　　：  0/1=×/○
  * -----------------------------------------------------------------------
  */
-char	IsIntString(const yaya::string_t &str)
+char	IsIntString(const aya::string_t &str)
 {
 	int	len = str.size();
 	if (!len)
@@ -550,7 +550,7 @@ char	IsIntString(const yaya::string_t &str)
  *  返値　　：  0/1=×/○
  * -----------------------------------------------------------------------
  */
-char	IsIntBinString(const yaya::string_t &str, char header)
+char	IsIntBinString(const aya::string_t &str, char header)
 {
 	int	len = str.size();
 	if (!len)
@@ -569,7 +569,7 @@ char	IsIntBinString(const yaya::string_t &str, char header)
 	if ( (len-i) > 32 ) { return 0; }
 	
 	for( ; i < len; i++) {
-		yaya::char_t	j = str[i];
+		aya::char_t	j = str[i];
 		if (j != L'0' && j != L'1')
 			return 0;
 	}
@@ -584,7 +584,7 @@ char	IsIntBinString(const yaya::string_t &str, char header)
  *  返値　　：  0/1=×/○
  * -----------------------------------------------------------------------
  */
-char	IsIntHexString(const yaya::string_t &str, char header)
+char	IsIntHexString(const aya::string_t &str, char header)
 {
 	int	len = str.size();
 	if (!len)
@@ -604,7 +604,7 @@ char	IsIntHexString(const yaya::string_t &str, char header)
 	if ( (len-i) > 8 ) { return 0; }
 
 	for( ; i < len; i++) {
-		yaya::char_t	j = str[i];
+		aya::char_t	j = str[i];
 		if (j >= L'0' && j <= L'9')
 			continue;
 		else if (j >= L'a' && j <= L'f')
@@ -628,7 +628,7 @@ char	IsIntHexString(const yaya::string_t &str, char header)
  *  　　　　　  　システム関数と同名/制御文もしくは演算子と同名
  * -----------------------------------------------------------------------
  */
-char	IsLegalFunctionName(const yaya::string_t &str)
+char	IsLegalFunctionName(const aya::string_t &str)
 {
 	int	len = str.size();
 	if (!len)
@@ -644,15 +644,15 @@ char	IsLegalFunctionName(const yaya::string_t &str)
 		return 3;
 
 	for(int i = 0; i < len; i++) {
-		yaya::char_t	c = str[i];
-		if ((c >= (yaya::char_t)0x0000 && c <= (yaya::char_t)0x0026) ||
-			(c >= (yaya::char_t)0x0028 && c <= (yaya::char_t)0x002d) ||
-			 c == (yaya::char_t)0x002f ||
-			(c >= (yaya::char_t)0x003a && c <= (yaya::char_t)0x0040) ||
-			 c == (yaya::char_t)0x005b ||
-			(c >= (yaya::char_t)0x005d && c <= (yaya::char_t)0x005e) ||
-			 c == (yaya::char_t)0x0060 ||
-			(c >= (yaya::char_t)0x007b && c <= (yaya::char_t)0x007f))
+		aya::char_t	c = str[i];
+		if ((c >= (aya::char_t)0x0000 && c <= (aya::char_t)0x0026) ||
+			(c >= (aya::char_t)0x0028 && c <= (aya::char_t)0x002d) ||
+			 c == (aya::char_t)0x002f ||
+			(c >= (aya::char_t)0x003a && c <= (aya::char_t)0x0040) ||
+			 c == (aya::char_t)0x005b ||
+			(c >= (aya::char_t)0x005d && c <= (aya::char_t)0x005e) ||
+			 c == (aya::char_t)0x0060 ||
+			(c >= (aya::char_t)0x007b && c <= (aya::char_t)0x007f))
 			return 4;
 	}
 
@@ -666,7 +666,7 @@ char	IsLegalFunctionName(const yaya::string_t &str)
 	}
 	for(size_t i= 0; i < FORMULATAG_NUM; i++) {
 //		if (!str.compare(formulatag[i]))
-		if (str.find(formulatag[i]) != yaya::string_t::npos) {
+		if (str.find(formulatag[i]) != aya::string_t::npos) {
 			return 6;
 		}
 	}
@@ -684,7 +684,7 @@ char	IsLegalFunctionName(const yaya::string_t &str)
  *  　　　　　  　システム関数と同名/制御文もしくは演算子と同名
  * -----------------------------------------------------------------------
  */
-char	IsLegalVariableName(const yaya::string_t &str)
+char	IsLegalVariableName(const aya::string_t &str)
 {
 	int	len = str.size();
 	if (!len)
@@ -698,15 +698,15 @@ char	IsLegalVariableName(const yaya::string_t &str)
 //		return 3;
 
 	for(int i = 0; i < len; i++) {
-		yaya::char_t	c = str[i];
-		if ((c >= (yaya::char_t)0x0000  && c <= (yaya::char_t)0x0026) ||
-			(c >= (yaya::char_t)0x0028  && c <= (yaya::char_t)0x002d) ||
-			 c == (yaya::char_t)0x002f ||
-			(c >= (yaya::char_t)0x003a && c <= (yaya::char_t)0x0040) ||
-			 c == (yaya::char_t)0x005b ||
-			(c >= (yaya::char_t)0x005d && c <= (yaya::char_t)0x005e) ||
-			 c == (yaya::char_t)0x0060 ||
-			(c >= (yaya::char_t)0x007b && c <= (yaya::char_t)0x007f))
+		aya::char_t	c = str[i];
+		if ((c >= (aya::char_t)0x0000  && c <= (aya::char_t)0x0026) ||
+			(c >= (aya::char_t)0x0028  && c <= (aya::char_t)0x002d) ||
+			 c == (aya::char_t)0x002f ||
+			(c >= (aya::char_t)0x003a && c <= (aya::char_t)0x0040) ||
+			 c == (aya::char_t)0x005b ||
+			(c >= (aya::char_t)0x005d && c <= (aya::char_t)0x005e) ||
+			 c == (aya::char_t)0x0060 ||
+			(c >= (aya::char_t)0x007b && c <= (aya::char_t)0x007f))
 			return 4;
 	}
 
@@ -720,7 +720,7 @@ char	IsLegalVariableName(const yaya::string_t &str)
 	}
 	for(size_t i= 0; i < FORMULATAG_NUM; i++) {
 //		if (!str.compare(formulatag[i]))
-		if (str.find(formulatag[i]) != yaya::string_t::npos) {
+		if (str.find(formulatag[i]) != aya::string_t::npos) {
 			return 6;
 		}
 	}
@@ -737,7 +737,7 @@ char	IsLegalVariableName(const yaya::string_t &str)
  *  　　　　　  　ダブルクォートで囲まれていない
  * -----------------------------------------------------------------------
  */
-char	IsLegalStrLiteral(const yaya::string_t &str)
+char	IsLegalStrLiteral(const aya::string_t &str)
 {
 	int	len = str.size();
 	if (!len)
@@ -784,7 +784,7 @@ char	IsLegalStrLiteral(const yaya::string_t &str)
  *  　　　　　  　ダブルクォートで囲まれていない
  * -----------------------------------------------------------------------
  */
-char	IsLegalPlainStrLiteral(const yaya::string_t &str)
+char	IsLegalPlainStrLiteral(const aya::string_t &str)
 {
 	int	len = str.size();
 	if (!len)
@@ -843,14 +843,14 @@ char	IsNt(void)
  * -----------------------------------------------------------------------
  */
 
-void	EscapeString(yaya::string_t &wstr)
+void	EscapeString(aya::string_t &wstr)
 {
-	yaya::ws_replace(wstr, L"\"", ESC_DQ);
+	aya::ws_replace(wstr, L"\"", ESC_DQ);
 
 	for ( size_t i = 0 ; i < wstr.length() ; ++i ) {
 		if ( wstr[i] <= END_OF_CTRL_CH ) {
-			yaya::string_t replace_text(ESC_CTRL);
-			replace_text += (yaya::char_t)(wstr[i] + CTRL_CH_START);
+			aya::string_t replace_text(ESC_CTRL);
+			replace_text += (aya::char_t)(wstr[i] + CTRL_CH_START);
 
 			wstr.replace(i,1,replace_text);
 			i += replace_text.length() - 1; //置き換え処理した後に移動
@@ -863,18 +863,18 @@ void	EscapeString(yaya::string_t &wstr)
  *  機能概要：  セーブファイル読み込みの際に有害な文字を戻します
  * -----------------------------------------------------------------------
  */
-void	UnescapeString(yaya::string_t &wstr)
+void	UnescapeString(aya::string_t &wstr)
 {
-	yaya::ws_replace(wstr, ESC_DQ, L"\"");
+	aya::ws_replace(wstr, ESC_DQ, L"\"");
 
-	yaya::string_t::size_type found = 0;
+	aya::string_t::size_type found = 0;
 	const size_t len = ::wcslen(ESC_CTRL);
-	yaya::char_t ch;
-	yaya::char_t str[2] = L"x"; //置き換え用ダミー
+	aya::char_t ch;
+	aya::char_t str[2] = L"x"; //置き換え用ダミー
 
 	while(true) {
 		found = wstr.find(ESC_CTRL,found);
-		if ( found == yaya::string_t::npos ) {
+		if ( found == aya::string_t::npos ) {
 			break;
 		}
 
@@ -895,11 +895,11 @@ void	UnescapeString(yaya::string_t &wstr)
  * -----------------------------------------------------------------------
  */
 
-void EncodeBase64(yaya::string_t &out,const char *in,size_t in_len)
+void EncodeBase64(aya::string_t &out,const char *in,size_t in_len)
 {
 	int len = in_len;
 	const unsigned char* p = reinterpret_cast<const unsigned char*>(in);
-	static const yaya::char_t table[] = L"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	static const aya::char_t table[] = L"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	
 	while (len > 0)
 	{
@@ -941,7 +941,7 @@ void EncodeBase64(yaya::string_t &out,const char *in,size_t in_len)
  * -----------------------------------------------------------------------
  */
 
-void DecodeBase64(std::string &out,const yaya::char_t *in,size_t in_len)
+void DecodeBase64(std::string &out,const aya::char_t *in,size_t in_len)
 {
 	static const unsigned char reverse_64[] = {
 		//0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
@@ -955,7 +955,7 @@ void DecodeBase64(std::string &out,const yaya::char_t *in,size_t in_len)
 		 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51,  0,  0,  0,  0,  0    // 0x70 - 0x7F
 	};
 
-	const yaya::char_t* p = in;
+	const aya::char_t* p = in;
 
 	while (*p!='=')
 	{
@@ -982,9 +982,9 @@ void DecodeBase64(std::string &out,const yaya::char_t *in,size_t in_len)
  * -----------------------------------------------------------------------
  */
 
-void EncodeURL(yaya::string_t &out,const char *in,size_t in_len,bool isPlusPercent)
+void EncodeURL(aya::string_t &out,const char *in,size_t in_len,bool isPlusPercent)
 {
-	yaya::char_t chr[4] = L"%00";
+	aya::char_t chr[4] = L"%00";
 	const unsigned char* p = reinterpret_cast<const unsigned char*>(in);
 
 	for ( size_t i = 0 ; i < in_len ; ++i ) {
@@ -996,7 +996,7 @@ void EncodeURL(yaya::string_t &out,const char *in,size_t in_len,bool isPlusPerce
 			out.append(1,L'+');
 		}
 		else {
-			yaya::snprintf(chr+1,4,L"%02X",current);
+			aya::snprintf(chr+1,4,L"%02X",current);
 			out.append(chr);
 		}
 	}
@@ -1007,7 +1007,7 @@ void EncodeURL(yaya::string_t &out,const char *in,size_t in_len,bool isPlusPerce
  * -----------------------------------------------------------------------
  */
 
-void DecodeURL(std::string &out,const yaya::char_t *in,size_t in_len,bool isPlusPercent)
+void DecodeURL(std::string &out,const aya::char_t *in,size_t in_len,bool isPlusPercent)
 {
 	char ch[3] = {0,0,0};
 

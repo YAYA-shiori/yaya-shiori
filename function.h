@@ -126,11 +126,11 @@ private:
 	CAyaVM *pvm;
 	
 public:
-	yaya::string_t				name;			// 名前
-	yaya::string_t::size_type	namelen;		// 名前の長さ
+	aya::string_t				name;			// 名前
+	aya::string_t::size_type	namelen;		// 名前の長さ
 	std::vector<CStatement>		statement;		// 命令郡
 	CDuplEvInfo					dupl;			// 重複回避制御
-	yaya::string_t				dicfilename;	// 対応する辞書ファイル名
+	aya::string_t				dicfilename;	// 対応する辞書ファイル名
 
 protected:
 	int					statelenm1;		// statementの長さ-1（1を減じているのは終端の"}"を処理しないためです）
@@ -139,7 +139,7 @@ private:
 	CFunction(void);
 
 public:
-	CFunction(CAyaVM &vmr, const yaya::string_t& n, int ct, const yaya::string_t& df) : pvm(&vmr) , dupl(ct)
+	CFunction(CAyaVM &vmr, const aya::string_t& n, int ct, const aya::string_t& df) : pvm(&vmr) , dupl(ct)
 	{
 		name        = n;
 		namelen     = name.size();

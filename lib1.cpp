@@ -220,7 +220,7 @@ int	CLib1::Load(void)
 		// DLLパス文字列作成
 		wchar_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
 		_wsplitpath(name.c_str(), drive, dir, fname, ext);
-		yaya::string_t	dllpath = drive;
+		aya::string_t	dllpath = drive;
 		dllpath += dir;
 
 		// パス文字列をMBCSに変換
@@ -256,9 +256,9 @@ int CLib1::Load(void) {
     }
     
     // DLLパス文字列作成
-	yaya::string_t::size_type pos_slash = name.rfind(L'/');
+	aya::string_t::size_type pos_slash = name.rfind(L'/');
 	std::string dllpath;
-    if (pos_slash == yaya::string_t::npos) {
+    if (pos_slash == aya::string_t::npos) {
 		dllpath = ".";
     }
     else {
@@ -363,7 +363,7 @@ void CLib1::Release(void) {
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
-int	CLib1::Request(const yaya::string_t &istr, yaya::string_t &ostr)
+int	CLib1::Request(const aya::string_t &istr, aya::string_t &ostr)
 {
 	ostr = L"";
 
@@ -419,7 +419,7 @@ int	CLib1::Request(const yaya::string_t &istr, yaya::string_t &ostr)
 	return 1;
 }
 #elif defined(POSIX)
-int CLib1::Request(const yaya::string_t &istr, yaya::string_t &ostr) {
+int CLib1::Request(const aya::string_t &istr, aya::string_t &ostr) {
     ostr = L"";
 
     if (hDLL == NULL) {

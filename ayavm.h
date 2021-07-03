@@ -35,7 +35,7 @@ private:
 	std_shared_ptr<CBasis>					m_basis;
 
 	std_shared_ptr< std::vector<CFunction> >	m_function;
-	std_shared_ptr< yaya::indexmap > m_functionmap;
+	std_shared_ptr< aya::indexmap > m_functionmap;
 	
 	std_shared_ptr< std::vector<CDefine> >	m_gdefines;
 
@@ -78,7 +78,7 @@ public:
 
 	// 関数/システム関数/グローバル変数
 	std::vector<CFunction>&	function();
-	yaya::indexmap& functionmap();
+	aya::indexmap& functionmap();
 
 	std::vector<CDefine>&	gdefines();
 

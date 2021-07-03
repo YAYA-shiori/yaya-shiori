@@ -75,7 +75,7 @@ int	CValueSub::GetValueInt(void) const
 			}
 		}
 	case F_TAG_STRING:
-		return yaya::ws_atoi(s_value, 10);
+		return aya::ws_atoi(s_value, 10);
 	default:
 		return 0;
 	};
@@ -96,7 +96,7 @@ double	CValueSub::GetValueDouble(void) const
 	case F_TAG_DOUBLE:
 		return d_value;
 	case F_TAG_STRING:
-		return yaya::ws_atof(s_value);
+		return aya::ws_atof(s_value);
 	default:
 		return 0.0;
 	};
@@ -104,22 +104,22 @@ double	CValueSub::GetValueDouble(void) const
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CValueSub::GetValue
- *  機能概要：  値をyaya::string_tで返します
+ *  機能概要：  値をaya::string_tで返します
  * -----------------------------------------------------------------------
  */
-yaya::string_t	CValueSub::GetValueString(void) const
+aya::string_t	CValueSub::GetValueString(void) const
 {
 	switch(type) {
 	case F_TAG_INT: {
-			return yaya::ws_itoa(i_value);
+			return aya::ws_itoa(i_value);
 		}
 	case F_TAG_DOUBLE: {
-			return yaya::ws_ftoa(d_value);
+			return aya::ws_ftoa(d_value);
 		}
 	case F_TAG_STRING:
 		return s_value;
 	default:
-		return yaya::string_t(L"");
+		return aya::string_t(L"");
 	};
 }
 
@@ -150,10 +150,10 @@ CValueSub &CValueSub::operator =(double value)
 }
 
 /* -----------------------------------------------------------------------
- *  operator = (yaya::string_t)
+ *  operator = (aya::string_t)
  * -----------------------------------------------------------------------
  */
-CValueSub &CValueSub::operator =(const yaya::string_t &value)
+CValueSub &CValueSub::operator =(const aya::string_t &value)
 {
 	type    = F_TAG_STRING;
 	s_value = value;
@@ -162,10 +162,10 @@ CValueSub &CValueSub::operator =(const yaya::string_t &value)
 }
 
 /* -----------------------------------------------------------------------
- *  operator = (yaya::char_t*)
+ *  operator = (aya::char_t*)
  * -----------------------------------------------------------------------
  */
-CValueSub &CValueSub::operator =(const yaya::char_t *value)
+CValueSub &CValueSub::operator =(const aya::char_t *value)
 {
 	type    = F_TAG_STRING;
 	s_value = value;
@@ -392,7 +392,7 @@ void CValueSub::operator %=(const CValueSub &value)
  *  Compare (CValueSub)
  *
  *  operator == の実体です。
- *  intとdoubleの演算はdouble扱いです。yaya::string_tとの演算は空文字列を返します。
+ *  intとdoubleの演算はdouble扱いです。aya::string_tとの演算は空文字列を返します。
  * -----------------------------------------------------------------------
  */
 int CValueSub::Compare(const CValueSub &value) const

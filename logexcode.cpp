@@ -39,11 +39,11 @@ void	CLogExCode::OutExecutionCodeForCheck(void)
 {
 	vm.logger().Message(4);
 
-    yaya::string_t tmpstr;
+    aya::string_t tmpstr;
 	int	i = 0;
 	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++, i++) {
 		// 関数の定義番号
-		tmpstr = L"[" + yaya::ws_itoa(i) + L"] ";
+		tmpstr = L"[" + aya::ws_itoa(i) + L"] ";
 		vm.logger().Write(tmpstr);
 		vm.logger().Write(L"------------------------------------------------------------------------\n");
 		// 関数の名前
@@ -60,14 +60,14 @@ void	CLogExCode::OutExecutionCodeForCheck(void)
 		vm.logger().Write(it->dicfilename);
 		vm.logger().Write(L"\n");
 		// 関数の動作記述
-		yaya::string_t indent = L" ";
+		aya::string_t indent = L" ";
 		int	j = 0;
 		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++, j++) {
 			// 行番号（[関数内の行番号/辞書ファイル中の行番号]）
-			tmpstr = L"[" + yaya::ws_itoa(j) + L" / " + yaya::ws_itoa(it2->linecount) + L"] ";
+			tmpstr = L"[" + aya::ws_itoa(j) + L" / " + aya::ws_itoa(it2->linecount) + L"] ";
 			vm.logger().Write(tmpstr);
 			// ステートメントの種類別にログに記録
-			yaya::string_t	formula;
+			aya::string_t	formula;
 			switch(it2->type) {
 			case ST_UNKNOWN:
 				vm.logger().Write(indent);
@@ -95,25 +95,25 @@ void	CLogExCode::OutExecutionCodeForCheck(void)
 			case ST_BREAK:
 				vm.logger().Write(indent);
 				vm.logger().Write(L"break (jump to : ");
-				tmpstr = yaya::ws_itoa(it2->jumpto) + L")\n";
+				tmpstr = aya::ws_itoa(it2->jumpto) + L")\n";
 				vm.logger().Write(tmpstr);
 				break;
 			case ST_CONTINUE:
 				vm.logger().Write(indent);
 				vm.logger().Write(L"continue (jump to : ");
-				tmpstr = yaya::ws_itoa(it2->jumpto) + L")\n";
+				tmpstr = aya::ws_itoa(it2->jumpto) + L")\n";
 				vm.logger().Write(tmpstr);
 				break;
 			case ST_RETURN:
 				vm.logger().Write(indent);
 				vm.logger().Write(L"return (jump to : ");
-				tmpstr = yaya::ws_itoa(it2->jumpto) + L")\n";
+				tmpstr = aya::ws_itoa(it2->jumpto) + L")\n";
 				vm.logger().Write(tmpstr);
 				break;
 			case ST_ELSE:
 				vm.logger().Write(indent);
 				vm.logger().Write(L"else (jump to : ");
-				tmpstr = yaya::ws_itoa(it2->jumpto) + L")\n";
+				tmpstr = aya::ws_itoa(it2->jumpto) + L")\n";
 				vm.logger().Write(tmpstr);
 				break;
 			case ST_FORMULA:
@@ -155,7 +155,7 @@ void	CLogExCode::OutExecutionCodeForCheck(void)
 				vm.logger().Write(L"\n             ");
 				vm.logger().Write(indent);
 				vm.logger().Write(L"jump to : ");
-				tmpstr = yaya::ws_itoa(it2->jumpto) + L"\n";
+				tmpstr = aya::ws_itoa(it2->jumpto) + L"\n";
 				vm.logger().Write(tmpstr);
 				break;
 			case ST_ELSEIF:
@@ -171,7 +171,7 @@ void	CLogExCode::OutExecutionCodeForCheck(void)
 				vm.logger().Write(L"\n             ");
 				vm.logger().Write(indent);
 				vm.logger().Write(L"jump to : ");
-				tmpstr = yaya::ws_itoa(it2->jumpto) + L"\n";
+				tmpstr = aya::ws_itoa(it2->jumpto) + L"\n";
 				vm.logger().Write(tmpstr);
 				break;
 			case ST_WHILE:
@@ -187,7 +187,7 @@ void	CLogExCode::OutExecutionCodeForCheck(void)
 				vm.logger().Write(L"\n             ");
 				vm.logger().Write(indent);
 				vm.logger().Write(L"jump to : ");
-				tmpstr = yaya::ws_itoa(it2->jumpto) + L"\n";
+				tmpstr = aya::ws_itoa(it2->jumpto) + L"\n";
 				vm.logger().Write(tmpstr);
 				break;
 			case ST_SWITCH:
@@ -203,7 +203,7 @@ void	CLogExCode::OutExecutionCodeForCheck(void)
 				vm.logger().Write(L"\n             ");
 				vm.logger().Write(indent);
 				vm.logger().Write(L"jump to : ");
-				tmpstr = yaya::ws_itoa(it2->jumpto) + L"\n";
+				tmpstr = aya::ws_itoa(it2->jumpto) + L"\n";
 				vm.logger().Write(tmpstr);
 				break;
 			case ST_FOR:
@@ -219,7 +219,7 @@ void	CLogExCode::OutExecutionCodeForCheck(void)
 				vm.logger().Write(L"\n             ");
 				vm.logger().Write(indent);
 				vm.logger().Write(L"jump to : ");
-				tmpstr = yaya::ws_itoa(it2->jumpto) + L"\n";
+				tmpstr = aya::ws_itoa(it2->jumpto) + L"\n";
 				vm.logger().Write(tmpstr);
 				break;
 			case ST_FOREACH:
@@ -235,7 +235,7 @@ void	CLogExCode::OutExecutionCodeForCheck(void)
 				vm.logger().Write(L"\n             ");
 				vm.logger().Write(indent);
 				vm.logger().Write(L"jump to : ");
-				tmpstr = yaya::ws_itoa(it2->jumpto) + L"\n";
+				tmpstr = aya::ws_itoa(it2->jumpto) + L"\n";
 				vm.logger().Write(tmpstr);
 				break;
 			case ST_PARALLEL:
@@ -272,10 +272,10 @@ void	CLogExCode::OutExecutionCodeForCheck(void)
  *  機能概要：  OutDicInfoForCheckから呼ばれます。数式を文字列化します
  * -----------------------------------------------------------------------
  */
-void	CLogExCode::StructCellString(std::vector<CCell> *cellvector, yaya::string_t &formula)
+void	CLogExCode::StructCellString(std::vector<CCell> *cellvector, aya::string_t &formula)
 {
 	formula = L"";
-    yaya::string_t	tmpstr;
+    aya::string_t	tmpstr;
 	for(std::vector<CCell>::iterator it = cellvector->begin(); it != cellvector->end(); it++) {
 		if (it->value_GetType() >= F_TAG_ORIGIN &&
 			it->value_GetType() < F_TAG_FUNCPARAM) {
@@ -297,11 +297,11 @@ void	CLogExCode::StructCellString(std::vector<CCell> *cellvector, yaya::string_t
 			formula += L"# " ;
 			break;
 		case F_TAG_INT:
-			tmpstr = L"(int)" + yaya::ws_itoa(it->value_const().i_value) + L" ";
+			tmpstr = L"(int)" + aya::ws_itoa(it->value_const().i_value) + L" ";
 			formula += tmpstr;
 			break;
 		case F_TAG_DOUBLE:
-			tmpstr = L"(double)" + yaya::ws_ftoa(it->value_const().d_value) + L" ";
+			tmpstr = L"(double)" + aya::ws_ftoa(it->value_const().d_value) + L" ";
 			formula += tmpstr;
 			break;
 		case F_TAG_STRING:
@@ -346,10 +346,10 @@ void	CLogExCode::StructCellString(std::vector<CCell> *cellvector, yaya::string_t
  *  機能概要：  OutDicInfoForCheckから呼ばれます。数式の演算順序を文字列化します
  * -----------------------------------------------------------------------
  */
-void	CLogExCode::StructSerialString(CStatement *st, yaya::string_t &formula)
+void	CLogExCode::StructSerialString(CStatement *st, aya::string_t &formula)
 {
 	formula = L"";
-    yaya::string_t	tmpstr;
+    aya::string_t	tmpstr;
 
 	if ( st->serial_size() ) { //高速化用
 		for(std::vector<CSerial>::iterator it = st->serial().begin(); it != st->serial().end(); it++) {
@@ -380,7 +380,7 @@ void	CLogExCode::StructSerialString(CStatement *st, yaya::string_t &formula)
 			for(std::vector<int>::iterator it2 = it->index.begin(); it2 != it->index.end(); it2++) {
 				if (it2 != it->index.begin())
 					formula += L",";
-				tmpstr = yaya::ws_itoa(*it2);
+				tmpstr = aya::ws_itoa(*it2);
 				formula += tmpstr;
 			}
 
@@ -398,13 +398,13 @@ void	CLogExCode::OutVariableInfoForCheck(void)
 {
 	vm.logger().Message(5);
 
-    yaya::string_t	tmpstr;
-	yaya::string_t	t_str;
+    aya::string_t	tmpstr;
+	aya::string_t	t_str;
 	size_t	var_num = vm.variable().GetNumber();
 	for(size_t	i = 0; i < var_num; i++) {
 		CVariable	*var = vm.variable().GetPtr(i);
 		// 変数の定義番号
-		tmpstr = L"[" + yaya::ws_itoa(i) + L"] ";
+		tmpstr = L"[" + aya::ws_itoa(i) + L"] ";
 		vm.logger().Write(tmpstr);
 		// 変数の名前
 		vm.logger().Write(var->name);
@@ -412,11 +412,11 @@ void	CLogExCode::OutVariableInfoForCheck(void)
 		// 変数の値
 		switch(var->value().GetType()) {
 		case F_TAG_INT:
-			tmpstr = L"(int)" + yaya::ws_itoa(var->value_const().i_value) + L"\n";
+			tmpstr = L"(int)" + aya::ws_itoa(var->value_const().i_value) + L"\n";
 			vm.logger().Write(tmpstr);
 			break;
 		case F_TAG_DOUBLE:
-			tmpstr = L"(double)" + yaya::ws_ftoa(var->value_const().d_value) + L"\n";
+			tmpstr = L"(double)" + aya::ws_ftoa(var->value_const().d_value) + L"\n";
 			vm.logger().Write(tmpstr);
 			break;
 		case F_TAG_STRING:
@@ -447,18 +447,18 @@ void	CLogExCode::OutVariableInfoForCheck(void)
  *  機能概要：  OutVariableInfoForCheckから呼ばれます。配列変数の内容を文字列化します
  * -----------------------------------------------------------------------
  */
-void	CLogExCode::StructArrayString(const CValueArray &vs, yaya::string_t &enlist)
+void	CLogExCode::StructArrayString(const CValueArray &vs, aya::string_t &enlist)
 {
 	enlist = L"";
-    yaya::string_t	tmpstr;
+    aya::string_t	tmpstr;
 	for(CValueArray::const_iterator it = vs.begin(); it != vs.end(); it++) {
 		switch(it->GetType()) {
 		case F_TAG_INT:
-			tmpstr = L"(int)" + yaya::ws_itoa(it->i_value) + L" ";
+			tmpstr = L"(int)" + aya::ws_itoa(it->i_value) + L" ";
 			enlist += tmpstr;
 			break;
 		case F_TAG_DOUBLE:
-			tmpstr = L"(double)" + yaya::ws_ftoa(it->d_value) + L" ";
+			tmpstr = L"(double)" + aya::ws_ftoa(it->d_value) + L" ";
 			enlist += tmpstr;
 			break;
 		case F_TAG_STRING:

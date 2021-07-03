@@ -1,5 +1,5 @@
-#ifndef YAYA_STRTYPE_H__
-#define YAYA_STRTYPE_H__
+#ifndef AYA_STRTYPE_H__
+#define AYA_STRTYPE_H__
 
 #include <cwchar>
 #include <string>
@@ -42,14 +42,14 @@ template <class T> const T& __GETMIN( const T& a, const T& b ) {
   return (b<a)?b:a;
 }
 
-namespace yaya {
+namespace aya {
 	typedef wchar_t char_t;
 	typedef std::basic_string<char_t> string_t;
 
 	typedef std_shared_ptr<string_t> share_string_t;
 	typedef std_shared_ptr<const string_t> const_share_string_t;
 
-	typedef std::map<yaya::string_t,int> indexmap;
+	typedef std::map<aya::string_t,int> indexmap;
 
 #ifdef _WIN64
 	typedef __int64 native_signed;
@@ -57,6 +57,6 @@ namespace yaya {
 	typedef int JGX_WIN64_AWARE native_signed;
 #endif
 
-}; // namespace yaya {
+}; // namespace aya {
 
-#endif // #ifndef YAYA_STRTYPE_H__
+#endif // #ifndef AYA_STRTYPE_H__

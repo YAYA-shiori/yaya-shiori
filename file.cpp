@@ -36,7 +36,7 @@
  *  返値　　：　true/false=正常/不良
  * -----------------------------------------------------------------------
  */
-bool CFile::ProcessOpenMode(yaya::string_t &t_mode)
+bool CFile::ProcessOpenMode(aya::string_t &t_mode)
 {
 	if (!t_mode.compare(L"read"))
 		t_mode = L"r";
@@ -92,14 +92,14 @@ bool CFile::ProcessOpenMode(yaya::string_t &t_mode)
  *  返値　　：　0/1/2=失敗/成功/既にオープンしている
  * -----------------------------------------------------------------------
  */
-int	CFile::Add(const yaya::string_t &name, const yaya::string_t &mode)
+int	CFile::Add(const aya::string_t &name, const aya::string_t &mode)
 {
 	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
 	if ( it != filelist.end() ) {
 		return 2;
 	}
 
-	yaya::string_t	t_mode = mode;
+	aya::string_t	t_mode = mode;
 	if ( ! ProcessOpenMode(t_mode) ) {
 		return 0;
 	}
@@ -122,7 +122,7 @@ int	CFile::Add(const yaya::string_t &name, const yaya::string_t &mode)
  *  返値　　：　1/2=成功/オープンされていない、もしくは既にfcloseされている
  * -----------------------------------------------------------------------
  */
-int	CFile::Delete(const yaya::string_t &name)
+int	CFile::Delete(const aya::string_t &name)
 {
 	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
 	if ( it != filelist.end() ) {
@@ -151,7 +151,7 @@ void	CFile::DeleteAll(void)
  *  返値　　：　0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-int	CFile::Write(const yaya::string_t &name, const yaya::string_t &istr)
+int	CFile::Write(const aya::string_t &name, const aya::string_t &istr)
 {
 	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
 	if ( it != filelist.end() ) {
@@ -168,7 +168,7 @@ int	CFile::Write(const yaya::string_t &name, const yaya::string_t &istr)
  *  返値　　：　0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-int	CFile::WriteBin(const yaya::string_t &name, const yaya::string_t &istr, const yaya::char_t alt)
+int	CFile::WriteBin(const aya::string_t &name, const aya::string_t &istr, const aya::char_t alt)
 {
 	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
 	if ( it != filelist.end() ) {
@@ -193,7 +193,7 @@ int	CFile::WriteBin(const yaya::string_t &name, const yaya::string_t &istr, cons
  *  返値　　：　0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-int CFile::WriteDecode(const yaya::string_t &name, const yaya::string_t &istr, const yaya::string_t &type)
+int CFile::WriteDecode(const aya::string_t &name, const aya::string_t &istr, const aya::string_t &type)
 {
 	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
 	if ( it != filelist.end() ) {
@@ -218,7 +218,7 @@ int CFile::WriteDecode(const yaya::string_t &name, const yaya::string_t &istr, c
  *  返値　　：　-1/0/1=EOF/失敗/成功
  * -----------------------------------------------------------------------
  */
-int	CFile::Read(const yaya::string_t &name, yaya::string_t &ostr)
+int	CFile::Read(const aya::string_t &name, aya::string_t &ostr)
 {
 	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
 	if ( it != filelist.end() ) {
@@ -235,7 +235,7 @@ int	CFile::Read(const yaya::string_t &name, yaya::string_t &ostr)
  *  返値　　：　-1/0/1=EOF/失敗/成功
  * -----------------------------------------------------------------------
  */
-int	CFile::ReadBin(const yaya::string_t &name, yaya::string_t &ostr, size_t len, yaya::char_t alt)
+int	CFile::ReadBin(const aya::string_t &name, aya::string_t &ostr, size_t len, aya::char_t alt)
 {
 	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
 	if ( it != filelist.end() ) {
@@ -258,7 +258,7 @@ int	CFile::ReadBin(const yaya::string_t &name, yaya::string_t &ostr, size_t len,
  *  返値　　：　-1/0/1=EOF/失敗/成功
  * -----------------------------------------------------------------------
  */
-int	CFile::ReadEncode(const yaya::string_t &name, yaya::string_t &ostr, size_t len, const yaya::string_t &type)
+int	CFile::ReadEncode(const aya::string_t &name, aya::string_t &ostr, size_t len, const aya::string_t &type)
 {
 	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
 	if ( it != filelist.end() ) {
@@ -280,7 +280,7 @@ int	CFile::ReadEncode(const yaya::string_t &name, yaya::string_t &ostr, size_t l
  *  返値　　：　<0失敗 >=0成功
  * -----------------------------------------------------------------------
  */
-long CFile::Size(const yaya::string_t &name)
+long CFile::Size(const aya::string_t &name)
 {
 	std::list<CFile1>::const_iterator it = std::find(filelist.begin(),filelist.end(),name);
 	if ( it != filelist.end() ) {
@@ -297,7 +297,7 @@ long CFile::Size(const yaya::string_t &name)
  *  返値　　：　0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-int CFile::FSeek(const yaya::string_t &name,int offset,const yaya::string_t &s_mode)
+int CFile::FSeek(const aya::string_t &name,int offset,const aya::string_t &s_mode)
 {
 	int mode;
 
@@ -329,7 +329,7 @@ int CFile::FSeek(const yaya::string_t &name,int offset,const yaya::string_t &s_m
  *  返値　　：　-1/その他=失敗/成功（ftellの結果）
  * -----------------------------------------------------------------------
  */
-int CFile::FTell(const yaya::string_t &name)
+int CFile::FTell(const aya::string_t &name)
 {
 	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
 	if ( it != filelist.end() ) {

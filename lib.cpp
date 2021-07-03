@@ -38,7 +38,7 @@
  *  返値　　：　0/1/2=失敗/成功/既にロードされている
  * -----------------------------------------------------------------------
  */
-int	CLib::Add(const yaya::string_t &name)
+int	CLib::Add(const aya::string_t &name)
 {
 	std::list<CLib1>::iterator it;
 	for(it = liblist.begin(); it != liblist.end(); it++) {
@@ -77,7 +77,7 @@ int	CLib::Add(const yaya::string_t &name)
  *  返値　　：　0/1/2=失敗/成功/ロードされていない、もしくは既にunloadされている
  * -----------------------------------------------------------------------
  */
-int	CLib::Delete(const yaya::string_t &name)
+int	CLib::Delete(const aya::string_t &name)
 {
 	for(std::list<CLib1>::iterator it = liblist.begin(); it != liblist.end(); it++) {
 		if (!name.compare(it->GetName())) {
@@ -109,7 +109,7 @@ void	CLib::DeleteAll(void)
  *  返値　　：　1=常に成功
  * -----------------------------------------------------------------------
  */
-int	CLib::SetCharsetDynamic(const yaya::string_t &name,int cs)
+int	CLib::SetCharsetDynamic(const aya::string_t &name,int cs)
 {
 	for(std::list<CLib1>::iterator it = liblist.begin(); it != liblist.end(); it++) {
 		if (!name.compare(it->GetName())) {
@@ -119,7 +119,7 @@ int	CLib::SetCharsetDynamic(const yaya::string_t &name,int cs)
 	}
 
 	//ファイルの存在ちぇき
-	FILE *fp = yaya::w_fopen(name.c_str(),L"rb");
+	FILE *fp = aya::w_fopen(name.c_str(),L"rb");
 	if ( ! fp ) {
 		return 0;
 	}
@@ -138,7 +138,7 @@ int	CLib::SetCharsetDynamic(const yaya::string_t &name,int cs)
  *  返値　　：　文字コード/数値 失敗時-1
  * -----------------------------------------------------------------------
  */
-int	CLib::GetCharsetDynamic(const yaya::string_t &name)
+int	CLib::GetCharsetDynamic(const aya::string_t &name)
 {
 	for(std::list<CLib1>::iterator it = liblist.begin(); it != liblist.end(); it++) {
 		if (!name.compare(it->GetName())) {
@@ -161,7 +161,7 @@ int	CLib::GetCharsetDynamic(const yaya::string_t &name)
  *  返値　　：　0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-int	CLib::Request(const yaya::string_t &name, const yaya::string_t &istr, yaya::string_t &ostr)
+int	CLib::Request(const aya::string_t &name, const aya::string_t &istr, aya::string_t &ostr)
 {
 	for(std::list<CLib1>::iterator it = liblist.begin(); it != liblist.end(); it++) {
 		if (!name.compare(it->GetName())) {

@@ -40,7 +40,7 @@ class	CValueSub
 protected:
 	int	type;						// 型
 public:
-	yaya::string_t	s_value;				// 文字列値
+	aya::string_t	s_value;				// 文字列値
 	double	d_value;				// 実数値
 	int		i_value;				// 整数値
 
@@ -58,10 +58,10 @@ public:
 	CValueSub(double value) :
 		type(F_TAG_DOUBLE) , d_value(value), i_value(0) { }
 
-	CValueSub(const yaya::string_t &value) :
+	CValueSub(const aya::string_t &value) :
 		type(F_TAG_STRING) , s_value(value), d_value(0.0), i_value(0) { }
 
-	CValueSub(const yaya::char_t *value) :
+	CValueSub(const aya::char_t *value) :
 		type(F_TAG_STRING) , s_value(value), d_value(0.0), i_value(0) { }
 
 	CValueSub(const CValue &v);
@@ -83,12 +83,12 @@ public:
 
 	int		GetValueInt(void) const;
 	double	GetValueDouble(void) const;
-	yaya::string_t	GetValueString(void) const;
+	aya::string_t	GetValueString(void) const;
 
 	CValueSub	&operator =(int value);
 	CValueSub	&operator =(double value);
-	CValueSub	&operator =(const yaya::string_t &value);
-	CValueSub	&operator =(const yaya::char_t *value);
+	CValueSub	&operator =(const aya::string_t &value);
+	CValueSub	&operator =(const aya::char_t *value);
 	CValueSub	&operator =(const CValue &v);
 
 	CValueSub	operator +(const CValueSub &value) const;
@@ -126,7 +126,7 @@ class	CValue
 protected:
 	int	type;						// 型
 public:
-	yaya::string_t	s_value;				// 文字列値
+	aya::string_t	s_value;				// 文字列値
 	double	d_value;				// 実数値
 	int		i_value;				// 整数値
 
@@ -181,10 +181,10 @@ public:
 	CValue(double value) :
 		type(F_TAG_DOUBLE) , d_value(value), i_value(0) { }
 
-	CValue(const yaya::string_t &value) :
+	CValue(const aya::string_t &value) :
 		type(F_TAG_STRING) , s_value(value), d_value(0.0), i_value(0) { }
 
-	CValue(const yaya::char_t *value) :
+	CValue(const aya::char_t *value) :
 		type(F_TAG_STRING) , s_value(value), d_value(0.0), i_value(0) { }
 	
 	CValue(const CValueSub &value) : d_value(0.0), i_value(0)
@@ -248,17 +248,17 @@ public:
 
 	int		GetValueInt(void) const;
 	double	GetValueDouble(void) const;
-	yaya::string_t	GetValueString(void) const;
-	yaya::string_t	GetValueStringForLogging(void) const;
+	aya::string_t	GetValueString(void) const;
+	aya::string_t	GetValueStringForLogging(void) const;
 
 	void	SetArrayValue(const CValue &oval, const CValue &value);
 
-	int		DecodeArrayOrder(int &order, int &order1, yaya::string_t &delimiter) const;
+	int		DecodeArrayOrder(int &order, int &order1, aya::string_t &delimiter) const;
 
 	CValue	&operator =(int value);
 	CValue	&operator =(double value);
-	CValue	&operator =(const yaya::string_t &value);
-	CValue	&operator =(const yaya::char_t *value);
+	CValue	&operator =(const aya::string_t &value);
+	CValue	&operator =(const aya::char_t *value);
 	CValue	&operator =(const CValueArray &value);
 	CValue	&operator =(const CValueSub &value);
 

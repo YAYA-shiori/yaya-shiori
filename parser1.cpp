@@ -35,7 +35,7 @@
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser1::CheckExecutionCode(const yaya::string_t& dicfilename)
+char	CParser1::CheckExecutionCode(const aya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
@@ -67,7 +67,7 @@ char	CParser1::CheckExecutionCode(const yaya::string_t& dicfilename)
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser1::CheckExecutionCode1(CStatement& st, const yaya::string_t& dicfilename)
+char	CParser1::CheckExecutionCode1(CStatement& st, const aya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
@@ -87,7 +87,7 @@ char	CParser1::CheckExecutionCode1(CStatement& st, const yaya::string_t& dicfile
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser1::CheckNomialCount(CStatement& st, const yaya::string_t& dicfilename)
+char	CParser1::CheckNomialCount(CStatement& st, const aya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
@@ -113,7 +113,7 @@ char	CParser1::CheckNomialCount(CStatement& st, const yaya::string_t& dicfilenam
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser1::CheckSubstSyntax(CStatement& st, const yaya::string_t& dicfilename)
+char	CParser1::CheckSubstSyntax(CStatement& st, const aya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
@@ -176,7 +176,7 @@ char	CParser1::CheckSubstSyntax(CStatement& st, const yaya::string_t& dicfilenam
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser1::CheckFeedbackOperatorPos(CStatement& st, const yaya::string_t& dicfilename)
+char	CParser1::CheckFeedbackOperatorPos(CStatement& st, const aya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
@@ -210,7 +210,7 @@ char	CParser1::CheckFeedbackOperatorPos(CStatement& st, const yaya::string_t& di
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser1::SetFormulaType(CStatement& st, const yaya::string_t& dicfilename)
+char	CParser1::SetFormulaType(CStatement& st, const aya::string_t& dicfilename)
 {
 	if (st.type != ST_FORMULA)
 		return 0;
@@ -253,7 +253,7 @@ char	CParser1::SetFormulaType(CStatement& st, const yaya::string_t& dicfilename)
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser1::SetBreakJumpNo(const yaya::string_t& dicfilename)
+char	CParser1::SetBreakJumpNo(const aya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
@@ -306,7 +306,7 @@ char	CParser1::SetBreakJumpNo(const yaya::string_t& dicfilename)
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser1::CheckCaseSyntax(const yaya::string_t& dicfilename)
+char	CParser1::CheckCaseSyntax(const aya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
@@ -340,7 +340,7 @@ char	CParser1::CheckCaseSyntax(const yaya::string_t& dicfilename)
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser1::CheckIfSyntax(const yaya::string_t& dicfilename)
+char	CParser1::CheckIfSyntax(const aya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
@@ -389,7 +389,7 @@ char	CParser1::CheckIfSyntax(const yaya::string_t& dicfilename)
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser1::CheckElseSyntax(const yaya::string_t& dicfilename)
+char	CParser1::CheckElseSyntax(const aya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
@@ -420,7 +420,7 @@ char	CParser1::CheckElseSyntax(const yaya::string_t& dicfilename)
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser1::CheckForSyntax(const yaya::string_t& dicfilename)
+char	CParser1::CheckForSyntax(const aya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
@@ -461,7 +461,7 @@ char	CParser1::CheckForSyntax(const yaya::string_t& dicfilename)
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser1::CheckForeachSyntax(const yaya::string_t& dicfilename)
+char	CParser1::CheckForeachSyntax(const aya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
@@ -502,7 +502,7 @@ char	CParser1::CheckForeachSyntax(const yaya::string_t& dicfilename)
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser1::SetIfJumpNo(const yaya::string_t& dicfilename)
+char	CParser1::SetIfJumpNo(const aya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
@@ -615,7 +615,7 @@ char	CParser1::SetIfJumpNo(const yaya::string_t& dicfilename)
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser1::CheckFunctionArgument(CStatement& st, const yaya::string_t& dicfilename)
+char	CParser1::CheckFunctionArgument(CStatement& st, const aya::string_t& dicfilename)
 {
 	int	errcount = 0;
 

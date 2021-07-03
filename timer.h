@@ -20,7 +20,7 @@
 
 //----
 
-namespace yaya {
+namespace aya {
 
 	class	timer {
 		public:
@@ -42,7 +42,7 @@ namespace yaya {
 			int start_time_;
 	};
 
-}; // namespace yaya {
+}; // namespace aya {
 
 //----
 

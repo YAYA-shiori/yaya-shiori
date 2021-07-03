@@ -37,9 +37,9 @@ public:
 	void	OutExecutionCodeForCheck(void);
 	void	OutVariableInfoForCheck(void);
 protected:
-	void	StructCellString(std::vector<CCell> *cellvector, yaya::string_t &formula);
-	void	StructSerialString(CStatement *st, yaya::string_t &formula);
-	void	StructArrayString(const CValueArray &vs, yaya::string_t &enlist);
+	void	StructCellString(std::vector<CCell> *cellvector, aya::string_t &formula);
+	void	StructSerialString(CStatement *st, aya::string_t &formula);
+	void	StructArrayString(const CValueArray &vs, aya::string_t &enlist);
 };
 
 //----

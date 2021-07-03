@@ -161,7 +161,7 @@ void CAyaVM::genrand_sysfunc_srand_array(const unsigned long a[],const int n)
 	} 
 
 
-FACTORY_DEFINE_PLAIN(yaya::indexmap,functionmap)
+FACTORY_DEFINE_PLAIN(aya::indexmap,functionmap)
 
 FACTORY_DEFINE_PLAIN(std::vector<CDefine>,gdefines)
 

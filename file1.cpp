@@ -46,7 +46,7 @@ int	CFile1::Open(void)
 	if (filepath == NULL)
 		return 0;
 
-	fp = yaya::w_fopen((wchar_t *)name.c_str(), (wchar_t *)mode.c_str());
+	fp = aya::w_fopen((wchar_t *)name.c_str(), (wchar_t *)mode.c_str());
 	free(filepath);
 	filepath = NULL;
 
@@ -93,7 +93,7 @@ int	CFile1::Close(void)
  *  返値　　：　0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-int	CFile1::Write(const yaya::string_t &istr)
+int	CFile1::Write(const aya::string_t &istr)
 {
 	if (fp == NULL)
 		return 0;
@@ -120,7 +120,7 @@ int	CFile1::Write(const yaya::string_t &istr)
  *  返値　　：　0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-int	CFile1::WriteBin(const yaya::string_t &istr, const yaya::char_t alt)
+int	CFile1::WriteBin(const aya::string_t &istr, const aya::char_t alt)
 {
 	if (fp == NULL)
 		return 0;
@@ -155,7 +155,7 @@ int	CFile1::WriteBin(const yaya::string_t &istr, const yaya::char_t alt)
  *  返値　　：　0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-int	CFile1::WriteDecode(const yaya::string_t &istr, const yaya::string_t &type)
+int	CFile1::WriteDecode(const aya::string_t &istr, const aya::string_t &type)
 {
 	if (fp == NULL)
 		return 0;
@@ -185,14 +185,14 @@ int	CFile1::WriteDecode(const yaya::string_t &istr, const yaya::string_t &type)
  *  返値　　：　-1/0/1=EOF/失敗/成功
  * -----------------------------------------------------------------------
  */
-int	CFile1::Read(yaya::string_t &ostr)
+int	CFile1::Read(aya::string_t &ostr)
 {
 	ostr = L"";
 
 	if (fp == NULL)
 		return 0;
 
-	if (yaya::ws_fgets(ostr, fp, charset, 0, bomcheck, false) == yaya::WS_EOF)
+	if (aya::ws_fgets(ostr, fp, charset, 0, bomcheck, false) == aya::WS_EOF)
 		return -1;
 
 	bomcheck++;
@@ -207,7 +207,7 @@ int	CFile1::Read(yaya::string_t &ostr)
  *  返値　　：　-1/0/1=EOF/失敗/成功
  * -----------------------------------------------------------------------
  */
-int	CFile1::ReadBin(yaya::string_t &ostr, size_t len, yaya::char_t alt)
+int	CFile1::ReadBin(aya::string_t &ostr, size_t len, aya::char_t alt)
 {
 	ostr = L"";
 
@@ -237,7 +237,7 @@ int	CFile1::ReadBin(yaya::string_t &ostr, size_t len, yaya::char_t alt)
 				ostr.append(1,alt);
 			}
 			else {
-				ostr.append(1,static_cast<yaya::char_t>(static_cast<unsigned char>(f_buffer[i])));
+				ostr.append(1,static_cast<aya::char_t>(static_cast<unsigned char>(f_buffer[i])));
 			}
 		}
 
@@ -255,7 +255,7 @@ int	CFile1::ReadBin(yaya::string_t &ostr, size_t len, yaya::char_t alt)
  *  返値　　：　-1/0/1=EOF/失敗/成功
  * -----------------------------------------------------------------------
  */
-int	CFile1::ReadEncode(yaya::string_t &ostr, size_t len, const yaya::string_t &type)
+int	CFile1::ReadEncode(aya::string_t &ostr, size_t len, const aya::string_t &type)
 {
 	ostr = L"";
 
@@ -269,7 +269,7 @@ int	CFile1::ReadEncode(yaya::string_t &ostr, size_t len, const yaya::string_t &t
 	char f_buffer[3*3*3*3*3*3*3]; //3の倍数にすること base64対策
 	size_t read = 0;
 
-	yaya::string_t s;
+	aya::string_t s;
 	int enc_type = 0;
 	if ( wcsicmp(type.c_str(),L"base64") == 0 ) {
 		enc_type = 1;

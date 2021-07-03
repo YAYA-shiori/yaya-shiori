@@ -76,25 +76,25 @@
     <OutDir>.\Release_EXE\</OutDir>
     <IntDir>.\Release_EXE\</IntDir>
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>yaya</TargetName>
+    <TargetName>aya</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>.\Debug\</OutDir>
     <IntDir>.\Debug\</IntDir>
     <LinkIncremental>true</LinkIncremental>
-    <TargetName>yaya</TargetName>
+    <TargetName>aya</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>.\Release\</OutDir>
     <IntDir>.\Release\</IntDir>
     <LinkIncremental>true</LinkIncremental>
-    <TargetName>yaya</TargetName>
+    <TargetName>aya</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug EXE|Win32'">
     <OutDir>.\Debug_EXE\</OutDir>
     <IntDir>.\Debug_EXE\</IntDir>
     <LinkIncremental>true</LinkIncremental>
-    <TargetName>yaya</TargetName>
+    <TargetName>aya</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release EXE|Win32'">
     <Midl>
@@ -124,11 +124,11 @@
       <Culture>0x0411</Culture>
     </ResourceCompile>
     <Link>
-      <OutputFile>Release_EXE/yaya.exe</OutputFile>
+      <OutputFile>Release_EXE/aya.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <ProgramDatabaseFile>.\Release_EXE/yaya.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>.\Release_EXE/aya.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapFileName>.\Release_EXE/yaya.map</MapFileName>
+      <MapFileName>.\Release_EXE/aya.map</MapFileName>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <Bscmake>
@@ -167,11 +167,11 @@
       <ShowProgress>NotSet</ShowProgress>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\Debug/yaya.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>.\Debug/aya.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapFileName>.\Debug/yaya.map</MapFileName>
+      <MapFileName>.\Debug/aya.map</MapFileName>
       <BaseAddress>0x14900000</BaseAddress>
-      <ImportLibrary>.\Debug/yaya.lib</ImportLibrary>
+      <ImportLibrary>.\Debug/aya.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <Bscmake>
@@ -215,11 +215,11 @@
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>D:\boost\libs\regex\build\vc6-stlport;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ProgramDatabaseFile>.\Release/yaya.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>.\Release/aya.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapFileName>.\Release/yaya.map</MapFileName>
+      <MapFileName>.\Release/aya.map</MapFileName>
       <BaseAddress>0x13700000</BaseAddress>
-      <ImportLibrary>.\Release/yaya.lib</ImportLibrary>
+      <ImportLibrary>.\Release/aya.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -259,12 +259,12 @@
       <Culture>0x0411</Culture>
     </ResourceCompile>
     <Link>
-      <OutputFile>Debug_EXE/yaya.exe</OutputFile>
+      <OutputFile>Debug_EXE/aya.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\Debug_EXE/yaya.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>.\Debug_EXE/aya.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapFileName>.\Debug_EXE/yaya.map</MapFileName>
+      <MapFileName>.\Debug_EXE/aya.map</MapFileName>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <Bscmake>

@@ -36,7 +36,7 @@
   </PostinstrumentEvent>
   <Binaries>
     <Binary>
-      <Path>..\ssp\ghost\DE10_3001\ghost\master\yaya.dll</Path>
+      <Path>..\ssp\ghost\DE10_3001\ghost\master\aya.dll</Path>
       <ArgumentTimestamp>01/01/0001 00:00:00</ArgumentTimestamp>
       <Instrument>true</Instrument>
       <Sample>true</Sample>
@@ -86,7 +86,7 @@
   </Reports>
   <Launches>
     <Binary>
-      <Path>..\ssp\ghost\DE10_3001\ghost\master\yaya.dll</Path>
+      <Path>..\ssp\ghost\DE10_3001\ghost\master\aya.dll</Path>
     </Binary>
   </Launches>
 </VSPerformanceSession>

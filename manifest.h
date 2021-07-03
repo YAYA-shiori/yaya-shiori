@@ -12,9 +12,9 @@
 
 //----
 
-extern const yaya::char_t *aya_name;
-extern const yaya::char_t *aya_version;
-extern const yaya::char_t *aya_author;
+extern const aya::char_t *aya_name;
+extern const aya::char_t *aya_version;
+extern const aya::char_t *aya_author;
 
 //----
 
@@ -161,7 +161,7 @@ extern const yaya::char_t *aya_author;
 
 // 有効な演算子の数
 // 演算子の名前
-const yaya::char_t	formulatag[][19] = {
+const aya::char_t	formulatag[][19] = {
 	L",",   L"+",   L"-",    L"*",     L"/",
 	L"%",   L"==",  L"!=",   L">=",    L"<=",
 	L">",   L"<",   L"_in_", L"!_in_", L"||",
@@ -232,7 +232,7 @@ const int	formulatag_depth[FORMULATAG_NUM] = {
 // 制御構文
 #define	FLOWCOM_NUM	(sizeof(flowcom) / sizeof(flowcom[0]))
 
-const yaya::char_t	flowcom[][16] = {
+const aya::char_t	flowcom[][16] = {
 	L"if",
 	L"elseif",
 	L"else",

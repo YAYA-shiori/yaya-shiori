@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="yaya"
+	Name="aya"
 	ProjectGUID="{080A9473-D6C2-4093-B511-4793F4E91DAF}"
 	SccProjectName=""
 	SccLocalPath="">
@@ -31,7 +31,7 @@
 				ForceConformanceInForLoopScope="TRUE"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\Debug/yaya.pch"
+				PrecompiledHeaderFile=".\Debug/aya.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
@@ -43,12 +43,12 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile=".\Debug/yaya.dll"
+				OutputFile=".\Debug/aya.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Debug/yaya.pdb"
-				ImportLibrary=".\Debug/yaya.lib"
+				ProgramDatabaseFile=".\Debug/aya.pdb"
+				ImportLibrary=".\Debug/aya.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -56,7 +56,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Debug/yaya.tlb"
+				TypeLibraryName=".\Debug/aya.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -101,7 +101,7 @@
 				ForceConformanceInForLoopScope="TRUE"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\Release/yaya.pch"
+				PrecompiledHeaderFile=".\Release/aya.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
@@ -111,12 +111,12 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile=".\Release/yaya.dll"
+				OutputFile=".\Release/aya.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\..\..\boost_1_37_0\lib"
-				ProgramDatabaseFile=".\Release/yaya.pdb"
-				ImportLibrary=".\Release/yaya.lib"
+				ProgramDatabaseFile=".\Release/aya.pdb"
+				ImportLibrary=".\Release/aya.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -124,7 +124,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Release/yaya.tlb"
+				TypeLibraryName=".\Release/aya.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>

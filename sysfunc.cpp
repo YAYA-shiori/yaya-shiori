@@ -300,14 +300,14 @@ public:
 	int sysfunc_len[SYSFUNC_NUM];
 	int sysfunc_len_max;
 	int sysfunc_len_min;
-	yaya::indexmap sysfunc_map;
+	aya::indexmap sysfunc_map;
 
 	CSystemFunctionInit(void) {
 		sysfunc_len_max = 0;
 		sysfunc_len_min = 65536;
 		for(size_t i = 0; i < SYSFUNC_NUM; i++) {
 			sysfunc_len[i] = ::wcslen(sysfunc[i]);
-			sysfunc_map.insert(yaya::indexmap::value_type(sysfunc[i],i));
+			sysfunc_map.insert(aya::indexmap::value_type(sysfunc[i],i));
 
 			if ( sysfunc_len_max < sysfunc_len[i] ) {
 				sysfunc_len_max = sysfunc_len[i];
@@ -349,11 +349,11 @@ int CSystemFunction::GetMaxNameLength(void)
  *  機能概要：  システム関数を探索します
  * -----------------------------------------------------------------------
  */
-int CSystemFunction::FindIndex(const yaya::string_t &str)
+int CSystemFunction::FindIndex(const aya::string_t &str)
 {
 	if ( str.size() == 0 ) { return -1; }
 
-	yaya::indexmap::const_iterator it = sysfuncinit.sysfunc_map.find(str);
+	aya::indexmap::const_iterator it = sysfuncinit.sysfunc_map.find(str);
 	if ( it == sysfuncinit.sysfunc_map.end() ) { return -1; }
 
 	return it->second;
@@ -364,7 +364,7 @@ int CSystemFunction::FindIndex(const yaya::string_t &str)
  *  機能概要：  いちばん長くマッチするシステム関数を探索します
  * -----------------------------------------------------------------------
  */
-int CSystemFunction::FindIndexLongestMatch(const yaya::string_t &str,int max_len)
+int CSystemFunction::FindIndexLongestMatch(const aya::string_t &str,int max_len)
 {
 	int found_len = 0;
 	for(size_t i = 0; i < SYSFUNC_NUM; i++) {
@@ -384,7 +384,7 @@ int CSystemFunction::FindIndexLongestMatch(const yaya::string_t &str,int max_len
  *  機能概要：  Index->名前
  * -----------------------------------------------------------------------
  */
-const yaya::char_t* CSystemFunction::GetNameFromIndex(int idx)
+const aya::char_t* CSystemFunction::GetNameFromIndex(int idx)
 {
 	if ( idx < 0 || idx >= SYSFUNC_NUM ) { return L""; }
 	return sysfunc[idx];
@@ -400,7 +400,7 @@ int CSystemFunction::HistoryIndex(void)
 	return SYSFUNC_HIS;
 }
 
-const yaya::char_t* CSystemFunction::HistoryFunctionName(void)
+const aya::char_t* CSystemFunction::HistoryFunctionName(void)
 {
 	return sysfunc[SYSFUNC_HIS];
 }
@@ -415,7 +415,7 @@ const yaya::char_t* CSystemFunction::HistoryFunctionName(void)
 CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<CCell *> &pcellarg,
 			CValueArgArray &valuearg, CLocalVariable &lvar, int l, CFunction *thisfunc)
 {
-	yaya::string_t& d = thisfunc->dicfilename;
+	aya::string_t& d = thisfunc->dicfilename;
 
 	switch(index) {
 	case 0:		// TOINT
@@ -708,7 +708,7 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
  *  関数名  ：  CSystemFunction::TOINT
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::TOINT(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::TOINT(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"TOINT", d, l);
@@ -723,7 +723,7 @@ CValue	CSystemFunction::TOINT(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::TOREAL
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::TOREAL(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::TOREAL(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"TOREAL", d, l);
@@ -738,7 +738,7 @@ CValue	CSystemFunction::TOREAL(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::TOSTR
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::TOSTR(CValueArgArray &valuearg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::TOSTR(CValueArgArray &valuearg, aya::string_t &d, int &l)
 {
 	if (valuearg.empty()) {
 		vm.logger().Error(E_W, 8, L"TOSTR", d, l);
@@ -746,7 +746,7 @@ CValue	CSystemFunction::TOSTR(CValueArgArray &valuearg, yaya::string_t &d, int &
 		return CValue();
 	}
 
-	yaya::string_t str;
+	aya::string_t str;
 	for ( CValueArgArray::const_iterator it = valuearg.begin() ; it != valuearg.end() ; ++it ) {
 		str += it->GetValueString();
 	}
@@ -757,7 +757,7 @@ CValue	CSystemFunction::TOSTR(CValueArgArray &valuearg, yaya::string_t &d, int &
  *  関数名  ：  CSystemFunction::TOAUTO
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::TOAUTO(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::TOAUTO(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"TOAUTO", d, l);
@@ -769,7 +769,7 @@ CValue	CSystemFunction::TOAUTO(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(arg.array()[0]);
 	}
 
-	yaya::string_t str = arg.array()[0].GetValueString();
+	aya::string_t str = arg.array()[0].GetValueString();
 
 	if ( IsIntString(str) ) {
 		return CValue(arg.array()[0].GetValueInt());
@@ -787,7 +787,7 @@ CValue	CSystemFunction::TOAUTO(const CValue &arg, yaya::string_t &d, int &l)
  *  返値　　：  0/1/2/3/4/5=エラー/整数/実数/文字列/配列/連想配列
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::GETTYPE(CValueArgArray &valuearg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::GETTYPE(CValueArgArray &valuearg, aya::string_t &d, int &l)
 {
 	if (valuearg.empty()) {
 		vm.logger().Error(E_W, 8, L"GETTYPE", d, l);
@@ -836,7 +836,7 @@ CValue	CSystemFunction::GETTYPE(CValueArgArray &valuearg, yaya::string_t &d, int
  *  返値　　：  0/1/2/3/4=エラー/整数/実数/文字列/配列
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::GETTYPEEX(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l)
+CValue	CSystemFunction::GETTYPEEX(const CValue &arg, CLocalVariable &lvar, aya::string_t &d, int &l)
 {
 	size_t arg_size = arg.array_size();
 
@@ -852,7 +852,7 @@ CValue	CSystemFunction::GETTYPEEX(const CValue &arg, CLocalVariable &lvar, yaya:
 		SetError(9);
 	}
 
-	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
+	const aya::string_t &arg0 = arg.array()[0].GetValueString();
 	if (!arg0.size()) {
 		return CValue(0);
 	}
@@ -890,7 +890,7 @@ CValue	CSystemFunction::GETTYPEEX(const CValue &arg, CLocalVariable &lvar, yaya:
  *  関数名  ：  CSystemFunction::ISFUNC
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::ISFUNC(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::ISFUNC(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"ISFUNC", d, l);
@@ -919,7 +919,7 @@ CValue	CSystemFunction::ISFUNC(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::ISVAR
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::ISVAR(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l)
+CValue	CSystemFunction::ISVAR(const CValue &arg, CLocalVariable &lvar, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"ISVAR", d, l);
@@ -951,7 +951,7 @@ CValue	CSystemFunction::ISVAR(const CValue &arg, CLocalVariable &lvar, yaya::str
  *  文字列の場合はダブルクォートします。
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::LOGGING(const CValue &arg, yaya::string_t &/*d*/, int &/*l*/)
+CValue	CSystemFunction::LOGGING(const CValue &arg, aya::string_t &/*d*/, int &/*l*/)
 {
 	if (arg.array_size())
 		vm.logger().Write(arg.GetValueStringForLogging());
@@ -967,15 +967,15 @@ CValue	CSystemFunction::LOGGING(const CValue &arg, yaya::string_t &/*d*/, int &/
  *  エラーログを配列で返します
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::GETERRORLOG(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::GETERRORLOG(const CValue &arg, aya::string_t &d, int &l)
 {
 
 	CValue result(F_TAG_ARRAY, 0/*dmy*/);
 
 	//絞りこみ文字列がない場合
-	std::deque<yaya::string_t> &log = vm.logger().GetErrorLogHistory();
+	std::deque<aya::string_t> &log = vm.logger().GetErrorLogHistory();
 
-	for(std::deque<yaya::string_t>::iterator it = log.begin(); it != log.end(); it++) {
+	for(std::deque<aya::string_t>::iterator it = log.begin(); it != log.end(); it++) {
 		result.array().push_back(CValueSub(*it));
 	}
 
@@ -986,7 +986,7 @@ CValue	CSystemFunction::GETERRORLOG(const CValue &arg, yaya::string_t &d, int &l
  *  関数名  ：  CSystemFunction::LOADLIB
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::LOADLIB(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::LOADLIB(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"LOADLIB", d, l);
@@ -1013,7 +1013,7 @@ CValue	CSystemFunction::LOADLIB(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::UNLOADLIB
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::UNLOADLIB(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::UNLOADLIB(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"UNLOADLIB", d, l);
@@ -1045,7 +1045,7 @@ CValue	CSystemFunction::UNLOADLIB(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::REQUESTLIB
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::REQUESTLIB(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::REQUESTLIB(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 2) {
 		vm.logger().Error(E_W, 8, L"REQUESTLIB", d, l);
@@ -1060,7 +1060,7 @@ CValue	CSystemFunction::REQUESTLIB(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue();
 	}
 
-	yaya::string_t	result;
+	aya::string_t	result;
 	if (!vm.libs().Request(ToFullPath(arg.array()[0].s_value), arg.array()[1].s_value, result)) {
 		vm.logger().Error(E_W, 13, L"REQUESTLIB", d, l);
 		SetError(13);
@@ -1073,7 +1073,7 @@ CValue	CSystemFunction::REQUESTLIB(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::CHARSETTEXTTOID
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::CHARSETTEXTTOID(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::CHARSETTEXTTOID(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"CHARSETTEXTTOID", d, l);
@@ -1094,7 +1094,7 @@ CValue	CSystemFunction::CHARSETTEXTTOID(const CValue &arg, yaya::string_t &d, in
  *  関数名  ：  CSystemFunction::CHARSETIDTOTEXT
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::CHARSETIDTOTEXT(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::CHARSETIDTOTEXT(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"CHARSETIDTOTEXT", d, l);
@@ -1116,7 +1116,7 @@ CValue	CSystemFunction::CHARSETIDTOTEXT(const CValue &arg, yaya::string_t &d, in
  *  ビット演算関連です
  * -----------------------------------------------------------------------
  */
-CValue CSystemFunction::BITWISE_AND(const CValue &arg, yaya::string_t &d, int &l)
+CValue CSystemFunction::BITWISE_AND(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 2) {
 		vm.logger().Error(E_W, 8, L"BITWISE_AND", d, l);
@@ -1127,7 +1127,7 @@ CValue CSystemFunction::BITWISE_AND(const CValue &arg, yaya::string_t &d, int &l
 	return CValue(arg.array()[0].GetValueInt() & arg.array()[1].GetValueInt());
 }
 
-CValue CSystemFunction::BITWISE_OR(const CValue &arg, yaya::string_t &d, int &l)
+CValue CSystemFunction::BITWISE_OR(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 2) {
 		vm.logger().Error(E_W, 8, L"BITWISE_OR", d, l);
@@ -1138,7 +1138,7 @@ CValue CSystemFunction::BITWISE_OR(const CValue &arg, yaya::string_t &d, int &l)
 	return CValue(arg.array()[0].GetValueInt() | arg.array()[1].GetValueInt());
 }
 
-CValue CSystemFunction::BITWISE_XOR(const CValue &arg, yaya::string_t &d, int &l)
+CValue CSystemFunction::BITWISE_XOR(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 2) {
 		vm.logger().Error(E_W, 8, L"BITWISE_XOR", d, l);
@@ -1149,7 +1149,7 @@ CValue CSystemFunction::BITWISE_XOR(const CValue &arg, yaya::string_t &d, int &l
 	return CValue(arg.array()[0].GetValueInt() ^ arg.array()[1].GetValueInt());
 }
 
-CValue CSystemFunction::BITWISE_NOT(const CValue &arg, yaya::string_t &d, int &l)
+CValue CSystemFunction::BITWISE_NOT(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"BITWISE_NOT", d, l);
@@ -1160,7 +1160,7 @@ CValue CSystemFunction::BITWISE_NOT(const CValue &arg, yaya::string_t &d, int &l
 	return CValue(~arg.array()[0].GetValueInt());
 }
 
-CValue CSystemFunction::BITWISE_SHIFT(const CValue &arg, yaya::string_t &d, int &l)
+CValue CSystemFunction::BITWISE_SHIFT(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 2) {
 		vm.logger().Error(E_W, 8, L"BITWISE_SHIFT", d, l);
@@ -1183,24 +1183,24 @@ CValue CSystemFunction::BITWISE_SHIFT(const CValue &arg, yaya::string_t &d, int 
  * -----------------------------------------------------------------------
  */
 
-static const yaya::char_t zen_support_symbol[] = 
+static const aya::char_t zen_support_symbol[] = 
 	L"　！“”＃＄％＆‘’（）＝｜‘｛＋＊｝＜＞？＿ー＾￥＠；：・．［］";
-static const yaya::char_t han_support_symbol[] = 
+static const aya::char_t han_support_symbol[] = 
 	L" !\"\"#$%&''()=|`{+*}<>?_-^\\@;:･.[]";
 
-static const yaya::char_t zen_support_kana[] = 
+static const aya::char_t zen_support_kana[] = 
 	L"アイウエオカキクケコサシスセ\x30bdタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンァィゥェォャュョッ゛゜、。";
-static const yaya::char_t han_support_kana[] = 
+static const aya::char_t han_support_kana[] = 
 	L"ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜｦﾝｧｨｩｪｫｬｭｮｯﾞﾟ､｡";
 
-static const yaya::char_t zen_support_kana2[] = 
+static const aya::char_t zen_support_kana2[] = 
 	L"ガギグゲゴザジズゼゾダヂヅデドバビブベボヴ";
-static const yaya::char_t han_support_kana2[] = 
+static const aya::char_t han_support_kana2[] = 
 	L"ｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾊﾋﾌﾍﾎｳ";
 
-static const yaya::char_t zen_support_kana3[] = 
+static const aya::char_t zen_support_kana3[] = 
 	L"パピプペポ";
-static const yaya::char_t han_support_kana3[] = 
+static const aya::char_t han_support_kana3[] = 
 	L"ﾊﾋﾌﾍﾎ";
 
 
@@ -1209,40 +1209,40 @@ static const yaya::char_t han_support_kana3[] =
 #define ZH_FLAG_SYMBOL   0x4U
 #define ZH_FLAG_KANA     0x8U
 
-static unsigned int CSystemFunction_ZHFlag(const yaya::string_t &str);
+static unsigned int CSystemFunction_ZHFlag(const aya::string_t &str);
 
-static unsigned int CSystemFunction_ZHFlag(const yaya::string_t &str)
+static unsigned int CSystemFunction_ZHFlag(const aya::string_t &str)
 {
 	unsigned int flag = 0;
 
-	if ( str.find(L"num") != yaya::string_t::npos ) {
+	if ( str.find(L"num") != aya::string_t::npos ) {
 		flag |= ZH_FLAG_NUMBER;
 	}
-	if ( str.find(L"alpha") != yaya::string_t::npos ) {
+	if ( str.find(L"alpha") != aya::string_t::npos ) {
 		flag |= ZH_FLAG_ALPHABET;
 	}
-	if ( str.find(L"sym") != yaya::string_t::npos ) {
+	if ( str.find(L"sym") != aya::string_t::npos ) {
 		flag |= ZH_FLAG_SYMBOL;
 	}
-	if ( str.find(L"kana") != yaya::string_t::npos ) {
+	if ( str.find(L"kana") != aya::string_t::npos ) {
 		flag |= ZH_FLAG_KANA;
 	}
 	return flag;
 }
 
-static const yaya::char_t char_zen_0 = 0xff10;
-static const yaya::char_t char_zen_9 = 0xff19;
+static const aya::char_t char_zen_0 = 0xff10;
+static const aya::char_t char_zen_9 = 0xff19;
 
-static const yaya::char_t char_zen_upper_a = 0xff21;
-static const yaya::char_t char_zen_upper_z = 0xff3a;
+static const aya::char_t char_zen_upper_a = 0xff21;
+static const aya::char_t char_zen_upper_z = 0xff3a;
 
-static const yaya::char_t char_zen_lower_a = 0xff41;
-static const yaya::char_t char_zen_lower_z = 0xff5a;
+static const aya::char_t char_zen_lower_a = 0xff41;
+static const aya::char_t char_zen_lower_z = 0xff5a;
 
-static const yaya::char_t char_dakuten = 0xff9e;
-static const yaya::char_t char_handakuten = 0xff9f;
+static const aya::char_t char_dakuten = 0xff9e;
+static const aya::char_t char_handakuten = 0xff9f;
 
-CValue CSystemFunction::ZEN2HAN(const CValue &arg, yaya::string_t &d, int &l)
+CValue CSystemFunction::ZEN2HAN(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"ZEN2HAN", d, l);
@@ -1250,14 +1250,14 @@ CValue CSystemFunction::ZEN2HAN(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	yaya::string_t str = arg.array()[0].GetValueString();
+	aya::string_t str = arg.array()[0].GetValueString();
 
 	unsigned int flag = 0xFFFFFFFFU;
 	if ( arg.array_size() >= 2 ) {
 		flag = CSystemFunction_ZHFlag(arg.array()[1].GetValueString());
 	}
 
-	for ( yaya::string_t::iterator it = str.begin() ; it < str.end(); ++it ) {
+	for ( aya::string_t::iterator it = str.begin() ; it < str.end(); ++it ) {
 		if ( *it >= char_zen_0 && *it <= char_zen_9 ) {
 			if ( flag & ZH_FLAG_NUMBER ) {
 				*it = *it - char_zen_0 + L'0';
@@ -1275,13 +1275,13 @@ CValue CSystemFunction::ZEN2HAN(const CValue &arg, yaya::string_t &d, int &l)
 		}
 		else {
 			if ( flag & ZH_FLAG_SYMBOL ) {
-				const yaya::char_t *found = wcschr(zen_support_symbol,*it);
+				const aya::char_t *found = wcschr(zen_support_symbol,*it);
 				if ( found ) {
 					*it = han_support_symbol[found - zen_support_symbol];
 				}
 			}
 			if ( flag & ZH_FLAG_KANA ) {
-				const yaya::char_t *found = wcschr(zen_support_kana,*it);
+				const aya::char_t *found = wcschr(zen_support_kana,*it);
 				if ( found ) {
 					*it = han_support_kana[found - zen_support_kana];
 				}
@@ -1304,7 +1304,7 @@ CValue CSystemFunction::ZEN2HAN(const CValue &arg, yaya::string_t &d, int &l)
 	return CValue(str);
 }
 
-CValue CSystemFunction::HAN2ZEN(const CValue &arg, yaya::string_t &d, int &l)
+CValue CSystemFunction::HAN2ZEN(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"HAN2ZEN", d, l);
@@ -1312,14 +1312,14 @@ CValue CSystemFunction::HAN2ZEN(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	yaya::string_t str = arg.array()[0].GetValueString();
+	aya::string_t str = arg.array()[0].GetValueString();
 
 	unsigned int flag = 0xFFFFFFFFU;
 	if ( arg.array_size() >= 2 ) {
 		flag = CSystemFunction_ZHFlag(arg.array()[1].GetValueString());
 	}
 
-	for ( yaya::string_t::iterator it = str.begin() ; it < str.end(); ++it ) {
+	for ( aya::string_t::iterator it = str.begin() ; it < str.end(); ++it ) {
 		if ( *it >= L'0' && *it <= L'9' ) {
 			if ( flag & ZH_FLAG_NUMBER ) {
 				*it = *it - L'0' + char_zen_0;
@@ -1337,13 +1337,13 @@ CValue CSystemFunction::HAN2ZEN(const CValue &arg, yaya::string_t &d, int &l)
 		}
 		else {
 			if ( flag & ZH_FLAG_SYMBOL ) {
-				const yaya::char_t *found = wcschr(han_support_symbol,*it);
+				const aya::char_t *found = wcschr(han_support_symbol,*it);
 				if ( found ) {
 					*it = zen_support_symbol[found - han_support_symbol];
 				}
 			}
 			if ( flag & ZH_FLAG_KANA ) {
-				const yaya::char_t *found = wcschr(han_support_kana,*it);
+				const aya::char_t *found = wcschr(han_support_kana,*it);
 				if ( found ) {
 					if ( it < str.end()-1 && ((*(it+1) == char_dakuten) || (*(it+1) == char_handakuten)) ) {
 						if ( *(it+1) == char_dakuten ) {
@@ -1375,7 +1375,7 @@ CValue CSystemFunction::HAN2ZEN(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::CHARSETLIB
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::CHARSETLIB(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::CHARSETLIB(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		return CValue(Ccct::CharsetIDToTextW(vm.libs().GetCharset()));
@@ -1395,7 +1395,7 @@ CValue	CSystemFunction::CHARSETLIB(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::CHARSETLIBEX
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::CHARSETLIBEX(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::CHARSETLIBEX(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 1) {
 		vm.logger().Error(E_W, 8, L"CHARSETLIBEX", d, l);
@@ -1440,7 +1440,7 @@ CValue	CSystemFunction::CHARSETLIBEX(const CValue &arg, yaya::string_t &d, int &
  *  引数エラーでは0を返します。
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::RAND(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::RAND(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size())
 	        return vm.genrand_sysfunc_int(100);
@@ -1468,7 +1468,7 @@ CValue	CSystemFunction::RAND(const CValue &arg, yaya::string_t &d, int &l)
  *  RANDのseed。パラメータは文字列も可。
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::SRAND(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::SRAND(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 19, L"SRAND", d, l);
@@ -1493,7 +1493,7 @@ CValue	CSystemFunction::SRAND(const CValue &arg, yaya::string_t &d, int &l)
 	else if (arg.array()[0].IsString()) {
 		std::vector<unsigned long> num;
 
-		yaya::string_t str = arg.array()[0].GetValueString();
+		aya::string_t str = arg.array()[0].GetValueString();
 
 		int nlen = str.length();
 		int n = nlen / 2;
@@ -1521,7 +1521,7 @@ CValue	CSystemFunction::SRAND(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::FLOOR
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::FLOOR(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::FLOOR(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"FLOOR", d, l);
@@ -1540,7 +1540,7 @@ CValue	CSystemFunction::FLOOR(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::CEIL
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::CEIL(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::CEIL(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"CEIL", d, l);
@@ -1559,7 +1559,7 @@ CValue	CSystemFunction::CEIL(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::ROUND
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::ROUND(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::ROUND(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"ROUND", d, l);
@@ -1587,7 +1587,7 @@ CValue	CSystemFunction::ROUND(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::SIN
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::SIN(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::SIN(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"SIN", d, l);
@@ -1606,7 +1606,7 @@ CValue	CSystemFunction::SIN(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::COS
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::COS(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::COS(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"COS", d, l);
@@ -1625,7 +1625,7 @@ CValue	CSystemFunction::COS(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::TAN
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::TAN(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::TAN(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"TAN", d, l);
@@ -1644,7 +1644,7 @@ CValue	CSystemFunction::TAN(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::SINH
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::SINH(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::SINH(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"SINH", d, l);
@@ -1663,7 +1663,7 @@ CValue	CSystemFunction::SINH(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::COSH
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::COSH(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::COSH(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"COSH", d, l);
@@ -1682,7 +1682,7 @@ CValue	CSystemFunction::COSH(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::TANH
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::TANH(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::TANH(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"TANH", d, l);
@@ -1701,7 +1701,7 @@ CValue	CSystemFunction::TANH(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::ASIN
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::ASIN(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::ASIN(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"ASIN", d, l);
@@ -1720,7 +1720,7 @@ CValue	CSystemFunction::ASIN(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::ACOS
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::ACOS(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::ACOS(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"ACOS", d, l);
@@ -1739,7 +1739,7 @@ CValue	CSystemFunction::ACOS(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::ATAN
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::ATAN(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::ATAN(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"ATAN", d, l);
@@ -1758,7 +1758,7 @@ CValue	CSystemFunction::ATAN(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::LOG
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::LOG(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::LOG(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"LOG", d, l);
@@ -1777,7 +1777,7 @@ CValue	CSystemFunction::LOG(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::LOG10
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::LOG10(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::LOG10(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"LOG10", d, l);
@@ -1796,7 +1796,7 @@ CValue	CSystemFunction::LOG10(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::POW
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::POW(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::POW(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 2) {
 		vm.logger().Error(E_W, 8, L"POW", d, l);
@@ -1815,7 +1815,7 @@ CValue	CSystemFunction::POW(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::SQRT
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::SQRT(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::SQRT(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"SQRT", d, l);
@@ -1840,7 +1840,7 @@ CValue	CSystemFunction::SQRT(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::STRSTR
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::STRSTR(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::STRSTR(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 3) {
 		vm.logger().Error(E_W, 8, L"STRSTR", d, l);
@@ -1860,7 +1860,7 @@ CValue	CSystemFunction::STRSTR(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::STRLEN
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::STRLEN(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::STRLEN(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"STRLEN", d, l);
@@ -1880,7 +1880,7 @@ CValue	CSystemFunction::STRLEN(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::REPLACE
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::REPLACE(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::REPLACE(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 3) {
 		vm.logger().Error(E_W, 8, L"REPLACE", d, l);
@@ -1904,14 +1904,14 @@ CValue	CSystemFunction::REPLACE(const CValue &arg, yaya::string_t &d, int &l)
 		count = arg.array()[3].GetValueInt();
 	}
 
-	yaya::string_t	result = arg.array()[0].GetValueString();
-	yaya::string_t  before = arg.array()[1].GetValueString();
-	yaya::string_t  after  = arg.array()[2].GetValueString();
+	aya::string_t	result = arg.array()[0].GetValueString();
+	aya::string_t  before = arg.array()[1].GetValueString();
+	aya::string_t  after  = arg.array()[2].GetValueString();
 	//int	sz_before = before->size();
 	//int	sz_after  = after->size();
 
 	if (!before.empty()) {
-		yaya::ws_replace(result, before.c_str(), after.c_str(), count);
+		aya::ws_replace(result, before.c_str(), after.c_str(), count);
 	}
 
 	return CValue(result);
@@ -1921,7 +1921,7 @@ CValue	CSystemFunction::REPLACE(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::SUBSTR
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::SUBSTR(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::SUBSTR(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 3) {
 		vm.logger().Error(E_W, 8, L"SUBSTR", d, l);
@@ -1935,7 +1935,7 @@ CValue	CSystemFunction::SUBSTR(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	const yaya::string_t& src = arg.array()[0].GetValueString();
+	const aya::string_t& src = arg.array()[0].GetValueString();
 	int pos = arg.array()[1].GetValueInt();
 	int len = arg.array()[2].GetValueInt();
 
@@ -1964,7 +1964,7 @@ CValue	CSystemFunction::SUBSTR(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::ERASE
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::ERASE(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::ERASE(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 3) {
 		vm.logger().Error(E_W, 8, L"ERASE", d, l);
@@ -1979,7 +1979,7 @@ CValue	CSystemFunction::ERASE(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 	
-	yaya::string_t src = arg.array()[0].GetValueString();
+	aya::string_t src = arg.array()[0].GetValueString();
 	int pos = arg.array()[1].GetValueInt();
 	int len = arg.array()[2].GetValueInt();
 
@@ -2008,7 +2008,7 @@ CValue	CSystemFunction::ERASE(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::INSERT
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::INSERT(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::INSERT(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 3) {
 		vm.logger().Error(E_W, 8, L"INSERT", d, l);
@@ -2023,7 +2023,7 @@ CValue	CSystemFunction::INSERT(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	yaya::string_t str = arg.array()[0].GetValueString();
+	aya::string_t str = arg.array()[0].GetValueString();
 	return CValue(str.insert(arg.array()[1].GetValueInt(), arg.array()[2].s_value));
 }
 
@@ -2031,7 +2031,7 @@ CValue	CSystemFunction::INSERT(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::TOUPPER
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::TOUPPER(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::TOUPPER(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"TOUPPER", d, l);
@@ -2044,11 +2044,11 @@ CValue	CSystemFunction::TOUPPER(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	yaya::string_t	result = arg.array()[0].GetValueString();
+	aya::string_t	result = arg.array()[0].GetValueString();
 	int	len = result.size();
 	for(int i = 0; i < len; i++)
 		if (result[i] >= L'a' && result[i] <= L'z')
-			result[i] += static_cast<yaya::string_t::value_type>(L'A' - L'a');
+			result[i] += static_cast<aya::string_t::value_type>(L'A' - L'a');
 	return CValue(result);
 }
 
@@ -2056,7 +2056,7 @@ CValue	CSystemFunction::TOUPPER(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::TOLOWER
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::TOLOWER(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::TOLOWER(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"TOLOWER", d, l);
@@ -2069,7 +2069,7 @@ CValue	CSystemFunction::TOLOWER(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	yaya::string_t	result = arg.array()[0].GetValueString();
+	aya::string_t	result = arg.array()[0].GetValueString();
 	int	len = result.size();
 	for(int i = 0; i < len; i++)
 		if (result[i] >= L'A' && result[i] <= L'Z')
@@ -2082,7 +2082,7 @@ CValue	CSystemFunction::TOLOWER(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::CUTSPACE
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::CUTSPACE(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::CUTSPACE(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"CUTSPACE", d, l);
@@ -2095,7 +2095,7 @@ CValue	CSystemFunction::CUTSPACE(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	yaya::string_t	result = arg.array()[0].GetValueString();
+	aya::string_t	result = arg.array()[0].GetValueString();
 	CutSpace(result);
 
 	return CValue(result);
@@ -2105,7 +2105,7 @@ CValue	CSystemFunction::CUTSPACE(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::TOBINSTR
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::TOBINSTR(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::TOBINSTR(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"TOBINSTR", d, l);
@@ -2118,14 +2118,14 @@ CValue	CSystemFunction::TOBINSTR(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	return CValue(yaya::ws_itoa(arg.array()[0].GetValueInt(), 2));
+	return CValue(aya::ws_itoa(arg.array()[0].GetValueInt(), 2));
 }
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::TOHEXSTR
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::TOHEXSTR(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::TOHEXSTR(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"TOHEXSTR", d, l);
@@ -2138,14 +2138,14 @@ CValue	CSystemFunction::TOHEXSTR(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	return CValue(yaya::ws_itoa(arg.array()[0].GetValueInt(), 16));
+	return CValue(aya::ws_itoa(arg.array()[0].GetValueInt(), 16));
 }
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::BINSTRTOI
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::BINSTRTOI(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::BINSTRTOI(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"BINSTRTOI", d, l);
@@ -2164,14 +2164,14 @@ CValue	CSystemFunction::BINSTRTOI(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 
-	return CValue(yaya::ws_atoi(arg.array()[0].GetValueString(), 2));
+	return CValue(aya::ws_atoi(arg.array()[0].GetValueString(), 2));
 }
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::HEXSTRTOI
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::HEXSTRTOI(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::HEXSTRTOI(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"HEXSTRTOI", d, l);
@@ -2184,7 +2184,7 @@ CValue	CSystemFunction::HEXSTRTOI(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	yaya::string_t str = arg.array()[0].GetValueString();
+	aya::string_t str = arg.array()[0].GetValueString();
 
 	if ( wcsnicmp(str.c_str(),L"0x",2) == 0 ) {
 		str.erase(0,2);
@@ -2196,14 +2196,14 @@ CValue	CSystemFunction::HEXSTRTOI(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 
-	return CValue(yaya::ws_atoi(str, 16));
+	return CValue(aya::ws_atoi(str, 16));
 }
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::CHR
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::CHR(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::CHR(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"CHR", d, l);
@@ -2216,11 +2216,11 @@ CValue	CSystemFunction::CHR(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	yaya::string_t r_value(1, static_cast<yaya::char_t>(arg.array()[0].GetValueInt()));
+	aya::string_t r_value(1, static_cast<aya::char_t>(arg.array()[0].GetValueInt()));
 	
 	for ( CValueArray::const_iterator i = arg.array().begin() + 1 ;
 		i < arg.array().end() ; ++i ) {
-		r_value.append(1, static_cast<yaya::char_t>(i->GetValueInt()) );
+		r_value.append(1, static_cast<aya::char_t>(i->GetValueInt()) );
 	}
 
 	return CValue(r_value);
@@ -2230,7 +2230,7 @@ CValue	CSystemFunction::CHR(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::FOPEN
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::FOPEN(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::FOPEN(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 2) {
 		vm.logger().Error(E_W, 8, L"FOPEN", d, l);
@@ -2252,7 +2252,7 @@ CValue	CSystemFunction::FOPEN(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::FCLOSE
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::FCLOSE(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::FCLOSE(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"FCLOSE", d, l);
@@ -2284,7 +2284,7 @@ CValue	CSystemFunction::FCLOSE(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::FREAD
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::FREAD(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::FREAD(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"FREAD", d, l);
@@ -2298,7 +2298,7 @@ CValue	CSystemFunction::FREAD(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue();
 	}
 
-	yaya::string_t	r_value;
+	aya::string_t	r_value;
 	int	result = vm.files().Read(ToFullPath(arg.array()[0].s_value), r_value);
 	CutCrLf(r_value);
 
@@ -2318,7 +2318,7 @@ CValue	CSystemFunction::FREAD(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::FREADBIN
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::FREADBIN(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::FREADBIN(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"FREADBIN", d, l);
@@ -2337,7 +2337,7 @@ CValue	CSystemFunction::FREADBIN(const CValue &arg, yaya::string_t &d, int &l)
 		readsize = arg.array()[1].GetValueInt();
 	}
 
-	yaya::char_t alt = L' ';
+	aya::char_t alt = L' ';
 	if (arg.array_size() >= 3) {
 		if (!arg.array()[2].IsString()) {
 			vm.logger().Error(E_W, 9, L"FREADBIN", d, l);
@@ -2347,7 +2347,7 @@ CValue	CSystemFunction::FREADBIN(const CValue &arg, yaya::string_t &d, int &l)
 		alt = arg.array()[2].GetValueString()[0];
 	}
 
-	yaya::string_t	r_value;
+	aya::string_t	r_value;
 	int	result = vm.files().ReadBin(ToFullPath(arg.array()[0].GetValueString()), r_value, readsize, alt);
 
 	if (!result) {
@@ -2364,7 +2364,7 @@ CValue	CSystemFunction::FREADBIN(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::FREADENCODE
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::FREADENCODE(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::FREADENCODE(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"FREADENCODE", d, l);
@@ -2383,12 +2383,12 @@ CValue	CSystemFunction::FREADENCODE(const CValue &arg, yaya::string_t &d, int &l
 		readsize = arg.array()[1].GetValueInt();
 	}
 
-	yaya::string_t type = L"base64";
+	aya::string_t type = L"base64";
 	if ( arg.array_size() >= 3 ) {
 		type = arg.array()[2].GetValueString();
 	}
 
-	yaya::string_t	r_value;
+	aya::string_t	r_value;
 	int	result = vm.files().ReadEncode(ToFullPath(arg.array()[0].GetValueString()), r_value, readsize, type);
 
 	if (!result) {
@@ -2405,7 +2405,7 @@ CValue	CSystemFunction::FREADENCODE(const CValue &arg, yaya::string_t &d, int &l
  *  関数名  ：  CSystemFunction::FWRITE
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::FWRITE(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::FWRITE(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 2) {
 		vm.logger().Error(E_W, 8, L"FWRITE", d, l);
@@ -2420,7 +2420,7 @@ CValue	CSystemFunction::FWRITE(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	if (!vm.files().Write(ToFullPath(arg.array()[0].s_value), arg.array()[1].s_value + yaya::string_t(L"\n"))) {
+	if (!vm.files().Write(ToFullPath(arg.array()[0].s_value), arg.array()[1].s_value + aya::string_t(L"\n"))) {
 		vm.logger().Error(E_W, 13, L"FWRITE", d, l);
 		SetError(13);
 	}
@@ -2432,7 +2432,7 @@ CValue	CSystemFunction::FWRITE(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::FWRITEBIN
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::FWRITEBIN(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::FWRITEBIN(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 2) {
 		vm.logger().Error(E_W, 8, L"FWRITEBIN", d, l);
@@ -2447,7 +2447,7 @@ CValue	CSystemFunction::FWRITEBIN(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	yaya::char_t alt = L' ';
+	aya::char_t alt = L' ';
 
 	if (arg.array_size() >= 3) {
 		if (!arg.array()[2].IsString()) {
@@ -2471,7 +2471,7 @@ CValue	CSystemFunction::FWRITEBIN(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::FWRITEDECODE
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::FWRITEDECODE(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::FWRITEDECODE(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 2) {
 		vm.logger().Error(E_W, 8, L"FWRITEDECODE", d, l);
@@ -2486,7 +2486,7 @@ CValue	CSystemFunction::FWRITEDECODE(const CValue &arg, yaya::string_t &d, int &
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	yaya::string_t type = L"base64";
+	aya::string_t type = L"base64";
 
 	if (arg.array_size() >= 3) {
 		if (!arg.array()[2].IsString()) {
@@ -2509,7 +2509,7 @@ CValue	CSystemFunction::FWRITEDECODE(const CValue &arg, yaya::string_t &d, int &
  *  関数名  ：  CSystemFunction::FWRITE2
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::FWRITE2(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::FWRITE2(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 2) {
 		vm.logger().Error(E_W, 8, L"FWRITE2", d, l);
@@ -2536,7 +2536,7 @@ CValue	CSystemFunction::FWRITE2(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::FSEEK
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::FSEEK(const CValue &arg, yaya::string_t &d, int &l){
+CValue	CSystemFunction::FSEEK(const CValue &arg, aya::string_t &d, int &l){
 	if (arg.array_size() < 3) {
 		vm.logger().Error(E_W, 8, L"FSEEK", d, l);
 		SetError(8);
@@ -2560,7 +2560,7 @@ CValue	CSystemFunction::FSEEK(const CValue &arg, yaya::string_t &d, int &l){
  *  関数名  ：  CSystemFunction::FTELL
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::FTELL(const CValue &arg, yaya::string_t &d, int &l){
+CValue	CSystemFunction::FTELL(const CValue &arg, aya::string_t &d, int &l){
 	if (arg.array_size() < 1) {
 		vm.logger().Error(E_W, 8, L"FTELL", d, l);
 		SetError(8);
@@ -2585,7 +2585,7 @@ CValue	CSystemFunction::FTELL(const CValue &arg, yaya::string_t &d, int &l){
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
-CValue	CSystemFunction::FCOPY(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::FCOPY(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 2) {
 		vm.logger().Error(E_W, 8, L"FCOPY", d, l);
@@ -2601,14 +2601,14 @@ CValue	CSystemFunction::FCOPY(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	// 絶対パス化
-	yaya::char_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
+	aya::char_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
 	_wsplitpath(arg.array()[0].s_value.c_str(), drive, dir, fname, ext);
-	yaya::string_t	s_path = ((::wcslen(drive)) ? yaya::string_t(L"") : vm.basis().load_path) + arg.array()[0].s_value;
+	aya::string_t	s_path = ((::wcslen(drive)) ? aya::string_t(L"") : vm.basis().load_path) + arg.array()[0].s_value;
 
-	yaya::char_t	fname2[_MAX_FNAME], ext2[_MAX_EXT];
+	aya::char_t	fname2[_MAX_FNAME], ext2[_MAX_EXT];
 	_wsplitpath(arg.array()[1].s_value.c_str(), drive, dir, fname2, ext2);
-	yaya::string_t	d_path = ((::wcslen(drive)) ?
-						yaya::string_t(L"") : vm.basis().load_path) + arg.array()[1].s_value + L"\\" + fname + ext;
+	aya::string_t	d_path = ((::wcslen(drive)) ?
+						aya::string_t(L"") : vm.basis().load_path) + arg.array()[1].s_value + L"\\" + fname + ext;
 
 	// パスをMBCSに変換
 	char	*s_pstr = Ccct::Ucs2ToMbcs(s_path, CHARSET_DEFAULT);
@@ -2634,7 +2634,7 @@ CValue	CSystemFunction::FCOPY(const CValue &arg, yaya::string_t &d, int &l)
 	return CValue(result);
 }
 #elif defined(POSIX)
-CValue CSystemFunction::FCOPY(const CValue &arg, yaya::string_t &d, int &l) {
+CValue CSystemFunction::FCOPY(const CValue &arg, aya::string_t &d, int &l) {
     if (arg.array_size() < 2) {
 	vm.logger().Error(E_W, 8, L"FCOPY", d, l);
 	SetError(8);
@@ -2693,7 +2693,7 @@ CValue CSystemFunction::FCOPY(const CValue &arg, yaya::string_t &d, int &l) {
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
-CValue	CSystemFunction::FMOVE(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::FMOVE(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 2) {
 		vm.logger().Error(E_W, 8, L"FMOVE", d, l);
@@ -2709,14 +2709,14 @@ CValue	CSystemFunction::FMOVE(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	// 絶対パス化
-	yaya::char_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
+	aya::char_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
 	_wsplitpath(arg.array()[0].s_value.c_str(), drive, dir, fname, ext);
-	yaya::string_t	s_path = ((::wcslen(drive)) ? yaya::string_t(L"") : vm.basis().load_path) + arg.array()[0].s_value;
+	aya::string_t	s_path = ((::wcslen(drive)) ? aya::string_t(L"") : vm.basis().load_path) + arg.array()[0].s_value;
 
-	yaya::char_t	fname2[_MAX_FNAME], ext2[_MAX_EXT];
+	aya::char_t	fname2[_MAX_FNAME], ext2[_MAX_EXT];
 	_wsplitpath(arg.array()[1].s_value.c_str(), drive, dir, fname2, ext2);
-	yaya::string_t	d_path = ((::wcslen(drive)) ?
-						yaya::string_t(L"") : vm.basis().load_path) + arg.array()[1].s_value + L"\\" + fname + ext;
+	aya::string_t	d_path = ((::wcslen(drive)) ?
+						aya::string_t(L"") : vm.basis().load_path) + arg.array()[1].s_value + L"\\" + fname + ext;
 
 	// パスをMBCSに変換
 	char	*s_pstr = Ccct::Ucs2ToMbcs(s_path, CHARSET_DEFAULT);
@@ -2742,7 +2742,7 @@ CValue	CSystemFunction::FMOVE(const CValue &arg, yaya::string_t &d, int &l)
 	return CValue(result);
 }
 #elif defined(POSIX)
-CValue CSystemFunction::FMOVE(const CValue &arg, yaya::string_t &d, int &l) {
+CValue CSystemFunction::FMOVE(const CValue &arg, aya::string_t &d, int &l) {
     if (arg.array_size() < 2) {
 	vm.logger().Error(E_W, 8, L"FMOVE", d, l);
 	SetError(8);
@@ -2774,7 +2774,7 @@ CValue CSystemFunction::FMOVE(const CValue &arg, yaya::string_t &d, int &l) {
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
-CValue	CSystemFunction::MKDIR(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::MKDIR(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"MKDIR", d, l);
@@ -2803,7 +2803,7 @@ CValue	CSystemFunction::MKDIR(const CValue &arg, yaya::string_t &d, int &l)
 	return CValue(result);
 }
 #elif defined(POSIX)
-CValue CSystemFunction::MKDIR(const CValue &arg, yaya::string_t &d, int &l) {
+CValue CSystemFunction::MKDIR(const CValue &arg, aya::string_t &d, int &l) {
     if (!arg.array_size()) {
 	vm.logger().Error(E_W, 8, L"MKDIR", d, l);
 	SetError(8);
@@ -2831,7 +2831,7 @@ CValue CSystemFunction::MKDIR(const CValue &arg, yaya::string_t &d, int &l) {
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
-CValue	CSystemFunction::RMDIR(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::RMDIR(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"RMDIR", d, l);
@@ -2860,7 +2860,7 @@ CValue	CSystemFunction::RMDIR(const CValue &arg, yaya::string_t &d, int &l)
 	return CValue(result);
 }
 #elif defined(POSIX)
-CValue CSystemFunction::RMDIR(const CValue &arg, yaya::string_t &d, int &l) {
+CValue CSystemFunction::RMDIR(const CValue &arg, aya::string_t &d, int &l) {
     if (!arg.array_size()) {
 	vm.logger().Error(E_W, 8, L"RMDIR", d, l);
 	SetError(8);
@@ -2888,7 +2888,7 @@ CValue CSystemFunction::RMDIR(const CValue &arg, yaya::string_t &d, int &l) {
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
-CValue	CSystemFunction::FDEL(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::FDEL(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"FDEL", d, l);
@@ -2917,7 +2917,7 @@ CValue	CSystemFunction::FDEL(const CValue &arg, yaya::string_t &d, int &l)
 	return CValue(result);
 }
 #elif defined(POSIX)
-CValue CSystemFunction::FDEL(const CValue &arg, yaya::string_t &d, int &l) {
+CValue CSystemFunction::FDEL(const CValue &arg, aya::string_t &d, int &l) {
     if (!arg.array_size()) {
 	vm.logger().Error(E_W, 8, L"FDEL", d, l);
 	SetError(8);
@@ -2945,7 +2945,7 @@ CValue CSystemFunction::FDEL(const CValue &arg, yaya::string_t &d, int &l) {
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
-CValue	CSystemFunction::FRENAME(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::FRENAME(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 2) {
 		vm.logger().Error(E_W, 8, L"FRENAME", d, l);
@@ -2985,7 +2985,7 @@ CValue	CSystemFunction::FRENAME(const CValue &arg, yaya::string_t &d, int &l)
 	return CValue(result);
 }
 #elif defined(POSIX)
-CValue CSystemFunction::FRENAME(const CValue &arg, yaya::string_t &d, int &l) {
+CValue CSystemFunction::FRENAME(const CValue &arg, aya::string_t &d, int &l) {
     if (arg.array_size() < 2) {
 	vm.logger().Error(E_W, 8, L"FRENAME", d, l);
 	SetError(8);
@@ -3017,7 +3017,7 @@ CValue CSystemFunction::FRENAME(const CValue &arg, yaya::string_t &d, int &l) {
  *  関数名  ：  CSystemFunction::FDIGEST
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::FDIGEST(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"FDIGEST", d, l);
@@ -3031,7 +3031,7 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(-1);
 	}
 
-	yaya::string_t digest_type = L"md5";
+	aya::string_t digest_type = L"md5";
 	if (arg.array_size()>=2) {
 		digest_type = arg.array()[1].GetValueString();
 	}
@@ -3109,20 +3109,20 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 
 	fclose(pF);
 
-	yaya::char_t md5str[65];
+	aya::char_t md5str[65];
 	md5str[digest_len*2] = 0; //ゼロ終端
 
 	for ( unsigned int i = 0 ; i < digest_len ; ++i ) {
-		yaya::snprintf(md5str+i*2,sizeof(md5str)/sizeof(md5str[0]), L"%02X",digest_result[i]);
+		aya::snprintf(md5str+i*2,sizeof(md5str)/sizeof(md5str[0]), L"%02X",digest_result[i]);
 	}
 
-	return CValue(yaya::string_t(md5str));
+	return CValue(aya::string_t(md5str));
 }
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::DICLOAD
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::DICLOAD(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::DICLOAD(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"DICLOAD", d, l);
@@ -3136,7 +3136,7 @@ CValue	CSystemFunction::DICLOAD(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(-1);
 	}
 
-	yaya::string_t fullpath = ToFullPath(arg.array()[0].s_value);
+	aya::string_t fullpath = ToFullPath(arg.array()[0].s_value);
 	char cset = vm.basis().GetDicCharset();
 
 	if ( arg.array_size() >= 2 && arg.array()[1].s_value.size() ) {
@@ -3161,7 +3161,7 @@ CValue	CSystemFunction::DICLOAD(const CValue &arg, yaya::string_t &d, int &l)
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
-CValue	CSystemFunction::FSIZE(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::FSIZE(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"FSIZE", d, l);
@@ -3176,7 +3176,7 @@ CValue	CSystemFunction::FSIZE(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	//すでに開いているファイルならそっちから情報をパクる
-	yaya::string_t fullpath = ToFullPath(arg.array()[0].s_value);
+	aya::string_t fullpath = ToFullPath(arg.array()[0].s_value);
 	long size = vm.files().Size(fullpath);
 	if ( size >= 0 ) { return CValue((int)size); }
 
@@ -3202,7 +3202,7 @@ CValue	CSystemFunction::FSIZE(const CValue &arg, yaya::string_t &d, int &l)
 	return CValue((int)result);
 }
 #elif defined(POSIX)
-CValue CSystemFunction::FSIZE(const CValue &arg, yaya::string_t &d, int &l) {
+CValue CSystemFunction::FSIZE(const CValue &arg, aya::string_t &d, int &l) {
     if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"FSIZE", d, l);
 		SetError(8);
@@ -3215,7 +3215,7 @@ CValue CSystemFunction::FSIZE(const CValue &arg, yaya::string_t &d, int &l) {
 		return CValue(-1);
     }
 
-	yaya::string_t fullpath = ToFullPath(arg.array()[0].s_value);
+	aya::string_t fullpath = ToFullPath(arg.array()[0].s_value);
 	long size = vm.files().Size(fullpath);
 	if ( size >= 0 ) { return CValue((int)size); }
 
@@ -3234,7 +3234,7 @@ CValue CSystemFunction::FSIZE(const CValue &arg, yaya::string_t &d, int &l) {
  *  関数名  ：  CSystemFunction::FENUM
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::FENUM(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::FENUM(const CValue &arg, aya::string_t &d, int &l)
 {
 	int	sz = arg.array_size();
 
@@ -3251,7 +3251,7 @@ CValue	CSystemFunction::FENUM(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	// デリミタ取得
-	yaya::string_t	delimiter = VAR_DELIMITER;
+	aya::string_t	delimiter = VAR_DELIMITER;
 	if (sz >= 2) {
 		if (arg.array()[1].IsString() &&
 			arg.array()[1].s_value.size())
@@ -3286,7 +3286,7 @@ CValue	CSystemFunction::FENUM(const CValue &arg, yaya::string_t &d, int &l)
  *  これ以外の値を与えた場合は無効で、warningとなります。
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::FCHARSET(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::FCHARSET(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"FCHARSET", d, l);
@@ -3313,7 +3313,7 @@ CValue	CSystemFunction::FCHARSET(const CValue &arg, yaya::string_t &d, int &l)
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ArraySize(CValueArgArray &valuearg, const std::vector<CCell *> &pcellarg,
-								   CLocalVariable &lvar, yaya::string_t &d, int &l)
+								   CLocalVariable &lvar, aya::string_t &d, int &l)
 {
 	// 引数無しなら0
 	size_t sz = valuearg.size();
@@ -3329,7 +3329,7 @@ CValue	CSystemFunction::ArraySize(CValueArgArray &valuearg, const std::vector<CC
 			return CValue(0);
 		}
 		// 引数1つで文字列なら簡易配列の要素数を返す　変数の場合はそのデリミタで分割する
-		yaya::string_t	delimiter = VAR_DELIMITER;
+		aya::string_t	delimiter = VAR_DELIMITER;
 		if (pcellarg[0]->value_GetType() == F_TAG_VARIABLE)
 			delimiter = vm.variable().GetDelimiter(pcellarg[0]->index);
 		else if (pcellarg[0]->value_GetType() == F_TAG_LOCALVARIABLE)
@@ -3349,7 +3349,7 @@ CValue	CSystemFunction::ArraySize(CValueArgArray &valuearg, const std::vector<CC
  *  関数名  ：  CSystemFunction::SETDELIM
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::SETDELIM(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l)
+CValue	CSystemFunction::SETDELIM(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, aya::string_t &d, int &l)
 {
 	if (pcellarg.size() < 2) {
 		vm.logger().Error(E_W, 8, L"SETDELIM", d, l);
@@ -3392,7 +3392,7 @@ CValue	CSystemFunction::SETDELIM(const std::vector<CCell *> &pcellarg, CLocalVar
  *  関数名  ：  CSystemFunction::EVAL
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::EVAL(const CValue &arg, yaya::string_t &d, int &l, CLocalVariable &lvar,
+CValue	CSystemFunction::EVAL(const CValue &arg, aya::string_t &d, int &l, CLocalVariable &lvar,
 			CFunction *thisfunc)
 {
 	if (!arg.array_size()) {
@@ -3407,7 +3407,7 @@ CValue	CSystemFunction::EVAL(const CValue &arg, yaya::string_t &d, int &l, CLoca
 	}
 
 	// 数式へ展開
-	yaya::string_t	str = arg.array()[0].GetValueString();
+	aya::string_t	str = arg.array()[0].GetValueString();
 	CStatement	t_state(ST_FORMULA, l);
 	if (vm.parser0().ParseEmbedString(str, t_state, d, l))
 		return CValue(arg.array()[0].GetValueString());
@@ -3427,7 +3427,7 @@ CValue	CSystemFunction::EVAL(const CValue &arg, yaya::string_t &d, int &l, CLoca
  *  グローバル変数では消去フラグを立て、さらにunload時にファイルへ値を保存しなくなります。
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::ERASEVAR(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l)
+CValue	CSystemFunction::ERASEVAR(const CValue &arg, CLocalVariable &lvar, aya::string_t &d, int &l)
 {
 	size_t arg_size = arg.array_size();
 
@@ -3445,7 +3445,7 @@ CValue	CSystemFunction::ERASEVAR(const CValue &arg, CLocalVariable &lvar, yaya::
 			SetError(9);
 		}
 
-		const yaya::string_t &arg0 = arg.array()[i].GetValueString();
+		const aya::string_t &arg0 = arg.array()[i].GetValueString();
 		if (!arg0.size()) {
 			continue;
 		}
@@ -3469,7 +3469,7 @@ CValue	CSystemFunction::ERASEVAR(const CValue &arg, CLocalVariable &lvar, yaya::
  *  返値　　：  year,month,day,week(0-6),hour,minute,secondの汎用配列
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::GETTIME(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::GETTIME(const CValue &arg, aya::string_t &d, int &l)
 {
 	time_t	ltime;
 
@@ -3686,7 +3686,7 @@ static bool Utils_HTTPToTM(const char *pText,struct tm &outTime)
 	return true;
 }
 
-CValue	CSystemFunction::GETSECCOUNT(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::GETSECCOUNT(const CValue &arg, aya::string_t &d, int &l)
 {
 	time_t	ltime;
 
@@ -3748,7 +3748,7 @@ CValue	CSystemFunction::GETSECCOUNT(const CValue &arg, yaya::string_t &d, int &l
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
-CValue	CSystemFunction::GETTICKCOUNT(const CValue &arg, CLocalVariable &/*lvar*/, yaya::string_t &/*d*/, int &/*l*/)
+CValue	CSystemFunction::GETTICKCOUNT(const CValue &arg, CLocalVariable &/*lvar*/, aya::string_t &/*d*/, int &/*l*/)
 {
 	DWORD	tickcount = GetTickCount();
 	int	highc = (int)(tickcount >> 31);
@@ -3763,7 +3763,7 @@ CValue	CSystemFunction::GETTICKCOUNT(const CValue &arg, CLocalVariable &/*lvar*/
 	return highc;
 }
 #elif defined(POSIX)
-CValue CSystemFunction::GETTICKCOUNT(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l) {
+CValue CSystemFunction::GETTICKCOUNT(const CValue &arg, CLocalVariable &lvar, aya::string_t &d, int &l) {
     struct timeval tv;
 	struct timezone tz;
     gettimeofday(&tv, &tz);
@@ -3812,7 +3812,7 @@ CValue CSystemFunction::GETMEMINFO(void) {
  *  関数名  ：  CSystemFunction::RE_SEARCH
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::RE_SEARCH(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::RE_SEARCH(const CValue &arg, aya::string_t &d, int &l)
 {
 	ClearReResultDetails();
 
@@ -3828,8 +3828,8 @@ CValue	CSystemFunction::RE_SEARCH(const CValue &arg, yaya::string_t &d, int &l)
 		vm.logger().Error(E_W, 9, L"RE_SEARCH", d, l);
 		SetError(9);
 	}
-	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
-	const yaya::string_t &arg1 = arg.array()[1].GetValueString();
+	const aya::string_t &arg0 = arg.array()[0].GetValueString();
+	const aya::string_t &arg1 = arg.array()[1].GetValueString();
 
 	if (!arg0.size() || !arg1.size())
 		return CValue(0);
@@ -3837,7 +3837,7 @@ CValue	CSystemFunction::RE_SEARCH(const CValue &arg, yaya::string_t &d, int &l)
 	// 実行
 	MatchResult	t_result;
 	try {
-		CRegexpT<yaya::char_t> regex(arg1.c_str(),re_option);
+		CRegexpT<aya::char_t> regex(arg1.c_str(),re_option);
 		t_result = regex.Match(arg0.c_str());
 		if (t_result.IsMatched()) {
 			StoreReResultDetails(arg0,t_result);
@@ -3860,7 +3860,7 @@ CValue	CSystemFunction::RE_SEARCH(const CValue &arg, yaya::string_t &d, int &l)
  * -----------------------------------------------------------------------
  */
 
-CValue	CSystemFunction::RE_ASEARCH(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::RE_ASEARCH(const CValue &arg, aya::string_t &d, int &l)
 {
 	int	sz = arg.array_size();
 
@@ -3873,7 +3873,7 @@ CValue	CSystemFunction::RE_ASEARCH(const CValue &arg, yaya::string_t &d, int &l)
 	const CValueSub &key = arg.array()[0];
 
 	try {
-		CRegexpT<yaya::char_t> regex(key.GetValueString().c_str(),re_option);
+		CRegexpT<aya::char_t> regex(key.GetValueString().c_str(),re_option);
 
 		for(int i = 1; i < sz; i++) {
 			try {
@@ -3902,7 +3902,7 @@ CValue	CSystemFunction::RE_ASEARCH(const CValue &arg, yaya::string_t &d, int &l)
 	return CValue(-1);
 }
 
-CValue	CSystemFunction::RE_ASEARCHEX(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::RE_ASEARCHEX(const CValue &arg, aya::string_t &d, int &l)
 {
 	int	sz = arg.array_size();
 
@@ -3916,7 +3916,7 @@ CValue	CSystemFunction::RE_ASEARCHEX(const CValue &arg, yaya::string_t &d, int &
 	CValue res(F_TAG_ARRAY, 0/*dmy*/);
 
 	try {
-		CRegexpT<yaya::char_t> regex(key.GetValueString().c_str(),re_option);
+		CRegexpT<aya::char_t> regex(key.GetValueString().c_str(),re_option);
 
 		for(int i = 1; i < sz; i++) {
 			try {
@@ -3949,7 +3949,7 @@ CValue	CSystemFunction::RE_ASEARCHEX(const CValue &arg, yaya::string_t &d, int &
  *  関数名  ：  CSystemFunction::RE_MATCH
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::RE_MATCH(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::RE_MATCH(const CValue &arg, aya::string_t &d, int &l)
 {
 	ClearReResultDetails();
 
@@ -3967,8 +3967,8 @@ CValue	CSystemFunction::RE_MATCH(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 
-	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
-	const yaya::string_t &arg1 = arg.array()[1].GetValueString();
+	const aya::string_t &arg0 = arg.array()[0].GetValueString();
+	const aya::string_t &arg1 = arg.array()[1].GetValueString();
 
 	if (!arg0.size() || !arg1.size())
 		return CValue(0);
@@ -3976,7 +3976,7 @@ CValue	CSystemFunction::RE_MATCH(const CValue &arg, yaya::string_t &d, int &l)
 	// 実行
 	MatchResult	t_result;
 	try {
-		CRegexpT<yaya::char_t> regex(arg1.c_str(),re_option);
+		CRegexpT<aya::char_t> regex(arg1.c_str(),re_option);
 		t_result = regex.MatchExact(arg0.c_str());
 		if (t_result.IsMatched()) {
 			StoreReResultDetails(arg0,t_result);
@@ -4000,7 +4000,7 @@ CValue	CSystemFunction::RE_MATCH(const CValue &arg, yaya::string_t &d, int &l)
  *  regex_grepは使用せず、regex_searchを繰り返し実行することで同等の機能としています。
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::RE_GREP(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::RE_GREP(const CValue &arg, aya::string_t &d, int &l)
 {
 	ClearReResultDetails();
 
@@ -4017,8 +4017,8 @@ CValue	CSystemFunction::RE_GREP(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
-	const yaya::string_t &arg1 = arg.array()[1].GetValueString();
+	const aya::string_t &arg0 = arg.array()[0].GetValueString();
+	const aya::string_t &arg1 = arg.array()[1].GetValueString();
 
 	if (!arg0.size() || !arg1.size())
 		return CValue(0);
@@ -4027,7 +4027,7 @@ CValue	CSystemFunction::RE_GREP(const CValue &arg, yaya::string_t &d, int &l)
 	int	match_count = 0;
 
 	try {
-		CRegexpT<yaya::char_t> regex(arg1.c_str(),re_option);
+		CRegexpT<aya::char_t> regex(arg1.c_str(),re_option);
 		CContext *pCtx = regex.PrepareMatch(arg0.c_str());
 
 		for( ; ; ) {
@@ -4063,7 +4063,7 @@ CValue	CSystemFunction::RE_GREP(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::SETLASTERROR
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::SETLASTERROR(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::SETLASTERROR(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"SETLASTERROR", d, l);
@@ -4087,28 +4087,28 @@ CValue	CSystemFunction::SETLASTERROR(const CValue &arg, yaya::string_t &d, int &
  *  引数1個：Perlスタイルの正規表現オプション
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::RE_OPTION(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::RE_OPTION(const CValue &arg, aya::string_t &d, int &l)
 {
 	// 引数の数/型チェック
 	if (arg.array_size() >= 1) {
-		yaya::string_t opt = arg.array()[0].GetValueString();
+		aya::string_t opt = arg.array()[0].GetValueString();
 
 		re_option = 0;
-		if ( opt.find(L"m") != yaya::string_t::npos ) {
+		if ( opt.find(L"m") != aya::string_t::npos ) {
 			re_option |= MULTILINE;
 		}
-		if ( opt.find(L"s") != yaya::string_t::npos ) {
+		if ( opt.find(L"s") != aya::string_t::npos ) {
 			re_option |= SINGLELINE;
 		}
-		if ( opt.find(L"x") != yaya::string_t::npos ) {
+		if ( opt.find(L"x") != aya::string_t::npos ) {
 			re_option |= EXTENDED;
 		}
-		if ( opt.find(L"i") != yaya::string_t::npos ) {
+		if ( opt.find(L"i") != aya::string_t::npos ) {
 			re_option |= IGNORECASE;
 		}
 	}
 
-	yaya::string_t result = L"";
+	aya::string_t result = L"";
 
 	if ( (re_option & MULTILINE) != 0 ) {
 		result += L"m";
@@ -4132,7 +4132,7 @@ CValue	CSystemFunction::RE_OPTION(const CValue &arg, yaya::string_t &d, int &l)
  *  regex_splitは使用せず、regex_searchを繰り返し実行することで同等の機能としています。
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::RE_SPLIT(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::RE_SPLIT(const CValue &arg, aya::string_t &d, int &l)
 {
 	ClearReResultDetails();
 
@@ -4150,14 +4150,14 @@ CValue	CSystemFunction::RE_SPLIT(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	yaya::string_t::size_type nums = 0;
+	aya::string_t::size_type nums = 0;
 	if (sz > 2) {
 		if (!arg.array()[2].IsNum()) {
 			vm.logger().Error(E_W, 9, L"RE_SPLIT", d, l);
 			SetError(9);
 			return CValue(F_TAG_ARRAY, 0/*dmy*/);
 		}
-		nums = static_cast<yaya::string_t::size_type>(arg.array()[2].GetValueInt());
+		nums = static_cast<aya::string_t::size_type>(arg.array()[2].GetValueInt());
 
 		if ( nums <= 1 ) {
 			return CValue(arg.array()[0]);
@@ -4171,7 +4171,7 @@ CValue	CSystemFunction::RE_SPLIT(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::RE_REPLACE
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::RE_REPLACE(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::RE_REPLACE(const CValue &arg, aya::string_t &d, int &l)
 {
 	ClearReResultDetails();
 
@@ -4200,9 +4200,9 @@ CValue	CSystemFunction::RE_REPLACE(const CValue &arg, yaya::string_t &d, int &l)
 		else { count += 1; }
 	}
 
-	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
-	const yaya::string_t &arg1 = arg.array()[1].GetValueString();
-	const yaya::string_t &arg2 = arg.array()[2].GetValueString();
+	const aya::string_t &arg0 = arg.array()[0].GetValueString();
+	const aya::string_t &arg1 = arg.array()[1].GetValueString();
+	const aya::string_t &arg2 = arg.array()[2].GetValueString();
 
 	if (!arg0.size() || !arg1.size())
 		return CValue(arg0);
@@ -4214,7 +4214,7 @@ CValue	CSystemFunction::RE_REPLACE(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(arg0);
 
 	// 置換後文字列の作成
-	yaya::string_t	result;
+	aya::string_t	result;
 	int	i = 0;
 	for(i = 0; i < num; i++) {
 		if (i) {
@@ -4230,7 +4230,7 @@ CValue	CSystemFunction::RE_REPLACE(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::RE_REPLACEEX
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, aya::string_t &d, int &l)
 {
 	ClearReResultDetails();
 
@@ -4258,20 +4258,20 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
 		if ( count <= 0 ) { count = -1; }
 	}
 
-	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
-	const yaya::string_t &arg1 = arg.array()[1].GetValueString();
-	const yaya::string_t &arg2_orig = arg.array()[2].GetValueString();
+	const aya::string_t &arg0 = arg.array()[0].GetValueString();
+	const aya::string_t &arg1 = arg.array()[1].GetValueString();
+	const aya::string_t &arg2_orig = arg.array()[2].GetValueString();
 
 	if (!arg0.size() || !arg1.size())
 		return CValue(arg0);
 
-	yaya::string_t arg2 = arg2_orig;
+	aya::string_t arg2 = arg2_orig;
 
 	//最後から1文字手前まで
 	if ( arg2.size() > 0 ) {
-		for ( yaya::string_t::iterator it = arg2.begin() ; it < (arg2.end()-1) ; ++it ) {
+		for ( aya::string_t::iterator it = arg2.begin() ; it < (arg2.end()-1) ; ++it ) {
 			if ( *it == L'\\' ) {
-				yaya::char_t c = *(it+1);
+				aya::char_t c = *(it+1);
 				
 				if ( c == L'\\' ) {
 					arg2.replace(it,it+2,L"\\");
@@ -4298,7 +4298,7 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
 					arg2.replace(it,it+2,L"\v");
 				}
 				else if ( c >= L'0' && c <= L'9' ) {
-					yaya::char_t rep[3] = L"$0";
+					aya::char_t rep[3] = L"$0";
 					rep[1] = c;
 					arg2.replace(it,it+2,rep);
 					it += 1; //次の文字は読み飛ばして良い
@@ -4308,13 +4308,13 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
 	}
 
 	// 実行
-	yaya::string_t str_result;
+	aya::string_t str_result;
 
 	try {
-		CRegexpT<yaya::char_t> regex(arg1.c_str(),re_option);
+		CRegexpT<aya::char_t> regex(arg1.c_str(),re_option);
 
 		MatchResult t_result;
-		yaya::char_t *result;
+		aya::char_t *result;
 
 		if ( arg2.size() > 0 ) {
 			result = regex.Replace(arg0.c_str(),arg2.c_str(),0,count,&t_result);
@@ -4348,17 +4348,17 @@ CValue	CSystemFunction::RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &
  *  RE_SPLITの主処理部分です。RE_REPLACEでも使用します。
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int &l, const yaya::char_t *fncname, size_t num)
+CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, aya::string_t &d, int &l, const aya::char_t *fncname, size_t num)
 {
-	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
-	const yaya::string_t &arg1 = arg.array()[1].GetValueString();
+	const aya::string_t &arg0 = arg.array()[0].GetValueString();
+	const aya::string_t &arg1 = arg.array()[1].GetValueString();
 
 	int	t_pos = 0;
 	size_t count = 1;
 	CValue	splits(F_TAG_ARRAY, 0/*dmy*/);
 
 	try {
-		CRegexpT<yaya::char_t> regex(arg1.c_str(),re_option);
+		CRegexpT<aya::char_t> regex(arg1.c_str(),re_option);
 		CContext *pCtx = regex.PrepareMatch(arg0.c_str());
 
 		for( ; ; ) {
@@ -4410,7 +4410,7 @@ CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int 
  *  関数名  ：  CSystemFunction::CHRCODE
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::CHRCODE(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::CHRCODE(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"CHRCODE", d, l);
@@ -4451,7 +4451,7 @@ CValue	CSystemFunction::CHRCODE(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::ISINTSTR
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::ISINTSTR(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::ISINTSTR(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"ISINTSTR", d, l);
@@ -4472,7 +4472,7 @@ CValue	CSystemFunction::ISINTSTR(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::ISREALSTR
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::ISREALSTR(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::ISREALSTR(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"ISREALSTR", d, l);
@@ -4494,7 +4494,7 @@ CValue	CSystemFunction::ISREALSTR(const CValue &arg, yaya::string_t &d, int &l)
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
-CValue	CSystemFunction::SPLITPATH(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::SPLITPATH(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"SPLITPATH", d, l);
@@ -4507,8 +4507,8 @@ CValue	CSystemFunction::SPLITPATH(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	yaya::char_t drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
-	yaya::string_t path = arg.array()[0].GetValueString();
+	aya::char_t drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
+	aya::string_t path = arg.array()[0].GetValueString();
 
 	_wsplitpath(path.c_str(), drive, dir, fname, ext);
 
@@ -4521,7 +4521,7 @@ CValue	CSystemFunction::SPLITPATH(const CValue &arg, yaya::string_t &d, int &l)
 	return CValue(result);
 }
 #elif defined(POSIX)
-CValue CSystemFunction::SPLITPATH(const CValue &arg, yaya::string_t &d, int &l) {
+CValue CSystemFunction::SPLITPATH(const CValue &arg, aya::string_t &d, int &l) {
     if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"SPLITPATH", d, l);
 		SetError(8);
@@ -4533,15 +4533,15 @@ CValue CSystemFunction::SPLITPATH(const CValue &arg, yaya::string_t &d, int &l) 
 		SetError(9);
     }
 
-    yaya::string_t path = arg.array()[0].GetValueString();
+    aya::string_t path = arg.array()[0].GetValueString();
     fix_filepath(path);
 
     CValue result(F_TAG_ARRAY, 0/*dmy*/);
     result.array().push_back(L""); // driveは常に空文字列
 	
-    yaya::string_t::size_type pos_slash = path.rfind(L'/');
-    yaya::string_t fname;
-    if (pos_slash == yaya::string_t::npos) {
+    aya::string_t::size_type pos_slash = path.rfind(L'/');
+    aya::string_t fname;
+    if (pos_slash == aya::string_t::npos) {
 		result.array().push_back(L""); // dirも空
 		fname = path;
     }
@@ -4550,8 +4550,8 @@ CValue CSystemFunction::SPLITPATH(const CValue &arg, yaya::string_t &d, int &l) 
 		fname = path.substr(pos_slash+1);
     }
 	
-    yaya::string_t::size_type pos_period = fname.rfind(L'.');
-    if (pos_period == yaya::string_t::npos) {
+    aya::string_t::size_type pos_period = fname.rfind(L'.');
+    if (pos_period == aya::string_t::npos) {
 		result.array().push_back(fname);
 		result.array().push_back(L""); // extは空
     }
@@ -4569,7 +4569,7 @@ CValue CSystemFunction::SPLITPATH(const CValue &arg, yaya::string_t &d, int &l) 
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::CVINT(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
-			yaya::string_t &d, int &l)
+			aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"CVINT", d, l);
@@ -4594,7 +4594,7 @@ CValue	CSystemFunction::CVINT(const CValue &arg, const std::vector<CCell *> &pce
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::CVSTR(CValueArgArray &valuearg, const std::vector<CCell *> &pcellarg,
-							   CLocalVariable &lvar,yaya::string_t &d, int &l)
+							   CLocalVariable &lvar,aya::string_t &d, int &l)
 {
 	if (!valuearg.size()) {
 		vm.logger().Error(E_W, 8, L"CVSTR", d, l);
@@ -4619,7 +4619,7 @@ CValue	CSystemFunction::CVSTR(CValueArgArray &valuearg, const std::vector<CCell 
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::CVREAL(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
-			yaya::string_t &d, int &l)
+			aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"CVREAL", d, l);
@@ -4644,7 +4644,7 @@ CValue	CSystemFunction::CVREAL(const CValue &arg, const std::vector<CCell *> &pc
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::CVAUTO(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
-			yaya::string_t &d, int &l)
+			aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"CVAUTO", d, l);
@@ -4688,14 +4688,14 @@ CValue	CSystemFunction::CVAUTO(const CValue &arg, const std::vector<CCell *> &pc
  *  関数名  ：  CSystemFunction::LETTONAME
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::LETTONAME(CValueArgArray &valuearg, yaya::string_t &d, int &l, CLocalVariable &lvar,
+CValue	CSystemFunction::LETTONAME(CValueArgArray &valuearg, aya::string_t &d, int &l, CLocalVariable &lvar,
 			CFunction *thisfunc)
 {
 	int	sz = valuearg.size();
 
 	if (sz < 2) {
 		if ( valuearg[0].IsArray() && valuearg[0].array_size() >= 2 ) {
-			yaya::string_t	vname = valuearg[0].array()[0].GetValueString();
+			aya::string_t	vname = valuearg[0].array()[0].GetValueString();
 
 			if ( vname[0] == L'_' ) {
 				lvar.SetValue(vname,valuearg[0].array()[1]);
@@ -4720,7 +4720,7 @@ CValue	CSystemFunction::LETTONAME(CValueArgArray &valuearg, yaya::string_t &d, i
 		SetError(9);
 	}
 
-	yaya::string_t	vname = valuearg[0].GetValueString();
+	aya::string_t	vname = valuearg[0].GetValueString();
 
 	if ( vname[0] == L'_' ) {
 		lvar.SetValue(vname,valuearg[1]);
@@ -4737,7 +4737,7 @@ CValue	CSystemFunction::LETTONAME(CValueArgArray &valuearg, yaya::string_t &d, i
  *  関数名  ：  CSystemFunction::STRFORM
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::STRFORM(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::STRFORM(const CValue &arg, aya::string_t &d, int &l)
 {
 	int	sz = arg.array_size();
 
@@ -4754,21 +4754,21 @@ CValue	CSystemFunction::STRFORM(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	// '$'でsplitする
-	std::vector<yaya::string_t>	vargs;
-	int	vargs_sz = SplitToMultiString(arg.array()[0].GetValueString(), &vargs, yaya::string_t(L"$"));
+	std::vector<aya::string_t>	vargs;
+	int	vargs_sz = SplitToMultiString(arg.array()[0].GetValueString(), &vargs, aya::string_t(L"$"));
 	if (!vargs_sz)
 		return CValue();
 
 	// 各要素ごとに_snwprintfで書式化して結合していく
-	yaya::string_t	left, right;
-	yaya::string_t	result = vargs[0];
-	yaya::char_t	t_str[128];
-	yaya::string_t	t_format;
+	aya::string_t	left, right;
+	aya::string_t	result = vargs[0];
+	aya::char_t	t_str[128];
+	aya::string_t	t_format;
 
 	for(int i = 1; i < vargs_sz; i++) {
 		t_format = L"%";
 
-		const yaya::char_t *arg_str = vargs[i].c_str();
+		const aya::char_t *arg_str = vargs[i].c_str();
 		if ( (*arg_str == L'-') || (*arg_str == L'+') || (*arg_str == L'0') || (*arg_str == L' ') || (*arg_str == L'#') ) { //flag
 			t_format += *arg_str;
 			arg_str += 1;
@@ -4819,17 +4819,17 @@ CValue	CSystemFunction::STRFORM(const CValue &arg, yaya::string_t &d, int &l)
 			arg_str += 1;
 		}
 
-		yaya::string_t	format = L"%" + vargs[i];
+		aya::string_t	format = L"%" + vargs[i];
 		if (i < sz) {
 			switch ( type ) {
 			case F_TAG_INT:
-				yaya::snprintf(t_str,128,t_format.c_str(),arg.array()[i].GetValueInt());
+				aya::snprintf(t_str,128,t_format.c_str(),arg.array()[i].GetValueInt());
 				break;
 			case F_TAG_DOUBLE:
-				yaya::snprintf(t_str,128,t_format.c_str(),arg.array()[i].GetValueDouble());
+				aya::snprintf(t_str,128,t_format.c_str(),arg.array()[i].GetValueDouble());
 				break;
 			case F_TAG_STRING:
-				yaya::snprintf(t_str,128,t_format.c_str(),arg.array()[i].GetValueString().c_str());
+				aya::snprintf(t_str,128,t_format.c_str(),arg.array()[i].GetValueString().c_str());
 				break;
 			case F_TAG_VOID:
 				t_str[0] = 0;
@@ -4855,7 +4855,7 @@ CValue	CSystemFunction::STRFORM(const CValue &arg, yaya::string_t &d, int &l)
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ANY(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
-			yaya::string_t &/*d*/, int &/*l*/)
+			aya::string_t &/*d*/, int &/*l*/)
 {
 	// 引数無しなら空文字列
 	int	sz = arg.array_size();
@@ -4872,13 +4872,13 @@ CValue	CSystemFunction::ANY(const CValue &arg, const std::vector<CCell *> &pcell
 		}
 
 		// 引数1つで文字列なら簡易配列として処理　変数の場合はそのデリミタで分割する
-		yaya::string_t	delimiter = VAR_DELIMITER;
+		aya::string_t	delimiter = VAR_DELIMITER;
 		if (pcellarg[0]->value_GetType() == F_TAG_VARIABLE)
 			delimiter = vm.variable().GetDelimiter(pcellarg[0]->index);
 		else if (pcellarg[0]->value_GetType() == F_TAG_LOCALVARIABLE)
 			delimiter = lvar.GetDelimiter(pcellarg[0]->name);
 
-		std::vector<yaya::string_t>	s_array;
+		std::vector<aya::string_t>	s_array;
 		int	a_sz = SplitToMultiString(arg.array()[0].GetValueString(), &s_array, delimiter);
 		if (!a_sz) {
 			SetLso(-1);
@@ -4900,10 +4900,10 @@ CValue	CSystemFunction::ANY(const CValue &arg, const std::vector<CCell *> &pcell
  *  関数名  ：  CSystemFunction::SAVEVAR
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::SAVEVAR(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::SAVEVAR(const CValue &arg, aya::string_t &d, int &l)
 {
 	if ( arg.array_size() ) {
-		yaya::string_t path = arg.array()[0].GetValueString();
+		aya::string_t path = arg.array()[0].GetValueString();
 		vm.basis().SaveVariable(path.c_str());
 	}
 	else {
@@ -4917,10 +4917,10 @@ CValue	CSystemFunction::SAVEVAR(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::RESTOREVAR
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::RESTOREVAR(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::RESTOREVAR(const CValue &arg, aya::string_t &d, int &l)
 {
 	if ( arg.array_size() ) {
-		yaya::string_t path = arg.array()[0].GetValueString();
+		aya::string_t path = arg.array()[0].GetValueString();
 		vm.basis().RestoreVariable(path.c_str());
 	}
 	else {
@@ -4934,7 +4934,7 @@ CValue	CSystemFunction::RESTOREVAR(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::GETSTRBYTES
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::GETSTRBYTES(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::GETSTRBYTES(const CValue &arg, aya::string_t &d, int &l)
 {
 	int	sz = arg.array_size();
 
@@ -4973,10 +4973,10 @@ CValue	CSystemFunction::GETSTRBYTES(const CValue &arg, yaya::string_t &d, int &l
 
 //std::tolowerの定義がへちょい処理系対策
 struct ToLower {
-	yaya::char_t operator()(yaya::char_t c) { return ::tolower(c); }
+	aya::char_t operator()(aya::char_t c) { return ::tolower(c); }
 };
 
-CValue	CSystemFunction::STRENCODE(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::STRENCODE(const CValue &arg, aya::string_t &d, int &l)
 {
 	int	sz = arg.array_size();
 
@@ -4996,7 +4996,7 @@ CValue	CSystemFunction::STRENCODE(const CValue &arg, yaya::string_t &d, int &l)
 	}
 	
 	//変換タイプ
-	yaya::string_t type = L"url";
+	aya::string_t type = L"url";
 	if ( sz > 2 ) {
 		type = arg.array()[2].GetValueString();
 		std::transform(type.begin(), type.end(), type.begin(), ToLower());
@@ -5009,9 +5009,9 @@ CValue	CSystemFunction::STRENCODE(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(0);
 	}
 	
-	yaya::native_signed len = strlen(t_str);
+	aya::native_signed len = strlen(t_str);
 
-	yaya::string_t result;
+	aya::string_t result;
 	result.reserve(len);
 
 	if ( wcsicmp(type.c_str(),L"base64") == 0 ) {
@@ -5034,7 +5034,7 @@ CValue	CSystemFunction::STRENCODE(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::STRDECODE
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::STRDECODE(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::STRDECODE(const CValue &arg, aya::string_t &d, int &l)
 {
 	int	sz = arg.array_size();
 
@@ -5054,14 +5054,14 @@ CValue	CSystemFunction::STRDECODE(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	//変換タイプ
-	yaya::string_t type = L"url";
+	aya::string_t type = L"url";
 	if ( sz > 2 ) {
 		type = arg.array()[2].GetValueString();
 		std::transform(type.begin(), type.end(), type.begin(), ToLower());
 	}
 	
 	// 主処理
-	yaya::string_t src = arg.array()[0].GetValueString();
+	aya::string_t src = arg.array()[0].GetValueString();
 
 	std::string str;
 	str.reserve(src.size());
@@ -5076,7 +5076,7 @@ CValue	CSystemFunction::STRDECODE(const CValue &arg, yaya::string_t &d, int &l)
 		DecodeURL(str,src.c_str(),src.length(),false);
 	}
 
-	yaya::char_t *t_str = Ccct::MbcsToUcs2(str, charset);
+	aya::char_t *t_str = Ccct::MbcsToUcs2(str, charset);
 	if (t_str == NULL) {
 		vm.logger().Error(E_E, 89, L"STRDECODE", d, l);
 		return CValue(0);
@@ -5093,7 +5093,7 @@ CValue	CSystemFunction::STRDECODE(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::ASEARCH / ASEARCHEX
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::ASEARCH(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::ASEARCH(const CValue &arg, aya::string_t &d, int &l)
 {
 	int	sz = arg.array_size();
 
@@ -5116,7 +5116,7 @@ CValue	CSystemFunction::ASEARCH(const CValue &arg, yaya::string_t &d, int &l)
 	return CValue(-1);
 }
 
-CValue	CSystemFunction::ASEARCHEX(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::ASEARCHEX(const CValue &arg, aya::string_t &d, int &l)
 {
 	int	sz = arg.array_size();
 
@@ -5295,7 +5295,7 @@ public:
 	}
 };
 
-CValue	CSystemFunction::ASORT(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::ASORT(const CValue &arg, aya::string_t &d, int &l)
 {
 	unsigned int sz = arg.array_size();
 	if (sz <= 0) {
@@ -5307,14 +5307,14 @@ CValue	CSystemFunction::ASORT(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(F_TAG_ARRAY, 0/*dmy*/);
 	}
 
-	yaya::string_t option = arg.array()[0].GetValueString();
+	aya::string_t option = arg.array()[0].GetValueString();
 	if ( ! arg.array()[0].IsString() || option.size() == 0 ) {
 		option = L"string,ascent";
 	}
 
 	if (sz <= 2) {
 		CValue rval(F_TAG_ARRAY, 0/*dmy*/);
-		if ( option.find(L"index") != yaya::string_t::npos ) {
+		if ( option.find(L"index") != aya::string_t::npos ) {
 			rval.array().push_back(CValueSub(0));
 		}
 		else {
@@ -5329,9 +5329,9 @@ CValue	CSystemFunction::ASORT(const CValue &arg, yaya::string_t &d, int &l)
 		sort_vector.push_back(i);
 	}
 
-	bool isDescent = (option.find(L"des") != yaya::string_t::npos);
+	bool isDescent = (option.find(L"des") != aya::string_t::npos);
 
-	if ( option.find(L"int") != yaya::string_t::npos ) { //int
+	if ( option.find(L"int") != aya::string_t::npos ) { //int
 		if ( isDescent ) {
 			std::sort(sort_vector.begin(),sort_vector.end(),CSFSORT_IntDescent<unsigned int>(arg.array()));
 		}
@@ -5339,7 +5339,7 @@ CValue	CSystemFunction::ASORT(const CValue &arg, yaya::string_t &d, int &l)
 			std::sort(sort_vector.begin(),sort_vector.end(),CSFSORT_IntAscent<unsigned int>(arg.array()));
 		}
 	}
-	else if ( option.find(L"double") != yaya::string_t::npos ) { //double
+	else if ( option.find(L"double") != aya::string_t::npos ) { //double
 		if ( isDescent ) {
 			std::sort(sort_vector.begin(),sort_vector.end(),CSFSORT_DoubleDescent<unsigned int>(arg.array()));
 		}
@@ -5347,8 +5347,8 @@ CValue	CSystemFunction::ASORT(const CValue &arg, yaya::string_t &d, int &l)
 			std::sort(sort_vector.begin(),sort_vector.end(),CSFSORT_DoubleAscent<unsigned int>(arg.array()));
 		}
 	}
-	else /*if ( option.find(L"str") != yaya::string_t::npos )*/ {
-		if ( option.find(L"len") != yaya::string_t::npos ) { //strlen
+	else /*if ( option.find(L"str") != aya::string_t::npos )*/ {
+		if ( option.find(L"len") != aya::string_t::npos ) { //strlen
 			if ( isDescent ) {
 				std::sort(sort_vector.begin(),sort_vector.end(),CSFSORT_StringDescentL<unsigned int>(arg.array()));
 			}
@@ -5356,7 +5356,7 @@ CValue	CSystemFunction::ASORT(const CValue &arg, yaya::string_t &d, int &l)
 				std::sort(sort_vector.begin(),sort_vector.end(),CSFSORT_StringAscentL<unsigned int>(arg.array()));
 			}
 		}
-		else if ( option.find(L"case") != yaya::string_t::npos ) { //string,case
+		else if ( option.find(L"case") != aya::string_t::npos ) { //string,case
 			if ( isDescent ) {
 				std::sort(sort_vector.begin(),sort_vector.end(),CSFSORT_StringDescent<unsigned int>(arg.array()));
 			}
@@ -5364,7 +5364,7 @@ CValue	CSystemFunction::ASORT(const CValue &arg, yaya::string_t &d, int &l)
 				std::sort(sort_vector.begin(),sort_vector.end(),CSFSORT_StringAscent<unsigned int>(arg.array()));
 			}
 		}
-		else /*if ( option.find(L"case") != yaya::string_t::npos )*/ { //string
+		else /*if ( option.find(L"case") != aya::string_t::npos )*/ { //string
 			if ( isDescent ) {
 				std::sort(sort_vector.begin(),sort_vector.end(),CSFSORT_StringDescentI<unsigned int>(arg.array()));
 			}
@@ -5376,7 +5376,7 @@ CValue	CSystemFunction::ASORT(const CValue &arg, yaya::string_t &d, int &l)
 
 	CValue rval(F_TAG_ARRAY, 0/*dmy*/);
 
-	if ( option.find(L"index") != yaya::string_t::npos ) {
+	if ( option.find(L"index") != aya::string_t::npos ) {
 		unsigned int n = sort_vector.size();
 		for ( unsigned int i = 0 ; i < n ; ++i ) {
 			rval.array().push_back(CValueSub((int)sort_vector[i]-1));
@@ -5396,7 +5396,7 @@ CValue	CSystemFunction::ASORT(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::GETDELIM
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::GETDELIM(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l)
+CValue	CSystemFunction::GETDELIM(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, aya::string_t &d, int &l)
 {
 	if (!pcellarg.size()) {
 		vm.logger().Error(E_W, 8, L"GETDELIM", d, l);
@@ -5421,7 +5421,7 @@ CValue	CSystemFunction::GETDELIM(const std::vector<CCell *> &pcellarg, CLocalVar
  *  関数名  ：  CSystemFunction::SETSETTING
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::SETSETTING(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::SETSETTING(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 2) {
 		vm.logger().Error(E_W, 8, L"SETSETTING", d, l);
@@ -5444,7 +5444,7 @@ CValue	CSystemFunction::SETSETTING(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::GETSETTING
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::GETSETTING(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::GETSETTING(const CValue &arg, aya::string_t &d, int &l)
 {
 	int	sz = arg.array_size();
 
@@ -5455,19 +5455,19 @@ CValue	CSystemFunction::GETSETTING(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	if (arg.array()[0].IsString()) {
-		const yaya::string_t str = arg.array()[0].GetValueString();
+		const aya::string_t str = arg.array()[0].GetValueString();
 		
 		if ( str.compare(L"coreinfo.version") == 0 ) {
-			return CValue(yaya::string_t(aya_version));
+			return CValue(aya::string_t(aya_version));
 		}
 		if ( str.compare(L"coreinfo.path") == 0 ) {
 			return CValue(vm.basis().GetRootPath());
 		}
 		if ( str.compare(L"coreinfo.name") == 0 ) {
-			return CValue(yaya::string_t(aya_name));
+			return CValue(aya::string_t(aya_name));
 		}
 		if ( str.compare(L"coreinfo.author") == 0 ) {
-			return CValue(yaya::string_t(aya_author));
+			return CValue(aya::string_t(aya_author));
 		}
 		if ( str.compare(L"coreinfo.savefile") == 0 ) {
 			return CValue(vm.basis().GetSavefilePath());
@@ -5481,15 +5481,15 @@ CValue	CSystemFunction::GETSETTING(const CValue &arg, yaya::string_t &d, int &l)
 	else {
 		switch(arg.array()[0].GetValueInt()) {
 		case 0:	// AYAINFO_VERSION
-			return CValue(yaya::string_t(aya_version));
+			return CValue(aya::string_t(aya_version));
 		case 1:	// AYAINFO_CHARSET
 			return CValue(static_cast<int>(vm.basis().GetDicCharset()));
 		case 2:	// AYAINFO_PATH
 			return CValue(vm.basis().GetRootPath());
 		case 3:	// AYAINFO_NAME
-			return CValue(yaya::string_t(aya_name));
+			return CValue(aya::string_t(aya_name));
 		case 4:	// AYAINFO_AUTHOR
-			return CValue(yaya::string_t(aya_author));
+			return CValue(aya::string_t(aya_author));
 		default:
 			break;
 		};
@@ -5504,7 +5504,7 @@ CValue	CSystemFunction::GETSETTING(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::SPLIT
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::SPLIT(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::SPLIT(const CValue &arg, aya::string_t &d, int &l)
 {
 	int	sz = arg.array_size();
 
@@ -5520,34 +5520,34 @@ CValue	CSystemFunction::SPLIT(const CValue &arg, yaya::string_t &d, int &l)
 		SetError(9);
 	}
 
-	yaya::string_t::size_type nums = 0;
+	aya::string_t::size_type nums = 0;
 	if (sz > 2) {
 		if (!arg.array()[2].IsNum()) {
 			vm.logger().Error(E_W, 9, L"SPLIT", d, l);
 			SetError(9);
 			return CValue(F_TAG_ARRAY, 0/*dmy*/);
 		}
-		nums = static_cast<yaya::string_t::size_type>(arg.array()[2].GetValueInt());
+		nums = static_cast<aya::string_t::size_type>(arg.array()[2].GetValueInt());
 	}
 
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 
-	const yaya::string_t &tgt_str = arg.array()[0].GetValueString();
-	const yaya::string_t &sep_str = arg.array()[1].GetValueString();
+	const aya::string_t &tgt_str = arg.array()[0].GetValueString();
+	const aya::string_t &sep_str = arg.array()[1].GetValueString();
 
 	if (nums == 1 || sep_str.length() == 0) {
 		result.array().push_back(CValueSub(arg.array()[0].GetValueString()));
 		return result;
 	}
 	
-	const yaya::string_t::size_type sep_strlen = sep_str.size();
-	const yaya::string_t::size_type tgt_strlen = tgt_str.size();
-	yaya::string_t::size_type seppoint = 0;
-	yaya::string_t::size_type spoint;
+	const aya::string_t::size_type sep_strlen = sep_str.size();
+	const aya::string_t::size_type tgt_strlen = tgt_str.size();
+	aya::string_t::size_type seppoint = 0;
+	aya::string_t::size_type spoint;
 
-	for(yaya::string_t::size_type i = 1; ; i++) {
+	for(aya::string_t::size_type i = 1; ; i++) {
 		spoint = tgt_str.find(sep_str,seppoint);
-		if (spoint == yaya::string_t::npos || i == nums) {
+		if (spoint == aya::string_t::npos || i == nums) {
 			result.array().push_back(CValueSub(tgt_str.substr(seppoint,tgt_strlen - seppoint)));
 			break;
 		}
@@ -5582,7 +5582,7 @@ static time_t FileTimeToUnixTime(FILETIME &filetime)
 }
 #endif
 
-CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::FATTRIB(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"FATTRIB", d, l);
@@ -5711,9 +5711,9 @@ CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
  *  　　　　　　指定した文字列が頭についてるもののみ抽出して配列で返す
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::GETFUNCLIST(const CValue &arg, yaya::string_t &/*d*/, int &/*l*/)
+CValue	CSystemFunction::GETFUNCLIST(const CValue &arg, aya::string_t &/*d*/, int &/*l*/)
 {
-	yaya::string_t name;
+	aya::string_t name;
 
 	//STRINGの場合のみ絞りこみ文字列として認識
 	if ( arg.array_size() ) {
@@ -5732,7 +5732,7 @@ CValue	CSystemFunction::GETFUNCLIST(const CValue &arg, yaya::string_t &/*d*/, in
 	}
 	//ある場合
 	else {
-		yaya::string_t::size_type len = name.length();
+		aya::string_t::size_type len = name.length();
 
 		for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
 			if(name.compare(0,len,it->name,0,len) == 0) {
@@ -5750,9 +5750,9 @@ CValue	CSystemFunction::GETFUNCLIST(const CValue &arg, yaya::string_t &/*d*/, in
  *  　　　　　　指定した文字列が頭についてるもののみ抽出して配列で返す
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::GETVARLIST(const CValue &arg, CLocalVariable &lvar, yaya::string_t &/*d*/, int &/*l*/)
+CValue	CSystemFunction::GETVARLIST(const CValue &arg, CLocalVariable &lvar, aya::string_t &/*d*/, int &/*l*/)
 {
-	yaya::string_t name;
+	aya::string_t name;
 
 	//STRINGの場合のみ絞りこみ文字列として認識
 	if ( arg.array_size() ) {
@@ -5790,7 +5790,7 @@ CValue	CSystemFunction::GETVARLIST(const CValue &arg, CLocalVariable &lvar, yaya
 	}
 	//ある場合
 	else {
-		yaya::string_t::size_type len = name.length();
+		aya::string_t::size_type len = name.length();
 
 		if (name[0] != L'_') {
 			//グローバル変数
@@ -5830,11 +5830,11 @@ CValue	CSystemFunction::GETVARLIST(const CValue &arg, CLocalVariable &lvar, yaya
  *  関数名  ：  CSystemFunction::GETCALLSTACK（呼び出し履歴）
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::GETCALLSTACK(const CValue &arg, yaya::string_t &/*d*/, int &/*l*/)
+CValue	CSystemFunction::GETCALLSTACK(const CValue &arg, aya::string_t &/*d*/, int &/*l*/)
 {
 	CValue result(F_TAG_ARRAY, 0/*dmy*/);
 
-	std::vector<yaya::string_t> &stack = vm.calldepth().Stack();
+	std::vector<aya::string_t> &stack = vm.calldepth().Stack();
 
 	size_t n = stack.size();
 
@@ -5850,7 +5850,7 @@ CValue	CSystemFunction::GETCALLSTACK(const CValue &arg, yaya::string_t &/*d*/, i
  *  機能概要：  正規表現系関数の処理結果詳細を蓄積します
  * -----------------------------------------------------------------------
  */
-void	CSystemFunction::StoreReResultDetails(const yaya::string_t &str,MatchResult &result)
+void	CSystemFunction::StoreReResultDetails(const aya::string_t &str,MatchResult &result)
 {
 	int	sz = result.MaxGroupNumber();
 	for(int i = 0; i <= sz; i++) {
@@ -5880,7 +5880,7 @@ void	CSystemFunction::ClearReResultDetails(void)
  *  機能概要：  正規表現系関数の処理結果詳細を1つ蓄積します
  * -----------------------------------------------------------------------
  */
-void	CSystemFunction::AppendReResultDetail(const yaya::string_t &str, int pos, int len)
+void	CSystemFunction::AppendReResultDetail(const aya::string_t &str, int pos, int len)
 {
 	re_str.array().push_back(str);
 	re_pos.array().push_back(pos);
@@ -5897,7 +5897,7 @@ void	CSystemFunction::SetError(int code)
 	lasterror = code;
 }
 
-int CSystemFunction::GetCharset(const CValueSub &var,const wchar_t *fname, yaya::string_t &d, int &l)
+int CSystemFunction::GetCharset(const CValueSub &var,const wchar_t *fname, aya::string_t &d, int &l)
 {
 	if (var.IsNum()) {
 		int	charset = var.GetValueInt();
@@ -5910,7 +5910,7 @@ int CSystemFunction::GetCharset(const CValueSub &var,const wchar_t *fname, yaya:
 	}
 
 	if (var.IsString()) {
-		yaya::string_t cset = var.GetValueString();
+		aya::string_t cset = var.GetValueString();
 		int	charset = Ccct::CharsetTextToID(cset.c_str());
 		return charset;
 	}
@@ -5927,9 +5927,9 @@ int CSystemFunction::GetCharset(const CValueSub &var,const wchar_t *fname, yaya:
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
-yaya::string_t	CSystemFunction::ToFullPath(const yaya::string_t &str)
+aya::string_t	CSystemFunction::ToFullPath(const aya::string_t &str)
 {
-	yaya::char_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
+	aya::char_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
 	_wsplitpath(str.c_str(), drive, dir, fname, ext);
 
 	if (!::wcslen(drive))
@@ -5938,7 +5938,7 @@ yaya::string_t	CSystemFunction::ToFullPath(const yaya::string_t &str)
 	return str;
 }
 #elif defined(POSIX)
-yaya::string_t CSystemFunction::ToFullPath(const yaya::string_t &str)
+aya::string_t CSystemFunction::ToFullPath(const aya::string_t &str)
 {
     if (str.length() > 0 && str[0] == L'/') {
 	return str;
@@ -5954,9 +5954,9 @@ yaya::string_t CSystemFunction::ToFullPath(const yaya::string_t &str)
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
-CValue CSystemFunction::READFMO(const CValue &arg, yaya::string_t &d, int &l)
+CValue CSystemFunction::READFMO(const CValue &arg, aya::string_t &d, int &l)
 {
-	yaya::string_t fmoname;
+	aya::string_t fmoname;
 	if (arg.array_size()==0) {
 		fmoname=L"Sakura";
 	}else{
@@ -6002,7 +6002,7 @@ CValue CSystemFunction::READFMO(const CValue &arg, yaya::string_t &d, int &l)
 	UnmapViewOfFile(pData);
 	CloseHandle(hFMO);
 
-	yaya::char_t *t_str = Ccct::MbcsToUcs2(pBuf,CHARSET_DEFAULT);
+	aya::char_t *t_str = Ccct::MbcsToUcs2(pBuf,CHARSET_DEFAULT);
 	if (t_str == NULL) {
 		vm.logger().Error(E_E, 13, L"READFMO(" + fmoname + L").MbcsToUcs2 Failed", d, l);
 		SetError(13);
@@ -6017,7 +6017,7 @@ CValue CSystemFunction::READFMO(const CValue &arg, yaya::string_t &d, int &l)
 	return result;
 }
 #else
-CValue CSystemFunction::READFMO(const CValue &arg, yaya::string_t &d, int &l)
+CValue CSystemFunction::READFMO(const CValue &arg, aya::string_t &d, int &l)
 {
 	vm.logger().Error(E_W, 13, L"READFMO not implemented for non-win32 system.", d, l);
 	return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -6029,7 +6029,7 @@ CValue CSystemFunction::READFMO(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::EXECUTE_WAIT
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::EXECUTE_WAIT(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::EXECUTE_WAIT(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"EXECUTE_WAIT", d, l);
@@ -6109,7 +6109,7 @@ CValue	CSystemFunction::EXECUTE_WAIT(const CValue &arg, yaya::string_t &d, int &
  *  関数名  ：  CSystemFunction::GETENV
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::GETENV(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::GETENV(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"GETENV", d, l);
@@ -6138,7 +6138,7 @@ CValue	CSystemFunction::GETENV(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(L"");
 	}
 
-	yaya::char_t	*t_env = Ccct::MbcsToUcs2(s_env, CHARSET_DEFAULT);
+	aya::char_t	*t_env = Ccct::MbcsToUcs2(s_env, CHARSET_DEFAULT);
 	if (t_env == NULL) {
 		vm.logger().Error(E_E, 89, L"GETENV", d, l);
 		SetError(89);
@@ -6152,7 +6152,7 @@ CValue	CSystemFunction::GETENV(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::EXECUTE
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::EXECUTE(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::EXECUTE(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"EXECUTE", d, l);
@@ -6205,7 +6205,7 @@ CValue	CSystemFunction::EXECUTE(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::TRANSLATE
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::TRANSLATE(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::TRANSLATE(const CValue &arg, aya::string_t &d, int &l)
 {
 	if (arg.array_size() < 3) {
 		vm.logger().Error(E_W, 8, L"TRANSLATE", d, l);
@@ -6213,12 +6213,12 @@ CValue	CSystemFunction::TRANSLATE(const CValue &arg, yaya::string_t &d, int &l)
 		return CValue(-1);
 	}
 
-	yaya::string_t str          = arg.array()[0].GetValueString();
-	yaya::string_t rep_from_str = arg.array()[1].GetValueString();
-	yaya::string_t rep_to_str   = arg.array()[2].GetValueString();
+	aya::string_t str          = arg.array()[0].GetValueString();
+	aya::string_t rep_from_str = arg.array()[1].GetValueString();
+	aya::string_t rep_to_str   = arg.array()[2].GetValueString();
 
-	std::vector<yaya::char_t> rep_from;
-	std::vector<yaya::char_t> rep_to;
+	std::vector<aya::char_t> rep_from;
+	std::vector<aya::char_t> rep_to;
 
 	if ( ! ProcessTranslateSyntax(rep_from,rep_from_str,d,l) ) {
 		return CValue(-1);
@@ -6233,7 +6233,7 @@ CValue	CSystemFunction::TRANSLATE(const CValue &arg, yaya::string_t &d, int &l)
 			vm.logger().Error(E_W, 12, L"TRANSLATE", d, l);
 			SetError(12);
 			//警告を吐いた後で、一番最後の文字で埋めておく
-			yaya::char_t cx = *(rep_to.end()-1);
+			aya::char_t cx = *(rep_to.end()-1);
 			while ( rep_from.size() > rep_to.size() ) {
 				rep_to.push_back(cx);
 			}
@@ -6247,7 +6247,7 @@ CValue	CSystemFunction::TRANSLATE(const CValue &arg, yaya::string_t &d, int &l)
 	int rep_size = rep_from.size();
 
 	for ( int i = 0 ; i < n ; ++i ) {
-		yaya::char_t cx = str[i];
+		aya::char_t cx = str[i];
 		for ( int r = 0 ; r < rep_size ; ++r ) {
 			if ( cx == rep_from[r] ) {
 				if ( is_delete ) {
@@ -6266,7 +6266,7 @@ CValue	CSystemFunction::TRANSLATE(const CValue &arg, yaya::string_t &d, int &l)
 	return CValue(str);
 }
 
-bool CSystemFunction::ProcessTranslateSyntax(std::vector<yaya::char_t> &array,yaya::string_t &str, yaya::string_t &d, int &l)
+bool CSystemFunction::ProcessTranslateSyntax(std::vector<aya::char_t> &array,aya::string_t &str, aya::string_t &d, int &l)
 {
 	size_t n = str.length();
 
@@ -6280,9 +6280,9 @@ bool CSystemFunction::ProcessTranslateSyntax(std::vector<yaya::char_t> &array,ya
 				continue;
 			}
 			i += 1;
-			yaya::char_t start = *(array.end()-1);
+			aya::char_t start = *(array.end()-1);
 			array.erase(array.end()-1,array.end());
-			yaya::char_t end = str[i];
+			aya::char_t end = str[i];
 			if ( start > end ) {
 				//startのほうがでかい：ゼロ要素として処理可能なので続行
 				vm.logger().Error(E_W, 12, L"TRANSLATE", d, l);
@@ -6299,7 +6299,7 @@ bool CSystemFunction::ProcessTranslateSyntax(std::vector<yaya::char_t> &array,ya
 					end = start + 255;
 				}
 
-				for ( yaya::char_t cx = start ; cx <= end ; ++cx ) {
+				for ( aya::char_t cx = start ; cx <= end ; ++cx ) {
 					array.push_back(cx);
 				}
 			}
@@ -6313,7 +6313,7 @@ bool CSystemFunction::ProcessTranslateSyntax(std::vector<yaya::char_t> &array,ya
 				continue;
 			}
 			i += 1;
-			yaya::char_t esc_char = str[i];
+			aya::char_t esc_char = str[i];
 
 			if ( esc_char == L'a' ) {
 				array.push_back(L'\a');
@@ -6351,7 +6351,7 @@ bool CSystemFunction::ProcessTranslateSyntax(std::vector<yaya::char_t> &array,ya
  *  関数名  ：  CSystemFunction::DUMPVAR
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::DUMPVAR(const CValue &arg, yaya::string_t &d, int &l)
+CValue	CSystemFunction::DUMPVAR(const CValue &arg, aya::string_t &d, int &l)
 {
 	CLogExCode logex(vm);
 	logex.OutVariableInfoForCheck();

@@ -7,7 +7,7 @@ STRIP = strip
 MKDEP = mkdep
 
 # 作るライブラリ名の設定
-# これはdarwin用の設定で、libyaya.bundleを生成する。
+# これはdarwin用の設定で、libaya.bundleを生成する。
 # LinuxやBSDならpostfixを.soにする必要がある筈。
 DYLIB_NAME_PREFIX = lib
 DYLIB_NAME_POSTFIX = .bundle
@@ -81,7 +81,7 @@ LIBAYA5_OBJ = \
 	tinyxpath/xpath_syntax.o \
 	$(NULL)
 
-LIBAYA5 = $(DYLIB_NAME_PREFIX)yaya$(DYLIB_NAME_POSTFIX)
+LIBAYA5 = $(DYLIB_NAME_PREFIX)aya$(DYLIB_NAME_POSTFIX)
 
 all: $(LIBAYA5)
 
@@ -95,7 +95,7 @@ $(LIBAYA5): $(LIBAYA5_OBJ)
 	$(LD) -o $@ $(LIBAYA5_OBJ) $(LDFLAGS) $(LD_ADD)
 	$(STRIP) -x $@
 
-DISTDIR = yaya-src
+DISTDIR = aya-src
 dist:
 	rm -rf $(DISTDIR)
 	mkdir -p $(DISTDIR)

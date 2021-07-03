@@ -236,14 +236,14 @@ static char* string_to_malloc(const std::string &str)
 	return pch;
 }
 
-char	*Ccct::Ucs2ToMbcs(const yaya::char_t *wstr, int charset)
+char	*Ccct::Ucs2ToMbcs(const aya::char_t *wstr, int charset)
 {
-	return Ucs2ToMbcs(yaya::string_t(wstr), charset);
+	return Ucs2ToMbcs(aya::string_t(wstr), charset);
 }
 
 //----
 
-char	*Ccct::Ucs2ToMbcs(const yaya::string_t &wstr, int charset)
+char	*Ccct::Ucs2ToMbcs(const aya::string_t &wstr, int charset)
 {
 	if ( charset == CHARSET_UTF8 ) {
 		return string_to_malloc(babel::unicode_to_utf8(wstr));
@@ -267,22 +267,22 @@ char	*Ccct::Ucs2ToMbcs(const yaya::string_t &wstr, int charset)
  *  機能概要：  MBCS -> UTF-16BE へ文字列のコード変換
  * -----------------------------------------------------------------------
  */
-static yaya::char_t* wstring_to_malloc(const yaya::string_t &str)
+static aya::char_t* wstring_to_malloc(const aya::string_t &str)
 {
-	size_t sz = (str.length()+1) * sizeof(yaya::char_t);
-	yaya::char_t* pch = (yaya::char_t*)malloc(sz);
+	size_t sz = (str.length()+1) * sizeof(aya::char_t);
+	aya::char_t* pch = (aya::char_t*)malloc(sz);
 	memcpy(pch,str.c_str(),sz);
 	return pch;
 }
 
-yaya::char_t	*Ccct::MbcsToUcs2(const char *mstr, int charset)
+aya::char_t	*Ccct::MbcsToUcs2(const char *mstr, int charset)
 {
 	return MbcsToUcs2(std::string(mstr), charset);
 }
 
 //----
 
-yaya::char_t	*Ccct::MbcsToUcs2(const std::string &mstr, int charset)
+aya::char_t	*Ccct::MbcsToUcs2(const std::string &mstr, int charset)
 {
 	if ( charset == CHARSET_UTF8 ) {
 		return wstring_to_malloc(babel::utf8_to_unicode(mstr));
@@ -351,7 +351,7 @@ char *Ccct::ccct_setlocale(int category, int charset)
  *  機能概要：  UTF-16BE -> MBCS へ文字列のコード変換
  * -----------------------------------------------------------------------
  */
-char *Ccct::utf16be_to_mbcs(const yaya::char_t *pUcsStr, int charset)
+char *Ccct::utf16be_to_mbcs(const aya::char_t *pUcsStr, int charset)
 {
     char *pAnsiStr = NULL;
     size_t nLen;
@@ -364,8 +364,8 @@ char *Ccct::utf16be_to_mbcs(const yaya::char_t *pUcsStr, int charset)
     nLen = wcslen( pUcsStr);
 
 	if (charset != CHARSET_BINARY) {
-	    if (pUcsStr[0] == static_cast<yaya::char_t>(0xfeff) ||
-				pUcsStr[0] == static_cast<yaya::char_t>(0xfffe)) {
+	    if (pUcsStr[0] == static_cast<aya::char_t>(0xfeff) ||
+				pUcsStr[0] == static_cast<aya::char_t>(0xfffe)) {
 			pUcsStr++; // 先頭にBOM(byte Order Mark)があれば，スキップする
 	        nLen--;
 		}
@@ -410,7 +410,7 @@ char *Ccct::utf16be_to_mbcs(const yaya::char_t *pUcsStr, int charset)
  *  機能概要：  MBCS -> UTF-16 へ文字列のコード変換
  * -----------------------------------------------------------------------
  */
-yaya::char_t *Ccct::mbcs_to_utf16be(const char *pAnsiStr, int charset)
+aya::char_t *Ccct::mbcs_to_utf16be(const char *pAnsiStr, int charset)
 {
     if (!pAnsiStr)
 		return NULL;
@@ -419,7 +419,7 @@ yaya::char_t *Ccct::mbcs_to_utf16be(const char *pAnsiStr, int charset)
 
     size_t nLen = strlen(pAnsiStr);
 
-    yaya::char_t *pUcsStr = (yaya::char_t *)malloc(sizeof(yaya::char_t)*(nLen+7));
+    aya::char_t *pUcsStr = (aya::char_t *)malloc(sizeof(aya::char_t)*(nLen+7));
     if (!pUcsStr) {
 		if (charset != CHARSET_UTF8 && charset != CHARSET_BINARY) ccct_setlocale(LC_CTYPE, charset);
 		return NULL;
@@ -435,7 +435,7 @@ yaya::char_t *Ccct::mbcs_to_utf16be(const char *pAnsiStr, int charset)
 	        nRet = mbtowc(pUcsStr+nMbpos, pAnsiStr+i, nLen-i);
 		}
 		else {
-			pUcsStr[i]=static_cast<yaya::char_t>(pAnsiStr[i]);
+			pUcsStr[i]=static_cast<aya::char_t>(pAnsiStr[i]);
 			nRet = 1;
 		}
 		if ( nRet <= 0 ) { // can not conversion

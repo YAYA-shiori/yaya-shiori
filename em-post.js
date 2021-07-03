@@ -6,4 +6,4 @@
   this['IDBFS'] = IDBFS;
   this['WORKERFS'] = WORKERFS;
 };
-if (typeof module !== 'undefined' && module !== null && module.exports) module.exports = YAYA;
+if (typeof module !== 'undefined' && module !== null && module.exports) module.exports = AYA;

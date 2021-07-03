@@ -24,10 +24,10 @@ public:
 	CComment(void) { flag = 0; }
 	~CComment(void) {}
 
-	void	Process(yaya::string_t &str);
+	void	Process(aya::string_t &str);
 
-	void	Process_Top(yaya::string_t &str);
-	void	Process_Tail(yaya::string_t &str);
+	void	Process_Top(aya::string_t &str);
+	void	Process_Tail(aya::string_t &str);
 };
 
 //----
