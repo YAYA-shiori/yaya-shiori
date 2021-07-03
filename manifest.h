@@ -34,7 +34,6 @@ extern const yaya::char_t *aya_author;
 
 // メッセージの言語
 #define	MSGLANG_JAPANESE		0				/* デフォルト */
-#define	MSGLANG_ENGLISH			1
 
 // 基底プレフィックス文字列
 #define	PREFIX_BASE_LEN	2

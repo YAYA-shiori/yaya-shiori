@@ -263,7 +263,7 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"FSEEK",
 	L"FTELL",
 	//ライセンス
-	L"LICENSE",
+	L"",
 	// 文字列操作(8)
 	L"STRENCODE",
 	L"STRDECODE",
@@ -665,8 +665,6 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return FSEEK(arg, d, l);
 	case 122:
 		return FTELL(arg, d, l);
-	case 123:
-		return LICENSE();
 	case 124:
 		return STRENCODE(arg, d, l);
 	case 125:
@@ -6358,99 +6356,4 @@ CValue	CSystemFunction::DUMPVAR(const CValue &arg, yaya::string_t &d, int &l)
 	CLogExCode logex(vm);
 	logex.OutVariableInfoForCheck();
 	return CValue(F_TAG_NOP, 0/*dmy*/);
-}
-
-/* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::LICENSE
- * -----------------------------------------------------------------------
- */
-CValue	CSystemFunction::LICENSE()
-{
-	CValue v(F_TAG_ARRAY, 0/*dmy*/);
-
-	v.array().push_back(yaya::string_t(aya_name) + aya_version);
-	v.array().push_back(yaya::string_t(L"Copyright (C) 2007 - 2013, ") + aya_author);
-	v.array().push_back(L"All rights reserved.");
-	v.array().push_back(L"");
-	v.array().push_back(L"Redistribution and use in source and binary forms, with or without");
-	v.array().push_back(L"modification, are permitted provided that the following conditions");
-	v.array().push_back(L"are met:");
-	v.array().push_back(L"");
-	v.array().push_back(L" 1. Redistributions of source code must retain the above copyright");
-	v.array().push_back(L"    notice, this list of conditions and the following disclaimer.");
-	v.array().push_back(L"");
-	v.array().push_back(L" 2. Redistributions in binary form must reproduce the above copyright");
-	v.array().push_back(L"    notice, this list of conditions and the following disclaimer in the");
-	v.array().push_back(L"    documentation and/or other materials provided with the distribution.");
-	v.array().push_back(L"");
-	v.array().push_back(L" 3. The names of its contributors may not be used to endorse or promote ");
-	v.array().push_back(L"    products derived from this software without specific prior written ");
-	v.array().push_back(L"    permission.");
-	v.array().push_back(L"");
-	v.array().push_back(L"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS");
-	v.array().push_back(L"\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT");
-	v.array().push_back(L"LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR");
-	v.array().push_back(L"A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR");
-	v.array().push_back(L"CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,");
-	v.array().push_back(L"EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,");
-	v.array().push_back(L"PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR");
-	v.array().push_back(L"PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF");
-	v.array().push_back(L"LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING");
-	v.array().push_back(L"NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS");
-	v.array().push_back(L"SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.");
-	v.array().push_back(L"");
-
-	v.array().push_back(L"---MT19937---");
-	v.array().push_back(L"Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,");
-	v.array().push_back(L"All rights reserved.");
-	v.array().push_back(L"");
-	v.array().push_back(L"Redistribution and use in source and binary forms, with or without");
-	v.array().push_back(L"modification, are permitted provided that the following conditions");
-	v.array().push_back(L"are met:");
-	v.array().push_back(L"");
-	v.array().push_back(L" 1. Redistributions of source code must retain the above copyright");
-	v.array().push_back(L"    notice, this list of conditions and the following disclaimer.");
-	v.array().push_back(L"");
-	v.array().push_back(L" 2. Redistributions in binary form must reproduce the above copyright");
-	v.array().push_back(L"    notice, this list of conditions and the following disclaimer in the");
-	v.array().push_back(L"    documentation and/or other materials provided with the distribution.");
-	v.array().push_back(L"");
-	v.array().push_back(L" 3. The names of its contributors may not be used to endorse or promote ");
-	v.array().push_back(L"    products derived from this software without specific prior written ");
-	v.array().push_back(L"    permission.");
-	v.array().push_back(L"");
-	v.array().push_back(L"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS");
-	v.array().push_back(L"\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT");
-	v.array().push_back(L"LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR");
-	v.array().push_back(L"A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR");
-	v.array().push_back(L"CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,");
-	v.array().push_back(L"EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,");
-	v.array().push_back(L"PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR");
-	v.array().push_back(L"PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF");
-	v.array().push_back(L"LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING");
-	v.array().push_back(L"NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS");
-	v.array().push_back(L"SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.");
-	v.array().push_back(L"");
-
-	v.array().push_back(L"---zlib---");
-	v.array().push_back(L"(C) 1995-2002 Jean-loup Gailly and Mark Adler");
-	v.array().push_back(L"");
-	v.array().push_back(L"This software is provided 'as-is', without any express or implied");
-	v.array().push_back(L"warranty.  In no event will the authors be held liable for any damages");
-	v.array().push_back(L"arising from the use of this software.");
-	v.array().push_back(L"");
-	v.array().push_back(L"Permission is granted to anyone to use this software for any purpose,");
-	v.array().push_back(L"including commercial applications, and to alter it and redistribute it");
-	v.array().push_back(L"freely, subject to the following restrictions:");
-	v.array().push_back(L"");
-	v.array().push_back(L"1. The origin of this software must not be misrepresented; you must not");
-	v.array().push_back(L" claim that you wrote the original software. If you use this software");
-	v.array().push_back(L" in a product, an acknowledgment in the product documentation would be");
-	v.array().push_back(L" appreciated but is not required.");
-	v.array().push_back(L"2. Altered source versions must be plainly marked as such, and must not be");
-	v.array().push_back(L" misrepresented as being the original software.");
-	v.array().push_back(L"3. This notice may not be removed or altered from any source distribution.");
-	v.array().push_back(L"");
-
-	return v;
 }
