@@ -1,0 +1,156 @@
+﻿//
+// フェータルエラー文字列（英語）
+!!!msgf
+*
+//
+// エラー文字列（英語）
+!!!msge
+*error E0000 : Unknown error.
+*error E0001 : Function name is required.
+*error E0002 : Too much '}' exist.
+*error E0003 : Invalid name is used for the function.
+*error E0004 : Unanalyzable. Probably, '{' is required here.
+*error E0005 : Failed to open the file.
+*error E0006 : Missing name of the array.
+*error E0007 : Incomplete string exists.
+*error E0008 : Invalid double quote exists.
+*error E0009 : Internal error (1).
+*error E0010 : Unanalyzable string.
+*error E0011 : Some invalid characters are used in the identifier.
+*error E0012 : Invalid name is used for the variable.
+*error E0013 : Duplicated function names exist.
+*error E0014 : Ordinal number is required for the array.
+*error E0015 : Internal error (2).
+*error E0016 : Internal error (3).
+*error E0017 : Missing name of array embedded into the string.
+*error E0018 : Missing ordinal number of array embedded into the string.
+*error E0019 : The parenthesis () has not been closed.
+*error E0020 : The parenthesis [] is invalid or has not been closed correctly.
+*error E0021 : Internal error (4).
+*error E0022 : Invalid expression.
+*error E0023 : Operator ',' is not used correctly.
+*error E0024 : Operator ',' is not used correctly.
+*error E0025 : Function not found.
+*error E0026 : Internal error (5).
+*error E0027 : No significant elements exist.
+*error E0028 : Internal error (23).
+*error E0029 : Invalid substitution exists.
+*error E0030 : Undefined function flag (anti-duplication) is specified.
+*error E0031 : Internal error (6).
+// not using
+*error E0032 : Indispensable functions are not found.
+//
+*error E0033 : Internal error (7).
+*error E0034 : Internal error (8).
+*error E0035 : Missing '{' after 'if'.
+*error E0036 : Missing '{' after 'elseif'.
+*error E0037 : Missing '{' after 'else'.
+*error E0038 : Missing '{' after 'switch'.
+*error E0039 : Missing '{' after 'while'.
+*error E0040 : Invalid expression is used for termination condition of the syntax 'for'.
+*error E0041 : Invalid expression is used for continual condition of the syntax 'for'.
+*error E0042 : Missing '{' after 'for'.
+*error E0043 : The container variable of 'foreach' is incorrectly placed.
+*error E0044 : Missing '{' after 'foreach'.
+*error E0045 : The label of 'when' must be a constant.
+*error E0046 : The label of 'when' must be a constant.
+*error E0047 : 'if' 'elseif' 'case' (corresponding to this line) was not found.
+*error E0048 : The parenthesis () has not been closed.
+*error E0049 : Internal error (9).
+*error E0050 : The label of 'when' must be a constant.
+*error E0051 : Missing '{' after 'case'.
+*error E0052 : Internal error (10).
+*error E0053 : Syntax error.
+*error E0054 : Syntax error.
+*error E0055 : Internal error (11).
+*error E0056 : Internal error (12).
+*error E0057 : The value of variable has not been saved.
+*error E0058 : Internal error (13).
+*error E0059 : Invalid expression.
+*error E0060 : The parenthesis '%()' has not been closed in embedded string.
+*error E0061 : The parenthesis '%()' is empty in embedded string.
+*error E0062 : Internal error (14).
+*error E0063 : There was no 'case' corresponding to 'when'.
+*error E0064 : There was no 'case' corresponding to 'when'.
+*error E0065 : Syntax error.
+*error E0066 : Syntax error.
+*error E0067 : Internal error (15).
+*error E0068 : This 'elseif'(or 'when') was not able to processed.
+*error E0069 : This 'else'(or 'others') was not able to processed.
+*error E0070 : Internal error (16).
+*error E0071 : Undefined function is being called.
+*error E0072 : Missing name of variable.
+*error E0073 : Invalid use of array: array variable was not found.
+*error E0074 : Syntax error of preprocessor.
+*error E0075 : Syntax error of preprocessor.
+*error E0076 : Invalid preprocess directive.
+*error E0077 : Internal error (17).
+*error E0078 : The parenthesis '%[]' has not been closed in embedded string.
+*error E0079 : The parenthesis '%[]' is empty in embedded string.
+*error E0080 : Internal error (18).
+*error E0081 : This '%[]' is unusual.
+*error E0082 : Internal error (19).
+*error E0083 : Internal error (20).
+// not using
+*error E0084 : Internal error (21).
+*error E0085 : Internal error (22).
+//
+*error E0086 : Syntax error.
+*error E0087 : The position of operator '&' is wrong.
+*error E0088 : Internal error (24).
+*error E0089 : Internal error (25).
+*error E0090 : Internal error (26).
+*error E0091 : Internal error (27).
+*error E0092 : There was no operator which should follow () or [].
+*error E0093 : Invalid single quote exists.
+*error E0094 : The parenthesis {} is invalid or has not been closed correctly.
+*error E0095 : Tried to load duplicate dictionary.
+//
+// ワーニング文字列（英語）
+!!!msgw
+*warning W0000 : Syntax error. This line will be ignored.
+*warning W0001 : Restoration failed for the variable of this line: not parsable line.
+*warning W0002 : Restoration failed for the variable of this line: invalid variable name.
+*warning W0003 : Restoration failed for the variable of this line: invalid value or delimiter
+*warning W0004 : Restoration failed for the variable of this line: invalid value
+*warning W0005 : Restoration failed for the variable of this line: invalid delimiter
+*warning W0006 : While processing this line, the internal error occurred. This line is unanalyzable.
+*warning W0007 : The value of this variable has not been saved.
+*warning W0008 : Missing arguments.
+*warning W0009 : Mismatched type of argument(s).
+*warning W0010 : Null string is invalid.
+*warning W0011 : The result can't be set to the variable.
+*warning W0012 : The numeric value is out of range or invalid.
+*warning W0013 : Processing failed.
+*warning W0014 : Requested library isn't loaded.
+*warning W0015 : Requested file isn't opened.
+*warning W0016 : Syntax error in regular expression.
+*warning W0017 : Unknown error occurred at regular expression.
+*warning W0018 : It is necessary to specify the variable.
+*warning W0019 : Integer/Double divided by zero.
+*warning W0020 : Requires even number of elements to create hash.
+*warning W0021 : Empty here document found.
+*warning W0022 : Here document start sequence found.
+//
+// 注記文字列（英語）
+!!!msgn
+*note N0000 : Restoration of a variable value was not performed.
+*note N0001 : Invalid character code set was specified. Using the default setting of OS instead.
+//
+// その他のログ文字列（英語）
+!!!msg
+*// AYA request log\n// load time: 
+*// unload time: 
+// 欠番
+*
+//
+*// Loading of dictionary file\n
+*// Parser report (@:function,$:system function,#:array)\n\n
+*// Variable definition report\n
+*// Loading of variable value 
+*// Saving of variable value 
+*...Done.\n\n
+*// Parsing of dictionary\n
+*// Dictionary error found : Emergency mode loading...\n
+*// Dictionary error found : Emergency mode loaded.\n
+//
