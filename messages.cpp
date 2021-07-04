@@ -12,7 +12,19 @@
 #include <messages.h>
 
 void LoadMassageFromTxt(const yaya::string_t &file,char cset){
-	//some code
+	//draft code
+	/*
+	MassageArray*ptr；
+	while !EOF
+		line=readline;
+		if line begin as !!!
+			case line cut !!!
+				...
+		elif line begin as //
+			next
+		elif line begin as *
+			ptr->push_back(line);
+	*/
 }
 // フェータルエラー文字列（日本語）
 MassageArray msgf={
