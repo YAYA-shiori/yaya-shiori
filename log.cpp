@@ -225,7 +225,7 @@ void	CLog::Filename(const yaya::string_t &filename)
  */
 void	CLog::Message(int id, int mode)
 {
-	Write((yaya::char_t *)msg[id], mode);
+	Write(msg[id].c_str(), mode);
 }
 
 /* -----------------------------------------------------------------------
@@ -262,7 +262,7 @@ void	CLog::Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t
 		if (mode == E_F)
 			logstr += msgf[id];
 		else if (mode == E_E)
-			logstr += msge[id];
+			logstr += msg[id];
 		else if (mode == E_W)
 			logstr += msgw[id];
 		else
