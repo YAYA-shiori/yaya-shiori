@@ -145,12 +145,12 @@
 *
 //
 *//方為術典入。\n
-*//分析器報(@:function,$:system function,#:array)
+*//分析器報(@:function,$:system function,#:array)\n\n
 *//數端告\n
 *//數載
 *//數存
 *…成。\n\n
-*//方論自\。
+*//方論自\n
 *//見自誤：方為急式…\n
 *//見自誤：已為急法。\n
 //
