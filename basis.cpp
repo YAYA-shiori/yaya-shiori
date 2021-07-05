@@ -69,7 +69,6 @@ CBasis::CBasis(CAyaVM &vmr) : vm(vmr)
 
 	checkparser = 0;
 	iolog       = 1;
-	msglang     = MSGLANG_JAPANESE;
 
 	dic_charset       = CHARSET_SJIS;
 	output_charset    = CHARSET_UTF8;
@@ -136,25 +135,25 @@ void	CBasis::SetPath(yaya::global_t h, int len)
 #elif defined(POSIX)
 void	CBasis::SetPath(yaya::global_t h, int len)
 {
-    // 取得と領域開放
-    path = widen(std::string(h, static_cast<std::string::size_type>(len)));
-    //free(h); //load側で開放
+	// 取得と領域開放
+	path = widen(std::string(h, static_cast<std::string::size_type>(len)));
+	//free(h); //load側で開放
 	h = NULL;
-    // スラッシュで終わってなければ付ける。
-    if (path.length() == 0 || path[path.length() - 1] != L'/') {
+	// スラッシュで終わってなければ付ける。
+	if (path.length() == 0 || path[path.length() - 1] != L'/') {
 		path += L'/';
-    }
-    // モジュールハンドルの取得は出来ないので、力技で位置を知る。
-    // このディレクトリにある全ての*.dll(case insensitive)を探し、
-    // 中身にyaya.dllという文字列を含んでいたら、それを選ぶ。
-    // ただし対応する*.txtが無ければdllの中身は見ずに次へ行く。
-    modulename = L"yaya";
-    DIR* dh = opendir(narrow(path).c_str());
-    if (dh == NULL) {
+	}
+	// モジュールハンドルの取得は出来ないので、力技で位置を知る。
+	// このディレクトリにある全ての*.dll(case insensitive)を探し、
+	// 中身にyaya.dllという文字列を含んでいたら、それを選ぶ。
+	// ただし対応する*.txtが無ければdllの中身は見ずに次へ行く。
+	modulename = L"yaya";
+	DIR* dh = opendir(narrow(path).c_str());
+	if (dh == NULL) {
 		std::cerr << narrow(path) << "is not a directory!" << std::endl;
 	exit(1);
-    }
-    while (true) {
+	}
+	while (true) {
 	struct dirent* ent = readdir(dh);
 	if (ent == NULL) {
 	    break; // もう無い
@@ -172,8 +171,8 @@ void	CBasis::SetPath(yaya::global_t h, int len)
 		}
 	    }
 	}
-    }
-    closedir(dh);
+	}
+	closedir(dh);
 }
 #endif
 
@@ -196,7 +195,7 @@ void	CBasis::SetLogRcvWnd(long hwnd)
  */
 void CBasis::SetLogger(void)
 {
-	vm.logger().Start(logpath, output_charset, msglang, hlogrcvWnd, iolog);
+	vm.logger().Start(logpath, output_charset, hlogrcvWnd, iolog);
 }
 
 /* -----------------------------------------------------------------------
@@ -458,6 +457,20 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 
 		return true;
 	}
+	// massagetxt
+	if ( cmd.compare(L"massagetxt") == 0 ) {//本土化
+		yaya::string_t param1,param2;
+		Split(param, param1, param2, L",");
+		char cset = extension_charset;
+		if ( param2.size() ) {
+			char cx = Ccct::CharsetTextToID(param2.c_str());
+			if ( cx != CHARSET_DEFAULT ) {
+				cset = cx;
+			}
+		}
+		LoadMassageFromTxt(param1,cset);
+		return true;
+	}
 	// log
 	if ( cmd.compare(L"log") == 0 ) {
 		if ( param.empty() ) {
@@ -481,14 +494,6 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 	// 自動セーブ
 	if ( cmd.compare(L"save.auto") == 0 ) {
 		auto_save = param.compare(L"off") != 0;
-		return true;
-	}
-	// エラーメッセージ言語
-	if ( cmd.compare(L"msglang") == 0 ) {
-		if (!param.compare(L"english"))
-			msglang = MSGLANG_ENGLISH;
-		else
-			msglang = MSGLANG_JAPANESE;
 		return true;
 	}
 	// charset
@@ -568,10 +573,6 @@ yaya::string_t CBasis::GetParameter(const yaya::string_t &cmd)
 	else if (!cmd.compare(L"save.auto")) {
 		return yaya::string_t(auto_save ? L"on" : L"off");
 	}
-	// msglang
-	else if (!cmd.compare(L"msglang")) {
-		return yaya::string_t(msglang == MSGLANG_ENGLISH ? L"english" : L"japanese");
-	}
 	// charset
 	else if (!cmd.compare(L"charset")) {
 		return Ccct::CharsetIDToTextW(dic_charset);
@@ -644,7 +645,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 #if defined(WIN32)
 		DeleteFile(s_filestr);
 #else
-    std::remove(s_filestr);
+	std::remove(s_filestr);
 #endif
 		free(s_filestr);
 		s_filestr=0;
@@ -658,7 +659,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 #if defined(WIN32)
 		DeleteFile(s_filestr);
 #else
-    std::remove(s_filestr);
+	std::remove(s_filestr);
 #endif
 		free(s_filestr);
 		s_filestr=0;
@@ -1117,12 +1118,12 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 #elif defined(POSIX)
 yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug)
 {
-    if (IsSuppress() || requestindex.IsNotFound()) {
+	if (IsSuppress() || requestindex.IsNotFound()) {
 		free(h);
 		h = NULL;
 		*len = 0;
 		return NULL;
-    }
+	}
 
 	int funcpos = requestindex.Find(vm,L"request");
 
@@ -1133,49 +1134,49 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 		return NULL;
 	}
 
-    // 入力文字列を取得
+	// 入力文字列を取得
 	std::string istr(h, *len);
-    // 第一引数（入力文字列）を作成　ここで文字コードをUCS-2へ変換
-    CValue arg(F_TAG_ARRAY, 0/*dmy*/);
-    wchar_t *wistr = Ccct::MbcsToUcs2(istr, output_charset);
+	// 第一引数（入力文字列）を作成　ここで文字コードをUCS-2へ変換
+	CValue arg(F_TAG_ARRAY, 0/*dmy*/);
+	wchar_t *wistr = Ccct::MbcsToUcs2(istr, output_charset);
 	
-    if (wistr != NULL) {
+	if (wistr != NULL) {
 		CValueSub arg0 = wistr;
 		vm.logger().Io(0, arg0.s_value);
 		arg.array().push_back(arg0);
 		free(wistr);
 		wistr = NULL;
-    }
-    else {
+	}
+	else {
 		yaya::string_t empty;
 		vm.logger().Io(0, empty);
-    }
-    
-    // 実行
-    vm.calldepth().Init();
-    CLocalVariable	lvar;
+	}
+	
+	// 実行
+	vm.calldepth().Init();
+	CLocalVariable	lvar;
 
-    CValue	result;
+	CValue	result;
 	vm.function()[funcpos].Execute(result, arg, lvar);
-    
+	
 	// 結果を文字列として取得し、文字コードをMBCSに変換
 	yaya::string_t	res = result.GetValueString();
-    vm.logger().Io(1, res);
-    char *mostr = Ccct::Ucs2ToMbcs(res, output_charset);
+	vm.logger().Io(1, res);
+	char *mostr = Ccct::Ucs2ToMbcs(res, output_charset);
 
-    if (mostr == NULL) {
+	if (mostr == NULL) {
 		// 文字コード変換失敗、NULLを返す
 		*len = 0;
 		return NULL;
-    }
-    
+	}
+	
 	// 文字コード変換が成功したので、結果をGMEMへコピーして返す
-    *len = (long)strlen(mostr);
-    char* r_h = static_cast<char*>(malloc(*len));
-    memcpy(r_h, mostr, *len);
-    free(mostr);
+	*len = (long)strlen(mostr);
+	char* r_h = static_cast<char*>(malloc(*len));
+	memcpy(r_h, mostr, *len);
+	free(mostr);
 	mostr = NULL;
-    return r_h;
+	return r_h;
 }
 #endif
 
