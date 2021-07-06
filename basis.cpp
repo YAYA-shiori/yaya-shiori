@@ -457,8 +457,8 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 
 		return true;
 	}
-	// massagetxt
-	if ( cmd.compare(L"massagetxt") == 0 ) {//本土化
+	// messagetxt
+	if ( cmd.compare(L"messagetxt") == 0 ) {//本土化
 		yaya::string_t param1,param2;
 		Split(param, param1, param2, L",");
 		char cset = extension_charset;
