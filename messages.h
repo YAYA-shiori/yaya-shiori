@@ -26,21 +26,21 @@
 #define	E_UTF8		17	/* マルチバイト文字コード＝UTF-8 */
 #define	E_DEFAULT	32	/* マルチバイト文字コード＝OSデフォルトのコード */
 
-void LoadMassageFromTxt(const yaya::string_t &file,char cset);
-typedef std::vector<std::wstring> MassageArray;
+void LoadMessageFromTxt(const yaya::string_t &file,char cset);
+typedef std::vector<std::wstring> MessageArray;
 // フェータルエラー文字列（日本語）
-extern MassageArray msgf;
+extern MessageArray msgf;
 
 // エラー文字列（日本語）
-extern MassageArray msg;
+extern MessageArray msg;
 
 // ワーニング文字列（日本語）
-extern MassageArray msgw;
+extern MessageArray msgw;
 
 // 注記文字列（日本語）
-extern MassageArray msgn;
+extern MessageArray msgn;
 
 // その他のログ文字列（日本語）
-extern MassageArray msgj;
+extern MessageArray msgj;
 
 #endif

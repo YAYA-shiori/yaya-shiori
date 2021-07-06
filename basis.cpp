@@ -468,7 +468,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 				cset = cx;
 			}
 		}
-		LoadMassageFromTxt(param1,cset);
+		LoadMessageFromTxt(param1,cset);
 		return true;
 	}
 	// log
