@@ -11,10 +11,10 @@
 
 #include <messages.h>
 
-void LoadMassageFromTxt(const yaya::string_t &file,char cset){
+void LoadMessageFromTxt(const yaya::string_t &file,char cset){
 	//draft code
 	/*
-	MassageArray*ptr；
+	MessageArray*ptr；
 	while !EOF
 		line=readline;
 		if line begin as !!!
@@ -27,12 +27,12 @@ void LoadMassageFromTxt(const yaya::string_t &file,char cset){
 	*/
 }
 // フェータルエラー文字列（日本語）
-MassageArray msgf={
+MessageArray msgf={
 	L"",
 };
 
 // エラー文字列（日本語）
-MassageArray msg= {
+MessageArray msg= {
 	L"error E0000 : 未知のエラーです.",
 	L"error E0001 : 対応する関数名が見つかりません.",
 	L"error E0002 : '}' 過多です.",
@@ -132,7 +132,7 @@ MassageArray msg= {
 };
 
 // ワーニング文字列（日本語）
-MassageArray msgw = {
+MessageArray msgw = {
 	L"warning W0000 : 文法エラー. この行は無視します.",
 	L"warning W0001 : この行の変数の復元に失敗しました. この行を解析できません.",
 	L"warning W0002 : この行の変数の復元に失敗しました. 変数名を取得できませんでした.",
@@ -159,13 +159,13 @@ MassageArray msgw = {
 };
 
 // 注記文字列（日本語）
-MassageArray msgn = {
+MessageArray msgn = {
 	L"note N0000 : 前回実行時の変数値の復元は行われませんでした.",
 	L"note N0001 : 無効な文字コードセットが指定されました. OSのデフォルト値を使用します.",
 };
 
 // その他のログ文字列（日本語）
-MassageArray msgj = {
+MessageArray msgj = {
 	L"// 文　リクエストログ\n// load 時刻 : ",
 	L"// unload 時刻 : ",
 	L"",	// 欠番
