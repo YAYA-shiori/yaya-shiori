@@ -1,19 +1,19 @@
-// 
+﻿// 
 // AYA version 5
 //
-// �ϐ��������N���X�@CVariable/CLVSubStack/CLocalVariable/CGlobalVariable
+// 変数を扱うクラス　CVariable/CLVSubStack/CLocalVariable/CGlobalVariable
 // written by umeici. 2004
 // 
-// CVariable�N���X�͒l�̕ێ������s�Ȃ��܂���B
+// CVariableクラスは値の保持しか行ないません。
 //
-// CLVSubStack/CLocalVariable�̓��[�J���ϐ����Ǘ����܂��B
-// �X�^�b�N�Ƃ͖��΂���Ŏ��ۂ̍\���͉ϒ��z��ł��i�����_���A�N�Z�X�����������̂Łj
+// CLVSubStack/CLocalVariableはローカル変数を管理します。
+// スタックとは名ばかりで実際の構造は可変長配列です（ランダムアクセスしたかったので）
 //
-// CLocalVariable�̃C���X�^���X�͊֐����s�J�n���ɍ쐬����A�֐�����Ԃ�ۂɔj������܂��B
-// �\���Ƃ��Ă� vector<vector<CVariable>> �ŁA{}����q�̐[�����Ƀ��[�J���ϐ��̔z���
-// �����Ă��邱�ƂɂȂ�܂��B{}����q�ɓ���ۂɔz�񂪒ǉ�����A�o��ۂɔj������܂��B
+// CLocalVariableのインスタンスは関数実行開始時に作成され、関数から返る際に破棄されます。
+// 構造としては vector<vector<CVariable>> で、{}入れ子の深さ毎にローカル変数の配列を
+// 持っていることになります。{}入れ子に入る際に配列が追加され、出る際に破棄されます。
 //
-// CGlobalVariable�̓O���[�o���ϐ����Ǘ����܂��B
+// CGlobalVariableはグローバル変数を管理します。
 //
 
 #ifndef	VARIABLEH
@@ -39,14 +39,14 @@ class CAyaVM;
 class	CVariable
 {
 public:
-	aya::string_t	name;					// ���O
-	aya::string_t	delimiter;				// �f���~�^
+	aya::string_t	name;					// 名前
+	aya::string_t	delimiter;				// デリミタ
 
 
 protected:
-	char	erased;					// �������ꂽ���Ƃ������t���O�i�O���[�o���ϐ��Ŏg�p�j
-									// 0/1=�L��/�������ꂽ
-	mutable std_shared_ptr<CValue> m_value;				// �l
+	char	erased;					// 消去されたことを示すフラグ（グローバル変数で使用）
+									// 0/1=有効/消去された
+	mutable std_shared_ptr<CValue> m_value;				// 値
 
 public:
 	CVariable(const aya::string_t &n)

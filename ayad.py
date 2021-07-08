@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 #
 #  ayad.py - a (Real) AYA loader for ninix
 #  Copyright (C) 2004 by linjian

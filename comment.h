@@ -1,7 +1,7 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// ƒRƒƒ“ƒgƒAƒEƒgˆ—ƒNƒ‰ƒX@CComment
+// ã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆå‡¦ç†ã‚¯ãƒ©ã‚¹ã€€CComment
 // written by umeici. 2004
 // 
 
@@ -19,7 +19,7 @@
 class	CComment
 {
 protected:
-	char	flag;		// —Ìˆæƒtƒ‰ƒO 0/1=ƒRƒƒ“ƒgƒGƒŠƒAŠO/“à
+	char	flag;		// é ˜åŸŸãƒ•ãƒ©ã‚° 0/1=ã‚³ãƒ¡ãƒ³ãƒˆã‚¨ãƒªã‚¢å¤–/å†…
 public:
 	CComment(void) { flag = 0; }
 	~CComment(void) {}

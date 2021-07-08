@@ -1,11 +1,11 @@
-// 
+﻿// 
 // AYA version 5
 //
-// ���ԃR�[�h�����O�ɏo�͂���N���X�@CLogExCode
+// 中間コードをログに出力するクラス　CLogExCode
 // written by umeici. 2004
 // 
-// �f�o�b�O�p�̋@�\�ł��B������ɂ͊֌W���܂���B
-// �����̊֐����f���o���o�͂́A�\�[�X�R�[�h�𗝉����Ă��Ȃ��Ɠǂݓ���̂ł��B
+// デバッグ用の機能です。実動作には関係しません。
+// これらの関数が吐き出す出力は、ソースコードを理解していないと読み難いものです。
 //
 
 #ifndef	LOGEXCODEH

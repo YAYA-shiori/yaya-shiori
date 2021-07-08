@@ -1,4 +1,4 @@
-/* crc32.c -- compute the CRC-32 of a data stream
+ï»¿/* crc32.c -- compute the CRC-32 of a data stream
  * Copyright (C) 1995-2002 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib
  * Modified for AYA5 by C.Ponapalt
@@ -72,8 +72,8 @@ static const unsigned long crc_table[256] = {
 #define DO8(buf)  DO4(buf); DO4(buf);
 
 /* ========================================================================= */
-// ˆê”­‚Åƒf[ƒ^‚ğ’ñ‹Ÿ‚Å‚«‚È‚¢ê‡Acrcƒpƒ‰ƒ[ƒ^‚É‘O‰ñ‚ÌŒvZŒ‹‰Ê‚ğ“n‚·B
-// ‰ŠúƒXƒe[ƒ^ƒX‚Í0B‚à‚¿‚ë‚ñ0ƒoƒCƒg‚Ìê‡‚à0B
+// ä¸€ç™ºã§ãƒ‡ãƒ¼ã‚¿ã‚’æä¾›ã§ããªã„å ´åˆã€crcãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã«å‰å›ã®è¨ˆç®—çµæœã‚’æ¸¡ã™ã€‚
+// åˆæœŸã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã¯0ã€‚ã‚‚ã¡ã‚ã‚“0ãƒã‚¤ãƒˆã®å ´åˆã‚‚0ã€‚
 unsigned long update_crc32(const unsigned char *buf,unsigned int len,unsigned long crc)
 {
     if (buf == NULL) return 0L;

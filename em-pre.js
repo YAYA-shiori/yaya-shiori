@@ -1,1 +1,1 @@
-var AYA = function(){
+﻿var AYA = function(){

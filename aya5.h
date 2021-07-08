@@ -1,4 +1,4 @@
-// 
+﻿// 
 // AYA version 5
 //
 // written by umeici. 2004

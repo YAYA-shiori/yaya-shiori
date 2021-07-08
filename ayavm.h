@@ -1,10 +1,10 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// AYA‚Ì1ƒCƒ“ƒXƒ^ƒ“ƒX‚ğ•Û‚·‚éƒNƒ‰ƒXAYAVM
+// AYAã®1ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’ä¿æŒã™ã‚‹ã‚¯ãƒ©ã‚¹AYAVM
 // written by the Maintenance Shop/C.Ponapalt 2006
 // 
-// CAyaVM‚ğ‚½‚­‚³‚ñì‚é‚Æ•¡”‚ÌAYA‚ğ1‚Â‚ÌƒvƒƒZƒX/ƒXƒŒƒbƒh/ƒ‚ƒWƒ…[ƒ‹“à‚Å‘–‚ç‚¹‚é‚±‚Æ‚ª‚Å‚«‚Ü‚·B
+// CAyaVMã‚’ãŸãã•ã‚“ä½œã‚‹ã¨è¤‡æ•°ã®AYAã‚’1ã¤ã®ãƒ—ãƒ­ã‚»ã‚¹/ã‚¹ãƒ¬ãƒƒãƒ‰/ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«å†…ã§èµ°ã‚‰ã›ã‚‹ã“ã¨ãŒã§ãã¾ã™ã€‚
 // 
 
 #ifndef AYAVM_H
@@ -73,10 +73,10 @@ public:
 	void genrand_sysfunc_srand(int n);
 	void genrand_sysfunc_srand_array(const unsigned long a[],const int n);
 
-	// å§Œä
+	// ä¸»åˆ¶å¾¡
 	CBasis&					basis();
 
-	// ŠÖ”/ƒVƒXƒeƒ€ŠÖ”/ƒOƒ[ƒoƒ‹•Ï”
+	// é–¢æ•°/ã‚·ã‚¹ãƒ†ãƒ é–¢æ•°/ã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°
 	std::vector<CFunction>&	function();
 	aya::indexmap& functionmap();
 
@@ -86,16 +86,16 @@ public:
 	CSystemFunction&		sysfunction();
 	CGlobalVariable&		variable();
 
-	// ƒtƒ@ƒCƒ‹‚ÆŠO•”ƒ‰ƒCƒuƒ‰ƒŠ
+	// ãƒ•ã‚¡ã‚¤ãƒ«ã¨å¤–éƒ¨ãƒ©ã‚¤ãƒ–ãƒ©ãƒª
 	CFile&					files();
 	CLib&					libs();
 
-	// ƒƒK[
+	// ãƒ­ã‚¬ãƒ¼
 	inline CLog& logger() {
 		return m_logger;
 	}
 
-	// ƒp[ƒT
+	// ãƒ‘ãƒ¼ã‚µ
 	CParser0&				parser0();
 	CParser1&				parser1();
 };

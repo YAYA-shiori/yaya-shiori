@@ -1,7 +1,7 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// ƒfƒBƒŒƒNƒgƒŠ“à—ñ‹“@CDirEnum
+// ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå†…åˆ—æŒ™ã€€CDirEnum
 // 
 
 #if defined(WIN32) || defined(_WIN32_WCE)

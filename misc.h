@@ -1,7 +1,7 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// G—pŠÖ”
+// é›‘ç”¨é–¢æ•°
 // written by umeici. 2004
 // 
 
@@ -70,7 +70,7 @@ void	DecodeURL(std::string &out,const aya::char_t *in,size_t in_len,bool isPlusP
 
 inline bool IsSpace(const aya::char_t &c) {
 #if !defined(POSIX) && !defined(__MINGW32__)
-	return c == L' ' || c == L'\t' || c == L'@';
+	return c == L' ' || c == L'\t' || c == L'ã€€';
 #else
 	return c == L' ' || c == L'\t' || c == L'\u3000';
 #endif
@@ -78,7 +78,7 @@ inline bool IsSpace(const aya::char_t &c) {
 
 //----
 
-// ŠÖ”ŒÄ‚Ño‚µ‚Ì[‚³‚ğŒŸ¸‚·‚é‚½‚ß‚ÌƒNƒ‰ƒX
+// é–¢æ•°å‘¼ã³å‡ºã—ã®æ·±ã•ã‚’æ¤œæŸ»ã™ã‚‹ãŸã‚ã®ã‚¯ãƒ©ã‚¹
 
 class	CCallDepth
 {

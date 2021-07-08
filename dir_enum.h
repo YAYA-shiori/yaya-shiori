@@ -1,7 +1,7 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// ƒfƒBƒŒƒNƒgƒŠ“à—ñ‹“@CDirEnum
+// ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå†…åˆ—æŒ™ã€€CDirEnum
 // 
 
 #ifndef	DIR_ENUM_H

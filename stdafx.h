@@ -1,6 +1,6 @@
-// stdafx.h : •W€‚ÌƒVƒXƒeƒ€ ƒCƒ“ƒNƒ‹[ƒh ƒtƒ@ƒCƒ‹A
-//            ‚Ü‚½‚ÍQÆ‰ñ”‚ª‘½‚­A‚©‚Â‚ ‚Ü‚è•ÏX‚³‚ê‚È‚¢
-//            ƒvƒƒWƒFƒNƒgê—p‚ÌƒCƒ“ƒNƒ‹[ƒh ƒtƒ@ƒCƒ‹‚ğ‹Lq‚µ‚Ü‚·B
+ï»¿// stdafx.h : æ¨™æº–ã®ã‚·ã‚¹ãƒ†ãƒ  ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰ ãƒ•ã‚¡ã‚¤ãƒ«ã€
+//            ã¾ãŸã¯å‚ç…§å›æ•°ãŒå¤šãã€ã‹ã¤ã‚ã¾ã‚Šå¤‰æ›´ã•ã‚Œãªã„
+//            ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆå°‚ç”¨ã®ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰ ãƒ•ã‚¡ã‚¤ãƒ«ã‚’è¨˜è¿°ã—ã¾ã™ã€‚
 //
 
 #if !defined(AFX_STDAFX_H__308D3A4E_B685_4328_B501_D274F42D9159__INCLUDED_)
@@ -10,23 +10,23 @@
 # pragma once
 #endif // _MSC_VER > 1000
 
-// STLg—p‚ÉƒfƒoƒbƒOƒrƒ‹ƒh‚Å”­¶‚·‚é–³‘Ê‚Èƒ[ƒjƒ“ƒO‚ğ—}~
+// STLä½¿ç”¨æ™‚ã«ãƒ‡ãƒãƒƒã‚°ãƒ“ãƒ«ãƒ‰ã§ç™ºç”Ÿã™ã‚‹ç„¡é§„ãªãƒ¯ãƒ¼ãƒ‹ãƒ³ã‚°ã‚’æŠ‘æ­¢
 #if defined(_MSC_VER)
 # pragma warning (disable: 4786)
 #endif
 
-// Boost‚ªCEŒn‚Å’Ê‚ç‚È‚¢‚±‚Æ‚Ì‘Îô
+// BoostãŒCEç³»ã§é€šã‚‰ãªã„ã“ã¨ã®å¯¾ç­–
 #if defined(_WIN32_WCE)
 # define BOOST_USE_WINDOWS_H
 # define BOOST_NO_STD_LOCALE
 #endif
 
-// VC8 Secure C ŠÖ”‘Îô
+// VC8 Secure C é–¢æ•°å¯¾ç­–
 #if (_MSC_VER >= 1400)
 # pragma warning(disable : 4996)
 #endif
 
-#define WIN32_LEAN_AND_MEAN		// Windows ƒwƒbƒ_[‚©‚ç–w‚Çg—p‚³‚ê‚È‚¢ƒXƒ^ƒbƒt‚ğœŠO‚µ‚Ü‚·
+#define WIN32_LEAN_AND_MEAN		// Windows ãƒ˜ãƒƒãƒ€ãƒ¼ã‹ã‚‰æ®†ã©ä½¿ç”¨ã•ã‚Œãªã„ã‚¹ã‚¿ãƒƒãƒ•ã‚’é™¤å¤–ã—ã¾ã™
 
 #include <windows.h>
 #include <winreg.h>
@@ -37,6 +37,6 @@
 #include <assert.h>
 
 //{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ ‚Í‘Os‚Ì’¼‘O‚É’Ç‰Á‚ÌéŒ¾‚ğ‘}“ü‚µ‚Ü‚·B
+// Microsoft Visual C++ ã¯å‰è¡Œã®ç›´å‰ã«è¿½åŠ ã®å®£è¨€ã‚’æŒ¿å…¥ã—ã¾ã™ã€‚
 
 #endif // !defined(AFX_STDAFX_H__308D3A4E_B685_4328_B501_D274F42D9159__INCLUDED_)

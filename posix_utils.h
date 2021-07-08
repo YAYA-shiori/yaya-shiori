@@ -1,5 +1,5 @@
-/* -*- c++ -*-
-   POSIX�����Ŏg�����[�e�B���e�B�ށB
+﻿/* -*- c++ -*-
+   POSIX環境下で使うユーティリティ類。
 */
 #ifndef _POSIX_UTILS_H_INCLUDED_
 #define _POSIX_UTILS_H_INCLUDED_

@@ -1,4 +1,4 @@
-del *.bak
+﻿del *.bak
 mkdir tmp\
 
 del /F /S /Q tmp\aya\*

@@ -1,11 +1,11 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// ŠÖ”‚ğˆµ‚¤ƒNƒ‰ƒX@CFunction/CStatement
+// é–¢æ•°ã‚’æ‰±ã†ã‚¯ãƒ©ã‚¹ã€€CFunction/CStatement
 // written by umeici. 2004
 // 
-// CFunction‚ªŠÖ”ACStatement‚ªŠÖ”“à‚ÌƒXƒe[ƒgƒƒ“ƒg‚Å‚·B
-// CStatement‚Í’l‚Ì•Û‚Ì‚İ‚ÅA‘€ì‚ÍƒCƒ“ƒXƒ^ƒ“ƒX‚ğ‚ÂCFunction‚Ås‚¢‚Ü‚·B
+// CFunctionãŒé–¢æ•°ã€CStatementãŒé–¢æ•°å†…ã®ã‚¹ãƒ†ãƒ¼ãƒˆãƒ¡ãƒ³ãƒˆã§ã™ã€‚
+// CStatementã¯å€¤ã®ä¿æŒã®ã¿ã§ã€æ“ä½œã¯ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’æŒã¤CFunctionã§è¡Œã„ã¾ã™ã€‚
 //
 
 #ifndef	FUNCTIONH
@@ -35,14 +35,14 @@ class CSelecter;
 class	CStatement
 {
 public:
-	int				type;			// ƒXƒe[ƒgƒƒ“ƒg‚Ìí•Ê
-	int				jumpto;			// ”ò‚Ñæs”Ô† break/continue/return/if/elseif/else/for/foreach‚Åg—p‚µ‚Ü‚·
-									// ŠY“–’PˆÊI’[‚Ì"}"‚ÌˆÊ’u‚ªŠi”[‚³‚ê‚Ä‚¢‚Ü‚·
-	int	linecount;					// «‘ƒtƒ@ƒCƒ‹’†‚Ìs”Ô†
+	int				type;			// ã‚¹ãƒ†ãƒ¼ãƒˆãƒ¡ãƒ³ãƒˆã®ç¨®åˆ¥
+	int				jumpto;			// é£›ã³å…ˆè¡Œç•ªå· break/continue/return/if/elseif/else/for/foreachã§ä½¿ç”¨ã—ã¾ã™
+									// è©²å½“å˜ä½çµ‚ç«¯ã®"}"ã®ä½ç½®ãŒæ ¼ç´ã•ã‚Œã¦ã„ã¾ã™
+	int	linecount;					// è¾æ›¸ãƒ•ã‚¡ã‚¤ãƒ«ä¸­ã®è¡Œç•ªå·
 
 private:
-	mutable std_shared_ptr<std::vector<CCell> >   m_cell;			// ”®‚Ì€‚ÌŒQ@
-	mutable std_shared_ptr<std::vector<CSerial> > m_serial;			// ”®‚Ì‰‰Z‡˜
+	mutable std_shared_ptr<std::vector<CCell> >   m_cell;			// æ•°å¼ã®é …ã®ç¾¤ã€€
+	mutable std_shared_ptr<std::vector<CSerial> > m_serial;			// æ•°å¼ã®æ¼”ç®—é †åº
 
 public:
 	CStatement(int t, int l)
@@ -126,14 +126,14 @@ private:
 	CAyaVM *pvm;
 	
 public:
-	aya::string_t				name;			// –¼‘O
-	aya::string_t::size_type	namelen;		// –¼‘O‚Ì’·‚³
-	std::vector<CStatement>		statement;		// –½—ßŒS
-	CDuplEvInfo					dupl;			// d•¡‰ñ”ğ§Œä
-	aya::string_t				dicfilename;	// ‘Î‰‚·‚é«‘ƒtƒ@ƒCƒ‹–¼
+	aya::string_t				name;			// åå‰
+	aya::string_t::size_type	namelen;		// åå‰ã®é•·ã•
+	std::vector<CStatement>		statement;		// å‘½ä»¤éƒ¡
+	CDuplEvInfo					dupl;			// é‡è¤‡å›é¿åˆ¶å¾¡
+	aya::string_t				dicfilename;	// å¯¾å¿œã™ã‚‹è¾æ›¸ãƒ•ã‚¡ã‚¤ãƒ«å
 
 protected:
-	int					statelenm1;		// statement‚Ì’·‚³-1i1‚ğŒ¸‚¶‚Ä‚¢‚é‚Ì‚ÍI’[‚Ì"}"‚ğˆ—‚µ‚È‚¢‚½‚ß‚Å‚·j
+	int					statelenm1;		// statementã®é•·ã•-1ï¼ˆ1ã‚’æ¸›ã˜ã¦ã„ã‚‹ã®ã¯çµ‚ç«¯ã®"}"ã‚’å‡¦ç†ã—ãªã„ãŸã‚ã§ã™ï¼‰
 
 private:
 	CFunction(void);

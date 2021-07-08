@@ -1,27 +1,27 @@
-# -*- makefile -*-
+﻿# -*- makefile -*-
 
-# �g�p����c�[���ނ̐ݒ�
+# 使用するツール類の設定
 CXX = em++
 LD = em++
 MKDEP = mkdep
 
-# ��郉�C�u�������̐ݒ�
-# �����darwin�p�̐ݒ�ŁAlibaya5.bundle�𐶐�����B
-# Linux��BSD�Ȃ�postfix��.so�ɂ���K�v�����锤�B
+# 作るライブラリ名の設定
+# これはdarwin用の設定で、libaya5.bundleを生成する。
+# LinuxやBSDならpostfixを.soにする必要がある筈。
 DYLIB_NAME_PREFIX = 
 DYLIB_NAME_POSTFIX = .js
 
-# ����:
-# ���̃v���O������ wstring ���g�p���Ă��܂��B
-# ���g���̃R���p�C���� wstring �𗝉����Ȃ��ꍇ�́c�c�ǂ��ɂ����đΏ����ĉ������B
+# 注意:
+# このプログラムは wstring を使用しています。
+# お使いのコンパイラが wstring を理解しない場合は……どうにかして対処して下さい。
 
-# �ǉ�����t���O�B
-# CXXFLAGS�͕K�v������΋�ł��ǂ����ALDFLAGS��dlopen�\�ȃ��C�u������
-# ����ݒ�ɂ��Ȃ���΂Ȃ�Ȃ��Bdarwin�Ȃ�-bundle�ALinux��BSD�Ȃ�-shared�B
+# 追加するフラグ。
+# CXXFLAGSは必要無ければ空でも良いが、LDFLAGSはdlopen可能なライブラリを
+# 作れる設定にしなければならない。darwinなら-bundle、LinuxやBSDなら-shared。
 CXXFLAGS = -O3 -Wall -std=c++11 -s ALLOW_MEMORY_GROWTH=1
 EXPORTED_FUNCTIONS = "['_load','_unload','_request']"
 LDFLAGS = -shared -O3 --memory-init-file 0 --pre-js em-pre.js --post-js em-post.js -s EXPORTED_FUNCTIONS=$(EXPORTED_FUNCTIONS) -s ALLOW_MEMORY_GROWTH=1
-################## �����艺�͘M��Ȃ��Ă��R���p�C���o���܂� ##################
+################## これより下は弄らなくてもコンパイル出来ます ##################
 
 CXXFLAGS_ADD = -DPOSIX -I.
 

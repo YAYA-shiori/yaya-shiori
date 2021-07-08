@@ -1,12 +1,12 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// ’l‚ğˆµ‚¤ƒNƒ‰ƒX@CValue/CValueSub
+// å€¤ã‚’æ‰±ã†ã‚¯ãƒ©ã‚¹ã€€CValue/CValueSub
 // written by umeici. 2004
 // 
-// CValue‚ÍŒ^ƒtƒ‰ƒO‚ÆŒ^•Ê‚Ìî•ñ‚ğ‚Á‚Ä‚¢‚Ü‚·B‚»‚Ì’†‚Évector<CValueSub>‚Æ‚¢‚¤‰Â•Ï’·”z—ñ‚ª‚ ‚èA
-// ‚±‚ê‚ª”Ä—p”z—ñ‚Æ‚È‚è‚Ü‚·BCValueSubƒNƒ‰ƒX‚Í”z—ñ‚ğ‚½‚È‚¢‚Ù‚©‚ÍCValue‚Æ—Ş—‚µ‚Ä‚¢‚Ü‚·i”Ä—p
-// ”z—ñ‚ğ‘½ŸŒ³‰»o—ˆ‚È‚¢A‚Æ‚¢‚¤AYA5‚Ì§ŒÀ‚Í‚±‚Ì\‘¢‚É—R—ˆ‚µ‚Ä‚¢‚Ü‚·jB
+// CValueã¯å‹ãƒ•ãƒ©ã‚°ã¨å‹åˆ¥ã®æƒ…å ±ã‚’æŒã£ã¦ã„ã¾ã™ã€‚ãã®ä¸­ã«vector<CValueSub>ã¨ã„ã†å¯å¤‰é•·é…åˆ—ãŒã‚ã‚Šã€
+// ã“ã‚ŒãŒæ±ç”¨é…åˆ—ã¨ãªã‚Šã¾ã™ã€‚CValueSubã‚¯ãƒ©ã‚¹ã¯é…åˆ—ã‚’æŒãŸãªã„ã»ã‹ã¯CValueã¨é¡ä¼¼ã—ã¦ã„ã¾ã™ï¼ˆæ±ç”¨
+// é…åˆ—ã‚’å¤šæ¬¡å…ƒåŒ–å‡ºæ¥ãªã„ã€ã¨ã„ã†AYA5ã®åˆ¶é™ã¯ã“ã®æ§‹é€ ã«ç”±æ¥ã—ã¦ã„ã¾ã™ï¼‰ã€‚
 // 
 
 #ifndef	VALUEH
@@ -38,11 +38,11 @@ class	CValueSub
 	friend class CValue;
 
 protected:
-	int	type;						// Œ^
+	int	type;						// å‹
 public:
-	aya::string_t	s_value;				// •¶š—ñ’l
-	double	d_value;				// À”’l
-	int		i_value;				// ®”’l
+	aya::string_t	s_value;				// æ–‡å­—åˆ—å€¤
+	double	d_value;				// å®Ÿæ•°å€¤
+	int		i_value;				// æ•´æ•°å€¤
 
 private:
 	int CalcEscalationTypeNum(const int rhs) const;
@@ -124,14 +124,14 @@ class	CValue
 	friend class CValueSub;
 
 protected:
-	int	type;						// Œ^
+	int	type;						// å‹
 public:
-	aya::string_t	s_value;				// •¶š—ñ’l
-	double	d_value;				// À”’l
-	int		i_value;				// ®”’l
+	aya::string_t	s_value;				// æ–‡å­—åˆ—å€¤
+	double	d_value;				// å®Ÿæ•°å€¤
+	int		i_value;				// æ•´æ•°å€¤
 
 private:
-	mutable std_shared_ptr<CValueArray> m_array;		// ”Ä—p”z—ñ
+	mutable std_shared_ptr<CValueArray> m_array;		// æ±ç”¨é…åˆ—
 
 private:
 	int CalcEscalationTypeNum(const int rhs) const;
@@ -145,7 +145,7 @@ public:
 	CValue(const CValue &rhs)
 	{
 		type = rhs.type;
-		//i,d‚ÍƒTƒCƒY‚ª¬‚³‚¢‚Ì‚ÅƒRƒs[‚µ‚½‚Ù‚¤‚ªè‚Áæ‚è‘‚¢
+		//i,dã¯ã‚µã‚¤ã‚ºãŒå°ã•ã„ã®ã§ã‚³ãƒ”ãƒ¼ã—ãŸã»ã†ãŒæ‰‹ã£å–ã‚Šæ—©ã„
 		i_value = rhs.i_value;
 		d_value = rhs.d_value;
 
@@ -159,7 +159,7 @@ public:
 	CValue& operator =(const CValue &rhs)
 	{
 		type = rhs.type;
-		//i,d‚ÍƒTƒCƒY‚ª¬‚³‚¢‚Ì‚ÅƒRƒs[‚µ‚½‚Ù‚¤‚ªè‚Áæ‚è‘‚¢
+		//i,dã¯ã‚µã‚¤ã‚ºãŒå°ã•ã„ã®ã§ã‚³ãƒ”ãƒ¼ã—ãŸã»ã†ãŒæ‰‹ã£å–ã‚Šæ—©ã„
 		i_value = rhs.i_value;
 		d_value = rhs.d_value;
 
@@ -208,7 +208,7 @@ public:
 		};
 	}
 
-	CValue(int tp, int) : type(tp), d_value(0.0), i_value(0) { }	// Œ^w’è‚µ‚Ä‰Šú‰»
+	CValue(int tp, int) : type(tp), d_value(0.0), i_value(0) { }	// å‹æŒ‡å®šã—ã¦åˆæœŸåŒ–
 	CValue(void) : type(F_TAG_VOID), d_value(0.0), i_value(0) { }
 	~CValue(void) {}
 
@@ -339,7 +339,7 @@ public:
 
 //----
 
-//‚©‚ç‚Á‚Û•Ï”iƒ_ƒ~[—pj
+//ã‹ã‚‰ã£ã½å¤‰æ•°ï¼ˆãƒ€ãƒŸãƒ¼ç”¨ï¼‰
 extern const CValue emptyvalue;
 
 #endif

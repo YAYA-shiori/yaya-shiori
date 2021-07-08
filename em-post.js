@@ -1,4 +1,4 @@
-  this['Module'] = Module;
+﻿  this['Module'] = Module;
   this['FS'] = FS;
   this['PATH'] = PATH;
   this['ERRNO_CODES'] = ERRNO_CODES;

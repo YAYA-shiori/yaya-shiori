@@ -1,11 +1,11 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// ƒƒOƒƒbƒZ[ƒW
+// ãƒ­ã‚°ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
 // written by umeici. 2004
 // 
-// ‰pŒê‚ÌƒƒbƒZ[ƒW‚ÍŠî–{“I‚ÉˆÈ‰º‚ÌƒTƒCƒg“™‚ÅŽ©“®–|–ó‚µ‚½‚à‚Ì‚Å‚·B
-// excite–|–ó
+// è‹±èªžã®ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã¯åŸºæœ¬çš„ã«ä»¥ä¸‹ã®ã‚µã‚¤ãƒˆç­‰ã§è‡ªå‹•ç¿»è¨³ã—ãŸã‚‚ã®ã§ã™ã€‚
+// exciteç¿»è¨³
 // http://www.excite.co.jp/world/
 //
 
@@ -14,175 +14,175 @@
 
 //----
 
-// ƒƒbƒZ[ƒWŽí•Ê
-#define	E_I			0	/* •W€‚ÌƒƒbƒZ[ƒW */
-#define	E_F			1	/* ƒtƒF[ƒ^ƒ‹ƒGƒ‰[ */
-#define	E_E			2	/* ƒGƒ‰[ */
-#define	E_W			3	/* ƒ[ƒjƒ“ƒO */
-#define	E_N			4	/* ’‹L */
-#define	E_END		5	/* ƒƒO‚ÌI—¹ */
-#define	E_SJIS		16	/* ƒ}ƒ‹ƒ`ƒoƒCƒg•¶ŽšƒR[ƒhSJIS */
-#define	E_UTF8		17	/* ƒ}ƒ‹ƒ`ƒoƒCƒg•¶ŽšƒR[ƒhUTF-8 */
-#define	E_DEFAULT	32	/* ƒ}ƒ‹ƒ`ƒoƒCƒg•¶ŽšƒR[ƒhOSƒfƒtƒHƒ‹ƒg‚ÌƒR[ƒh */
+// ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ç¨®åˆ¥
+#define	E_I			0	/* æ¨™æº–ã®ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ */
+#define	E_F			1	/* ãƒ•ã‚§ãƒ¼ã‚¿ãƒ«ã‚¨ãƒ©ãƒ¼ */
+#define	E_E			2	/* ã‚¨ãƒ©ãƒ¼ */
+#define	E_W			3	/* ãƒ¯ãƒ¼ãƒ‹ãƒ³ã‚° */
+#define	E_N			4	/* æ³¨è¨˜ */
+#define	E_END		5	/* ãƒ­ã‚°ã®çµ‚äº† */
+#define	E_SJIS		16	/* ãƒžãƒ«ãƒãƒã‚¤ãƒˆæ–‡å­—ã‚³ãƒ¼ãƒ‰ï¼SJIS */
+#define	E_UTF8		17	/* ãƒžãƒ«ãƒãƒã‚¤ãƒˆæ–‡å­—ã‚³ãƒ¼ãƒ‰ï¼UTF-8 */
+#define	E_DEFAULT	32	/* ãƒžãƒ«ãƒãƒã‚¤ãƒˆæ–‡å­—ã‚³ãƒ¼ãƒ‰ï¼OSãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ã‚³ãƒ¼ãƒ‰ */
 
 #if !defined(POSIX) && !defined(__MINGW32__)
-// ƒtƒF[ƒ^ƒ‹ƒGƒ‰[•¶Žš—ñi“ú–{Œêj
+// ãƒ•ã‚§ãƒ¼ã‚¿ãƒ«ã‚¨ãƒ©ãƒ¼æ–‡å­—åˆ—ï¼ˆæ—¥æœ¬èªžï¼‰
 const wchar_t	msgfj[][128] = {
 	L"",
 };
 
-// ƒGƒ‰[•¶Žš—ñi“ú–{Œêj
+// ã‚¨ãƒ©ãƒ¼æ–‡å­—åˆ—ï¼ˆæ—¥æœ¬èªžï¼‰
 const wchar_t	msgej[][128] = {
-	L"error E0000 : –¢’m‚ÌƒGƒ‰[‚Å‚·.",
-	L"error E0001 : ‘Î‰ž‚·‚éŠÖ”–¼‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ.",
-	L"error E0002 : '}' ‰ß‘½‚Å‚·.",
-	L"error E0003 : •s³‚ÈŠÖ”–¼‚Å‚·.",
-	L"error E0004 : ‰ðÍ•s”\. '{' ‚ª•K—v‚Æ”»’f‚³‚ê‚Ü‚·.",
-	L"error E0005 : ƒtƒ@ƒCƒ‹‚ðŠJ‚¯‚Ü‚¹‚ñ.",
-	L"error E0006 : ŠÈˆÕ”z—ñ‚Ì•Ï”–¼‚ª‚ ‚è‚Ü‚¹‚ñ.",
-	L"error E0007 : •sŠ®‘S‚È•¶Žš—ñ’è”‚Å‚·.",
-	L"error E0008 : •s³‚Èƒ_ƒuƒ‹ƒNƒH[ƒe[ƒVƒ‡ƒ“‚Å‚·.",
-	L"error E0009 : “à•”ƒGƒ‰[1‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0010 : ‰ðÍ•s”\‚È•¶Žš—ñ.",
-	L"error E0011 : •Ï”–¼(?)‚ÉŽg—p‚Å‚«‚È‚¢•¶Žš‚ªŠÜ‚Ü‚ê‚Ä‚¢‚Ü‚·.",
-	L"error E0012 : •Ï”–¼‚ª—\–ñŒê‚Æˆê’v‚µ‚Ä‚¢‚Ü‚·.",
-	L"error E0013 : “¯ˆê–¼‚ÌŠÖ”‚ªd•¡‚µ‚Ä’è‹`‚³‚ê‚Ä‚¢‚Ü‚·.",
-	L"error E0014 : ŠÈˆÕ”z—ñ‚Ì˜”‚ª‹ó‚Å‚·.",
-	L"error E0015 : “à•”ƒGƒ‰[2‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0016 : “à•”ƒGƒ‰[3‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0017 : •¶Žš—ñ’†‚É–„‚ßž‚Ü‚ê‚½ŠÈˆÕ”z—ñ‚Ì•Ï”–¼‚ª‚ ‚è‚Ü‚¹‚ñ.",
-	L"error E0018 : •¶Žš—ñ’†‚É–„‚ßž‚Ü‚ê‚½ŠÈˆÕ”z—ñ‚Ì˜”‚ª‹ó‚Å‚·.",
-	L"error E0019 : Ž®‚Ì()‚ª•Â‚¶‚Ä‚¢‚Ü‚¹‚ñ.",
-	L"error E0020 : ŠÈˆÕ”z—ñ‚Ì[]‚ª•s³A‚à‚µ‚­‚Í•Â‚¶‚Ä‚¢‚Ü‚¹‚ñ.",
-	L"error E0021 : “à•”ƒGƒ‰[4‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0022 : ”Ž®‚Ì‹Lq‚ÉŒë‚è‚ª‚ ‚è‚Ü‚·.",
-	L"error E0023 : ','‚Å‹æØ‚ç‚ê‚½—v‘f‚ð³‚µ‚­Žæ“¾‚Å‚«‚Ü‚¹‚ñ.",
-	L"error E0024 : ','‚Å‹æØ‚ç‚ê‚½—v‘f‚ð³‚µ‚­Žæ“¾‚Å‚«‚Ü‚¹‚ñ.",
-	L"error E0025 : ','‚Å‹æØ‚ç‚ê‚½ˆø”‚É‘Î‰ž‚·‚éŠÖ”‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ.",
-	L"error E0026 : “à•”ƒGƒ‰[5‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0027 : —LŒø‚È—v‘f‚ª‰½‚à‹Lq‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ.",
-	L"error E0028 : “à•”ƒGƒ‰[23‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0029 : ‚±‚Ì‘ã“ü‚Íˆ—‚Å‚«‚Ü‚¹‚ñ.",
-	L"error E0030 : •s³‚Èd•¡‰ñ”ðƒ‚[ƒh‚ªŽw’è‚³‚ê‚Ü‚µ‚½.",
-	L"error E0031 : “à•”ƒGƒ‰[6‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0032 : •K{‚ÌŠÖ”‚ª‚ ‚è‚Ü‚¹‚ñ.",		// no use
-	L"error E0033 : “à•”ƒGƒ‰[7‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0034 : “à•”ƒGƒ‰[8‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0035 : 'if'‚É‘±‚­'{'‚ª‚ ‚è‚Ü‚¹‚ñ.",
-	L"error E0036 : 'elseif'‚É‘±‚­'{'‚ª‚ ‚è‚Ü‚¹‚ñ.",
-	L"error E0037 : 'else'‚É‘±‚­'{'‚ª‚ ‚è‚Ü‚¹‚ñ.",
-	L"error E0038 : 'switch'‚É‘±‚­'{'‚ª‚ ‚è‚Ü‚¹‚ñ.",
-	L"error E0039 : 'while'‚É‘±‚­'{'‚ª‚ ‚è‚Ü‚¹‚ñ.",
-	L"error E0040 : 'for'‚ÌI—¹ðŒŽ®‚ªˆÙí‚Å‚·.",
-	L"error E0041 : 'for'‚Ìƒ‹[ƒvŽ®‚ªˆÙí‚Å‚·.",
-	L"error E0042 : 'for'‚É‘±‚­'{'‚ª‚ ‚è‚Ü‚¹‚ñ.",
-	L"error E0043 : 'foreach'‚Ì’lŽæ“¾•Ï”‚ª•s³‚Å‚·.",
-	L"error E0044 : 'foreach'‚É‘±‚­'{'‚ª‚ ‚è‚Ü‚¹‚ñ.",
-	L"error E0045 : 'when'ƒ‰ƒxƒ‹‚É’è”‚Å‚È‚¢—v‘f‚ª‹Lq‚³‚ê‚Ä‚¢‚Ü‚·.",
-	L"error E0046 : 'when'ƒ‰ƒxƒ‹‚É‚ÍA•Ï”/ŠÖ”‚ð–„‚ßž‚ñ‚¾•¶Žš—ñ‚ÍŽg—p‚Å‚«‚Ü‚¹‚ñ.",
-	L"error E0047 : ‘Î‰ž‚·‚é'if'A'elseif'‚à‚µ‚­‚Í'case'‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ.",
-	L"error E0048 : Ž®‚Ì()‚ª•Â‚¶‚Ä‚¢‚Ü‚¹‚ñ.",
-	L"error E0049 : “à•”ƒGƒ‰[9‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0050 : 'when'ƒ‰ƒxƒ‹‚É’è”‚Å‚È‚¢—v‘f‚ª‹Lq‚³‚ê‚Ä‚¢‚Ü‚·.",
-	L"error E0051 : 'case'‚É‘±‚­'{'‚ª‚ ‚è‚Ü‚¹‚ñ.",
-	L"error E0052 : “à•”ƒGƒ‰[10‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0053 : 'when'ƒ‰ƒxƒ‹‚Ì‘Ž®‚ª•s³‚Å‚·.",
-	L"error E0054 : 'when'ƒ‰ƒxƒ‹‚Ì‘Ž®‚ª•s³‚Å‚·.",
-	L"error E0055 : “à•”ƒGƒ‰[11‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0056 : “à•”ƒGƒ‰[12‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0057 : •Ï”’l‚ðƒtƒ@ƒCƒ‹‚É•Û‘¶‚Å‚«‚Ü‚¹‚ñ.",
-	L"error E0058 : “à•”ƒGƒ‰[13‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0059 : ”Ž®‚Ì‹Lq‚ÉŒë‚è‚ª‚ ‚è‚Ü‚·.",
-	L"error E0060 : •¶Žš—ñ’†‚É\"%()\"‚Å–„‚ßž‚Ü‚ê‚½—v‘f‚Ì()‚ª•Â‚¶‚Ä‚¢‚Ü‚¹‚ñ.",
-	L"error E0061 : •¶Žš—ñ’†‚É\"%()\"‚Å–„‚ßž‚Ü‚ê‚½—v‘f‚ª‹ó‚Å‚·.",
-	L"error E0062 : “à•”ƒGƒ‰[14‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0063 : 'when'‚É‘Î‰ž‚·‚é'case'‚ª‚ ‚è‚Ü‚¹‚ñ.",
-	L"error E0064 : 'when'‚É‘Î‰ž‚·‚é'case'‚ª‚ ‚è‚Ü‚¹‚ñ.",
-	L"error E0065 : 'when'ƒ‰ƒxƒ‹‚Ì‘Ž®‚ª•s³‚Å‚·.",
-	L"error E0066 : 'when'ƒ‰ƒxƒ‹‚Ì‘Ž®‚ª•s³‚Å‚·.",
-	L"error E0067 : “à•”ƒGƒ‰[15‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0068 : ‚±‚Ì'elseif'‚à‚µ‚­‚Í'when'‚ðˆ—‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½.",
-	L"error E0069 : ‚±‚Ì'else'‚à‚µ‚­‚Í'others'‚ðˆ—‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½.",
-	L"error E0070 : “à•”ƒGƒ‰[16‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0071 : ‘¶Ý‚µ‚È‚¢ŠÖ”‚ðŽÀs‚µ‚æ‚¤‚Æ‚µ‚Ä‚¢‚Ü‚·.",
-	L"error E0072 : ŠÈˆÕ”z—ñ‚Ì•Ï”–¼‚ª‚ ‚è‚Ü‚¹‚ñ.",
-	L"error E0073 : ŠÈˆÕ”z—ñ‚ÌŽg—p–@‚É•s³‚ª‚ ‚è‚Ü‚·. •Ï”‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ.",
-	L"error E0074 : ƒvƒŠƒvƒƒZƒbƒT‚Ì‘Ž®‚ÉŒë‚è‚ª‚ ‚è‚Ü‚·.",
-	L"error E0075 : ƒvƒŠƒvƒƒZƒbƒT‚Ì‘Ž®‚ÉŒë‚è‚ª‚ ‚è‚Ü‚·.",
-	L"error E0076 : •s³‚ÈƒvƒŠƒvƒƒZƒX–¼‚Å‚·.",
-	L"error E0077 : “à•”ƒGƒ‰[17‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0078 : •¶Žš—ñ’†‚É'%[]'‚Å–„‚ßž‚Ü‚ê‚½—v‘f‚Ì[]‚ª•Â‚¶‚Ä‚¢‚Ü‚¹‚ñ.",
-	L"error E0079 : •¶Žš—ñ’†‚É'%[]'‚Å–„‚ßž‚Ü‚ê‚½—v‘f‚ª‹ó‚Å‚·.",
-	L"error E0080 : “à•”ƒGƒ‰[18‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0081 : '%[]'‚Éæs‚·‚éŠÖ”A‚à‚µ‚­‚Í•Ï”‚ÌŒÄ‚Ño‚µ‚ª‚ ‚è‚Ü‚¹‚ñ.",
-	L"error E0082 : “à•”ƒGƒ‰[19‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0083 : “à•”ƒGƒ‰[20‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0084 : “à•”ƒGƒ‰[21‚ª”­¶‚µ‚Ü‚µ‚½.",		// no use
-	L"error E0085 : “à•”ƒGƒ‰[22‚ª”­¶‚µ‚Ü‚µ‚½.",		// no use
-	L"error E0086 : ‘Ž®ƒGƒ‰[.",
-	L"error E0087 : ƒtƒB[ƒhƒoƒbƒN‰‰ŽZŽq‚ÌˆÊ’u‚ª•s³‚Å‚·.",
-	L"error E0088 : “à•”ƒGƒ‰[24‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0089 : “à•”ƒGƒ‰[25‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0090 : “à•”ƒGƒ‰[26‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0091 : “à•”ƒGƒ‰[27‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"error E0092 : ()A‚à‚µ‚­‚Í[]‚É‘±‚­‰‰ŽZŽq‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ.",
-	L"error E0093 : •s³‚ÈƒVƒ“ƒOƒ‹ƒNƒH[ƒe[ƒVƒ‡ƒ“‚Å‚·.",
-	L"error E0094 : Ž«‘“à•”‚Å{}‚ª•s³A‚à‚µ‚­‚Í•Â‚¶‚Ä‚¢‚Ü‚¹‚ñ.",
-	L"error E0095 : “Ç‚Ýž‚ÝÏ‚ÌŽ«‘ƒtƒ@ƒCƒ‹‚ðÄ“x“Ç‚à‚¤‚Æ‚µ‚Ü‚µ‚½.",
+	L"error E0000 : æœªçŸ¥ã®ã‚¨ãƒ©ãƒ¼ã§ã™.",
+	L"error E0001 : å¯¾å¿œã™ã‚‹é–¢æ•°åãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“.",
+	L"error E0002 : '}' éŽå¤šã§ã™.",
+	L"error E0003 : ä¸æ­£ãªé–¢æ•°åã§ã™.",
+	L"error E0004 : è§£æžä¸èƒ½. '{' ãŒå¿…è¦ã¨åˆ¤æ–­ã•ã‚Œã¾ã™.",
+	L"error E0005 : ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã‘ã¾ã›ã‚“.",
+	L"error E0006 : ç°¡æ˜“é…åˆ—ã®å¤‰æ•°åãŒã‚ã‚Šã¾ã›ã‚“.",
+	L"error E0007 : ä¸å®Œå…¨ãªæ–‡å­—åˆ—å®šæ•°ã§ã™.",
+	L"error E0008 : ä¸æ­£ãªãƒ€ãƒ–ãƒ«ã‚¯ã‚©ãƒ¼ãƒ†ãƒ¼ã‚·ãƒ§ãƒ³ã§ã™.",
+	L"error E0009 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼1ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0010 : è§£æžä¸èƒ½ãªæ–‡å­—åˆ—.",
+	L"error E0011 : å¤‰æ•°å(?)ã«ä½¿ç”¨ã§ããªã„æ–‡å­—ãŒå«ã¾ã‚Œã¦ã„ã¾ã™.",
+	L"error E0012 : å¤‰æ•°åãŒäºˆç´„èªžã¨ä¸€è‡´ã—ã¦ã„ã¾ã™.",
+	L"error E0013 : åŒä¸€åã®é–¢æ•°ãŒé‡è¤‡ã—ã¦å®šç¾©ã•ã‚Œã¦ã„ã¾ã™.",
+	L"error E0014 : ç°¡æ˜“é…åˆ—ã®åºæ•°ãŒç©ºã§ã™.",
+	L"error E0015 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼2ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0016 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼3ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0017 : æ–‡å­—åˆ—ä¸­ã«åŸ‹ã‚è¾¼ã¾ã‚ŒãŸç°¡æ˜“é…åˆ—ã®å¤‰æ•°åãŒã‚ã‚Šã¾ã›ã‚“.",
+	L"error E0018 : æ–‡å­—åˆ—ä¸­ã«åŸ‹ã‚è¾¼ã¾ã‚ŒãŸç°¡æ˜“é…åˆ—ã®åºæ•°ãŒç©ºã§ã™.",
+	L"error E0019 : å¼ã®()ãŒé–‰ã˜ã¦ã„ã¾ã›ã‚“.",
+	L"error E0020 : ç°¡æ˜“é…åˆ—ã®[]ãŒä¸æ­£ã€ã‚‚ã—ãã¯é–‰ã˜ã¦ã„ã¾ã›ã‚“.",
+	L"error E0021 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼4ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0022 : æ•°å¼ã®è¨˜è¿°ã«èª¤ã‚ŠãŒã‚ã‚Šã¾ã™.",
+	L"error E0023 : ','ã§åŒºåˆ‡ã‚‰ã‚ŒãŸè¦ç´ ã‚’æ­£ã—ãå–å¾—ã§ãã¾ã›ã‚“.",
+	L"error E0024 : ','ã§åŒºåˆ‡ã‚‰ã‚ŒãŸè¦ç´ ã‚’æ­£ã—ãå–å¾—ã§ãã¾ã›ã‚“.",
+	L"error E0025 : ','ã§åŒºåˆ‡ã‚‰ã‚ŒãŸå¼•æ•°ã«å¯¾å¿œã™ã‚‹é–¢æ•°ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“.",
+	L"error E0026 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼5ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0027 : æœ‰åŠ¹ãªè¦ç´ ãŒä½•ã‚‚è¨˜è¿°ã•ã‚Œã¦ã„ã¾ã›ã‚“.",
+	L"error E0028 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼23ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0029 : ã“ã®ä»£å…¥ã¯å‡¦ç†ã§ãã¾ã›ã‚“.",
+	L"error E0030 : ä¸æ­£ãªé‡è¤‡å›žé¿ãƒ¢ãƒ¼ãƒ‰ãŒæŒ‡å®šã•ã‚Œã¾ã—ãŸ.",
+	L"error E0031 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼6ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0032 : å¿…é ˆã®é–¢æ•°ãŒã‚ã‚Šã¾ã›ã‚“.",		// no use
+	L"error E0033 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼7ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0034 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼8ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0035 : 'if'ã«ç¶šã'{'ãŒã‚ã‚Šã¾ã›ã‚“.",
+	L"error E0036 : 'elseif'ã«ç¶šã'{'ãŒã‚ã‚Šã¾ã›ã‚“.",
+	L"error E0037 : 'else'ã«ç¶šã'{'ãŒã‚ã‚Šã¾ã›ã‚“.",
+	L"error E0038 : 'switch'ã«ç¶šã'{'ãŒã‚ã‚Šã¾ã›ã‚“.",
+	L"error E0039 : 'while'ã«ç¶šã'{'ãŒã‚ã‚Šã¾ã›ã‚“.",
+	L"error E0040 : 'for'ã®çµ‚äº†æ¡ä»¶å¼ãŒç•°å¸¸ã§ã™.",
+	L"error E0041 : 'for'ã®ãƒ«ãƒ¼ãƒ—å¼ãŒç•°å¸¸ã§ã™.",
+	L"error E0042 : 'for'ã«ç¶šã'{'ãŒã‚ã‚Šã¾ã›ã‚“.",
+	L"error E0043 : 'foreach'ã®å€¤å–å¾—å¤‰æ•°ãŒä¸æ­£ã§ã™.",
+	L"error E0044 : 'foreach'ã«ç¶šã'{'ãŒã‚ã‚Šã¾ã›ã‚“.",
+	L"error E0045 : 'when'ãƒ©ãƒ™ãƒ«ã«å®šæ•°ã§ãªã„è¦ç´ ãŒè¨˜è¿°ã•ã‚Œã¦ã„ã¾ã™.",
+	L"error E0046 : 'when'ãƒ©ãƒ™ãƒ«ã«ã¯ã€å¤‰æ•°/é–¢æ•°ã‚’åŸ‹ã‚è¾¼ã‚“ã æ–‡å­—åˆ—ã¯ä½¿ç”¨ã§ãã¾ã›ã‚“.",
+	L"error E0047 : å¯¾å¿œã™ã‚‹'if'ã€'elseif'ã‚‚ã—ãã¯'case'ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“.",
+	L"error E0048 : å¼ã®()ãŒé–‰ã˜ã¦ã„ã¾ã›ã‚“.",
+	L"error E0049 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼9ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0050 : 'when'ãƒ©ãƒ™ãƒ«ã«å®šæ•°ã§ãªã„è¦ç´ ãŒè¨˜è¿°ã•ã‚Œã¦ã„ã¾ã™.",
+	L"error E0051 : 'case'ã«ç¶šã'{'ãŒã‚ã‚Šã¾ã›ã‚“.",
+	L"error E0052 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼10ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0053 : 'when'ãƒ©ãƒ™ãƒ«ã®æ›¸å¼ãŒä¸æ­£ã§ã™.",
+	L"error E0054 : 'when'ãƒ©ãƒ™ãƒ«ã®æ›¸å¼ãŒä¸æ­£ã§ã™.",
+	L"error E0055 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼11ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0056 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼12ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0057 : å¤‰æ•°å€¤ã‚’ãƒ•ã‚¡ã‚¤ãƒ«ã«ä¿å­˜ã§ãã¾ã›ã‚“.",
+	L"error E0058 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼13ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0059 : æ•°å¼ã®è¨˜è¿°ã«èª¤ã‚ŠãŒã‚ã‚Šã¾ã™.",
+	L"error E0060 : æ–‡å­—åˆ—ä¸­ã«\"%()\"ã§åŸ‹ã‚è¾¼ã¾ã‚ŒãŸè¦ç´ ã®()ãŒé–‰ã˜ã¦ã„ã¾ã›ã‚“.",
+	L"error E0061 : æ–‡å­—åˆ—ä¸­ã«\"%()\"ã§åŸ‹ã‚è¾¼ã¾ã‚ŒãŸè¦ç´ ãŒç©ºã§ã™.",
+	L"error E0062 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼14ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0063 : 'when'ã«å¯¾å¿œã™ã‚‹'case'ãŒã‚ã‚Šã¾ã›ã‚“.",
+	L"error E0064 : 'when'ã«å¯¾å¿œã™ã‚‹'case'ãŒã‚ã‚Šã¾ã›ã‚“.",
+	L"error E0065 : 'when'ãƒ©ãƒ™ãƒ«ã®æ›¸å¼ãŒä¸æ­£ã§ã™.",
+	L"error E0066 : 'when'ãƒ©ãƒ™ãƒ«ã®æ›¸å¼ãŒä¸æ­£ã§ã™.",
+	L"error E0067 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼15ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0068 : ã“ã®'elseif'ã‚‚ã—ãã¯'when'ã‚’å‡¦ç†ã§ãã¾ã›ã‚“ã§ã—ãŸ.",
+	L"error E0069 : ã“ã®'else'ã‚‚ã—ãã¯'others'ã‚’å‡¦ç†ã§ãã¾ã›ã‚“ã§ã—ãŸ.",
+	L"error E0070 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼16ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0071 : å­˜åœ¨ã—ãªã„é–¢æ•°ã‚’å®Ÿè¡Œã—ã‚ˆã†ã¨ã—ã¦ã„ã¾ã™.",
+	L"error E0072 : ç°¡æ˜“é…åˆ—ã®å¤‰æ•°åãŒã‚ã‚Šã¾ã›ã‚“.",
+	L"error E0073 : ç°¡æ˜“é…åˆ—ã®ä½¿ç”¨æ³•ã«ä¸æ­£ãŒã‚ã‚Šã¾ã™. å¤‰æ•°ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“.",
+	L"error E0074 : ãƒ—ãƒªãƒ—ãƒ­ã‚»ãƒƒã‚µã®æ›¸å¼ã«èª¤ã‚ŠãŒã‚ã‚Šã¾ã™.",
+	L"error E0075 : ãƒ—ãƒªãƒ—ãƒ­ã‚»ãƒƒã‚µã®æ›¸å¼ã«èª¤ã‚ŠãŒã‚ã‚Šã¾ã™.",
+	L"error E0076 : ä¸æ­£ãªãƒ—ãƒªãƒ—ãƒ­ã‚»ã‚¹åã§ã™.",
+	L"error E0077 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼17ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0078 : æ–‡å­—åˆ—ä¸­ã«'%[]'ã§åŸ‹ã‚è¾¼ã¾ã‚ŒãŸè¦ç´ ã®[]ãŒé–‰ã˜ã¦ã„ã¾ã›ã‚“.",
+	L"error E0079 : æ–‡å­—åˆ—ä¸­ã«'%[]'ã§åŸ‹ã‚è¾¼ã¾ã‚ŒãŸè¦ç´ ãŒç©ºã§ã™.",
+	L"error E0080 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼18ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0081 : '%[]'ã«å…ˆè¡Œã™ã‚‹é–¢æ•°ã€ã‚‚ã—ãã¯å¤‰æ•°ã®å‘¼ã³å‡ºã—ãŒã‚ã‚Šã¾ã›ã‚“.",
+	L"error E0082 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼19ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0083 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼20ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0084 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼21ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",		// no use
+	L"error E0085 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼22ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",		// no use
+	L"error E0086 : æ›¸å¼ã‚¨ãƒ©ãƒ¼.",
+	L"error E0087 : ãƒ•ã‚£ãƒ¼ãƒ‰ãƒãƒƒã‚¯æ¼”ç®—å­ã®ä½ç½®ãŒä¸æ­£ã§ã™.",
+	L"error E0088 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼24ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0089 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼25ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0090 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼26ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0091 : å†…éƒ¨ã‚¨ãƒ©ãƒ¼27ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"error E0092 : ()ã€ã‚‚ã—ãã¯[]ã«ç¶šãæ¼”ç®—å­ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“.",
+	L"error E0093 : ä¸æ­£ãªã‚·ãƒ³ã‚°ãƒ«ã‚¯ã‚©ãƒ¼ãƒ†ãƒ¼ã‚·ãƒ§ãƒ³ã§ã™.",
+	L"error E0094 : è¾žæ›¸å†…éƒ¨ã§{}ãŒä¸æ­£ã€ã‚‚ã—ãã¯é–‰ã˜ã¦ã„ã¾ã›ã‚“.",
+	L"error E0095 : èª­ã¿è¾¼ã¿æ¸ˆã®è¾žæ›¸ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å†åº¦èª­ã‚‚ã†ã¨ã—ã¾ã—ãŸ.",
 };
 
-// ƒ[ƒjƒ“ƒO•¶Žš—ñi“ú–{Œêj
+// ãƒ¯ãƒ¼ãƒ‹ãƒ³ã‚°æ–‡å­—åˆ—ï¼ˆæ—¥æœ¬èªžï¼‰
 const wchar_t	msgwj[][128] = {
-	L"warning W0000 : •¶–@ƒGƒ‰[. ‚±‚Ìs‚Í–³Ž‹‚µ‚Ü‚·.",
-	L"warning W0001 : ‚±‚Ìs‚Ì•Ï”‚Ì•œŒ³‚ÉŽ¸”s‚µ‚Ü‚µ‚½. ‚±‚Ìs‚ð‰ðÍ‚Å‚«‚Ü‚¹‚ñ.",
-	L"warning W0002 : ‚±‚Ìs‚Ì•Ï”‚Ì•œŒ³‚ÉŽ¸”s‚µ‚Ü‚µ‚½. •Ï”–¼‚ðŽæ“¾‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½.",
-	L"warning W0003 : ‚±‚Ìs‚Ì•Ï”‚Ì•œŒ³‚ÉŽ¸”s‚µ‚Ü‚µ‚½. •Ï”’l‚Ü‚½‚ÍƒfƒŠƒ~ƒ^‚ðŽæ“¾‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½.",
-	L"warning W0004 : ‚±‚Ìs‚Ì•Ï”‚Ì•œŒ³‚ÉŽ¸”s‚µ‚Ü‚µ‚½. •Ï”’l‚ª•s³‚Å‚·.",
-	L"warning W0005 : ‚±‚Ìs‚Ì•Ï”‚Ì•œŒ³‚ÉŽ¸”s‚µ‚Ü‚µ‚½. ƒfƒŠƒ~ƒ^‚ðŽæ“¾‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½.",
-	L"warning W0006 : ‚±‚Ìs‚ðˆ—’†‚É“à•”ƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½. ‚±‚Ìs‚ð‰ðÍ‚Å‚«‚Ü‚¹‚ñ.",
-	L"warning W0007 : ‚±‚Ì•Ï”‚Ì’l‚ð•Û‘¶‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½.",
-	L"warning W0008 : ˆø”‚ª•s‘«‚µ‚Ä‚¢‚Ü‚·.",
-	L"warning W0009 : ˆø”‚ÌŒ^‚ª•s³‚Å‚·.",
-	L"warning W0010 : ‹ó•¶Žš‚ÍŽw’è‚Å‚«‚Ü‚¹‚ñ.",
-	L"warning W0011 : Œ‹‰Ê‚ð•Ï”‚É‘Î‚µ‚ÄÝ’è‚Å‚«‚Ü‚¹‚ñ.",
-	L"warning W0012 : Žw’è‚³‚ê‚½’l‚Í”ÍˆÍŠOA‚à‚µ‚­‚Í–³Œø‚Å‚·.",
-	L"warning W0013 : ˆ—‚ÉŽ¸”s‚µ‚Ü‚µ‚½.",
-	L"warning W0014 : Žw’è‚³‚ê‚½ƒ‰ƒCƒuƒ‰ƒŠ‚Íƒ[ƒh‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ.",
-	L"warning W0015 : Žw’è‚³‚ê‚½ƒtƒ@ƒCƒ‹‚ÍƒI[ƒvƒ“‚µ‚Ä‚¢‚Ü‚¹‚ñ.",
-	L"warning W0016 : ³‹K•\Œ»‚ÉŒë‚è‚ª‚ ‚è‚Ü‚·. ˆ—‚³‚ê‚Ü‚¹‚ñ‚Å‚µ‚½.",
-	L"warning W0017 : ³‹K•\Œ»ˆ—’†‚É–¢’è‹`‚ÌƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½.",
-	L"warning W0018 : •Ï”‚ðŽw’è‚µ‚Ä‚­‚¾‚³‚¢.",
-	L"warning W0019 : Š„‚èŽZ‚Éƒ[ƒ‚ðŽw’è‚·‚é‚±‚Æ‚Í‚Å‚«‚Ü‚¹‚ñ.",
-	L"warning W0020 : ˜A‘z”z—ñ‚Ì¶¬‚É‚Í‹ô”ŒÂ‚Ì—v‘f‚ª•K—v‚Å‚·.",
-	L"warning W0021 : ‹ó‚ÌƒqƒAƒhƒLƒ…ƒƒ“ƒg‚ª‚ ‚è‚Ü‚·.",
-	L"warning W0022 : ƒqƒAƒhƒLƒ…ƒƒ“ƒgŠJŽn•¶Žš—ñ‚ª(ƒqƒAƒhƒLƒ…ƒƒ“ƒg’†‚É)Œ©‚Â‚©‚è‚Ü‚µ‚½.",
+	L"warning W0000 : æ–‡æ³•ã‚¨ãƒ©ãƒ¼. ã“ã®è¡Œã¯ç„¡è¦–ã—ã¾ã™.",
+	L"warning W0001 : ã“ã®è¡Œã®å¤‰æ•°ã®å¾©å…ƒã«å¤±æ•—ã—ã¾ã—ãŸ. ã“ã®è¡Œã‚’è§£æžã§ãã¾ã›ã‚“.",
+	L"warning W0002 : ã“ã®è¡Œã®å¤‰æ•°ã®å¾©å…ƒã«å¤±æ•—ã—ã¾ã—ãŸ. å¤‰æ•°åã‚’å–å¾—ã§ãã¾ã›ã‚“ã§ã—ãŸ.",
+	L"warning W0003 : ã“ã®è¡Œã®å¤‰æ•°ã®å¾©å…ƒã«å¤±æ•—ã—ã¾ã—ãŸ. å¤‰æ•°å€¤ã¾ãŸã¯ãƒ‡ãƒªãƒŸã‚¿ã‚’å–å¾—ã§ãã¾ã›ã‚“ã§ã—ãŸ.",
+	L"warning W0004 : ã“ã®è¡Œã®å¤‰æ•°ã®å¾©å…ƒã«å¤±æ•—ã—ã¾ã—ãŸ. å¤‰æ•°å€¤ãŒä¸æ­£ã§ã™.",
+	L"warning W0005 : ã“ã®è¡Œã®å¤‰æ•°ã®å¾©å…ƒã«å¤±æ•—ã—ã¾ã—ãŸ. ãƒ‡ãƒªãƒŸã‚¿ã‚’å–å¾—ã§ãã¾ã›ã‚“ã§ã—ãŸ.",
+	L"warning W0006 : ã“ã®è¡Œã‚’å‡¦ç†ä¸­ã«å†…éƒ¨ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸ. ã“ã®è¡Œã‚’è§£æžã§ãã¾ã›ã‚“.",
+	L"warning W0007 : ã“ã®å¤‰æ•°ã®å€¤ã‚’ä¿å­˜ã§ãã¾ã›ã‚“ã§ã—ãŸ.",
+	L"warning W0008 : å¼•æ•°ãŒä¸è¶³ã—ã¦ã„ã¾ã™.",
+	L"warning W0009 : å¼•æ•°ã®åž‹ãŒä¸æ­£ã§ã™.",
+	L"warning W0010 : ç©ºæ–‡å­—ã¯æŒ‡å®šã§ãã¾ã›ã‚“.",
+	L"warning W0011 : çµæžœã‚’å¤‰æ•°ã«å¯¾ã—ã¦è¨­å®šã§ãã¾ã›ã‚“.",
+	L"warning W0012 : æŒ‡å®šã•ã‚ŒãŸå€¤ã¯ç¯„å›²å¤–ã€ã‚‚ã—ãã¯ç„¡åŠ¹ã§ã™.",
+	L"warning W0013 : å‡¦ç†ã«å¤±æ•—ã—ã¾ã—ãŸ.",
+	L"warning W0014 : æŒ‡å®šã•ã‚ŒãŸãƒ©ã‚¤ãƒ–ãƒ©ãƒªã¯ãƒ­ãƒ¼ãƒ‰ã•ã‚Œã¦ã„ã¾ã›ã‚“.",
+	L"warning W0015 : æŒ‡å®šã•ã‚ŒãŸãƒ•ã‚¡ã‚¤ãƒ«ã¯ã‚ªãƒ¼ãƒ—ãƒ³ã—ã¦ã„ã¾ã›ã‚“.",
+	L"warning W0016 : æ­£è¦è¡¨ç¾ã«èª¤ã‚ŠãŒã‚ã‚Šã¾ã™. å‡¦ç†ã•ã‚Œã¾ã›ã‚“ã§ã—ãŸ.",
+	L"warning W0017 : æ­£è¦è¡¨ç¾å‡¦ç†ä¸­ã«æœªå®šç¾©ã®ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸ.",
+	L"warning W0018 : å¤‰æ•°ã‚’æŒ‡å®šã—ã¦ãã ã•ã„.",
+	L"warning W0019 : å‰²ã‚Šç®—ã«ã‚¼ãƒ­ã‚’æŒ‡å®šã™ã‚‹ã“ã¨ã¯ã§ãã¾ã›ã‚“.",
+	L"warning W0020 : é€£æƒ³é…åˆ—ã®ç”Ÿæˆã«ã¯å¶æ•°å€‹ã®è¦ç´ ãŒå¿…è¦ã§ã™.",
+	L"warning W0021 : ç©ºã®ãƒ’ã‚¢ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒã‚ã‚Šã¾ã™.",
+	L"warning W0022 : ãƒ’ã‚¢ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆé–‹å§‹æ–‡å­—åˆ—ãŒ(ãƒ’ã‚¢ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆä¸­ã«)è¦‹ã¤ã‹ã‚Šã¾ã—ãŸ.",
 };
 
-// ’‹L•¶Žš—ñi“ú–{Œêj
+// æ³¨è¨˜æ–‡å­—åˆ—ï¼ˆæ—¥æœ¬èªžï¼‰
 const wchar_t	msgnj[][128] = {
-	L"note N0000 : ‘O‰ñŽÀsŽž‚Ì•Ï”’l‚Ì•œŒ³‚Ís‚í‚ê‚Ü‚¹‚ñ‚Å‚µ‚½.",
-	L"note N0001 : –³Œø‚È•¶ŽšƒR[ƒhƒZƒbƒg‚ªŽw’è‚³‚ê‚Ü‚µ‚½. OS‚ÌƒfƒtƒHƒ‹ƒg’l‚ðŽg—p‚µ‚Ü‚·.",
+	L"note N0000 : å‰å›žå®Ÿè¡Œæ™‚ã®å¤‰æ•°å€¤ã®å¾©å…ƒã¯è¡Œã‚ã‚Œã¾ã›ã‚“ã§ã—ãŸ.",
+	L"note N0001 : ç„¡åŠ¹ãªæ–‡å­—ã‚³ãƒ¼ãƒ‰ã‚»ãƒƒãƒˆãŒæŒ‡å®šã•ã‚Œã¾ã—ãŸ. OSã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤ã‚’ä½¿ç”¨ã—ã¾ã™.",
 };
 
-// ‚»‚Ì‘¼‚ÌƒƒO•¶Žš—ñi“ú–{Œêj
+// ãã®ä»–ã®ãƒ­ã‚°æ–‡å­—åˆ—ï¼ˆæ—¥æœ¬èªžï¼‰
 const wchar_t	msgj[][96] = {
-	L"// •¶@ƒŠƒNƒGƒXƒgƒƒO\n// load Žž : ",
-	L"// unload Žž : ",
-	L"",	// Œ‡”Ô
-	L"// Ž«‘ƒtƒ@ƒCƒ‹“Ç‚Ýž‚Ý\n",
-	L"// \•¶‰ðÍŒ‹‰Ê‚ÌƒŒƒ|[ƒg (@:ŠÖ”A$:ƒVƒXƒeƒ€ŠÖ”A#:”z—ñ)\n\n",
-	L"// •Ï”’è‹`ó‘ÔƒŒƒ|[ƒg\n",
-	L"// •Ï”’l‚Ì•œŒ³ ",
-	L"// •Ï”’l‚Ì•Û‘¶ ",
-	L"...Š®—¹.\n\n",
-	L"// Ž«‘‚Ì\•¶‰ðÍ‚Æ’†ŠÔƒR[ƒh¶¬\n",
-	L"// Ž«‘ƒGƒ‰[‚ðŒŸoF‹Ù‹}ƒ‚[ƒh‚ÅÄ“Ç‚Ýž‚Ý’†...\n",
-	L"// Ž«‘ƒGƒ‰[‚ðŒŸoF‹Ù‹}ƒ‚[ƒh‚ÅÄ“Ç‚Ýž‚Ý‚µ‚Ü‚µ‚½\n",
+	L"// æ–‡ã€€ãƒªã‚¯ã‚¨ã‚¹ãƒˆãƒ­ã‚°\n// load æ™‚åˆ» : ",
+	L"// unload æ™‚åˆ» : ",
+	L"",	// æ¬ ç•ª
+	L"// è¾žæ›¸ãƒ•ã‚¡ã‚¤ãƒ«èª­ã¿è¾¼ã¿\n",
+	L"// æ§‹æ–‡è§£æžçµæžœã®ãƒ¬ãƒãƒ¼ãƒˆ (@:é–¢æ•°ã€$:ã‚·ã‚¹ãƒ†ãƒ é–¢æ•°ã€#:é…åˆ—)\n\n",
+	L"// å¤‰æ•°å®šç¾©çŠ¶æ…‹ãƒ¬ãƒãƒ¼ãƒˆ\n",
+	L"// å¤‰æ•°å€¤ã®å¾©å…ƒ ",
+	L"// å¤‰æ•°å€¤ã®ä¿å­˜ ",
+	L"...å®Œäº†.\n\n",
+	L"// è¾žæ›¸ã®æ§‹æ–‡è§£æžã¨ä¸­é–“ã‚³ãƒ¼ãƒ‰ç”Ÿæˆ\n",
+	L"// è¾žæ›¸ã‚¨ãƒ©ãƒ¼ã‚’æ¤œå‡ºï¼šç·Šæ€¥ãƒ¢ãƒ¼ãƒ‰ã§å†èª­ã¿è¾¼ã¿ä¸­...\n",
+	L"// è¾žæ›¸ã‚¨ãƒ©ãƒ¼ã‚’æ¤œå‡ºï¼šç·Šæ€¥ãƒ¢ãƒ¼ãƒ‰ã§å†èª­ã¿è¾¼ã¿ã—ã¾ã—ãŸ\n",
 };
 #else
-/* Žc”O‚È‚ª‚çAƒƒCƒh•¶Žš‚Ì–„‚ßž‚Ý‚Í•¶ŽšƒR[ƒh‚ð–¾Ž¦“I‚ÉŽw’è‚·‚é•û–@‚ª–³‚¢‚½‚ß
-   ˆÚA«‚ª‚ ‚è‚Ü‚¹‚ñ(–„‚ßž‚Þ‘ã‚í‚è‚ÉƒƒbƒZ[ƒWƒtƒ@ƒCƒ‹‚ð•Ê‚ÉŽ‚Á‚Ä‚¨‚­A
-   ‚Æ‚¢‚¤‚Ì‚ªŒ»Ý‚ÌŽå—¬)B‚È‚Ì‚Å“ú–{ŒêƒƒbƒZ[ƒWƒ‚[ƒh‚Å‚à‰pŒê‚ðo‚µ‚Ü‚·c
+/* æ®‹å¿µãªãŒã‚‰ã€ãƒ¯ã‚¤ãƒ‰æ–‡å­—ã®åŸ‹ã‚è¾¼ã¿ã¯æ–‡å­—ã‚³ãƒ¼ãƒ‰ã‚’æ˜Žç¤ºçš„ã«æŒ‡å®šã™ã‚‹æ–¹æ³•ãŒç„¡ã„ãŸã‚
+   ç§»æ¤æ€§ãŒã‚ã‚Šã¾ã›ã‚“(åŸ‹ã‚è¾¼ã‚€ä»£ã‚ã‚Šã«ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒ•ã‚¡ã‚¤ãƒ«ã‚’åˆ¥ã«æŒã£ã¦ãŠãã€
+   ã¨ã„ã†ã®ãŒç¾åœ¨ã®ä¸»æµ)ã€‚ãªã®ã§æ—¥æœ¬èªžãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒ¢ãƒ¼ãƒ‰ã§ã‚‚è‹±èªžã‚’å‡ºã—ã¾ã™â€¦
  */
 #define msgfj msgfe
 #define msgej msgee
@@ -191,12 +191,12 @@ const wchar_t	msgj[][96] = {
 #define msgj  msge
 #endif
 
-// ƒtƒF[ƒ^ƒ‹ƒGƒ‰[•¶Žš—ñi‰pŒêj
+// ãƒ•ã‚§ãƒ¼ã‚¿ãƒ«ã‚¨ãƒ©ãƒ¼æ–‡å­—åˆ—ï¼ˆè‹±èªžï¼‰
 const wchar_t	msgfe[][128] = {
 	L"",
 };
 
-// ƒGƒ‰[•¶Žš—ñi‰pŒêj
+// ã‚¨ãƒ©ãƒ¼æ–‡å­—åˆ—ï¼ˆè‹±èªžï¼‰
 const wchar_t	msgee[][256] = {
 	L"error E0000 : Unknown error.",
 	L"error E0001 : Function name is required.",
@@ -296,7 +296,7 @@ const wchar_t	msgee[][256] = {
 	L"error E0095 : Tried to load duplicate dictionary.",
 };
 
-// ƒ[ƒjƒ“ƒO•¶Žš—ñi‰pŒêj
+// ãƒ¯ãƒ¼ãƒ‹ãƒ³ã‚°æ–‡å­—åˆ—ï¼ˆè‹±èªžï¼‰
 const wchar_t	msgwe[][128] = {
 	L"warning W0000 : Syntax error. This line will be ignored.",
 	L"warning W0001 : Restoration failed for the variable of this line: unparsable line.",
@@ -323,17 +323,17 @@ const wchar_t	msgwe[][128] = {
 	L"warning W0022 : Here document start sequence found.",
 };
 
-// ’‹L•¶Žš—ñi‰pŒêj
+// æ³¨è¨˜æ–‡å­—åˆ—ï¼ˆè‹±èªžï¼‰
 const wchar_t	msgne[][128] = {
 	L"note N0000 : Restoration of a variable value was not performed.",
 	L"note N0001 : Invalid character code set was specified. Using the default setting of OS instead.",
 };
 
-// ‚»‚Ì‘¼‚ÌƒƒO•¶Žš—ñi‰pŒêj
+// ãã®ä»–ã®ãƒ­ã‚°æ–‡å­—åˆ—ï¼ˆè‹±èªžï¼‰
 const wchar_t	msge[][96] = {
 	L"// AYA request log\n// load time: ",
 	L"// unload time: ",
-	L"",	// Œ‡”Ô
+	L"",	// æ¬ ç•ª
 	L"// Loading of dictionary file\n",
 	L"// Parser report (@:function,$:system function,#:array)\n\n",
 	L"// Variable definition report\n",

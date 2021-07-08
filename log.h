@@ -1,7 +1,7 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// ƒƒMƒ“ƒO—pƒNƒ‰ƒX@CLog
+// ãƒ­ã‚®ãƒ³ã‚°ç”¨ã‚¯ãƒ©ã‚¹ã€€CLog
 // written by umeici. 2004
 // 
 
@@ -19,27 +19,27 @@
 
 #include "globaldef.h"
 
-#define	CLASSNAME_CHECKTOOL	"TamaWndClass"	/* ƒ`ƒFƒbƒNƒc[ƒ‹‚ÌƒEƒBƒ“ƒhƒEƒNƒ‰ƒX–¼ */
+#define	CLASSNAME_CHECKTOOL	"TamaWndClass"	/* ãƒã‚§ãƒƒã‚¯ãƒ„ãƒ¼ãƒ«ã®ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚¯ãƒ©ã‚¹å */
 
 //----
 
 class	CLog
 {
 protected:
-	aya::string_t		path;		// ƒƒOƒtƒ@ƒCƒ‹‚ÌƒpƒX
-	int			charset;	// •¶šƒR[ƒhƒZƒbƒg
+	aya::string_t		path;		// ãƒ­ã‚°ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ‘ã‚¹
+	int			charset;	// æ–‡å­—ã‚³ãƒ¼ãƒ‰ã‚»ãƒƒãƒˆ
 #if defined(WIN32)
-	HWND		hWnd;		// ƒ`ƒFƒbƒNƒc[ƒ‹‚ÌHWND
+	HWND		hWnd;		// ãƒã‚§ãƒƒã‚¯ãƒ„ãƒ¼ãƒ«ã®HWND
 #endif
 
-	char		enable;		// ƒƒMƒ“ƒO—LŒøƒtƒ‰ƒO
-	char		open;		// ƒƒMƒ“ƒOŠJnƒtƒ‰ƒO
-	char		fileen;		// ƒtƒ@ƒCƒ‹‚Ö‚ÌƒƒMƒ“ƒO—LŒøƒtƒ‰ƒO
-	char		iolog;		// “üo—ÍƒƒMƒ“ƒO—LŒøƒtƒ‰ƒO
+	char		enable;		// ãƒ­ã‚®ãƒ³ã‚°æœ‰åŠ¹ãƒ•ãƒ©ã‚°
+	char		open;		// ãƒ­ã‚®ãƒ³ã‚°é–‹å§‹ãƒ•ãƒ©ã‚°
+	char		fileen;		// ãƒ•ã‚¡ã‚¤ãƒ«ã¸ã®ãƒ­ã‚®ãƒ³ã‚°æœ‰åŠ¹ãƒ•ãƒ©ã‚°
+	char		iolog;		// å…¥å‡ºåŠ›ãƒ­ã‚®ãƒ³ã‚°æœ‰åŠ¹ãƒ•ãƒ©ã‚°
 
-	//“ü—Í‚Å‚±‚Ì•¶š—ñ‚ª‚ ‚Á‚½‚çƒƒOo—Í‚µ‚È‚¢ƒŠƒXƒg
+	//å…¥åŠ›ã§ã“ã®æ–‡å­—åˆ—ãŒã‚ã£ãŸã‚‰ãƒ­ã‚°å‡ºåŠ›ã—ãªã„ãƒªã‚¹ãƒˆ
 	std::vector<aya::string_t> ignore_iolog_strings;
-	char		ignore_iolog_noresult;//ª‚Ì“ü—ÍŒã‚Éo—Í‚à—}§‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
+	char		ignore_iolog_noresult;//â†‘ã®å…¥åŠ›å¾Œã«å‡ºåŠ›ã‚‚æŠ‘åˆ¶ã™ã‚‹ãŸã‚ã®ãƒ•ãƒ©ã‚°
 
 	std::deque<aya::string_t> error_log_history;
 

@@ -1,13 +1,13 @@
-// 
+ï»¿// 
 // AYA version 5
 //
-// AYA‚Ì1ƒCƒ“ƒXƒ^ƒ“ƒX‚ğ•Û‚·‚éƒNƒ‰ƒXAYAVM
+// AYAã®1ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’ä¿æŒã™ã‚‹ã‚¯ãƒ©ã‚¹AYAVM
 // written by the Maintenance Shop/C.Ponapalt 2006
 // 
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4786 ) //uƒfƒoƒbƒOî•ñ“à‚Å‚Ì¯•ÊqØÌ‚Äv
-#pragma warning( disable : 4503 ) //u‘•ü‚³‚ê‚½–¼‘O‚Ì’·‚³‚ªŒÀŠE‚ğ‰z‚¦‚Ü‚µ‚½B–¼‘O‚ÍØ‚èÌ‚Ä‚ç‚ê‚Ü‚·Bv
+#pragma warning( disable : 4786 ) //ã€Œãƒ‡ãƒãƒƒã‚°æƒ…å ±å†…ã§ã®è­˜åˆ¥å­åˆ‡æ¨ã¦ã€
+#pragma warning( disable : 4503 ) //ã€Œè£…é£¾ã•ã‚ŒãŸåå‰ã®é•·ã•ãŒé™ç•Œã‚’è¶Šãˆã¾ã—ãŸã€‚åå‰ã¯åˆ‡ã‚Šæ¨ã¦ã‚‰ã‚Œã¾ã™ã€‚ã€
 #endif
 
 #include "ayavm.h"
@@ -40,8 +40,8 @@
 ////////////////////////////////////////
 
 /*-----------------------------------------------
-	ƒRƒs[ƒRƒ“ƒXƒgƒ‰ƒNƒ^
-	shared_ptr‚ğƒfƒB[ƒvƒRƒs[‚·‚é“_‚É’ˆÓ
+	ã‚³ãƒ”ãƒ¼ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+	shared_ptrã‚’ãƒ‡ã‚£ãƒ¼ãƒ—ã‚³ãƒ”ãƒ¼ã™ã‚‹ç‚¹ã«æ³¨æ„
 -----------------------------------------------*/
 
 template<class T> void shared_ptr_deep_copy(std_shared_ptr<T> &in,std_shared_ptr<T> &out) {
@@ -76,8 +76,8 @@ CAyaVM* CAyaVM::get_a_deep_copy()
 }
 
 /*-----------------------------------------------
-	‰Šú‰»
-	‚Ù‚Ú—”‰Šú‰»—p
+	åˆæœŸåŒ–
+	ã»ã¼ä¹±æ•°åˆæœŸåŒ–ç”¨
 -----------------------------------------------*/
 void CAyaVM::Load(void)
 {
@@ -104,14 +104,14 @@ void CAyaVM::Load(void)
 }
 
 /*-----------------------------------------------
-	I—¹
+	çµ‚äº†
 -----------------------------------------------*/
 void CAyaVM::Unload(void)
 {
 }
 
 /*-----------------------------------------------
-	—”¶¬
+	ä¹±æ•°ç”Ÿæˆ
 -----------------------------------------------*/
 unsigned int CAyaVM::genrand(void)
 {
@@ -142,7 +142,7 @@ void CAyaVM::genrand_sysfunc_srand_array(const unsigned long a[],const int n)
 	init_by_array(rs_sysfunc,a,n);
 }
 
-// ‚¿‚å‚Á‚Æ‚Ğ‚Ç‚¢ƒnƒbƒN‚Å‚·‚ªcc
+// ã¡ã‚‡ã£ã¨ã²ã©ã„ãƒãƒƒã‚¯ã§ã™ãŒâ€¦â€¦
 
 #define FACTORY_DEFINE_THIS(classt,deft) \
 	classt & CAyaVM:: deft () { \
