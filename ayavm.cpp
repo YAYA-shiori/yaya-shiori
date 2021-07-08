@@ -165,6 +165,8 @@ FACTORY_DEFINE_PLAIN(aya::indexmap,functionmap)
 
 FACTORY_DEFINE_PLAIN(std::vector<CDefine>,gdefines)
 
+FACTORY_DEFINE_PLAIN(std::vector<CDefine>,gdefines)
+
 FACTORY_DEFINE_THIS(CBasis,basis)
 
 FACTORY_DEFINE_PLAIN(std::vector<CFunction>,function)
