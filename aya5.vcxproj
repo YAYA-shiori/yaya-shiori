@@ -298,6 +298,7 @@
     <ClCompile Include="logexcode.cpp" />
     <ClCompile Include="manifest.cpp" />
     <ClCompile Include="md5c.c" />
+    <ClCompile Include="messages.cpp" />
     <ClCompile Include="misc.cpp" />
     <ClCompile Include="mt19937ar.cpp" />
     <ClCompile Include="parser0.cpp" />
@@ -314,9 +315,6 @@
     <ClCompile Include="value.cpp" />
     <ClCompile Include="valuesub.cpp" />
     <ClCompile Include="wsex.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="aya5.rc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aya5.h" />
@@ -349,6 +347,9 @@
     <ClInclude Include="value.h" />
     <ClInclude Include="variable.h" />
     <ClInclude Include="wsex.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="aya5.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

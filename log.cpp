@@ -225,7 +225,7 @@ void	CLog::Filename(const aya::string_t &filename)
  */
 void	CLog::Message(int id, int mode)
 {
-	Write((aya::char_t *)msgj[id], mode);
+	Write((aya::char_t *)msgj[id].c_str(), mode);
 }
 
 /* -----------------------------------------------------------------------
@@ -258,13 +258,13 @@ void	CLog::Error(int mode, int id, const aya::char_t *ref, const aya::string_t &
 	}
 	// ログに書き込み文字列を作成（本文）
 	if (mode == E_F)
-		logstr += msgfj[id];
+		logstr += msgf[id];
 	else if (mode == E_E)
-		logstr += msgej[id];
+		logstr += msge[id];
 	else if (mode == E_W)
-		logstr += msgwj[id];
+		logstr += msgw[id];
 	else
-		logstr += msgnj[id];
+		logstr += msgn[id];
 	// ログに書き込み文字列を作成（付加情報）
 	if (ref != NULL) {
 		logstr += L" : ";

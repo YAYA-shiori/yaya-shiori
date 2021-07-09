@@ -9,9 +9,9 @@
 // http://www.excite.co.jp/world/
 //
 
-#include <messages.h>
+#include "messages.h"
 
-void LoadMessageFromTxt(const yaya::string_t &file,char cset){
+void LoadMessageFromTxt(const aya::string_t &file,char cset){
 	//draft code
 	/*
 	MessageArray*ptr；
@@ -32,7 +32,7 @@ MessageArray msgf={
 };
 
 // エラー文字列（日本語）
-MessageArray msg= {
+MessageArray msge= {
 	L"error E0000 : 未知のエラーです.",
 	L"error E0001 : 対応する関数名が見つかりません.",
 	L"error E0002 : '}' 過多です.",
