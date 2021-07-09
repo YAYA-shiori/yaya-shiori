@@ -208,6 +208,7 @@ protected:
 	CValue	GETFUNCLIST(const CValue &arg, aya::string_t &d, int &l);
 	CValue	GETVARLIST(const CValue &arg, CLocalVariable &lvar, aya::string_t &d, int &l);
 	CValue	GETCALLSTACK(const CValue &arg, aya::string_t &d, int &l);
+	CValue	GETSYSTEMFUNCLIST(const CValue &arg, aya::string_t &, int &);
 
 	CValue	RE_REPLACEEX(const CValue &arg, aya::string_t &d, int &l);
 
