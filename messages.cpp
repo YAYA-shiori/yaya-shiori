@@ -18,11 +18,11 @@ void ClearMessageArrays(){
 	msgn.clear();
 	msgj.clear();
 }
-void LoadMessageFromTxt(const aya::string_t &file,char cset){
+void LoadMessageFromTxt(const yaya::string_t &file,char cset){
 	CFile1 txt(file,cset,L"r");
 	txt.Open();
 	MessageArray*ptr=&msgf;
-	aya::string_t line;
+	yaya::string_t line;
 	ClearMessageArrays();
 	while(txt.Read(line)==1){
 		if(line.substr(0,3)==L"!!!"){
