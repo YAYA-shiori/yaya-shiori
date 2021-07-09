@@ -9,22 +9,40 @@
 // http://www.excite.co.jp/world/
 //
 
-#include <messages.h>
-
-void LoadMessageFromTxt(const yaya::string_t &file,char cset){
-	//draft code
-	/*
-	MessageArray*ptr；
-	while !EOF
-		line=readline;
-		if line begin as !!!
-			case line cut !!!
-				...
-		elif line begin as //
-			next
-		elif line begin as *
-			ptr->push_back(line);
-	*/
+#include "messages.h"
+#include "file.h"
+void ClearMessageArrays(){
+	msgf.clear();
+	msge.clear();
+	msgw.clear();
+	msgn.clear();
+	msgj.clear();
+}
+void LoadMessageFromTxt(const aya::string_t &file,char cset){
+	CFile1 txt(file,cset,L"r");
+	txt.Open();
+	MessageArray*ptr=&msgf;
+	aya::string_t line;
+	ClearMessageArrays();
+	while(txt.Read(line)==1){
+		if(line.substr(0,3)==L"!!!"){
+			line=line.substr(3);
+			#define tmp(name) \
+			if(line==L ## #name)\
+				ptr=&name
+			tmp(msgf);
+			else tmp(msge);
+			else tmp(msgw);
+			else tmp(msgn);
+			else tmp(msgj);
+			#undef tmp
+		}
+		else if(line.substr(0,2)==L"//")
+			continue;
+		else if(line.substr(0,1)==L"*")
+			ptr->push_back(line.substr(1));
+	}
+	txt.Close();
 }
 // フェータルエラー文字列（日本語）
 MessageArray msgf={
