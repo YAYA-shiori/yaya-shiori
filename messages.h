@@ -15,6 +15,7 @@
 //----
 #include <vector>
 #include <string>
+#include "globaldef.h"
 // メッセージ種別
 #define	E_I			0	/* 標準のメッセージ */
 #define	E_F			1	/* フェータルエラー */
@@ -32,7 +33,7 @@ typedef std::vector<std::wstring> MessageArray;
 extern MessageArray msgf;
 
 // エラー文字列（日本語）
-extern MessageArray msg;
+extern MessageArray msge;
 
 // ワーニング文字列（日本語）
 extern MessageArray msgw;
