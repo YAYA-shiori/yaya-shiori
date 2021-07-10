@@ -205,7 +205,8 @@ protected:
 
 	CValue	FATTRIB(const CValue &arg, yaya::string_t &d, int &l);
 
-	CValue	GETFUNCLIST(const CValue &arg, yaya::string_t &d, int &l);
+	CValue GETFUNCLIST(const CValue &arg, yaya::string_t &d, int &l);
+	CValue GETSYSTEMFUNCLIST(const CValue &arg, yaya::string_t &, int &);
 	CValue	GETVARLIST(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l);
 	CValue	GETCALLSTACK(const CValue &arg, yaya::string_t &d, int &l);
 

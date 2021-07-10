@@ -260,6 +260,10 @@ SOURCE=.\md5c.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\messages.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\misc.cpp
 # End Source File
 # Begin Source File

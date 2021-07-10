@@ -55,10 +55,11 @@ public:
 	CAyaVM &vm;
 
 	yaya::string_t	load_path;					// 上位モジュールからload時に渡されるパス
+	yaya::string_t  messagetxt_path;			// エラーメッセージを読んだパス
 
 protected:
-	char	msglang;				// ログに記録するメッセージの言語（日/英）
-	
+	char	msglang_for_compat;
+
 	char	dic_charset;				// 文字コードセット（Shift_JIS/UTF-8/OSデフォルト）
 	char	output_charset;
 	char	file_charset;
@@ -109,7 +110,6 @@ public:
 	HWND	GetLogHWnd(void) { return hlogrcvWnd; }
 #endif
 	const yaya::string_t& GetLogPath(void) const  { return logpath; }
-	char	GetMsgLang(void)  { return msglang; }
 	char	GetDicCharset(void)  { return dic_charset; }
 	const yaya::string_t& GetRootPath(void) const { return load_path;    }
 	yaya::string_t GetSavefilePath(void) const { return load_path + modulename + L"_variable.cfg"; }

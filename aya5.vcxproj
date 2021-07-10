@@ -287,6 +287,7 @@
     <ClCompile Include="logexcode.cpp" />
     <ClCompile Include="manifest.cpp" />
     <ClCompile Include="md5c.c" />
+    <ClCompile Include="messages.cpp" />
     <ClCompile Include="misc.cpp" />
     <ClCompile Include="mt19937ar.cpp" />
     <ClCompile Include="parser0.cpp" />

@@ -28,7 +28,6 @@ class	CLog
 protected:
 	yaya::string_t		path;		// ログファイルのパス
 	int			charset;	// 文字コードセット
-	int			msglang;	// メッセージの言語
 #if defined(WIN32)
 	HWND		hWnd;		// チェックツールのHWND
 #endif
@@ -57,7 +56,7 @@ public:
 #if defined(POSIX)
 	typedef void* HWND;
 #endif
-	void	Start(const yaya::string_t &p, int cs, int ml, HWND hw, char il);
+	void	Start(const yaya::string_t &p, int cs, HWND hw, char il);
 	void	Termination(void);
 
 	void	Write(const yaya::string_t &str, int mode = 0);
@@ -93,7 +92,6 @@ protected:
 #endif
 
 	void    AddErrorLogHistory(const yaya::string_t &err);
-
 };
 
 //----

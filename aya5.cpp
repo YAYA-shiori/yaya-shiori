@@ -73,8 +73,15 @@ public:
 				delete vm;
 				vm = vme;
 			}
+<<<<<<< .mine
+			else {
+				delete vme;
+			}
+||||||| .r673
+=======
 			else
 				delete vme;
+>>>>>>> .r736
 		}
 	}
 	virtual ~CAyaVMWrapper() {

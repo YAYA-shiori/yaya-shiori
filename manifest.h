@@ -32,10 +32,6 @@ extern const yaya::char_t *aya_author;
 #define	CHARSET_BINARY	126						/* 変換しない（一部でのみ利用） */
 #define	CHARSET_DEFAULT	127						/* OSデフォルトの言語を使用する */
 
-// メッセージの言語
-#define	MSGLANG_JAPANESE		0				/* デフォルト */
-#define	MSGLANG_ENGLISH			1
-
 // 基底プレフィックス文字列
 #define	PREFIX_BASE_LEN	2
 #define	PREFIX_BIN	L"0b"

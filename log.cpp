@@ -1,4 +1,4 @@
-// 
+//
 // AYA version 5
 //
 // ロギング用クラス　CLog
@@ -37,12 +37,12 @@
  *  機能概要：  ロギングを開始します
  * -----------------------------------------------------------------------
  */
-void	CLog::Start(const yaya::string_t &p, int cs, int ml, HWND hw, char il)
+void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 {
 	iolog   = il;
 
 	if ( open ) {
-		if ( path != p || charset != cs || msglang != ml ) {
+		if ( path != p || charset != cs ) {
 			Termination();
 		}
 		else {
@@ -55,7 +55,6 @@ void	CLog::Start(const yaya::string_t &p, int cs, int ml, HWND hw, char il)
 
 	path    = p;
 	charset = cs;
-	msglang = ml;
 	
 	if ( hw ) { //hwがある＝玉からの呼び出しなので強制ON、ファイル無効
 		path = L"";
@@ -93,7 +92,7 @@ void	CLog::Start(const yaya::string_t &p, int cs, int ml, HWND hw, char il)
 	}
 
 	// 文字列作成
-	yaya::string_t	str = (msglang) ? msge[0] : msgj[0];
+	yaya::string_t	str = yayamsg::GetTextFromTable(0,E_J);
 	str += GetDateString();
 	str += L"\n\n";
 
@@ -226,7 +225,7 @@ void	CLog::Filename(const yaya::string_t &filename)
  */
 void	CLog::Message(int id, int mode)
 {
-	Write((msglang) ? (yaya::char_t *)msge[id] : (yaya::char_t *)msgj[id], mode);
+	Write(yayamsg::GetTextFromTable(E_J,id), mode);
 }
 
 /* -----------------------------------------------------------------------
@@ -258,27 +257,8 @@ void	CLog::Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t
 		}
 	}
 	// ログに書き込み文字列を作成（本文）
-	if (msglang) {
-		// 英語
-		if (mode == E_F)
-			logstr += msgfe[id];
-		else if (mode == E_E)
-			logstr += msgee[id];
-		else if (mode == E_W)
-			logstr += msgwe[id];
-		else
-			logstr += msgne[id];
-	}
-	else {
-		// 日本語
-		if (mode == E_F)
-			logstr += msgfj[id];
-		else if (mode == E_E)
-			logstr += msgej[id];
-		else if (mode == E_W)
-			logstr += msgwj[id];
-		else
-			logstr += msgnj[id];
+	{
+		logstr += yayamsg::GetTextFromTable(mode,id);
 	}
 	// ログに書き込み文字列を作成（付加情報）
 	if (ref != NULL) {
