@@ -86,7 +86,7 @@ bool yayamsg::LoadMessageFromTxt(const yaya::string_t &file,char cset)
 			else if ( type == L"msgn" ) {
 				ptr = &msgn;
 			}
-			else if ( type == L"msgj" || type == L"msg" ) {
+			else if ( type == L"msgj" ) {
 				ptr = &msgj;
 			}
 			else {
