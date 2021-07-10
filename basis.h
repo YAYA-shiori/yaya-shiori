@@ -54,7 +54,8 @@ class	CBasis
 public:
 	CAyaVM &vm;
 
-	yaya::string_t	load_path;					// 上位モジュールからload時に渡されるパス
+	yaya::string_t	base_path;					// 上位モジュールからload時に渡されるパス
+	yaya::string_t	load_path;					// messagetxt\savefile\yaya.txt etc.
 	yaya::string_t  messagetxt_path;			// エラーメッセージを読んだパス
 
 protected:
@@ -111,7 +112,7 @@ public:
 #endif
 	const yaya::string_t& GetLogPath(void) const  { return logpath; }
 	char	GetDicCharset(void)  { return dic_charset; }
-	const yaya::string_t& GetRootPath(void) const { return load_path;    }
+	const yaya::string_t& GetRootPath(void) const { return base_path;    }
 	yaya::string_t GetSavefilePath(void) const { return load_path + modulename + L"_variable.cfg"; }
 	const yaya::char_t* GetModeName(void) const { return modename.c_str(); }
 

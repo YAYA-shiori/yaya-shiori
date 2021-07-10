@@ -331,7 +331,7 @@ int yaya::ws_fputs(const yaya::char_t *str, FILE *stream, int charset, int ayc)
 }
 
 /* -----------------------------------------------------------------------
-*  関数名  ：  snprintf
+*  関数名  ：  snprintf / format
 *  機能概要：  snprintf互換処理
 * -----------------------------------------------------------------------
 */

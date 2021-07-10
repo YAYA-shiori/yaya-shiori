@@ -127,15 +127,16 @@ void	CBasis::SetPath(yaya::global_t h, int len)
 
 	// 文字コードをUCS-2へ変換（ここでのマルチバイト文字コードはOSデフォルト）
 	wchar_t	*wcpath = Ccct::MbcsToUcs2(mbpath, CHARSET_DEFAULT);
-	load_path = wcpath;
+	base_path = wcpath;
 
 	//最後が\でも/でもなければ足す
-	if (load_path.length() == 0 || ( (load_path[load_path.length()-1] != L'/') && (load_path[load_path.length()-1] != L'\\') ) ) {
-		load_path += L"\\";
+	if (base_path.length() == 0 || ( (base_path[base_path.length()-1] != L'/') && (base_path[base_path.length()-1] != L'\\') ) ) {
+		base_path += L"\\";
 	}
 
 	free(wcpath);
 	wcpath = NULL;
+	load_path = base_path;
 }
 #elif defined(POSIX)
 void	CBasis::SetPath(yaya::global_t h, int len)
@@ -178,6 +179,7 @@ void	CBasis::SetPath(yaya::global_t h, int len)
 	}
 	}
 	closedir(dh);
+	load_path = base_path;
 }
 #endif
 
@@ -431,7 +433,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		yaya::string_t param1,param2;
 		Split(param, param1, param2, L",");
 
-		yaya::string_t	filename = load_path + param1;
+		yaya::string_t	filename = base_path + param1;
 
 		char cset = dic_charset;
 		if ( param2.size() ) {
@@ -448,7 +450,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		yaya::string_t param1,param2;
 		Split(param, param1, param2, L",");
 
-		yaya::string_t dirname = load_path + param1;
+		yaya::string_t dirname = base_path + param1;
 
 		CDirEnum ef(dirname);
 		CDirEnumEntry entry;
@@ -500,7 +502,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 			logpath.erase();
 		}
 		else {
-			logpath = load_path + param;
+			logpath = base_path + param;
 		}
 		return true;
 	}
@@ -515,16 +517,16 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 			#elif defined(POSIX)
 			if(param[0]==L'/')
 			#endif
-				load_path = param;
+				base_path = param;
 			else
-				load_path += param;
+				base_path += param;
 
 			//最後が\でも/でもなければ足す
-			if (load_path.length() == 0 || ( (load_path[load_path.length()-1] != L'/') && (load_path[load_path.length()-1] != L'\\') ) ) {
+			if (base_path.length() == 0 || ( (base_path[base_path.length()-1] != L'/') && (base_path[base_path.length()-1] != L'\\') ) ) {
 				#if defined(WIN32) || defined(_WIN32_WCE)
-				load_path += L"\\";
+				base_path += L"\\";
 				#elif defined(POSIX)
-				load_path += L"/";
+				base_path += L"/";
 				#endif
 			}
 			return true;
@@ -697,7 +699,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 		filename = GetSavefilePath();
 	}
 	else {
-		filename = load_path + pName;
+		filename = base_path + pName;
 	}
 
 	if ( ayc ) {
@@ -869,7 +871,7 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 		filename = GetSavefilePath();
 	}
 	else {
-		filename = load_path + pName;
+		filename = base_path + pName;
 	}
 
 	vm.logger().Message(6);
@@ -1080,12 +1082,12 @@ void	CBasis::ExecuteLoad(void)
 
 	// 第一引数（dllのパス）を作成
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
-	CValueSub	arg0(load_path);
+	CValueSub	arg0(base_path);
 	arg.array().push_back(arg0);
 	// 実行　結果は使用しないのでそのまま捨てる
 	vm.calldepth().Init();
 	CLocalVariable	lvar;
-	vm.logger().Io(0, load_path);
+	vm.logger().Io(0, base_path);
 	CValue	result;
 	vm.function()[funcpos].Execute(result, arg, lvar);
 	yaya::string_t empty;
