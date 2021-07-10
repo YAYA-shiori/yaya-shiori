@@ -101,6 +101,9 @@ bool yayamsg::LoadMessageFromTxt(const yaya::string_t &file,char cset)
 		
 		if ( line.substr(0,1)==L"*" ) {
 			if ( ptr ) {
+				yaya::ws_replace(line,L"\\n", L"\r\n");
+				if ( line.substr(line.size()-2) != L"\r\n" )//add last cr+lf
+					line += L"\r\n";
 				ptr->push_back(line.substr(1));
 			}
 			continue;
@@ -143,19 +146,10 @@ const yaya::string_t yayamsg::GetTextFromTable(int mode,int id)
 		emsg = L"//msg M";
 	}
 
-	if ( id < 0 || ptr->size() <= static_cast<size_t>(id) ) { //catch overflow
-		yaya::char_t buf[64];
-		swprintf(buf,L"%s%04d : (please specify messagetxt)\r\n",emsg,id);
-	}
-
-	yaya::string_t msg = (*ptr)[id];
-	yaya::ws_replace(msg,L"\\n", L"\r\n");
-
-	if ( msg.substr(msg.size()-2) != L"\r\n" ) { //add last cr+lf
-		msg += L"\r\n";
-	}
-
-	return msg;
+	if ( id < 0 || ptr->size() <= static_cast<size_t>(id) )//catch overflow
+		return emsg+std::to_wstring(id)+L" : (please specify messagetxt)\r\n";
+	else
+		return (*ptr)[id];
 }
 
 namespace yayamsg {
