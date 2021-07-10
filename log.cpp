@@ -92,7 +92,7 @@ void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 	}
 
 	// 文字列作成
-	yaya::string_t	str = yayamsg::GetTextFromTable(0,E_J);
+	yaya::string_t	str = yayamsg::GetTextFromTable(E_J,0);
 	str += GetDateString();
 	str += L"\n\n";
 

@@ -5,10 +5,24 @@
 // written by umeici. 2004
 // 
 
+#if defined(WIN32) || defined(_WIN32_WCE)
+# include "stdafx.h"
+#endif
+
 #include "messages.h"
 
 #include "globaldef.h"
 #include "wsex.h"
+#include "misc.h"
+
+//////////DEBUG/////////////////////////
+#ifdef _WINDOWS
+#ifdef _DEBUG
+#include <crtdbg.h>
+#define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
+#endif
+////////////////////////////////////////
 
 static void ClearMessageArrays()
 {
@@ -54,6 +68,8 @@ bool yayamsg::LoadMessageFromTxt(const yaya::string_t &file,char cset)
 		if (yaya::ws_fgets(line, fp, cset, 0 /*no_enc*/, 1 /*skip_bom*/, 1 /*cut_heading_space*/) == yaya::WS_EOF) {
 			break;
 		}
+
+		CutCrLf(line);
 
 		if ( line.substr(0,3)==L"!!!" ) {
 			type = line.substr(3);
@@ -129,10 +145,17 @@ const yaya::string_t yayamsg::GetTextFromTable(int mode,int id)
 
 	if ( id < 0 || ptr->size() <= static_cast<size_t>(id) ) { //catch overflow
 		yaya::char_t buf[64];
-		swprintf(buf,L"%s%04d : (please specify messagetxt)",emsg,id);
+		swprintf(buf,L"%s%04d : (please specify messagetxt)\r\n",emsg,id);
 	}
 
-	return (*ptr)[id];
+	yaya::string_t msg = (*ptr)[id];
+	yaya::ws_replace(msg,L"\\n", L"\r\n");
+
+	if ( msg.substr(msg.size()-2) != L"\r\n" ) { //add last cr+lf
+		msg += L"\r\n";
+	}
+
+	return msg;
 }
 
 namespace yayamsg {
