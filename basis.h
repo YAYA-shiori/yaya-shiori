@@ -55,8 +55,11 @@ public:
 	CAyaVM &vm;
 
 	yaya::string_t	load_path;					// 上位モジュールからload時に渡されるパス
+	yaya::string_t  messagetxt_path;			// エラーメッセージを読んだパス
 
 protected:
+	char	msglang_for_compat;
+
 	char	dic_charset;				// 文字コードセット（Shift_JIS/UTF-8/OSデフォルト）
 	char	output_charset;
 	char	file_charset;

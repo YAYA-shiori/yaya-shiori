@@ -92,7 +92,6 @@ protected:
 #endif
 
 	void    AddErrorLogHistory(const yaya::string_t &err);
-
 };
 
 //----

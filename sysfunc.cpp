@@ -5769,17 +5769,17 @@ CValue	CSystemFunction::GETSYSTEMFUNCLIST(const CValue &arg, yaya::string_t &/*d
 
 	//絞りこみ文字列がない場合
 	if ( name.empty() ) {
-		for(auto i:sysfunc) {
-			result.array().push_back(CValueSub(i));
+		for ( int i = 0 ; i < sizeof(sysfunc) / sizeof(sysfunc[0]) ; ++i ) {
+			result.array().push_back(CValueSub(sysfunc[i]));
 		}
 	}
 	//ある場合
 	else {
 		yaya::string_t::size_type len = name.length();
 
-		for(auto i:sysfunc) {
-			if(name.compare(0,len,i,0,len) == 0 && lstrlenW(i)) {
-				result.array().push_back(CValueSub(i));
+		for ( int i = 0 ; i < sizeof(sysfunc) / sizeof(sysfunc[0]) ; ++i ) {
+			if ( name.compare(0,len,sysfunc[i],0,len) == 0 && sysfunc[i][0] ) {
+				result.array().push_back(CValueSub(sysfunc[i]));
 			}
 		}
 	}

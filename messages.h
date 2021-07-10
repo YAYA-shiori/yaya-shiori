@@ -17,31 +17,40 @@
 #include <string>
 #include "globaldef.h"
 // メッセージ種別
-#define	E_I			0	/* 標準のメッセージ */
-#define	E_F			1	/* フェータルエラー */
-#define	E_E			2	/* エラー */
-#define	E_W			3	/* ワーニング */
-#define	E_N			4	/* 注記 */
-#define	E_END		5	/* ログの終了 */
+#define	E_I			0	/* info */
+#define	E_F			1	/* fatal */
+#define	E_E			2	/* error */
+#define	E_W			3	/* warning */
+#define	E_N			4	/* note */
+#define E_J			5	/* other(j) */
+#define	E_END		6	/* ログの終了 */
 #define	E_SJIS		16	/* マルチバイト文字コード＝SJIS */
 #define	E_UTF8		17	/* マルチバイト文字コード＝UTF-8 */
 #define	E_DEFAULT	32	/* マルチバイト文字コード＝OSデフォルトのコード */
 
-void LoadMessageFromTxt(const yaya::string_t &file,char cset);
-typedef std::vector<std::wstring> MessageArray;
-// フェータルエラー文字列（日本語）
+namespace yayamsg {
+
+bool LoadMessageFromTxt(const yaya::string_t &file,char cset);
+const yaya::string_t GetTextFromTable(int mode,int id);
+bool IsEmpty(void);
+
+typedef std::vector<yaya::string_t> MessageArray;
+
+// フェータルエラー文字列
 extern MessageArray msgf;
 
-// エラー文字列（日本語）
+// エラー文字列
 extern MessageArray msge;
 
-// ワーニング文字列（日本語）
+// ワーニング文字列
 extern MessageArray msgw;
 
-// 注記文字列（日本語）
+// 注記文字列
 extern MessageArray msgn;
 
-// その他のログ文字列（日本語）
+// その他のログ文字列
 extern MessageArray msgj;
+
+}
 
 #endif

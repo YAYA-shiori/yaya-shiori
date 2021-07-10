@@ -92,7 +92,7 @@ void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 	}
 
 	// 文字列作成
-	yaya::string_t	str = msge[0];
+	yaya::string_t	str = yayamsg::GetTextFromTable(0,E_J);
 	str += GetDateString();
 	str += L"\n\n";
 
@@ -225,7 +225,7 @@ void	CLog::Filename(const yaya::string_t &filename)
  */
 void	CLog::Message(int id, int mode)
 {
-	Write(msge[id].c_str(), mode);
+	Write(yayamsg::GetTextFromTable(E_J,id), mode);
 }
 
 /* -----------------------------------------------------------------------
@@ -258,15 +258,7 @@ void	CLog::Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t
 	}
 	// ログに書き込み文字列を作成（本文）
 	{
-		// 英語
-		if (mode == E_F)
-			logstr += msgf[id];
-		else if (mode == E_E)
-			logstr += msge[id];
-		else if (mode == E_W)
-			logstr += msgw[id];
-		else
-			logstr += msgn[id];
+		logstr += yayamsg::GetTextFromTable(mode,id);
 	}
 	// ログに書き込み文字列を作成（付加情報）
 	if (ref != NULL) {

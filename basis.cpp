@@ -57,6 +57,9 @@
 #endif
 ////////////////////////////////////////
 
+//for compatibility only
+#define MSGLANG_JAPANESE 0
+#define MSGLANG_ENGLISH  1
 
 /* -----------------------------------------------------------------------
  * CBasisコンストラクタ
@@ -69,6 +72,8 @@ CBasis::CBasis(CAyaVM &vmr) : vm(vmr)
 
 	checkparser = 0;
 	iolog       = 1;
+
+	msglang_for_compat = MSGLANG_JAPANESE;
 
 	dic_charset       = CHARSET_SJIS;
 	output_charset    = CHARSET_UTF8;
@@ -408,6 +413,10 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 		}
 
 	}
+
+	if ( yayamsg::IsEmpty() ) { //エラーメッセージテーブルが読めていない
+		SetParameter(L"messagetxt",msglang_for_compat == MSGLANG_JAPANESE ? L"messagetxt/japanese.txt" : L"messagetxt/english.txt");
+	}
 }
 
 /* -----------------------------------------------------------------------
@@ -458,17 +467,31 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		return true;
 	}
 	// messagetxt
-	if ( cmd.compare(L"messagetxt") == 0 ) {//本土化
+	if ( cmd.compare(L"messagetxt") == 0 ) { //多言語化
 		yaya::string_t param1,param2;
 		Split(param, param1, param2, L",");
-		char cset = extension_charset;
+
+		char cset = CHARSET_UTF8; //UTF8固定
+		
 		if ( param2.size() ) {
 			char cx = Ccct::CharsetTextToID(param2.c_str());
 			if ( cx != CHARSET_DEFAULT ) {
 				cset = cx;
 			}
 		}
-		LoadMessageFromTxt(load_path + param1,cset);
+		if ( yayamsg::LoadMessageFromTxt(load_path + param1,cset) ) {
+			messagetxt_path = load_path + param1;
+		}
+		return true;
+	}
+	// msglang(for compatibility)
+	if ( cmd.compare(L"msglang") == 0 ) {
+		if (!param.compare(L"english")) {
+			msglang_for_compat = MSGLANG_ENGLISH;
+		}
+		else {
+			msglang_for_compat = MSGLANG_JAPANESE;
+		}
 		return true;
 	}
 	// log
@@ -572,6 +595,14 @@ yaya::string_t CBasis::GetParameter(const yaya::string_t &cmd)
 	// save.auto
 	else if (!cmd.compare(L"save.auto")) {
 		return yaya::string_t(auto_save ? L"on" : L"off");
+	}
+	// msglang
+	else if (!cmd.compare(L"msglang")) { //obsolete, for compatibility
+		return yaya::string_t(msglang_for_compat == MSGLANG_ENGLISH ? L"english" : L"japanese");
+	}
+	// messagetxt
+	else if (!cmd.compare(L"messagetxt")) {
+		return messagetxt_path;
 	}
 	// charset
 	else if (!cmd.compare(L"charset")) {
