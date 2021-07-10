@@ -504,6 +504,35 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		}
 		return true;
 	}
+	// basepath
+	if ( cmd.compare(L"basepath") == 0 ) {
+		CDirEnum dirCheck(param);
+		CDirEnumEntry dirCheckTmp;
+
+		if ( dirCheck.next(dirCheckTmp) ) { //something exist in directory
+			#if defined(WIN32) || defined(_WIN32_WCE)
+			if(param[1]==L':')
+			#elif defined(POSIX)
+			if(param[0]==L'/')
+			#endif
+				load_path = param;
+			else
+				load_path += param;
+
+			//ç≈å„Ç™\Ç≈Ç‡/Ç≈Ç‡Ç»ÇØÇÍÇŒë´Ç∑
+			if (load_path.length() == 0 || ( (load_path[load_path.length()-1] != L'/') && (load_path[load_path.length()-1] != L'\\') ) ) {
+				#if defined(WIN32) || defined(_WIN32_WCE)
+				load_path += L"\\";
+				#elif defined(POSIX)
+				load_path += L"/";
+				#endif
+			}
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
 	// iolog
 	if ( cmd.compare(L"iolog") == 0 ) {
 		iolog = param.compare(L"off") != 0;
