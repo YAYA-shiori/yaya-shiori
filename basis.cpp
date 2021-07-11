@@ -348,6 +348,15 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 
 	// ファイルを開く
 	yaya::string_t	filename = load_path + modulename + config_file_name_trailer + L".txt";
+	LoadBaseConfigureFile_Base(filename);
+
+	if ( yayamsg::IsEmpty() ) { //エラーメッセージテーブルが読めていない
+		SetParameter(L"messagetxt",msglang_for_compat == MSGLANG_JAPANESE ? L"messagetxt/japanese.txt" : L"messagetxt/english.txt");
+	}
+}
+void	CBasis::LoadBaseConfigureFile_Base(yaya::string_t filename,std::vector<CDic1> &dics)
+{
+	// ファイルを開く
 	FILE	*fp = yaya::w_fopen(filename.c_str(), L"r");
 	if (fp == NULL) {
 		SetSuppress();
@@ -358,25 +367,17 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 	CComment	comment;
 	yaya::string_t	readline;
 	yaya::string_t	cmd, param;
-
-	std::stack<CBasisFileStack> fstack;
-	fstack.push(CBasisFileStack(fp,filename,0));
+	size_t line=0;
 
 	while ( true ) {
-		fstack.top().line += 1;
+		line += 1;
 
 		// 1行読み込み
-		if (yaya::ws_fgets(readline, fp, dic_charset, 0, fstack.top().line) == yaya::WS_EOF) {
+		if (yaya::ws_fgets(readline, fp, dic_charset, 0, line) == yaya::WS_EOF) {
 			// ファイルを閉じる
 			fclose(fstack.top().fp);
-			fstack.pop();
 
-			if ( fstack.empty() ) {
-				break;
-			}
-
-			fp = fstack.top().fp;
-			filename = fstack.top().filename;
+			break;
 		}
 
 		// 改行は消去
@@ -394,33 +395,13 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 
 		// パラメータを設定
 		if (Split(readline, cmd, param, L",")) {
-			if ( cmd.compare(L"include") == 0 ) {
-				filename = load_path + param;
-				fp = yaya::w_fopen(filename.c_str(), L"r");
-
-				if (fp == NULL) { //エラーが起きたので復旧
-					fp = fstack.top().fp;
-					filename = fstack.top().filename;
-				}
-				else {
-					fstack.push(CBasisFileStack(fp,filename,0));
-				}
-			}
-			else {
-				SetParameter(cmd, param, &dics);
-			}
+			SetParameter(cmd, param, &dics);
 		}
 		else {
-			vm.logger().Error(E_W, 0, filename, fstack.top().line);
+			vm.logger().Error(E_W, 0, filename, line);
 		}
-
-	}
-
-	if ( yayamsg::IsEmpty() ) { //エラーメッセージテーブルが読めていない
-		SetParameter(L"messagetxt",msglang_for_compat == MSGLANG_JAPANESE ? L"messagetxt/japanese.txt" : L"messagetxt/english.txt");
 	}
 }
-
 /* -----------------------------------------------------------------------
  *  関数名  ：  CBasis::SetParameter
  *  機能概要：  LoadBaseConfigureFileから呼ばれます。各種パラメータを設定します
@@ -428,6 +409,23 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
  */
 bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param, std::vector<CDic1> *dics)
 {
+	//include
+	if ( cmd.compare(L"include") == 0 ) {
+		filename = load_path + param;
+		LoadBaseConfigureFile_Base(filename,*dics);
+		return true;
+	}
+	if ( cmd.compare(L"includeEX") == 0 ) {
+		filename = load_path + param;
+		auto load_path_bak=load_path;
+		load_path = get_path_from_file(filename);
+		auto base_path_bak=base_path;
+		base_path = load_path;
+		LoadBaseConfigureFile_Base(filename,*dics);
+		load_path = load_path_bak;
+		base_path = base_path_bak;
+		return true;
+	}
 	// dic
 	if ( cmd.compare(L"dic") == 0 && dics) {
 		yaya::string_t param1,param2;
