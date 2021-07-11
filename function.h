@@ -176,6 +176,10 @@ protected:
 	char	Feedback(CCell &anscell, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar);
 	void	EncodeArrayOrder(CCell &vcell, const CValue &order, CLocalVariable &lvar, CValue &result);
 	void	FeedLineToTail(int &line);
+public:
+	auto get_file_name(){return dicfilename;}
+	size_t get_begin_linenum(){return statement.empty()?0:statement[0].linecount;}
+	size_t get_end_linenum(){return statement.empty()?0:statement[statement.size()-1].linecount;}
 };
 
 //----
