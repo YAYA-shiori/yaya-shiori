@@ -3180,7 +3180,7 @@ CValue CSystemFunction::GETFUNCINFO(const CValue &arg, yaya::string_t &d, int &l
 		return CValue(-1);
 	}
 
-	const yaya::string_t &name = arg.array()[0].GetValueString();
+	yaya::string_t name = arg.array()[0].GetValueString();
 
 	int index = vm.parser0().GetFunctionIndexFromName(name);
 
