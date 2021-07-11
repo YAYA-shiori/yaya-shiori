@@ -3178,12 +3178,14 @@ CValue CSystemFunction::GETFUNCINFO(const CValue &arg, yaya::string_t &d, int &l
 
 	CValue result(F_TAG_ARRAY, 0/*dmy*/);
 
-	auto index=vm.parser0().GetFunctionIndexFromName(name);
-	if(index>=0){
-		auto it=&vm.function()[size_t(index)];
-		result.array().push_back(CValueSub(it->get_file_name()));
-		result.array().push_back(CValueSub((int)it->get_begin_linenum()));
-		result.array().push_back(CValueSub((int)it->get_end_linenum()));
+	int index = vm.parser0().GetFunctionIndexFromName(name);
+
+	if ( index >= 0 ) {
+		const CFunction *it = &vm.function()[size_t(index)];
+
+		result.array().push_back(CValueSub(it->GetFileName()));
+		result.array().push_back(CValueSub((int)it->GetLineNumBegin()));
+		result.array().push_back(CValueSub((int)it->GetLineNumEnd()));
 	}
 
 	return result;

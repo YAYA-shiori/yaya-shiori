@@ -153,6 +153,10 @@ public:
 
 	const CValue& GetFormulaAnswer(CLocalVariable &lvar, CStatement &st);
 
+	const yaya::string_t&	GetFileName() const {return dicfilename;}
+	size_t	GetLineNumBegin() const { return statement.empty() ? 0 : statement[0].linecount;}
+	size_t	GetLineNumEnd() const   { return statement.empty() ? 0 : statement[statement.size()-1].linecount;}
+
 protected:
 	int		ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, int type, int &exitcode);
 
@@ -176,10 +180,6 @@ protected:
 	char	Feedback(CCell &anscell, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar);
 	void	EncodeArrayOrder(CCell &vcell, const CValue &order, CLocalVariable &lvar, CValue &result);
 	void	FeedLineToTail(int &line);
-public:
-	auto get_file_name(){return dicfilename;}
-	size_t get_begin_linenum(){return statement.empty()?0:statement[0].linecount;}
-	size_t get_end_linenum(){return statement.empty()?0:statement[statement.size()-1].linecount;}
 };
 
 //----
