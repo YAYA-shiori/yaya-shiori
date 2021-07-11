@@ -91,7 +91,7 @@ extern "C" {
 #endif
 #endif
 
-#define	SYSFUNC_NUM					140 //システム関数の全数
+#define	SYSFUNC_NUM					141 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -293,6 +293,7 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	// 特殊(9)
 	L"DICLOAD",
 	L"GETSYSTEMFUNCLIST",
+	L"GETFUNCINFO",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -700,6 +701,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return DICLOAD(arg, d, l);
 	case 139:
 		return GETSYSTEMFUNCLIST(arg, d, l);
+	case 140:
+		return GETFUNCINFO(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -3158,6 +3161,32 @@ CValue	CSystemFunction::DICLOAD(const CValue &arg, yaya::string_t &d, int &l)
 	}
 
 	return CValue(err != 0 ? 1 : 0);
+}
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::GETFUNCINFO
+ * -----------------------------------------------------------------------
+ */
+CValue CSystemFunction::GETFUNCINFO(const CValue &arg, yaya::string_t &d, int &l) {
+	yaya::string_t name;
+
+	//STRINGの場合のみ絞りこみ文字列として認識
+	if ( arg.array_size() ) {
+		if (arg.array()[0].IsString()) {
+			name = arg.array()[0].GetValueString();
+		}
+	}
+
+	CValue result(F_TAG_ARRAY, 0/*dmy*/);
+
+	auto index=vm.parser0().GetFunctionIndexFromName(name);
+	if(index>=0){
+		auto it=&vm.function()[size_t(index)];
+		result.array().push_back(CValueSub(it->get_file_name()));
+		result.array().push_back(CValueSub((int)it->get_begin_linenum()));
+		result.array().push_back(CValueSub((int)it->get_end_linenum()));
+	}
+
+	return result;
 }
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::FSIZE
