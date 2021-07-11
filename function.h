@@ -153,6 +153,10 @@ public:
 
 	const CValue& GetFormulaAnswer(CLocalVariable &lvar, CStatement &st);
 
+	const yaya::string_t&	GetFileName() const {return dicfilename;}
+	size_t	GetLineNumBegin() const { return statement.empty() ? 0 : statement[0].linecount;}
+	size_t	GetLineNumEnd() const   { return statement.empty() ? 0 : statement[statement.size()-1].linecount;}
+
 protected:
 	int		ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, int type, int &exitcode);
 

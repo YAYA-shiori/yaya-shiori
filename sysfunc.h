@@ -244,6 +244,7 @@ protected:
 	CValue	FTELL(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue	DICLOAD(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	GETFUNCINFO(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue	RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int &l, const yaya::char_t *fncname, size_t num);
 
@@ -252,7 +253,7 @@ protected:
 	void	AppendReResultDetail(const yaya::string_t &str, int pos, int len);
 	void	SetError(int code);
 
-	int     GetCharset(const CValueSub &var,const wchar_t *fname, yaya::string_t &d, int &l);
+	int		GetCharset(const CValueSub &var,const wchar_t *fname, yaya::string_t &d, int &l);
 	yaya::string_t	ToFullPath(const yaya::string_t &str);
 };
 
