@@ -703,7 +703,7 @@ char	CParser0::DefineFunctions(std::vector<yaya::string_t> &s, const yaya::strin
 					}
 				}
 				// 作成
-				targetfunction = MakeFunction(d0, chtype, dicfilename);
+				targetfunction = MakeFunction(d0, chtype, dicfilename, linecount);
 				if (targetfunction == -1) {
 				        vm.logger().Error(E_E, 13, *it, dicfilename, linecount);
 					return 1;
@@ -741,7 +741,7 @@ char	CParser0::DefineFunctions(std::vector<yaya::string_t> &s, const yaya::strin
  *  　　　　　  指定された名前の関数が既に作成済の場合はエラーで、-1を返します
  * -----------------------------------------------------------------------
  */
-int	CParser0::MakeFunction(const yaya::string_t& name, int chtype, const yaya::string_t& dicfilename)
+int	CParser0::MakeFunction(const yaya::string_t& name, int chtype, const yaya::string_t& dicfilename, int linecount)
 {
 	int	i = GetFunctionIndexFromName(name);
 	if(i != -1)
@@ -751,7 +751,7 @@ int	CParser0::MakeFunction(const yaya::string_t& name, int chtype, const yaya::s
 			return -1;
 */
 
-	vm.function().push_back(CFunction(vm, name, chtype, dicfilename));
+	vm.function().push_back(CFunction(vm, name, chtype, dicfilename, linecount));
 	vm.functionmap().insert(yaya::indexmap::value_type(name,static_cast<int>(vm.function().size()-1)));
 
 	return vm.function().size() - 1;

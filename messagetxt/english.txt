@@ -120,7 +120,7 @@
 *warning W0009 : Mismatched type of argument(s).
 *warning W0010 : Null string is invalid.
 *warning W0011 : The result can't be set to the variable.
-*warning W0012 : The numeric value is out of range or invalid.
+*warning W0012 : The specified value is out of range or invalid.
 *warning W0013 : Processing failed.
 *warning W0014 : Requested library isn't loaded.
 *warning W0015 : Requested file isn't opened.
