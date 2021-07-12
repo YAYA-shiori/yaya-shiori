@@ -57,6 +57,8 @@
 #endif
 ////////////////////////////////////////
 
+#undef max
+
 //for compatibility only
 #define MSGLANG_JAPANESE 0
 #define MSGLANG_ENGLISH  1
@@ -348,7 +350,7 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 
 	// ファイルを開く
 	yaya::string_t	filename = load_path + modulename + config_file_name_trailer + L".txt";
-	LoadBaseConfigureFile_Base(filename);
+	LoadBaseConfigureFile_Base(filename,dics);
 
 	if ( yayamsg::IsEmpty() ) { //エラーメッセージテーブルが読めていない
 		SetParameter(L"messagetxt",msglang_for_compat == MSGLANG_JAPANESE ? L"messagetxt/japanese.txt" : L"messagetxt/english.txt");
@@ -375,7 +377,7 @@ void	CBasis::LoadBaseConfigureFile_Base(yaya::string_t filename,std::vector<CDic
 		// 1行読み込み
 		if (yaya::ws_fgets(readline, fp, dic_charset, 0, line) == yaya::WS_EOF) {
 			// ファイルを閉じる
-			fclose(fstack.top().fp);
+			fclose(fp);
 
 			break;
 		}
@@ -411,14 +413,14 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 {
 	//include
 	if ( cmd.compare(L"include") == 0 ) {
-		filename = load_path + param;
+		auto filename = load_path + param;
 		LoadBaseConfigureFile_Base(filename,*dics);
 		return true;
 	}
 	if ( cmd.compare(L"includeEX") == 0 ) {
-		filename = load_path + param;
+		auto filename = load_path + param;
 		auto load_path_bak=load_path;
-		load_path = get_path_from_file(filename);
+		load_path = filename.substr(0,std::max(filename.rfind('/'),filename.rfind('\\')));
 		auto base_path_bak=base_path;
 		base_path = load_path;
 		LoadBaseConfigureFile_Base(filename,*dics);
