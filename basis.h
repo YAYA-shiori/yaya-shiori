@@ -137,7 +137,7 @@ protected:
 
 	void LoadBaseConfigureFile(std::vector<CDic1> &dics);
 
-    void LoadBaseConfigureFile_Base(yaya::string_t filename, std::vector<CDic1> &dics);
+    void LoadBaseConfigureFile_Base(yaya::string_t filename, std::vector<CDic1> &dics,char cset);
 
 	void	RestoreArrayVariable(CValue &var, yaya::string_t &value);
 };
