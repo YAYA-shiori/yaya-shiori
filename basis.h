@@ -1,9 +1,9 @@
-// 
+//
 // AYA version 5
 //
 // 主な制御を行なうクラス　CBasis
 // written by umeici. 2004
-// 
+//
 
 #ifndef	BASISH
 #define	BASISH
@@ -106,7 +106,7 @@ public:
 
 	void	Configure(void);
 	void	Termination(void);
-	
+
 #if defined(WIN32)
 	HWND	GetLogHWnd(void) { return hlogrcvWnd; }
 #endif
@@ -135,7 +135,9 @@ protected:
 	void	SetSuppress(void);
 	void	ResetSuppress(void);
 
-	void	LoadBaseConfigureFile(std::vector<CDic1> &dics);
+	void LoadBaseConfigureFile(std::vector<CDic1> &dics);
+
+	void LoadBaseConfigureFile_Base(yaya::string_t filename, std::vector<CDic1> &dics,char cset);
 
 	void	RestoreArrayVariable(CValue &var, yaya::string_t &value);
 };
