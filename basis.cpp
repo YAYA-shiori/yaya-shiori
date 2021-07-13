@@ -346,6 +346,7 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 		SetParameter(L"messagetxt",msglang_for_compat == MSGLANG_JAPANESE ? L"messagetxt/japanese.txt" : L"messagetxt/english.txt");
 	}
 }
+
 void	CBasis::LoadBaseConfigureFile_Base(yaya::string_t filename,std::vector<CDic1> &dics,char cset)
 {
 	// ファイルを開く
@@ -395,6 +396,7 @@ void	CBasis::LoadBaseConfigureFile_Base(yaya::string_t filename,std::vector<CDic
 		}
 	}
 }
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CBasis::SetParameter
  *  機能概要：  LoadBaseConfigureFileから呼ばれます。各種パラメータを設定します
@@ -419,6 +421,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		LoadBaseConfigureFile_Base(filename,*dics,cset);
 		return true;
 	}
+	//includeEX
 	if ( cmd.compare(L"includeEX") == 0 ) {
 		yaya::string_t param1, param2;
 		Split(param, param1, param2, L",");
@@ -432,13 +435,18 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 				cset = cx;
 			}
 		}
-		auto load_path_bak=load_path;
+
+		yaya::string_t load_path_bak = load_path;
 		load_path = filename.substr(0,std::max(filename.rfind('/'),filename.rfind('\\')))+L'/';
-		auto base_path_bak=base_path;
+		
+		yaya::string_t base_path_bak = base_path;
 		base_path = load_path;
+		
 		LoadBaseConfigureFile_Base(filename,*dics,cset);
+		
 		load_path = load_path_bak;
 		base_path = base_path_bak;
+		
 		return true;
 	}
 	// dic
