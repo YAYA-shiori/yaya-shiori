@@ -3166,27 +3166,36 @@ CValue	CSystemFunction::DICLOAD(const CValue &arg, yaya::string_t &d, int &l)
  *  関数名  ：  CSystemFunction::GETFUNCINFO
  * -----------------------------------------------------------------------
  */
-CValue CSystemFunction::GETFUNCINFO(const CValue &arg, yaya::string_t &d, int &l) {
-	yaya::string_t name;
-
-	//STRINGの場合のみ絞りこみ文字列として認識
-	if ( arg.array_size() ) {
-		if (arg.array()[0].IsString()) {
-			name = arg.array()[0].GetValueString();
-		}
+CValue CSystemFunction::GETFUNCINFO(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if (!arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"GETFUNCINFO", d, l);
+		SetError(8);
+		return CValue(-1);
 	}
 
-	CValue result(F_TAG_ARRAY, 0/*dmy*/);
+	if (!arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"GETFUNCINFO", d, l);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	yaya::string_t name = arg.array()[0].GetValueString();
 
 	int index = vm.parser0().GetFunctionIndexFromName(name);
 
-	if ( index >= 0 ) {
-		const CFunction *it = &vm.function()[size_t(index)];
-
-		result.array().push_back(CValueSub(it->GetFileName()));
-		result.array().push_back(CValueSub((int)it->GetLineNumBegin()));
-		result.array().push_back(CValueSub((int)it->GetLineNumEnd()));
+	if ( index < 0 ) {
+		vm.logger().Error(E_W, 12, L"GETFUNCINFO", d, l);
+		SetError(12);
+		return CValue(-1);
 	}
+
+	CValue result(F_TAG_ARRAY, 0/*dmy*/);
+	const CFunction *it = &vm.function()[size_t(index)];
+
+	result.array().push_back(CValueSub(it->GetFileName()));
+	result.array().push_back(CValueSub((int)it->GetLineNumBegin()));
+	result.array().push_back(CValueSub((int)it->GetLineNumEnd()));
 
 	return result;
 }

@@ -72,7 +72,7 @@ protected:
 	char	IsCipheredDic(const yaya::string_t& filename);
 	void	SeparateFactor(std::vector<yaya::string_t> &s, yaya::string_t &line);
 	char	DefineFunctions(std::vector<yaya::string_t> &s, const yaya::string_t& dicfilename, int linecount, int &depth, int &targetfunction);
-	int		MakeFunction(const yaya::string_t& name, int chtype, const yaya::string_t& dicfilename);
+	int		MakeFunction(const yaya::string_t& name, int chtype, const yaya::string_t& dicfilename, int linecount);
 	char	StoreInternalStatement(int targetfunc, yaya::string_t &str, int& depth, const yaya::string_t& dicfilename, int linecount);
 	char	MakeStatement(int type, int targetfunc, yaya::string_t &str, const yaya::string_t& dicfilename, int linecount);
 	char	StructWhen(yaya::string_t &str, std::vector<CCell> &cells, const yaya::string_t& dicfilename, int linecount);
