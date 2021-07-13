@@ -60,13 +60,15 @@ public:
 
 	int		GetFunctionIndexFromName(const yaya::string_t& str);
 
+	//changed to public, for preprocessglobaldefine
+	void	ExecDefinePreProcess(yaya::string_t &str, const std::vector<CDefine>& defines);
+
 protected:
 	bool	ParseAfterLoad(const yaya::string_t &dicfilename);
 	char	LoadDictionary1(const yaya::string_t& filename, std::vector<CDefine>& gdefines, int charset);
 	char	GetPreProcess(yaya::string_t& str, std::vector<CDefine>& defines, std::vector<CDefine>& gdefines, const yaya::string_t& dicfilename,
 					int linecount);
 
-	void	ExecDefinePreProcess(yaya::string_t &str, const std::vector<CDefine>& defines);
 	void	ExecInternalPreProcess(yaya::string_t &str,const yaya::string_t &file,int line);
 
 	char	IsCipheredDic(const yaya::string_t& filename);
