@@ -3226,6 +3226,7 @@ CValue CSystemFunction::PREPROCESSGLOBALDEFINE(const CValue &arg, yaya::string_t
 
 	return CValue(aret);
 }
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::FSIZE
  *
