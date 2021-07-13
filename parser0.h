@@ -65,7 +65,7 @@ protected:
 	char	LoadDictionary1(const yaya::string_t& filename, std::vector<CDefine>& gdefines, int charset);
 	char	GetPreProcess(yaya::string_t& str, std::vector<CDefine>& defines, std::vector<CDefine>& gdefines, const yaya::string_t& dicfilename,
 					int linecount);
-public://EXECUTEGLOBALDEFINE
+public://PREPROCESSGLOBALDEFINE
 	void	ExecDefinePreProcess(yaya::string_t &str, const std::vector<CDefine>& defines);
 protected:
 	void	ExecInternalPreProcess(yaya::string_t &str,const yaya::string_t &file,int line);
