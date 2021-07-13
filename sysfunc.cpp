@@ -91,7 +91,7 @@ extern "C" {
 #endif
 #endif
 
-#define	SYSFUNC_NUM					141 //システム関数の全数
+#define	SYSFUNC_NUM					142 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -294,6 +294,7 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"DICLOAD",
 	L"GETSYSTEMFUNCLIST",
 	L"GETFUNCINFO",
+	L"PREPROCESSGLOBALDEFINE",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -703,6 +704,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return GETSYSTEMFUNCLIST(arg, d, l);
 	case 140:
 		return GETFUNCINFO(arg, d, l);
+	case 141:
+		return PREPROCESSGLOBALDEFINE(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -3198,6 +3201,30 @@ CValue CSystemFunction::GETFUNCINFO(const CValue &arg, yaya::string_t &d, int &l
 	result.array().push_back(CValueSub((int)it->GetLineNumEnd()));
 
 	return result;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::PREPROCESSGLOBALDEFINE
+ * -----------------------------------------------------------------------
+ */
+CValue CSystemFunction::PREPROCESSGLOBALDEFINE(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if (!arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"PREPROCESSGLOBALDEFINE", d, l);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"PREPROCESSGLOBALDEFINE", d, l);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	yaya::string_t aret = arg.array()[0].GetValueString();
+	vm.parser0().ExecDefinePreProcess(aret,vm.gdefines());
+
+	return CValue(aret);
 }
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::FSIZE
