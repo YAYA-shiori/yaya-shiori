@@ -1,9 +1,9 @@
-﻿// 
+﻿//
 // AYA version 5
 //
 // 主な制御を行なうクラス　CBasis
 // written by umeici. 2004
-// 
+//
 
 #if defined(WIN32) || defined(_WIN32_WCE)
 # include "stdafx.h"
@@ -56,6 +56,8 @@
 #endif
 #endif
 ////////////////////////////////////////
+
+#undef max
 
 //for compatibility only
 #define MSGLANG_JAPANESE 0
@@ -332,24 +334,24 @@ void	CBasis::ResetSuppress(void)
  *  ありません（文字コード0x7F以下のASCII文字のみで記述すべきです）。
  * -----------------------------------------------------------------------
  */
-class CBasisFileStack {
-public:
-	FILE *fp;
-	yaya::string_t filename;
-	int line;
-
-	CBasisFileStack(FILE *fparg,yaya::string_t &fn,int larg) : fp(fparg) , filename(fn) , line(larg) {
-	}
-};
-
 void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 {
 	// 設定ファイル("name".txt)読み取り
 
 	// ファイルを開く
 	yaya::string_t	filename = load_path + modulename + config_file_name_trailer + L".txt";
+	LoadBaseConfigureFile_Base(filename,dics,dic_charset);
+
+	if ( yayamsg::IsEmpty() ) { //エラーメッセージテーブルが読めていない
+		SetParameter(L"messagetxt",msglang_for_compat == MSGLANG_JAPANESE ? L"messagetxt/japanese.txt" : L"messagetxt/english.txt");
+	}
+}
+void	CBasis::LoadBaseConfigureFile_Base(yaya::string_t filename,std::vector<CDic1> &dics,char cset)
+{
+	// ファイルを開く
 	FILE	*fp = yaya::w_fopen(filename.c_str(), L"r");
 	if (fp == NULL) {
+		vm.logger().Error(E_E, 5, filename);
 		SetSuppress();
 		return;
 	}
@@ -358,35 +360,27 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 	CComment	comment;
 	yaya::string_t	readline;
 	yaya::string_t	cmd, param;
-
-	std::stack<CBasisFileStack> fstack;
-	fstack.push(CBasisFileStack(fp,filename,0));
+	size_t line=0;
 
 	while ( true ) {
-		fstack.top().line += 1;
+		line += 1;
 
 		// 1行読み込み
-		if (yaya::ws_fgets(readline, fp, dic_charset, 0, fstack.top().line) == yaya::WS_EOF) {
+		if (yaya::ws_fgets(readline, fp, cset, 0, line) == yaya::WS_EOF) {
 			// ファイルを閉じる
-			fclose(fstack.top().fp);
-			fstack.pop();
+			fclose(fp);
 
-			if ( fstack.empty() ) {
-				break;
-			}
-
-			fp = fstack.top().fp;
-			filename = fstack.top().filename;
+			break;
 		}
 
 		// 改行は消去
 		CutCrLf(readline);
-		
+
 		// コメントアウト処理
 		comment.Process_Top(readline);
 		comment.Process(readline);
 		comment.Process_Tail(readline);
-		
+
 		// 空行、もしくは全体がコメント行だった場合は次の行へ
 		if (readline.size() == 0) {
 			continue;
@@ -394,33 +388,13 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 
 		// パラメータを設定
 		if (Split(readline, cmd, param, L",")) {
-			if ( cmd.compare(L"include") == 0 ) {
-				filename = load_path + param;
-				fp = yaya::w_fopen(filename.c_str(), L"r");
-
-				if (fp == NULL) { //エラーが起きたので復旧
-					fp = fstack.top().fp;
-					filename = fstack.top().filename;
-				}
-				else {
-					fstack.push(CBasisFileStack(fp,filename,0));
-				}
-			}
-			else {
-				SetParameter(cmd, param, &dics);
-			}
+			SetParameter(cmd, param, &dics);
 		}
 		else {
-			vm.logger().Error(E_W, 0, filename, fstack.top().line);
+			vm.logger().Error(E_W, 0, filename, line);
 		}
-
-	}
-
-	if ( yayamsg::IsEmpty() ) { //エラーメッセージテーブルが読めていない
-		SetParameter(L"messagetxt",msglang_for_compat == MSGLANG_JAPANESE ? L"messagetxt/japanese.txt" : L"messagetxt/english.txt");
 	}
 }
-
 /* -----------------------------------------------------------------------
  *  関数名  ：  CBasis::SetParameter
  *  機能概要：  LoadBaseConfigureFileから呼ばれます。各種パラメータを設定します
@@ -428,6 +402,45 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
  */
 bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param, std::vector<CDic1> *dics)
 {
+	//include
+	if ( cmd.compare(L"include") == 0 ) {
+		yaya::string_t param1, param2;
+		Split(param, param1, param2, L",");
+
+		yaya::string_t filename = load_path + param1;
+
+		char cset = dic_charset;
+		if ( param2.size() ) {
+			char cx = Ccct::CharsetTextToID(param2.c_str());
+			if ( cx != CHARSET_DEFAULT ) {
+				cset = cx;
+			}
+		}
+		LoadBaseConfigureFile_Base(filename,*dics,cset);
+		return true;
+	}
+	if ( cmd.compare(L"includeEX") == 0 ) {
+		yaya::string_t param1, param2;
+		Split(param, param1, param2, L",");
+
+		yaya::string_t filename = load_path + param1;
+
+		char cset = dic_charset;
+		if ( param2.size() ) {
+			char cx = Ccct::CharsetTextToID(param2.c_str());
+			if ( cx != CHARSET_DEFAULT ) {
+				cset = cx;
+			}
+		}
+		auto load_path_bak=load_path;
+		load_path = filename.substr(0,std::max(filename.rfind('/'),filename.rfind('\\')))+L'/';
+		auto base_path_bak=base_path;
+		base_path = load_path;
+		LoadBaseConfigureFile_Base(filename,*dics,cset);
+		load_path = load_path_bak;
+		base_path = base_path_bak;
+		return true;
+	}
 	// dic
 	if ( cmd.compare(L"dic") == 0 && dics) {
 		yaya::string_t param1,param2;
@@ -474,7 +487,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		Split(param, param1, param2, L",");
 
 		char cset = CHARSET_UTF8; //UTF8固定
-		
+
 		if ( param2.size() ) {
 			char cx = Ccct::CharsetTextToID(param2.c_str());
 			if ( cx != CHARSET_DEFAULT ) {
@@ -725,7 +738,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 #endif
 		free(s_filestr);
 		s_filestr=0;
-		
+
 		filename.erase(filename.size()-4,4);
 	}
 
@@ -787,7 +800,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 
 		// 値の保存
 		switch(var->value_const().GetType()) {
-		case F_TAG_INT:	
+		case F_TAG_INT:
 			str += yaya::ws_itoa(var->value_const().i_value);
 			str += L",";
 			break;
@@ -988,7 +1001,7 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 		// 変数を作成
 		int	index = vm.variable().Make(varname, 0);
 		vm.variable().SetType(index, type);
-		
+
 		if (type == F_TAG_INT) {
 			// 整数型
 			vm.variable().SetValue(index, yaya::ws_atoi(value, 10));
@@ -1121,7 +1134,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 	// 入力文字列を取得
 	std::string	istr;
 	istr.assign((char *)h, 0, (int)*len);
-	
+
 	// 第一引数（入力文字列）を作成　ここで文字コードをUCS-2へ変換
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
 	wchar_t	*wistr = Ccct::MbcsToUcs2(istr, output_charset);
@@ -1201,7 +1214,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 	// 第一引数（入力文字列）を作成　ここで文字コードをUCS-2へ変換
 	CValue arg(F_TAG_ARRAY, 0/*dmy*/);
 	wchar_t *wistr = Ccct::MbcsToUcs2(istr, output_charset);
-	
+
 	if (wistr != NULL) {
 		CValueSub arg0 = wistr;
 		vm.logger().Io(0, arg0.s_value);
@@ -1213,14 +1226,14 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 		yaya::string_t empty;
 		vm.logger().Io(0, empty);
 	}
-	
+
 	// 実行
 	vm.calldepth().Init();
 	CLocalVariable	lvar;
 
 	CValue	result;
 	vm.function()[funcpos].Execute(result, arg, lvar);
-	
+
 	// 結果を文字列として取得し、文字コードをMBCSに変換
 	yaya::string_t	res = result.GetValueString();
 	vm.logger().Io(1, res);
@@ -1231,7 +1244,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 		*len = 0;
 		return NULL;
 	}
-	
+
 	// 文字コード変換が成功したので、結果をGMEMへコピーして返す
 	*len = (long)strlen(mostr);
 	char* r_h = static_cast<char*>(malloc(*len));
