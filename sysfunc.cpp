@@ -294,7 +294,7 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"DICLOAD",
 	L"GETSYSTEMFUNCLIST",
 	L"GETFUNCINFO",
-	L"PREPROCESSGLOBALDEFINE",
+	L"PROCESSGLOBALDEFINE",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -705,7 +705,7 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 	case 140:
 		return GETFUNCINFO(arg, d, l);
 	case 141:
-		return PREPROCESSGLOBALDEFINE(arg, d, l);
+		return PROCESSGLOBALDEFINE(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -3204,19 +3204,19 @@ CValue CSystemFunction::GETFUNCINFO(const CValue &arg, yaya::string_t &d, int &l
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::PREPROCESSGLOBALDEFINE
+ *  関数名  ：  CSystemFunction::PROCESSGLOBALDEFINE
  * -----------------------------------------------------------------------
  */
-CValue CSystemFunction::PREPROCESSGLOBALDEFINE(const CValue &arg, yaya::string_t &d, int &l)
+CValue CSystemFunction::PROCESSGLOBALDEFINE(const CValue &arg, yaya::string_t &d, int &l)
 {
 	if (!arg.array_size()) {
-		vm.logger().Error(E_W, 8, L"PREPROCESSGLOBALDEFINE", d, l);
+		vm.logger().Error(E_W, 8, L"PROCESSGLOBALDEFINE", d, l);
 		SetError(8);
 		return CValue(-1);
 	}
 
 	if (!arg.array()[0].IsString()) {
-		vm.logger().Error(E_W, 9, L"PREPROCESSGLOBALDEFINE", d, l);
+		vm.logger().Error(E_W, 9, L"PROCESSGLOBALDEFINE", d, l);
 		SetError(9);
 		return CValue(-1);
 	}
