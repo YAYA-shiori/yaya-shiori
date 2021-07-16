@@ -237,11 +237,11 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 			FeedLineToTail(i);
 	}
 
-	// 終了時の処理
-	lvar.DelDepth();
-
 	// 候補から出力を選び出す　入れ子の深さが0なら重複回避が働く
 	result = output.Output();
+
+	// 終了時の処理
+	lvar.DelDepth();
 
 	return i;
 }
@@ -368,8 +368,13 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 
 			switch(o_cell.value_GetType()) {
 			case F_TAG_COMMA:
-				if (Comma(o_cell.ansv(), it->index, st, lvar))
-					pvm->logger().Error(E_E, 33, L",", dicfilename, st.linecount);
+				{
+					std_shared_ptr<CValue> tmp_ansv = o_cell.ansv_shared_create();
+					if (Comma(*tmp_ansv.get(), it->index, st, lvar)) {
+						pvm->logger().Error(E_E, 33, L",", dicfilename, st.linecount);
+					}
+					o_cell.ansv_shared() = tmp_ansv;
+				}
 				break;
 			case F_TAG_EQUAL:
 			case F_TAG_EQUAL_D:
@@ -384,8 +389,13 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 			case F_TAG_SURPEQUAL:
 			case F_TAG_SURPEQUAL_D:
 			case F_TAG_COMMAEQUAL:
-				if (Subst(o_cell.value_GetType(), o_cell.ansv(), it->index, st, lvar))
-					pvm->logger().Error(E_E, 33, L"=", dicfilename, st.linecount);
+				{
+					std_shared_ptr<CValue> tmp_ansv = o_cell.ansv_shared_create();
+					if (Subst(o_cell.value_GetType(), *tmp_ansv.get(), it->index, st, lvar)) {
+						pvm->logger().Error(E_E, 33, L"=", dicfilename, st.linecount);
+					}
+					o_cell.ansv_shared() = tmp_ansv;
+				}
 				break;
 			case F_TAG_PLUS:
 				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) +
@@ -464,8 +474,13 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 				}
 				break;
 			case F_TAG_FUNCPARAM:
-				if (ExecFunctionWithArgs(o_cell.ansv(), it->index, st, lvar))
-					pvm->logger().Error(E_E, 33, pvm->function()[st.cell()[it->index[0]].index].name, dicfilename, st.linecount);
+				{
+					std_shared_ptr<CValue> tmp_ansv = o_cell.ansv_shared_create();
+					if (ExecFunctionWithArgs(*tmp_ansv.get(), it->index, st, lvar)) {
+						pvm->logger().Error(E_E, 33, pvm->function()[st.cell()[it->index[0]].index].name, dicfilename, st.linecount);
+					}
+					o_cell.ansv_shared() = tmp_ansv;
+				}
 				break;
 			case F_TAG_SYSFUNCPARAM:
 				if (ExecSystemFunctionWithArgs(o_cell, it->index, st, lvar))
