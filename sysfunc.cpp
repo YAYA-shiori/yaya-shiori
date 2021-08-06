@@ -91,7 +91,7 @@ extern "C" {
 #endif
 #endif
 
-#define	SYSFUNC_NUM					144 //システム関数の全数
+#define	SYSFUNC_NUM					145 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -296,6 +296,7 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"GETFUNCINFO",
 	L"PROCESSGLOBALDEFINE",
 	L"UNDEFFUNC",
+	L"UNDEFGLOBALDEFINE",
 	L"UNLOADDIC",
 };
 
@@ -711,6 +712,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 	case 142:
 		return UNDEFFUNC(arg, d, l);
 	case 143:
+		return UNDEFGLOBALDEFINE(arg, d, l);
+	case 144:
 		return UNLOADDIC(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
@@ -5868,9 +5871,17 @@ CValue	CSystemFunction::GETSYSTEMFUNCLIST(const CValue &arg, yaya::string_t &/*d
 CValue	CSystemFunction::UNDEFFUNC(const CValue &arg, yaya::string_t &/*d*/, int &/*l*/){
 	//MAGIC
 }
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::UNDEFGLOBALDEFINE
+ *  引数　　：　_argv[0] = GLOBALDEFINE name
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::UNDEFGLOBALDEFINE(const CValue &arg, yaya::string_t &/*d*/, int &/*l*/){
+	//MAGIC
+}
  /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::UNLOADDIC
- *  引数　　：　_argv[0] = 絞りこみ文字列
+ *  引数　　：　_argv[0] = dicfilename
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::UNLOADDIC(const CValue &arg, yaya::string_t &/*d*/, int &/*l*/){
