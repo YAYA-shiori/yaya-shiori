@@ -61,6 +61,8 @@ int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
 	CValue	t_argc((int)arg.array_size());
 	lvar.SetValue(L"_argc", t_argc);
 
+	in_stack_num++;
+
 	// 実行
 	if (!pvm->calldepth().Add(name)) {
 		result.SetType(F_TAG_VOID);
@@ -68,6 +70,11 @@ int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
 	}
 	ExecuteInBrace(0, result, lvar, BRACE_DEFAULT, exitcode);
 	pvm->calldepth().Del();
+
+	if(--in_stack_num==0){
+		if(need_undef)
+			undef_this();
+	}
 
 	for ( size_t i = 0 ; i < statement.size() ; ++i ) {
 		statement[i].cell_cleanup();
@@ -1181,3 +1188,10 @@ void	CFunction::FeedLineToTail(int &line)
 	line--;
 }
 
+void CFunction::undef_this(){
+	need_undef=1;
+	make_this_name_less();
+	if(!in_stack()){
+		vm.function().remove(this);
+	}
+}

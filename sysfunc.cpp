@@ -5869,7 +5869,20 @@ CValue	CSystemFunction::GETSYSTEMFUNCLIST(const CValue &arg, yaya::string_t &/*d
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::UNDEFFUNC(const CValue &arg, yaya::string_t &/*d*/, int &/*l*/){
-	//MAGIC
+	yaya::string_t funcname;
+
+	//STRINGの場合のみ絞りこみ文字列として認識
+	if ( arg.array_size() ) {
+		if (arg.array()[0].IsString()) {
+			funcname = arg.array()[0].GetValueString();
+		}
+	}
+	for(auto&i:vm.function()){
+		if(i.name==funcname){
+			i.undef_this();
+			break;
+		}
+	}
 }
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::UNDEFGLOBALDEFINE
@@ -5877,7 +5890,20 @@ CValue	CSystemFunction::UNDEFFUNC(const CValue &arg, yaya::string_t &/*d*/, int 
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::UNDEFGLOBALDEFINE(const CValue &arg, yaya::string_t &/*d*/, int &/*l*/){
-	//MAGIC
+	yaya::string_t defname;
+
+	//STRINGの場合のみ絞りこみ文字列として認識
+	if ( arg.array_size() ) {
+		if (arg.array()[0].IsString()) {
+			defname = arg.array()[0].GetValueString();
+		}
+	}
+	for(auto&i:vm.gdefines()){
+		if(i.before==defname){
+			vm.gdefines().remove(&i);
+			break;
+		}
+	}
 }
  /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::UNLOADDIC
@@ -5885,8 +5911,24 @@ CValue	CSystemFunction::UNDEFGLOBALDEFINE(const CValue &arg, yaya::string_t &/*d
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::UNLOADDIC(const CValue &arg, yaya::string_t &/*d*/, int &/*l*/){
+	yaya::string_t dicfilename;
+
+	//STRINGの場合のみ絞りこみ文字列として認識
+	if ( arg.array_size() ) {
+		if (arg.array()[0].IsString()) {
+			dicfilename = arg.array()[0].GetValueString();
+		}
+	}
 	//first undef all GLOBALDEFINE in this dicfilename
+	for(auto&i:vm.gdefines()){
+		if(path_equal(i.dicfilename,dicfilename)
+			vm.gdefines().remove(&i);
+	}
 	//then undef all FUNC in this dicfilename
+	for(auto&i:vm.function()){
+		if(path_equal(i.dicfilename,dicfilename)
+			i.undef_this();
+	}
 	//done
 }
 /* -----------------------------------------------------------------------

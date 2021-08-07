@@ -135,11 +135,15 @@ public:
 protected:
 	int					statelenm1;		// statementの長さ-1（1を減じているのは終端の"}"を処理しないためです）
 	int					linecount;		// 定義された行
+	size_t				in_stack_num=0;
+	bool				need_undef=0;
 
 private:
 	CFunction(void);
 
 public:
+	bool in_stack{return in_stack_num;}
+	void make_this_name_less(){name=L"";namelen=0;}
 	CFunction(CAyaVM &vmr, const yaya::string_t& n, int ct, const yaya::string_t& df, int lc) : pvm(&vmr) , name(n) , dupl(ct) , dicfilename(df) , linecount(lc)
 	{
 		namelen     = name.size();
