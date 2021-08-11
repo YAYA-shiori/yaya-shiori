@@ -1192,6 +1192,7 @@ void CFunction::undef_this(){
 	need_undef=1;
 	make_this_name_less();
 	if(!in_stack()){
-		vm.function().remove(this);
+		pvm->function().erase(pvm->function().begin() + 
+							 (this - &*pvm->function().begin()));
 	}
 }

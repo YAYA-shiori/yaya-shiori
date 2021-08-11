@@ -142,7 +142,7 @@ private:
 	CFunction(void);
 
 public:
-	bool in_stack{return in_stack_num;}
+	bool in_stack(){return in_stack_num;}
 	void make_this_name_less(){name=L"";namelen=0;}
 	CFunction(CAyaVM &vmr, const yaya::string_t& n, int ct, const yaya::string_t& df, int lc) : pvm(&vmr) , name(n) , dupl(ct) , dicfilename(df) , linecount(lc)
 	{
@@ -183,6 +183,8 @@ protected:
 	char	Feedback(CCell &anscell, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar);
 	void	EncodeArrayOrder(CCell &vcell, const CValue &order, CLocalVariable &lvar, CValue &result);
 	void	FeedLineToTail(int &line);
+public:
+	void undef_this();
 };
 
 //----

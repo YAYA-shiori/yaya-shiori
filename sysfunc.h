@@ -208,6 +208,9 @@ protected:
 	CValue GETFUNCLIST(const CValue &arg, yaya::string_t &d, int &l);
 	CValue GETSYSTEMFUNCLIST(const CValue &arg, yaya::string_t &, int &);
 	CValue	GETVARLIST(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l);
+	CValue UNDEFFUNC(const CValue &arg, yaya::string_t &, int &);
+	CValue UNDEFGLOBALDEFINE(const CValue &arg, yaya::string_t &, int &);
+	CValue UNLOADDIC(const CValue &arg, yaya::string_t &, int &);
 	CValue	GETCALLSTACK(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue	RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &l);

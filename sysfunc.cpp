@@ -5898,11 +5898,13 @@ CValue	CSystemFunction::UNDEFGLOBALDEFINE(const CValue &arg, yaya::string_t &/*d
 			defname = arg.array()[0].GetValueString();
 		}
 	}
-	for(auto&i:vm.gdefines()){
-		if(i.before==defname){
-			vm.gdefines().remove(&i);
+	auto &i = vm.gdefines().begin();
+	while( i != vm.gdefines().end()) {
+		if(i->before==defname){
+			vm.gdefines().erase(i);
 			break;
 		}
+		i++;
 	}
 }
  /* -----------------------------------------------------------------------
@@ -5920,13 +5922,17 @@ CValue	CSystemFunction::UNLOADDIC(const CValue &arg, yaya::string_t &/*d*/, int 
 		}
 	}
 	//first undef all GLOBALDEFINE in this dicfilename
-	for(auto&i:vm.gdefines()){
-		if(path_equal(i.dicfilename,dicfilename)
-			vm.gdefines().remove(&i);
+	auto &i = vm.gdefines().begin();
+	while( i != vm.gdefines().end()) {
+		if(path_equal(i->dicfilename,dicfilename)){
+			vm.gdefines().erase(i);
+			break;
+		}
+		i++;
 	}
 	//then undef all FUNC in this dicfilename
 	for(auto&i:vm.function()){
-		if(path_equal(i.dicfilename,dicfilename)
+		if(path_equal(i.dicfilename,dicfilename))
 			i.undef_this();
 	}
 	//done
