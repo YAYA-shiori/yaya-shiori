@@ -752,7 +752,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 
 	vm.logger().Message(7);
 	vm.logger().Filename(filename);
-	FILE	*fp = yaya::w_fopen((wchar_t *)filename.c_str(), L"w");
+	FILE	*fp = yaya::w_fopen(filename.c_str(), L"w");
 	if (fp == NULL) {
 		vm.logger().Error(E_E, 57, filename);
 		return;
@@ -903,10 +903,10 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 	//暗号化セーブファイル対応
 	if ( ayc ) {
 		filename += L".ays";
-		fp = yaya::w_fopen((wchar_t *)filename.c_str(), L"r");
+		fp = yaya::w_fopen(filename.c_str(), L"r");
 		if (!fp) {
 			filename.erase(filename.size()-4,4);
-			fp = yaya::w_fopen((wchar_t *)filename.c_str(), L"r");
+			fp = yaya::w_fopen(filename.c_str(), L"r");
 			if (!fp) {
 				vm.logger().Error(E_N, 0);
 				return;
@@ -917,10 +917,10 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 		}
 	}
 	else {
-		fp = yaya::w_fopen((wchar_t *)filename.c_str(), L"r");
+		fp = yaya::w_fopen(filename.c_str(), L"r");
 		if (!fp) {
 			filename += L".ays";
-			fp = yaya::w_fopen((wchar_t *)filename.c_str(), L"r");
+			fp = yaya::w_fopen(filename.c_str(), L"r");
 			if (!fp) {
 				vm.logger().Error(E_N, 0);
 				return;

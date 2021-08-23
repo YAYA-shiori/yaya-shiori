@@ -166,29 +166,35 @@ void	yaya::ws_replace(yaya::string_t &str, const wchar_t *before, const wchar_t 
 * -----------------------------------------------------------------------
 */
 #if defined(WIN32) || defined(_WIN32_WCE)
-FILE	*yaya::w_fopen(const wchar_t *fname, const wchar_t *mode)
+FILE	*yaya::w_fopen(const yaya::char_t *fname, const yaya::char_t *mode)
 {
-	// ファイル名とオープンモードををMBCSへ変換
-	char	*mfname = Ccct::Ucs2ToMbcs(fname, CHARSET_DEFAULT);
-	if (mfname == NULL)
-		return NULL;
-	char	*mmode  = Ccct::Ucs2ToMbcs(mode,  CHARSET_DEFAULT);
-	if (mmode == NULL) {
+	FILE *fp;
+	if ( IsUnicodeAware() ) {
+		fp = _wfopen(fname,mode);
+	}
+	else {
+		// ファイル名とオープンモードををMBCSへ変換
+		char	*mfname = Ccct::Ucs2ToMbcs(fname, CHARSET_DEFAULT);
+		if (mfname == NULL)
+			return NULL;
+		char	*mmode  = Ccct::Ucs2ToMbcs(mode,  CHARSET_DEFAULT);
+		if (mmode == NULL) {
+			free(mfname);
+			mfname = NULL;
+			return NULL;
+		}
+		// オープン
+		fp = fopen(mfname, mmode);
 		free(mfname);
 		mfname = NULL;
-		return NULL;
+		free(mmode);
+		mmode = NULL;
 	}
-	// オープン
-	FILE	*fp = fopen(mfname, mmode);
-	free(mfname);
-	mfname = NULL;
-	free(mmode);
-	mmode = NULL;
 	
 	return fp;
 }
 #else
-FILE* yaya::w_fopen(const wchar_t* fname, const wchar_t* mode) {
+FILE* yaya::w_fopen(const yaya::char_t* fname, const yaya::char_t* mode) {
 	std::string s_fname = narrow(yaya::string_t(fname));
 	std::string s_mode = narrow(yaya::string_t(mode));
 	

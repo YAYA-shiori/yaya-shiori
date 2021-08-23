@@ -58,7 +58,7 @@ char	IsLegalVariableName(const yaya::string_t &str);
 char	IsLegalStrLiteral(const yaya::string_t &str);
 char	IsLegalPlainStrLiteral(const yaya::string_t &str);
 
-char	IsNt(void);
+bool	IsUnicodeAware(void);
 
 void	EscapeString(yaya::string_t &wstr);
 void	UnescapeString(yaya::string_t &wstr);

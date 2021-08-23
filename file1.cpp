@@ -42,13 +42,7 @@ int	CFile1::Open(void)
 	if (fp != NULL)
 		return 1;
 
-	char	*filepath = Ccct::Ucs2ToMbcs(name, CHARSET_DEFAULT);
-	if (filepath == NULL)
-		return 0;
-
-	fp = yaya::w_fopen((wchar_t *)name.c_str(), (wchar_t *)mode.c_str());
-	free(filepath);
-	filepath = NULL;
+	fp = yaya::w_fopen(name.c_str(), (wchar_t *)mode.c_str());
 
 	if ( ! fp ) {
 		size = 0;

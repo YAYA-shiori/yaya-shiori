@@ -823,17 +823,35 @@ char	IsLegalPlainStrLiteral(const yaya::string_t &str)
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  IsNt
- *  機能概要：  0/1=9x系/NT系　を返します
+ *  関数名  ：  IsUnicodeAware
+ *  機能概要：  Unicode系APIが使えるかどうかを返します
+ *              POSIXは常にtrue / Win9x/Meのみfalse
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32) || defined(_WIN32_WCE)
-char	IsNt(void)
+class IsUnicodeAwareHelper
 {
-	OSVERSIONINFO	osi = { sizeof(OSVERSIONINFO) };
+public:
+	bool isnt;
 
-	GetVersionEx(&osi);
-	return (osi.dwPlatformId == VER_PLATFORM_WIN32_NT) ? 1 : 0;
+	IsUnicodeAwareHelper() {
+		OSVERSIONINFO osVer;
+		osVer.dwOSVersionInfoSize = sizeof(osVer);
+
+		::GetVersionEx(&osVer);
+		isnt = (osVer.dwPlatformId == VER_PLATFORM_WIN32_NT);
+	}
+};
+
+bool	IsUnicodeAware(void)
+{
+	static IsUnicodeAwareHelper h;
+	return h.isnt;
+}
+#else
+bool	IsUnicodeAware(void)
+{
+	return true;
 }
 #endif
 

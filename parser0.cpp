@@ -254,7 +254,7 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 	fix_filepath(file);
 #endif
 	// ファイルを開く
-	FILE	*fp = yaya::w_fopen((wchar_t *)file.c_str(), L"r");
+	FILE	*fp = yaya::w_fopen(file.c_str(), L"r");
 	if (fp == NULL) {
 		vm.logger().Error(E_E, 5, file);
 		return 2;
