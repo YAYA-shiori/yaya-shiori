@@ -201,13 +201,13 @@ public:
 		{
 			const CValue &c = ansv_const();
 			if ( (c.s_value.size() > 10000) || c.array_size() ) {
-				m_ansv.reset((CValue*)NULL);
+				m_ansv.reset();
 			}
 		}
 		{
 			const CValue &c = emb_ansv_const();
 			if ( (c.s_value.size() > 10000) || c.array_size() ) {
-				m_emb_ansv.reset((CValue*)NULL);
+				m_emb_ansv.reset();
 			}
 		}
 	}

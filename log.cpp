@@ -100,7 +100,7 @@ void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 	if (fileen) {
 		char	*tmpstr = Ccct::Ucs2ToMbcs(str, charset);
 		if (tmpstr != NULL) {
-			FILE	*fp = yaya::w_fopen((yaya::char_t *)path.c_str(), L"w");
+			FILE	*fp = yaya::w_fopen(path.c_str(), L"w");
 			if (fp != NULL) {
 /*				if (charset == CHARSET_UTF8)
 					write_utf8bom(fp);*/
@@ -181,7 +181,7 @@ void	CLog::Write(const yaya::char_t *str, int mode)
 		if (! path.empty()) {
 			char	*tmpstr = Ccct::Ucs2ToMbcs(cstr, charset);
 			if (tmpstr != NULL) {
-				FILE	*fp = yaya::w_fopen((yaya::char_t *)path.c_str(), L"a");
+				FILE	*fp = yaya::w_fopen(path.c_str(), L"a");
 				if (fp != NULL) {
 					fprintf(fp, "%s", tmpstr);
 					fclose(fp);
