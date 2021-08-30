@@ -91,7 +91,7 @@ extern "C" {
 #endif
 #endif
 
-#define	SYSFUNC_NUM					142 //システム関数の全数
+#define	SYSFUNC_NUM					145 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -295,6 +295,9 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"GETSYSTEMFUNCLIST",
 	L"GETFUNCINFO",
 	L"PROCESSGLOBALDEFINE",
+	L"UNDEFFUNC",
+	L"UNDEFGLOBALDEFINE",
+	L"DICUNLOAD",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -706,6 +709,12 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return GETFUNCINFO(arg, d, l);
 	case 141:
 		return PROCESSGLOBALDEFINE(arg, d, l);
+	case 142:
+		return UNDEFFUNC(arg, d, l);
+	case 143:
+		return UNDEFGLOBALDEFINE(arg, d, l);
+	case 144:
+		return DICUNLOAD(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -3129,6 +3138,7 @@ CValue	CSystemFunction::FDIGEST(const CValue &arg, yaya::string_t &d, int &l)
 
 	return CValue(yaya::string_t(md5str));
 }
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::DICLOAD
  * -----------------------------------------------------------------------
@@ -3165,6 +3175,105 @@ CValue	CSystemFunction::DICLOAD(const CValue &arg, yaya::string_t &d, int &l)
 
 	return CValue(err != 0 ? 1 : 0);
 }
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::DICUNLOAD
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::DICUNLOAD(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if (!arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"DICUNLOAD", d, l);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"DICUNLOAD", d, l);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	yaya::string_t fullpath = ToFullPath(arg.array()[0].s_value);
+
+	int err = vm.parser0().DynamicUnloadDictionary(fullpath);
+
+	if ( err > 1 ) {
+		SetError(err);
+	}
+
+	return CValue(err != 0 ? 1 : 0);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::UNDEFFUNC
+ *  引数　　：　_argv[0] = 関数名
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::UNDEFFUNC(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if (!arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"UNDEFFUNC", d, l);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"UNDEFFUNC", d, l);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	yaya::string_t funcname = arg.array()[0].s_value;
+
+	int err = vm.parser0().DynamicUndefFunc(funcname);
+
+	if ( err > 1 ) {
+		SetError(err);
+	}
+
+	return CValue(err != 0 ? 1 : 0);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::UNDEFGLOBALDEFINE
+ *  引数　　：　_argv[0] = GLOBALDEFINE name
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::UNDEFGLOBALDEFINE(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if (!arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"UNDEFGLOBALDEFINE", d, l);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"UNDEFGLOBALDEFINE", d, l);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	yaya::string_t defname = arg.array()[0].s_value;
+
+	std::vector<CDefine> &gdefines = vm.gdefines();
+	std::vector<CDefine>::iterator itg = gdefines.begin();
+
+	int delcount = 0;
+
+	while (itg != gdefines.end()) {
+		if ( itg->before == defname ) {
+			itg = gdefines.erase(itg);
+			delcount += 1;
+		}
+		else {
+			++itg;
+		}
+	}
+
+	return CValue(delcount);
+}
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::GETFUNCINFO
  * -----------------------------------------------------------------------

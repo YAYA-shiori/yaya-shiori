@@ -101,8 +101,6 @@ bool	CParser0::ParseAfterLoad(const yaya::string_t &dicfilename)
 	// 中間コード生成の後処理と検査
 	aret += vm.parser1().CheckExecutionCode(dicfilename);
 
-	vm.function_parse().BuildFunctionMap();
-
 	return aret != 0;
 }
 
@@ -159,21 +157,26 @@ char	CParser0::ParseEmbedString(yaya::string_t& str, CStatement &st, const yaya:
  *  返値　　：  0=正常 1=文法エラー 5=ファイルなし 95=重複
  * -----------------------------------------------------------------------
  */
-int CParser0::DynamicLoadDictionary(const yaya::string_t& filename, int charset)
+int CParser0::DynamicLoadDictionary(const yaya::string_t& dicfilename, int charset)
 {
-	if ( IsDicFileAlreadyExist(filename) ) {
-		vm.logger().Error(E_E, 95, filename);
+	if ( IsDicFileAlreadyExist(dicfilename) ) {
+		vm.logger().Error(E_E, 95, dicfilename);
 		return 95;
 	}
 
 	vm.func_parse_new();
 
-	char t = LoadDictionary1(filename,vm.gdefines(),charset);
+	std::vector<CDefine> old_define = vm.gdefines();
+
+	char t = LoadDictionary1(dicfilename,vm.gdefines(),charset);
 	if ( t == 2 ) {
+		vm.func_parse_destruct();
+		vm.gdefines() = old_define;
 		return 5;
 	}
+
 	if ( t == 0 ) {
-		t += ParseAfterLoad(filename);
+		t += ParseAfterLoad(dicfilename);
 	}
 
 	if ( t == 0 ) { //success
@@ -181,9 +184,124 @@ int CParser0::DynamicLoadDictionary(const yaya::string_t& filename, int charset)
 	}
 	else { //error
 		vm.func_parse_destruct();
+		vm.gdefines() = old_define;
 	}
 
 	return t != 0;
+}
+
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CParser0::DynamicUnloadDictionary
+ *  機能概要：  特定のファイル名に関係する関数とdefineを削除します
+ *
+ *  返値　　：  0=正常 71=関数行方不明 96=ファイルなし
+ * -----------------------------------------------------------------------
+ */
+int	CParser0::DynamicUnloadDictionary(const yaya::string_t& dicfilename)
+{
+	if ( ! IsDicFileAlreadyExist(dicfilename) ) {
+		vm.logger().Error(E_E, 96, dicfilename);
+		return 96;
+	}
+
+	vm.func_parse_new();
+
+	std::vector<CFunction> &functions = vm.function_parse().func;
+	std::vector<CFunction>::iterator itf = functions.begin();
+
+	//remove function
+	while (itf != functions.end()) {
+		if ( itf->dicfilename == dicfilename ) {
+			itf = functions.erase(itf);
+		}
+		else {
+			++itf;
+		}
+	}
+
+	vm.function_parse().RebuildFunctionMap();
+
+	int error = 0;
+
+	itf = functions.begin();
+	while (itf != functions.end()) {
+		error += itf->ReindexUserFunctions();
+		++itf;
+	}
+
+	if ( error ) {
+		vm.func_parse_destruct();
+		return 71; //function not found
+	}
+
+	//remove globaldefine
+	std::vector<CDefine> &gdefines = vm.gdefines();
+	std::vector<CDefine>::iterator itg = gdefines.begin();
+
+	while (itg != gdefines.end()) {
+		if ( itg->dicfilename == dicfilename ) {
+			itg = gdefines.erase(itg);
+		}
+		else {
+			++itg;
+		}
+	}
+
+	vm.func_parse_to_exec();
+	return 0;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CParser0::DynamicUndefFunc
+ *  機能概要：  特定の関数を削除します
+ *
+ *  返値　　：  0=正常 1=対象関数なし 71=関数行方不明
+ * -----------------------------------------------------------------------
+ */
+int	CParser0::DynamicUndefFunc(const yaya::string_t& funcname)
+{
+	vm.func_parse_new();
+
+	std::vector<CFunction> &functions = vm.function_parse().func;
+	std::vector<CFunction>::iterator itf = functions.begin();
+
+	//remove function
+	int count = 0;
+
+	while (itf != functions.end()) {
+		if ( itf->name == funcname ) {
+			itf = functions.erase(itf);
+			count += 1;
+		}
+		else {
+			++itf;
+		}
+	}
+
+	if ( count == 0 ) {
+		vm.logger().Error(E_E, 1, funcname);
+		vm.func_parse_destruct();
+		return 1; //function not found
+	}
+
+	vm.function_parse().RebuildFunctionMap();
+
+	int error = 0;
+
+	itf = functions.begin();
+	while (itf != functions.end()) {
+		error += itf->ReindexUserFunctions();
+		++itf;
+	}
+
+	if ( error ) {
+		vm.func_parse_destruct();
+		return 71; //function not found
+	}
+
+	vm.func_parse_to_exec();
+	return 0;
 }
 
 /* -----------------------------------------------------------------------
@@ -205,42 +323,6 @@ char CParser0::IsDicFileAlreadyExist(const yaya::string_t& dicfilename)
 		++itf;
 	}
 	return 0;
-}
-
-/* -----------------------------------------------------------------------
- *  関数名  ：  CParser0::RemoveFunctionAndDefineByName
- *  機能概要：  特定のファイル名に関係する関数とdefineを削除します
- * -----------------------------------------------------------------------
- */
-void	CParser0::RemoveFunctionAndDefineByName(const yaya::string_t& dicfilename)
-{
-	std::vector<CFunction> &functions = vm.function_parse().func;
-	std::vector<CFunction>::iterator itf = functions.begin();
-
-	//remove function
-	while (itf != functions.end()) {
-		if ( itf->dicfilename == dicfilename ) {
-			itf = functions.erase(itf);
-		}
-		else {
-			++itf;
-		}
-	}
-
-	vm.function_parse().BuildFunctionMap();
-
-	//remove globaldefine
-	std::vector<CDefine> &gdefines = vm.gdefines();
-	std::vector<CDefine>::iterator itg = gdefines.begin();
-
-	while (itg != gdefines.end()) {
-		if ( itg->dicfilename == dicfilename ) {
-			itg = gdefines.erase(itg);
-		}
-		else {
-			++itg;
-		}
-	}
 }
 
 /* -----------------------------------------------------------------------
@@ -755,6 +837,7 @@ int	CParser0::MakeFunction(const yaya::string_t& name, int chtype, const yaya::s
 */
 
 	vm.function_parse().func.push_back(CFunction(vm, name, chtype, dicfilename, linecount));
+	vm.function_parse().AddFunctionIndex(name,vm.function_parse().func.size()-1);
 
 	return vm.function_parse().func.size() - 1;
 }
@@ -1393,7 +1476,8 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 {
 	// 関数
 	int	i = vm.function_parse().GetFunctionIndexFromName(scell.value_const().s_value);
-	if(i != -1) {
+	if(i >= 0) {
+		scell.name = scell.value_const().s_value;
 		scell.value_SetType(F_TAG_USERFUNC);
 		scell.index     = i;
 		scell.value_Delete();

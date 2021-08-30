@@ -56,7 +56,10 @@ public:
 	}
 	char	Parse(int charset, const std::vector<CDic1>& dics);
 	char	ParseEmbedString(yaya::string_t& str, CStatement &st, const yaya::string_t &dicfilename, int linecount);
-	int		DynamicLoadDictionary(const yaya::string_t& filename, int charset);
+
+	int		DynamicLoadDictionary(const yaya::string_t& dicfilename, int charset);
+	int		DynamicUnloadDictionary(const yaya::string_t& dicfilename);
+	int		DynamicUndefFunc(const yaya::string_t& funcname);
 
 	//changed to public, for processglobaldefine
 	void	ExecDefinePreProcess(yaya::string_t &str, const std::vector<CDefine>& defines);
@@ -97,7 +100,6 @@ protected:
 
 	char	IsDicFileAlreadyExist(const yaya::string_t& dicfilename);
 
-	void	RemoveFunctionAndDefineByName(const yaya::string_t& dicfilename);
 };
 
 //----

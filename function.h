@@ -58,6 +58,11 @@ public:
 	}
 	~CStatement(void) {}
 
+	void deep_copy(CStatement &from) {
+		yaya::shared_ptr_deep_copy(from.m_cell,this->m_cell);
+		yaya::shared_ptr_deep_copy(from.m_serial,this->m_serial);
+	}
+
 	//////////////////////////////////////////////
 	std::vector<CCell>::size_type cell_size(void) const {
 		if ( ! m_cell.get() ) {
@@ -147,10 +152,14 @@ public:
 
 	~CFunction(void) {}
 
+	void    deep_copy_statement(CFunction &from);
+
 	void	CompleteSetting(void);
 	int		Execute(CValue &result, const CValue &arg, CLocalVariable &lvar);
 
 	const CValue& GetFormulaAnswer(CLocalVariable &lvar, CStatement &st);
+
+	int     ReindexUserFunctions(void);
 
 	const yaya::string_t&	GetFileName() const {return dicfilename;}
 	size_t	GetLineNumBegin() const { return linecount;}
@@ -191,8 +200,11 @@ private:
 public:
 	std::vector<CFunction> func;
 	
-	int	GetFunctionIndexFromName(const yaya::string_t& str);
-	void BuildFunctionMap(void);
+	int  GetFunctionIndexFromName(const yaya::string_t& name);
+	void AddFunctionIndex(const yaya::string_t& name,int index);
+	void ClearFunctionIndex(void);
+	void RebuildFunctionMap(void);
+	void deep_copy_func(CFunctionDef &from);
 };
 
 //----

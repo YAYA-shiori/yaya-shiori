@@ -44,13 +44,9 @@
 	shared_ptrをディープコピーする点に注意
 -----------------------------------------------*/
 
-template<class T> void shared_ptr_deep_copy(std_shared_ptr<T> &in,std_shared_ptr<T> &out) {
-	out.reset(new T(*in));
-}
-
 CAyaVM::CAyaVM(CAyaVM &ovm)
 {
-	#define copy_new(name) shared_ptr_deep_copy(ovm.name,name);
+	#define copy_new(name) yaya::shared_ptr_deep_copy(ovm.name,name);
 	copy_new(m_basis);
 	copy_new(m_function_exec);
 	copy_new(m_gdefines);
@@ -151,7 +147,9 @@ void CAyaVM::func_parse_destruct(void)
 
 void CAyaVM::func_parse_new(void)
 {
-	shared_ptr_deep_copy(m_function_exec,m_function_parse);
+	yaya::shared_ptr_deep_copy(m_function_exec,m_function_parse);
+
+	m_function_parse->deep_copy_func(*m_function_exec);
 }
 
 /*-----------------------------------------------

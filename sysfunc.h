@@ -244,6 +244,11 @@ protected:
 	CValue	FTELL(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue	DICLOAD(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	DICUNLOAD(const CValue &arg, yaya::string_t &d, int &l);
+
+	CValue UNDEFFUNC(const CValue &arg, yaya::string_t &, int &);
+	CValue UNDEFGLOBALDEFINE(const CValue &arg, yaya::string_t &, int &);
+
 	CValue	GETFUNCINFO(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	PROCESSGLOBALDEFINE(const CValue &arg, yaya::string_t &d, int &l);
 
