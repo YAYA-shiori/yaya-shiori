@@ -183,4 +183,18 @@ protected:
 
 //----
 
+class CFunctionDef
+{
+private:
+	yaya::indexmap map;
+
+public:
+	std::vector<CFunction> func;
+	
+	int	GetFunctionIndexFromName(const yaya::string_t& str);
+	void BuildFunctionMap(void);
+};
+
+//----
+
 #endif

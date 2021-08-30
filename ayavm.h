@@ -19,6 +19,7 @@
 
 class CBasis;
 class CFunction;
+class CFunctionDef;
 class CCallDepth;
 class CSystemFunction;
 class CGlobalVariable;
@@ -34,8 +35,9 @@ class CAyaVM
 private:
 	std_shared_ptr<CBasis>					m_basis;
 
-	std_shared_ptr< std::vector<CFunction> >	m_function;
-	std_shared_ptr< yaya::indexmap > m_functionmap;
+	std_shared_ptr<CFunctionDef>	m_function_parse;
+	std_shared_ptr<CFunctionDef>	m_function_exec;
+	std_shared_ptr<CFunctionDef>	m_function_destruct;
 	
 	std_shared_ptr< std::vector<CDefine> >	m_gdefines;
 
@@ -61,8 +63,15 @@ public:
 
 	CAyaVM* get_a_deep_copy();
 
-	void Load(void);
-	void Unload(void);
+	void load(void);
+	void unload(void);
+
+	void request_before(void);
+	void request_after(void);
+
+	void func_parse_to_exec(void);
+	void func_parse_destruct(void);
+	void func_parse_new(void);
 
 	unsigned int genrand(void);
 	int genrand_int(int n);
@@ -77,8 +86,8 @@ public:
 	CBasis&					basis();
 
 	// 関数/システム関数/グローバル変数
-	std::vector<CFunction>&	function();
-	yaya::indexmap& functionmap();
+	CFunctionDef&	function_parse(); //パース用
+	CFunctionDef&	function_exec(); //実行用
 
 	std::vector<CDefine>&	gdefines();
 
