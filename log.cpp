@@ -9,6 +9,8 @@
 # include "stdafx.h"
 #endif
 
+#include "deelx.h"
+
 #include "ccct.h"
 #include "log.h"
 #include "manifest.h"
@@ -333,21 +335,44 @@ void	CLog::Io(char io, const yaya::char_t *str)
 
 	if (!io) {
 		//ignoreiolog機能。
-		if(ignore_iolog_strings.size()!=0){
+		if ( iolog_filter_keyword.size() > 0 || iolog_filter_keyword_regex.size() > 0 ) {
 			yaya::string_t cstr=str;
+
+			bool found = false;
+
 			std::vector<yaya::string_t>::iterator it;
 
-			for(it = ignore_iolog_strings.begin(); it != ignore_iolog_strings.end(); it++){
+			for(it = iolog_filter_keyword.begin(); it != iolog_filter_keyword.end(); it++){
 				if(cstr.find(*it) != yaya::string_t::npos){
-					//次の出力のログを抑制する。
-					//美しい実装ではないけどbasis側に手を加えたくないので。
-					//現状、basis側で必ず入力と出力はワンセットで出るはず
-					//-> see basis.cpp ExecuteRequest
-					ignore_iolog_noresult=1;
-					return;
+					found = true;
+					break;
 				}
 			}
 
+			if ( ! found ) {
+				for(it = iolog_filter_keyword_regex.begin(); it != iolog_filter_keyword_regex.end(); it++){
+					CRegexpT<yaya::char_t> regex(it->c_str(),MULTILINE | EXTENDED);
+
+					MatchResult result = regex.Match(cstr.c_str());
+					if ( result.IsMatched() ) {
+						found = true;
+						break;
+					}
+				}
+			}
+
+			if ( iolog_filter_mode == 0 ) { //denylist
+				if ( found ) {
+					skip_next_log_output = 1;
+					return;
+				}
+			}
+			else { //allowlist
+				if ( ! found ) {
+					skip_next_log_output = 1;
+					return;
+				}
+			}
 		}
 
 		Write(L"// request\n");
@@ -358,8 +383,8 @@ void	CLog::Io(char io, const yaya::char_t *str)
 	}
 	else {
 		//ログ抑制
-		if(ignore_iolog_noresult){
-			ignore_iolog_noresult=0;
+		if(skip_next_log_output){
+			skip_next_log_output=0;
 			return;
 		}
 
@@ -447,21 +472,66 @@ HWND	CLog::GetCheckerWnd(void)
 #endif
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CLog::AddIgnoreIologString
+ *  関数名  ：  CLog::AddIologFilterKeyword / KeywordRegex
  *  機能概要：  IOログの無視する文字列リストを追加します
  * -----------------------------------------------------------------------
  */
-void	CLog::AddIgnoreIologString(const yaya::string_t &ignorestr){
-	ignore_iolog_strings.push_back(ignorestr);
+void	CLog::AddIologFilterKeyword(const yaya::string_t &ignorestr){
+	std::vector<yaya::string_t>::iterator it = std::find(iolog_filter_keyword.begin(), iolog_filter_keyword.end(), ignorestr);
+
+	if ( it == iolog_filter_keyword.end() ){
+		iolog_filter_keyword.push_back(ignorestr);
+	}
+}
+
+void	CLog::AddIologFilterKeywordRegex(const yaya::string_t &ignorestr){
+	std::vector<yaya::string_t>::iterator it = std::find(iolog_filter_keyword_regex.begin(), iolog_filter_keyword_regex.end(), ignorestr);
+
+	if ( it == iolog_filter_keyword_regex.end() ){
+		iolog_filter_keyword_regex.push_back(ignorestr);
+	}
+}
+
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CLog::DeleteIologFilterKeyword / KeywordRegex
+ *  機能概要：  IOログの無視する文字列リストを削除します
+ * -----------------------------------------------------------------------
+ */
+void	CLog::DeleteIologFilterKeyword(const yaya::string_t &ignorestr){
+	std::vector<yaya::string_t>::iterator it = std::find(iolog_filter_keyword.begin(), iolog_filter_keyword.end(), ignorestr);
+
+	if ( it != iolog_filter_keyword.end() ){
+		iolog_filter_keyword.erase(it);
+	}
+}
+
+void	CLog::DeleteIologFilterKeywordRegex(const yaya::string_t &ignorestr){
+	std::vector<yaya::string_t>::iterator it = std::find(iolog_filter_keyword_regex.begin(), iolog_filter_keyword_regex.end(), ignorestr);
+
+	if ( it != iolog_filter_keyword_regex.end() ){
+		iolog_filter_keyword_regex.erase(it);
+	}
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CLog::AddIgnoreIologString
+ *  関数名  ：  CLog::ClearIologFilterKeyword
  *  機能概要：  IOログの無視する文字列リストをクリアします
  * -----------------------------------------------------------------------
  */
-void	CLog::ClearIgnoreIologString(){
-	ignore_iolog_strings.clear();
+void	CLog::ClearIologFilterKeyword(){
+	iolog_filter_keyword.clear();
+	iolog_filter_keyword_regex.clear();
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CLog::SetIologFilterMode
+ *  機能概要：  IOログのフィルタモード(ホワイトリスト=1/ブラックリスト=0)
+ * -----------------------------------------------------------------------
+ */
+void CLog::SetIologFilterMode(char mode)
+{
+	iolog_filter_mode = mode;
 }
 
 /* -----------------------------------------------------------------------

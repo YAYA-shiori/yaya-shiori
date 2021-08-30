@@ -101,6 +101,8 @@ bool	CParser0::ParseAfterLoad(const yaya::string_t &dicfilename)
 	// 中間コード生成の後処理と検査
 	aret += vm.parser1().CheckExecutionCode(dicfilename);
 
+	vm.function_parse().BuildFunctionMap();
+
 	return aret != 0;
 }
 
@@ -164,15 +166,21 @@ int CParser0::DynamicLoadDictionary(const yaya::string_t& filename, int charset)
 		return 95;
 	}
 
+	vm.func_parse_new();
+
 	char t = LoadDictionary1(filename,vm.gdefines(),charset);
 	if ( t == 2 ) {
 		return 5;
 	}
+	if ( t == 0 ) {
+		t += ParseAfterLoad(filename);
+	}
 
-	t += ParseAfterLoad(filename);
-
-	if ( t != 0 ) {
-		RemoveFunctionAndDefineByName(filename);
+	if ( t == 0 ) { //success
+		vm.func_parse_to_exec();
+	}
+	else { //error
+		vm.func_parse_destruct();
 	}
 
 	return t != 0;
@@ -187,7 +195,7 @@ int CParser0::DynamicLoadDictionary(const yaya::string_t& filename, int charset)
  */
 char CParser0::IsDicFileAlreadyExist(const yaya::string_t& dicfilename)
 {
-	std::vector<CFunction> &functions = vm.function();
+	std::vector<CFunction> &functions = vm.function_parse().func;
 	std::vector<CFunction>::iterator itf = functions.begin();
 
 	while (itf != functions.end()) {
@@ -206,8 +214,7 @@ char CParser0::IsDicFileAlreadyExist(const yaya::string_t& dicfilename)
  */
 void	CParser0::RemoveFunctionAndDefineByName(const yaya::string_t& dicfilename)
 {
-	std::vector<CFunction> &functions = vm.function();
-	yaya::indexmap& functionmap = vm.functionmap();
+	std::vector<CFunction> &functions = vm.function_parse().func;
 	std::vector<CFunction>::iterator itf = functions.begin();
 
 	//remove function
@@ -220,11 +227,7 @@ void	CParser0::RemoveFunctionAndDefineByName(const yaya::string_t& dicfilename)
 		}
 	}
 
-	//rebuild function map
-	functionmap.clear();
-	for (size_t fcnt = 0; fcnt < functions.size(); ++fcnt) {
-		functionmap.insert(yaya::indexmap::value_type(functions[fcnt].name, static_cast<int>(vm.function().size() - 1)));
-	}
+	vm.function_parse().BuildFunctionMap();
 
 	//remove globaldefine
 	std::vector<CDefine> &gdefines = vm.gdefines();
@@ -743,18 +746,17 @@ char	CParser0::DefineFunctions(std::vector<yaya::string_t> &s, const yaya::strin
  */
 int	CParser0::MakeFunction(const yaya::string_t& name, int chtype, const yaya::string_t& dicfilename, int linecount)
 {
-	int	i = GetFunctionIndexFromName(name);
+	int	i = vm.function_parse().GetFunctionIndexFromName(name);
 	if(i != -1)
 		return -1;
-/*	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++)
+/*	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++)
 		if (!name.compare(it->name))
 			return -1;
 */
 
-	vm.function().push_back(CFunction(vm, name, chtype, dicfilename, linecount));
-	vm.functionmap().insert(yaya::indexmap::value_type(name,static_cast<int>(vm.function().size()-1)));
+	vm.function_parse().func.push_back(CFunction(vm, name, chtype, dicfilename, linecount));
 
-	return vm.function().size() - 1;
+	return vm.function_parse().func.size() - 1;
 }
 
 /* -----------------------------------------------------------------------
@@ -771,43 +773,43 @@ char	CParser0::StoreInternalStatement(int targetfunc, yaya::string_t &str, int& 
 	// {
 	if (!str.compare(L"{")) {
 		depth++;
-		vm.function()[targetfunc].statement.push_back(CStatement(ST_OPEN, linecount));
+		vm.function_parse().func[targetfunc].statement.push_back(CStatement(ST_OPEN, linecount));
 		return 1;
 	}
 	// }
 	else if (!str.compare(L"}")) {
 		depth--;
-		vm.function()[targetfunc].statement.push_back(CStatement(ST_CLOSE, linecount));
+		vm.function_parse().func[targetfunc].statement.push_back(CStatement(ST_CLOSE, linecount));
 		return 1;
 	}
 	// others　elseへ書き換えてしまう
 	else if (!str.compare(L"others")) {
-		vm.function()[targetfunc].statement.push_back(CStatement(ST_ELSE, linecount));
+		vm.function_parse().func[targetfunc].statement.push_back(CStatement(ST_ELSE, linecount));
 		return 1;
 	}
 	// else
 	else if (!str.compare(L"else")) {
-		vm.function()[targetfunc].statement.push_back(CStatement(ST_ELSE, linecount));
+		vm.function_parse().func[targetfunc].statement.push_back(CStatement(ST_ELSE, linecount));
 		return 1;
 	}
 	// break
 	else if (!str.compare(L"break")) {
-		vm.function()[targetfunc].statement.push_back(CStatement(ST_BREAK, linecount));
+		vm.function_parse().func[targetfunc].statement.push_back(CStatement(ST_BREAK, linecount));
 		return 1;
 	}
 	// continue
 	else if (!str.compare(L"continue")) {
-		vm.function()[targetfunc].statement.push_back(CStatement(ST_CONTINUE, linecount));
+		vm.function_parse().func[targetfunc].statement.push_back(CStatement(ST_CONTINUE, linecount));
 		return 1;
 	}
 	// return
 	else if (!str.compare(L"return")) {
-		vm.function()[targetfunc].statement.push_back(CStatement(ST_RETURN, linecount));
+		vm.function_parse().func[targetfunc].statement.push_back(CStatement(ST_RETURN, linecount));
 		return 1;
 	}
 	// --
 	else if (!str.compare(L"--")) {
-		vm.function()[targetfunc].statement.push_back(CStatement(ST_COMBINE, linecount));
+		vm.function_parse().func[targetfunc].statement.push_back(CStatement(ST_COMBINE, linecount));
 		return 1;
 	}
 
@@ -854,7 +856,7 @@ char	CParser0::StoreInternalStatement(int targetfunc, yaya::string_t &str, int& 
 	}
 	// case　特殊な名前のローカル変数への代入に書き換えてしまう
 	else if (!st.compare(L"case")) {
-		str = PREFIX_CASE_VAR + vm.function()[targetfunc].name;
+		str = PREFIX_CASE_VAR + vm.function_parse().func[targetfunc].name;
 		str += yaya::ws_itoa(linecount);
 		str += L"=";
 		str += par;
@@ -904,7 +906,7 @@ char	CParser0::MakeStatement(int type, int targetfunc, yaya::string_t &str, cons
 			return 0;
 	}
 
-	vm.function()[targetfunc].statement.push_back(addstatement);
+	vm.function_parse().func[targetfunc].statement.push_back(addstatement);
 	return 1;
 }
 
@@ -1309,7 +1311,7 @@ void	CParser0::StructFormulaCell(yaya::string_t &str, std::vector<CCell> &cells)
  */
 char	CParser0::AddSimpleIfBrace(const yaya::string_t &dicfilename)
 {
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
 
 		int	beftype = ST_UNKNOWN;
@@ -1344,7 +1346,7 @@ char	CParser0::SetCellType(const yaya::string_t &dicfilename)
 {
 	int	errorflg = 0;
 
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
 
 		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++) {
@@ -1390,7 +1392,7 @@ char	CParser0::SetCellType(const yaya::string_t &dicfilename)
 char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfilename, int linecount)
 {
 	// 関数
-	int	i = GetFunctionIndexFromName(scell.value_const().s_value);
+	int	i = vm.function_parse().GetFunctionIndexFromName(scell.value_const().s_value);
 	if(i != -1) {
 		scell.value_SetType(F_TAG_USERFUNC);
 		scell.index     = i;
@@ -1400,7 +1402,7 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 
 /*
 	int i = 0;
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++, i++)
+	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++, i++)
 		if (!scell.value_const().s_value.compare(it->name)) {
 			scell.value_SetType(F_TAG_USERFUNC);
 			scell.index     = i;
@@ -1561,7 +1563,7 @@ char	CParser0::ParseEmbeddedFactor(const yaya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
 
 		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++) {
@@ -1666,7 +1668,7 @@ char	CParser0::ParseEmbeddedFactor1(CStatement& st, const yaya::string_t& dicfil
  */
 void	CParser0::ConvertPlainString(const yaya::string_t& dicfilename)
 {
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
 
 		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++) {
@@ -1879,7 +1881,7 @@ char	CParser0::CheckDepthAndSerialize(const yaya::string_t& dicfilename)
 	int	errcount = 0;
 
 	// 数式のカッコ検査
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
 
 		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++) {
@@ -1895,7 +1897,7 @@ char	CParser0::CheckDepthAndSerialize(const yaya::string_t& dicfilename)
 	errcount += MakeCompleteConvertionWhenToIf(dicfilename);
 
 	// 演算順序の決定
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
 
 		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++) {
@@ -1921,7 +1923,7 @@ char	CParser0::MakeCompleteConvertionWhenToIf(const yaya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
 
 		std::vector<yaya::string_t>	caseary;
@@ -2344,35 +2346,4 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 
 	return 0;
 }
-
-/* -----------------------------------------------------------------------
- *  関数名  ：  CParser0::GetFunctionIndexFromName
- *  機能概要：  関数名に対応するvm.function()配列の序数を取得します
- * -----------------------------------------------------------------------
- */
-int	CParser0::GetFunctionIndexFromName(const yaya::string_t& str)
-{
-	yaya::indexmap::const_iterator it = vm.functionmap().find(str);
-	if ( it != vm.functionmap().end() ) {
-		return it->second;
-	}
-	return -1;
-
-/*	int i = vm.function_wm().search(str, 0);
-	if((i != -1) && !vm.function()[i].name.compare(str)) {
-		// strの最初が関数名にマッチした場合にWordMatchは-1以外を返すので，
-		// 完全一致かどうか再度チェックが必要．
-		return i;
-	}
-	return -1;*/
-/*
-	int	sz = vm.function().size();
-	for(int i = 0; i < sz; i++)
-		if (!vm.function()[i].name.compare(str))
-			return i;
-
-	return -1;
-*/
-}
-
 

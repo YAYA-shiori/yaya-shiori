@@ -41,7 +41,7 @@ void	CLogExCode::OutExecutionCodeForCheck(void)
 
     yaya::string_t tmpstr;
 	int	i = 0;
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++, i++) {
+	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++, i++) {
 		// ä÷êîÇÃíËã`î‘çÜ
 		tmpstr = L"[" + yaya::ws_itoa(i) + L"] ";
 		vm.logger().Write(tmpstr);
@@ -321,7 +321,7 @@ void	CLogExCode::StructCellString(std::vector<CCell> *cellvector, yaya::string_t
 			break;
 		case F_TAG_USERFUNC:
 			formula += L"(func)";
-			formula += vm.function()[it->index].name;
+			formula += vm.function_parse().func[it->index].name;
 			formula += L" ";
 			break;
 		case F_TAG_VARIABLE:

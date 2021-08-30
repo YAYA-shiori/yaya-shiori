@@ -38,8 +38,13 @@ protected:
 	char		iolog;		// 入出力ロギング有効フラグ
 
 	//入力でこの文字列があったらログ出力しないリスト
-	std::vector<yaya::string_t> ignore_iolog_strings;
-	char		ignore_iolog_noresult;//↑の入力後に出力も抑制するためのフラグ
+	std::vector<yaya::string_t> iolog_filter_keyword;
+	std::vector<yaya::string_t> iolog_filter_keyword_regex;
+
+	//allowlist = 1 / denylist = 0
+	char iolog_filter_mode;
+
+	volatile char skip_next_log_output;//↑の入力後に出力も抑制するためのフラグ
 
 	std::deque<yaya::string_t> error_log_history;
 
@@ -50,7 +55,8 @@ public:
 		open = 0;
 		fileen = 1;
 		iolog  = 1;
-		ignore_iolog_noresult=0;
+		skip_next_log_output=0;
+		iolog_filter_mode = 0;
 	}
 
 #if defined(POSIX)
@@ -80,8 +86,14 @@ public:
 	void	SendLogToWnd(const yaya::char_t *str, int mode);
 	void	SendLogToWnd(const yaya::string_t &str, int mode);
 
-	void	AddIgnoreIologString(const yaya::string_t &ignorestr);
-	void	ClearIgnoreIologString();
+	void	AddIologFilterKeyword(const yaya::string_t &ignorestr);
+	void	AddIologFilterKeywordRegex(const yaya::string_t &ignorestr);
+
+	void	DeleteIologFilterKeyword(const yaya::string_t &ignorestr);
+	void	DeleteIologFilterKeywordRegex(const yaya::string_t &ignorestr);
+
+	void	ClearIologFilterKeyword();
+	void	SetIologFilterMode(char mode);
 
 	std::deque<yaya::string_t> & GetErrorLogHistory(void);
 	void SetErrorLogHistory(std::deque<yaya::string_t> &log);

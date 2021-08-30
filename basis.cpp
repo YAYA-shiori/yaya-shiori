@@ -617,9 +617,32 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		checkparser = param.compare(L"on") == 0;
 		return true;
 	}
-	// ignoreiolog
-	if ( cmd.compare(L"ignoreiolog") == 0 ){
-		vm.logger().AddIgnoreIologString(param);
+	// iolog.filter.keyword (old syntax : ignoreiolog)
+	if ( cmd.compare(L"iolog.filter.keyword") == 0 || cmd.compare(L"ignoreiolog") == 0 ){
+		vm.logger().AddIologFilterKeyword(param);
+		return true;
+	}
+	// iolog.filter.keyword.regex
+	if ( cmd.compare(L"iolog.filter.keyword.regex") == 0 ){
+		vm.logger().AddIologFilterKeywordRegex(param);
+		return true;
+	}
+	// iolog.filter.keyword.delete (for SETSETTING)
+	if ( cmd.compare(L"iolog.filter.keyword.delete") == 0 ){
+		vm.logger().DeleteIologFilterKeyword(param);
+		return true;
+	}
+	// iolog.filter.keyword.regex.delete (for SETSETTING)
+	if ( cmd.compare(L"iolog.filter.keyword.regex.delete") == 0 ){
+		vm.logger().DeleteIologFilterKeywordRegex(param);
+		return true;
+	}
+	// iolog.filter.mode
+	if ( cmd.compare(L"iolog.filter.mode") == 0 ){
+		vm.logger().SetIologFilterMode(
+			(param.find(L"white") != yaya::string_t::npos) || (param.find(L"allow") != yaya::string_t::npos)
+			);
+		return true;
 	}
 
 	return false;
@@ -1110,7 +1133,7 @@ void	CBasis::ExecuteLoad(void)
 	CLocalVariable	lvar;
 	vm.logger().Io(0, base_path);
 	CValue	result;
-	vm.function()[funcpos].Execute(result, arg, lvar);
+	vm.function_exec().func[funcpos].Execute(result, arg, lvar);
 	yaya::string_t empty;
 	vm.logger().Io(1, empty);
 }
@@ -1161,7 +1184,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 	vm.calldepth().Init();
 	CLocalVariable	lvar;
 	CValue	result;
-	vm.function()[funcpos].Execute(result, arg, lvar);
+	vm.function_exec().func[funcpos].Execute(result, arg, lvar);
 
 	// 結果を文字列として取得し、文字コードをMBCSに変換
 	yaya::string_t	res = result.GetValueString();
@@ -1286,7 +1309,7 @@ void	CBasis::ExecuteUnload(void)
 	yaya::string_t empty;
 	vm.logger().Io(0, empty);
 	CValue result;
-	vm.function()[funcpos].Execute(result, arg, lvar);
+	vm.function_exec().func[funcpos].Execute(result, arg, lvar);
 	vm.logger().Io(1, empty);
 }
 
@@ -1301,7 +1324,7 @@ int CBasisFuncPos::Find(CAyaVM &vm,const yaya::char_t *name)
 		return pos_saved;
 	}
 
-	pos_saved = vm.parser0().GetFunctionIndexFromName(name);
+	pos_saved = vm.function_exec().GetFunctionIndexFromName(name);
 	is_try_find = true;
 
 	if ( pos_saved < 0 ) {

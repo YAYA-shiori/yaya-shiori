@@ -39,7 +39,7 @@ char	CParser1::CheckExecutionCode(const yaya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
 
 		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++) {
@@ -257,7 +257,7 @@ char	CParser1::SetBreakJumpNo(const yaya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
 
 		std::vector<CVecint>	dline;
@@ -310,7 +310,7 @@ char	CParser1::CheckCaseSyntax(const yaya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
 
 		int	casev = 0;
@@ -344,7 +344,7 @@ char	CParser1::CheckIfSyntax(const yaya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
 
 		int	beftype = ST_UNKNOWN;
@@ -393,7 +393,7 @@ char	CParser1::CheckElseSyntax(const yaya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
 
 		int	beftype = ST_UNKNOWN;
@@ -424,7 +424,7 @@ char	CParser1::CheckForSyntax(const yaya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
 
 		int	beftype[3] = { ST_UNKNOWN, ST_UNKNOWN, ST_UNKNOWN };
@@ -465,7 +465,7 @@ char	CParser1::CheckForeachSyntax(const yaya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
 
 		int	beftype[2]  = { ST_UNKNOWN, ST_UNKNOWN };
@@ -506,7 +506,7 @@ char	CParser1::SetIfJumpNo(const yaya::string_t& dicfilename)
 {
 	int	errcount = 0;
 
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++) {
+	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
 
 		std::vector<int>	dline;
@@ -651,7 +651,7 @@ char	CParser1::CheckFunctionArgument(CStatement& st, const yaya::string_t& dicfi
  */
 void	CParser1::CompleteSetting(void)
 {
-	for(std::vector<CFunction>::iterator it = vm.function().begin(); it != vm.function().end(); it++)
+	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++)
 		it->CompleteSetting();
 
 	vm.variable().CompleteSetting();
