@@ -359,7 +359,11 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 	int		o_index = 0;
 
 	if ( st.serial_size() ) { //高速化用
-		for(std::vector<CSerial>::iterator it = st.serial().begin(); it != st.serial().end(); it++) {
+//		for (std::vector<CSerial>::iterator it = st.serial().begin(); it != st.serial().end(); it++) {
+//		don't use iterator : for dynamic dic load
+		for (size_t i = 0; i < st.serial_size(); ++i) {
+			CSerial *it = &(st.serial()[i]);
+
 			o_index = it->tindex;
 			CCell	&o_cell = st.cell()[o_index];
 			if (o_cell.value_GetType() >= F_TAG_ORIGIN_VALUE) {
@@ -484,7 +488,7 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 				{
 					std_shared_ptr<CValue> tmp_ansv = o_cell.ansv_shared_create();
 					if (ExecFunctionWithArgs(*tmp_ansv.get(), it->index, st, lvar)) {
-						pvm->logger().Error(E_E, 33, pvm->function()[st.cell()[it->index[0]].index].name, dicfilename, st.linecount);
+						pvm->logger().Error(E_E, 33, pvm->function_exec().func[st.cell()[it->index[0]].index].name, dicfilename, st.linecount);
 					}
 					o_cell.ansv_shared() = tmp_ansv;
 				}
@@ -554,7 +558,7 @@ const CValue& CFunction::GetValueRefForCalc(CCell &cell, CStatement &st, CLocalV
 	case F_TAG_USERFUNC: {
 		CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
 		CLocalVariable	t_lvar;
-		pvm->function()[cell.index].Execute(cell.ansv(), arg, t_lvar);
+		pvm->function_exec().func[cell.index].Execute(cell.ansv(), arg, t_lvar);
 		return cell.ansv();
 	}
 	case F_TAG_VARIABLE:
@@ -589,7 +593,7 @@ void	CFunction::SolveEmbedCell(CCell &cell, CStatement &st, CLocalVariable &lvar
 		max_len   = pvm->variable().GetMacthedLongestNameLength(cell.value_const().s_value);
 		// 関数
 		size_t	t_len = 0;
-		for(std::vector<CFunction>::iterator it = pvm->function().begin(); it != pvm->function().end(); it++)
+		for(std::vector<CFunction>::iterator it = pvm->function_exec().func.begin(); it != pvm->function_exec().func.end(); it++)
 			if (!it->name.compare(0,it->namelen,cell.value_const().s_value,0,it->namelen))
 				if (t_len < it->namelen)
 					t_len = it->namelen;
@@ -975,7 +979,7 @@ char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<int> &sid, CSta
 
 	// 実行
 	CLocalVariable	t_lvar;
-	pvm->function()[index].Execute(answer, arg, t_lvar);
+	pvm->function_exec().func[index].Execute(answer, arg, t_lvar);
 
 	// フィードバック
 	const CValue *v_argv = &(t_lvar.GetArgvPtr()->value_const());
@@ -1186,6 +1190,33 @@ void	CFunction::FeedLineToTail(int &line)
 	}
 
 	line--;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFunctionDef::GetFunctionIndexFromName
+ *  機能概要：  関数名に対応する配列の序数を取得します
+ * -----------------------------------------------------------------------
+ */
+int	CFunctionDef::GetFunctionIndexFromName(const yaya::string_t& str)
+{
+	yaya::indexmap::const_iterator it = map.find(str);
+	if ( it != map.end() ) {
+		return it->second;
+	}
+	return -1;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFunctionDef::BuildFunctionMap
+ *  機能概要：  配列の序数キャッシュ用ハッシュを構築します
+ * -----------------------------------------------------------------------
+ */
+void CFunctionDef::BuildFunctionMap(void)
+{
+	map.clear();
+	for (size_t fcnt = 0; fcnt < func.size(); ++fcnt) {
+		map.insert(yaya::indexmap::value_type(func[fcnt].name, static_cast<int>(fcnt)));
+	}
 }
 
 void CFunction::undef_this(){

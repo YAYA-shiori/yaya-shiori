@@ -167,7 +167,7 @@ public:
 			m_array = rhs.m_array;
 		}
 		else {
-			m_array.reset((CValueArray*)NULL);
+			m_array.reset();
 			if ( type == F_TAG_STRING ) {
 				s_value = rhs.s_value;
 			}
@@ -333,7 +333,7 @@ public:
 		return *m_array;
 	}
 	inline void array_clear(void) {
-		m_array.reset((CValueArray*)NULL);
+		m_array.reset();
 	}
 };
 

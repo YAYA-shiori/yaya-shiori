@@ -58,8 +58,6 @@ public:
 	char	ParseEmbedString(yaya::string_t& str, CStatement &st, const yaya::string_t &dicfilename, int linecount);
 	int		DynamicLoadDictionary(const yaya::string_t& filename, int charset);
 
-	int		GetFunctionIndexFromName(const yaya::string_t& str);
-
 	//changed to public, for processglobaldefine
 	void	ExecDefinePreProcess(yaya::string_t &str, const std::vector<CDefine>& defines);
 

@@ -46,29 +46,50 @@ CDirEnum::~CDirEnum()
 
 bool CDirEnum::next(CDirEnumEntry &entry)
 {
-	std::string name;
+	std::string name_a;
+	yaya::string_t name_w;
 	bool isdir = false;
+
+	bool isUnicode = false;
+
+#if defined(WIN32)
+	isUnicode = IsUnicodeAware();
+#endif
 
 	while ( true ) {
 		if ( ! is_init ) {
 #if defined(WIN32)
-
-			WIN32_FIND_DATA w32FindData;
-
 			yaya::string_t tmp_str = enumpath + L"\\*.*";
-			char *s_filestr = Ccct::Ucs2ToMbcs(tmp_str, CHARSET_DEFAULT);
-			if ( ! s_filestr ) { return false; }
 
-			dh = ::FindFirstFile(s_filestr,&w32FindData);
-			free(s_filestr);
-			s_filestr = NULL;
+			if ( isUnicode ) {
+				WIN32_FIND_DATAW w32FindData;
 
-			if ( dh == INVALID_HANDLE_VALUE ) { return false; }
+				dh = ::FindFirstFileW(tmp_str.c_str(),&w32FindData);
 
-			is_init = true;
+				if ( dh == INVALID_HANDLE_VALUE ) { return false; }
 
-			name = w32FindData.cFileName;
-			isdir = (w32FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+				is_init = true;
+
+				name_w = w32FindData.cFileName;
+				isdir = (w32FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+			}
+			else {
+				WIN32_FIND_DATAA w32FindData;
+
+				char *s_filestr = Ccct::Ucs2ToMbcs(tmp_str, CHARSET_DEFAULT);
+				if ( ! s_filestr ) { return false; }
+
+				dh = ::FindFirstFileA(s_filestr,&w32FindData);
+				free(s_filestr);
+				s_filestr = NULL;
+
+				if ( dh == INVALID_HANDLE_VALUE ) { return false; }
+
+				is_init = true;
+
+				name_a = w32FindData.cFileName;
+				isdir = (w32FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+			}
 
 #elif defined(POSIX)
 
@@ -83,7 +104,7 @@ bool CDirEnum::next(CDirEnumEntry &entry)
 
 			is_init = true;
 	
-			name = ent->d_name;
+			name_a = ent->d_name;
 			isdir = ent->d_type == DT_DIR;
 
 #endif
@@ -91,36 +112,57 @@ bool CDirEnum::next(CDirEnumEntry &entry)
 		else {
 #if defined(WIN32)
 
-			WIN32_FIND_DATA w32FindData;
-			if ( ::FindNextFile(dh,&w32FindData) == 0 ) { return false; }
+			if ( isUnicode ) {
+				WIN32_FIND_DATAW w32FindData;
+				if ( ::FindNextFileW(dh,&w32FindData) == 0 ) { return false; }
 
-			name = w32FindData.cFileName;
-			isdir = (w32FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+				name_w = w32FindData.cFileName;
+				isdir = (w32FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+			}
+			else {
+				WIN32_FIND_DATAA w32FindData;
+				if ( ::FindNextFileA(dh,&w32FindData) == 0 ) { return false; }
+
+				name_a = w32FindData.cFileName;
+				isdir = (w32FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+			}
 
 #elif defined(POSIX)
 
 			struct dirent* ent = readdir(dh);
 			if ( ! ent ) { return false; }
 
-			name = ent->d_name;
+			name_a = ent->d_name;
 			isdir = ent->d_type == DT_DIR;
 
 #endif
 		}
 
-		if (name != "." && name != "..") {
-			break;
+		if ( isUnicode ) {
+			if (name_w != L"." && name_w != L"..") {
+				break;
+			}
+		}
+		else {
+			if (name_a != "." && name_a != "..") {
+				break;
+			}
 		}
 	}
 
 #if defined(WIN32)
-	yaya::char_t *t_wfile = Ccct::MbcsToUcs2(name, CHARSET_DEFAULT);
-	if (! t_wfile ) { return false; }
+	if ( isUnicode ) {
+		entry.name = name_w;
+	}
+	else {
+		yaya::char_t *t_wfile = Ccct::MbcsToUcs2(name_a, CHARSET_DEFAULT);
+		if (! t_wfile ) { return false; }
 
-	entry.name = t_wfile;
-	free(t_wfile);
+		entry.name = t_wfile;
+		free(t_wfile);
+	}
 #elif defined(POSIX)
-	entry.name = widen(name);
+	entry.name = widen(name_a);
 #endif
 
 	entry.isdir = isdir;

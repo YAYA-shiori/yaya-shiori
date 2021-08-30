@@ -52,8 +52,7 @@ CAyaVM::CAyaVM(CAyaVM &ovm)
 {
 	#define copy_new(name) shared_ptr_deep_copy(ovm.name,name);
 	copy_new(m_basis);
-	copy_new(m_function);
-	copy_new(m_functionmap);
+	copy_new(m_function_exec);
 	copy_new(m_gdefines);
 	copy_new(m_calldepth);
 	copy_new(m_sysfunction);
@@ -79,7 +78,7 @@ CAyaVM* CAyaVM::get_a_deep_copy()
 	初期化
 	ほぼ乱数初期化用
 -----------------------------------------------*/
-void CAyaVM::Load(void)
+void CAyaVM::load(void)
 {
 #ifdef _DEBUG
 	int tmpFlag = _CrtSetDbgFlag( _CRTDBG_REPORT_FLAG );
@@ -106,8 +105,53 @@ void CAyaVM::Load(void)
 /*-----------------------------------------------
 	終了
 -----------------------------------------------*/
-void CAyaVM::Unload(void)
+void CAyaVM::unload(void)
 {
+}
+
+/*-----------------------------------------------
+	request
+-----------------------------------------------*/
+void CAyaVM::request_before(void)
+{
+}
+
+void CAyaVM::request_after(void)
+{
+	m_function_destruct.reset();
+}
+
+/*-----------------------------------------------
+	パース用
+-----------------------------------------------*/
+CFunctionDef& CAyaVM::function_parse()
+{
+	if ( m_function_parse.get() ) {
+		return *m_function_parse.get();
+	}
+	function_exec();
+	m_function_parse = m_function_exec;
+	return *m_function_parse.get();
+}
+
+/*-----------------------------------------------
+	内部func操作
+-----------------------------------------------*/
+void CAyaVM::func_parse_to_exec(void)
+{
+	m_function_destruct = m_function_exec;
+	m_function_exec = m_function_parse;
+}
+
+void CAyaVM::func_parse_destruct(void)
+{
+	m_function_parse.reset();
+	m_function_parse = m_function_exec;
+}
+
+void CAyaVM::func_parse_new(void)
+{
+	shared_ptr_deep_copy(m_function_exec,m_function_parse);
 }
 
 /*-----------------------------------------------
@@ -161,13 +205,11 @@ void CAyaVM::genrand_sysfunc_srand_array(const unsigned long a[],const int n)
 	} 
 
 
-FACTORY_DEFINE_PLAIN(yaya::indexmap,functionmap)
-
 FACTORY_DEFINE_PLAIN(std::vector<CDefine>,gdefines)
 
 FACTORY_DEFINE_THIS(CBasis,basis)
 
-FACTORY_DEFINE_PLAIN(std::vector<CFunction>,function)
+FACTORY_DEFINE_PLAIN(CFunctionDef,function_exec)
 FACTORY_DEFINE_PLAIN(CCallDepth,calldepth)
 FACTORY_DEFINE_THIS(CSystemFunction,sysfunction)
 FACTORY_DEFINE_THIS(CGlobalVariable,variable)
