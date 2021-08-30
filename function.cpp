@@ -34,6 +34,18 @@
 ////////////////////////////////////////
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CFunction::deep_copy_statement
+ *  機能概要：  CStatement配列をディープコピーします
+ * -----------------------------------------------------------------------
+ */
+void    CFunction::deep_copy_statement(CFunction &from)
+{
+	for ( size_t i = 0 ; i < from.statement.size() ; ++i ) {
+		statement[i].deep_copy(from.statement[i]);
+	}
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CFunction::CompleteSetting
  *  機能概要：  関数の構築が完了した（≒辞書の読み込みが完了した）際に呼ばれます
  *  　　　　　  実行の際に必要な最後の初期化処理を行ないます
@@ -352,11 +364,7 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 	int		o_index = 0;
 
 	if ( st.serial_size() ) { //高速化用
-//		for (std::vector<CSerial>::iterator it = st.serial().begin(); it != st.serial().end(); it++) {
-//		don't use iterator : for dynamic dic load
-		for (size_t i = 0; i < st.serial_size(); ++i) {
-			CSerial *it = &(st.serial()[i]);
-
+		for (std::vector<CSerial>::iterator it = st.serial().begin(); it != st.serial().end(); it++) {
 			o_index = it->tindex;
 			CCell	&o_cell = st.cell()[o_index];
 			if (o_cell.value_GetType() >= F_TAG_ORIGIN_VALUE) {
@@ -563,6 +571,38 @@ const CValue& CFunction::GetValueRefForCalc(CCell &cell, CStatement &st, CLocalV
 		return emptyvalue;
 	};
 }
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFunction::ReindexUserFunctions
+ *  機能概要：  F_TAG_USERFUNCのindexを再設定します
+ * -----------------------------------------------------------------------
+ */
+int CFunction::ReindexUserFunctions(void)
+{
+	int error = 0;
+
+	for ( size_t i = 0 ; i < statement.size() ; ++i ) {
+		CStatement &st = statement[i];
+
+		for ( size_t j = 0 ; j < st.cell_size() ; ++j ) {
+			CCell &cl = st.cell()[j];
+
+			if ( cl.value_GetType() == F_TAG_USERFUNC ) {
+				int index = pvm->function_parse().GetFunctionIndexFromName(cl.name);
+				if ( index < 0 ) {
+					pvm->logger().Error(E_E, 71, dicfilename, st.linecount);
+					error += 1;
+				}
+				else {
+					cl.index = index;
+				}
+			}
+		}
+	}
+
+	return error;
+}
+
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CFunction::SolveEmbedCell
@@ -1190,9 +1230,13 @@ void	CFunction::FeedLineToTail(int &line)
  *  機能概要：  関数名に対応する配列の序数を取得します
  * -----------------------------------------------------------------------
  */
-int	CFunctionDef::GetFunctionIndexFromName(const yaya::string_t& str)
+int	CFunctionDef::GetFunctionIndexFromName(const yaya::string_t& name)
 {
-	yaya::indexmap::const_iterator it = map.find(str);
+	if ( map.empty() ) {
+		RebuildFunctionMap();
+	}
+
+	yaya::indexmap::const_iterator it = map.find(name);
 	if ( it != map.end() ) {
 		return it->second;
 	}
@@ -1200,15 +1244,41 @@ int	CFunctionDef::GetFunctionIndexFromName(const yaya::string_t& str)
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CFunctionDef::BuildFunctionMap
+ *  関数名  ：  CFunctionDef::AddFunctionIndex
+ *  機能概要：  関数名に対応する配列の序数を追加します
+ * -----------------------------------------------------------------------
+ */
+void CFunctionDef::AddFunctionIndex(const yaya::string_t& name,int index)
+{
+	map.insert(yaya::indexmap::value_type(name, index));
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFunctionDef::ClearFunctionIndex
+ *  機能概要：  配列の序数キャッシュ用ハッシュを削除します
+ * -----------------------------------------------------------------------
+ */
+void CFunctionDef::ClearFunctionIndex(void)
+{
+	map.clear();
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFunctionDef::RebuildFunctionMap
  *  機能概要：  配列の序数キャッシュ用ハッシュを構築します
  * -----------------------------------------------------------------------
  */
-void CFunctionDef::BuildFunctionMap(void)
+void CFunctionDef::RebuildFunctionMap(void)
 {
-	map.clear();
+	ClearFunctionIndex();
 	for (size_t fcnt = 0; fcnt < func.size(); ++fcnt) {
 		map.insert(yaya::indexmap::value_type(func[fcnt].name, static_cast<int>(fcnt)));
 	}
 }
 
+void CFunctionDef::deep_copy_func(CFunctionDef &from)
+{
+	for (size_t fcnt = 0; fcnt < from.func.size(); ++fcnt) {
+		func[fcnt].deep_copy_statement(from.func[fcnt]);
+	}
+}

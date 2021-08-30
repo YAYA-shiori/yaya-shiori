@@ -51,6 +51,15 @@ namespace yaya {
 
 	typedef std::map<yaya::string_t,int> indexmap;
 
+	template<class T> void shared_ptr_deep_copy(const std_shared_ptr<T> &from,std_shared_ptr<T> &to) {
+		if ( from.get() ) {
+			to.reset(new T(*from));
+		}
+		else {
+			to.reset();
+		}
+	}
+
 #ifdef _WIN64
 	typedef __int64 native_signed;
 #else

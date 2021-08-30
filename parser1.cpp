@@ -629,8 +629,10 @@ char	CParser1::CheckFunctionArgument(CStatement& st, const yaya::string_t& dicfi
 						vm.logger().Error(E_E, 70, dicfilename, st.linecount);
 						errcount++;
 					}
-					if (beftype == F_TAG_SYSFUNC)
+
+					if (beftype == F_TAG_SYSFUNC) {
 						it->value_SetType(F_TAG_SYSFUNCPARAM);
+					}
 					else if (beftype != F_TAG_USERFUNC) {
 						vm.logger().Error(E_E, 71, dicfilename, st.linecount);
 						errcount++;
