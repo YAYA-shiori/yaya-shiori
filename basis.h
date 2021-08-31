@@ -123,7 +123,7 @@ public:
 	void	SaveVariable(const yaya::char_t* pName = NULL);
 	void	RestoreVariable(const yaya::char_t* pName = NULL);
 
-	yaya::string_t GetParameter(const yaya::string_t &cmd);
+	CValue GetParameter(const yaya::string_t &cmd);
 	bool SetParameter(const yaya::string_t &cmd, const yaya::string_t &param, std::vector<CDic1> *dics = NULL);
 	void SetLogger(void);
 
