@@ -91,7 +91,7 @@ extern "C" {
 #endif
 #endif
 
-#define	SYSFUNC_NUM					146 //システム関数の全数
+#define	SYSFUNC_NUM					147 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -298,7 +298,8 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"UNDEFFUNC",
 	L"UNDEFGLOBALDEFINE",
 	L"DICUNLOAD",
-	L"ISEVALABLE"
+	L"ISEVALABLE",
+	L"SETTAMAHWND"
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -718,6 +719,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return DICUNLOAD(arg, d, l);
 	case 145:
 		return ISEVALABLE(arg, d, l);
+	case 146:
+		return SETTAMAHWND(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -5789,6 +5792,28 @@ static time_t FileTimeToUnixTime(FILETIME &filetime)
     return(mktime(&utime));
 }
 #endif
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::SETTAMAHWND
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::SETTAMAHWND(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if(!arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"SETTAMAHWND", d, l);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	if(arg.array()[0].IsNum()) {
+		size_t hwnd = arg.array()[0].GetValueInt();
+		vm.basis().SetLogRcvWnd((long)hwnd);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	vm.logger().Error(E_W, 9, L"SETTAMAHWND", d, l);
+	SetError(9);
+	return CValue(F_TAG_NOP, 0/*dmy*/);
+}
 
 CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
 {

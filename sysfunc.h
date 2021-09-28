@@ -204,6 +204,8 @@ protected:
 
 	CValue	SPLIT(const CValue &arg, yaya::string_t &d, int &l);
 
+	CValue SETTAMAHWND(const CValue& arg, yaya::string_t& d, int& l);
+
 	CValue	FATTRIB(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue GETFUNCLIST(const CValue &arg, yaya::string_t &d, int &l);
