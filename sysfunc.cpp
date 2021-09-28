@@ -298,7 +298,7 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"UNDEFFUNC",
 	L"UNDEFGLOBALDEFINE",
 	L"DICUNLOAD",
-	L"ISEVALABLE",
+	L"ISEVALUABLE",
 	L"SETTAMAHWND",
 	L"ISGLOBALDEFINE",
 	L"SETGLOBALDEFINE",
@@ -721,7 +721,7 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 	case 144:
 		return DICUNLOAD(arg, d, l);
 	case 145:
-		return ISEVALABLE(arg, d, l);
+		return ISEVALUABLE(arg, d, l);
 	case 146:
 		return SETTAMAHWND(arg, d, l);
 	case 147:
@@ -3662,19 +3662,19 @@ CValue	CSystemFunction::SETDELIM(const std::vector<CCell *> &pcellarg, CLocalVar
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::ISEVALABLE
+ *  関数名  ：  CSystemFunction::ISEVALUABLE
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::ISEVALABLE(const CValue& arg, yaya::string_t& d, int& l)
+CValue	CSystemFunction::ISEVALUABLE(const CValue& arg, yaya::string_t& d, int& l)
 {
 	if(!arg.array_size()) {
-		vm.logger().Error(E_W, 8, L"ISEVALABLE", d, l);
+		vm.logger().Error(E_W, 8, L"ISEVALUABLE", d, l);
 		SetError(8);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
 	if(!arg.array()[0].IsString()) {
-		vm.logger().Error(E_W, 9, L"ISEVALABLE", d, l);
+		vm.logger().Error(E_W, 9, L"ISEVALUABLE", d, l);
 		SetError(9);
 	}
 
