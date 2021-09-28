@@ -91,7 +91,7 @@ extern "C" {
 #endif
 #endif
 
-#define	SYSFUNC_NUM					145 //システム関数の全数
+#define	SYSFUNC_NUM					146 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -298,6 +298,7 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"UNDEFFUNC",
 	L"UNDEFGLOBALDEFINE",
 	L"DICUNLOAD",
+	L"ISEVALABLE"
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -715,6 +716,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return UNDEFGLOBALDEFINE(arg, d, l);
 	case 144:
 		return DICUNLOAD(arg, d, l);
+	case 145:
+		return ISEVALABLE(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -3568,6 +3571,29 @@ CValue	CSystemFunction::SETDELIM(const std::vector<CCell *> &pcellarg, CLocalVar
 	}
 
 	return CValue(F_TAG_NOP, 0/*dmy*/);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::ISEVALABLE
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::ISEVALABLE(const CValue& arg, yaya::string_t& d, int& l)
+{
+	if(!arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"ISEVALABLE", d, l);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	if(!arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"ISEVALABLE", d, l);
+		SetError(9);
+	}
+
+	// 数式へ展開
+	yaya::string_t	str = arg.array()[0].GetValueString();
+	CStatement	t_state(ST_FORMULA, l);
+	return CValue(!vm.parser0().ParseEmbedString(str, t_state, d, l));
 }
 
 /* -----------------------------------------------------------------------
