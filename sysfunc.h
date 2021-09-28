@@ -252,6 +252,9 @@ protected:
 	CValue UNDEFFUNC(const CValue &arg, yaya::string_t &, int &);
 	CValue UNDEFGLOBALDEFINE(const CValue &arg, yaya::string_t &, int &);
 
+	CValue ISGLOBALDEFINE(const CValue& arg, yaya::string_t& d, int& l);
+	CValue SETGLOBALDEFINE(const CValue& arg, yaya::string_t& d, int& l);
+
 	CValue	GETFUNCINFO(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	PROCESSGLOBALDEFINE(const CValue &arg, yaya::string_t &d, int &l);
 
