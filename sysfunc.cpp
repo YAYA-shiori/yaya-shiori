@@ -91,7 +91,7 @@ extern "C" {
 #endif
 #endif
 
-#define	SYSFUNC_NUM					145 //システム関数の全数
+#define	SYSFUNC_NUM					149 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -298,6 +298,11 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"UNDEFFUNC",
 	L"UNDEFGLOBALDEFINE",
 	L"DICUNLOAD",
+	L"ISEVALUABLE",
+	L"SETTAMAHWND",
+	L"ISGLOBALDEFINE",
+	L"SETGLOBALDEFINE",
+	//L"DEFFUNC",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -715,6 +720,16 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return UNDEFGLOBALDEFINE(arg, d, l);
 	case 144:
 		return DICUNLOAD(arg, d, l);
+	case 145:
+		return ISEVALUABLE(arg, d, l);
+	case 146:
+		return SETTAMAHWND(arg, d, l);
+	case 147:
+		return ISGLOBALDEFINE(arg, d, l);
+	case 148:
+		return SETGLOBALDEFINE(arg, d, l);
+	//case 149:
+	//	return DEFFUNC(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -3275,6 +3290,82 @@ CValue	CSystemFunction::UNDEFGLOBALDEFINE(const CValue &arg, yaya::string_t &d, 
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::ISGLOBALDEFINE
+ *  引数　　：　_argv[0] = GLOBALDEFINE name
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::ISGLOBALDEFINE(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if(!arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"ISGLOBALDEFINE", d, l);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if(!arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"ISGLOBALDEFINE", d, l);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	yaya::string_t defname = arg.array()[0].s_value;
+
+	std::vector<CDefine> &gdefines = vm.gdefines();
+	std::vector<CDefine>::iterator itg = gdefines.begin();
+
+	while (itg != gdefines.end()) {
+		if( itg->before == defname ) {
+			return CValue(1);
+		}
+		else {
+			++itg;
+		}
+	}
+
+	return CValue(0);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::SETGLOBALDEFINE
+ *  引数　　：　_argv[0] = GLOBALDEFINE name
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::SETGLOBALDEFINE(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if(!arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"SETGLOBALDEFINE", d, l);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if(!arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"SETGLOBALDEFINE", d, l);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	yaya::string_t defname = arg.array()[0].s_value;
+	yaya::string_t defbody = arg.array()[1].GetValueString();
+
+	std::vector<CDefine> &gdefines = vm.gdefines();
+	std::vector<CDefine>::iterator itg = gdefines.begin();
+
+	while (itg != gdefines.end()) {
+		if( itg->before == defname ) {
+			itg->after=defbody;
+			itg->dicfilename=L"runtime";
+			return CValue(1);
+		}
+		else {
+			++itg;
+		}
+	}
+
+	gdefines.push_back({ defname , defbody , L"runtime"});
+	return CValue(0);
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::GETFUNCINFO
  * -----------------------------------------------------------------------
  */
@@ -3568,6 +3659,29 @@ CValue	CSystemFunction::SETDELIM(const std::vector<CCell *> &pcellarg, CLocalVar
 	}
 
 	return CValue(F_TAG_NOP, 0/*dmy*/);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::ISEVALUABLE
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::ISEVALUABLE(const CValue& arg, yaya::string_t& d, int& l)
+{
+	if(!arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"ISEVALUABLE", d, l);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	if(!arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"ISEVALUABLE", d, l);
+		SetError(9);
+	}
+
+	// 数式へ展開
+	yaya::string_t	str = arg.array()[0].GetValueString();
+	CStatement	t_state(ST_FORMULA, l);
+	return CValue(!vm.parser0().ParseEmbedString(str, t_state, d, l));
 }
 
 /* -----------------------------------------------------------------------
@@ -5763,6 +5877,28 @@ static time_t FileTimeToUnixTime(FILETIME &filetime)
     return(mktime(&utime));
 }
 #endif
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::SETTAMAHWND
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::SETTAMAHWND(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if(!arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"SETTAMAHWND", d, l);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	if(arg.array()[0].IsNum()) {
+		size_t hwnd = arg.array()[0].GetValueInt();
+		vm.basis().SetLogRcvWnd((long)hwnd);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	vm.logger().Error(E_W, 9, L"SETTAMAHWND", d, l);
+	SetError(9);
+	return CValue(F_TAG_NOP, 0/*dmy*/);
+}
 
 CValue	CSystemFunction::FATTRIB(const CValue &arg, yaya::string_t &d, int &l)
 {
