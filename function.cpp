@@ -72,6 +72,8 @@ int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
 	// _argc‚ðì¬
 	CValue	t_argc((int)arg.array_size());
 	lvar.SetValue(L"_argc", t_argc);
+	//_FUNC_NAME_‚ðì¬
+	lvar.SetValue(L"_FUNC_NAME_", this->name);
 
 	// ŽÀs
 	if (!pvm->calldepth().Add(name)) {

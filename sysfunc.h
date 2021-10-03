@@ -146,6 +146,7 @@ protected:
 	CValue	ArraySize(CValueArgArray &valuearg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
 				yaya::string_t &d, int &l);
 	CValue	SETDELIM(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l);
+	CValue	ISEVALUABLE(const CValue& arg, yaya::string_t& d, int& l);
 	CValue	EVAL(const CValue &arg, yaya::string_t &d, int &l, CLocalVariable &lvar,
 				CFunction *thisfunc);
 	CValue	ERASEVAR(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l);
@@ -203,6 +204,8 @@ protected:
 
 	CValue	SPLIT(const CValue &arg, yaya::string_t &d, int &l);
 
+	CValue SETTAMAHWND(const CValue& arg, yaya::string_t& d, int& l);
+
 	CValue	FATTRIB(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue GETFUNCLIST(const CValue &arg, yaya::string_t &d, int &l);
@@ -248,6 +251,9 @@ protected:
 
 	CValue UNDEFFUNC(const CValue &arg, yaya::string_t &, int &);
 	CValue UNDEFGLOBALDEFINE(const CValue &arg, yaya::string_t &, int &);
+
+	CValue ISGLOBALDEFINE(const CValue& arg, yaya::string_t& d, int& l);
+	CValue SETGLOBALDEFINE(const CValue& arg, yaya::string_t& d, int& l);
 
 	CValue	GETFUNCINFO(const CValue &arg, yaya::string_t &d, int &l);
 	CValue	PROCESSGLOBALDEFINE(const CValue &arg, yaya::string_t &d, int &l);
