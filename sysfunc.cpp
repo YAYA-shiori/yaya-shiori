@@ -3361,7 +3361,7 @@ CValue	CSystemFunction::SETGLOBALDEFINE(const CValue &arg, yaya::string_t &d, in
 		}
 	}
 
-	gdefines.push_back({ defname , defbody , L"runtime"});
+	gdefines.push_back(CDefine(defname, defbody, L"runtime"));
 	return CValue(0);
 }
 
