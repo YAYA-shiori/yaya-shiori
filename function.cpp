@@ -72,6 +72,8 @@ int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
 	// _argcを作成
 	CValue	t_argc((int)arg.array_size());
 	lvar.SetValue(L"_argc", t_argc);
+	//_FUNC_NAME_を作成
+	lvar.SetValue(L"_FUNC_NAME_", this->name);
 
 	// 実行
 	if (!pvm->calldepth().Add(name)) {
