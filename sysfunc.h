@@ -250,6 +250,7 @@ protected:
 	CValue	DICUNLOAD(const CValue &arg, yaya::string_t &d, int &l);
 
 	CValue UNDEFFUNC(const CValue &arg, yaya::string_t &, int &);
+	CValue APPENDDEF(const CValue& arg, yaya::string_t& d, int& l);
 	CValue UNDEFGLOBALDEFINE(const CValue &arg, yaya::string_t &, int &);
 
 	CValue ISGLOBALDEFINE(const CValue& arg, yaya::string_t& d, int& l);
