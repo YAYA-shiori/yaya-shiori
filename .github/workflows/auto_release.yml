@@ -1,0 +1,61 @@
+name: auto release
+
+on:
+  push:
+    tags:
+    - '*'
+
+env:
+  SOLUTION_FILE_PATH: .
+  BUILD_CONFIGURATION: Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: tag name
+      id: get_tag_name
+      run: echo TAG_NAME=${GITHUB_REF/refs\/tags\//} >> $GITHUB_ENV
+    - uses: actions/checkout@v2
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Restore NuGet packages
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
+    - name: build zip
+      run: |
+        7z a -tzip "yaya.zip" -mx=9 -mmt -mm=LZMA -md=1536m -mfb=273 -mtc=off -r "yaya.dll" "messagetxt" "readme.txt" "readme-original.txt"
+    - name: create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: ${{ github.ref }}
+        body: |
+          It looks like this release has just been released but there is nothing in the description
+          Please come back later
+          発売されたばかりのようですが、説明文には何も書かれていません
+          また来てください。
+          看上去这个release刚被发布但是介绍中什么都没有
+          请稍候再来
+        draft: false
+        prerelease: false
+    - name: upload zip
+      id: upload-release-asset-1
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./yaya.zip
+        asset_name: yaya-${{ env.TAG_NAME }}.zip
+        asset_content_type: application/zip
