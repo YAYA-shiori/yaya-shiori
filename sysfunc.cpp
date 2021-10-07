@@ -3333,13 +3333,13 @@ CValue	CSystemFunction::ISGLOBALDEFINE(const CValue &arg, yaya::string_t &d, int
 CValue	CSystemFunction::APPENDDEF(const CValue &arg, yaya::string_t &d, int &l)
 {
 	if(!arg.array_size()) {
-		vm.logger().Error(E_W, 8, L"SETGLOBALDEFINE", d, l);
+		vm.logger().Error(E_W, 8, L"APPENDDEF", d, l);
 		SetError(8);
 		return CValue(-1);
 	}
 
 	if(!arg.array()[0].IsString()) {
-		vm.logger().Error(E_W, 9, L"SETGLOBALDEFINE", d, l);
+		vm.logger().Error(E_W, 9, L"APPENDDEF", d, l);
 		SetError(9);
 		return CValue(-1);
 	}
