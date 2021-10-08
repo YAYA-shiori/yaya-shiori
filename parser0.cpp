@@ -192,13 +192,13 @@ int CParser0::DynamicLoadDictionary(const yaya::string_t& dicfilename, int chars
 
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CParser0::DynamicAppendDefines
- *  機能概要：  APPENDDEFの実装本体
+ *  関数名  ：  CParser0::DynamicAppendRuntimeDictionary
+ *  機能概要：  APPEND_RUNTIME_DICの実装本体
  *
  *  返値　　：  0=正常 1=文法エラー
  * -----------------------------------------------------------------------
  */
-int CParser0::DynamicAppendDefines(const yaya::string_t& codes)
+int CParser0::DynamicAppendRuntimeDictionary(const yaya::string_t& codes)
 {
 	vm.func_parse_new();
 
@@ -210,17 +210,17 @@ int CParser0::DynamicAppendDefines(const yaya::string_t& codes)
 		// {、}、;で分割
 		SeparateFactor(factors, yaya::string_t(codes));
 		// 分割された文字列を解析して関数を作成し、内部のステートメントを蓄積していく
-		if(DefineFunctions(factors, L"_DIC_RUNTIME_DEF_", 0, depth, targetfunction)) {
+		if(DefineFunctions(factors, L"_RUNTIME_DIC_", 0, depth, targetfunction)) {
 			isnoterror = 0;
 		}
 		if( depth != 0 ) {
-			vm.logger().Error(E_E, 94, L"_DIC_RUNTIME_DEF_", -1);
+			vm.logger().Error(E_E, 94, L"APPEND_RUNTIME_DIC", -1);
 			isnoterror = 0;
 		}
 	}
 
 	if(isnoterror) {
-		isnoterror &= !ParseAfterLoad(L"_DIC_RUNTIME_DEF_");
+		isnoterror &= !ParseAfterLoad(L"_RUNTIME_DIC_");
 	}
 
 	if(isnoterror) { //success

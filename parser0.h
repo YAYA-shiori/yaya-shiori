@@ -58,7 +58,7 @@ public:
 	char	ParseEmbedString(yaya::string_t& str, CStatement &st, const yaya::string_t &dicfilename, int linecount);
 
 	int		DynamicLoadDictionary(const yaya::string_t& dicfilename, int charset);
-	int		DynamicAppendDefines(const yaya::string_t& codes);
+	int		DynamicAppendRuntimeDictionary(const yaya::string_t& codes);
 	int		DynamicUnloadDictionary(const yaya::string_t& dicfilename);
 	int		DynamicUndefFunc(const yaya::string_t& funcname);
 
