@@ -91,7 +91,7 @@ extern "C" {
 #endif
 #endif
 
-#define	SYSFUNC_NUM					149 //システム関数の全数
+#define	SYSFUNC_NUM					150 //システム関数の全数
 #define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
 
 static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
@@ -302,7 +302,7 @@ static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
 	L"SETTAMAHWND",
 	L"ISGLOBALDEFINE",
 	L"SETGLOBALDEFINE",
-	//L"DEFFUNC",
+	L"APPENDDEF",
 };
 
 //このグローバル変数はマルチインスタンスでも共通
@@ -728,8 +728,8 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 		return ISGLOBALDEFINE(arg, d, l);
 	case 148:
 		return SETGLOBALDEFINE(arg, d, l);
-	//case 149:
-	//	return DEFFUNC(arg, d, l);
+	case 149:
+		return APPENDDEF(arg, d, l);
 	default:
 		vm.logger().Error(E_E, 49, d, l);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -3326,6 +3326,32 @@ CValue	CSystemFunction::ISGLOBALDEFINE(const CValue &arg, yaya::string_t &d, int
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::APPENDDEF
+ *  引数　　：　_argv[0] = define(s)
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::APPENDDEF(const CValue &arg, yaya::string_t &d, int &l)
+{
+	if(!arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"APPENDDEF", d, l);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if(!arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"APPENDDEF", d, l);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	yaya::string_t def = arg.array()[0].s_value;
+	
+	int err = vm.parser0().DynamicAppendDefines(def);
+
+	return CValue(err ? -1 : 0);
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::SETGLOBALDEFINE
  *  引数　　：　_argv[0] = GLOBALDEFINE name
  * -----------------------------------------------------------------------
@@ -3353,7 +3379,7 @@ CValue	CSystemFunction::SETGLOBALDEFINE(const CValue &arg, yaya::string_t &d, in
 	while (itg != gdefines.end()) {
 		if( itg->before == defname ) {
 			itg->after=defbody;
-			itg->dicfilename=L"runtime";
+			itg->dicfilename=L"_DIC_RUNTIME_DEF_";
 			return CValue(1);
 		}
 		else {
@@ -3361,7 +3387,7 @@ CValue	CSystemFunction::SETGLOBALDEFINE(const CValue &arg, yaya::string_t &d, in
 		}
 	}
 
-	gdefines.push_back(CDefine(defname, defbody, L"runtime"));
+	gdefines.push_back(CDefine(defname, defbody, L"_DIC_RUNTIME_DEF_"));
 	return CValue(0);
 }
 
