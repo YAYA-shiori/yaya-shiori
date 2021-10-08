@@ -210,17 +210,17 @@ int CParser0::DynamicAppendDefines(const yaya::string_t& codes)
 		// {、}、;で分割
 		SeparateFactor(factors, yaya::string_t(codes));
 		// 分割された文字列を解析して関数を作成し、内部のステートメントを蓄積していく
-		if(DefineFunctions(factors, L"runtime", 0, depth, targetfunction)) {
+		if(DefineFunctions(factors, L"_DIC_RUNTIME_DEF_", 0, depth, targetfunction)) {
 			isnoterror = 0;
 		}
 		if( depth != 0 ) {
-			vm.logger().Error(E_E, 94, L"runtime", -1);
+			vm.logger().Error(E_E, 94, L"_DIC_RUNTIME_DEF_", -1);
 			isnoterror = 0;
 		}
 	}
 
 	if(isnoterror) {
-		isnoterror &= !ParseAfterLoad(L"runtime");
+		isnoterror &= !ParseAfterLoad(L"_DIC_RUNTIME_DEF_");
 	}
 
 	if(isnoterror) { //success
