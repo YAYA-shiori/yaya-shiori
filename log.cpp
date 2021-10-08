@@ -58,7 +58,7 @@ void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 	path    = p;
 	charset = cs;
 	
-	if ( hw ) { //hwがある＝玉からの呼び出しなので強制ON、ファイル無効
+	if( hw || loghandler) { //hwがある＝玉からの呼び出しなので強制ON、ファイル無効
 		path = L"";
 	}
 	else if ( ! il ) {
@@ -82,15 +82,15 @@ void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 	}
 	else {
 		fileen = 0;
+		if( 
+			loghandler == NULL
 #if defined(WIN32)
-		if ( hWnd == NULL ) {
+			&&hWnd == NULL
+#endif
+		) {
 			enable = 0;
 			return;
 		}
-#else
-		enable = 0;
-		return;
-#endif
 	}
 
 	// 文字列作成
@@ -441,6 +441,8 @@ void	CLog::Call_loghandler(const yaya::char_t *str, int mode){
 }
 void	CLog::Set_loghandler(void (*loghandler_v)(const yaya::char_t *str, int mode)){
 	loghandler=loghandler_v;
+	if(loghandler)
+		enable = 1;
 }
 /* -----------------------------------------------------------------------
  *  関数名  ：  CLog::SendLogToWnd
