@@ -90,6 +90,10 @@ public:
 		if ( ! vm ) { return true; }
 		return vm->basis().IsSuppress() != 0;
 	}
+	bool IsEmergency(void) {
+		if( ! vm ) { return false; }
+		return !wcscmp(vm->basis().GetModeName(),L"emergency");
+	}
 
 	yaya::global_t ExecuteRequest(yaya::global_t h, long *len, bool is_debug)
 	{
@@ -272,7 +276,34 @@ extern "C" DLLEXPORT yaya::global_t FUNCATTRIB multi_request(long id, yaya::glob
 	}
 }
 
+/* -----------------------------------------------------------------------
+ *  CI_check_failed
+ * -----------------------------------------------------------------------
+ */
+ extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB CI_check_failed(void)
+{
+	if( vm[0] ) {
+		return vm[0]->IsSuppress()||vm[0]->IsEmergency();
+	}
+	else {
+		return NULL;
+	}
+}
 
+extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB multi_CI_check_failed(long id)//?
+{
+	if( id <= 0 || id > (long)vm.size() || vm[id] == NULL ) { //1から 0番は従来用
+		return 0;
+	}
+
+	if( vm[id] ) {
+		return vm[id]->IsSuppress()||vm[id]->IsEmergency();
+	}
+	else {
+		return NULL;
+	}
+}
+ 
 /* -----------------------------------------------------------------------
  *  logsend（AYA固有　チェックツールから使用）
  * -----------------------------------------------------------------------
