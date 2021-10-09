@@ -28,7 +28,7 @@ class CAyaVMWrapper;
 
 static std::vector<CAyaVMWrapper*> vm;
 static yaya::string_t modulename;
-static std::vector<void (*)(const yaya::char_t *str, int mode)> loghandler_list;
+static std::vector<void (*)(const yaya::char_t *str, int mode, int id)> loghandler_list;
 
 //////////DEBUG/////////////////////////
 #ifdef _WINDOWS
@@ -99,7 +99,7 @@ public:
 		delete vm;
 	}
 
-	void Set_loghandler(void (*loghandler)(const yaya::char_t *str, int mode)){
+	void Set_loghandler(void (*loghandler)(const yaya::char_t *str, int mode, int id)){
 		vm->logger().Set_loghandler(loghandler);
 	}
 
@@ -331,7 +331,7 @@ extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB multi_CI_check_failed(long id)//?
  *  Set_loghandler
  * -----------------------------------------------------------------------
  */
- extern "C" DLLEXPORT void FUNCATTRIB Set_loghandler(void (*loghandler)(const yaya::char_t *str, int mode))
+ extern "C" DLLEXPORT void FUNCATTRIB Set_loghandler(void (*loghandler)(const yaya::char_t *str, int mode, int id))
 {
 	if(loghandler_list.size()<1)
 		loghandler_list.push_back(NULL);
@@ -344,7 +344,7 @@ extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB multi_CI_check_failed(long id)//?
 	}
 }
 
-extern "C" DLLEXPORT void FUNCATTRIB multi_Set_loghandler(long id,void (*loghandler)(const yaya::char_t *str, int mode))//?
+extern "C" DLLEXPORT void FUNCATTRIB multi_Set_loghandler(long id,void (*loghandler)(const yaya::char_t *str, int mode, int id))//?
 {
 	if( id <= 0 || id > (long)vm.size() || vm[id] == NULL ) { //1から 0番は従来用
 		return;

@@ -153,7 +153,7 @@ void	CLog::Termination(void)
  *  機能概要：  ログに文字列を書き込みます
  * -----------------------------------------------------------------------
  */
-void	CLog::Write(const yaya::char_t *str, int mode)
+void	CLog::Write(const yaya::char_t *str, int mode, int id)
 {
 	if (!enable)
 		return;
@@ -191,14 +191,14 @@ void	CLog::Write(const yaya::char_t *str, int mode)
 	}
 
 	// チェックツールへ送出
-	Call_loghandler(cstr, mode);
+	Call_loghandler(cstr, mode, id);
 }
 
 //----
 
-void	CLog::Write(const yaya::string_t &str, int mode)
+void	CLog::Write(const yaya::string_t &str, int mode, int id)
 {
-	Write(str.c_str(), mode);
+	Write(str.c_str(), mode, id);
 }
 
 /* -----------------------------------------------------------------------
@@ -221,7 +221,7 @@ void	CLog::Filename(const yaya::string_t &filename)
  */
 void	CLog::Message(int id, int mode)
 {
-	Write(yayamsg::GetTextFromTable(E_J,id), mode);
+	Write(yayamsg::GetTextFromTable(E_J,id), mode, id);
 }
 
 /* -----------------------------------------------------------------------
@@ -276,7 +276,7 @@ void	CLog::Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t
 		return;
 
 	logstr += L'\n';
-	Write(logstr, mode);
+	Write(logstr, mode, id);
 }
 
 //----
@@ -425,13 +425,13 @@ void	CLog::IoLib(char io, const yaya::string_t &str, const yaya::string_t &name)
 	}
 }
 
-void	CLog::Call_loghandler(const yaya::string_t &str, int mode)
+void	CLog::Call_loghandler(const yaya::string_t &str, int mode, int id)
 {
-	Call_loghandler((yaya::char_t *)str.c_str(), mode);
+	Call_loghandler((yaya::char_t *)str.c_str(), mode, id);
 }
-void	CLog::Call_loghandler(const yaya::char_t *str, int mode){
+void	CLog::Call_loghandler(const yaya::char_t *str, int mode, int id){
 	if (loghandler)
-		loghandler(str,mode);
+		loghandler(str,mode,id);
 	else
 	#if defined(WIN32)
 		SendLogToWnd(str,mode);
@@ -439,7 +439,7 @@ void	CLog::Call_loghandler(const yaya::char_t *str, int mode){
 		return;
 	#endif
 }
-void	CLog::Set_loghandler(void (*loghandler_v)(const yaya::char_t *str, int mode)){
+void	CLog::Set_loghandler(void (*loghandler_v)(const yaya::char_t *str, int mode, int id)){
 	loghandler=loghandler_v;
 	if(loghandler)
 		enable = 1;

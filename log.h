@@ -31,7 +31,7 @@ protected:
 #if defined(WIN32)
 	HWND		hWnd;		// チェックツールのHWND
 #endif
-	void (*loghandler)(const yaya::char_t *str, int mode)=NULL;
+	void (*loghandler)(const yaya::char_t *str, int mode, int id)=NULL;
 
 	char		enable;		// ロギング有効フラグ
 	char		open;		// ロギング開始フラグ
@@ -66,8 +66,8 @@ public:
 	void	Start(const yaya::string_t &p, int cs, HWND hw, char il);
 	void	Termination(void);
 
-	void	Write(const yaya::string_t &str, int mode = 0);
-	void	Write(const yaya::char_t *str, int mode = 0);
+	void	Write(const yaya::string_t &str, int mode = 0, int id = 0);
+	void	Write(const yaya::char_t *str, int mode = 0, int id = 0);
 
 	void	Message(int id, int mode = 0);
 	void	Filename(const yaya::string_t &filename);
@@ -84,9 +84,9 @@ public:
 
 	void	IoLib(char io, const yaya::string_t &str, const yaya::string_t &name);
 
-	void	Call_loghandler(const yaya::string_t& str, int mode);
-	void	Call_loghandler(const yaya::char_t* str, int mode);
-	void	Set_loghandler(void(*loghandler_v)(const yaya::char_t* str, int mode));
+	void	Call_loghandler(const yaya::string_t& str, int mode, int id=0);
+	void	Call_loghandler(const yaya::char_t* str, int mode, int id=0);
+	void	Set_loghandler(void(*loghandler_v)(const yaya::char_t* str, int mode, int id));
 
 	void	SendLogToWnd(const yaya::char_t *str, int mode);
 
