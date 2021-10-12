@@ -195,6 +195,12 @@ extern "C" BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPV
 #endif //win32
 #endif //aya_make_exe
 
+inline void enlarge_loghandler_list(size_t size){
+	loghandler_list.reserve(size);
+	while(loghandler_list.size()<size)
+		loghandler_list.push_back(NULL);
+}
+
 /* -----------------------------------------------------------------------
  *  load
  * -----------------------------------------------------------------------
@@ -203,9 +209,7 @@ extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB load(yaya::global_t h, long len)
 {
 	if ( vm[0] ) { delete vm[0]; }
 
-	loghandler_list.reserve(1);
-	while(loghandler_list.size()<1)
-		loghandler_list.push_back(NULL);
+	enlarge_loghandler_list(1);
 	vm[0] = new CAyaVMWrapper(modulename,h,len);
 
 #if defined(WIN32) || defined(_WIN32_WCE)
@@ -233,9 +237,7 @@ extern "C" DLLEXPORT long FUNCATTRIB multi_load(yaya::global_t h, long len)
 		id = (long)vm.size() - 1;
 	}
 
-	loghandler_list.reserve(id+1);
-	while(loghandler_list.size()<id+1)
-		loghandler_list.push_back(NULL);
+	enlarge_loghandler_list(id+1);
 	vm[id] = new CAyaVMWrapper(modulename,h,len);
 
 #if defined(WIN32) || defined(_WIN32_WCE)
@@ -352,9 +354,7 @@ extern "C" DLLEXPORT void FUNCATTRIB multi_Set_loghandler(long id,void (*loghand
 		return;
 	}
 
-	loghandler_list.reserve(id+1);
-	while(loghandler_list.size()<id+1)
-		loghandler_list.push_back(NULL);
+	enlarge_loghandler_list(id+1);
 	loghandler_list[id]=loghandler;
 	if( vm[id] ) {
 		vm[id]->Set_loghandler(loghandler);
