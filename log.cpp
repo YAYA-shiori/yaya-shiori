@@ -58,7 +58,7 @@ void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 	path    = p;
 	charset = cs;
 	
-	if ( hw ) { //hwがある＝玉からの呼び出しなので強制ON、ファイル無効
+	if( hw || loghandler) { //hwがある＝玉からの呼び出しなので強制ON、ファイル無効
 		path = L"";
 	}
 	else if ( ! il ) {
@@ -82,15 +82,15 @@ void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 	}
 	else {
 		fileen = 0;
+		if( 
+			loghandler == NULL
 #if defined(WIN32)
-		if ( hWnd == NULL ) {
+			&&hWnd == NULL
+#endif
+		) {
 			enable = 0;
 			return;
 		}
-#else
-		enable = 0;
-		return;
-#endif
 	}
 
 	// 文字列作成
@@ -115,17 +115,15 @@ void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 	}
 	open = 1;
 
-#if defined(WIN32)
 	// チェックツールへ送出　最初に文字コードを設定してから文字列を送出
-	if (charset == CHARSET_SJIS)
-		SendLogToWnd(L"", E_SJIS);
-	else if (charset == CHARSET_UTF8)
-		SendLogToWnd(L"", E_UTF8);
+	if(charset == CHARSET_SJIS)
+		Call_loghandler(L"", E_SJIS);
+	else if(charset == CHARSET_UTF8)
+		Call_loghandler(L"", E_UTF8);
 	else	// CHARSET_DEFAULT
-		SendLogToWnd(L"", E_DEFAULT);
+		Call_loghandler(L"", E_DEFAULT);
 
-	SendLogToWnd(str, E_I);
-#endif
+	Call_loghandler(str, E_I);
 }
 
 /* -----------------------------------------------------------------------
@@ -147,9 +145,7 @@ void	CLog::Termination(void)
 
 	open = 0;
 
-#if defined(WIN32)
-	SendLogToWnd(L"", E_END);
-#endif
+	Call_loghandler(L"", E_END);
 }
 
 /* -----------------------------------------------------------------------
@@ -157,7 +153,7 @@ void	CLog::Termination(void)
  *  機能概要：  ログに文字列を書き込みます
  * -----------------------------------------------------------------------
  */
-void	CLog::Write(const yaya::char_t *str, int mode)
+void	CLog::Write(const yaya::char_t *str, int mode, int id)
 {
 	if (!enable)
 		return;
@@ -194,17 +190,15 @@ void	CLog::Write(const yaya::char_t *str, int mode)
 		}
 	}
 
-#if defined(WIN32)
 	// チェックツールへ送出
-	SendLogToWnd(cstr, mode);
-#endif
+	Call_loghandler(cstr, mode, id);
 }
 
 //----
 
-void	CLog::Write(const yaya::string_t &str, int mode)
+void	CLog::Write(const yaya::string_t &str, int mode, int id)
 {
-	Write(str.c_str(), mode);
+	Write(str.c_str(), mode, id);
 }
 
 /* -----------------------------------------------------------------------
@@ -227,7 +221,7 @@ void	CLog::Filename(const yaya::string_t &filename)
  */
 void	CLog::Message(int id, int mode)
 {
-	Write(yayamsg::GetTextFromTable(E_J,id), mode);
+	Write(yayamsg::GetTextFromTable(E_J,id), mode, id);
 }
 
 /* -----------------------------------------------------------------------
@@ -282,7 +276,7 @@ void	CLog::Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t
 		return;
 
 	logstr += L'\n';
-	Write(logstr, mode);
+	Write(logstr, mode, id);
 }
 
 //----
@@ -431,6 +425,25 @@ void	CLog::IoLib(char io, const yaya::string_t &str, const yaya::string_t &name)
 	}
 }
 
+void	CLog::Call_loghandler(const yaya::string_t &str, int mode, int id)
+{
+	Call_loghandler((yaya::char_t *)str.c_str(), mode, id);
+}
+void	CLog::Call_loghandler(const yaya::char_t *str, int mode, int id){
+	if (loghandler)
+		loghandler(str,mode,id);
+	else
+	#if defined(WIN32)
+		SendLogToWnd(str,mode);
+	#else
+		return;
+	#endif
+}
+void	CLog::Set_loghandler(void (*loghandler_v)(const yaya::char_t *str, int mode, int id)){
+	loghandler=loghandler_v;
+	if(loghandler)
+		enable = 1;
+}
 /* -----------------------------------------------------------------------
  *  関数名  ：  CLog::SendLogToWnd
  *  機能概要：  チェックツールに制御メッセージおよびログ文字列をWM_COPYDATAで送信します
@@ -449,13 +462,6 @@ void	CLog::SendLogToWnd(const yaya::char_t *str, int mode)
 
 	DWORD res_dword = 0;
 	::SendMessageTimeout(hWnd, WM_COPYDATA, (WPARAM)NULL, (LPARAM)&cds, SMTO_ABORTIFHUNG|SMTO_BLOCK, 5000, &res_dword);
-}
-
-//----
-
-void	CLog::SendLogToWnd(const yaya::string_t &str, int mode)
-{
-	SendLogToWnd((yaya::char_t *)str.c_str(), mode);
 }
 #endif
 

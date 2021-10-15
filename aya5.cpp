@@ -28,6 +28,8 @@ class CAyaVMWrapper;
 
 static std::vector<CAyaVMWrapper*> vm;
 static yaya::string_t modulename;
+static std::vector<void (*)(const yaya::char_t *str, int mode, int id)> loghandler_list;
+static size_t id_now=0;
 
 //////////DEBUG/////////////////////////
 #ifdef _WINDOWS
@@ -46,6 +48,8 @@ public:
 	CAyaVMWrapper(const yaya::string_t &path, yaya::global_t h, long len) {
 		vm = new CAyaVM();
 
+		vm->logger().Set_loghandler(loghandler_list[id_now]);
+
 		vm->basis().SetModuleName(modulename,L"",L"normal");
 
 		vm->load();
@@ -57,6 +61,8 @@ public:
 			vm->logger().Message(10,E_E);
 
 			CAyaVM *vme = new CAyaVM();
+
+			vm->logger().Set_loghandler(loghandler_list[id_now]);
 
 			vme->basis().SetModuleName(modulename,L"_emerg",L"emergency");
 
@@ -86,9 +92,17 @@ public:
 		delete vm;
 	}
 
+	void Set_loghandler(void (*loghandler)(const yaya::char_t *str, int mode, int id)){
+		vm->logger().Set_loghandler(loghandler);
+	}
+
 	bool IsSuppress(void) {
 		if ( ! vm ) { return true; }
 		return vm->basis().IsSuppress() != 0;
+	}
+	bool IsEmergency(void) {
+		if( ! vm ) { return false; }
+		return !wcscmp(vm->basis().GetModeName(),L"emergency");
 	}
 
 	yaya::global_t ExecuteRequest(yaya::global_t h, long *len, bool is_debug)
@@ -172,6 +186,12 @@ extern "C" BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPV
 #endif //win32
 #endif //aya_make_exe
 
+inline void enlarge_loghandler_list(size_t size){
+	loghandler_list.reserve(size);
+	while(loghandler_list.size()<size)
+		loghandler_list.push_back(NULL);
+}
+
 /* -----------------------------------------------------------------------
  *  load
  * -----------------------------------------------------------------------
@@ -180,6 +200,8 @@ extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB load(yaya::global_t h, long len)
 {
 	if ( vm[0] ) { delete vm[0]; }
 
+	id_now=0;
+	enlarge_loghandler_list(1);
 	vm[0] = new CAyaVMWrapper(modulename,h,len);
 
 #if defined(WIN32) || defined(_WIN32_WCE)
@@ -207,6 +229,8 @@ extern "C" DLLEXPORT long FUNCATTRIB multi_load(yaya::global_t h, long len)
 		id = (long)vm.size() - 1;
 	}
 
+	enlarge_loghandler_list(id+1);
+	id_now=id;
 	vm[id] = new CAyaVMWrapper(modulename,h,len);
 
 #if defined(WIN32) || defined(_WIN32_WCE)
@@ -272,7 +296,64 @@ extern "C" DLLEXPORT yaya::global_t FUNCATTRIB multi_request(long id, yaya::glob
 	}
 }
 
+/* -----------------------------------------------------------------------
+ *  CI_check_failed
+ * -----------------------------------------------------------------------
+ */
+ extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB CI_check_failed(void)
+{
+	if( vm[0] ) {
+		return vm[0]->IsSuppress()||vm[0]->IsEmergency();
+	}
+	else {
+		return NULL;
+	}
+}
 
+extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB multi_CI_check_failed(long id)//?
+{
+	if( id <= 0 || id > (long)vm.size() || vm[id] == NULL ) { //1から 0番は従来用
+		return 0;
+	}
+
+	if( vm[id] ) {
+		return vm[id]->IsSuppress()||vm[id]->IsEmergency();
+	}
+	else {
+		return NULL;
+	}
+}
+
+/* -----------------------------------------------------------------------
+ *  Set_loghandler
+ * -----------------------------------------------------------------------
+ */
+ extern "C" DLLEXPORT void FUNCATTRIB Set_loghandler(void (*loghandler)(const yaya::char_t *str, int mode, int id))
+{
+	if(loghandler_list.size()<1)
+		loghandler_list.push_back(NULL);
+	loghandler_list[0]=loghandler;
+	if( vm[0] ) {
+		vm[0]->Set_loghandler(loghandler);
+	}
+	else {
+		loghandler_list.reserve(1);
+	}
+}
+
+extern "C" DLLEXPORT void FUNCATTRIB multi_Set_loghandler(long id,void (*loghandler)(const yaya::char_t *str, int mode, int id))//?
+{
+	if( id <= 0 || id > (long)vm.size() || vm[id] == NULL ) { //1から 0番は従来用
+		return;
+	}
+
+	enlarge_loghandler_list(id+1);
+	loghandler_list[id]=loghandler;
+	if( vm[id] ) {
+		vm[id]->Set_loghandler(loghandler);
+	}
+}
+ 
 /* -----------------------------------------------------------------------
  *  logsend（AYA固有　チェックツールから使用）
  * -----------------------------------------------------------------------
