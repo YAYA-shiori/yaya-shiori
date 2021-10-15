@@ -31,7 +31,7 @@ protected:
 #if defined(WIN32)
 	HWND		hWnd;		// チェックツールのHWND
 #endif
-	void (*loghandler)(const yaya::char_t *str, int mode, int id)=NULL;
+	void		(*loghandler)(const yaya::char_t *str, int mode, int id);
 
 	char		enable;		// ロギング有効フラグ
 	char		open;		// ロギング開始フラグ
@@ -58,6 +58,7 @@ public:
 		iolog  = 1;
 		skip_next_log_output=0;
 		iolog_filter_mode = 0;
+		loghandler = NULL;
 	}
 
 #if defined(POSIX)
