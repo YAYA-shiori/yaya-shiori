@@ -208,10 +208,13 @@ CValue	CSelecter::ChoiceByIndex1(int index)
  * -----------------------------------------------------------------------
  */
 CValue CSelecter::StructPool(){
-	if(areanum)
-		return ChoiceRandom();
+	if(areanum){
+		CValue	result(F_TAG_ARRAY, 0/*dmy*/);
+		result.array().emplace_back(ChoiceRandom());
+		return result;
+	}
 	else
-		return StructArray();
+		return StructArray1(0);
 }
 
 /* -----------------------------------------------------------------------
