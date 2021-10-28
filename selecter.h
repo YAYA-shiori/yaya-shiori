@@ -111,6 +111,7 @@ public:
 
 protected:
 	CValue	StructArray1(int index);
+	CValue	StructPool();
 	CValue	StructPossibilityList(void);
 	CValue	StructArray(void);
 	CValue	ChoiceRandom(void);

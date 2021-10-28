@@ -113,8 +113,9 @@ CValue	CSelecter::Output(void)
 	case CHOICETYPE_ARRAY:
 		return StructArray();
 	case CHOICETYPE_POSSIBILITY_LIST:
-	case CHOICETYPE_POOL:
 		return StructPossibilityList();
+	case CHOICETYPE_POOL:
+		return StructPool();
 	case CHOICETYPE_RANDOM:
 	default:
 		return ChoiceRandom();
@@ -202,8 +203,20 @@ CValue	CSelecter::ChoiceByIndex1(int index)
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CSelecter::StructArray
- *  機能概要：  各領域の値を結合した汎用配列を作成し返します
+ *  関数名  ：  CSelecter::StructPool
+ *  機能概要：  make a "pool"
+ * -----------------------------------------------------------------------
+ */
+CValue CSelecter::StructPool(){
+	if(areanum)
+		return ChoiceRandom();
+	else
+		return StructArray();
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSelecter::StructPossibilityList
+ *  機能概要：  可能なすべてのリターンの一般的な配列を返します
  * -----------------------------------------------------------------------
  */
 CValue CSelecter::StructPossibilityList()
