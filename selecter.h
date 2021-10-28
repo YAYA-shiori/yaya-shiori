@@ -23,20 +23,24 @@
 #include "value.h"
 #include "variable.h"
 
-#define	CHOICETYPE_RANDOM		0	/* 常に無作為にランダム（デフォルト）*/
-#define	CHOICETYPE_NONOVERLAP	1	/* ランダムだが一巡するまで重複選択しない */
-#define	CHOICETYPE_SEQUENTIAL	2	/* 順番に選択する */
-#define	CHOICETYPE_VOID			3	/* 出力なし */
-#define	CHOICETYPE_ARRAY		4	/* 簡易配列編成 */
+#define	CHOICETYPE_RANDOM				0	/* 常に無作為にランダム（デフォルト）*/
+#define	CHOICETYPE_NONOVERLAP			1	/* ランダムだが一巡するまで重複選択しない */
+#define	CHOICETYPE_SEQUENTIAL			2	/* 順番に選択する */
+#define	CHOICETYPE_VOID					3	/* 出力なし */
+#define	CHOICETYPE_ARRAY				4	/* 簡易配列編成 */
+#define	CHOICETYPE_POSSIBILITY_LIST		5	/* 簡易配列編成 */
+#define	CHOICETYPE_POOL					6	/* 簡易配列編成 */
 
-#define	CHOICETYPE_NUM			5
+#define	CHOICETYPE_NUM			7
 
-const wchar_t	choicetype[CHOICETYPE_NUM][16] = {
+const wchar_t* const choicetype[CHOICETYPE_NUM] = {
 	L"random",
 	L"nonoverlap",
 	L"sequential",
 	L"void",
-	L"array"
+	L"array",
+	L"possibility_list",
+	L"pool",
 };
 
 class CAyaVM;
@@ -106,8 +110,9 @@ public:
 	CValue	Output(void);
 
 protected:
-	CValue StructArray1(int index);
-	CValue StructArray(void);
+	CValue	StructArray1(int index);
+	CValue	StructPossibilityList(void);
+	CValue	StructArray(void);
 	CValue	ChoiceRandom(void);
 	CValue	ChoiceRandom1(int index);
 	CValue	ChoiceByIndex(void);

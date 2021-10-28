@@ -226,24 +226,24 @@ public:
 
 	inline bool		IsNum(void) const { return type == F_TAG_INT || type == F_TAG_DOUBLE || type == F_TAG_VOID; }
 
-	char	GetTruth(void) const
+	bool	GetTruth(void) const
 	{
 		switch(type) {
-		case F_TAG_VOID:   return 0;
-		case F_TAG_INT:	   return (i_value)        ? 1 : 0;
-		case F_TAG_DOUBLE: return (d_value == 0.0) ? 0 : 1;
-		case F_TAG_STRING: return (s_value == L"") ? 0 : 1;
+		case F_TAG_VOID:   return false;
+		case F_TAG_INT:	   return i_value != 0;
+		case F_TAG_DOUBLE: return d_value != 0.0;
+		case F_TAG_STRING: return s_value.size() != 0;
 		case F_TAG_ARRAY:
-			if ( m_array.get() ) {
+			if( m_array.get() ) {
 				return m_array->size() != 0;
 			}
 			else {
-				return 0;
+				return false;
 			}
 		default:
 			break;
 		};
-		return 0;
+		return false;
 	}
 
 	int		GetValueInt(void) const;
@@ -298,10 +298,10 @@ public:
 	}
 
 	inline CValue operator ||(const CValue &value) const {
-		return CValue((GetTruth() || value.GetTruth()) ? 1 : 0);
+		return CValue(GetTruth() || value.GetTruth());
 	}
 	inline CValue operator && (const CValue &value) const {
-		return CValue((GetTruth() && value.GetTruth()) ? 1 : 0);
+		return CValue(GetTruth() && value.GetTruth());
 	}
 
 	//////////////////////////////////////////////

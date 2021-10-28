@@ -105,9 +105,11 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 {
 	// 開始時の処理
 	lvar.AddDepth();
-
+	CDuplEvInfo* pdupl = &dupl;
+	if (lvar.GetDepth() != 1 && dupl.GetType() != CHOICETYPE_POSSIBILITY_LIST && dupl.GetType() != CHOICETYPE_POOL)
+		pdupl = NULL;
 	// 実行
-	CSelecter	output(*pvm, (lvar.GetDepth() == 1) ? &dupl : NULL, type);
+	CSelecter	output(*pvm, pdupl, type);
 	char		exec_end     = 0;	// この{}の実行を終了するためのフラグ 1で終了
 	char		ifflg        = 0;	// if-elseif-else制御用。1でそのブロックを処理したことを示す
 
@@ -253,6 +255,10 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 
 	// 候補から出力を選び出す　入れ子の深さが0なら重複回避が働く
 	result = output.Output();
+	if (dupl.GetType() == CHOICETYPE_POOL) {
+		auto index = pvm->genrand_int(static_cast<int>(result.array().size()));
+		result = result.array()[index];
+	}
 
 	// 終了時の処理
 	lvar.DelDepth();
@@ -466,26 +472,10 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 					GetValueRefForCalc(*d_cell, st, lvar));
 				break;
 			case F_TAG_OR:
-				if ( GetValueRefForCalc(*s_cell, st, lvar).GetTruth() ) {
-					o_cell.ansv() = CValue(1);
-				}
-				else if ( GetValueRefForCalc(*d_cell, st, lvar).GetTruth() ) {
-					o_cell.ansv() = CValue(1);
-				}
-				else {
-					o_cell.ansv() = CValue(0);
-				}
+				o_cell.ansv() = CValue(GetValueRefForCalc(*s_cell, st, lvar).GetTruth() || GetValueRefForCalc(*d_cell, st, lvar).GetTruth());
 				break;
 			case F_TAG_AND:
-				if ( ! GetValueRefForCalc(*s_cell, st, lvar).GetTruth() ) {
-					o_cell.ansv() = CValue(0);
-				}
-				else if ( ! GetValueRefForCalc(*d_cell, st, lvar).GetTruth() ) {
-					o_cell.ansv() = CValue(0);
-				}
-				else {
-					o_cell.ansv() = CValue(1);
-				}
+				o_cell.ansv() = CValue(GetValueRefForCalc(*s_cell, st, lvar).GetTruth() && GetValueRefForCalc(*d_cell, st, lvar).GetTruth());
 				break;
 			case F_TAG_FUNCPARAM:
 				{
@@ -510,7 +500,7 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 				break;
 			case F_TAG_EXC:
 				o_cell.ansv().SetType(F_TAG_INT);
-				o_cell.ansv().i_value = (int)(! GetValueRefForCalc(*d_cell, st, lvar).GetTruth());
+				o_cell.ansv().i_value = !GetValueRefForCalc(*d_cell, st, lvar).GetTruth();
 				break;
 			default:
 				pvm->logger().Error(E_E, 34, dicfilename, st.linecount);

@@ -80,7 +80,6 @@ void	CSelecter::Append(const CValue &value)
  *  nonoverlao/sequential選択はCDuplEvInfoクラスに任せます。
  * -----------------------------------------------------------------------
  */
-#include <iostream>
 CValue	CSelecter::Output(void)
 {
 	// switch選択
@@ -113,6 +112,9 @@ CValue	CSelecter::Output(void)
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	case CHOICETYPE_ARRAY:
 		return StructArray();
+	case CHOICETYPE_POSSIBILITY_LIST:
+	case CHOICETYPE_POOL:
+		return StructPossibilityList();
 	case CHOICETYPE_RANDOM:
 	default:
 		return ChoiceRandom();
@@ -204,17 +206,52 @@ CValue	CSelecter::ChoiceByIndex1(int index)
  *  機能概要：  各領域の値を結合した汎用配列を作成し返します
  * -----------------------------------------------------------------------
  */
+CValue CSelecter::StructPossibilityList()
+{
+	if(areanum) {
+		CValue	result(F_TAG_ARRAY, 0/*dmy*/);
+
+		for(int i = 0; i <= areanum; i++){
+			CValue aarray = StructArray1(i);
+			CValue toarray(F_TAG_ARRAY, 0/*dmy*/);
+
+			if ( result.array().empty() ) {
+				toarray = aarray;
+			}
+			else if ( aarray.array().size() ) {
+				for( CValueArray::const_iterator j = result.array().begin() ; j != result.array().end() ; ++j ) {
+					for ( CValueArray::const_iterator k = aarray.array().begin() ; k != aarray.array().end() ; ++k ) {
+						toarray.array().push_back((*j)+(*k));
+					}
+				}
+			}
+			std::swap(result,toarray);
+		}
+		return result;
+	}
+	else {
+		return StructArray1(0);
+	}
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSelecter::StructArray
+ *  機能概要：  各領域の値を結合した汎用配列を作成し返します
+ * -----------------------------------------------------------------------
+ */
 CValue CSelecter::StructArray()
 {
 	if (areanum) {
 		CValue	result(F_TAG_ARRAY, 0/*dmy*/);
-		for(int i = 0; i <= areanum; i++)
+		for(int i = 0; i <= areanum; i++) {
 			result = result + StructArray1(i);
 //			result = result + StructArray1(i).GetValueString();
+		}
 		return result;
 	}
-	else
+	else {
 		return StructArray1(0);
+	}
 }
 
 /* -----------------------------------------------------------------------
