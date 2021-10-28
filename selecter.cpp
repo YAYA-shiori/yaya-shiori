@@ -210,22 +210,28 @@ CValue CSelecter::StructPossibilityList()
 {
 	if(areanum) {
 		CValue	result(F_TAG_ARRAY, 0/*dmy*/);
+
 		for(int i = 0; i <= areanum; i++){
 			CValue aarray = StructArray1(i);
 			CValue toarray(F_TAG_ARRAY, 0/*dmy*/);
-			if (result.array().empty())
+
+			if ( result.array().empty() ) {
 				toarray = aarray;
-			else if(aarray.array().size()){
-				for(auto j:result.array())
-					for(auto k:aarray.array())
-						toarray.array().emplace_back(j+k);
+			}
+			else if ( aarray.array().size() ) {
+				for( CValueArray::const_iterator j = result.array().begin() ; j != result.array().end() ; ++j ) {
+					for ( CValueArray::const_iterator k = aarray.array().begin() ; k != aarray.array().end() ; ++k ) {
+						toarray.array().push_back((*j)+(*k));
+					}
+				}
 			}
 			std::swap(result,toarray);
 		}
 		return result;
 	}
-	else
+	else {
 		return StructArray1(0);
+	}
 }
 
 /* -----------------------------------------------------------------------
@@ -237,13 +243,15 @@ CValue CSelecter::StructArray()
 {
 	if (areanum) {
 		CValue	result(F_TAG_ARRAY, 0/*dmy*/);
-		for(int i = 0; i <= areanum; i++)
+		for(int i = 0; i <= areanum; i++) {
 			result = result + StructArray1(i);
 //			result = result + StructArray1(i).GetValueString();
+		}
 		return result;
 	}
-	else
+	else {
 		return StructArray1(0);
+	}
 }
 
 /* -----------------------------------------------------------------------

@@ -105,7 +105,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 {
 	// 開始時の処理
 	lvar.AddDepth();
-	auto pdupl = &dupl;
+	CDuplEvInfo* pdupl = &dupl;
 	if (lvar.GetDepth() != 1 && dupl.GetType() != CHOICETYPE_POSSIBILITY_LIST && dupl.GetType() != CHOICETYPE_POOL)
 		pdupl = NULL;
 	// 実行

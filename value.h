@@ -229,21 +229,21 @@ public:
 	bool	GetTruth(void) const
 	{
 		switch(type) {
-		case F_TAG_VOID:   return 0;
-		case F_TAG_INT:	   return i_value;
-		case F_TAG_DOUBLE: return d_value;
-		case F_TAG_STRING: return s_value.size();
+		case F_TAG_VOID:   return false;
+		case F_TAG_INT:	   return i_value != 0;
+		case F_TAG_DOUBLE: return d_value != 0.0;
+		case F_TAG_STRING: return s_value.size() != 0;
 		case F_TAG_ARRAY:
 			if( m_array.get() ) {
-				return m_array->size();
+				return m_array->size() != 0;
 			}
 			else {
-				return 0;
+				return false;
 			}
 		default:
 			break;
 		};
-		return 0;
+		return false;
 	}
 
 	int		GetValueInt(void) const;

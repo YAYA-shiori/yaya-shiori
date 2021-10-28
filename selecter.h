@@ -33,7 +33,7 @@
 
 #define	CHOICETYPE_NUM			7
 
-constexpr wchar_t*choicetype[CHOICETYPE_NUM] = {
+const wchar_t* const choicetype[CHOICETYPE_NUM] = {
 	L"random",
 	L"nonoverlap",
 	L"sequential",
