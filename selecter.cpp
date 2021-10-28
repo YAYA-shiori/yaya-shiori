@@ -237,7 +237,7 @@ CValue CSelecter::StructPossibilityList()
 			else if ( aarray.array().size() ) {
 				for( CValueArray::const_iterator j = result.array().begin() ; j != result.array().end() ; ++j ) {
 					for ( CValueArray::const_iterator k = aarray.array().begin() ; k != aarray.array().end() ; ++k ) {
-						toarray.array().push_back((*j)+(*k));
+						toarray.array().emplace_back((*j)+(*k));
 					}
 				}
 			}
@@ -287,7 +287,7 @@ CValue CSelecter::StructArray1(int index)
 			result.array().insert(result.array().end(), target.array().begin(), target.array().end());
 		}
 		else {
-			result.array().push_back(CValueSub(target));
+			result.array().emplace_back(CValueSub(target));
 		}
 	}
 

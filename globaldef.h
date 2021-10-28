@@ -35,6 +35,10 @@
 #define for if(0);else for
 #endif
 
+#if _MSC_VER < 1900
+#define emplace_back(p) push_back(p)
+#endif
+
 template <class T> const T& __GETMAX( const T& a, const T& b ) {
   return (b<a)?a:b;
 }
