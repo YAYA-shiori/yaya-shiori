@@ -466,26 +466,10 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 					GetValueRefForCalc(*d_cell, st, lvar));
 				break;
 			case F_TAG_OR:
-				if ( GetValueRefForCalc(*s_cell, st, lvar).GetTruth() ) {
-					o_cell.ansv() = CValue(1);
-				}
-				else if ( GetValueRefForCalc(*d_cell, st, lvar).GetTruth() ) {
-					o_cell.ansv() = CValue(1);
-				}
-				else {
-					o_cell.ansv() = CValue(0);
-				}
+				o_cell.ansv() = CValue(GetValueRefForCalc(*s_cell, st, lvar).GetTruth() || GetValueRefForCalc(*d_cell, st, lvar).GetTruth());
 				break;
 			case F_TAG_AND:
-				if ( ! GetValueRefForCalc(*s_cell, st, lvar).GetTruth() ) {
-					o_cell.ansv() = CValue(0);
-				}
-				else if ( ! GetValueRefForCalc(*d_cell, st, lvar).GetTruth() ) {
-					o_cell.ansv() = CValue(0);
-				}
-				else {
-					o_cell.ansv() = CValue(1);
-				}
+				o_cell.ansv() = CValue(GetValueRefForCalc(*s_cell, st, lvar).GetTruth() && GetValueRefForCalc(*d_cell, st, lvar).GetTruth());
 				break;
 			case F_TAG_FUNCPARAM:
 				{
@@ -510,7 +494,7 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 				break;
 			case F_TAG_EXC:
 				o_cell.ansv().SetType(F_TAG_INT);
-				o_cell.ansv().i_value = (int)(! GetValueRefForCalc(*d_cell, st, lvar).GetTruth());
+				o_cell.ansv().i_value = !GetValueRefForCalc(*d_cell, st, lvar).GetTruth();
 				break;
 			default:
 				pvm->logger().Error(E_E, 34, dicfilename, st.linecount);
