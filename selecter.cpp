@@ -80,7 +80,6 @@ void	CSelecter::Append(const CValue &value)
  *  nonoverlao/sequential選択はCDuplEvInfoクラスに任せます。
  * -----------------------------------------------------------------------
  */
-#include <iostream>
 CValue	CSelecter::Output(void)
 {
 	// switch選択
@@ -113,6 +112,9 @@ CValue	CSelecter::Output(void)
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	case CHOICETYPE_ARRAY:
 		return StructArray();
+	case CHOICETYPE_POSSIBILITY_LIST:
+	case CHOICETYPE_POOL:
+		return StructPossibilityList();
 	case CHOICETYPE_RANDOM:
 	default:
 		return ChoiceRandom();
@@ -197,6 +199,33 @@ CValue	CSelecter::ChoiceByIndex1(int index)
 		return CValue();
 
 	return (aindex >= 0 && aindex < num) ? values[index].array[aindex] : CValue();
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSelecter::StructArray
+ *  機能概要：  各領域の値を結合した汎用配列を作成し返します
+ * -----------------------------------------------------------------------
+ */
+CValue CSelecter::StructPossibilityList()
+{
+	if(areanum) {
+		CValue	result(F_TAG_ARRAY, 0/*dmy*/);
+		for(int i = 0; i <= areanum; i++){
+			CValue aarray = StructArray1(i);
+			CValue toarray(F_TAG_ARRAY, 0/*dmy*/);
+			if (result.array().empty())
+				toarray = aarray;
+			else if(aarray.array().size()){
+				for(auto j:result.array())
+					for(auto k:aarray.array())
+						toarray.array().emplace_back(j+k);
+			}
+			std::swap(result,toarray);
+		}
+		return result;
+	}
+	else
+		return StructArray1(0);
 }
 
 /* -----------------------------------------------------------------------
