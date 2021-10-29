@@ -106,8 +106,17 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 	// 開始時の処理
 	lvar.AddDepth();
 	CDuplEvInfo* pdupl = &dupl;
-	if (lvar.GetDepth() != 1 && dupl.GetType() != CHOICETYPE_POSSIBILITY_LIST && dupl.GetType() != CHOICETYPE_POOL)
-		pdupl = NULL;
+	if (lvar.GetDepth() != 1)
+		switch (dupl.GetType()) {
+		case CHOICETYPE_POSSIBILITY_LIST:
+		case CHOICETYPE_POOL:
+		case CHOICETYPE_POOL_ARRAY:
+		case CHOICETYPE_NONOVERLAP_POOL:
+		case CHOICETYPE_SEQUENTIAL_POOL:
+			break;
+		default:
+			pdupl = NULL;
+		}
 	// 実行
 	CSelecter	output(*pvm, pdupl, type);
 	char		exec_end     = 0;	// この{}の実行を終了するためのフラグ 1で終了
@@ -255,10 +264,20 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 
 	// 候補から出力を選び出す　入れ子の深さが0なら重複回避が働く
 	result = output.Output();
-	if (lvar.GetDepth() == 1 && dupl.GetType() == CHOICETYPE_POOL) {
-		auto index = pvm->genrand_int(static_cast<int>(result.array().size()));
-		pvm->sysfunction().SetLso(index);
-		result = result.array()[index];
+	if (lvar.GetDepth() == 1)
+		switch (dupl.GetType()) {
+		case CHOICETYPE_POOL: {
+			auto index = pvm->genrand_int(static_cast<int>(result.array().size()));
+			pvm->sysfunction().SetLso(index);
+			result = result.array()[index];
+		}
+		case CHOICETYPE_POOL_ARRAY: 
+		default:
+			break;
+		case CHOICETYPE_NONOVERLAP_POOL:
+			result = dupl.ChoiceValue(*pvm,result,CHOICETYPE_NONOVERLAP);
+		case CHOICETYPE_SEQUENTIAL_POOL:
+			result = dupl.ChoiceValue(*pvm,result,CHOICETYPE_SEQUENTIAL);
 	}
 
 	// 終了時の処理

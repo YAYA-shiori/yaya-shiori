@@ -30,8 +30,11 @@
 #define	CHOICETYPE_ARRAY				4	/* 簡易配列編成 */
 #define	CHOICETYPE_POSSIBILITY_LIST		5	/* 簡易配列編成 */
 #define	CHOICETYPE_POOL					6	/* 簡易配列編成 */
+#define	CHOICETYPE_POOL_ARRAY			7	/* 簡易配列編成 */
+#define	CHOICETYPE_NONOVERLAP_POOL		8	/* 簡易配列編成 */
+#define	CHOICETYPE_SEQUENTIAL_POOL		9	/* 簡易配列編成 */
 
-#define	CHOICETYPE_NUM			7
+#define	CHOICETYPE_NUM			10
 
 const wchar_t* const choicetype[CHOICETYPE_NUM] = {
 	L"random",
@@ -41,6 +44,9 @@ const wchar_t* const choicetype[CHOICETYPE_NUM] = {
 	L"array",
 	L"possibility_list",
 	L"pool",
+	L"pool_array",
+	L"nonoverlap_pool",
+	L"sequential_pool",
 };
 
 class CAyaVM;
@@ -82,11 +88,14 @@ public:
 	int		GetType(void) { return type; }
 
 	CValue	Choice(CAyaVM &vm,int areanum, const std::vector<CVecValue> &values, int mode);
+	CValue	ChoiceValue(CAyaVM& vm, CValue& value, int mode);
 
 protected:
 	void	InitRoundOrder(CAyaVM &vm,int mode);
-	char	UpdateNums(int areanum, const std::vector<CVecValue> &values);
+	bool	UpdateNums(int areanum, const std::vector<CVecValue> &values);
+	bool	UpdateNums(const CValue& value);
 	CValue	GetValue(CAyaVM &vm,int areanum, const std::vector<CVecValue> &values);
+	CValue	GetValue(CAyaVM& vm, const CValue& value);
 };
 
 //----

@@ -115,6 +115,9 @@ CValue	CSelecter::Output(void)
 	case CHOICETYPE_POSSIBILITY_LIST:
 		return StructPossibilityList();
 	case CHOICETYPE_POOL:
+	case CHOICETYPE_POOL_ARRAY:
+	case CHOICETYPE_NONOVERLAP_POOL:
+	case CHOICETYPE_SEQUENTIAL_POOL:
 		return StructPool();
 	case CHOICETYPE_RANDOM:
 	default:
