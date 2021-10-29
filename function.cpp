@@ -276,8 +276,10 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 			break;
 		case CHOICETYPE_NONOVERLAP_POOL:
 			result = dupl.ChoiceValue(*pvm,result,CHOICETYPE_NONOVERLAP);
+			break;
 		case CHOICETYPE_SEQUENTIAL_POOL:
 			result = dupl.ChoiceValue(*pvm,result,CHOICETYPE_SEQUENTIAL);
+			break;
 	}
 
 	// 終了時の処理
