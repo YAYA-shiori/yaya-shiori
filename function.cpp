@@ -255,7 +255,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 
 	// 候補から出力を選び出す　入れ子の深さが0なら重複回避が働く
 	result = output.Output();
-	if (dupl.GetType() == CHOICETYPE_POOL) {
+	if (lvar.GetDepth() == 1 && dupl.GetType() == CHOICETYPE_POOL) {
 		auto index = pvm->genrand_int(static_cast<int>(result.array().size()));
 		pvm->sysfunction().SetLso(index);
 		result = result.array()[index];
