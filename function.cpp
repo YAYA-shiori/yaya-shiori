@@ -119,8 +119,9 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 		}
 	// 実行
 	CSelecter	output(*pvm, pdupl, type);
-	char		exec_end     = 0;	// この{}の実行を終了するためのフラグ 1で終了
-	char		ifflg        = 0;	// if-elseif-else制御用。1でそのブロックを処理したことを示す
+	bool		exec_end     = 0;	// この{}の実行を終了するためのフラグ 1で終了
+	bool		ifflg        = 0;	// if-elseif-else制御用。1でそのブロックを処理したことを示す
+	bool		inmutiarea	 = 0;	// pool用
 
 	CValue		t_value;
 
@@ -131,12 +132,22 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 		switch(statement[i].type) {
 		case ST_OPEN:					// "{"
 			i = ExecuteInBrace(i + 1, t_value, lvar, BRACE_DEFAULT, exitcode);
+			if(inmutiarea && pdupl)
+				switch (dupl.GetType()) {
+				case CHOICETYPE_POOL:
+				case CHOICETYPE_NONOVERLAP_POOL:
+				case CHOICETYPE_SEQUENTIAL_POOL:
+					t_value = GetResultFromPoolArray(t_value);
+				default:
+					break;
+				}
 			output.Append(t_value);
 			break;
 		case ST_CLOSE:					// "}"　注　関数終端の"}"はここを通らない
 			exec_end = 1;
 			break;
 		case ST_COMBINE:				// "--"
+			inmutiarea = 1;
 			output.AddArea();
 			break;
 		case ST_FORMULA_OUT_FORMULA:	// 出力（数式。配列、引数つき関数も含まれる）
@@ -266,26 +277,30 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 	result = output.Output();
 	if (lvar.GetDepth() == 1)
 		switch (dupl.GetType()) {
-		case CHOICETYPE_POOL: {
-			auto index = pvm->genrand_int(static_cast<int>(result.array().size()));
-			pvm->sysfunction().SetLso(index);
-			result = result.array()[index];
-		}
-		case CHOICETYPE_POOL_ARRAY: 
+		case CHOICETYPE_POOL:
+			result = GetResultFromPoolArray(result);
+		case CHOICETYPE_POOL_ARRAY:
 		default:
 			break;
 		case CHOICETYPE_NONOVERLAP_POOL:
-			result = dupl.ChoiceValue(*pvm,result,CHOICETYPE_NONOVERLAP);
+			result = dupl.ChoiceValue(*pvm, result, CHOICETYPE_NONOVERLAP);
 			break;
 		case CHOICETYPE_SEQUENTIAL_POOL:
-			result = dupl.ChoiceValue(*pvm,result,CHOICETYPE_SEQUENTIAL);
+			result = dupl.ChoiceValue(*pvm, result, CHOICETYPE_SEQUENTIAL);
 			break;
-	}
+		}
 
 	// 終了時の処理
 	lvar.DelDepth();
 
 	return i;
+}
+
+CValueSub& CFunction::GetResultFromPoolArray(CValue& result)
+{
+	auto index = pvm->genrand_int(static_cast<int>(result.array().size()));
+	pvm->sysfunction().SetLso(index);
+	return result.array()[index];
 }
 
 /* -----------------------------------------------------------------------
