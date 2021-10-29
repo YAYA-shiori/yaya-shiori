@@ -257,6 +257,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 	result = output.Output();
 	if (dupl.GetType() == CHOICETYPE_POOL) {
 		auto index = pvm->genrand_int(static_cast<int>(result.array().size()));
+		pvm->sysfunction().SetLso(index);
 		result = result.array()[index];
 	}
 
