@@ -168,6 +168,8 @@ public:
 protected:
 	int		ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, int type, int &exitcode);
 
+	CValueSub&	GetResultFromPoolArray(CValue& result);
+
 	void	Foreach(CLocalVariable &lvar, CSelecter &output, int line, int &exitcode);
 
 	const CValue& GetValueRefForCalc(CCell &cell, CStatement &st, CLocalVariable &lvar);
