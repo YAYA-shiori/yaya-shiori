@@ -21,9 +21,6 @@
     <ClCompile Include="ayavm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="babel\babel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="basis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -122,9 +119,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ayavm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="babel\babel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="basis.h">

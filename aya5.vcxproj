@@ -264,12 +264,6 @@
   <ItemGroup>
     <ClCompile Include="aya5.cpp" />
     <ClCompile Include="ayavm.cpp" />
-    <ClCompile Include="babel\babel.cpp">
-      <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Debug EXE|Win32'">
-      </DebugInformationFormat>
-      <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </DebugInformationFormat>
-    </ClCompile>
     <ClCompile Include="basis.cpp" />
     <ClCompile Include="ccct.cpp" />
     <ClCompile Include="comment.cpp" />
@@ -311,7 +305,6 @@
   <ItemGroup>
     <ClInclude Include="aya5.h" />
     <ClInclude Include="ayavm.h" />
-    <ClInclude Include="babel\babel.h" />
     <ClInclude Include="basis.h" />
     <ClInclude Include="ccct.h" />
     <ClInclude Include="cell.h" />
