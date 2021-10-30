@@ -21,7 +21,7 @@
 #include "parser1.h"
 #include "sysfunc.h"
 
-#include "babel/babel.h"
+//#include "babel/babel.h"
 
 #ifdef POSIX
 #include <sys/time.h>
@@ -84,7 +84,7 @@ void CAyaVM::load(void)
 #endif
 	unsigned int dwSeed;
 
-	babel::init_babel();
+	//babel::init_babel();
 
 #ifdef POSIX
 	struct timeval tv;
