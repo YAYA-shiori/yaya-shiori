@@ -28,6 +28,8 @@ class CFunction;
 
 typedef const std::vector<CValue> CValueArgArray;
 
+class CSF_FUNCPARAM;
+
 //----
 
 class	CSystemFunction
@@ -70,203 +72,205 @@ private:
 	CValue	*GetRePosPtr(void) { return &re_pos; }
 	CValue	*GetReLenPtr(void) { return &re_len; }
 
-	bool ProcessTranslateSyntax(std::vector<yaya::char_t> &array,yaya::string_t &str, yaya::string_t &d, int &l);
+	bool ProcessTranslateSyntax(std::vector<yaya::char_t> &array,yaya::string_t &str, const yaya::string_t &d, int l);
 
 protected:
-	CValue	TOINT(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	TOREAL(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	TOSTR(CValueArgArray &valuearg, yaya::string_t &d, int &l);
-	CValue	TOAUTO(const CValue &args, yaya::string_t &d, int &l);
+	CValue	TOINT(CSF_FUNCPARAM &p);
+	CValue	TOREAL(CSF_FUNCPARAM &p);
+	CValue	TOSTR(CSF_FUNCPARAM &p);
+	CValue	TOAUTO(CSF_FUNCPARAM &p);
 
-	CValue	GETTYPE(CValueArgArray &valuearg, yaya::string_t &d, int &l);
-	CValue	GETTYPEEX(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l);
+	CValue	GETTYPE(CSF_FUNCPARAM &p);
+	CValue	GETTYPEEX(CSF_FUNCPARAM &p);
 
-	CValue	ISFUNC(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	ISVAR(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l);
-	CValue	LOGGING(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	GETERRORLOG(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	LOADLIB(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	UNLOADLIB(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	REQUESTLIB(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	CHARSETLIB(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	RAND(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	SRAND(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	FLOOR(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	CEIL(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	ROUND(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	ISFUNC(CSF_FUNCPARAM &p);
+	CValue	ISVAR(CSF_FUNCPARAM &p);
+	CValue	LOGGING(CSF_FUNCPARAM &p);
+	CValue	GETERRORLOG(CSF_FUNCPARAM &p);
+	CValue	LOADLIB(CSF_FUNCPARAM &p);
+	CValue	UNLOADLIB(CSF_FUNCPARAM &p);
+	CValue	REQUESTLIB(CSF_FUNCPARAM &p);
+	CValue	CHARSETLIB(CSF_FUNCPARAM &p);
+	CValue	RAND(CSF_FUNCPARAM &p);
+	CValue	SRAND(CSF_FUNCPARAM &p);
+	CValue	FLOOR(CSF_FUNCPARAM &p);
+	CValue	CEIL(CSF_FUNCPARAM &p);
+	CValue	ROUND(CSF_FUNCPARAM &p);
 
-	CValue	SIN(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	COS(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	TAN(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	ASIN(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	ACOS(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	ATAN(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	SINH(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	COSH(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	TANH(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	SIN(CSF_FUNCPARAM &p);
+	CValue	COS(CSF_FUNCPARAM &p);
+	CValue	TAN(CSF_FUNCPARAM &p);
+	CValue	ASIN(CSF_FUNCPARAM &p);
+	CValue	ACOS(CSF_FUNCPARAM &p);
+	CValue	ATAN(CSF_FUNCPARAM &p);
+	CValue	SINH(CSF_FUNCPARAM &p);
+	CValue	COSH(CSF_FUNCPARAM &p);
+	CValue	TANH(CSF_FUNCPARAM &p);
 
-	CValue	LOG(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	LOG10(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	POW(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	SQRT(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	STRSTR(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	STRLEN(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	REPLACE(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	SUBSTR(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	ERASE(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	INSERT(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	TOUPPER(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	TOLOWER(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	TOBINSTR(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	TOHEXSTR(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	BINSTRTOI(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	HEXSTRTOI(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	CUTSPACE(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	CHR(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	FOPEN(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	FCLOSE(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	FREAD(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	FREADBIN(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	FREADENCODE(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	FWRITE(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	FWRITE2(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	FWRITEBIN(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	FWRITEDECODE(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	FCOPY(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	FMOVE(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	MKDIR(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	RMDIR(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	FDEL(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	FRENAME(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	FDIGEST(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	FSIZE(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	FENUM(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	FCHARSET(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	LOG(CSF_FUNCPARAM &p);
+	CValue	LOG10(CSF_FUNCPARAM &p);
+	CValue	POW(CSF_FUNCPARAM &p);
+	CValue	SQRT(CSF_FUNCPARAM &p);
+	CValue	STRSTR(CSF_FUNCPARAM &p);
+	CValue	STRLEN(CSF_FUNCPARAM &p);
+	CValue	REPLACE(CSF_FUNCPARAM &p);
+	CValue	SUBSTR(CSF_FUNCPARAM &p);
+	CValue	ERASE(CSF_FUNCPARAM &p);
+	CValue	INSERT(CSF_FUNCPARAM &p);
+	CValue	TOUPPER(CSF_FUNCPARAM &p);
+	CValue	TOLOWER(CSF_FUNCPARAM &p);
+	CValue	TOBINSTR(CSF_FUNCPARAM &p);
+	CValue	TOHEXSTR(CSF_FUNCPARAM &p);
+	CValue	BINSTRTOI(CSF_FUNCPARAM &p);
+	CValue	HEXSTRTOI(CSF_FUNCPARAM &p);
+	CValue	CUTSPACE(CSF_FUNCPARAM &p);
+	CValue	CHR(CSF_FUNCPARAM &p);
+	CValue	FOPEN(CSF_FUNCPARAM &p);
+	CValue	FCLOSE(CSF_FUNCPARAM &p);
+	CValue	FREAD(CSF_FUNCPARAM &p);
+	CValue	FREADBIN(CSF_FUNCPARAM &p);
+	CValue	FREADENCODE(CSF_FUNCPARAM &p);
+	CValue	FWRITE(CSF_FUNCPARAM &p);
+	CValue	FWRITE2(CSF_FUNCPARAM &p);
+	CValue	FWRITEBIN(CSF_FUNCPARAM &p);
+	CValue	FWRITEDECODE(CSF_FUNCPARAM &p);
+	CValue	FCOPY(CSF_FUNCPARAM &p);
+	CValue	FMOVE(CSF_FUNCPARAM &p);
+	CValue	MKDIR(CSF_FUNCPARAM &p);
+	CValue	RMDIR(CSF_FUNCPARAM &p);
+	CValue	FDEL(CSF_FUNCPARAM &p);
+	CValue	FRENAME(CSF_FUNCPARAM &p);
+	CValue	FDIGEST(CSF_FUNCPARAM &p);
+	CValue	FSIZE(CSF_FUNCPARAM &p);
+	CValue	FENUM(CSF_FUNCPARAM &p);
+	CValue	FCHARSET(CSF_FUNCPARAM &p);
 	// ARRAYSYZE winnt.h とマクロが被った。減点２。
-	CValue	ArraySize(CValueArgArray &valuearg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
-				yaya::string_t &d, int &l);
-	CValue	SETDELIM(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l);
-	CValue	ISEVALUABLE(const CValue& arg, yaya::string_t& d, int& l);
-	CValue	EVAL(const CValue &arg, yaya::string_t &d, int &l, CLocalVariable &lvar,
-				CFunction *thisfunc);
-	CValue	ERASEVAR(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l);
-	CValue	GETTIME(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	GETSECCOUNT(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	GETTICKCOUNT(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l);
-	CValue	GETMEMINFO(void);
+	CValue	ArraySize(CSF_FUNCPARAM &p);
+	CValue	SETDELIM(CSF_FUNCPARAM &p);
+	CValue	ISEVALUABLE(CSF_FUNCPARAM &p);
+	CValue	EVAL(CSF_FUNCPARAM &p);
+	CValue	ERASEVAR(CSF_FUNCPARAM &p);
+	CValue	GETTIME(CSF_FUNCPARAM &p);
+	CValue	GETSECCOUNT(CSF_FUNCPARAM &p);
+	CValue	GETTICKCOUNT(CSF_FUNCPARAM &p);
+	CValue	GETMEMINFO(CSF_FUNCPARAM &p);
 
-	CValue	SETLASTERROR(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	GETLASTERROR(CSF_FUNCPARAM &p);
+	CValue	SETLASTERROR(CSF_FUNCPARAM &p);
 
-	CValue	RE_SEARCH(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	RE_MATCH(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	RE_GREP(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	RE_REPLACE(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	RE_SPLIT(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	RE_OPTION(const CValue &arg, yaya::string_t &d, int &l);
+	CValue  EmBeD_HiStOrY(CSF_FUNCPARAM &p);
 
-	CValue	RE_ASEARCH(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	RE_ASEARCHEX(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	RE_SEARCH(CSF_FUNCPARAM &p);
+	CValue	RE_MATCH(CSF_FUNCPARAM &p);
+	CValue	RE_GREP(CSF_FUNCPARAM &p);
+	CValue	RE_REPLACE(CSF_FUNCPARAM &p);
+	CValue	RE_SPLIT(CSF_FUNCPARAM &p);
+	CValue	RE_OPTION(CSF_FUNCPARAM &p);
 
-	CValue	CHRCODE(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	ISINTSTR(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	ISREALSTR(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	SPLITPATH(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	RE_GETSTR(CSF_FUNCPARAM &p);
+	CValue	RE_GETPOS(CSF_FUNCPARAM &p);
+	CValue	RE_GETLEN(CSF_FUNCPARAM &p);
 
-	CValue	CVINT(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
-				yaya::string_t &d, int &l);
-	CValue	CVSTR(CValueArgArray &valuearg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
-				yaya::string_t &d, int &l);
-	CValue	CVREAL(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
-				yaya::string_t &d, int &l);
-	CValue	CVAUTO(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
-				yaya::string_t &d, int &l);
+	CValue	RE_ASEARCH(CSF_FUNCPARAM &p);
+	CValue	RE_ASEARCHEX(CSF_FUNCPARAM &p);
+
+	CValue	CHRCODE(CSF_FUNCPARAM &p);
+	CValue	ISINTSTR(CSF_FUNCPARAM &p);
+	CValue	ISREALSTR(CSF_FUNCPARAM &p);
+	CValue	SPLITPATH(CSF_FUNCPARAM &p);
+
+	CValue  IARRAY(CSF_FUNCPARAM &p);
+
+	CValue	CVINT(CSF_FUNCPARAM &p);
+	CValue	CVSTR(CSF_FUNCPARAM &p);
+	CValue	CVREAL(CSF_FUNCPARAM &p);
+	CValue	CVAUTO(CSF_FUNCPARAM &p);
 	
-	CValue	LETTONAME(CValueArgArray &valuearg, yaya::string_t &d, int &l, CLocalVariable &lvar,
-				CFunction *thisfunc);
-	CValue	STRFORM(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	ANY(const CValue &arg, const std::vector<CCell *> &pcellarg, CLocalVariable &lvar,
-				yaya::string_t &d, int &l);
+	CValue	LETTONAME(CSF_FUNCPARAM &p);
+	CValue	LSO(CSF_FUNCPARAM &p);
+	CValue	STRFORM(CSF_FUNCPARAM &p);
+	CValue	ANY(CSF_FUNCPARAM &p);
 
-	CValue	SAVEVAR(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	RESTOREVAR(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	SAVEVAR(CSF_FUNCPARAM &p);
+	CValue	RESTOREVAR(CSF_FUNCPARAM &p);
 
-	CValue	GETSTRBYTES(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	GETSTRBYTES(CSF_FUNCPARAM &p);
 
-	CValue	ASEARCH(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	ASEARCHEX(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	ASEARCH(CSF_FUNCPARAM &p);
+	CValue	ASEARCHEX(CSF_FUNCPARAM &p);
 
-	CValue	ASORT(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	ASORT(CSF_FUNCPARAM &p);
 
-	CValue	GETDELIM(const std::vector<CCell *> &pcellarg, CLocalVariable &lvar, yaya::string_t &d, int &l);
+	CValue	GETDELIM(CSF_FUNCPARAM &p);
 
-	CValue	GETSETTING(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	SETSETTING(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	GETSETTING(CSF_FUNCPARAM &p);
+	CValue	SETSETTING(CSF_FUNCPARAM &p);
 
-	CValue	SPLIT(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	SPLIT(CSF_FUNCPARAM &p);
 
-	CValue SETTAMAHWND(const CValue& arg, yaya::string_t& d, int& l);
+	CValue SETTAMAHWND(CSF_FUNCPARAM &p);
 
-	CValue	FATTRIB(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	FATTRIB(CSF_FUNCPARAM &p);
 
-	CValue GETFUNCLIST(const CValue &arg, yaya::string_t &d, int &l);
-	CValue GETSYSTEMFUNCLIST(const CValue &arg, yaya::string_t &, int &);
-	CValue	GETVARLIST(const CValue &arg, CLocalVariable &lvar, yaya::string_t &d, int &l);
-	CValue	GETCALLSTACK(const CValue &arg, yaya::string_t &d, int &l);
+	CValue GETFUNCLIST(CSF_FUNCPARAM &p);
+	CValue GETSYSTEMFUNCLIST(CSF_FUNCPARAM &p);
+	CValue	GETVARLIST(CSF_FUNCPARAM &p);
+	CValue	GETCALLSTACK(CSF_FUNCPARAM &p);
 
-	CValue	RE_REPLACEEX(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	RE_REPLACEEX(CSF_FUNCPARAM &p);
 
-	CValue	CHARSETLIBEX(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	CHARSETLIBEX(CSF_FUNCPARAM &p);
 
-	CValue	CHARSETTEXTTOID(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	CHARSETIDTOTEXT(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	CHARSETTEXTTOID(CSF_FUNCPARAM &p);
+	CValue	CHARSETIDTOTEXT(CSF_FUNCPARAM &p);
 
-	CValue  BITWISE_AND(const CValue &arg, yaya::string_t &d, int &l);
-	CValue  BITWISE_OR(const CValue &arg, yaya::string_t &d, int &l);
-	CValue  BITWISE_XOR(const CValue &arg, yaya::string_t &d, int &l);
-	CValue  BITWISE_NOT(const CValue &arg, yaya::string_t &d, int &l);
-	CValue  BITWISE_SHIFT(const CValue &arg, yaya::string_t &d, int &l);
+	CValue  BITWISE_AND(CSF_FUNCPARAM &p);
+	CValue  BITWISE_OR(CSF_FUNCPARAM &p);
+	CValue  BITWISE_XOR(CSF_FUNCPARAM &p);
+	CValue  BITWISE_NOT(CSF_FUNCPARAM &p);
+	CValue  BITWISE_SHIFT(CSF_FUNCPARAM &p);
 
-	CValue  ZEN2HAN(const CValue &arg, yaya::string_t &d, int &l);
-	CValue  HAN2ZEN(const CValue &arg, yaya::string_t &d, int &l);
+	CValue  ZEN2HAN(CSF_FUNCPARAM &p);
+	CValue  HAN2ZEN(CSF_FUNCPARAM &p);
 
-	CValue	STRENCODE(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	STRDECODE(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	STRENCODE(CSF_FUNCPARAM &p);
+	CValue	STRDECODE(CSF_FUNCPARAM &p);
 
-	CValue	READFMO(const CValue &arg,yaya::string_t &d,int &l);
+	CValue	READFMO(CSF_FUNCPARAM &p);
 
-	CValue	EXECUTE(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	EXECUTE_WAIT(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	GETENV(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	EXECUTE(CSF_FUNCPARAM &p);
+	CValue	EXECUTE_WAIT(CSF_FUNCPARAM &p);
+	CValue	GETENV(CSF_FUNCPARAM &p);
 
-	CValue	DUMPVAR(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	TRANSLATE(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	DUMPVAR(CSF_FUNCPARAM &p);
+	CValue	TRANSLATE(CSF_FUNCPARAM &p);
 
-	CValue	LICENSE(void);
+	CValue	LICENSE(CSF_FUNCPARAM &p);
 
-	CValue	FSEEK(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	FTELL(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	FSEEK(CSF_FUNCPARAM &p);
+	CValue	FTELL(CSF_FUNCPARAM &p);
 
-	CValue	DICLOAD(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	DICUNLOAD(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	DICLOAD(CSF_FUNCPARAM &p);
+	CValue	DICUNLOAD(CSF_FUNCPARAM &p);
 
-	CValue UNDEFFUNC(const CValue &arg, yaya::string_t &, int &);
-	CValue APPEND_RUNTIME_DIC(const CValue& arg, yaya::string_t& d, int& l);
-	CValue UNDEFGLOBALDEFINE(const CValue &arg, yaya::string_t &, int &);
+	CValue UNDEFFUNC(CSF_FUNCPARAM &p);
+	CValue APPEND_RUNTIME_DIC(CSF_FUNCPARAM &p);
+	CValue UNDEFGLOBALDEFINE(CSF_FUNCPARAM &p);
 
-	CValue ISGLOBALDEFINE(const CValue& arg, yaya::string_t& d, int& l);
-	CValue SETGLOBALDEFINE(const CValue& arg, yaya::string_t& d, int& l);
+	CValue ISGLOBALDEFINE(CSF_FUNCPARAM &p);
+	CValue SETGLOBALDEFINE(CSF_FUNCPARAM &p);
 
-	CValue	GETFUNCINFO(const CValue &arg, yaya::string_t &d, int &l);
-	CValue	PROCESSGLOBALDEFINE(const CValue &arg, yaya::string_t &d, int &l);
+	CValue	GETFUNCINFO(CSF_FUNCPARAM &p);
+	CValue	PROCESSGLOBALDEFINE(CSF_FUNCPARAM &p);
 
-	CValue	RE_SPLIT_CORE(const CValue &arg, yaya::string_t &d, int &l, const yaya::char_t *fncname, size_t num);
+	CValue	RE_SPLIT_CORE(const CValue &arg, const yaya::string_t &d, int l, const yaya::char_t *fncname, size_t num);
 
 	void	StoreReResultDetails(const yaya::string_t &str,MatchResult &result);
 	void	ClearReResultDetails(void);
 	void	AppendReResultDetail(const yaya::string_t &str, int pos, int len);
 	void	SetError(int code);
 
-	int		GetCharset(const CValueSub &var,const wchar_t *fname, yaya::string_t &d, int &l);
+	int		GetCharset(const CValueSub &var,const wchar_t *fname, const yaya::string_t &d, int l);
 	yaya::string_t	ToFullPath(const yaya::string_t &str);
 };
 
