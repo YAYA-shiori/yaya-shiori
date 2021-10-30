@@ -50,6 +50,7 @@ public:
 
 	static char		*sys_setlocale(int category);
 	static char		*ccct_setlocale(int category, int charset);
+	static unsigned int ccct_getcodepage(int charset);
 
 private:
 	static char *utf16be_to_mbcs(const yaya::char_t *pUcsStr, int charset);
