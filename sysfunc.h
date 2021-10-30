@@ -291,6 +291,7 @@ protected:
 	CValue	FUNCDECL_ERASE(CSF_FUNCPARAM& p);
 
 	CValue	OUTPUTNUM(CSF_FUNCPARAM& p);
+
 	//LINT
 	CValue	LINT_GetFuncUsedBy(CSF_FUNCPARAM& p);
 	CValue	LINT_GetUserDefFuncUsedBy(CSF_FUNCPARAM& p);
@@ -300,6 +301,13 @@ protected:
 	CValue	LINT_GetLocalVarLetted(CSF_FUNCPARAM& p);
 
 	CValue	RE_SPLIT_CORE(const CValue &arg, const yaya::string_t &d, int l, const yaya::char_t *fncname, size_t num);
+
+	CValue	IHASH(CSF_FUNCPARAM &p);
+	CValue	HASH_KEYS(CSF_FUNCPARAM &p);
+	CValue	HASH_VALUES(CSF_FUNCPARAM &p);
+	CValue	HASH_SPLIT(CSF_FUNCPARAM &p);
+	CValue	HASH_EXIST(CSF_FUNCPARAM &p);
+	CValue	HASH_SIZE(CSF_FUNCPARAM &p);
 
 	void	StoreReResultDetails(const yaya::string_t &str,MatchResult &result);
 	void	ClearReResultDetails(void);
