@@ -298,7 +298,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 
 CValueSub& CFunction::GetResultFromPoolArray(CValue& result)
 {
-	auto index = pvm->genrand_int(static_cast<int>(result.array().size()));
+	int index = pvm->genrand_int(static_cast<int>(result.array().size()));
 	pvm->sysfunction().SetLso(index);
 	return result.array()[index];
 }

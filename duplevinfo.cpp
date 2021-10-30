@@ -129,14 +129,16 @@ bool	CDuplEvInfo::UpdateNums(int areanum, const std::vector<CVecValue> &values)
 	// 候補数に変化があった場合はフラグに記録する
 	num.clear();
 	total = 1;
-	char	changed = (areanum != bef_numlenm1) ? 1 : 0;
+	bool changed = areanum != bef_numlenm1;
 	for(int i = 0; i <= areanum; i++) {
 		int	t_num = values[i].array.size();
 		num.push_back(t_num);
 		total *= t_num;
-		if (i <= bef_numlenm1)
-			if (bef_num[i] != t_num)
-				changed = 1;
+		if (i <= bef_numlenm1) {
+			if (bef_num[i] != t_num) {
+				changed = true;
+			}
+		}
 	}
 
 	return changed;

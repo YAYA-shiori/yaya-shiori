@@ -28,11 +28,11 @@
 #define	CHOICETYPE_SEQUENTIAL			2	/* 順番に選択する */
 #define	CHOICETYPE_VOID					3	/* 出力なし */
 #define	CHOICETYPE_ARRAY				4	/* 簡易配列編成 */
-#define	CHOICETYPE_POSSIBILITY_LIST		5	/* 簡易配列編成 */
-#define	CHOICETYPE_POOL					6	/* 簡易配列編成 */
-#define	CHOICETYPE_POOL_ARRAY			7	/* 簡易配列編成 */
-#define	CHOICETYPE_NONOVERLAP_POOL		8	/* 簡易配列編成 */
-#define	CHOICETYPE_SEQUENTIAL_POOL		9	/* 簡易配列編成 */
+#define	CHOICETYPE_POSSIBILITY_LIST		5	/* 全選択候補を配列として返す */
+#define	CHOICETYPE_POOL					6	/* randomのスコープ無視版 */
+#define	CHOICETYPE_POOL_ARRAY			7	/* arrayのスコープ無視版 */
+#define	CHOICETYPE_NONOVERLAP_POOL		8	/* nonoverlapのスコープ無視版 */
+#define	CHOICETYPE_SEQUENTIAL_POOL		9	/* sequentialのスコープ無視版 */
 
 #define	CHOICETYPE_NUM			10
 
