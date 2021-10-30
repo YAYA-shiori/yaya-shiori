@@ -32,6 +32,17 @@ class CSF_FUNCPARAM;
 
 //----
 
+class	CSystemFunction;
+class	CSystemFunctionInit;
+
+typedef CValue (CSystemFunction::*SysFuncProc)(CSF_FUNCPARAM &p);
+
+typedef struct CSF_FUNCTABLE
+{
+	SysFuncProc func;
+	yaya::char_t* name;
+} CSF_FUNCTABLE;
+
 class	CSystemFunction
 {
 private:
@@ -46,6 +57,10 @@ private:
 	CValue	re_len;						// 正規表現処理結果の詳細情報（一致した長さ）
 
 	int re_option; //正規表現オプション
+
+	static const CSF_FUNCTABLE sysfunc[];
+
+	friend CSystemFunctionInit;
 
 private:
 	CSystemFunction(void);

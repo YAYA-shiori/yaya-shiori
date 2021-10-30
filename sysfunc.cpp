@@ -91,219 +91,220 @@ extern "C" {
 #endif
 #endif
 
-#define	SYSFUNC_NUM					150 //システム関数の全数
-#define	SYSFUNC_HIS					61 //EmBeD_HiStOrY の位置（0start）
+#define SYSFUNC_HIS_NAME L"EmBeD_HiStOrY"
 
-static const wchar_t sysfunc[SYSFUNC_NUM][32] = {
+const CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	// 型取得/変換
-	L"TOINT",
-	L"TOREAL",
-	L"TOSTR",
-	L"GETTYPE",
-	L"ISFUNC",
-	L"ISVAR",
+	{ CSystemFunction::TOINT , L"TOINT" } ,
+	{ CSystemFunction::TOREAL , L"TOREAL" } ,
+	{ CSystemFunction::TOSTR , L"TOSTR" } ,
+	{ CSystemFunction::GETTYPE , L"GETTYPE" } ,
+	{ CSystemFunction::ISFUNC , L"ISFUNC" } ,
+	{ CSystemFunction::ISVAR , L"ISVAR" } ,
 	// デバッグ
-	L"LOGGING",
-	L"GETLASTERROR",
+	{ CSystemFunction::LOGGING , L"LOGGING" } ,
+	{ CSystemFunction::GETLASTERROR , L"GETLASTERROR" } ,
 	// 外部ライブラリ
-	L"LOADLIB",
-	L"UNLOADLIB",
-	L"REQUESTLIB",
-	L"CHARSETLIB",
+	{ CSystemFunction::LOADLIB , L"LOADLIB" } ,
+	{ CSystemFunction::UNLOADLIB , L"UNLOADLIB" } ,
+	{ CSystemFunction::REQUESTLIB , L"REQUESTLIB" } ,
+	{ CSystemFunction::CHARSETLIB , L"CHARSETLIB" } ,
 	// 数値
-	L"RAND",
-	L"FLOOR",
-	L"CEIL",
-	L"ROUND",
-	L"SIN",
-	L"COS",
-	L"TAN",
-	L"LOG",
-	L"LOG10",
-	L"POW",
-	L"SQRT",
+	{ CSystemFunction::RAND , L"RAND" } ,
+	{ CSystemFunction::FLOOR , L"FLOOR" } ,
+	{ CSystemFunction::CEIL , L"CEIL" } ,
+	{ CSystemFunction::ROUND , L"ROUND" } ,
+	{ CSystemFunction::SIN , L"SIN" } ,
+	{ CSystemFunction::COS , L"COS" } ,
+	{ CSystemFunction::TAN , L"TAN" } ,
+	{ CSystemFunction::LOG , L"LOG" } ,
+	{ CSystemFunction::LOG10 , L"LOG10" } ,
+	{ CSystemFunction::POW , L"POW" } ,
+	{ CSystemFunction::SQRT , L"SQRT" } ,
 	// 文字列操作
-	L"STRSTR",
-	L"STRLEN",
-	L"REPLACE",
-	L"SUBSTR",
-	L"ERASE",
-	L"INSERT",
-	L"TOUPPER",
-	L"TOLOWER",
-	L"CUTSPACE",
-	L"TOBINSTR",
-	L"TOHEXSTR",
-	L"BINSTRTOI",
-	L"HEXSTRTOI",
-	L"CHR",
+	{ CSystemFunction::STRSTR , L"STRSTR" } ,
+	{ CSystemFunction::STRLEN , L"STRLEN" } ,
+	{ CSystemFunction::REPLACE , L"REPLACE" } ,
+	{ CSystemFunction::SUBSTR , L"SUBSTR" } ,
+	{ CSystemFunction::ERASE , L"ERASE" } ,
+	{ CSystemFunction::INSERT , L"INSERT" } ,
+	{ CSystemFunction::TOUPPER , L"TOUPPER" } ,
+	{ CSystemFunction::TOLOWER , L"TOLOWER" } ,
+	{ CSystemFunction::CUTSPACE , L"CUTSPACE" } ,
+	{ CSystemFunction::TOBINSTR , L"TOBINSTR" } ,
+	{ CSystemFunction::TOHEXSTR , L"TOHEXSTR" } ,
+	{ CSystemFunction::BINSTRTOI , L"BINSTRTOI" } ,
+	{ CSystemFunction::HEXSTRTOI , L"HEXSTRTOI" } ,
+	{ CSystemFunction::CHR , L"CHR" } ,
 	// ファイル操作
-	L"FOPEN",
-	L"FCLOSE",
-	L"FREAD",
-	L"FWRITE",
-	L"FWRITE2",
-	L"FCOPY",
-	L"FMOVE",
-	L"MKDIR",
-	L"RMDIR",
-	L"FDEL",
-	L"FRENAME",
-	L"FSIZE",
-	L"FENUM",
-	L"FCHARSET",
+	{ CSystemFunction::FOPEN , L"FOPEN" } ,
+	{ CSystemFunction::FCLOSE , L"FCLOSE" } ,
+	{ CSystemFunction::FREAD , L"FREAD" } ,
+	{ CSystemFunction::FWRITE , L"FWRITE" } ,
+	{ CSystemFunction::FWRITE2 , L"FWRITE2" } ,
+	{ CSystemFunction::FCOPY , L"FCOPY" } ,
+	{ CSystemFunction::FMOVE , L"FMOVE" } ,
+	{ CSystemFunction::MKDIR , L"MKDIR" } ,
+	{ CSystemFunction::RMDIR , L"RMDIR" } ,
+	{ CSystemFunction::FDEL , L"FDEL" } ,
+	{ CSystemFunction::FRENAME , L"FRENAME" } ,
+	{ CSystemFunction::FSIZE , L"FSIZE" } ,
+	{ CSystemFunction::FENUM , L"FENUM" } ,
+	{ CSystemFunction::FCHARSET , L"FCHARSET" } ,
 	// 配列
-	L"ARRAYSIZE",
-	L"SETDELIM",
+	{ CSystemFunction::ArraySize , L"ARRAYSIZE" } ,
+	{ CSystemFunction::SETDELIM , L"SETDELIM" } ,
 	// 特殊
-	L"EVAL",
-	L"ERASEVAR",
+	{ CSystemFunction::EVAL , L"EVAL" } ,
+	{ CSystemFunction::ERASEVAR , L"ERASEVAR" } ,
 	// システム時刻/メモリ情報
-	L"GETTIME",
-	L"GETTICKCOUNT",
-	L"GETMEMINFO",
+	{ CSystemFunction::GETTIME , L"GETTIME" } ,
+	{ CSystemFunction::GETTICKCOUNT , L"GETTICKCOUNT" } ,
+	{ CSystemFunction::GETMEMINFO , L"GETMEMINFO" } ,
 	// 正規表現
-	L"RE_SEARCH",
-	L"RE_MATCH",
-	L"RE_GREP",
+	{ CSystemFunction::RE_SEARCH , L"RE_SEARCH" } ,
+	{ CSystemFunction::RE_MATCH , L"RE_MATCH" } ,
+	{ CSystemFunction::RE_GREP , L"RE_GREP" } ,
 	// システムで使用
-	L"EmBeD_HiStOrY",	// %[n]（置換済の値の再利用）処理用
+	{ CSystemFunction::EmBeD_HiStOrY , L"EmBeD_HiStOrY" } ,	// %[n]（置換済の値の再利用）処理用
 	// デバッグ用(2)
-	L"SETLASTERROR",
+	{ CSystemFunction::SETLASTERROR , L"SETLASTERROR" } ,
 	// 正規表現(2)
-	L"RE_REPLACE",
-	L"RE_SPLIT",
-	L"RE_GETSTR",
-	L"RE_GETPOS",
-	L"RE_GETLEN",
+	{ CSystemFunction::RE_REPLACE , L"RE_REPLACE" } ,
+	{ CSystemFunction::RE_SPLIT , L"RE_SPLIT" } ,
+	{ CSystemFunction::RE_GETSTR , L"RE_GETSTR" } ,
+	{ CSystemFunction::RE_GETPOS , L"RE_GETPOS" } ,
+	{ CSystemFunction::RE_GETLEN , L"RE_GETLEN" } ,
 	// 文字列操作(2)
-	L"CHRCODE",
-	L"ISINTSTR",
-	L"ISREALSTR",
+	{ CSystemFunction::CHRCODE , L"CHRCODE" } ,
+	{ CSystemFunction::ISINTSTR , L"ISINTSTR" } ,
+	{ CSystemFunction::ISREALSTR , L"ISREALSTR" } ,
 	// 配列(2)
-	L"IARRAY",
+	{ CSystemFunction::IARRAY , L"IARRAY" } ,
 	// 文字列操作(3)
-	L"SPLITPATH",
+	{ CSystemFunction::SPLITPATH , L"SPLITPATH" } ,
 	// 型取得/変換(2)
-	L"CVINT",
-	L"CVSTR",
-	L"CVREAL",
+	{ CSystemFunction::CVINT , L"CVINT" } ,
+	{ CSystemFunction::CVSTR , L"CVSTR" } ,
+	{ CSystemFunction::CVREAL , L"CVREAL" } ,
 	// 特殊(2)
-	L"LETTONAME",
-	L"LSO",
+	{ CSystemFunction::LETTONAME , L"LETTONAME" } ,
+	{ CSystemFunction::LSO , L"LSO" } ,
 	// 文字列操作(4)
-	L"STRFORM",
-	L"ANY",
+	{ CSystemFunction::STRFORM , L"STRFORM" } ,
+	{ CSystemFunction::ANY , L"ANY" } ,
 	// 特殊(3)
-	L"SAVEVAR",
+	{ CSystemFunction::SAVEVAR , L"SAVEVAR" } ,
 	// 文字列操作(5)
-	L"GETSTRBYTES",
+	{ CSystemFunction::GETSTRBYTES , L"GETSTRBYTES" } ,
 	// 配列(3)
-	L"ASEARCH",
-	L"ASEARCHEX",
+	{ CSystemFunction::ASEARCH , L"ASEARCH" } ,
+	{ CSystemFunction::ASEARCHEX , L"ASEARCHEX" } ,
 	// 配列(4)
-	L"GETDELIM",
+	{ CSystemFunction::GETDELIM , L"GETDELIM" } ,
 	// 特殊(4)
-	L"GETSETTING",
+	{ CSystemFunction::GETSETTING , L"GETSETTING" } ,
 	// 数値(2)
-	L"ASIN",
-	L"ACOS",
-	L"ATAN",
+	{ CSystemFunction::ASIN , L"ASIN" } ,
+	{ CSystemFunction::ACOS , L"ACOS" } ,
+	{ CSystemFunction::ATAN , L"ATAN" } ,
 	// 文字列操作(6)
-	L"SPLIT",
+	{ CSystemFunction::SPLIT , L"SPLIT" } ,
 	// ファイル操作(2)
-	L"FATTRIB",
+	{ CSystemFunction::FATTRIB , L"FATTRIB" } ,
 	// 型取得/変換(3)
-	L"GETFUNCLIST",
-	L"GETVARLIST",
+	{ CSystemFunction::GETFUNCLIST , L"GETFUNCLIST" } ,
+	{ CSystemFunction::GETVARLIST , L"GETVARLIST" } ,
 	// 正規表現(3)
-	L"RE_REPLACEEX",
+	{ CSystemFunction::RE_REPLACEEX , L"RE_REPLACEEX" } ,
 	// 外部ライブラリ(2)
-	L"CHARSETLIBEX",
+	{ CSystemFunction::CHARSETLIBEX , L"CHARSETLIBEX" } ,
 	// 文字コード
-	L"CHARSETTEXTTOID",
-	L"CHARSETIDTOTEXT",
+	{ CSystemFunction::CHARSETTEXTTOID , L"CHARSETTEXTTOID" } ,
+	{ CSystemFunction::CHARSETIDTOTEXT , L"CHARSETIDTOTEXT" } ,
 	// ビット演算
-	L"BITWISE_AND",
-	L"BITWISE_OR",
-	L"BITWISE_XOR",
-	L"BITWISE_NOT",
-	L"BITWISE_SHIFT",
+	{ CSystemFunction::BITWISE_AND , L"BITWISE_AND" } ,
+	{ CSystemFunction::BITWISE_OR , L"BITWISE_OR" } ,
+	{ CSystemFunction::BITWISE_XOR , L"BITWISE_XOR" } ,
+	{ CSystemFunction::BITWISE_NOT , L"BITWISE_NOT" } ,
+	{ CSystemFunction::BITWISE_SHIFT , L"BITWISE_SHIFT" } ,
 	// 半角<->全角
-	L"ZEN2HAN",
-	L"HAN2ZEN",
+	{ CSystemFunction::ZEN2HAN , L"ZEN2HAN" } ,
+	{ CSystemFunction::HAN2ZEN , L"HAN2ZEN" } ,
 	// 型取得/変換(3)
-	L"CVAUTO",
-	L"TOAUTO",
+	{ CSystemFunction::CVAUTO , L"CVAUTO" } ,
+	{ CSystemFunction::TOAUTO , L"TOAUTO" } ,
 	// ファイル操作(3)
-	L"FREADBIN",
-	L"FWRITEBIN",
+	{ CSystemFunction::FREADBIN , L"FREADBIN" } ,
+	{ CSystemFunction::FWRITEBIN , L"FWRITEBIN" } ,
 	// 特殊(5)
-	L"RESTOREVAR",
-	L"GETCALLSTACK",
+	{ CSystemFunction::RESTOREVAR , L"RESTOREVAR" } ,
+	{ CSystemFunction::GETCALLSTACK , L"GETCALLSTACK" } ,
 	// 文字列操作(7) 互換用
-	L"GETSTRURLENCODE",
-	L"GETSTRURLDECODE",
+	{ CSystemFunction::STRENCODE , L"GETSTRURLENCODE" } ,
+	{ CSystemFunction::STRDECODE , L"GETSTRURLDECODE" } ,
 	// 数値(3)
-	L"SINH",
-	L"COSH",
-	L"TANH",
+	{ CSystemFunction::SINH , L"SINH" } ,
+	{ CSystemFunction::COSH , L"COSH" } ,
+	{ CSystemFunction::TANH , L"TANH" } ,
 	// システム時刻/メモリ情報(2)
-	L"GETSECCOUNT",
+	{ CSystemFunction::GETSECCOUNT , L"GETSECCOUNT" } ,
 	// FMO(1)
-	L"READFMO",
+	{ CSystemFunction::READFMO , L"READFMO" } ,
 	// ファイル操作(4)
-	L"FDIGEST",
+	{ CSystemFunction::FDIGEST , L"FDIGEST" } ,
 	// 特殊(6)
-	L"EXECUTE",
-	L"SETSETTING",
+	{ CSystemFunction::EXECUTE , L"EXECUTE" } ,
+	{ CSystemFunction::SETSETTING , L"SETSETTING" } ,
 	// デバッグ用(3)
-	L"DUMPVAR",
+	{ CSystemFunction::DUMPVAR , L"DUMPVAR" } ,
 	// ファイル操作(5)
-	L"FSEEK",
-	L"FTELL",
+	{ CSystemFunction::FSEEK , L"FSEEK" } ,
+	{ CSystemFunction::FTELL , L"FTELL" } ,
 	//ライセンス
-	L"LICENSE",
+	{ CSystemFunction::LICENSE , L"LICENSE" } ,
 	// 文字列操作(8)
-	L"STRENCODE",
-	L"STRDECODE",
+	{ CSystemFunction::STRENCODE , L"STRENCODE" } ,
+	{ CSystemFunction::STRDECODE , L"STRDECODE" } ,
 	// 特殊(7)
-	L"EXECUTE_WAIT",
+	{ CSystemFunction::EXECUTE_WAIT , L"EXECUTE_WAIT" } ,
 	// 正規表現(4)
-	L"RE_OPTION",
+	{ CSystemFunction::RE_OPTION , L"RE_OPTION" } ,
 	// ファイル操作(6)
-	L"FREADENCODE",
+	{ CSystemFunction::FREADENCODE , L"FREADENCODE" } ,
 	// 型取得/変換(4)
-	L"GETTYPEEX",
+	{ CSystemFunction::GETTYPEEX , L"GETTYPEEX" } ,
 	// 正規表現(5)
-	L"RE_ASEARCHEX",
-	L"RE_ASEARCH",
+	{ CSystemFunction::RE_ASEARCHEX , L"RE_ASEARCHEX" } ,
+	{ CSystemFunction::RE_ASEARCH , L"RE_ASEARCH" } ,
 	// 配列(5)
-	L"ASORT",
+	{ CSystemFunction::ASORT , L"ASORT" } ,
 	// 文字列操作(9)
-	L"TRANSLATE",
+	{ CSystemFunction::TRANSLATE , L"TRANSLATE" } ,
 	// 数値(4)
-	L"SRAND",
+	{ CSystemFunction::SRAND , L"SRAND" } ,
 	// 特殊(8)
-	L"GETENV",
+	{ CSystemFunction::GETENV , L"GETENV" } ,
 	// ファイル操作(7)
-	L"FWRITEDECODE",
+	{ CSystemFunction::FWRITEDECODE , L"FWRITEDECODE" } ,
 	// デバッグ用(4)
-	L"GETERRORLOG",
+	{ CSystemFunction::GETERRORLOG , L"GETERRORLOG" } ,
 	// 特殊(9)
-	L"DICLOAD",
-	L"GETSYSTEMFUNCLIST",
-	L"GETFUNCINFO",
-	L"PROCESSGLOBALDEFINE",
-	L"UNDEFFUNC",
-	L"UNDEFGLOBALDEFINE",
-	L"DICUNLOAD",
-	L"ISEVALUABLE",
-	L"SETTAMAHWND",
-	L"ISGLOBALDEFINE",
-	L"SETGLOBALDEFINE",
-	L"APPEND_RUNTIME_DIC",
+	{ CSystemFunction::DICLOAD , L"DICLOAD" } ,
+	{ CSystemFunction::GETSYSTEMFUNCLIST , L"GETSYSTEMFUNCLIST" } ,
+	{ CSystemFunction::GETFUNCINFO , L"GETFUNCINFO" } ,
+	{ CSystemFunction::PROCESSGLOBALDEFINE , L"PROCESSGLOBALDEFINE" } ,
+	{ CSystemFunction::UNDEFFUNC , L"UNDEFFUNC" } ,
+	{ CSystemFunction::UNDEFGLOBALDEFINE , L"UNDEFGLOBALDEFINE" } ,
+	{ CSystemFunction::DICUNLOAD , L"DICUNLOAD" } ,
+	{ CSystemFunction::ISEVALUABLE , L"ISEVALUABLE" } ,
+	{ CSystemFunction::SETTAMAHWND , L"SETTAMAHWND" } ,
+	{ CSystemFunction::ISGLOBALDEFINE , L"ISGLOBALDEFINE" } ,
+	{ CSystemFunction::SETGLOBALDEFINE , L"SETGLOBALDEFINE" } ,
+	{ CSystemFunction::APPEND_RUNTIME_DIC , L"APPEND_RUNTIME_DIC" } ,
 };
+
+#define SYSFUNC_NUM (sizeof(CSystemFunction::sysfunc)/sizeof(CSystemFunction::sysfunc[0]))
 
 //このグローバル変数はマルチインスタンスでも共通
 class CSystemFunctionInit {
@@ -311,14 +312,18 @@ public:
 	int sysfunc_len[SYSFUNC_NUM];
 	int sysfunc_len_max;
 	int sysfunc_len_min;
+	size_t sysfunc_his_pos;
 	yaya::indexmap sysfunc_map;
 
 	CSystemFunctionInit(void) {
 		sysfunc_len_max = 0;
 		sysfunc_len_min = 65536;
 		for(size_t i = 0; i < SYSFUNC_NUM; i++) {
-			sysfunc_len[i] = ::wcslen(sysfunc[i]);
-			sysfunc_map.insert(yaya::indexmap::value_type(sysfunc[i],i));
+			if ( ::wcscmp(CSystemFunction::sysfunc[i].name,SYSFUNC_HIS_NAME) == 0 ) {
+				sysfunc_his_pos = i;
+			}
+			sysfunc_len[i] = ::wcslen(CSystemFunction::sysfunc[i].name);
+			sysfunc_map.insert(yaya::indexmap::value_type(CSystemFunction::sysfunc[i].name,i));
 
 			if ( sysfunc_len_max < sysfunc_len[i] ) {
 				sysfunc_len_max = sysfunc_len[i];
@@ -381,7 +386,7 @@ int CSystemFunction::FindIndexLongestMatch(const yaya::string_t &str,int max_len
 	for(size_t i = 0; i < SYSFUNC_NUM; i++) {
 		if ( sysfuncinit.sysfunc_len[i] <= max_len ) { continue; }
 
-		if ( wcsncmp(str.c_str(),sysfunc[i],sysfuncinit.sysfunc_len[i]) == 0 ) {
+		if ( wcsncmp(str.c_str(),sysfunc[i].name,sysfuncinit.sysfunc_len[i]) == 0 ) {
 			found_len = sysfuncinit.sysfunc_len[i];
 			max_len = found_len;
 		}
@@ -398,7 +403,7 @@ int CSystemFunction::FindIndexLongestMatch(const yaya::string_t &str,int max_len
 const yaya::char_t* CSystemFunction::GetNameFromIndex(int idx)
 {
 	if ( idx < 0 || idx >= SYSFUNC_NUM ) { return L""; }
-	return sysfunc[idx];
+	return CSystemFunction::sysfunc[idx].name;
 }
 
 /* -----------------------------------------------------------------------
@@ -408,12 +413,12 @@ const yaya::char_t* CSystemFunction::GetNameFromIndex(int idx)
  */
 int CSystemFunction::HistoryIndex(void)
 {
-	return SYSFUNC_HIS;
+	return sysfuncinit.sysfunc_his_pos;
 }
 
 const yaya::char_t* CSystemFunction::HistoryFunctionName(void)
 {
-	return sysfunc[SYSFUNC_HIS];
+	return CSystemFunction::sysfunc[sysfuncinit.sysfunc_his_pos].name;
 }
 
 /* -----------------------------------------------------------------------
@@ -445,313 +450,13 @@ CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<
 {
 	CSF_FUNCPARAM p(index,arg,pcellarg,valuearg,lvar,line,thisfunc,thisfunc->dicfilename);
 
-	switch(index) {
-	case 0:		// TOINT
-		return TOINT(p);
-	case 1:		// TOREAL
-		return TOREAL(p);
-	case 2:		// TOSTR
-		return TOSTR(p);
-	case 3:		// GETTYPE
-		return GETTYPE(p);
-	case 4:		// ISFUNC
-		return ISFUNC(p);
-	case 5:		// ISVAR
-		return ISVAR(p);
-	case 6:		// LOGGING
-		return LOGGING(p);
-	case 7:		// GETLASTERROR
-		return GETLASTERROR(p);
-	case 8:		// LOADLIB
-		return LOADLIB(p);
-	case 9:		// UNLOADLIB
-		return UNLOADLIB(p);
-	case 10:	// REQUESTLIB
-		return REQUESTLIB(p);
-	case 11:	// CHARSETLIB
-		return CHARSETLIB(p);
-	case 12:	// RAND
-		return RAND(p);
-	case 13:	// FLOOR
-		return FLOOR(p);
-	case 14:	// CEIL
-		return CEIL(p);
-	case 15:	// ROUND
-		return ROUND(p);
-	case 16:	// SIN
-		return SIN(p);
-	case 17:	// COS
-		return COS(p);
-	case 18:	// TAN
-		return TAN(p);
-	case 19:	// LOG
-		return LOG(p);
-	case 20:	// LOG10
-		return LOG10(p);
-	case 21:	// POW
-		return POW(p);
-	case 22:	// SQRT
-		return SQRT(p);
-	case 23:	// STRSTR
-		return STRSTR(p);
-	case 24:	// STRLEN
-		return STRLEN(p);
-	case 25:	// REPLACE
-		return REPLACE(p);
-	case 26:	// SUBSTR
-		return SUBSTR(p);
-	case 27:	// ERASE
-		return ERASE(p);
-	case 28:	// INSERT
-		return INSERT(p);
-	case 29:	// TOUPPER
-		return TOUPPER(p);
-	case 30:	// TOLOWER
-		return TOLOWER(p);
-	case 31:	// CUTSPACE
-		return CUTSPACE(p);
-	case 32:	// TOBINSTR
-		return TOBINSTR(p);
-	case 33:	// TOHEXSTR
-		return TOHEXSTR(p);
-	case 34:	// BINSTRTOI
-		return BINSTRTOI(p);
-	case 35:	// HEXSTRTOI
-		return HEXSTRTOI(p);
-	case 36:	// CHR
-		return CHR(p);
-	case 37:	// FOPEN
-		return FOPEN(p);
-	case 38:	// FCLOSE
-		return FCLOSE(p);
-	case 39:	// FREAD
-		return FREAD(p);
-	case 40:	// FWRITE
-		return FWRITE(p);
-	case 41:	// FWRITE2
-		return FWRITE2(p);
-	case 42:	// FCOPY
-		return FCOPY(p);
-	case 43:	// FMOVE
-		return FMOVE(p);
-	case 44:	// MKDIR
-		return MKDIR(p);
-	case 45:	// RMDIR
-		return RMDIR(p);
-	case 46:	// FDEL
-		return FDEL(p);
-	case 47:	// FRENAME
-		return FRENAME(p);
-	case 48:	// FSIZE
-		return FSIZE(p);
-	case 49:	// FENUM
-		return FENUM(p);
-	case 50:	// FCHARSET
-		return FCHARSET(p);
-	case 51:	// ARRAYSIZE
-		return ArraySize(p);
-	case 52:	// SETDELIM
-		return SETDELIM(p);
-	case 53:	// EVAL
-		return EVAL(p);
-	case 54:	// ERASEVAR
-		return ERASEVAR(p);
-	case 55:	// GETTIME
-		return GETTIME(p);
-	case 56:	// GETTICKCOUNT
-		return GETTICKCOUNT(p);
-	case 57:	// GETMEMINFO
-		return GETMEMINFO(p);
-	case 58:	// RE_SEARCH
-		return RE_SEARCH(p);
-	case 59:	// RE_MATCH
-		return RE_MATCH(p);
-	case 60:	// RE_GREP
-		return RE_GREP(p);
-	case SYSFUNC_HIS:	// %[n]（置換済の値の再利用）処理用関数 → これのみCFunctionで処理するのでここへは来ない
-		return EmBeD_HiStOrY(p);
-	case 62:	// SETLASTERROR
-		return SETLASTERROR(p);
-	case 63:	// RE_REPLACE
-		return RE_REPLACE(p);
-	case 64:	// RE_SPLIT
-		return RE_SPLIT(p);
-	case 65:	// RE_GETSTR
-		return RE_GETSTR(p);
-	case 66:	// RE_GETPOS
-		return RE_GETPOS(p);
-	case 67:	// RE_GETLEN
-		return RE_GETLEN(p);
-	case 68:	// CHRCODE
-		return CHRCODE(p);
-	case 69:	// ISINTSTR
-		return ISINTSTR(p);
-	case 70:	// ISREALSTR
-		return ISREALSTR(p);
-	case 71:	// IARRAY
-		return IARRAY(p);
-	case 72:	// SPLITPATH
-		return SPLITPATH(p);
-	case 73:	// CVINT
-		return CVINT(p);
-	case 74:	// CVSTR
-		return CVSTR(p);
-	case 75:	// CVREAL
-		return CVREAL(p);
-	case 76:	// LETTONAME
-		return LETTONAME(p);
-	case 77:	// LSO
-		return LSO(p);
-	case 78:	// STRFORM
-		return STRFORM(p);
-	case 79:	// ANY
-		return ANY(p);
-	case 80:	// SAVEVAR
-		return SAVEVAR(p);
-	case 81:	// GETSTRBYTES
-		return GETSTRBYTES(p);
-	case 82:	// ASEARCH
-		return ASEARCH(p);
-	case 83:	// ASEARCHEX
-		return ASEARCHEX(p);
-	case 84:	// GETDELIM
-		return GETDELIM(p);
-	case 85:	// GETSETTING
-		return GETSETTING(p);
-	case 86:	// ASIN
-		return ASIN(p);
-	case 87:	// ACOS
-		return ACOS(p);
-	case 88:	// ATAN
-		return ATAN(p);
-	case 89:	// SPLIT
-		return SPLIT(p);
-	case 90:	// FATTRIB
-		return FATTRIB(p);
-	case 91:	// GETFUNCLIST
-		return GETFUNCLIST(p);
-	case 92:	// GETVARLIST
-		return GETVARLIST(p);
-	case 93:	// RE_REPLACEEX
-		return RE_REPLACEEX(p);
-	case 94:	// CHARSETLIBEX
-		return CHARSETLIBEX(p);
-	case 95:	// CHARSETTEXTTOID
-		return CHARSETTEXTTOID(p);
-	case 96:	// CHARSETIDTOTEXT
-		return CHARSETIDTOTEXT(p);
-	case 97:
-		return BITWISE_AND(p);
-	case 98:
-		return BITWISE_OR(p);
-	case 99:
-		return BITWISE_XOR(p);
-	case 100:
-		return BITWISE_NOT(p);
-	case 101:
-		return BITWISE_SHIFT(p);
-	case 102:
-		return ZEN2HAN(p);
-	case 103:
-		return HAN2ZEN(p);
-	case 104:
-		return CVAUTO(p);
-	case 105:
-		return TOAUTO(p);
-	case 106:
-		return FREADBIN(p);
-	case 107:
-		return FWRITEBIN(p);
-	case 108:
-		return RESTOREVAR(p);
-	case 109:
-		return GETCALLSTACK(p);
-	case 110:
-		return STRENCODE(p);
-	case 111:
-		return STRDECODE(p);
-	case 112:
-		return SINH(p);
-	case 113:
-		return COSH(p);
-	case 114:
-		return TANH(p);
-	case 115:
-		return GETSECCOUNT(p);
-	case 116:
-		return READFMO(p);
-	case 117:
-		return FDIGEST(p);
-	case 118:
-		return EXECUTE(p);
-	case 119:
-		return SETSETTING(p);
-	case 120:
-		return DUMPVAR(p);
-	case 121:
-		return FSEEK(p);
-	case 122:
-		return FTELL(p);
-	case 123:
-		return LICENSE(p);
-	case 124:
-		return STRENCODE(p);
-	case 125:
-		return STRDECODE(p);
-	case 126:
-		return EXECUTE_WAIT(p);
-	case 127:
-		return RE_OPTION(p);
-	case 128:
-		return FREADENCODE(p);
-	case 129:
-		return GETTYPEEX(p);
-	case 130:
-		return RE_ASEARCHEX(p);
-	case 131:
-		return RE_ASEARCH(p);
-	case 132:
-		return ASORT(p);
-	case 133:
-		return TRANSLATE(p);
-	case 134:
-		return SRAND(p);
-	case 135:
-		return GETENV(p);
-	case 136:
-		return FWRITEDECODE(p);
-	case 137:
-		return GETERRORLOG(p);
-	case 138:
-		return DICLOAD(p);
-	case 139:
-		return GETSYSTEMFUNCLIST(p);
-	case 140:
-		return GETFUNCINFO(p);
-	case 141:
-		return PROCESSGLOBALDEFINE(p);
-	case 142:
-		return UNDEFFUNC(p);
-	case 143:
-		return UNDEFGLOBALDEFINE(p);
-	case 144:
-		return DICUNLOAD(p);
-	case 145:
-		return ISEVALUABLE(p);
-	case 146:
-		return SETTAMAHWND(p);
-	case 147:
-		return ISGLOBALDEFINE(p);
-	case 148:
-		return SETGLOBALDEFINE(p);
-	case 149:
-		return APPEND_RUNTIME_DIC(p);
-	default:
+	if ( index >= 0 && index < SYSFUNC_NUM ) {
+		return (this->*sysfunc[index].func)(p);
+	}
+	else {
 		vm.logger().Error(E_E, 49, p.dicname, p.line);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
-	};
-
-	return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
 }
 
 
@@ -6182,7 +5887,7 @@ CValue	CSystemFunction::GETSYSTEMFUNCLIST(CSF_FUNCPARAM &p)
 	//絞りこみ文字列がない場合
 	if ( name.empty() ) {
 		for ( int i = 0 ; i < sizeof(sysfunc) / sizeof(sysfunc[0]) ; ++i ) {
-			result.array().push_back(CValueSub(sysfunc[i]));
+			result.array().push_back(CValueSub(sysfunc[i].name));
 		}
 	}
 	//ある場合
@@ -6190,8 +5895,8 @@ CValue	CSystemFunction::GETSYSTEMFUNCLIST(CSF_FUNCPARAM &p)
 		yaya::string_t::size_type len = name.length();
 
 		for ( int i = 0 ; i < sizeof(sysfunc) / sizeof(sysfunc[0]) ; ++i ) {
-			if ( name.compare(0,len,sysfunc[i],0,len) == 0 && sysfunc[i][0] ) {
-				result.array().push_back(CValueSub(sysfunc[i]));
+			if ( name.compare(0,len,sysfunc[i].name,0,len) == 0 && sysfunc[i].name[0] ) {
+				result.array().push_back(CValueSub(sysfunc[i].name));
 			}
 		}
 	}
