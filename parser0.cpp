@@ -817,14 +817,16 @@ char	CParser0::DefineFunctions(std::vector<yaya::string_t> &s, const yaya::strin
 				// 重複回避オプションの判定
 				int	chtype = CHOICETYPE_RANDOM;
 				if (d1.size()) {
-				    int i = 0;
-					for(i = 0; i < CHOICETYPE_NUM; i++) {
-						if (!d1.compare(choicetype[i])) {
-							chtype = i;
+				    int ci = 0, cn = sizeof(choicetype) / sizeof(choicetype[0]);
+
+					for(ci = 0; ci < cn; ci++) {
+						if (!d1.compare(choicetype[ci].name)) {
+							chtype = choicetype[ci].type;
 							break;
 						}
 					}
-					if (i == CHOICETYPE_NUM) {
+
+					if (ci == cn) { //not found
 						vm.logger().Error(E_E, 30, d1, dicfilename, linecount);
 						return 1;
 					}

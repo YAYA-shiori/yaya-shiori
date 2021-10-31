@@ -80,7 +80,7 @@ void	CSelecter::Append(const CValue &value)
  *  nonoverlao/sequential選択はCDuplEvInfoクラスに任せます。
  * -----------------------------------------------------------------------
  */
-CValue	CSelecter::Output(void)
+CValue	CSelecter::Output()
 {
 	// switch選択
 	if (aindex >= BRACE_SWITCH_OUT_OF_RANGE) {
@@ -111,14 +111,11 @@ CValue	CSelecter::Output(void)
 	case CHOICETYPE_VOID:
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	case CHOICETYPE_ARRAY:
-		return StructArray();
-	case CHOICETYPE_POSSIBILITY_LIST:
-		return StructPossibilityList();
 	case CHOICETYPE_POOL:
 	case CHOICETYPE_POOL_ARRAY:
 	case CHOICETYPE_NONOVERLAP_POOL:
 	case CHOICETYPE_SEQUENTIAL_POOL:
-		return StructPool();
+		return StructArray();
 	case CHOICETYPE_RANDOM:
 	default:
 		return ChoiceRandom();
@@ -203,54 +200,6 @@ CValue	CSelecter::ChoiceByIndex1(int index)
 		return CValue();
 
 	return (aindex >= 0 && aindex < num) ? values[index].array[aindex] : CValue();
-}
-
-/* -----------------------------------------------------------------------
- *  関数名  ：  CSelecter::StructPool
- *  機能概要：  make a "pool"
- * -----------------------------------------------------------------------
- */
-CValue CSelecter::StructPool(){
-	if(areanum){
-		CValue	result(F_TAG_ARRAY, 0/*dmy*/);
-		result.array().emplace_back(ChoiceRandom());
-		return result;
-	}
-	else
-		return StructArray1(0);
-}
-
-/* -----------------------------------------------------------------------
- *  関数名  ：  CSelecter::StructPossibilityList
- *  機能概要：  可能なすべてのリターンの一般的な配列を返します
- * -----------------------------------------------------------------------
- */
-CValue CSelecter::StructPossibilityList()
-{
-	if(areanum) {
-		CValue	result(F_TAG_ARRAY, 0/*dmy*/);
-
-		for(int i = 0; i <= areanum; i++){
-			CValue aarray = StructArray1(i);
-			CValue toarray(F_TAG_ARRAY, 0/*dmy*/);
-
-			if ( result.array().empty() ) {
-				toarray = aarray;
-			}
-			else if ( aarray.array().size() ) {
-				for( CValueArray::const_iterator j = result.array().begin() ; j != result.array().end() ; ++j ) {
-					for ( CValueArray::const_iterator k = aarray.array().begin() ; k != aarray.array().end() ; ++k ) {
-						toarray.array().emplace_back((*j)+(*k));
-					}
-				}
-			}
-			std::swap(result,toarray);
-		}
-		return result;
-	}
-	else {
-		return StructArray1(0);
-	}
 }
 
 /* -----------------------------------------------------------------------
