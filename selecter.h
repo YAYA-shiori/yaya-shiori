@@ -43,8 +43,11 @@ const struct { yaya::char_t *name; int type; } choicetype[] = {
 	{ L"array", CHOICETYPE_ARRAY } ,
 	{ L"possibility_list", CHOICETYPE_POOL_ARRAY } , //possibility_list = pool_array , for compat
 	{ L"pool", CHOICETYPE_POOL } ,
-	{ L"pool_array", CHOICETYPE_POOL_ARRAY } ,
+	{ L"pool_array", CHOICETYPE_POOL_ARRAY } , //human-error safety!
+	{ L"array_pool", CHOICETYPE_POOL_ARRAY } ,
+	{ L"pool_nonoverlap", CHOICETYPE_NONOVERLAP_POOL } , //human-error safety!
 	{ L"nonoverlap_pool", CHOICETYPE_NONOVERLAP_POOL } ,
+	{ L"pool_sequential",CHOICETYPE_SEQUENTIAL_POOL } , //human-error safety!
 	{ L"sequential_pool",CHOICETYPE_SEQUENTIAL_POOL } ,
 };
 
