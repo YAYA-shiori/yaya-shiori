@@ -134,7 +134,7 @@ public:
 	yaya::string_t				name;			// 名前
 	yaya::string_t::size_type	namelen;		// 名前の長さ
 	std::vector<CStatement>		statement;		// 命令郡
-	CDuplEvInfo					dupl;			// 重複回避制御
+	CDuplEvInfo					dupl_func;		// 重複回避制御
 	yaya::string_t				dicfilename;	// 対応する辞書ファイル名
 
 protected:
@@ -145,7 +145,7 @@ private:
 	CFunction(void);
 
 public:
-	CFunction(CAyaVM &vmr, const yaya::string_t& n, int ct, const yaya::string_t& df, int lc) : pvm(&vmr) , name(n) , dupl(ct) , dicfilename(df) , linecount(lc)
+	CFunction(CAyaVM &vmr, const yaya::string_t& n, int ct, const yaya::string_t& df, int lc) : pvm(&vmr) , name(n) , dupl_func(ct) , dicfilename(df) , linecount(lc)
 	{
 		namelen     = name.size();
 	}

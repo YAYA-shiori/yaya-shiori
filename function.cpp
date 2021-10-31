@@ -105,10 +105,9 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 {
 	// 開始時の処理
 	lvar.AddDepth();
-	CDuplEvInfo* pdupl = &dupl;
-	if (lvar.GetDepth() != 1)
-		switch (dupl.GetType()) {
-		case CHOICETYPE_POSSIBILITY_LIST:
+	CDuplEvInfo* pdupl = &dupl_func;
+	if (lvar.GetDepth() != 1) {
+		switch (dupl_func.GetType()) {
 		case CHOICETYPE_POOL:
 		case CHOICETYPE_POOL_ARRAY:
 		case CHOICETYPE_NONOVERLAP_POOL:
@@ -117,6 +116,8 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 		default:
 			pdupl = NULL;
 		}
+	}
+
 	// 実行
 	CSelecter	output(*pvm, pdupl, type);
 	bool		exec_end     = 0;	// この{}の実行を終了するためのフラグ 1で終了
@@ -132,15 +133,15 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 		switch(statement[i].type) {
 		case ST_OPEN:					// "{"
 			i = ExecuteInBrace(i + 1, t_value, lvar, BRACE_DEFAULT, exitcode);
-			if(inmutiarea && pdupl)
-				switch (dupl.GetType()) {
+			if(inmutiarea && pdupl) {
+				switch (dupl_func.GetType()) {
+				//choicetype_nonoverlap/sequential_pool must retain array same as CHOICETYPE_POOL_ARRAY
 				case CHOICETYPE_POOL:
-				case CHOICETYPE_NONOVERLAP_POOL:
-				case CHOICETYPE_SEQUENTIAL_POOL:
 					t_value = GetResultFromPoolArray(t_value);
 				default:
 					break;
 				}
+			}
 			output.Append(t_value);
 			break;
 		case ST_CLOSE:					// "}"　注　関数終端の"}"はここを通らない
@@ -275,20 +276,21 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 
 	// 候補から出力を選び出す　入れ子の深さが0なら重複回避が働く
 	result = output.Output();
-	if (lvar.GetDepth() == 1)
-		switch (dupl.GetType()) {
+	if (lvar.GetDepth() == 1) {
+		switch (dupl_func.GetType()) {
 		case CHOICETYPE_POOL:
 			result = GetResultFromPoolArray(result);
 		case CHOICETYPE_POOL_ARRAY:
 		default:
 			break;
 		case CHOICETYPE_NONOVERLAP_POOL:
-			result = dupl.ChoiceValue(*pvm, result, CHOICETYPE_NONOVERLAP);
+			result = dupl_func.ChoiceValue(*pvm, result, CHOICETYPE_NONOVERLAP);
 			break;
 		case CHOICETYPE_SEQUENTIAL_POOL:
-			result = dupl.ChoiceValue(*pvm, result, CHOICETYPE_SEQUENTIAL);
+			result = dupl_func.ChoiceValue(*pvm, result, CHOICETYPE_SEQUENTIAL);
 			break;
 		}
+	}
 
 	// 終了時の処理
 	lvar.DelDepth();
