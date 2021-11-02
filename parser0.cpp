@@ -815,9 +815,9 @@ char	CParser0::DefineFunctions(std::vector<yaya::string_t> &s, const yaya::strin
 					return 1;
 				}
 				// 重複回避オプションの判定
-				int	chtype = CHOICETYPE_RANDOM;
+				choicetype_t	chtype = CHOICETYPE_RANDOM;
 				if (d1.size()) {
-				    int ci = 0, cn = sizeof(choicetype) / sizeof(choicetype[0]);
+					int ci = 0, cn = sizeof(choicetype) / sizeof(choicetype[0]);
 
 					for(ci = 0; ci < cn; ci++) {
 						if (!d1.compare(choicetype[ci].name)) {
@@ -834,7 +834,7 @@ char	CParser0::DefineFunctions(std::vector<yaya::string_t> &s, const yaya::strin
 				// 作成
 				targetfunction = MakeFunction(d0, chtype, dicfilename, linecount);
 				if (targetfunction == -1) {
-				        vm.logger().Error(E_E, 13, *it, dicfilename, linecount);
+					vm.logger().Error(E_E, 13, *it, dicfilename, linecount);
 					return 1;
 				}
 				continue;
@@ -850,6 +850,10 @@ char	CParser0::DefineFunctions(std::vector<yaya::string_t> &s, const yaya::strin
 			}
 		}
 		else {
+			if ((*it)[it->size()-1]==L':' && *(it+1)==L"{"){
+				*(it+1)=L"";
+				*it+=L"{";
+			}
 			// 関数内のステートメントの定義　{}入れ子の計算もここで行う
 			if (!StoreInternalStatement(targetfunction, *it, depth, dicfilename, linecount))
 				retcode = 1;
@@ -870,7 +874,7 @@ char	CParser0::DefineFunctions(std::vector<yaya::string_t> &s, const yaya::strin
  *  　　　　　  指定された名前の関数が既に作成済の場合はエラーで、-1を返します
  * -----------------------------------------------------------------------
  */
-int	CParser0::MakeFunction(const yaya::string_t& name, int chtype, const yaya::string_t& dicfilename, int linecount)
+int	CParser0::MakeFunction(const yaya::string_t& name, choicetype_t chtype, const yaya::string_t& dicfilename, int linecount)
 {
 	int	i = vm.function_parse().GetFunctionIndexFromName(name);
 	if(i != -1)
@@ -896,47 +900,68 @@ int	CParser0::MakeFunction(const yaya::string_t& name, int chtype, const yaya::s
 char	CParser0::StoreInternalStatement(int targetfunc, yaya::string_t &str, int& depth, const yaya::string_t& dicfilename, int linecount)
 {
 	// パラメータのないステートメント
-
+	auto&targetfunction=vm.function_parse().func[targetfunc];
+	if(!str.size())
+		return 1;
 	// {
-	if (!str.compare(L"{")) {
+	if (str[str.size()-1]==L'{') {
+		// blockと重複回避オプションを取得
+		choicetype_t	chtype = targetfunction.GetDefaultBlockChoicetype();
+		yaya::string_t	d0, d1;
+		if (Split(str, d0, d1, L":")){
+			// 重複回避オプションの判定
+			int ci = 0, cn = sizeof(choicetype) / sizeof(choicetype[0]);
+
+			for(ci = 0; ci < cn; ci++) {
+				if (!d0.compare(choicetype[ci].name)) {
+					chtype = choicetype[ci].type;
+					break;
+				}
+			}
+
+			if (ci == cn) { //not found
+				vm.logger().Error(E_E, 30, d0, dicfilename, linecount);
+				return 0;
+			}
+		}
 		depth++;
-		vm.function_parse().func[targetfunc].statement.push_back(CStatement(ST_OPEN, linecount));
+		targetfunction.statement.emplace_back(CStatement(ST_OPEN, linecount, new CDuplEvInfo(chtype)));
 		return 1;
 	}
 	// }
 	else if (!str.compare(L"}")) {
 		depth--;
-		vm.function_parse().func[targetfunc].statement.push_back(CStatement(ST_CLOSE, linecount));
+		targetfunction.statement.emplace_back(CStatement(ST_CLOSE, linecount));
 		return 1;
 	}
 	// others　elseへ書き換えてしまう
 	else if (!str.compare(L"others")) {
-		vm.function_parse().func[targetfunc].statement.push_back(CStatement(ST_ELSE, linecount));
+		targetfunction.statement.emplace_back(CStatement(ST_ELSE, linecount));
 		return 1;
 	}
 	// else
 	else if (!str.compare(L"else")) {
-		vm.function_parse().func[targetfunc].statement.push_back(CStatement(ST_ELSE, linecount));
+		targetfunction.statement.emplace_back(CStatement(ST_ELSE, linecount));
 		return 1;
 	}
 	// break
 	else if (!str.compare(L"break")) {
-		vm.function_parse().func[targetfunc].statement.push_back(CStatement(ST_BREAK, linecount));
+		targetfunction.statement.emplace_back(CStatement(ST_BREAK, linecount));
 		return 1;
 	}
 	// continue
 	else if (!str.compare(L"continue")) {
-		vm.function_parse().func[targetfunc].statement.push_back(CStatement(ST_CONTINUE, linecount));
+		targetfunction.statement.emplace_back(CStatement(ST_CONTINUE, linecount));
 		return 1;
 	}
 	// return
 	else if (!str.compare(L"return")) {
-		vm.function_parse().func[targetfunc].statement.push_back(CStatement(ST_RETURN, linecount));
+		targetfunction.statement.emplace_back(CStatement(ST_RETURN, linecount));
 		return 1;
 	}
 	// --
 	else if (!str.compare(L"--")) {
-		vm.function_parse().func[targetfunc].statement.push_back(CStatement(ST_COMBINE, linecount));
+		targetfunction.statement.emplace_back(CStatement(ST_COMBINE, linecount));
 		return 1;
 	}
 

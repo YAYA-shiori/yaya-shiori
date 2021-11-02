@@ -36,25 +36,28 @@ class	CStatement
 {
 public:
 	int				type;			// ステートメントの種別
+	mutable std_shared_ptr < CDuplEvInfo >	dupl_block;		// pool:{ //...
 	int				jumpto;			// 飛び先行番号 break/continue/return/if/elseif/else/for/foreachで使用します
 									// 該当単位終端の"}"の位置が格納されています
 	int	linecount;					// 辞書ファイル中の行番号
 
 private:
-	mutable std_shared_ptr<std::vector<CCell> >   m_cell;			// 数式の項の群　
-	mutable std_shared_ptr<std::vector<CSerial> > m_serial;			// 数式の演算順序
+	mutable std_shared_ptr<std::vector<CCell> >		m_cell;				// 数式の項の群　
+	mutable std_shared_ptr<std::vector<CSerial> >	m_serial;			// 数式の演算順序
 
 public:
-	CStatement(int t, int l)
+	CStatement(int t, int l, CDuplEvInfo* cher=NULL)
 	{
 		type = t;
 		linecount = l;
 		jumpto = 0;
+		dupl_block.reset(cher);
 	}
 	CStatement(void) {
 		type = ST_NOP;
 		linecount = 0;
 		jumpto = 0;
+		dupl_block = 0;
 	}
 	~CStatement(void) {}
 
@@ -145,7 +148,7 @@ private:
 	CFunction(void);
 
 public:
-	CFunction(CAyaVM &vmr, const yaya::string_t& n, int ct, const yaya::string_t& df, int lc) : pvm(&vmr) , name(n) , dupl_func(ct) , dicfilename(df) , linecount(lc)
+	CFunction(CAyaVM &vmr, const yaya::string_t& n, choicetype_t ct, const yaya::string_t& df, int lc) : pvm(&vmr) , name(n) , dupl_func(ct) , dicfilename(df) , linecount(lc)
 	{
 		namelen     = name.size();
 	}
@@ -164,6 +167,24 @@ public:
 	const yaya::string_t&	GetFileName() const {return dicfilename;}
 	size_t	GetLineNumBegin() const { return linecount;}
 	size_t	GetLineNumEnd() const   { return statement.empty() ? 0 : statement[statement.size()-1].linecount;}
+	choicetype_t GetDefaultBlockChoicetype(){
+		switch(dupl_func.GetType())
+		{
+		case CHOICETYPE_RANDOM:
+		case CHOICETYPE_NONOVERLAP:
+		case CHOICETYPE_SEQUENTIAL:
+			return CHOICETYPE_RANDOM;
+		case CHOICETYPE_VOID:
+			return CHOICETYPE_VOID;
+		case CHOICETYPE_ARRAY:
+		case CHOICETYPE_POOL:
+		case CHOICETYPE_POOL_ARRAY:
+		case CHOICETYPE_NONOVERLAP_POOL:
+		case CHOICETYPE_SEQUENTIAL_POOL:
+		default:
+			return CHOICETYPE_ARRAY;
+		}
+	}
 
 protected:
 	int		ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, int type, int &exitcode);
