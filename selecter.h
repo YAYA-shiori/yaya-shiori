@@ -23,7 +23,7 @@
 #include "value.h"
 #include "variable.h"
 
-enum choicetype_t {
+typedef enum choicetype_t {
 	CHOICETYPE_RANDOM = 0,		/* 常に無作為にランダム（デフォルト）*/
 	CHOICETYPE_NONOVERLAP,		/* ランダムだが一巡するまで重複選択しない */
 	CHOICETYPE_SEQUENTIAL,		/* 順番に選択する */
@@ -33,7 +33,7 @@ enum choicetype_t {
 	CHOICETYPE_POOL_ARRAY,		/* arrayのスコープ無視版 : 全選択候補を配列として返す */
 	CHOICETYPE_NONOVERLAP_POOL,	/* nonoverlapのスコープ無視版 */
 	CHOICETYPE_SEQUENTIAL_POOL,	/* sequentialのスコープ無視版 */
-};
+} choicetype_t;
 
 const struct { yaya::char_t *name; choicetype_t type; } choicetype[] = {
 	{ L"random", CHOICETYPE_RANDOM } ,

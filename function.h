@@ -36,28 +36,29 @@ class	CStatement
 {
 public:
 	int				type;			// ステートメントの種別
-	mutable std_shared_ptr < CDuplEvInfo >	dupl_block;		// pool:{ //...
 	int				jumpto;			// 飛び先行番号 break/continue/return/if/elseif/else/for/foreachで使用します
 									// 該当単位終端の"}"の位置が格納されています
 	int	linecount;					// 辞書ファイル中の行番号
+
+	mutable std_shared_ptr < CDuplEvInfo >	dupl_block;		// pool:{ //...
 
 private:
 	mutable std_shared_ptr<std::vector<CCell> >		m_cell;				// 数式の項の群　
 	mutable std_shared_ptr<std::vector<CSerial> >	m_serial;			// 数式の演算順序
 
 public:
-	CStatement(int t, int l, CDuplEvInfo* cher=NULL)
+	CStatement(int t, int l, CDuplEvInfo* dupl = NULL)
 	{
 		type = t;
 		linecount = l;
 		jumpto = 0;
-		dupl_block.reset(cher);
+		dupl_block.reset(dupl);
 	}
 	CStatement(void) {
 		type = ST_NOP;
 		linecount = 0;
 		jumpto = 0;
-		dupl_block = 0;
+		dupl_block.reset();
 	}
 	~CStatement(void) {}
 
