@@ -23,7 +23,7 @@
 #include "value.h"
 #include "variable.h"
 
-enum {
+typedef enum choicetype_t {
 	CHOICETYPE_RANDOM = 0,		/* 常に無作為にランダム（デフォルト）*/
 	CHOICETYPE_NONOVERLAP,		/* ランダムだが一巡するまで重複選択しない */
 	CHOICETYPE_SEQUENTIAL,		/* 順番に選択する */
@@ -33,15 +33,14 @@ enum {
 	CHOICETYPE_POOL_ARRAY,		/* arrayのスコープ無視版 : 全選択候補を配列として返す */
 	CHOICETYPE_NONOVERLAP_POOL,	/* nonoverlapのスコープ無視版 */
 	CHOICETYPE_SEQUENTIAL_POOL,	/* sequentialのスコープ無視版 */
-};
+} choicetype_t;
 
-const struct { yaya::char_t *name; int type; } choicetype[] = {
+const struct { yaya::char_t *name; choicetype_t type; } choicetype[] = {
 	{ L"random", CHOICETYPE_RANDOM } ,
 	{ L"nonoverlap", CHOICETYPE_NONOVERLAP } ,
 	{ L"sequential", CHOICETYPE_SEQUENTIAL } ,
 	{ L"void", CHOICETYPE_VOID } ,
 	{ L"array", CHOICETYPE_ARRAY } ,
-	{ L"possibility_list", CHOICETYPE_POOL_ARRAY } , //possibility_list = pool_array , for compat
 	{ L"pool", CHOICETYPE_POOL } ,
 	{ L"pool_array", CHOICETYPE_POOL_ARRAY } , //human-error safety!
 	{ L"array_pool", CHOICETYPE_POOL_ARRAY } ,
@@ -66,7 +65,7 @@ public:
 class	CDuplEvInfo
 {
 protected:
-	int				type;			// 選択種別
+	choicetype_t	type;			// 選択種別
 
 	std::vector<int>	num;			// --で区切られた領域毎の候補数
 	std::vector<int>	roundorder;		// 巡回順序
@@ -79,7 +78,7 @@ private:
 	CDuplEvInfo(void);
 
 public:
-	CDuplEvInfo(int tp)
+	CDuplEvInfo(choicetype_t tp)
 	{
 		type = tp;
 		total = 0;
@@ -87,7 +86,7 @@ public:
 		lastroundorder = -1;
 	}
 
-	int		GetType(void) { return type; }
+	choicetype_t	GetType(void) { return type; }
 
 	CValue	Choice(CAyaVM &vm,int areanum, const std::vector<CVecValue> &values, int mode);
 	CValue	ChoiceValue(CAyaVM& vm, CValue& value, int mode);

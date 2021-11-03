@@ -107,15 +107,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 	lvar.AddDepth();
 	CDuplEvInfo* pdupl = &dupl_func;
 	if (lvar.GetDepth() != 1) {
-		switch (dupl_func.GetType()) {
-		case CHOICETYPE_POOL:
-		case CHOICETYPE_POOL_ARRAY:
-		case CHOICETYPE_NONOVERLAP_POOL:
-		case CHOICETYPE_SEQUENTIAL_POOL:
-			break;
-		default:
-			pdupl = NULL;
-		}
+		pdupl = statement[line-1].dupl_block.get();
 	}
 
 	// ŽÀs
@@ -133,9 +125,10 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 		switch(statement[i].type) {
 		case ST_OPEN:					// "{"
 			i = ExecuteInBrace(i + 1, t_value, lvar, BRACE_DEFAULT, exitcode);
-			if(inmutiarea && pdupl) {
-				switch (dupl_func.GetType()) {
-				//choicetype_nonoverlap/sequential_pool must retain array same as CHOICETYPE_POOL_ARRAY
+			if(inmutiarea && pdupl->GetType()) {
+				switch (pdupl->GetType()) {
+				case CHOICETYPE_NONOVERLAP_POOL:
+				case CHOICETYPE_SEQUENTIAL_POOL:
 				case CHOICETYPE_POOL:
 					t_value = GetResultFromPoolArray(t_value);
 				default:

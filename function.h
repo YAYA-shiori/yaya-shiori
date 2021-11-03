@@ -40,21 +40,25 @@ public:
 									// ŠY“–’PˆÊI’[‚Ì"}"‚ÌˆÊ’u‚ªŠi”[‚³‚ê‚Ä‚¢‚Ü‚·
 	int	linecount;					// «‘ƒtƒ@ƒCƒ‹’†‚Ìs”Ô†
 
+	mutable std_shared_ptr < CDuplEvInfo >	dupl_block;		// pool:{ //...
+
 private:
-	mutable std_shared_ptr<std::vector<CCell> >   m_cell;			// ”®‚Ì€‚ÌŒQ@
-	mutable std_shared_ptr<std::vector<CSerial> > m_serial;			// ”®‚Ì‰‰Z‡˜
+	mutable std_shared_ptr<std::vector<CCell> >		m_cell;				// ”®‚Ì€‚ÌŒQ@
+	mutable std_shared_ptr<std::vector<CSerial> >	m_serial;			// ”®‚Ì‰‰Z‡˜
 
 public:
-	CStatement(int t, int l)
+	CStatement(int t, int l, CDuplEvInfo* dupl = NULL)
 	{
 		type = t;
 		linecount = l;
 		jumpto = 0;
+		dupl_block.reset(dupl);
 	}
 	CStatement(void) {
 		type = ST_NOP;
 		linecount = 0;
 		jumpto = 0;
+		dupl_block.reset();
 	}
 	~CStatement(void) {}
 
@@ -145,7 +149,7 @@ private:
 	CFunction(void);
 
 public:
-	CFunction(CAyaVM &vmr, const yaya::string_t& n, int ct, const yaya::string_t& df, int lc) : pvm(&vmr) , name(n) , dupl_func(ct) , dicfilename(df) , linecount(lc)
+	CFunction(CAyaVM &vmr, const yaya::string_t& n, choicetype_t ct, const yaya::string_t& df, int lc) : pvm(&vmr) , name(n) , dupl_func(ct) , dicfilename(df) , linecount(lc)
 	{
 		namelen     = name.size();
 	}
@@ -164,6 +168,24 @@ public:
 	const yaya::string_t&	GetFileName() const {return dicfilename;}
 	size_t	GetLineNumBegin() const { return linecount;}
 	size_t	GetLineNumEnd() const   { return statement.empty() ? 0 : statement[statement.size()-1].linecount;}
+	choicetype_t GetDefaultBlockChoicetype(){
+		switch(dupl_func.GetType())
+		{
+		case CHOICETYPE_RANDOM:
+		case CHOICETYPE_NONOVERLAP:
+		case CHOICETYPE_SEQUENTIAL:
+			return CHOICETYPE_RANDOM;
+		case CHOICETYPE_VOID:
+			return CHOICETYPE_VOID;
+		case CHOICETYPE_ARRAY:
+		case CHOICETYPE_POOL:
+		case CHOICETYPE_POOL_ARRAY:
+		case CHOICETYPE_NONOVERLAP_POOL:
+		case CHOICETYPE_SEQUENTIAL_POOL:
+		default:
+			return CHOICETYPE_ARRAY;
+		}
+	}
 
 protected:
 	int		ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, int type, int &exitcode);
