@@ -38,6 +38,7 @@ CValue	CDuplEvInfo::Choice(CAyaVM &vm,int areanum, const std::vector<CVecValue> 
 {
 	// 領域毎の候補数と総数を更新　変化があった場合は巡回順序を初期化する
 	if ( UpdateNums(areanum, values) ) {
+		lastroundorder = -1;
 		InitRoundOrder(vm,mode);
 	}
 
@@ -59,6 +60,7 @@ CValue	CDuplEvInfo::ChoiceValue(CAyaVM &vm, CValue &value, int mode)
 {
 	// 領域毎の候補数と総数を更新　変化があった場合は巡回順序を初期化する
 	if ( UpdateNums(value) ) {
+		lastroundorder = -1;
 		InitRoundOrder(vm,mode);
 	}
 
@@ -100,13 +102,32 @@ void	CDuplEvInfo::InitRoundOrder(CAyaVM &vm,int mode)
 			roundorder.push_back(0);
 		}
 
+		//シャッフルする
 		int n = roundorder.size();
-		for ( int i = 0 ; i < n ; ++i ) {
-			int s = vm.genrand_int(n);
-			if ( i != s ) {
-				int tmp = roundorder[i];
-				roundorder[i] = roundorder[s];
-				roundorder[s] = tmp;
+		if ( n >= 2 ) {
+			for ( int i = 0 ; i < n ; ++i ) {
+				int s = vm.genrand_int(n);
+				if ( i != s ) {
+					int tmp = roundorder[i];
+					roundorder[i] = roundorder[s];
+					roundorder[s] = tmp;
+				}
+			}
+		}
+
+		//lastroundorderは i = 1 以降 (2個目以降) のランダムな位置に差し込む
+		if ( lastroundorder >= 0 ) {
+			if ( n >= 2 ) {
+				int lrand = vm.genrand_int(n) + 1;
+				if ( lrand == n ) {
+					roundorder.push_back(lastroundorder);
+				}
+				else {
+					roundorder.insert(roundorder.begin() + lrand,lastroundorder);
+				}
+			}
+			else {
+				roundorder.push_back(lastroundorder);
 			}
 		}
 	}
