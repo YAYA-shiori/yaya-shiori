@@ -101,7 +101,7 @@ int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
  *  返値は実行を終了した"}"の位置です。
  * -----------------------------------------------------------------------
  */
-int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, int type, int &exitcode)
+int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, int type, int &exitcode, bool inpool)
 {
 	// 開始時の処理
 	lvar.AddDepth();
@@ -112,9 +112,20 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 
 	// 実行
 	CSelecter	output(*pvm, pdupl, type);
-	bool		exec_end     = 0;	// この{}の実行を終了するためのフラグ 1で終了
-	bool		ifflg        = 0;	// if-elseif-else制御用。1でそのブロックを処理したことを示す
+	bool		exec_end	 = 0;	// この{}の実行を終了するためのフラグ 1で終了
+	bool		ifflg		 = 0;	// if-elseif-else制御用。1でそのブロックを処理したことを示す
 	bool		inmutiarea	 = 0;	// pool用
+	bool		ispoolbegin	 = !inpool;	// pool用
+	if(!inpool && pdupl){
+		switch (pdupl->GetType()) {
+		case CHOICETYPE_NONOVERLAP_POOL:
+		case CHOICETYPE_SEQUENTIAL_POOL:
+		case CHOICETYPE_POOL:
+			inpool = true;
+		default:
+			break;
+		}
+	}
 
 	CValue		t_value;
 
@@ -124,16 +135,9 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 	for(i = line; i < t_statelenm1; i++) {
 		switch(statement[i].type) {
 		case ST_OPEN:					// "{"
-			i = ExecuteInBrace(i + 1, t_value, lvar, BRACE_DEFAULT, exitcode);
-			if(inmutiarea && pdupl->GetType()) {
-				switch (pdupl->GetType()) {
-				case CHOICETYPE_NONOVERLAP_POOL:
-				case CHOICETYPE_SEQUENTIAL_POOL:
-				case CHOICETYPE_POOL:
-					t_value = GetResultFromPoolArray(t_value);
-				default:
-					break;
-				}
+			i = ExecuteInBrace(i + 1, t_value, lvar, BRACE_DEFAULT, exitcode, inpool);
+			if(inmutiarea && inpool) {
+				t_value = GetResultFromPoolArray(t_value);
 			}
 			output.Append(t_value);
 			break;
@@ -269,18 +273,19 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 
 	// 候補から出力を選び出す　入れ子の深さが0なら重複回避が働く
 	result = output.Output();
-	if (lvar.GetDepth() == 1) {
-		switch (dupl_func.GetType()) {
+	if (inpool && ispoolbegin) {
+		switch (pdupl->GetType()) {
 		case CHOICETYPE_POOL:
 			result = GetResultFromPoolArray(result);
-		case CHOICETYPE_POOL_ARRAY:
-		default:
 			break;
 		case CHOICETYPE_NONOVERLAP_POOL:
 			result = dupl_func.ChoiceValue(*pvm, result, CHOICETYPE_NONOVERLAP);
 			break;
 		case CHOICETYPE_SEQUENTIAL_POOL:
 			result = dupl_func.ChoiceValue(*pvm, result, CHOICETYPE_SEQUENTIAL);
+			break;
+		case CHOICETYPE_POOL_ARRAY:
+		default:
 			break;
 		}
 	}
