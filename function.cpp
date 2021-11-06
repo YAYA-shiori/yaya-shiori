@@ -134,7 +134,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 	}
 	const bool	inpool		 = pool != NULL;	// pool用
 
-#define POOL_TO_NEXT (!inmutiarea ? pool : NULL)
+	#define POOL_TO_NEXT (!inmutiarea ? pool : NULL)
 
 	CValue		t_value;
 
@@ -276,6 +276,8 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 		if (exitcode != ST_NOP)
 			FeedLineToTail(i);
 	}
+
+	#undef POOL_TO_NEXT
 
 	// 候補から出力を選び出す　入れ子の深さが0なら重複回避が働く
 	if (inpool&&!ispoolbegin) {
