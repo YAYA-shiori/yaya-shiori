@@ -89,14 +89,12 @@ public:
 	choicetype_t	GetType(void) { return type; }
 
 	CValue	Choice(CAyaVM &vm,int areanum, const std::vector<CVecValue> &values, int mode);
-	CValue	ChoiceValue(CAyaVM& vm, CValue& value, int mode);
 
 protected:
 	void	InitRoundOrder(CAyaVM &vm,int mode);
 	bool	UpdateNums(int areanum, const std::vector<CVecValue> &values);
 	bool	UpdateNums(const CValue& value);
 	CValue	GetValue(CAyaVM &vm,int areanum, const std::vector<CVecValue> &values);
-	CValue	GetValue(CAyaVM& vm, const CValue& value);
 };
 
 //----
@@ -110,6 +108,7 @@ protected:
 	CDuplEvInfo			*duplctl;		// 対応する重複回避情報へのポインタ
 	int					aindex;			// switch構文で使用
 
+	friend class CFunction;//for pool
 private:
 	CSelecter(void);
 public:

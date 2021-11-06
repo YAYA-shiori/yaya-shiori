@@ -105,18 +105,18 @@ CValue	CSelecter::Output()
 	// 重複回避制御付き選択
 	switch(duplctl->GetType()) {
 	case CHOICETYPE_NONOVERLAP:
+	case CHOICETYPE_NONOVERLAP_POOL:
 		return duplctl->Choice(vm, areanum, values, CHOICETYPE_NONOVERLAP);
 	case CHOICETYPE_SEQUENTIAL:
+	case CHOICETYPE_SEQUENTIAL_POOL:
 		return duplctl->Choice(vm, areanum, values, CHOICETYPE_SEQUENTIAL);
 	case CHOICETYPE_VOID:
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	case CHOICETYPE_ARRAY:
-	case CHOICETYPE_POOL:
 	case CHOICETYPE_POOL_ARRAY:
-	case CHOICETYPE_NONOVERLAP_POOL:
-	case CHOICETYPE_SEQUENTIAL_POOL:
 		return StructArray();
 	case CHOICETYPE_RANDOM:
+	case CHOICETYPE_POOL:
 	default:
 		return ChoiceRandom();
 	};
