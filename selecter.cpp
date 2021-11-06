@@ -247,19 +247,20 @@ CValue CSelecter::StructArray1(int index)
 }
 
 choicetype_t GetDefaultBlockChoicetype(choicetype_t nowtype) {
-		switch (nowtype) {
-		case CHOICETYPE_RANDOM:
-		case CHOICETYPE_NONOVERLAP:
-		case CHOICETYPE_SEQUENTIAL:
-				return CHOICETYPE_RANDOM;
-		case CHOICETYPE_VOID:
-				return CHOICETYPE_VOID;
-		case CHOICETYPE_ARRAY:
-		case CHOICETYPE_POOL:
-		case CHOICETYPE_POOL_ARRAY:
-		case CHOICETYPE_NONOVERLAP_POOL:
-		case CHOICETYPE_SEQUENTIAL_POOL:
-		default:
-				return CHOICETYPE_ARRAY;
-		}
+	switch (nowtype) {
+	case CHOICETYPE_RANDOM:
+	case CHOICETYPE_NONOVERLAP:
+	case CHOICETYPE_SEQUENTIAL:
+		return CHOICETYPE_RANDOM;
+	case CHOICETYPE_VOID:
+		return CHOICETYPE_VOID;
+	case CHOICETYPE_POOL:
+	case CHOICETYPE_POOL_ARRAY:
+	case CHOICETYPE_NONOVERLAP_POOL:
+	case CHOICETYPE_SEQUENTIAL_POOL:
+		return CHOICETYPE_POOL;
+	case CHOICETYPE_ARRAY:
+	default:
+		return CHOICETYPE_ARRAY;
+	}
 }
