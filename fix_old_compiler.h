@@ -7,6 +7,8 @@
 using boost::shared_ptr;
 #define std_shared_ptr shared_ptr
 
+#define nullptr 0
+
 #else
 
 using std::shared_ptr;

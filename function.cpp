@@ -132,9 +132,9 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 			break;
 		}
 	}
-	const bool	inpool		 = pool;	// pool用
+	const bool	inpool		 = pool != NULL;	// pool用
 
-	auto pool_to_next = [&]{return !inmutiarea ? pool : NULL; };
+#define POOL_TO_NEXT (!inmutiarea ? pool : NULL)
 
 	CValue		t_value;
 
@@ -144,7 +144,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 	for(i = line; i < t_statelenm1; i++) {
 		switch(statement[i].type) {
 		case ST_OPEN:					// "{"
-			i = ExecuteInBrace(i + 1, t_value, lvar, BRACE_DEFAULT, exitcode, pool_to_next());
+			i = ExecuteInBrace(i + 1, t_value, lvar, BRACE_DEFAULT, exitcode, POOL_TO_NEXT);
 			output.Append(t_value);
 			break;
 		case ST_CLOSE:					// "}"　注　関数終端の"}"はここを通らない
@@ -163,7 +163,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 		case ST_IF:						// if
 			ifflg = 0;
 			if (GetFormulaAnswer(lvar, statement[i]).GetTruth()) {
-				i = ExecuteInBrace(i + 2, t_value, lvar, BRACE_DEFAULT, exitcode, pool_to_next());
+				i = ExecuteInBrace(i + 2, t_value, lvar, BRACE_DEFAULT, exitcode, POOL_TO_NEXT);
 				output.Append(t_value);
 				ifflg = 1;
 			}
@@ -174,7 +174,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 			if (ifflg)
 				i = statement[i].jumpto;
 			else if (GetFormulaAnswer(lvar, statement[i]).GetTruth()) {
-				i = ExecuteInBrace(i + 2, t_value, lvar, BRACE_DEFAULT, exitcode, pool_to_next());
+				i = ExecuteInBrace(i + 2, t_value, lvar, BRACE_DEFAULT, exitcode, POOL_TO_NEXT);
 				output.Append(t_value);
 				ifflg = 1;
 			}
@@ -185,7 +185,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 			if (ifflg)
 				i = statement[i].jumpto;
 			else {
-				i = ExecuteInBrace(i + 2, t_value, lvar, BRACE_DEFAULT, exitcode, pool_to_next());
+				i = ExecuteInBrace(i + 2, t_value, lvar, BRACE_DEFAULT, exitcode, POOL_TO_NEXT);
 				output.Append(t_value);
 			}
 			break;
@@ -210,7 +210,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 			for( ; ; ) {
 				if (!GetFormulaAnswer(lvar, statement[i]).GetTruth())
 					break;
-				ExecuteInBrace(i + 2, t_value, lvar, BRACE_LOOP, exitcode, pool_to_next());
+				ExecuteInBrace(i + 2, t_value, lvar, BRACE_LOOP, exitcode, POOL_TO_NEXT);
 				output.Append(t_value);
 
 				if (exitcode == ST_BREAK) {
@@ -229,7 +229,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 			for( ; ; ) {
 				if (!GetFormulaAnswer(lvar, statement[i + 1]).GetTruth()) //for第二パラメータ
 					break;
-				ExecuteInBrace(i + 4, t_value, lvar, BRACE_LOOP, exitcode, pool_to_next());
+				ExecuteInBrace(i + 4, t_value, lvar, BRACE_LOOP, exitcode, POOL_TO_NEXT);
 				output.Append(t_value);
 
 				if (exitcode == ST_BREAK) {
@@ -249,12 +249,12 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 				int	sw_index = GetFormulaAnswer(lvar, statement[i]).GetValueInt();
 				if (sw_index < 0)
 					sw_index = BRACE_SWITCH_OUT_OF_RANGE;
-				i = ExecuteInBrace(i + 2, t_value, lvar, sw_index, exitcode, pool_to_next());
+				i = ExecuteInBrace(i + 2, t_value, lvar, sw_index, exitcode, POOL_TO_NEXT);
 				output.Append(t_value);
 			}
 			break;
 		case ST_FOREACH:				// foreach
-			Foreach(lvar, output, i, exitcode, pool_to_next());
+			Foreach(lvar, output, i, exitcode, POOL_TO_NEXT);
 			i  = statement[i].jumpto;
 			break;
 		case ST_BREAK:					// break
@@ -279,8 +279,9 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 
 	// 候補から出力を選び出す　入れ子の深さが0なら重複回避が働く
 	if (inpool&&!ispoolbegin) {
-		auto&thepool=(*pool)[0].array;
-		auto&thispool=output.values[0].array;
+		std::vector<CValue>& thepool = (*pool)[0].array;
+		std::vector<CValue>& thispool = output.values[0].array;
+
 		if(notpoolblock)
 			thepool.insert(thepool.end(), output.Output());
 		else

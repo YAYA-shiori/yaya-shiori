@@ -34,6 +34,7 @@
 #if defined(POSIX)
 # include <sys/stat.h>
 # include <sys/time.h>
+# include <sys/errno.h>
 #endif
 
 #if defined(POSIX)
@@ -302,6 +303,7 @@ const CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::ISGLOBALDEFINE , L"ISGLOBALDEFINE" } ,
 	{ &CSystemFunction::SETGLOBALDEFINE , L"SETGLOBALDEFINE" } ,
 	{ &CSystemFunction::APPEND_RUNTIME_DIC , L"APPEND_RUNTIME_DIC" } ,
+	{ &CSystemFunction::SLEEP , L"SLEEP" } ,
 };
 
 #define SYSFUNC_NUM (sizeof(CSystemFunction::sysfunc)/sizeof(CSystemFunction::sysfunc[0]))
@@ -6305,6 +6307,51 @@ CValue	CSystemFunction::GETENV(CSF_FUNCPARAM &p)
 	}
 
 	return CValue(t_env);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::SLEEP
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::SLEEP(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"SLEEP", p.dicname, p.line);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!p.arg.array()[0].IsIntReal()) {
+		vm.logger().Error(E_W, 9, L"SLEEP", p.dicname, p.line);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	int time = p.arg.array()[0].GetValueInt();
+
+	if ( time <= 0 ) {
+		vm.logger().Error(E_W, 9, L"SLEEP", p.dicname, p.line);
+		SetError(9);
+		return CValue(-1);
+	}
+
+#if defined(WIN32)
+	::Sleep(time);
+
+#elif defined(POSIX)
+	struct timespec req,rem;
+	req.tv_sec = time / 1000;
+	req.tv_nsec = (time % 1000) * 1000 * 1000;
+
+	while ( true ) {
+		int r = nanosleep(&req,&rem);
+		if ( r == 0 ) { break; }
+		if ( (r != 0) && (errno != EINTL) ) { break; }
+		req = rem;
+	}
+#endif
+
+	return CValue(0);
 }
 
 /* -----------------------------------------------------------------------
