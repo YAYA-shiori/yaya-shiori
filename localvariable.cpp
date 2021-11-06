@@ -62,7 +62,7 @@ CVariable	*CLocalVariable::GetArgvPtr(void)
 void	CLocalVariable::AddDepth(void)
 {
 	CLVSubStack	addsubstack;
-	stack.push_back(addsubstack);
+	stack.emplace_back(addsubstack);
 	depth++;
 }
 
@@ -87,7 +87,7 @@ void	CLocalVariable::DelDepth(void)
 void	CLocalVariable::Make(const yaya::char_t *name)
 {
 	CVariable	addlv(name);
-	stack[depth].substack.push_back(addlv);
+	stack[depth].substack.emplace_back(addlv);
 }
 
 //----
@@ -95,7 +95,7 @@ void	CLocalVariable::Make(const yaya::char_t *name)
 void	CLocalVariable::Make(const yaya::string_t &name)
 {
 	CVariable	addlv(name);
-	stack[depth].substack.push_back(addlv);
+	stack[depth].substack.emplace_back(addlv);
 }
 
 //----
@@ -104,7 +104,7 @@ void	CLocalVariable::Make(const yaya::char_t *name, const CValue &value)
 {
 	CVariable	addlv(name);
 	addlv.value() = value;
-	stack[depth].substack.push_back(addlv);
+	stack[depth].substack.emplace_back(addlv);
 }
 
 //----
@@ -113,7 +113,7 @@ void	CLocalVariable::Make(const yaya::string_t &name, const CValue &value)
 {
 	CVariable	addlv(name);
 	addlv.value() = value;
-	stack[depth].substack.push_back(addlv);
+	stack[depth].substack.emplace_back(addlv);
 }
 
 //----
@@ -122,7 +122,7 @@ void	CLocalVariable::Make(const yaya::string_t &name, const CValueSub &value)
 {
 	CVariable	addlv(name);
 	addlv.value() = value;
-	stack[depth].substack.push_back(addlv);
+	stack[depth].substack.emplace_back(addlv);
 }
 
 //----
@@ -131,7 +131,7 @@ void	CLocalVariable::Make(const yaya::char_t *name, const yaya::string_t &delimi
 {
 	CVariable	addlv(name);
 	addlv.delimiter = delimiter;
-	stack[depth].substack.push_back(addlv);
+	stack[depth].substack.emplace_back(addlv);
 }
 
 //----
@@ -140,7 +140,7 @@ void	CLocalVariable::Make(const yaya::string_t &name, const yaya::string_t &deli
 {
 	CVariable	addlv(name);
 	addlv.delimiter = delimiter;
-	stack[depth].substack.push_back(addlv);
+	stack[depth].substack.emplace_back(addlv);
 }
 
 /* -----------------------------------------------------------------------

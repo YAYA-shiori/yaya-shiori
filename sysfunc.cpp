@@ -732,7 +732,7 @@ CValue	CSystemFunction::GETERRORLOG(CSF_FUNCPARAM &p)
 	std::deque<yaya::string_t> &log = vm.logger().GetErrorLogHistory();
 
 	for(std::deque<yaya::string_t>::iterator it = log.begin(); it != log.end(); it++) {
-		result.array().push_back(CValueSub(*it));
+		result.array().emplace_back(CValueSub(*it));
 	}
 
 	return result;
@@ -1255,10 +1255,10 @@ CValue	CSystemFunction::SRAND(CSF_FUNCPARAM &p)
 		int n = nlen / 2;
 
 		for ( int i = 0 ; i < n ; ++i ) {
-			num.push_back( static_cast<unsigned long>(str[i]) | (static_cast<unsigned long>(str[i+1]) << 16) );
+			num.emplace_back( static_cast<unsigned long>(str[i]) | (static_cast<unsigned long>(str[i+1]) << 16) );
 		}
 		if ( (n*2) != nlen ) { //奇数
-			num.push_back( static_cast<unsigned long>(str[nlen-1]) );
+			num.emplace_back( static_cast<unsigned long>(str[nlen-1]) );
 		}
 
 		vm.genrand_sysfunc_srand_array(&(num[0]),num.size());
@@ -3108,7 +3108,7 @@ CValue	CSystemFunction::SETGLOBALDEFINE(CSF_FUNCPARAM &p)
 		}
 	}
 
-	gdefines.push_back(CDefine(defname, defbody, L"_RUNTIME_DIC_"));
+	gdefines.emplace_back(CDefine(defname, defbody, L"_RUNTIME_DIC_"));
 	return CValue(0);
 }
 
@@ -3143,9 +3143,9 @@ CValue CSystemFunction::GETFUNCINFO(CSF_FUNCPARAM &p)
 	CValue result(F_TAG_ARRAY, 0/*dmy*/);
 	const CFunction *it = &vm.function_exec().func[size_t(index)];
 
-	result.array().push_back(CValueSub(it->GetFileName()));
-	result.array().push_back(CValueSub((int)it->GetLineNumBegin()));
-	result.array().push_back(CValueSub((int)it->GetLineNumEnd()));
+	result.array().emplace_back(CValueSub(it->GetFileName()));
+	result.array().emplace_back(CValueSub((int)it->GetLineNumBegin()));
+	result.array().emplace_back(CValueSub((int)it->GetLineNumEnd()));
 
 	return result;
 }
@@ -3526,15 +3526,15 @@ CValue	CSystemFunction::GETTIME(CSF_FUNCPARAM &p)
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 
 	if ( today ) {
-		result.array().push_back(CValueSub(static_cast<int>(today->tm_year) + 1900));
-		result.array().push_back(CValueSub(static_cast<int>(today->tm_mon) + 1));
-		result.array().push_back(CValueSub(static_cast<int>(today->tm_mday)));
-		result.array().push_back(CValueSub(static_cast<int>(today->tm_wday)));
-		result.array().push_back(CValueSub(static_cast<int>(today->tm_hour)));
-		result.array().push_back(CValueSub(static_cast<int>(today->tm_min)));
-		result.array().push_back(CValueSub(static_cast<int>(today->tm_sec)));
-		result.array().push_back(CValueSub(static_cast<int>(today->tm_yday)));
-		result.array().push_back(CValueSub(static_cast<int>(today->tm_isdst)));
+		result.array().emplace_back(CValueSub(static_cast<int>(today->tm_year) + 1900));
+		result.array().emplace_back(CValueSub(static_cast<int>(today->tm_mon) + 1));
+		result.array().emplace_back(CValueSub(static_cast<int>(today->tm_mday)));
+		result.array().emplace_back(CValueSub(static_cast<int>(today->tm_wday)));
+		result.array().emplace_back(CValueSub(static_cast<int>(today->tm_hour)));
+		result.array().emplace_back(CValueSub(static_cast<int>(today->tm_min)));
+		result.array().emplace_back(CValueSub(static_cast<int>(today->tm_sec)));
+		result.array().emplace_back(CValueSub(static_cast<int>(today->tm_yday)));
+		result.array().emplace_back(CValueSub(static_cast<int>(today->tm_isdst)));
 	}
 	else {
 		vm.logger().Error(E_W, 12, L"GETTIME", p.dicname, p.line);
@@ -3828,11 +3828,11 @@ CValue	CSystemFunction::GETMEMINFO(CSF_FUNCPARAM &p)
 
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 
-	result.array().push_back(CValueSub((int)meminfo.dwMemoryLoad)  );
-	result.array().push_back(CValueSub((int)meminfo.dwTotalPhys)   );
-	result.array().push_back(CValueSub((int)meminfo.dwAvailPhys)   );
-	result.array().push_back(CValueSub((int)meminfo.dwTotalVirtual));
-	result.array().push_back(CValueSub((int)meminfo.dwAvailVirtual));
+	result.array().emplace_back(CValueSub((int)meminfo.dwMemoryLoad)  );
+	result.array().emplace_back(CValueSub((int)meminfo.dwTotalPhys)   );
+	result.array().emplace_back(CValueSub((int)meminfo.dwAvailPhys)   );
+	result.array().emplace_back(CValueSub((int)meminfo.dwTotalVirtual));
+	result.array().emplace_back(CValueSub((int)meminfo.dwAvailVirtual));
 
 	return result;
 }
@@ -3840,11 +3840,11 @@ CValue	CSystemFunction::GETMEMINFO(CSF_FUNCPARAM &p)
 CValue CSystemFunction::GETMEMINFO(CSF_FUNCPARAM &p) {
     // メモリの状態を取得するポータブルな方法は無いので…
     CValue result(F_TAG_ARRAY, 0/*dmy*/);
-    result.array().push_back(CValueSub(0)); // dwMemoryLoad
-    result.array().push_back(CValueSub(0)); // dwTotalPhys
-    result.array().push_back(CValueSub(0)); // dwAvailPhys
-    result.array().push_back(CValueSub(0)); // dwTotalVirtual
-    result.array().push_back(CValueSub(0)); // dwAvailVirtual
+    result.array().emplace_back(CValueSub(0)); // dwMemoryLoad
+    result.array().emplace_back(CValueSub(0)); // dwTotalPhys
+    result.array().emplace_back(CValueSub(0)); // dwAvailPhys
+    result.array().emplace_back(CValueSub(0)); // dwTotalVirtual
+    result.array().emplace_back(CValueSub(0)); // dwAvailVirtual
     return result;
 }
 #endif
@@ -3963,7 +3963,7 @@ CValue	CSystemFunction::RE_ASEARCHEX(CSF_FUNCPARAM &p)
 			try {
 				MatchResult t_result = regex.Match(p.arg.array()[i].GetValueString().c_str());
 				if (t_result.IsMatched()) {
-					res.array().push_back(CValueSub(i-1));
+					res.array().emplace_back(CValueSub(i-1));
 				}
 			}
 			catch(const std::runtime_error &) {
@@ -4456,7 +4456,7 @@ CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, const yaya::string_t &d
 
 			count += 1;
 
-			splits.array().push_back(arg0.substr(t_pos, result.GetStart()-t_pos));
+			splits.array().emplace_back(arg0.substr(t_pos, result.GetStart()-t_pos));
 			t_pos = result.GetEnd();
 
 			AppendReResultDetail(
@@ -4473,10 +4473,10 @@ CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, const yaya::string_t &d
 
 		int len = arg0.size() - t_pos;
 		if ( len > 0 ) {
-			splits.array().push_back(arg0.substr(t_pos, len));
+			splits.array().emplace_back(arg0.substr(t_pos, len));
 		}
 		else {
-			splits.array().push_back(L"");
+			splits.array().emplace_back(L"");
 		}
 	}
 	catch(const std::runtime_error &) {
@@ -4600,10 +4600,10 @@ CValue	CSystemFunction::SPLITPATH(CSF_FUNCPARAM &p)
 	_wsplitpath(path.c_str(), drive, dir, fname, ext);
 
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
-	result.array().push_back(drive);
-	result.array().push_back(dir);
-	result.array().push_back(fname);
-	result.array().push_back(ext);
+	result.array().emplace_back(drive);
+	result.array().emplace_back(dir);
+	result.array().emplace_back(fname);
+	result.array().emplace_back(ext);
 
 	return CValue(result);
 }
@@ -4624,27 +4624,27 @@ CValue CSystemFunction::SPLITPATH(CSF_FUNCPARAM &p) {
     fix_filepath(path);
 
     CValue result(F_TAG_ARRAY, 0/*dmy*/);
-    result.array().push_back(L""); // driveは常に空文字列
+    result.array().emplace_back(L""); // driveは常に空文字列
 	
     yaya::string_t::size_type pos_slash = path.rfind(L'/');
     yaya::string_t fname;
     if (pos_slash == yaya::string_t::npos) {
-		result.array().push_back(L""); // dirも空
+		result.array().emplace_back(L""); // dirも空
 		fname = path;
     }
     else {
-		result.array().push_back(path.substr(0, pos_slash+1));
+		result.array().emplace_back(path.substr(0, pos_slash+1));
 		fname = path.substr(pos_slash+1);
     }
 	
     yaya::string_t::size_type pos_period = fname.rfind(L'.');
     if (pos_period == yaya::string_t::npos) {
-		result.array().push_back(fname);
-		result.array().push_back(L""); // extは空
+		result.array().emplace_back(fname);
+		result.array().emplace_back(L""); // extは空
     }
     else {
-		result.array().push_back(fname.substr(0, pos_period));
-		result.array().push_back(fname.substr(pos_period+1));
+		result.array().emplace_back(fname.substr(0, pos_period));
+		result.array().emplace_back(fname.substr(pos_period+1));
     }
 	
     return CValue(result);
@@ -5233,7 +5233,7 @@ CValue	CSystemFunction::ASEARCHEX(CSF_FUNCPARAM &p)
 	const CValueSub &key = p.arg.array()[0];
 	for(int i = 1; i < sz; i++) {
 		if (key.Compare(p.arg.array()[i])) {
-			result.array().push_back(CValueSub(i - 1));
+			result.array().emplace_back(CValueSub(i - 1));
 		}
 	}
 
@@ -5415,10 +5415,10 @@ CValue	CSystemFunction::ASORT(CSF_FUNCPARAM &p)
 	if (sz <= 2) {
 		CValue rval(F_TAG_ARRAY, 0/*dmy*/);
 		if ( option.find(L"index") != yaya::string_t::npos ) {
-			rval.array().push_back(CValueSub(0));
+			rval.array().emplace_back(CValueSub(0));
 		}
 		else {
-			rval.array().push_back(p.arg.array()[1]);
+			rval.array().emplace_back(p.arg.array()[1]);
 		}
 		return rval;
 	}
@@ -5426,7 +5426,7 @@ CValue	CSystemFunction::ASORT(CSF_FUNCPARAM &p)
 	std::vector<unsigned int> sort_vector;
 
 	for ( unsigned int i = 1 ; i < sz ; ++i ) {
-		sort_vector.push_back(i);
+		sort_vector.emplace_back(i);
 	}
 
 	bool isDescent = (option.find(L"des") != yaya::string_t::npos);
@@ -5479,13 +5479,13 @@ CValue	CSystemFunction::ASORT(CSF_FUNCPARAM &p)
 	if ( option.find(L"index") != yaya::string_t::npos ) {
 		unsigned int n = sort_vector.size();
 		for ( unsigned int i = 0 ; i < n ; ++i ) {
-			rval.array().push_back(CValueSub((int)sort_vector[i]-1));
+			rval.array().emplace_back(CValueSub((int)sort_vector[i]-1));
 		}
 	}
 	else {
 		unsigned int n = sort_vector.size();
 		for ( unsigned int i = 0 ; i < n ; ++i ) {
-			rval.array().push_back(p.arg.array()[sort_vector[i]]);
+			rval.array().emplace_back(p.arg.array()[sort_vector[i]]);
 		}
 	}
 
@@ -5636,7 +5636,7 @@ CValue	CSystemFunction::SPLIT(CSF_FUNCPARAM &p)
 	const yaya::string_t &sep_str = p.arg.array()[1].GetValueString();
 
 	if (nums == 1 || sep_str.length() == 0) {
-		result.array().push_back(CValueSub(p.arg.array()[0].GetValueString()));
+		result.array().emplace_back(CValueSub(p.arg.array()[0].GetValueString()));
 		return result;
 	}
 	
@@ -5648,10 +5648,10 @@ CValue	CSystemFunction::SPLIT(CSF_FUNCPARAM &p)
 	for(yaya::string_t::size_type i = 1; ; i++) {
 		spoint = tgt_str.find(sep_str,seppoint);
 		if (spoint == yaya::string_t::npos || i == nums) {
-			result.array().push_back(CValueSub(tgt_str.substr(seppoint,tgt_strlen - seppoint)));
+			result.array().emplace_back(CValueSub(tgt_str.substr(seppoint,tgt_strlen - seppoint)));
 			break;
 		}
-		result.array().push_back(CValueSub(tgt_str.substr(seppoint, spoint-seppoint)));
+		result.array().emplace_back(CValueSub(tgt_str.substr(seppoint, spoint-seppoint)));
 		seppoint = spoint + sep_strlen;
 	}
 
@@ -5735,15 +5735,15 @@ CValue	CSystemFunction::FATTRIB(CSF_FUNCPARAM &p)
 	// 返値生成
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 
-	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_ARCHIVE   ) ? 1 : 0));
-	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_COMPRESSED) ? 1 : 0));
-	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_DIRECTORY ) ? 1 : 0));
-	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_HIDDEN    ) ? 1 : 0));
-	result.array().push_back(CValueSub((attrib == FILE_ATTRIBUTE_NORMAL   ) ? 1 : 0));
-	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_OFFLINE   ) ? 1 : 0));
-	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_READONLY  ) ? 1 : 0));
-	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_SYSTEM    ) ? 1 : 0));
-	result.array().push_back(CValueSub((attrib & FILE_ATTRIBUTE_TEMPORARY ) ? 1 : 0));
+	result.array().emplace_back(CValueSub((attrib & FILE_ATTRIBUTE_ARCHIVE   ) ? 1 : 0));
+	result.array().emplace_back(CValueSub((attrib & FILE_ATTRIBUTE_COMPRESSED) ? 1 : 0));
+	result.array().emplace_back(CValueSub((attrib & FILE_ATTRIBUTE_DIRECTORY ) ? 1 : 0));
+	result.array().emplace_back(CValueSub((attrib & FILE_ATTRIBUTE_HIDDEN    ) ? 1 : 0));
+	result.array().emplace_back(CValueSub((attrib == FILE_ATTRIBUTE_NORMAL   ) ? 1 : 0));
+	result.array().emplace_back(CValueSub((attrib & FILE_ATTRIBUTE_OFFLINE   ) ? 1 : 0));
+	result.array().emplace_back(CValueSub((attrib & FILE_ATTRIBUTE_READONLY  ) ? 1 : 0));
+	result.array().emplace_back(CValueSub((attrib & FILE_ATTRIBUTE_SYSTEM    ) ? 1 : 0));
+	result.array().emplace_back(CValueSub((attrib & FILE_ATTRIBUTE_TEMPORARY ) ? 1 : 0));
 
 	if ( attrib & FILE_ATTRIBUTE_DIRECTORY ) { //ディレクトリ
 		//GetFileAttributesExつかいたい、けどWin95蹴るので却下
@@ -5774,26 +5774,26 @@ CValue	CSystemFunction::FATTRIB(CSF_FUNCPARAM &p)
 		::FindClose(hFind);
 		
 		if ( ! found ) {
-			result.array().push_back(CValueSub(0));
-			result.array().push_back(CValueSub(0));
+			result.array().emplace_back(CValueSub(0));
+			result.array().emplace_back(CValueSub(0));
 		}
 		else {
-			result.array().push_back(CValueSub((int)FileTimeToUnixTime(ffdata.ftCreationTime)));
-			result.array().push_back(CValueSub((int)FileTimeToUnixTime(ffdata.ftLastWriteTime)));
+			result.array().emplace_back(CValueSub((int)FileTimeToUnixTime(ffdata.ftCreationTime)));
+			result.array().emplace_back(CValueSub((int)FileTimeToUnixTime(ffdata.ftLastWriteTime)));
 		}
 	}
 	else { //ただのファイル
 		HANDLE hFile = ::CreateFile(s_filestr , GENERIC_READ , FILE_SHARE_READ | FILE_SHARE_WRITE , NULL ,OPEN_EXISTING , FILE_ATTRIBUTE_NORMAL , NULL);
 		if (hFile == INVALID_HANDLE_VALUE) {
-			result.array().push_back(CValueSub(0));
-			result.array().push_back(CValueSub(0));
+			result.array().emplace_back(CValueSub(0));
+			result.array().emplace_back(CValueSub(0));
 		}
 		else {
 			FILETIME ftctime,ftmtime;
 			::GetFileTime(hFile , &ftctime , NULL , &ftmtime);
 
-			result.array().push_back(CValueSub((int)FileTimeToUnixTime(ftctime)));
-			result.array().push_back(CValueSub((int)FileTimeToUnixTime(ftmtime)));
+			result.array().emplace_back(CValueSub((int)FileTimeToUnixTime(ftctime)));
+			result.array().emplace_back(CValueSub((int)FileTimeToUnixTime(ftmtime)));
 
 			::CloseHandle(hFile);
 		}
@@ -5811,17 +5811,17 @@ CValue	CSystemFunction::FATTRIB(CSF_FUNCPARAM &p)
     }
 
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
-	result.array().push_back(CValueSub(0));
-	result.array().push_back(CValueSub(0));
-	result.array().push_back(CValueSub(S_ISDIR(sb.st_mode) ? 1 : 0));
-	result.array().push_back(CValueSub(0));
-	result.array().push_back(CValueSub(S_ISREG(sb.st_mode) ? 1 : 0));
-	result.array().push_back(CValueSub(0));
-	result.array().push_back(CValueSub(0));
-	result.array().push_back(CValueSub(0));
-	result.array().push_back(CValueSub(0));
-	result.array().push_back(CValueSub((int)sb.st_ctime));
-	result.array().push_back(CValueSub((int)sb.st_mtime));
+	result.array().emplace_back(CValueSub(0));
+	result.array().emplace_back(CValueSub(0));
+	result.array().emplace_back(CValueSub(S_ISDIR(sb.st_mode) ? 1 : 0));
+	result.array().emplace_back(CValueSub(0));
+	result.array().emplace_back(CValueSub(S_ISREG(sb.st_mode) ? 1 : 0));
+	result.array().emplace_back(CValueSub(0));
+	result.array().emplace_back(CValueSub(0));
+	result.array().emplace_back(CValueSub(0));
+	result.array().emplace_back(CValueSub(0));
+	result.array().emplace_back(CValueSub((int)sb.st_ctime));
+	result.array().emplace_back(CValueSub((int)sb.st_mtime));
 #endif
 
 	return result;
@@ -5849,7 +5849,7 @@ CValue	CSystemFunction::GETFUNCLIST(CSF_FUNCPARAM &p)
 	//絞りこみ文字列がない場合
 	if ( name.empty() ) {
 		for(std::vector<CFunction>::iterator it = vm.function_exec().func.begin(); it != vm.function_exec().func.end(); it++) {
-			result.array().push_back(CValueSub(it->name));
+			result.array().emplace_back(CValueSub(it->name));
 		}
 	}
 	//ある場合
@@ -5858,7 +5858,7 @@ CValue	CSystemFunction::GETFUNCLIST(CSF_FUNCPARAM &p)
 
 		for(std::vector<CFunction>::iterator it = vm.function_exec().func.begin(); it != vm.function_exec().func.end(); it++) {
 			if(name.compare(0,len,it->name,0,len) == 0) {
-				result.array().push_back(CValueSub(it->name));
+				result.array().emplace_back(CValueSub(it->name));
 			}
 		}
 	}
@@ -5887,7 +5887,7 @@ CValue	CSystemFunction::GETSYSTEMFUNCLIST(CSF_FUNCPARAM &p)
 	//絞りこみ文字列がない場合
 	if ( name.empty() ) {
 		for ( int i = 0 ; i < sizeof(sysfunc) / sizeof(sysfunc[0]) ; ++i ) {
-			result.array().push_back(CValueSub(sysfunc[i].name));
+			result.array().emplace_back(CValueSub(sysfunc[i].name));
 		}
 	}
 	//ある場合
@@ -5896,7 +5896,7 @@ CValue	CSystemFunction::GETSYSTEMFUNCLIST(CSF_FUNCPARAM &p)
 
 		for ( int i = 0 ; i < sizeof(sysfunc) / sizeof(sysfunc[0]) ; ++i ) {
 			if ( name.compare(0,len,sysfunc[i].name,0,len) == 0 && sysfunc[i].name[0] ) {
-				result.array().push_back(CValueSub(sysfunc[i].name));
+				result.array().emplace_back(CValueSub(sysfunc[i].name));
 			}
 		}
 	}
@@ -5930,7 +5930,7 @@ CValue	CSystemFunction::GETVARLIST(CSF_FUNCPARAM &p)
 		for(size_t i = 0; i < n; ++i) {
 			CVariable *pVal = vm.variable().GetPtr(i);
 			if (pVal && !pVal->IsErased()) {
-				result.array().push_back(CValueSub(pVal->name));
+				result.array().emplace_back(CValueSub(pVal->name));
 			}
 		}
 
@@ -5942,7 +5942,7 @@ CValue	CSystemFunction::GETVARLIST(CSF_FUNCPARAM &p)
 			for(size_t i = 0; i < n; ++i) {
 				CVariable *pVal = p.lvar.GetPtr(depth,i);
 				if (pVal && !pVal->IsErased()) {
-					result.array().push_back(CValueSub(pVal->name));
+					result.array().emplace_back(CValueSub(pVal->name));
 				}
 			}
 		}
@@ -5959,7 +5959,7 @@ CValue	CSystemFunction::GETVARLIST(CSF_FUNCPARAM &p)
 				CVariable *pVal = vm.variable().GetPtr(i);
 				if (pVal && !pVal->IsErased()) {
 					if(name.compare(0,len,pVal->name,0,len) == 0) {
-						result.array().push_back(CValueSub(pVal->name));
+						result.array().emplace_back(CValueSub(pVal->name));
 					}
 				}
 			}
@@ -5974,7 +5974,7 @@ CValue	CSystemFunction::GETVARLIST(CSF_FUNCPARAM &p)
 					CVariable *pVal = p.lvar.GetPtr(depth,i);
 					if (pVal && !pVal->IsErased()) {
 						if(name.compare(0,len,pVal->name,0,len) == 0) {
-							result.array().push_back(CValueSub(pVal->name));
+							result.array().emplace_back(CValueSub(pVal->name));
 						}
 					}
 				}
@@ -5998,7 +5998,7 @@ CValue	CSystemFunction::GETCALLSTACK(CSF_FUNCPARAM &p)
 	size_t n = stack.size();
 
 	for(size_t i = 0; i < n; ++i) {
-		result.array().push_back(CValueSub(stack[i]));
+		result.array().emplace_back(CValueSub(stack[i]));
 	}
 
 	return result;
@@ -6041,9 +6041,9 @@ void	CSystemFunction::ClearReResultDetails(void)
  */
 void	CSystemFunction::AppendReResultDetail(const yaya::string_t &str, int pos, int len)
 {
-	re_str.array().push_back(str);
-	re_pos.array().push_back(pos);
-	re_len.array().push_back(len);
+	re_str.array().emplace_back(str);
+	re_pos.array().emplace_back(pos);
+	re_len.array().emplace_back(len);
 }
 
 /* -----------------------------------------------------------------------
@@ -6394,7 +6394,7 @@ CValue	CSystemFunction::TRANSLATE(CSF_FUNCPARAM &p)
 			//警告を吐いた後で、一番最後の文字で埋めておく
 			yaya::char_t cx = *(rep_to.end()-1);
 			while ( rep_from.size() > rep_to.size() ) {
-				rep_to.push_back(cx);
+				rep_to.emplace_back(cx);
 			}
 		}
 	}
@@ -6435,7 +6435,7 @@ bool CSystemFunction::ProcessTranslateSyntax(std::vector<yaya::char_t> &array,ya
 				//-が閉じてない、もしくは開いてない
 				vm.logger().Error(E_W, 12, L"TRANSLATE", d, l);
 				SetError(12);
-				array.push_back(L'-');
+				array.emplace_back(L'-');
 				continue;
 			}
 			i += 1;
@@ -6448,7 +6448,7 @@ bool CSystemFunction::ProcessTranslateSyntax(std::vector<yaya::char_t> &array,ya
 				SetError(12);
 			}
 			else if ( start == end ) {
-				array.push_back(start);
+				array.emplace_back(start);
 			}
 			else {
 				if ( (end - start) >= 256 ) {
@@ -6459,7 +6459,7 @@ bool CSystemFunction::ProcessTranslateSyntax(std::vector<yaya::char_t> &array,ya
 				}
 
 				for ( yaya::char_t cx = start ; cx <= end ; ++cx ) {
-					array.push_back(cx);
+					array.emplace_back(cx);
 				}
 			}
 		}
@@ -6468,39 +6468,39 @@ bool CSystemFunction::ProcessTranslateSyntax(std::vector<yaya::char_t> &array,ya
 				//エスケープ後の文字がない
 				vm.logger().Error(E_W, 12, L"TRANSLATE", d, l);
 				SetError(12);
-				array.push_back(L'-');
+				array.emplace_back(L'-');
 				continue;
 			}
 			i += 1;
 			yaya::char_t esc_char = str[i];
 
 			if ( esc_char == L'a' ) {
-				array.push_back(L'\a');
+				array.emplace_back(L'\a');
 			}
 			else if ( esc_char == L'b' ) {
-				array.push_back(L'\b');
+				array.emplace_back(L'\b');
 			}
 			else if ( esc_char == L'e' ) {
-				array.push_back(0x1bU);
+				array.emplace_back(0x1bU);
 			}
 			else if ( esc_char == L'f' ) {
-				array.push_back(L'\f');
+				array.emplace_back(L'\f');
 			}
 			else if ( esc_char == L'n' ) {
-				array.push_back(L'\n');
+				array.emplace_back(L'\n');
 			}
 			else if ( esc_char == L'r' ) {
-				array.push_back(L'\r');
+				array.emplace_back(L'\r');
 			}
 			else if ( esc_char == L't' ) {
-				array.push_back(L'\t');
+				array.emplace_back(L'\t');
 			}
 			else {
-				array.push_back(esc_char);
+				array.emplace_back(esc_char);
 			}
 		}
 		else {
-			array.push_back(str[i]);
+			array.emplace_back(str[i]);
 		}
 	}
 	return true;
@@ -6525,89 +6525,89 @@ CValue	CSystemFunction::LICENSE(CSF_FUNCPARAM &p)
 {
 	CValue v(F_TAG_ARRAY, 0/*dmy*/);
 
-	v.array().push_back(yaya::string_t(aya_name) + aya_version);
-	v.array().push_back(yaya::string_t(L"Copyright (C) 2007 - 2013, ") + aya_author);
-	v.array().push_back(L"All rights reserved.");
-	v.array().push_back(L"");
-	v.array().push_back(L"Redistribution and use in source and binary forms, with or without");
-	v.array().push_back(L"modification, are permitted provided that the following conditions");
-	v.array().push_back(L"are met:");
-	v.array().push_back(L"");
-	v.array().push_back(L" 1. Redistributions of source code must retain the above copyright");
-	v.array().push_back(L"    notice, this list of conditions and the following disclaimer.");
-	v.array().push_back(L"");
-	v.array().push_back(L" 2. Redistributions in binary form must reproduce the above copyright");
-	v.array().push_back(L"    notice, this list of conditions and the following disclaimer in the");
-	v.array().push_back(L"    documentation and/or other materials provided with the distribution.");
-	v.array().push_back(L"");
-	v.array().push_back(L" 3. The names of its contributors may not be used to endorse or promote ");
-	v.array().push_back(L"    products derived from this software without specific prior written ");
-	v.array().push_back(L"    permission.");
-	v.array().push_back(L"");
-	v.array().push_back(L"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS");
-	v.array().push_back(L"\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT");
-	v.array().push_back(L"LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR");
-	v.array().push_back(L"A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR");
-	v.array().push_back(L"CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,");
-	v.array().push_back(L"EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,");
-	v.array().push_back(L"PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR");
-	v.array().push_back(L"PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF");
-	v.array().push_back(L"LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING");
-	v.array().push_back(L"NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS");
-	v.array().push_back(L"SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.");
-	v.array().push_back(L"");
+	v.array().emplace_back(yaya::string_t(aya_name) + aya_version);
+	v.array().emplace_back(yaya::string_t(L"Copyright (C) 2007 - 2013, ") + aya_author);
+	v.array().emplace_back(L"All rights reserved.");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"Redistribution and use in source and binary forms, with or without");
+	v.array().emplace_back(L"modification, are permitted provided that the following conditions");
+	v.array().emplace_back(L"are met:");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L" 1. Redistributions of source code must retain the above copyright");
+	v.array().emplace_back(L"    notice, this list of conditions and the following disclaimer.");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L" 2. Redistributions in binary form must reproduce the above copyright");
+	v.array().emplace_back(L"    notice, this list of conditions and the following disclaimer in the");
+	v.array().emplace_back(L"    documentation and/or other materials provided with the distribution.");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L" 3. The names of its contributors may not be used to endorse or promote ");
+	v.array().emplace_back(L"    products derived from this software without specific prior written ");
+	v.array().emplace_back(L"    permission.");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS");
+	v.array().emplace_back(L"\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT");
+	v.array().emplace_back(L"LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR");
+	v.array().emplace_back(L"A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR");
+	v.array().emplace_back(L"CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,");
+	v.array().emplace_back(L"EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,");
+	v.array().emplace_back(L"PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR");
+	v.array().emplace_back(L"PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF");
+	v.array().emplace_back(L"LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING");
+	v.array().emplace_back(L"NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS");
+	v.array().emplace_back(L"SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.");
+	v.array().emplace_back(L"");
 
-	v.array().push_back(L"---MT19937---");
-	v.array().push_back(L"Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,");
-	v.array().push_back(L"All rights reserved.");
-	v.array().push_back(L"");
-	v.array().push_back(L"Redistribution and use in source and binary forms, with or without");
-	v.array().push_back(L"modification, are permitted provided that the following conditions");
-	v.array().push_back(L"are met:");
-	v.array().push_back(L"");
-	v.array().push_back(L" 1. Redistributions of source code must retain the above copyright");
-	v.array().push_back(L"    notice, this list of conditions and the following disclaimer.");
-	v.array().push_back(L"");
-	v.array().push_back(L" 2. Redistributions in binary form must reproduce the above copyright");
-	v.array().push_back(L"    notice, this list of conditions and the following disclaimer in the");
-	v.array().push_back(L"    documentation and/or other materials provided with the distribution.");
-	v.array().push_back(L"");
-	v.array().push_back(L" 3. The names of its contributors may not be used to endorse or promote ");
-	v.array().push_back(L"    products derived from this software without specific prior written ");
-	v.array().push_back(L"    permission.");
-	v.array().push_back(L"");
-	v.array().push_back(L"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS");
-	v.array().push_back(L"\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT");
-	v.array().push_back(L"LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR");
-	v.array().push_back(L"A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR");
-	v.array().push_back(L"CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,");
-	v.array().push_back(L"EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,");
-	v.array().push_back(L"PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR");
-	v.array().push_back(L"PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF");
-	v.array().push_back(L"LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING");
-	v.array().push_back(L"NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS");
-	v.array().push_back(L"SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.");
-	v.array().push_back(L"");
+	v.array().emplace_back(L"---MT19937---");
+	v.array().emplace_back(L"Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,");
+	v.array().emplace_back(L"All rights reserved.");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"Redistribution and use in source and binary forms, with or without");
+	v.array().emplace_back(L"modification, are permitted provided that the following conditions");
+	v.array().emplace_back(L"are met:");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L" 1. Redistributions of source code must retain the above copyright");
+	v.array().emplace_back(L"    notice, this list of conditions and the following disclaimer.");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L" 2. Redistributions in binary form must reproduce the above copyright");
+	v.array().emplace_back(L"    notice, this list of conditions and the following disclaimer in the");
+	v.array().emplace_back(L"    documentation and/or other materials provided with the distribution.");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L" 3. The names of its contributors may not be used to endorse or promote ");
+	v.array().emplace_back(L"    products derived from this software without specific prior written ");
+	v.array().emplace_back(L"    permission.");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS");
+	v.array().emplace_back(L"\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT");
+	v.array().emplace_back(L"LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR");
+	v.array().emplace_back(L"A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR");
+	v.array().emplace_back(L"CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,");
+	v.array().emplace_back(L"EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,");
+	v.array().emplace_back(L"PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR");
+	v.array().emplace_back(L"PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF");
+	v.array().emplace_back(L"LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING");
+	v.array().emplace_back(L"NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS");
+	v.array().emplace_back(L"SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.");
+	v.array().emplace_back(L"");
 
-	v.array().push_back(L"---zlib---");
-	v.array().push_back(L"(C) 1995-2002 Jean-loup Gailly and Mark Adler");
-	v.array().push_back(L"");
-	v.array().push_back(L"This software is provided 'as-is', without any express or implied");
-	v.array().push_back(L"warranty.  In no event will the authors be held liable for any damages");
-	v.array().push_back(L"arising from the use of this software.");
-	v.array().push_back(L"");
-	v.array().push_back(L"Permission is granted to anyone to use this software for any purpose,");
-	v.array().push_back(L"including commercial applications, and to alter it and redistribute it");
-	v.array().push_back(L"freely, subject to the following restrictions:");
-	v.array().push_back(L"");
-	v.array().push_back(L"1. The origin of this software must not be misrepresented; you must not");
-	v.array().push_back(L" claim that you wrote the original software. If you use this software");
-	v.array().push_back(L" in a product, an acknowledgment in the product documentation would be");
-	v.array().push_back(L" appreciated but is not required.");
-	v.array().push_back(L"2. Altered source versions must be plainly marked as such, and must not be");
-	v.array().push_back(L" misrepresented as being the original software.");
-	v.array().push_back(L"3. This notice may not be removed or altered from any source distribution.");
-	v.array().push_back(L"");
+	v.array().emplace_back(L"---zlib---");
+	v.array().emplace_back(L"(C) 1995-2002 Jean-loup Gailly and Mark Adler");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"This software is provided 'as-is', without any express or implied");
+	v.array().emplace_back(L"warranty.  In no event will the authors be held liable for any damages");
+	v.array().emplace_back(L"arising from the use of this software.");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"Permission is granted to anyone to use this software for any purpose,");
+	v.array().emplace_back(L"including commercial applications, and to alter it and redistribute it");
+	v.array().emplace_back(L"freely, subject to the following restrictions:");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"1. The origin of this software must not be misrepresented; you must not");
+	v.array().emplace_back(L" claim that you wrote the original software. If you use this software");
+	v.array().emplace_back(L" in a product, an acknowledgment in the product documentation would be");
+	v.array().emplace_back(L" appreciated but is not required.");
+	v.array().emplace_back(L"2. Altered source versions must be plainly marked as such, and must not be");
+	v.array().emplace_back(L" misrepresented as being the original software.");
+	v.array().emplace_back(L"3. This notice may not be removed or altered from any source distribution.");
+	v.array().emplace_back(L"");
 
 	return v;
 }

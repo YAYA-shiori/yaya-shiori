@@ -102,7 +102,7 @@ public:
 			return 0;
 
 		depth++;
-		stack.push_back(str);
+		stack.emplace_back(str);
 		return 1;
 	}
 

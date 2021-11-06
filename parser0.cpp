@@ -642,10 +642,10 @@ char	CParser0::GetPreProcess(yaya::string_t &str, std::vector<CDefine>& defines,
 	// 種別の判定と情報の保持
 	if (pname == L"#define") {
 		CDefine	adddefine(bef, aft, dicfilename);
-		defines.push_back(adddefine);
+		defines.emplace_back(adddefine);
 	}
 	else if (pname == L"#globaldefine") {
-		gdefines.push_back(CDefine(bef, aft, dicfilename));
+		gdefines.emplace_back(CDefine(bef, aft, dicfilename));
 	}
 	else {
 		vm.logger().Error(E_E, 76, pname, dicfilename, linecount);
@@ -749,15 +749,15 @@ void	CParser0::SeparateFactor(std::vector<yaya::string_t> &s, yaya::string_t &li
 			yaya::string_t	tmpstr;
 			tmpstr.assign(line, apoint, newseparatepoint - apoint);
 			CutSpace(tmpstr);
-			s.push_back(tmpstr);
+			s.emplace_back(tmpstr);
 		}
 		// 発見したのが"{"もしくは"}"ならこれも取得
 		yaya::char_t c = line[newseparatepoint];
 		if (c == L'{') {
-			s.push_back(L"{");
+			s.emplace_back(L"{");
 		}
 		else if (c == L'}') {
-			s.push_back(L"}");
+			s.emplace_back(L"}");
 		}
 		// 検索開始位置を更新
 		apoint = separatepoint = newseparatepoint + 1;
@@ -772,7 +772,7 @@ void	CParser0::SeparateFactor(std::vector<yaya::string_t> &s, yaya::string_t &li
 		yaya::string_t	tmpstr;
 		tmpstr.assign(line, apoint, len - apoint);
 		CutSpace(tmpstr);
-		s.push_back(tmpstr);
+		s.emplace_back(tmpstr);
 	}
 
 	// 元の文字列はクリアする
@@ -884,7 +884,7 @@ int	CParser0::MakeFunction(const yaya::string_t& name, choicetype_t chtype, cons
 			return -1;
 */
 
-	vm.function_parse().func.push_back(CFunction(vm, name, chtype, dicfilename, linecount));
+	vm.function_parse().func.emplace_back(CFunction(vm, name, chtype, dicfilename, linecount));
 	vm.function_parse().AddFunctionIndex(name,vm.function_parse().func.size()-1);
 
 	return vm.function_parse().func.size() - 1;
@@ -1059,7 +1059,7 @@ char	CParser0::MakeStatement(int type, int targetfunc, yaya::string_t &str, cons
 			return 0;
 	}
 
-	vm.function_parse().func[targetfunc].statement.push_back(addstatement);
+	vm.function_parse().func[targetfunc].statement.emplace_back(addstatement);
 	return 1;
 }
 
@@ -1432,7 +1432,7 @@ void	CParser0::StructFormulaCell(yaya::string_t &str, std::vector<CCell> &cells)
 			addcell.value().s_value = str;
 			CutSpace(addcell.value().s_value);
 			if (addcell.value_const().s_value.size())
-				cells.push_back(addcell);
+				cells.emplace_back(addcell);
 			break;
 		}
 		// 見つかったので登録する
@@ -1444,11 +1444,11 @@ void	CParser0::StructFormulaCell(yaya::string_t &str, std::vector<CCell> &cells)
 				if (cell_name.length()) {
 					CCell	addcell(F_TAG_NOP);
 					addcell.value().s_value = cell_name;
-					cells.push_back(addcell);
+					cells.emplace_back(addcell);
 				}
 			}
 			// 演算子の登録
-			cells.push_back(CCell(tagtype + F_TAG_ORIGIN));
+			cells.emplace_back(CCell(tagtype + F_TAG_ORIGIN));
 			// 元の文字列から取り出し済の要素を削る
 			str = bstr;
 		}
@@ -2082,9 +2082,9 @@ char	CParser0::MakeCompleteConvertionWhenToIf(const yaya::string_t& dicfilename)
 
 		std::vector<yaya::string_t>	caseary;
 		yaya::string_t	dmystr = L"";
-		caseary.push_back(dmystr);
+		caseary.emplace_back(dmystr);
 		std::vector<int>		whencnt;
-		whencnt.push_back(0);
+		whencnt.emplace_back(0);
 		int	depth = 0;
 		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++) {
 			if (depth == -1) {
@@ -2096,8 +2096,8 @@ char	CParser0::MakeCompleteConvertionWhenToIf(const yaya::string_t& dicfilename)
 			if (it2->type == ST_OPEN) {
 				depth++;
 				yaya::string_t	dmystr = L"";
-				caseary.push_back(dmystr);
-				whencnt.push_back(0);
+				caseary.emplace_back(dmystr);
+				whencnt.emplace_back(0);
 				continue;
 			}
 			// }
@@ -2260,7 +2260,7 @@ char	CParser0::CheckDepth1(CStatement& st, const yaya::string_t& dicfilename)
 			else if (it->value_GetType() == F_TAG_BRACKETOUT)
 				depth--;
 			else if (it->value_GetType() == F_TAG_HOOKBRACKETIN)
-				hb_depth.push_back(depth);
+				hb_depth.emplace_back(depth);
 			else if (it->value_GetType() == F_TAG_HOOKBRACKETOUT) {
 				int	gb_depth_size = hb_depth.size();
 				if (!gb_depth_size) {
@@ -2315,14 +2315,14 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 				type == F_TAG_HOOKBRACKETIN ||
 				type == F_TAG_HOOKBRACKETOUT) {
 				depth += formulatag_depth[type];
-				depthvec.push_back(-1);
+				depthvec.emplace_back(-1);
 			}
 			else
-				depthvec.push_back(depth + formulatag_depth[type]);
+				depthvec.emplace_back(depth + formulatag_depth[type]);
 			continue;
 		}
 		// 演算子以外
-		depthvec.push_back(-2);
+		depthvec.emplace_back(-2);
 	}
 	if (depth) {
 		vm.logger().Error(E_E, 48, dicfilename, st.linecount);
@@ -2371,7 +2371,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 			}
 			// 取得
 			if (depthvec[i] == -2) {
-				addserial.index.push_back(i);
+				addserial.index.emplace_back(i);
 				depthvec[i] = -1;
 				break;
 			}
@@ -2439,7 +2439,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 					break;
 				// 取得
 				if (depthvec[i] == -2) {
-					addserial.index.push_back(i);
+					addserial.index.emplace_back(i);
 					depthvec[i] = -1;
 					gflg = 1;
 					continue;
@@ -2462,7 +2462,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 			// ","以外
 			for(i = t_index + 1; i < sz; i++) {
 				if (depthvec[i] == -2) {
-					addserial.index.push_back(i);
+					addserial.index.emplace_back(i);
 					depthvec[i] = -1;
 					break;
 				}
@@ -2474,7 +2474,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 		}
 
 		// 演算定義を登録
-		st.serial().push_back(addserial);
+		st.serial().emplace_back(addserial);
 	}
 
 	// 演算順序が決定すると、未処理項がひとつだけ残ることになる（これが結果）。これを確認する
@@ -2487,9 +2487,9 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 			scount++;
 			if (st.cell()[i].value_GetType() >= F_TAG_ORIGIN_VALUE) {
 				CSerial	addserial(i);
-				addserial.index.push_back(0);	// dmy
-				addserial.index.push_back(0);	// dmy
-				st.serial().push_back(addserial);
+				addserial.index.emplace_back(0);	// dmy
+				addserial.index.emplace_back(0);	// dmy
+				st.serial().emplace_back(addserial);
 			}
 		}
 	}

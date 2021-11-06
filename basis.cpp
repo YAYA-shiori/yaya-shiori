@@ -464,7 +464,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 				cset = cx;
 			}
 		}
-		dics->push_back(CDic1(filename,cset));
+		dics->emplace_back(CDic1(filename,cset));
 		return true;
 	}
 	// dicdir
@@ -661,7 +661,7 @@ static void CBasis_ConvertStringArray(const std::vector<yaya::string_t> &array,C
 	std::vector<yaya::string_t>::const_iterator itr = array.begin();
 
 	while ( itr != array.end() ) {
-		var.array().push_back(CValueSub(*itr));
+		var.array().emplace_back(CValueSub(*itr));
 		++itr;
 	}
 }
@@ -1126,18 +1126,18 @@ void	CBasis::RestoreArrayVariable(CValue &var, yaya::string_t &value)
 
 		if (par != ESC_IARRAY) {
 			if (par == ESC_IVOID) {
-				var.array().push_back(CValueSub());
+				var.array().emplace_back(CValueSub());
 			}
 			else if (IsIntString(par)) {
-				var.array().push_back(CValueSub( yaya::ws_atoi(par, 10) ));
+				var.array().emplace_back(CValueSub( yaya::ws_atoi(par, 10) ));
 			}
 			else if (IsDoubleButNotIntString(par)) {
-				var.array().push_back(CValueSub( yaya::ws_atof(par) ));
+				var.array().emplace_back(CValueSub( yaya::ws_atof(par) ));
 			}
 			else {
 				CutDoubleQuote(par);
 				UnescapeString(par);
-				var.array().push_back(CValueSub(par));
+				var.array().emplace_back(CValueSub(par));
 			}
 		}
 
@@ -1167,7 +1167,7 @@ void	CBasis::ExecuteLoad(void)
 	// 第一引数（dllのパス）を作成
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
 	CValueSub	arg0(base_path);
-	arg.array().push_back(arg0);
+	arg.array().emplace_back(arg0);
 	// 実行　結果は使用しないのでそのまま捨てる
 	vm.calldepth().Init();
 	CLocalVariable	lvar;
@@ -1212,7 +1212,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 	if (wistr != NULL) {
 		CValueSub	arg0 = wistr;
 		vm.logger().Io(0, arg0.s_value);
-		arg.array().push_back(arg0);
+		arg.array().emplace_back(arg0);
 		free(wistr);
 		wistr = NULL;
 	}
@@ -1289,7 +1289,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 	if (wistr != NULL) {
 		CValueSub arg0 = wistr;
 		vm.logger().Io(0, arg0.s_value);
-		arg.array().push_back(arg0);
+		arg.array().emplace_back(arg0);
 		free(wistr);
 		wistr = NULL;
 	}

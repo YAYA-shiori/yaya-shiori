@@ -486,7 +486,7 @@ void	CLog::AddIologFilterKeyword(const yaya::string_t &ignorestr){
 	std::vector<yaya::string_t>::iterator it = std::find(iolog_filter_keyword.begin(), iolog_filter_keyword.end(), ignorestr);
 
 	if ( it == iolog_filter_keyword.end() ){
-		iolog_filter_keyword.push_back(ignorestr);
+		iolog_filter_keyword.emplace_back(ignorestr);
 	}
 }
 
@@ -494,7 +494,7 @@ void	CLog::AddIologFilterKeywordRegex(const yaya::string_t &ignorestr){
 	std::vector<yaya::string_t>::iterator it = std::find(iolog_filter_keyword_regex.begin(), iolog_filter_keyword_regex.end(), ignorestr);
 
 	if ( it == iolog_filter_keyword_regex.end() ){
-		iolog_filter_keyword_regex.push_back(ignorestr);
+		iolog_filter_keyword_regex.emplace_back(ignorestr);
 	}
 }
 

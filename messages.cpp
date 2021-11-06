@@ -103,7 +103,7 @@ bool yayamsg::LoadMessageFromTxt(const yaya::string_t &file,char cset)
 			if ( ptr ) {
 				line=line.substr(1);
 				yaya::ws_replace(line,L"\\n", L"\r\n");
-				ptr->push_back(line);
+				ptr->emplace_back(line);
 			}
 			continue;
 		}

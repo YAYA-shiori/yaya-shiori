@@ -75,11 +75,11 @@ static std::string posix_search_fallback_dll(const std::string& dllfile) {
             while (true) {
 				std::string::size_type colon_pos = path.find(':');
                 if (colon_pos == std::string::npos) {
-                    posix_dll_search_path.push_back(path);
+                    posix_dll_search_path.emplace_back(path);
                     break;
                 }
                 else {
-                    posix_dll_search_path.push_back(path.substr(0, colon_pos));
+                    posix_dll_search_path.emplace_back(path.substr(0, colon_pos));
                     path.erase(0, colon_pos+1);
                 }
             }

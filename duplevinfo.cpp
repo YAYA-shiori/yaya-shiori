@@ -93,13 +93,13 @@ void	CDuplEvInfo::InitRoundOrder(CAyaVM &vm,int mode)
     if ( mode == CHOICETYPE_NONOVERLAP || mode == CHOICETYPE_NONOVERLAP_POOL ) {
 		for(int i = 0; i < total; ++i) {
 			if ( i != lastroundorder ) {
-				roundorder.push_back(i);
+				roundorder.emplace_back(i);
 			}
 		}
 
 		//緊急時エラー回避用
 		if ( ! roundorder.size() ) {
-			roundorder.push_back(0);
+			roundorder.emplace_back(0);
 		}
 
 		//シャッフルする
@@ -120,20 +120,20 @@ void	CDuplEvInfo::InitRoundOrder(CAyaVM &vm,int mode)
 			if ( n >= 2 ) {
 				int lrand = vm.genrand_int(n) + 1;
 				if ( lrand == n ) {
-					roundorder.push_back(lastroundorder);
+					roundorder.emplace_back(lastroundorder);
 				}
 				else {
 					roundorder.insert(roundorder.begin() + lrand,lastroundorder);
 				}
 			}
 			else {
-				roundorder.push_back(lastroundorder);
+				roundorder.emplace_back(lastroundorder);
 			}
 		}
 	}
 	else {
 		for(int i = 0; i < total; ++i) {
-			roundorder.push_back(i);
+			roundorder.emplace_back(i);
 		}
 	}
 }

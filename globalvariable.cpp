@@ -57,7 +57,7 @@ int	CGlobalVariable::Make(const yaya::string_t &name, char erased)
 		addvariable.Erase();
 	else
 		addvariable.Enable();
-	var.push_back(addvariable);
+	var.emplace_back(addvariable);
 
 	int idx = var.size() - 1;
 	varmap.insert(yaya::indexmap::value_type(name,idx));

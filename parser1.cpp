@@ -262,13 +262,13 @@ char	CParser1::SetBreakJumpNo(const yaya::string_t& dicfilename)
 
 		std::vector<CVecint>	dline;
 		CVecint	addvecint;
-		dline.push_back(addvecint);
+		dline.emplace_back(addvecint);
 		int	depth = 0;
 		for(size_t i = 0; i < it->statement.size(); ++i) {
 			// {
 			if (it->statement[i].type == ST_OPEN) {
 				CVecint	addvecint2;
-				dline.push_back(addvecint2);
+				dline.emplace_back(addvecint2);
 				depth++;
 			}
 			// }
@@ -291,7 +291,7 @@ char	CParser1::SetBreakJumpNo(const yaya::string_t& dicfilename)
 					break;
 				}
 				else
-					dline[depth].i_array.push_back(i);
+					dline[depth].i_array.emplace_back(i);
 			}
 		}
 	}
@@ -510,16 +510,16 @@ char	CParser1::SetIfJumpNo(const yaya::string_t& dicfilename)
 		if ( it->dicfilename != dicfilename ) { continue; }
 
 		std::vector<int>	dline;
-		dline.push_back(-1);
+		dline.emplace_back(-1);
 		std::vector<int>	ifchain;
-		ifchain.push_back(0);
+		ifchain.emplace_back(0);
 		int	depth = 0;
 		for(size_t i = 0; i < it->statement.size(); i++) {
 			// {
 			if (it->statement[i].type == ST_OPEN) {
 				depth++;
-				dline.push_back(-1);
-				ifchain.push_back(0);
+				dline.emplace_back(-1);
+				ifchain.emplace_back(0);
 			}
 			// }
 			else if (it->statement[i].type == ST_CLOSE) {

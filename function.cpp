@@ -744,7 +744,7 @@ char	CFunction::Comma(CValue &answer, std::vector<int> &sid, CStatement &st, CLo
 			t_array.insert(t_array.end(), addv.array().begin(), addv.array().end());
 		}
 		else {
-			t_array.push_back(CValueSub(addv));
+			t_array.emplace_back(CValueSub(addv));
 		}
 	}
 
@@ -764,7 +764,7 @@ char	CFunction::CommaAdd(CValue &answer, std::vector<int> &sid, CStatement &st, 
 	if ( answer.GetType() != F_TAG_ARRAY ) {
 		CValueSub st(answer);
 		answer.SetType(F_TAG_ARRAY);
-		answer.array().push_back(st);
+		answer.array().emplace_back(st);
 	}
 	CValueArray &t_array = answer.array();
 
@@ -778,7 +778,7 @@ char	CFunction::CommaAdd(CValue &answer, std::vector<int> &sid, CStatement &st, 
 			t_array.insert(t_array.end(), addv.array().begin(), addv.array().end());
 		}
 		else {
-			t_array.push_back(CValueSub(addv));
+			t_array.emplace_back(CValueSub(addv));
 		}
 	}
 
@@ -1035,7 +1035,7 @@ char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<int> &sid, CSta
 			}
 		}
 		else {
-			arg.array().push_back(CValueSub(addv));
+			arg.array().emplace_back(CValueSub(addv));
 		}
 	}
 
@@ -1107,11 +1107,11 @@ char	CFunction::ExecSystemFunctionWithArgs(CCell& cell, std::vector<int> &sid, C
 			}
 		}
 		else {
-			arg.array().push_back(CValueSub(addv));
+			arg.array().emplace_back(CValueSub(addv));
 		}
 
-		valuearg.push_back(addv);
-		pcellarg.push_back(&(st.cell()[*it]));
+		valuearg.emplace_back(addv);
+		pcellarg.emplace_back(&(st.cell()[*it]));
 	}
 
 	// 実行　%[n]処理関数のみ特例扱い
@@ -1217,7 +1217,7 @@ void CFunction::EncodeArrayOrder(CCell &vcell, const CValue &order, CLocalVariab
 		result = order;
 		break;
 	default:
-		result.array().push_back(CValueSub(order));
+		result.array().emplace_back(CValueSub(order));
 		break;
 	};
 
@@ -1228,7 +1228,7 @@ void CFunction::EncodeArrayOrder(CCell &vcell, const CValue &order, CLocalVariab
 			adddlm = pvm->variable().GetDelimiter(vcell.index);
 		else if (vcell.value_GetType() == F_TAG_LOCALVARIABLE)
 			adddlm = lvar.GetDelimiter(vcell.name);
-		result.array().push_back(adddlm);
+		result.array().emplace_back(adddlm);
 	}
 }
 

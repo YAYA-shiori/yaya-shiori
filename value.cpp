@@ -208,19 +208,19 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 			else {
 				int	addsize = order - sz;
 				for(int i = 0; i < addsize; i++) {
-					s_array.push_back(yaya::string_t());
+					s_array.emplace_back(yaya::string_t());
 				}
 	
 				if ( value.GetType() == F_TAG_ARRAY ) {
 					if ( ! value.array().empty() ) {
 						for ( CValueArray::const_iterator ita = value.array().begin() ;
 							ita != value.array().end() ; ita++ ) {
-							s_array.push_back(ita->GetValueString());
+							s_array.emplace_back(ita->GetValueString());
 						}
 					}
 				}
 				else {
-					s_array.push_back(value.GetValueString());
+					s_array.emplace_back(value.GetValueString());
 				}
 			}
 		}
@@ -247,19 +247,19 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 			else {
 				int	addsize = order - sz;
 				for(int i = 0; i < addsize; i++) {
-					s_array.push_back(yaya::string_t());
+					s_array.emplace_back(yaya::string_t());
 				}
 
 				if ( value.GetType() == F_TAG_ARRAY ) {
 					if ( ! value.array().empty() ) {
 						for ( CValueArray::const_iterator ita = value.array().begin() ;
 							ita != value.array().end() ; ita++ ) {
-							s_array.push_back(ita->GetValueString());
+							s_array.emplace_back(ita->GetValueString());
 						}
 					}
 				}
 				else {
-					s_array.push_back(value.GetValueString());
+					s_array.emplace_back(value.GetValueString());
 				}
 			}
 		}
@@ -279,7 +279,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 		if ( type != F_TAG_ARRAY ) {
 			type = F_TAG_ARRAY;
 			array().clear();
-			array().push_back(CValueSub(*this));
+			array().emplace_back(CValueSub(*this));
 		}
 
 		if (aoflg) {
@@ -307,7 +307,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 				// 後端への追加
 				int	addsize = order - array().size();
 				for(int i = 1; i <= addsize; i++) {
-					array().push_back(CValueSub());
+					array().emplace_back(CValueSub());
 				}
 				
 				if (value.GetType() == F_TAG_ARRAY) {
@@ -316,7 +316,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 					}
 				}
 				else {
-					array().push_back(CValueSub(value));
+					array().emplace_back(CValueSub(value));
 				}
 			}
 		}
@@ -340,7 +340,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 				// 後端への追加
 				int	addsize = order - array().size();
 				for(int i = 1; i <= addsize; i++) {
-					array().push_back(CValueSub());
+					array().emplace_back(CValueSub());
 				}
 				
 				if (value.GetType() == F_TAG_ARRAY) {
@@ -349,7 +349,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 					}
 				}
 				else {
-					array().push_back(CValueSub(value));
+					array().emplace_back(CValueSub(value));
 				}
 			}
 		}
@@ -568,7 +568,7 @@ CValue CValue_ArrayCalc(const CValue &param1_left,const CValue &param2_right,Fn 
 				CValueArray::const_iterator it, it2;
 				for(it = param1_left.array().begin() ; it != param1_left.array().end() ; ++it) {
 					for(it2 = param2_right.array().begin() ; it2 != param2_right.array().end() ; ++it2) {
-						result.array().push_back(calc_fn((*it),(*it2)));
+						result.array().emplace_back(calc_fn((*it),(*it2)));
 					}
 				}
 			}
@@ -582,7 +582,7 @@ CValue CValue_ArrayCalc(const CValue &param1_left,const CValue &param2_right,Fn 
 			result.SetType(F_TAG_ARRAY);
 			const CValueSub t_vs(param2_right);
 			for(CValueArray::const_iterator it = param1_left.array().begin(); it != param1_left.array().end(); it++) {
-				result.array().push_back(calc_fn(*it,t_vs));
+				result.array().emplace_back(calc_fn(*it,t_vs));
 			}
 		}
 	}
@@ -594,7 +594,7 @@ CValue CValue_ArrayCalc(const CValue &param1_left,const CValue &param2_right,Fn 
 			result.SetType(F_TAG_ARRAY);
 			const CValueSub t_vs(param1_left);
 			for(CValueArray::const_iterator it = param2_right.array().begin(); it != param2_right.array().end(); it++) {
-				result.array().push_back(calc_fn(t_vs,*it));
+				result.array().emplace_back(calc_fn(t_vs,*it));
 			}
 		}
 	}
@@ -653,7 +653,7 @@ void CValue_ArrayCalc_Subst(CValue &param1_subst,const CValue &param2_right,Fn c
 			for(CValueArray::const_iterator it = param2_right.array().begin(); it != param2_right.array().end(); it++) {
 				CValueSub t_result = t_vs;
 				calc_fn_subst(t_result,*it);
-				param1_subst.array().push_back(t_result);
+				param1_subst.array().emplace_back(t_result);
 			}
 		}
 	}
@@ -1012,7 +1012,7 @@ CValue CValue::operator [](const CValue &value) const
 				for(CValueArray::const_iterator it = array().begin();
 					it != array().end(); it++, i++) {
 					if (s_index <= i && i < e_index)
-						result_array.array().push_back(*it);
+						result_array.array().emplace_back(*it);
 					else if (i >= e_index)
 						break;
 				}

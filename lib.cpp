@@ -47,7 +47,7 @@ int	CLib::Add(const yaya::string_t &name)
 		}
 	}
 
-	liblist.push_back(CLib1(vm, name, charset));
+	liblist.emplace_back(CLib1(vm, name, charset));
 	it = liblist.end();
 	it--;
 	if (!it->LoadLib()) {
