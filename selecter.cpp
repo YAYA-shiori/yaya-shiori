@@ -34,7 +34,7 @@ CSelecter::CSelecter(CAyaVM &vmr, CDuplEvInfo *dc, int aid) : vm(vmr), duplctl(d
 	areanum = 0;
 
 	CVecValue	addvv;
-	values.push_back(addvv);
+	values.emplace_back(addvv);
 }
 
 /* -----------------------------------------------------------------------
@@ -50,7 +50,7 @@ void	CSelecter::AddArea(void)
 
 	// —Ìˆæ‚ð’Ç‰Á
 	CVecValue	addvv;
-	values.push_back(addvv);
+	values.emplace_back(addvv);
 	areanum++;
 }
 
@@ -67,7 +67,7 @@ void	CSelecter::Append(const CValue &value)
 	if (value.GetType() == F_TAG_VOID)
 		return;
 
-	values[areanum].array.push_back(value);
+	values[areanum].array.emplace_back(value);
 }
 
 /* -----------------------------------------------------------------------
@@ -105,18 +105,18 @@ CValue	CSelecter::Output()
 	// d•¡‰ñ”ð§Œä•t‚«‘I‘ð
 	switch(duplctl->GetType()) {
 	case CHOICETYPE_NONOVERLAP:
+	case CHOICETYPE_NONOVERLAP_POOL:
 		return duplctl->Choice(vm, areanum, values, CHOICETYPE_NONOVERLAP);
 	case CHOICETYPE_SEQUENTIAL:
+	case CHOICETYPE_SEQUENTIAL_POOL:
 		return duplctl->Choice(vm, areanum, values, CHOICETYPE_SEQUENTIAL);
 	case CHOICETYPE_VOID:
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	case CHOICETYPE_ARRAY:
-	case CHOICETYPE_POOL:
 	case CHOICETYPE_POOL_ARRAY:
-	case CHOICETYPE_NONOVERLAP_POOL:
-	case CHOICETYPE_SEQUENTIAL_POOL:
 		return StructArray();
 	case CHOICETYPE_RANDOM:
+	case CHOICETYPE_POOL:
 	default:
 		return ChoiceRandom();
 	};

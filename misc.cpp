@@ -219,13 +219,13 @@ int	SplitToMultiString(const yaya::string_t &str, std::vector<yaya::string_t> *a
 		seppoint = str.find(delimiter,beforepoint);
 		if (seppoint == yaya::string_t::npos) {
 			if ( array ) {
-				array->push_back(yaya::string_t(str.begin()+beforepoint,str.end()));
+				array->emplace_back(yaya::string_t(str.begin()+beforepoint,str.end()));
 			}
 			break;
 		}
 		// Žæ‚èo‚µ‚Ævector‚Ö‚Ì’Ç‰Á
 		if ( array ) {
-			array->push_back(yaya::string_t(str.begin()+beforepoint,str.begin()+seppoint));
+			array->emplace_back(yaya::string_t(str.begin()+beforepoint,str.begin()+seppoint));
 		}
 		// Žæ‚èo‚µ‚½•ª‚ðíœ
 		beforepoint = seppoint + dlmlen;
@@ -660,12 +660,12 @@ char	IsLegalFunctionName(const yaya::string_t &str)
 	if ( sysidx >= 0 ) { return 5; }
 
 	for(size_t i= 0; i < FLOWCOM_NUM; i++) {
-		if (!str.compare(flowcom[i])) {
+		if (str == flowcom[i]) {
 			return 6;
 		}
 	}
 	for(size_t i= 0; i < FORMULATAG_NUM; i++) {
-//		if (!str.compare(formulatag[i]))
+//		if (str == formulatag[i])
 		if (str.find(formulatag[i]) != yaya::string_t::npos) {
 			return 6;
 		}
@@ -714,12 +714,12 @@ char	IsLegalVariableName(const yaya::string_t &str)
 	if ( sysidx >= 0 ) { return 5; }
 
 	for(size_t i= 0; i < FLOWCOM_NUM; i++) {
-		if (!str.compare(flowcom[i])) {
+		if (str == flowcom[i]) {
 			return 6;
 		}
 	}
 	for(size_t i= 0; i < FORMULATAG_NUM; i++) {
-//		if (!str.compare(formulatag[i]))
+//		if (str == formulatag[i])
 		if (str.find(formulatag[i]) != yaya::string_t::npos) {
 			return 6;
 		}

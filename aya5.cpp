@@ -130,7 +130,7 @@ class CAyaVMPrepare {
 public:
 	CAyaVMPrepare(void) {
 		vm.clear();
-		vm.push_back(NULL); //0番VM＝loadなど従来関数で使う標準
+		vm.emplace_back(nullptr); //0番VM＝loadなど従来関数で使う標準
 	}
 	~CAyaVMPrepare(void) {
 		size_t n = vm.size();
@@ -189,7 +189,7 @@ extern "C" BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPV
 inline void enlarge_loghandler_list(size_t size){
 	loghandler_list.reserve(size);
 	while(loghandler_list.size()<size)
-		loghandler_list.push_back(NULL);
+		loghandler_list.emplace_back(nullptr);
 }
 
 /* -----------------------------------------------------------------------
@@ -225,7 +225,7 @@ extern "C" DLLEXPORT long FUNCATTRIB multi_load(yaya::global_t h, long len)
 	}
 
 	if ( id <= 0 ) {
-		vm.push_back(NULL);
+		vm.emplace_back(nullptr);
 		id = (long)vm.size() - 1;
 	}
 
@@ -331,7 +331,7 @@ extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB multi_CI_check_failed(long id)//?
  extern "C" DLLEXPORT void FUNCATTRIB Set_loghandler(void (*loghandler)(const yaya::char_t *str, int mode, int id))
 {
 	if(loghandler_list.size()<1)
-		loghandler_list.push_back(NULL);
+		loghandler_list.emplace_back(nullptr);
 	loghandler_list[0]=loghandler;
 	if( vm[0] ) {
 		vm[0]->Set_loghandler(loghandler);

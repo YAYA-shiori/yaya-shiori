@@ -47,7 +47,7 @@ public:
 	~CFile1(void) { Close(); }
 
 	inline const yaya::string_t& GetName(void) const { return name; }
-	inline bool operator==(const yaya::string_t &n) const { return n.compare(name) == 0; }
+	inline bool operator==(const yaya::string_t &n) const { return n == name; }
 
 	int	Open(void);
 	int	Close(void);

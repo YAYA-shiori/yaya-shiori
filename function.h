@@ -188,11 +188,11 @@ public:
 	}
 
 protected:
-	int		ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, int type, int &exitcode, bool inpool=0);
+	int		ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, int type, int &exitcode, std::vector<CVecValue>* pool);
 
 	CValueSub&	GetResultFromPoolArray(CValue& result);
 
-	void	Foreach(CLocalVariable &lvar, CSelecter &output, int line, int &exitcode);
+	void	Foreach(CLocalVariable &lvar, CSelecter &output, int line, int &exitcode, std::vector<CVecValue>* pool);
 
 	const CValue& GetValueRefForCalc(CCell &cell, CStatement &st, CLocalVariable &lvar);
 	
