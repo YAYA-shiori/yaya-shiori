@@ -640,11 +640,11 @@ char	CParser0::GetPreProcess(yaya::string_t &str, std::vector<CDefine>& defines,
 	str.erase(); //行全体が前処理対象だったので消す
 
 	// 種別の判定と情報の保持
-	if (!pname.compare(L"#define")) {
+	if (pname == L"#define") {
 		CDefine	adddefine(bef, aft, dicfilename);
 		defines.push_back(adddefine);
 	}
-	else if (!pname.compare(L"#globaldefine")) {
+	else if (pname == L"#globaldefine") {
 		gdefines.push_back(CDefine(bef, aft, dicfilename));
 	}
 	else {
@@ -820,7 +820,7 @@ char	CParser0::DefineFunctions(std::vector<yaya::string_t> &s, const yaya::strin
 					int ci = 0, cn = sizeof(choicetype) / sizeof(choicetype[0]);
 
 					for(ci = 0; ci < cn; ci++) {
-						if (!d1.compare(choicetype[ci].name)) {
+						if (d1 == choicetype[ci].name) {
 							chtype = choicetype[ci].type;
 							break;
 						}
@@ -880,7 +880,7 @@ int	CParser0::MakeFunction(const yaya::string_t& name, choicetype_t chtype, cons
 	if(i != -1)
 		return -1;
 /*	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++)
-		if (!name.compare(it->name))
+		if (name == it->name)
 			return -1;
 */
 
@@ -914,7 +914,7 @@ char	CParser0::StoreInternalStatement(int targetfunc, yaya::string_t &str, int& 
 			int ci = 0, cn = sizeof(choicetype) / sizeof(choicetype[0]);
 
 			for(ci = 0; ci < cn; ci++) {
-				if (!d0.compare(choicetype[ci].name)) {
+				if (d0 == choicetype[ci].name) {
 					chtype = choicetype[ci].type;
 					break;
 				}
@@ -930,38 +930,38 @@ char	CParser0::StoreInternalStatement(int targetfunc, yaya::string_t &str, int& 
 		return 1;
 	}
 	// }
-	else if (!str.compare(L"}")) {
+	else if (str == L"}") {
 		depth--;
 		targetfunction.statement.emplace_back(CStatement(ST_CLOSE, linecount));
 		return 1;
 	}
 	// others　elseへ書き換えてしまう
-	else if (!str.compare(L"others")) {
+	else if (str == L"others") {
 		targetfunction.statement.emplace_back(CStatement(ST_ELSE, linecount));
 		return 1;
 	}
 	// else
-	else if (!str.compare(L"else")) {
+	else if (str == L"else") {
 		targetfunction.statement.emplace_back(CStatement(ST_ELSE, linecount));
 		return 1;
 	}
 	// break
-	else if (!str.compare(L"break")) {
+	else if (str == L"break") {
 		targetfunction.statement.emplace_back(CStatement(ST_BREAK, linecount));
 		return 1;
 	}
 	// continue
-	else if (!str.compare(L"continue")) {
+	else if (str == L"continue") {
 		targetfunction.statement.emplace_back(CStatement(ST_CONTINUE, linecount));
 		return 1;
 	}
 	// return
-	else if (!str.compare(L"return")) {
+	else if (str == L"return") {
 		targetfunction.statement.emplace_back(CStatement(ST_RETURN, linecount));
 		return 1;
 	}
 	// --
-	else if (!str.compare(L"--")) {
+	else if (str == L"--") {
 		targetfunction.statement.emplace_back(CStatement(ST_COMBINE, linecount));
 		return 1;
 	}
@@ -978,37 +978,37 @@ char	CParser0::StoreInternalStatement(int targetfunc, yaya::string_t &str, int& 
 		par = t_par;
 	}
 	// if
-	if (!st.compare(L"if")) {
+	if (st == L"if") {
 		str = par;
 		return MakeStatement(ST_IF, targetfunc, str, dicfilename, linecount);
 	}
 	// elseif
-	else if (!st.compare(L"elseif")) {
+	else if (st == L"elseif") {
 		str = par;
 		return MakeStatement(ST_ELSEIF, targetfunc, str, dicfilename, linecount);
 	}
 	// while
-	else if (!st.compare(L"while")) {
+	else if (st == L"while") {
 		str = par;
 		return MakeStatement(ST_WHILE, targetfunc, str, dicfilename, linecount);
 	}
 	// switch
-	else if (!st.compare(L"switch")) {
+	else if (st == L"switch") {
 		str = par;
 		return MakeStatement(ST_SWITCH, targetfunc, str, dicfilename, linecount);
 	}
 	// for
-	else if (!st.compare(L"for")) {
+	else if (st == L"for") {
 		str = par;
 		return MakeStatement(ST_FOR, targetfunc, str, dicfilename, linecount);
 	}
 	// foreach
-	else if (!st.compare(L"foreach")) {
+	else if (st == L"foreach") {
 		str = par;
 		return MakeStatement(ST_FOREACH, targetfunc, str, dicfilename, linecount);
 	}
 	// case　特殊な名前のローカル変数への代入に書き換えてしまう
-	else if (!st.compare(L"case")) {
+	else if (st == L"case") {
 		str = PREFIX_CASE_VAR + vm.function_parse().func[targetfunc].name;
 		str += yaya::ws_itoa(linecount);
 		str += L"=";
@@ -1016,17 +1016,17 @@ char	CParser0::StoreInternalStatement(int targetfunc, yaya::string_t &str, int& 
 		return MakeStatement(ST_FORMULA, targetfunc, str, dicfilename, linecount);
 	}
 	// when
-	else if (!st.compare(L"when")) {
+	else if (st == L"when") {
 		str = par;
 		return MakeStatement(ST_WHEN, targetfunc, str, dicfilename, linecount);
 	}
 	// parallel
-	else if (!st.compare(L"parallel")) {
+	else if (st == L"parallel") {
 		str = par;
 		return MakeStatement(ST_PARALLEL, targetfunc, str, dicfilename, linecount);
 	}
 	// void
-	else if (!st.compare(L"void")) {
+	else if (st == L"void") {
 		str = par;
 		return MakeStatement(ST_VOID, targetfunc, str, dicfilename, linecount);
 	}
@@ -1557,7 +1557,7 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 /*
 	int i = 0;
 	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++, i++)
-		if (!scell.value_const().s_value.compare(it->name)) {
+		if (!scell.value_const().s_value != it->name) {
 			scell.value_SetType(F_TAG_USERFUNC);
 			scell.index     = i;
 			scell.value_Delete();

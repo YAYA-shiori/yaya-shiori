@@ -154,7 +154,7 @@ void	CLocalVariable::GetIndex(const yaya::char_t *name, int &id, int &dp)
 {
 	for(int i = stack.size() - 1; i >= 0; i--)
 		for(int j = stack[i].substack.size() - 1; j >= 0; j--)
-			if (!stack[i].substack[j].name.compare(name)) {
+			if (stack[i].substack[j].name == name) {
 				if (stack[i].substack[j].IsErased()) {
 					id = -1;
 					dp = -1;
@@ -176,7 +176,7 @@ void	CLocalVariable::GetIndex(const yaya::string_t &name, int &id, int &dp)
 {
 	for(int i = stack.size() - 1; i >= 0; i--)
 		for(int j = stack[i].substack.size() - 1; j >= 0; j--)
-			if (!stack[i].substack[j].name.compare(name)) {
+			if (stack[i].substack[j].name == name) {
 				if (stack[i].substack[j].IsErased()) {
 					id = -1;
 					dp = -1;

@@ -42,7 +42,7 @@ int	CLib::Add(const yaya::string_t &name)
 {
 	std::list<CLib1>::iterator it;
 	for(it = liblist.begin(); it != liblist.end(); it++) {
-		if (!name.compare(it->GetName())) {
+		if (name == it->GetName()) {
 			return 2;
 		}
 	}
@@ -80,7 +80,7 @@ int	CLib::Add(const yaya::string_t &name)
 int	CLib::Delete(const yaya::string_t &name)
 {
 	for(std::list<CLib1>::iterator it = liblist.begin(); it != liblist.end(); it++) {
-		if (!name.compare(it->GetName())) {
+		if (name == it->GetName()) {
 			int	result = it->Unload();
 			it->Release();
 			it = liblist.erase(it);
@@ -112,7 +112,7 @@ void	CLib::DeleteAll(void)
 int	CLib::SetCharsetDynamic(const yaya::string_t &name,int cs)
 {
 	for(std::list<CLib1>::iterator it = liblist.begin(); it != liblist.end(); it++) {
-		if (!name.compare(it->GetName())) {
+		if (name == it->GetName()) {
 			it->SetCharset(cs);
 			return 1;
 		}
@@ -141,7 +141,7 @@ int	CLib::SetCharsetDynamic(const yaya::string_t &name,int cs)
 int	CLib::GetCharsetDynamic(const yaya::string_t &name)
 {
 	for(std::list<CLib1>::iterator it = liblist.begin(); it != liblist.end(); it++) {
-		if (!name.compare(it->GetName())) {
+		if (name == it->GetName()) {
 			return it->GetCharset();
 		}
 	}
@@ -164,7 +164,7 @@ int	CLib::GetCharsetDynamic(const yaya::string_t &name)
 int	CLib::Request(const yaya::string_t &name, const yaya::string_t &istr, yaya::string_t &ostr)
 {
 	for(std::list<CLib1>::iterator it = liblist.begin(); it != liblist.end(); it++) {
-		if (!name.compare(it->GetName())) {
+		if (name == it->GetName()) {
 			vm.logger().IoLib(0, istr, name);
 			int	result = it->Request(istr, ostr);
 			vm.logger().IoLib(1, ostr, name);

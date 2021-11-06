@@ -38,44 +38,44 @@
  */
 bool CFile::ProcessOpenMode(yaya::string_t &t_mode)
 {
-	if (!t_mode.compare(L"read"))
+	if (t_mode == L"read")
 		t_mode = L"r";
-	else if (!t_mode.compare(L"write"))
+	else if (t_mode == L"write")
 		t_mode = L"w";
-	else if (!t_mode.compare(L"append"))
+	else if (t_mode == L"append")
 		t_mode = L"a";
-	else if (!t_mode.compare(L"read_binary"))
+	else if (t_mode == L"read_binary")
 		t_mode = L"rb";
-	else if (!t_mode.compare(L"write_binary"))
+	else if (t_mode == L"write_binary")
 		t_mode = L"wb";
-	else if (!t_mode.compare(L"append_binary"))
+	else if (t_mode == L"append_binary")
 		t_mode = L"ab";
-	if (!t_mode.compare(L"read_random"))
+	if (t_mode == L"read_random")
 		t_mode = L"r+";
-	else if (!t_mode.compare(L"write_random"))
+	else if (t_mode == L"write_random")
 		t_mode = L"w+";
-	else if (!t_mode.compare(L"append_random"))
+	else if (t_mode == L"append_random")
 		t_mode = L"a+";
-	else if (!t_mode.compare(L"read_binary_random"))
+	else if (t_mode == L"read_binary_random")
 		t_mode = L"rb+";
-	else if (!t_mode.compare(L"write_binary_random"))
+	else if (t_mode == L"write_binary_random")
 		t_mode = L"wb+";
-	else if (!t_mode.compare(L"append_binary_random"))
+	else if (t_mode == L"append_binary_random")
 		t_mode = L"ab+";
 
 	if (
-		t_mode.compare(L"r") &&
-		t_mode.compare(L"w") &&
-		t_mode.compare(L"a") &&
-		t_mode.compare(L"rb") &&
-		t_mode.compare(L"wb") &&
-		t_mode.compare(L"ab") &&
-		t_mode.compare(L"r+") &&
-		t_mode.compare(L"w+") &&
-		t_mode.compare(L"a+") &&
-		t_mode.compare(L"rb+") &&
-		t_mode.compare(L"wb+") &&
-		t_mode.compare(L"ab+")
+		t_mode != L"r" &&
+		t_mode != L"w" &&
+		t_mode != L"a" &&
+		t_mode != L"rb" &&
+		t_mode != L"wb" &&
+		t_mode != L"ab" &&
+		t_mode != L"r+" &&
+		t_mode != L"w+" &&
+		t_mode != L"a+" &&
+		t_mode != L"rb+" &&
+		t_mode != L"wb+" &&
+		t_mode != L"ab+"
 		) {
 		return false;
 	}
@@ -301,13 +301,13 @@ int CFile::FSeek(const yaya::string_t &name,int offset,const yaya::string_t &s_m
 {
 	int mode;
 
-	if (s_mode.compare(L"SEEK_CUR")==0 || s_mode.compare(L"current")==0){
+	if (s_mode == L"SEEK_CUR" || s_mode == L"current"){
 		mode=SEEK_CUR;
 	}
-	else if (s_mode.compare(L"SEEK_END")==0 || s_mode.compare(L"end")==0){
+	else if (s_mode == L"SEEK_END" || s_mode == L"end"){
 		mode=SEEK_END;
 	}
-	else if (s_mode.compare(L"SEEK_SET")==0 || s_mode.compare(L"start")==0){
+	else if (s_mode == L"SEEK_SET" || s_mode == L"start"){
 		mode=SEEK_SET;
 	}
 	else{

@@ -5557,22 +5557,22 @@ CValue	CSystemFunction::GETSETTING(CSF_FUNCPARAM &p)
 	if (p.arg.array()[0].IsString()) {
 		const yaya::string_t str = p.arg.array()[0].GetValueString();
 		
-		if ( str.compare(L"coreinfo.version") == 0 ) {
+		if ( str == L"coreinfo.version" ) {
 			return CValue(yaya::string_t(aya_version));
 		}
-		if ( str.compare(L"coreinfo.path") == 0 ) {
+		if ( str == L"coreinfo.path" ) {
 			return CValue(vm.basis().GetRootPath());
 		}
-		if ( str.compare(L"coreinfo.name") == 0 ) {
+		if ( str == L"coreinfo.name" ) {
 			return CValue(yaya::string_t(aya_name));
 		}
-		if ( str.compare(L"coreinfo.author") == 0 ) {
+		if ( str == L"coreinfo.author" ) {
 			return CValue(yaya::string_t(aya_author));
 		}
-		if ( str.compare(L"coreinfo.savefile") == 0 ) {
+		if ( str == L"coreinfo.savefile" ) {
 			return CValue(vm.basis().GetSavefilePath());
 		}
-		if ( str.compare(L"coreinfo.mode") == 0 ) {
+		if ( str == L"coreinfo.mode" ) {
 			return CValue(vm.basis().GetModeName());
 		}
 
