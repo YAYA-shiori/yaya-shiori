@@ -907,7 +907,7 @@ char	CParser0::StoreInternalStatement(int targetfunc, yaya::string_t &str, int& 
 	// {
 	if (str[str.size()-1]==L'{') {
 		// blockと重複回避オプションを取得
-		choicetype_t	chtype = targetfunction.GetDefaultBlockChoicetype();
+		choicetype_t	chtype = GetDefaultBlockChoicetype(targetfunction.dupl_func.GetType());
 		yaya::string_t	d0, d1;
 		if (Split(str, d0, d1, L":")){
 			// 重複回避オプションの判定

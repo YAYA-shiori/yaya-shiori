@@ -168,33 +168,13 @@ public:
 	const yaya::string_t&	GetFileName() const {return dicfilename;}
 	size_t	GetLineNumBegin() const { return linecount;}
 	size_t	GetLineNumEnd() const   { return statement.empty() ? 0 : statement[statement.size()-1].linecount;}
-	choicetype_t GetDefaultBlockChoicetype(){
-		switch(dupl_func.GetType())
-		{
-		case CHOICETYPE_RANDOM:
-		case CHOICETYPE_NONOVERLAP:
-		case CHOICETYPE_SEQUENTIAL:
-			return CHOICETYPE_RANDOM;
-		case CHOICETYPE_VOID:
-			return CHOICETYPE_VOID;
-		case CHOICETYPE_ARRAY:
-		case CHOICETYPE_POOL:
-		case CHOICETYPE_POOL_ARRAY:
-		case CHOICETYPE_NONOVERLAP_POOL:
-		case CHOICETYPE_SEQUENTIAL_POOL:
-		default:
-			return CHOICETYPE_ARRAY;
-		}
-	}
 
 protected:
 	int		ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, int type, int &exitcode, std::vector<CVecValue>* pool);
 
-	CValueSub&	GetResultFromPoolArray(CValue& result);
-
 	void	Foreach(CLocalVariable &lvar, CSelecter &output, int line, int &exitcode, std::vector<CVecValue>* pool);
 
-	const CValue& GetValueRefForCalc(CCell &cell, CStatement &st, CLocalVariable &lvar);
+	const	CValue& GetValueRefForCalc(CCell &cell, CStatement &st, CLocalVariable &lvar);
 	
 	void	SolveEmbedCell(CCell &cell, CStatement &st, CLocalVariable &lvar);
 

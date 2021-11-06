@@ -295,14 +295,6 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 
 	return i;
 }
-
-CValueSub& CFunction::GetResultFromPoolArray(CValue& result)
-{
-	int index = pvm->genrand_int(static_cast<int>(result.array().size()));
-	pvm->sysfunction().SetLso(index);
-	return result.array()[index];
-}
-
 /* -----------------------------------------------------------------------
  *  関数名  ：  CFunction::Foreach
  *  機能概要：  foreach処理を行います
