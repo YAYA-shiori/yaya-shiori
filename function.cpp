@@ -284,7 +284,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 		std::vector<CValue>& thepool = (*pool)[0].array;
 		std::vector<CValue>& thispool = output.values[0].array;
 
-		if(notpoolblock)
+		if(notpoolblock || inmutiarea)
 			thepool.insert(thepool.end(), output.Output());
 		else
 			thepool.insert(thepool.end(), thispool.begin(), thispool.end());
