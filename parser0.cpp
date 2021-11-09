@@ -866,8 +866,6 @@ char	CParser0::DefineFunctions(std::vector<yaya::string_t> &s, const yaya::strin
 	return retcode;
 }
 
-std::vector<choicetype_t> DefaultBlockChoicetypeStack{};
-
 /* -----------------------------------------------------------------------
  *  関数名  ：  CParser0::MakeFunction
  *  機能概要：  名前を指定して関数を作成します
@@ -888,8 +886,8 @@ int	CParser0::MakeFunction(const yaya::string_t& name, choicetype_t chtype, cons
 
 	vm.function_parse().func.emplace_back(CFunction(vm, name, chtype, dicfilename, linecount));
 	vm.function_parse().AddFunctionIndex(name,vm.function_parse().func.size()-1);
-	DefaultBlockChoicetypeStack.clear();
-	DefaultBlockChoicetypeStack.emplace_back(GetDefaultBlockChoicetype(chtype));
+	m_defaultBlockChoicetypeStack.clear();
+	m_defaultBlockChoicetypeStack.emplace_back(GetDefaultBlockChoicetype(chtype));
 
 	return vm.function_parse().func.size() - 1;
 }
@@ -911,8 +909,8 @@ char	CParser0::StoreInternalStatement(int targetfunc, yaya::string_t &str, int& 
 	// {
 	if (str[str.size()-1]==L'{') {
 		// blockと重複回避オプションを取得
-		choicetype_t	chtype = GetDefaultBlockChoicetype(DefaultBlockChoicetypeStack[DefaultBlockChoicetypeStack.size()-1]);
-		DefaultBlockChoicetypeStack.emplace_back(chtype);
+		choicetype_t	chtype = GetDefaultBlockChoicetype(m_defaultBlockChoicetypeStack[m_defaultBlockChoicetypeStack.size()-1]);
+		m_defaultBlockChoicetypeStack.emplace_back(chtype);
 		yaya::string_t	d0, d1;
 		if (Split(str, d0, d1, L":")){
 			// 重複回避オプションの判定
@@ -936,7 +934,7 @@ char	CParser0::StoreInternalStatement(int targetfunc, yaya::string_t &str, int& 
 	}
 	// }
 	else if (str == L"}") {
-		DefaultBlockChoicetypeStack.pop_back();
+		m_defaultBlockChoicetypeStack.pop_back();
 		depth--;
 		targetfunction.statement.emplace_back(CStatement(ST_CLOSE, linecount));
 		return 1;
