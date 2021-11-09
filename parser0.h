@@ -51,6 +51,8 @@ private:
 
 	CParser0(void);
 
+	std::vector<choicetype_t> m_defaultBlockChoicetypeStack;
+
 public:
 	CParser0(CAyaVM &vmr) : vm(vmr) {
 		; //NOOP

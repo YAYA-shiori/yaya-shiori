@@ -134,7 +134,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 	}
 	const bool	inpool		 = pool != NULL;	// pool用
 
-#define POOL_TO_NEXT (!inmutiarea ? pool : NULL)
+	#define POOL_TO_NEXT (!inmutiarea ? pool : NULL)
 
 	CValue		t_value;
 
@@ -277,12 +277,14 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 			FeedLineToTail(i);
 	}
 
+	#undef POOL_TO_NEXT
+
 	// 候補から出力を選び出す　入れ子の深さが0なら重複回避が働く
 	if (inpool&&!ispoolbegin) {
 		std::vector<CValue>& thepool = (*pool)[0].array;
 		std::vector<CValue>& thispool = output.values[0].array;
 
-		if(notpoolblock)
+		if(notpoolblock || inmutiarea)
 			thepool.insert(thepool.end(), output.Output());
 		else
 			thepool.insert(thepool.end(), thispool.begin(), thispool.end());
@@ -296,14 +298,6 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 
 	return i;
 }
-
-CValueSub& CFunction::GetResultFromPoolArray(CValue& result)
-{
-	int index = pvm->genrand_int(static_cast<int>(result.array().size()));
-	pvm->sysfunction().SetLso(index);
-	return result.array()[index];
-}
-
 /* -----------------------------------------------------------------------
  *  関数名  ：  CFunction::Foreach
  *  機能概要：  foreach処理を行います
