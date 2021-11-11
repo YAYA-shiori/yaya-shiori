@@ -103,20 +103,16 @@ CValue	CSelecter::Output()
 		return ChoiceRandom();
 
 	// 重複回避制御付き選択
-	switch(duplctl->GetType()) {
-	case CHOICETYPE_NONOVERLAP:
-	case CHOICETYPE_NONOVERLAP_POOL:
-		return duplctl->Choice(vm, areanum, values, CHOICETYPE_NONOVERLAP);
-	case CHOICETYPE_SEQUENTIAL:
-	case CHOICETYPE_SEQUENTIAL_POOL:
-		return duplctl->Choice(vm, areanum, values, CHOICETYPE_SEQUENTIAL);
+	switch ( duplctl->GetType() & CHOICETYPE_SELECT_FILTER ) {
+	case CHOICETYPE_NONOVERLAP_FLAG:
+		return duplctl->Choice(vm, areanum, values, CHOICETYPE_NONOVERLAP_FLAG);
+	case CHOICETYPE_SEQUENTIAL_FLAG:
+		return duplctl->Choice(vm, areanum, values, CHOICETYPE_SEQUENTIAL_FLAG);
 	case CHOICETYPE_VOID:
 		return CValue(F_TAG_NOP, 0/*dmy*/);
-	case CHOICETYPE_ARRAY:
-	case CHOICETYPE_POOL_ARRAY:
+	case CHOICETYPE_ARRAY_FLAG:
 		return StructArray();
-	case CHOICETYPE_RANDOM:
-	case CHOICETYPE_POOL:
+	case CHOICETYPE_RANDOM_FLAG:
 	default:
 		return ChoiceRandom();
 	};
@@ -246,7 +242,13 @@ CValue CSelecter::StructArray1(int index)
     return result;
 }
 
-choicetype_t GetDefaultBlockChoicetype(choicetype_t nowtype) {
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSelecter::GetDefaultBlockChoicetype
+ *  機能概要：  { } の出力タイプ未指定の時の標準タイプ
+ * -----------------------------------------------------------------------
+ */
+choicetype_t CSelecter::GetDefaultBlockChoicetype(choicetype_t nowtype)
+{
 	switch (nowtype) {
 	case CHOICETYPE_RANDOM:
 	case CHOICETYPE_NONOVERLAP:
@@ -264,3 +266,70 @@ choicetype_t GetDefaultBlockChoicetype(choicetype_t nowtype) {
 		return CHOICETYPE_ARRAY;
 	}
 }
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSelecter::StringToChoiceType
+ *  機能概要：  文字列->choicetype_t
+ * -----------------------------------------------------------------------
+ */
+choicetype_t CSelecter::StringToChoiceType(const yaya::string_t& ctypestr)
+{
+	unsigned int outtype = CHOICETYPE_PICKONE_FLAG;
+
+	if ( ctypestr.find(L"pool") != yaya::string_t::npos ) {
+		outtype = CHOICETYPE_POOL_FLAG;
+	}
+	else if ( ctypestr.find(L"void") != yaya::string_t::npos ) {
+		outtype = CHOICETYPE_VOID_FLAG;
+	}
+
+	if ( outtype == CHOICETYPE_VOID_FLAG ) {
+		return static_cast<choicetype_t>(outtype);
+	}
+
+	unsigned int choicetype = CHOICETYPE_RANDOM_FLAG;
+
+	if ( ctypestr.find(L"sequential") != yaya::string_t::npos ) {
+		choicetype = CHOICETYPE_SEQUENTIAL_FLAG;
+	}
+	else if ( ctypestr.find(L"array") != yaya::string_t::npos ) {
+		choicetype = CHOICETYPE_ARRAY_FLAG;
+	}
+	else if ( ctypestr.find(L"nonoverlap") != yaya::string_t::npos ) {
+		choicetype = CHOICETYPE_NONOVERLAP_FLAG;
+	}
+
+	return static_cast<choicetype_t>(outtype | choicetype);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSelecter::ChoiceTypeToString
+ *  機能概要：  choicetype_t->文字列
+ * -----------------------------------------------------------------------
+ */
+const yaya::char_t* CSelecter::ChoiceTypeToString(choicetype_t ctype)
+{
+	switch ( ctype ) {
+	case CHOICETYPE_RANDOM:
+		return L"random";
+	case CHOICETYPE_NONOVERLAP:
+		return L"nonoverlap";
+	case CHOICETYPE_SEQUENTIAL:
+		return L"sequential";
+	case CHOICETYPE_VOID:
+		return L"void";
+	case CHOICETYPE_ARRAY:
+		return L"array";
+	case CHOICETYPE_POOL:
+		return L"pool";
+	case CHOICETYPE_POOL_ARRAY:
+		return L"array_pool";
+	case CHOICETYPE_NONOVERLAP_POOL:
+		return L"nonoverlap_pool";
+	case CHOICETYPE_SEQUENTIAL_POOL:
+		return L"sequential_pool";
+	}
+
+	return L"unknown";
+}
+
