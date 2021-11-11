@@ -149,7 +149,6 @@ char	CParser0::ParseEmbedString(yaya::string_t& str, CStatement &st, const yaya:
 
 	return 0;
 }
-
 /* -----------------------------------------------------------------------
  *  関数名  ：  CParser0::DynamicLoadDictionary
  *  機能概要：  DICLOADの実装本体
@@ -817,19 +816,8 @@ char	CParser0::DefineFunctions(std::vector<yaya::string_t> &s, const yaya::strin
 				// 重複回避オプションの判定
 				choicetype_t	chtype = CHOICETYPE_RANDOM;
 				if (d1.size()) {
-					int ci = 0, cn = sizeof(choicetype) / sizeof(choicetype[0]);
-
-					for(ci = 0; ci < cn; ci++) {
-						if (d1 == choicetype[ci].name) {
-							chtype = choicetype[ci].type;
-							break;
-						}
-					}
-
-					if (ci == cn) { //not found
-						vm.logger().Error(E_E, 30, d1, dicfilename, linecount);
-						return 1;
-					}
+					chtype = CSelecter::StringToChoiceType(d1);
+					//vm.logger().Error(E_E, 30, d1, dicfilename, linecount);
 				}
 				// 作成
 				targetfunction = MakeFunction(d0, chtype, dicfilename, linecount);
@@ -887,7 +875,7 @@ int	CParser0::MakeFunction(const yaya::string_t& name, choicetype_t chtype, cons
 	vm.function_parse().func.emplace_back(CFunction(vm, name, chtype, dicfilename, linecount));
 	vm.function_parse().AddFunctionIndex(name,vm.function_parse().func.size()-1);
 	m_defaultBlockChoicetypeStack.clear();
-	m_defaultBlockChoicetypeStack.emplace_back(GetDefaultBlockChoicetype(chtype));
+	m_defaultBlockChoicetypeStack.emplace_back(CSelecter::GetDefaultBlockChoicetype(chtype));
 
 	return vm.function_parse().func.size() - 1;
 }
@@ -909,24 +897,12 @@ char	CParser0::StoreInternalStatement(int targetfunc, yaya::string_t &str, int& 
 	// {
 	if (str[str.size()-1]==L'{') {
 		// blockと重複回避オプションを取得
-		choicetype_t	chtype = GetDefaultBlockChoicetype(m_defaultBlockChoicetypeStack[m_defaultBlockChoicetypeStack.size()-1]);
+		choicetype_t	chtype = CSelecter::GetDefaultBlockChoicetype(m_defaultBlockChoicetypeStack[m_defaultBlockChoicetypeStack.size()-1]);
 		m_defaultBlockChoicetypeStack.emplace_back(chtype);
 		yaya::string_t	d0, d1;
 		if (Split(str, d0, d1, L":")){
-			// 重複回避オプションの判定
-			int ci = 0, cn = sizeof(choicetype) / sizeof(choicetype[0]);
-
-			for(ci = 0; ci < cn; ci++) {
-				if (d0 == choicetype[ci].name) {
-					chtype = choicetype[ci].type;
-					break;
-				}
-			}
-
-			if (ci == cn) { //not found
-				vm.logger().Error(E_E, 30, d0, dicfilename, linecount);
-				return 0;
-			}
+			chtype = CSelecter::StringToChoiceType(d0);
+			//vm.logger().Error(E_E, 30, d0, dicfilename, linecount);
 		}
 		depth++;
 		targetfunction.statement.emplace_back(CStatement(ST_OPEN, linecount, new CDuplEvInfo(chtype)));

@@ -23,35 +23,28 @@
 #include "value.h"
 #include "variable.h"
 
+#define CHOICETYPE_RANDOM_FLAG       0x0001U
+#define CHOICETYPE_SEQUENTIAL_FLAG   0x0002U
+#define CHOICETYPE_NONOVERLAP_FLAG   0x0004U
+#define CHOICETYPE_ARRAY_FLAG        0x0008U
+#define CHOICETYPE_PICKONE_FLAG      0x0100U
+#define CHOICETYPE_POOL_FLAG         0x0200U
+#define CHOICETYPE_VOID_FLAG         0x0400U
+
+#define CHOICETYPE_SELECT_FILTER     0x00FFU
+#define CHOICETYPE_OUTPUT_FILTER     0xFF00U
+
 typedef enum choicetype_t {
-	CHOICETYPE_RANDOM = 0,		/* 常に無作為にランダム（デフォルト）*/
-	CHOICETYPE_NONOVERLAP,		/* ランダムだが一巡するまで重複選択しない */
-	CHOICETYPE_SEQUENTIAL,		/* 順番に選択する */
-	CHOICETYPE_VOID,			/* 出力なし */
-	CHOICETYPE_ARRAY,			/* 簡易配列編成 */
-	CHOICETYPE_POOL,			/* randomのスコープ無視版 */
-	CHOICETYPE_POOL_ARRAY,		/* arrayのスコープ無視版 : 全選択候補を配列として返す */
-	CHOICETYPE_NONOVERLAP_POOL,	/* nonoverlapのスコープ無視版 */
-	CHOICETYPE_SEQUENTIAL_POOL,	/* sequentialのスコープ無視版 */
+	CHOICETYPE_VOID             = CHOICETYPE_VOID_FLAG,									/* 出力なし */
+	CHOICETYPE_RANDOM           = CHOICETYPE_PICKONE_FLAG | CHOICETYPE_RANDOM_FLAG,		/* 常に無作為にランダム（デフォルト）*/
+	CHOICETYPE_NONOVERLAP       = CHOICETYPE_PICKONE_FLAG | CHOICETYPE_NONOVERLAP_FLAG,	/* ランダムだが一巡するまで重複選択しない */
+	CHOICETYPE_SEQUENTIAL       = CHOICETYPE_PICKONE_FLAG | CHOICETYPE_SEQUENTIAL_FLAG,	/* 順番に選択する */
+	CHOICETYPE_ARRAY            = CHOICETYPE_PICKONE_FLAG | CHOICETYPE_ARRAY_FLAG,		/* 簡易配列編成 */
+	CHOICETYPE_POOL             = CHOICETYPE_POOL_FLAG    | CHOICETYPE_RANDOM_FLAG,		/* randomのスコープ無視版 */
+	CHOICETYPE_POOL_ARRAY       = CHOICETYPE_POOL_FLAG    | CHOICETYPE_ARRAY_FLAG,		/* arrayのスコープ無視版 : 全選択候補を配列として返す */
+	CHOICETYPE_NONOVERLAP_POOL  = CHOICETYPE_POOL_FLAG    | CHOICETYPE_NONOVERLAP_FLAG,	/* nonoverlapのスコープ無視版 */
+	CHOICETYPE_SEQUENTIAL_POOL  = CHOICETYPE_POOL_FLAG    | CHOICETYPE_SEQUENTIAL_FLAG,	/* sequentialのスコープ無視版 */
 } choicetype_t;
-
-const struct { yaya::char_t *name; choicetype_t type; } choicetype[] = {
-	{ L"random", CHOICETYPE_RANDOM } ,
-	{ L"nonoverlap", CHOICETYPE_NONOVERLAP } ,
-	{ L"sequential", CHOICETYPE_SEQUENTIAL } ,
-	{ L"void", CHOICETYPE_VOID } ,
-	{ L"array", CHOICETYPE_ARRAY } ,
-	{ L"pool", CHOICETYPE_POOL } ,
-	{ L"pool_array", CHOICETYPE_POOL_ARRAY } , //human-error safety!
-	{ L"array_pool", CHOICETYPE_POOL_ARRAY } ,
-	{ L"pool_nonoverlap", CHOICETYPE_NONOVERLAP_POOL } , //human-error safety!
-	{ L"nonoverlap_pool", CHOICETYPE_NONOVERLAP_POOL } ,
-	{ L"pool_sequential",CHOICETYPE_SEQUENTIAL_POOL } , //human-error safety!
-	{ L"sequential_pool",CHOICETYPE_SEQUENTIAL_POOL } ,
-};
-
-
-choicetype_t GetDefaultBlockChoicetype(choicetype_t nowtype);
 
 class CAyaVM;
 
@@ -120,6 +113,10 @@ public:
 	void	AddArea(void);
 	void	Append(const CValue &value);
 	CValue	Output(void);
+
+	static choicetype_t			GetDefaultBlockChoicetype(choicetype_t nowtype);
+	static choicetype_t			StringToChoiceType(const yaya::string_t& ctypestr);
+	static const yaya::char_t*	ChoiceTypeToString(choicetype_t ctype);
 
 protected:
 	CValue	StructArray1(int index);

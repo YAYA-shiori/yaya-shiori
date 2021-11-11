@@ -118,18 +118,14 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 	bool		notpoolblock = 0;		// pool—p
 	const bool	ispoolbegin	 = !pool;	// pool—p
 	if(pdupl){
-		switch (pdupl->GetType()) {
-		case CHOICETYPE_NONOVERLAP_POOL:
-		case CHOICETYPE_SEQUENTIAL_POOL:
-		case CHOICETYPE_POOL_ARRAY:
-		case CHOICETYPE_POOL:
-			if(!pool)
+		if ( pdupl->GetType() & CHOICETYPE_POOL_FLAG ) {
+			if(!pool) {
 				pool = &output.values;
-			break;
-		default:
+			}
+		}
+		else {
 			notpoolblock = true;
 			pool = NULL;
-			break;
 		}
 	}
 	const bool	inpool		 = pool != NULL;	// pool—p

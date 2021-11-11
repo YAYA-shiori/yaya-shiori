@@ -61,14 +61,16 @@ CValue	CDuplEvInfo::Choice(CAyaVM &vm,int areanum, const std::vector<CVecValue> 
  *  機能概要：  巡回順序を初期化します
  * -----------------------------------------------------------------------
  */
-void	CDuplEvInfo::InitRoundOrder(CAyaVM &vm,int mode)
+void	CDuplEvInfo::InitRoundOrder(CAyaVM &vm,int mode_param)
 {
 	// 初期化
 	index = 0;
 	roundorder.clear();
 	roundorder.reserve(total);
 
-    if ( mode == CHOICETYPE_NONOVERLAP || mode == CHOICETYPE_NONOVERLAP_POOL ) {
+	int mode = mode_param & CHOICETYPE_SELECT_FILTER;
+
+    if ( mode == CHOICETYPE_NONOVERLAP_FLAG ) {
 		for(int i = 0; i < total; ++i) {
 			if ( i != lastroundorder ) {
 				roundorder.emplace_back(i);
