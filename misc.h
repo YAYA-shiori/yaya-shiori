@@ -102,12 +102,12 @@ public:
 	void	InitCall(void) { depth = 0; }
 
 	char	AddCall(const yaya::string_t &str) {
-		if (maxdepth && depth > maxdepth)
-			return 0;
-
 		depth++;
 		stack.emplace_back(str);
-		return 1;
+		if (maxdepth && depth > maxdepth)
+			return 0;
+		else
+			return 1;
 	}
 
 	void	DeleteCall(void) {

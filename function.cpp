@@ -93,7 +93,8 @@ int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
 			pvm->function_exec().func[funcpos].Execute();
 		else
 			pvm->logger().Error(E_E, 97, dicfilename, linecount);
-		pvm->call_limit().reset_unlock(lock);
+		pvm->call_limit().reset_lock(lock);
+		pvm->call_limit().DeleteCall();
 		return exitcode;
 	}
 	ExecuteInBrace(0, result, lvar, BRACE_DEFAULT, exitcode, NULL);
