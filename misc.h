@@ -123,13 +123,11 @@ public:
 
 	int temp_unlock() {
 		int aret=0;
-		using std::swap;
-		swap(aret, maxdepth);
+		std::swap(aret, maxdepth);
 		return aret;
 	}
 	void reset_lock(int lock) {
-		using std::swap;
-		swap(lock, maxdepth);
+		std::swap(lock, maxdepth);
 	}
 };
 

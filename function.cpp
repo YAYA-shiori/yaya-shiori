@@ -87,8 +87,8 @@ int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
 	if (!pvm->call_limit().AddCall(name)) {
 		result.SetType(F_TAG_VOID);
 		CBasisFuncPos shiori_OnCallLimit;
-		auto funcpos = shiori_OnCallLimit.Find(*pvm, L"shiori.OnCallLimit");
-		auto lock = pvm->call_limit().temp_unlock();
+		int funcpos = shiori_OnCallLimit.Find(*pvm, L"shiori.OnCallLimit");
+		int lock = pvm->call_limit().temp_unlock();
 		if(funcpos >= 0)
 			pvm->function_exec().func[funcpos].Execute();
 		else
@@ -244,7 +244,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 
 				if ( loop_max <= loop_cur ) {
 					CBasisFuncPos shiori_OnLoopLimit;
-					auto funcpos = shiori_OnLoopLimit.Find(*pvm, L"shiori.OnLoopLimit");
+					int funcpos = shiori_OnLoopLimit.Find(*pvm, L"shiori.OnLoopLimit");
 					if (funcpos >= 0)
 						pvm->function_exec().func[funcpos].Execute();
 					else
@@ -281,7 +281,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 
 				if ( loop_max <= loop_cur ) {
 					CBasisFuncPos shiori_OnLoopLimit;
-					auto funcpos = shiori_OnLoopLimit.Find(*pvm, L"shiori.OnLoopLimit");
+					int funcpos = shiori_OnLoopLimit.Find(*pvm, L"shiori.OnLoopLimit");
 					if (funcpos >= 0)
 						pvm->function_exec().func[funcpos].Execute();
 					else
@@ -322,8 +322,6 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 		if (exitcode != ST_NOP)
 			FeedLineToTail(i);
 	}
-	#undef POOL_TO_NEXT
-
 	#undef POOL_TO_NEXT
 
 	// 候補から出力を選び出す　入れ子の深さが0なら重複回避が働く
