@@ -1352,13 +1352,10 @@ void	CBasis::ExecuteUnload(void)
 	}
 
 	// 実行　引数無し　結果は使用しないのでそのまま捨てる
-	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
 	vm.call_limit().InitCall();
-	CLocalVariable	lvar;
 	yaya::string_t empty;
 	vm.logger().Io(0, empty);
-	CValue result;
-	vm.function_exec().func[funcpos].Execute(result, arg, lvar);
+	vm.function_exec().func[funcpos].Execute();
 	vm.logger().Io(1, empty);
 }
 

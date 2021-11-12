@@ -30,6 +30,7 @@
 #include <crtdbg.h>
 #define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
 #endif
+#include "basis.h"
 #endif
 ////////////////////////////////////////
 
@@ -56,6 +57,13 @@ void	CFunction::CompleteSetting(void)
 	statelenm1 = statement.size() - 1;
 }
 
+CValue	CFunction::Execute() {
+	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
+	CLocalVariable	lvar;
+	CValue result;
+	Execute(result, arg, lvar);
+	return result;
+}
 /* -----------------------------------------------------------------------
  *  関数名  ：  CFunction::Execute
  *  機能概要：  関数を実行します
@@ -78,7 +86,15 @@ int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
 	// 実行
 	if (!pvm->call_limit().AddCall(name)) {
 		result.SetType(F_TAG_VOID);
-		pvm->logger().Error(E_E, 97, dicfilename, linecount);
+		CBasisFuncPos shiori_OnCallLimit;
+		int funcpos = shiori_OnCallLimit.Find(*pvm, L"shiori.OnCallLimit");
+		int lock = pvm->call_limit().temp_unlock();
+		if(funcpos >= 0)
+			pvm->function_exec().func[funcpos].Execute();
+		else
+			pvm->logger().Error(E_E, 97, dicfilename, linecount);
+		pvm->call_limit().reset_lock(lock);
+		pvm->call_limit().DeleteCall();
 		return exitcode;
 	}
 	ExecuteInBrace(0, result, lvar, BRACE_DEFAULT, exitcode, NULL);
@@ -227,7 +243,12 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 				}
 
 				if ( loop_max <= loop_cur ) {
-					pvm->logger().Error(E_E, 98, dicfilename, st.linecount);
+					CBasisFuncPos shiori_OnLoopLimit;
+					int funcpos = shiori_OnLoopLimit.Find(*pvm, L"shiori.OnLoopLimit");
+					if (funcpos >= 0)
+						pvm->function_exec().func[funcpos].Execute();
+					else
+						pvm->logger().Error(E_E, 98, dicfilename, st.linecount);
 				}
 
 				i = st.jumpto;
@@ -259,7 +280,12 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 				}
 
 				if ( loop_max <= loop_cur ) {
-					pvm->logger().Error(E_E, 98, dicfilename, st.linecount);
+					CBasisFuncPos shiori_OnLoopLimit;
+					int funcpos = shiori_OnLoopLimit.Find(*pvm, L"shiori.OnLoopLimit");
+					if (funcpos >= 0)
+						pvm->function_exec().func[funcpos].Execute();
+					else
+						pvm->logger().Error(E_E, 98, dicfilename, st.linecount);
 				}
 
 				i = st.jumpto;
@@ -296,6 +322,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 		if (exitcode != ST_NOP)
 			FeedLineToTail(i);
 	}
+	#undef POOL_TO_NEXT
 
 	#undef POOL_TO_NEXT
 

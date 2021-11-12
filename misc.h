@@ -102,12 +102,12 @@ public:
 	void	InitCall(void) { depth = 0; }
 
 	char	AddCall(const yaya::string_t &str) {
-		if (maxdepth && depth > maxdepth)
-			return 0;
-
 		depth++;
 		stack.emplace_back(str);
-		return 1;
+		if (maxdepth && depth > maxdepth)
+			return 0;
+		else
+			return 1;
 	}
 
 	void	DeleteCall(void) {
@@ -119,6 +119,15 @@ public:
 
 	std::vector<yaya::string_t> &StackCall(void) {
 		return stack;
+	}
+
+	int temp_unlock() {
+		int aret=0;
+		std::swap(aret, maxdepth);
+		return aret;
+	}
+	void reset_lock(int lock) {
+		std::swap(lock, maxdepth);
 	}
 };
 
