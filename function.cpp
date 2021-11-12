@@ -239,7 +239,12 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 				}
 
 				if ( loop_max <= loop_cur ) {
-					pvm->logger().Error(E_E, 98, dicfilename, st.linecount);
+					CBasisFuncPos shiori_OnLoopLimit;
+					auto funcpos = shiori_OnLoopLimit.Find(*pvm, L"shiori.OnLoopLimit");
+					if (funcpos >= 0)
+						pvm->function_exec().func[funcpos].Execute();
+					else
+						pvm->logger().Error(E_E, 98, dicfilename, st.linecount);
 				}
 
 				i = st.jumpto;
@@ -271,7 +276,12 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 				}
 
 				if ( loop_max <= loop_cur ) {
-					pvm->logger().Error(E_E, 98, dicfilename, st.linecount);
+					CBasisFuncPos shiori_OnLoopLimit;
+					auto funcpos = shiori_OnLoopLimit.Find(*pvm, L"shiori.OnLoopLimit");
+					if (funcpos >= 0)
+						pvm->function_exec().func[funcpos].Execute();
+					else
+						pvm->logger().Error(E_E, 98, dicfilename, st.linecount);
 				}
 
 				i = st.jumpto;
