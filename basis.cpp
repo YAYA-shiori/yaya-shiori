@@ -423,7 +423,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		return true;
 	}
 	//includeEX
-	if ( cmd == L"includeEX" ) {
+	else if ( cmd == L"includeEX" ) {
 		yaya::string_t param1, param2;
 		Split(param, param1, param2, L",");
 
@@ -451,7 +451,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		return true;
 	}
 	// dic
-	if ( cmd == L"dic" && dics) {
+	else if ( cmd == L"dic" && dics) {
 		yaya::string_t param1,param2;
 		Split(param, param1, param2, L",");
 
@@ -468,7 +468,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		return true;
 	}
 	// dicdir
-	if ( cmd == L"dicdir" && dics) {
+	else if ( cmd == L"dicdir" && dics) {
 		yaya::string_t param1,param2;
 		Split(param, param1, param2, L",");
 
@@ -491,7 +491,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		return true;
 	}
 	// messagetxt
-	if ( cmd == L"messagetxt" ) { //多言語化
+	else if ( cmd == L"messagetxt" ) { //多言語化
 		yaya::string_t param1,param2;
 		Split(param, param1, param2, L",");
 
@@ -509,7 +509,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		return true;
 	}
 	// msglang(for compatibility)
-	if ( cmd == L"msglang" ) {
+	else if ( cmd == L"msglang" ) {
 		if (param == L"english") {
 			msglang_for_compat = MSGLANG_ENGLISH;
 		}
@@ -519,7 +519,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		return true;
 	}
 	// log
-	if ( cmd == L"log" ) {
+	else if ( cmd == L"log" ) {
 		if ( param.empty() ) {
 			logpath.erase();
 		}
@@ -529,7 +529,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		return true;
 	}
 	// basepath
-	if ( cmd == L"basepath" ) {
+	else if ( cmd == L"basepath" ) {
 		CDirEnum dirCheck(param);
 		CDirEnumEntry dirCheckTmp;
 
@@ -558,22 +558,22 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		}
 	}
 	// iolog
-	if ( cmd == L"iolog" ) {
+	else if ( cmd == L"iolog" ) {
 		iolog = param != L"off";
 		return true;
 	}
 	// セーブデータ暗号化
-	if ( cmd == L"save.encode" ) {
+	else if ( cmd == L"save.encode" ) {
 		encode_savefile = param == L"on";
 		return true;
 	}
 	// 自動セーブ
-	if ( cmd == L"save.auto" ) {
+	else if ( cmd == L"save.auto" ) {
 		auto_save = param != L"off";
 		return true;
 	}
 	// charset
-	if ( cmd == L"charset" ) {
+	else if ( cmd == L"charset" ) {
 		dic_charset       = Ccct::CharsetTextToID(param.c_str());
 		output_charset    = dic_charset;
 		file_charset      = dic_charset;
@@ -583,68 +583,68 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		return true;
 	}
 	// charset
-	if ( cmd == L"charset.dic" ) {
+	else if ( cmd == L"charset.dic" ) {
 		dic_charset       = Ccct::CharsetTextToID(param.c_str());
 		return true;
 	}
-	if ( cmd == L"charset.output" ) {
+	else if ( cmd == L"charset.output" ) {
 		output_charset    = Ccct::CharsetTextToID(param.c_str());
 		return true;
 	}
-	if ( cmd == L"charset.file" ) {
+	else if ( cmd == L"charset.file" ) {
 		file_charset      = Ccct::CharsetTextToID(param.c_str());
 		return true;
 	}
-	if ( cmd == L"charset.save" ) {
+	else if ( cmd == L"charset.save" ) {
 		save_charset      = Ccct::CharsetTextToID(param.c_str());
 		return true;
 	}
-	if ( cmd == L"charset.save.old" ) {
+	else if ( cmd == L"charset.save.old" ) {
 		save_old_charset  = Ccct::CharsetTextToID(param.c_str());
 		return true;
 	}
-	if ( cmd == L"charset.extension" ) {
+	else if ( cmd == L"charset.extension" ) {
 		extension_charset = Ccct::CharsetTextToID(param.c_str());
 		return true;
 	}
 	// fncdepth
-	if ( cmd == L"fncdepth" ) {
+	else if ( cmd == L"fncdepth" ) {
 		int	f_depth = yaya::ws_atoi(param, 10);
 		vm.call_limit().SetMaxDepth((f_depth < 2 && f_depth != 0) ? 2 : f_depth);
 		return true;
 	}
-	if ( cmd == L"looplimit" ) {
+	else if ( cmd == L"looplimit" ) {
 		int	loop_max = yaya::ws_atoi(param, 10);
 		vm.call_limit().SetMaxLoop(loop_max);
 		return true;
 	}
 	// checkparser closed function
-	if ( cmd == L"checkparser" ) {
+	else if ( cmd == L"checkparser" ) {
 		checkparser = param == L"on";
 		return true;
 	}
 	// iolog.filter.keyword (old syntax : ignoreiolog)
-	if ( cmd == L"iolog.filter.keyword" || cmd == L"ignoreiolog" ){
+	else if ( cmd == L"iolog.filter.keyword" || cmd == L"ignoreiolog" ){
 		vm.logger().AddIologFilterKeyword(param);
 		return true;
 	}
 	// iolog.filter.keyword.regex
-	if ( cmd == L"iolog.filter.keyword.regex" ){
+	else if ( cmd == L"iolog.filter.keyword.regex" ){
 		vm.logger().AddIologFilterKeywordRegex(param);
 		return true;
 	}
 	// iolog.filter.keyword.delete (for SETSETTING)
-	if ( cmd == L"iolog.filter.keyword.delete" ){
+	else if ( cmd == L"iolog.filter.keyword.delete" ){
 		vm.logger().DeleteIologFilterKeyword(param);
 		return true;
 	}
 	// iolog.filter.keyword.regex.delete (for SETSETTING)
-	if ( cmd == L"iolog.filter.keyword.regex.delete" ){
+	else if ( cmd == L"iolog.filter.keyword.regex.delete" ){
 		vm.logger().DeleteIologFilterKeywordRegex(param);
 		return true;
 	}
 	// iolog.filter.mode
-	if ( cmd == L"iolog.filter.mode" ){
+	else if ( cmd == L"iolog.filter.mode" ){
 		vm.logger().SetIologFilterMode(
 			(param.find(L"white") != yaya::string_t::npos) || (param.find(L"allow") != yaya::string_t::npos)
 			);
@@ -678,82 +678,82 @@ CValue CBasis::GetParameter(const yaya::string_t &cmd)
 		return logpath;
 	}
 	// iolog
-	if ( cmd == L"iolog" ) {
+	else if ( cmd == L"iolog" ) {
 		return yaya::string_t(iolog ? L"on" : L"off");
 	}
 	// save.encode
-	if ( cmd == L"save.encode" ) {
+	else if ( cmd == L"save.encode" ) {
 		return yaya::string_t(encode_savefile ? L"on" : L"off");
 	}
 	// save.auto
-	if ( cmd == L"save.auto" ) {
+	else if ( cmd == L"save.auto" ) {
 		return yaya::string_t(auto_save ? L"on" : L"off");
 	}
 	// msglang
-	if ( cmd == L"msglang" ) { //obsolete, for compatibility
+	else if ( cmd == L"msglang" ) { //obsolete, for compatibility
 		return yaya::string_t(msglang_for_compat == MSGLANG_ENGLISH ? L"english" : L"japanese");
 	}
 	// messagetxt
-	if ( cmd == L"messagetxt" ) {
+	else if ( cmd == L"messagetxt" ) {
 		return messagetxt_path;
 	}
 	// charset
-	if ( cmd == L"charset" ) {
+	else if ( cmd == L"charset" ) {
 		return Ccct::CharsetIDToTextW(dic_charset);
 	}
 	// charset
-	if ( cmd == L"charset.dic" ) {
+	else if ( cmd == L"charset.dic" ) {
 		return Ccct::CharsetIDToTextW(dic_charset);
 	}
-	if ( cmd == L"charset.output" ) {
+	else if ( cmd == L"charset.output" ) {
 		return Ccct::CharsetIDToTextW(output_charset);
 	}
-	if ( cmd == L"charset.file" ) {
+	else if ( cmd == L"charset.file" ) {
 		return Ccct::CharsetIDToTextW(file_charset);
 	}
-	if ( cmd == L"charset.save" ) {
+	else if ( cmd == L"charset.save" ) {
 		return Ccct::CharsetIDToTextW(save_charset);
 	}
-	if ( cmd == L"charset.save.old" ) {
+	else if ( cmd == L"charset.save.old" ) {
 		return Ccct::CharsetIDToTextW(save_old_charset);
 	}
-	if ( cmd == L"charset.extension" ) {
+	else if ( cmd == L"charset.extension" ) {
 		return Ccct::CharsetIDToTextW(extension_charset);
 	}
 	// fncdepth
-	if ( cmd == L"fncdepth" ) {
+	else if ( cmd == L"fncdepth" ) {
 		return CValue(vm.call_limit().GetMaxDepth());
 	}
 	// looplimit
-	if ( cmd == L"looplimit" ) {
+	else if ( cmd == L"looplimit" ) {
 		return CValue(vm.call_limit().GetMaxLoop());
 	}
 	// checkparser closed function
-	if ( cmd == L"checkparser" ) {
+	else if ( cmd == L"checkparser" ) {
 		return checkparser ? L"on" : L"off";
 	}
 	// iolog.filter.keyword (old syntax : ignoreiolog)
-	if ( cmd == L"iolog.filter.keyword" || cmd == L"ignoreiolog" ){
+	else if ( cmd == L"iolog.filter.keyword" || cmd == L"ignoreiolog" ){
 		CValue value(F_TAG_ARRAY, 0/*dmy*/);
 		CBasis_ConvertStringArray(vm.logger().GetIologFilterKeyword(),value);
 		return value;
 	}
 	// iolog.filter.keyword.regex
-	if ( cmd == L"iolog.filter.keyword.regex" ){
+	else if ( cmd == L"iolog.filter.keyword.regex" ){
 		CValue value(F_TAG_ARRAY, 0/*dmy*/);
 		CBasis_ConvertStringArray(vm.logger().GetIologFilterKeywordRegex(),value);
 		return value;
 	}
 	// iolog.filter.keyword.delete (for SETSETTING only)
-	if ( cmd == L"iolog.filter.keyword.delete" ){
+	else if ( cmd == L"iolog.filter.keyword.delete" ){
 		return L""; //NOOP
 	}
 	// iolog.filter.keyword.regex.delete (for SETSETTING only)
-	if ( cmd == L"iolog.filter.keyword.regex.delete" ){
+	else if ( cmd == L"iolog.filter.keyword.regex.delete" ){
 		return L""; //NOOP
 	}
 	// iolog.filter.mode
-	if ( cmd == L"iolog.filter.mode" ){
+	else if ( cmd == L"iolog.filter.mode" ){
 		return vm.logger().GetIologFilterMode() ? L"allowlist" : L"denylist";
 	}
 	return L"";

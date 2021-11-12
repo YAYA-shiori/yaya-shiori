@@ -105,13 +105,14 @@ CValue	CSelecter::Output()
 		return ChoiceRandom();
 
 	// d•¡‰ñ”ð§Œä•t‚«‘I‘ð
+	if (duplctl->GetType() == CHOICETYPE_VOID)
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+
 	switch ( duplctl->GetType() & CHOICETYPE_SELECT_FILTER ) {
 	case CHOICETYPE_NONOVERLAP_FLAG:
 		return duplctl->Choice(vm, areanum, values, CHOICETYPE_NONOVERLAP_FLAG);
 	case CHOICETYPE_SEQUENTIAL_FLAG:
 		return duplctl->Choice(vm, areanum, values, CHOICETYPE_SEQUENTIAL_FLAG);
-	case CHOICETYPE_VOID:
-		return CValue(F_TAG_NOP, 0/*dmy*/);
 	case CHOICETYPE_ARRAY_FLAG:
 		return StructArray();
 	case CHOICETYPE_RANDOM_FLAG:
