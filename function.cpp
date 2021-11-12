@@ -324,8 +324,6 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 	}
 	#undef POOL_TO_NEXT
 
-	#undef POOL_TO_NEXT
-
 	// 候補から出力を選び出す　入れ子の深さが0なら重複回避が働く
 	if (inpool&&!ispoolbegin) {
 		std::vector<CValue>& thepool = (*pool)[0].array;
