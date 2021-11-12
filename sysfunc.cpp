@@ -5995,7 +5995,7 @@ CValue	CSystemFunction::GETCALLSTACK(CSF_FUNCPARAM &p)
 {
 	CValue result(F_TAG_ARRAY, 0/*dmy*/);
 
-	std::vector<yaya::string_t> &stack = vm.calldepth().Stack();
+	std::vector<yaya::string_t> &stack = vm.call_limit().StackCall();
 
 	size_t n = stack.size();
 

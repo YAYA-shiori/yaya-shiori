@@ -76,12 +76,13 @@ int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
 	lvar.SetValue(L"_FUNC_NAME_", this->name);
 
 	// 実行
-	if (!pvm->calldepth().Add(name)) {
+	if (!pvm->call_limit().AddCall(name)) {
 		result.SetType(F_TAG_VOID);
+		pvm->logger().Error(E_E, 97, dicfilename, linecount);
 		return exitcode;
 	}
 	ExecuteInBrace(0, result, lvar, BRACE_DEFAULT, exitcode, NULL);
-	pvm->calldepth().Del();
+	pvm->call_limit().DeleteCall();
 
 	for ( size_t i = 0 ; i < statement.size() ; ++i ) {
 		statement[i].cell_cleanup();
@@ -138,7 +139,9 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 
 	int i = 0;
 	for(i = line; i < t_statelenm1; i++) {
-		switch(statement[i].type) {
+		CStatement& st = statement[i];
+
+		switch(st.type) {
 		case ST_OPEN:					// "{"
 			i = ExecuteInBrace(i + 1, t_value, lvar, BRACE_DEFAULT, exitcode, POOL_TO_NEXT);
 			output.Append(t_value);
@@ -151,35 +154,35 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 			output.AddArea();
 			break;
 		case ST_FORMULA_OUT_FORMULA:	// 出力（数式。配列、引数つき関数も含まれる）
-			output.Append(GetFormulaAnswer(lvar, statement[i]));
+			output.Append(GetFormulaAnswer(lvar, st));
 			break;
 		case ST_FORMULA_SUBST:			// 代入
-			GetFormulaAnswer(lvar, statement[i]);
+			GetFormulaAnswer(lvar, st);
 			break;
 		case ST_IF:						// if
 			ifflg = 0;
-			if (GetFormulaAnswer(lvar, statement[i]).GetTruth()) {
+			if (GetFormulaAnswer(lvar, st).GetTruth()) {
 				i = ExecuteInBrace(i + 2, t_value, lvar, BRACE_DEFAULT, exitcode, POOL_TO_NEXT);
 				output.Append(t_value);
 				ifflg = 1;
 			}
 			else
-				i = statement[i].jumpto;
+				i = st.jumpto;
 			break;
 		case ST_ELSEIF:					// elseif
 			if (ifflg)
-				i = statement[i].jumpto;
-			else if (GetFormulaAnswer(lvar, statement[i]).GetTruth()) {
+				i = st.jumpto;
+			else if (GetFormulaAnswer(lvar, st).GetTruth()) {
 				i = ExecuteInBrace(i + 2, t_value, lvar, BRACE_DEFAULT, exitcode, POOL_TO_NEXT);
 				output.Append(t_value);
 				ifflg = 1;
 			}
 			else
-				i = statement[i].jumpto;
+				i = st.jumpto;
 			break;
 		case ST_ELSE:					// else
 			if (ifflg)
-				i = statement[i].jumpto;
+				i = st.jumpto;
 			else {
 				i = ExecuteInBrace(i + 2, t_value, lvar, BRACE_DEFAULT, exitcode, POOL_TO_NEXT);
 				output.Append(t_value);
@@ -187,7 +190,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 			break;
 		case ST_PARALLEL:				// parallel
 			{
-		        const CValue& val = GetFormulaAnswer(lvar, statement[i]);
+		        const CValue& val = GetFormulaAnswer(lvar, st);
 				if (val.GetType() == F_TAG_ARRAY) {
 					for(size_t j = 0; j < val.array_size(); ++j)
 						output.Append(CValue(val.array()[j]));
@@ -199,50 +202,71 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 		case ST_VOID:				// void
 			{
 				//実行だけして捨てる
-		        GetFormulaAnswer(lvar, statement[i]);
+		        GetFormulaAnswer(lvar, st);
 			}
 			break;
 		case ST_WHILE:					// while
-			for( ; ; ) {
-				if (!GetFormulaAnswer(lvar, statement[i]).GetTruth())
-					break;
-				ExecuteInBrace(i + 2, t_value, lvar, BRACE_LOOP, exitcode, POOL_TO_NEXT);
-				output.Append(t_value);
+			{
+				int loop_max = pvm->call_limit().GetMaxLoop();
+				int loop_cur = 0;
 
-				if (exitcode == ST_BREAK) {
-					exitcode = ST_NOP;
-					break;
+				while ( loop_max > loop_cur++ ) {
+					if (!GetFormulaAnswer(lvar, st).GetTruth())
+						break;
+					ExecuteInBrace(i + 2, t_value, lvar, BRACE_LOOP, exitcode, POOL_TO_NEXT);
+					output.Append(t_value);
+
+					if (exitcode == ST_BREAK) {
+						exitcode = ST_NOP;
+						break;
+					}
+					else if (exitcode == ST_RETURN)
+						break;
+					else if (exitcode == ST_CONTINUE)
+						exitcode = ST_NOP;
 				}
-				else if (exitcode == ST_RETURN)
-					break;
-				else if (exitcode == ST_CONTINUE)
-					exitcode = ST_NOP;
+
+				if ( loop_max <= loop_cur ) {
+					pvm->logger().Error(E_E, 98, dicfilename, st.linecount);
+				}
+
+				i = st.jumpto;
+				break;
 			}
-			i = statement[i].jumpto;
-			break;
 		case ST_FOR:					// for
-			GetFormulaAnswer(lvar, statement[i]); //for第一パラメータ
-			for( ; ; ) {
-				if (!GetFormulaAnswer(lvar, statement[i + 1]).GetTruth()) //for第二パラメータ
-					break;
-				ExecuteInBrace(i + 4, t_value, lvar, BRACE_LOOP, exitcode, POOL_TO_NEXT);
-				output.Append(t_value);
+			{
+				GetFormulaAnswer(lvar, st); //for第一パラメータ
 
-				if (exitcode == ST_BREAK) {
-					exitcode = ST_NOP;
-					break;
+				int loop_max = pvm->call_limit().GetMaxLoop();
+				int loop_cur = 0;
+
+				while ( loop_max > loop_cur++ ) {
+					if (!GetFormulaAnswer(lvar, statement[i + 1]).GetTruth()) //for第二パラメータ
+						break;
+					ExecuteInBrace(i + 4, t_value, lvar, BRACE_LOOP, exitcode, POOL_TO_NEXT);
+					output.Append(t_value);
+
+					if (exitcode == ST_BREAK) {
+						exitcode = ST_NOP;
+						break;
+					}
+					else if (exitcode == ST_RETURN)
+						break;
+					else if (exitcode == ST_CONTINUE)
+						exitcode = ST_NOP;
+
+					GetFormulaAnswer(lvar, statement[i + 2]); //for第三パラメータ
 				}
-				else if (exitcode == ST_RETURN)
-					break;
-				else if (exitcode == ST_CONTINUE)
-					exitcode = ST_NOP;
 
-				GetFormulaAnswer(lvar, statement[i + 2]); //for第三パラメータ
+				if ( loop_max <= loop_cur ) {
+					pvm->logger().Error(E_E, 98, dicfilename, st.linecount);
+				}
+
+				i = st.jumpto;
+				break;
 			}
-			i = statement[i].jumpto;
-			break;
 		case ST_SWITCH: {				// switch
-				int	sw_index = GetFormulaAnswer(lvar, statement[i]).GetValueInt();
+				int	sw_index = GetFormulaAnswer(lvar, st).GetValueInt();
 				if (sw_index < 0)
 					sw_index = BRACE_SWITCH_OUT_OF_RANGE;
 				i = ExecuteInBrace(i + 2, t_value, lvar, sw_index, exitcode, POOL_TO_NEXT);
@@ -251,7 +275,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 			break;
 		case ST_FOREACH:				// foreach
 			Foreach(lvar, output, i, exitcode, POOL_TO_NEXT);
-			i  = statement[i].jumpto;
+			i  = st.jumpto;
 			break;
 		case ST_BREAK:					// break
 			exitcode = ST_BREAK;
@@ -263,7 +287,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 			exitcode = ST_RETURN;
 			break;
 		default:						// 未知のステートメント
-			pvm->logger().Error(E_E, 82, dicfilename, statement[i].linecount);
+			pvm->logger().Error(E_E, 82, dicfilename, st.linecount);
 			break;
 		};
 		if (exec_end)
