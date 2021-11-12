@@ -120,6 +120,17 @@ public:
 	std::vector<yaya::string_t> &StackCall(void) {
 		return stack;
 	}
+
+	int temp_unlock() {
+		int aret=0;
+		using std::swap;
+		swap(aret, maxdepth);
+		return aret;
+	}
+	void reset_lock(int lock) {
+		using std::swap;
+		swap(lock, maxdepth);
+	}
 };
 
 //----

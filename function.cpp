@@ -88,10 +88,12 @@ int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
 		result.SetType(F_TAG_VOID);
 		CBasisFuncPos shiori_OnCallLimit;
 		auto funcpos = shiori_OnCallLimit.Find(*pvm, L"shiori.OnCallLimit");
+		auto lock = pvm->call_limit().temp_unlock();
 		if(funcpos >= 0)
 			pvm->function_exec().func[funcpos].Execute();
 		else
 			pvm->logger().Error(E_E, 97, dicfilename, linecount);
+		pvm->call_limit().reset_unlock(lock);
 		return exitcode;
 	}
 	ExecuteInBrace(0, result, lvar, BRACE_DEFAULT, exitcode, NULL);
