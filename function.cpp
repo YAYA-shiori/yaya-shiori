@@ -296,6 +296,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 		if (exitcode != ST_NOP)
 			FeedLineToTail(i);
 	}
+	#undef POOL_TO_NEXT
 
 	#undef POOL_TO_NEXT
 
