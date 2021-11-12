@@ -115,7 +115,7 @@ public:
 	CValue	Output(void);
 
 	static choicetype_t			GetDefaultBlockChoicetype(choicetype_t nowtype);
-	static choicetype_t			StringToChoiceType(const yaya::string_t& ctypestr);
+	static choicetype_t			StringToChoiceType(const yaya::string_t& ctypestr, CAyaVM &vm, const yaya::string_t& dicfilename, int linecount);
 	static const yaya::char_t*	ChoiceTypeToString(choicetype_t ctype);
 
 protected:
