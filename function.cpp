@@ -210,7 +210,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 				int loop_max = pvm->call_limit().GetMaxLoop();
 				int loop_cur = 0;
 
-				while ( loop_max > loop_cur++ ) {
+				while ( (loop_max == 0) || (loop_max > loop_cur++) ) {
 					if (!GetFormulaAnswer(lvar, st).GetTruth())
 						break;
 					ExecuteInBrace(i + 2, t_value, lvar, BRACE_LOOP, exitcode, POOL_TO_NEXT);
@@ -240,7 +240,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 				int loop_max = pvm->call_limit().GetMaxLoop();
 				int loop_cur = 0;
 
-				while ( loop_max > loop_cur++ ) {
+				while ( (loop_max == 0) || (loop_max > loop_cur++) ) {
 					if (!GetFormulaAnswer(lvar, statement[i + 1]).GetTruth()) //for‘æ“ñƒpƒ‰ƒ[ƒ^
 						break;
 					ExecuteInBrace(i + 4, t_value, lvar, BRACE_LOOP, exitcode, POOL_TO_NEXT);
