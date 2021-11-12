@@ -20,7 +20,7 @@
 class CBasis;
 class CFunction;
 class CFunctionDef;
-class CCallDepth;
+class CCallLimit;
 class CSystemFunction;
 class CGlobalVariable;
 class CFile;
@@ -41,7 +41,7 @@ private:
 	
 	std_shared_ptr< std::vector<CDefine> >	m_gdefines;
 
-	std_shared_ptr<CCallDepth>				m_calldepth;
+	std_shared_ptr<CCallLimit>				m_call_limit;
 	std_shared_ptr<CSystemFunction>			m_sysfunction;
 	std_shared_ptr<CGlobalVariable>			m_variable;
 
@@ -91,7 +91,7 @@ public:
 
 	std::vector<CDefine>&	gdefines();
 
-	CCallDepth&				calldepth();
+	CCallLimit&				call_limit();
 	CSystemFunction&		sysfunction();
 	CGlobalVariable&		variable();
 

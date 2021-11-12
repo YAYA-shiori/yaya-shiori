@@ -50,7 +50,7 @@ CAyaVM::CAyaVM(CAyaVM &ovm)
 	copy_new(m_basis);
 	copy_new(m_function_exec);
 	copy_new(m_gdefines);
-	copy_new(m_calldepth);
+	copy_new(m_call_limit);
 	copy_new(m_sysfunction);
 	copy_new(m_variable);
 	copy_new(m_files);
@@ -208,7 +208,7 @@ FACTORY_DEFINE_PLAIN(std::vector<CDefine>,gdefines)
 FACTORY_DEFINE_THIS(CBasis,basis)
 
 FACTORY_DEFINE_PLAIN(CFunctionDef,function_exec)
-FACTORY_DEFINE_PLAIN(CCallDepth,calldepth)
+FACTORY_DEFINE_PLAIN(CCallLimit,call_limit)
 FACTORY_DEFINE_THIS(CSystemFunction,sysfunction)
 FACTORY_DEFINE_THIS(CGlobalVariable,variable)
 

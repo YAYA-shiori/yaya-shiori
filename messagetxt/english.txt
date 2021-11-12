@@ -106,6 +106,8 @@
 *error E0094 : The parenthesis {} is invalid or has not been closed correctly.
 *error E0095 : Tried to load a duplicate dictionary.
 *error E0096 : Attempted to unload a dictionary that was not loaded.
+*error E0097 : Depth of the function call has reached its limit. Following execution has been aborted.
+*error E0098 : Loop count has reached its limit. Following execution has been aborted.
 //
 // ワーニング文字列（英語）
 !!!msgw
