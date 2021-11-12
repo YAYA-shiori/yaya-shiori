@@ -56,6 +56,13 @@ void	CFunction::CompleteSetting(void)
 	statelenm1 = statement.size() - 1;
 }
 
+CValue	CFunction::Execute() {
+	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
+	CLocalVariable	lvar;
+	CValue result;
+	Execute(result, arg, lvar);
+	return result;
+}
 /* -----------------------------------------------------------------------
  *  関数名  ：  CFunction::Execute
  *  機能概要：  関数を実行します
