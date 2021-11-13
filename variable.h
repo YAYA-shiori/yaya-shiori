@@ -44,9 +44,9 @@ public:
 
 
 protected:
-	char	erased;					// 消去されたことを示すフラグ（グローバル変数で使用）
-									// 0/1=有効/消去された
 	mutable std_shared_ptr<CValue> m_value;				// 値
+	bool	erased;					// 消去されたことを示すフラグ（グローバル変数で使用）
+									// 0/1=有効/消去された
 
 public:
 	CVariable(const yaya::string_t &n)
