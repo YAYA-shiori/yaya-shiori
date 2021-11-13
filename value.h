@@ -212,7 +212,7 @@ public:
 	CValue(void) : type(F_TAG_VOID), d_value(0.0), i_value(0) { }
 	~CValue(void) {}
 
-	inline void	SetType(int tp) { type = tp; }
+	inline void		SetType(int tp) { type = tp; }
 	inline int		GetType(void) const { return type; }
 
 	inline bool		IsVoid(void) const { return type == F_TAG_VOID; }

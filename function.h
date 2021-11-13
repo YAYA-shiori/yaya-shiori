@@ -161,6 +161,7 @@ public:
 	void	CompleteSetting(void);
 	int		Execute(CValue &result, const CValue &arg, CLocalVariable &lvar);
 	CValue	Execute();
+	CValue	Execute(const CValue& arg);
 
 	const CValue& GetFormulaAnswer(CLocalVariable &lvar, CStatement &st);
 

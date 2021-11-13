@@ -59,6 +59,9 @@ void	CFunction::CompleteSetting(void)
 
 CValue	CFunction::Execute() {
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
+	return Execute(arg);
+}
+CValue	CFunction::Execute(const CValue& arg) {
 	CLocalVariable	lvar;
 	CValue result;
 	Execute(result, arg, lvar);
