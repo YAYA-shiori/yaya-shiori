@@ -2797,7 +2797,7 @@ CValue	CSystemFunction::FDIGEST(CSF_FUNCPARAM &p)
 	// パスをMBCSに変換
 	const char *s_filestr;
 
-#if defined(WIN32)	
+#if defined(WIN32)
 	s_filestr = Ccct::Ucs2ToMbcs(ToFullPath(p.arg.array()[0].s_value), CHARSET_DEFAULT);
 	if (s_filestr == NULL) {
 		vm.logger().Error(E_E, 89, L"FDIGEST", p.dicname, p.line);
@@ -2805,7 +2805,7 @@ CValue	CSystemFunction::FDIGEST(CSF_FUNCPARAM &p)
 	}
 #elif defined(POSIX)
 	std::string path = narrow(ToFullPath(p.arg.array()[0].s_value));
-    fix_filepath(path);
+	fix_filepath(path);
 	s_filestr = path.c_str();
 #endif
 
@@ -2813,7 +2813,7 @@ CValue	CSystemFunction::FDIGEST(CSF_FUNCPARAM &p)
 	FILE *pF = fopen(s_filestr,"rb");
 	if ( ! pF ) { return CValue(-1); }
 
-#if defined(WIN32)	
+#if defined(WIN32)
 	free((void*)s_filestr);
 	s_filestr = NULL;
 	
@@ -3500,6 +3500,7 @@ CValue	CSystemFunction::ERASEVAR(CSF_FUNCPARAM &p)
 			vm.variable().Erase(arg0);
 		}
 	}
+	CALL_EVAL_WHEN_ERASEVAR();
 
 	return CValue(F_TAG_NOP, 0/*dmy*/);
 }

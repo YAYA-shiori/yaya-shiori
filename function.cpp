@@ -492,6 +492,7 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 						pvm->logger().Error(E_E, 33, L"=", dicfilename, st.linecount);
 					}
 					o_cell.ansv_shared() = tmp_ansv;
+					CALL_EVAL_WHEN_WRITE();
 				}
 				break;
 			case F_TAG_PLUS:
@@ -633,8 +634,10 @@ const CValue& CFunction::GetValueRefForCalc(CCell &cell, CStatement &st, CLocalV
 	}
 	case F_TAG_VARIABLE:
 		return pvm->variable().GetValue(cell.index);
+		CALL_EVAL_WHEN_READ();
 	case F_TAG_LOCALVARIABLE:
 		return lvar.GetValue(cell.name);
+		CALL_EVAL_WHEN_READ();
 	default:
 		pvm->logger().Error(E_E, 16, dicfilename, st.linecount);
 		return emptyvalue;
