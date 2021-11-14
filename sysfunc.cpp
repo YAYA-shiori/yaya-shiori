@@ -3493,14 +3493,16 @@ CValue	CSystemFunction::ERASEVAR(CSF_FUNCPARAM &p)
 			continue;
 		}
 
-		if (arg0[0] == L'_') {
-			p.lvar.Erase(arg0);
-		}
-		else {
-			vm.variable().Erase(arg0);
+		CVariable* pv;
+		if (arg0[0] == L'_')
+			pv=p.lvar.GetPtr(arg0);
+		else
+			pv=vm.variable().GetPtr(arg0);
+		if (pv) {
+			pv->call_destorier();
+			pv->Erase();
 		}
 	}
-	CALL_EVAL_WHEN_ERASEVAR();
 
 	return CValue(F_TAG_NOP, 0/*dmy*/);
 }

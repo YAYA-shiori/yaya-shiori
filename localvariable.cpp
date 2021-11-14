@@ -281,6 +281,20 @@ CVariable	*CLocalVariable::GetPtr(size_t depth,size_t index)
 	return &(stack[depth].substack[index]);
 }
 
+CVariable* CLocalVariable::GetPtr(const yaya::char_t* name)
+{
+	int a,b;
+	GetIndex(name, a, b);
+	return GetPtr(a,b);
+}
+
+CVariable* CLocalVariable::GetPtr(const yaya::string_t& name)
+{
+	int a,b;
+	GetIndex(name, a, b);
+	return GetPtr(a,b);
+}
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CLocalVariable::GetDelimiter
  *  機能概要：  指定されたローカル変数のデリミタを取得します

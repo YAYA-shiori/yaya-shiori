@@ -495,7 +495,6 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 						pvm->logger().Error(E_E, 33, L"=", dicfilename, st.linecount);
 					}
 					o_cell.ansv_shared() = tmp_ansv;
-					CALL_EVAL_WHEN_WRITE();
 				}
 				break;
 			case F_TAG_PLUS:
@@ -636,11 +635,9 @@ const CValue& CFunction::GetValueRefForCalc(CCell &cell, CStatement &st, CLocalV
 		return cell.ansv();
 	}
 	case F_TAG_VARIABLE:
-		return pvm->variable().GetValue(cell.index);
-		CALL_EVAL_WHEN_READ();
+		return pvm->variable().GetPtr(cell.index)->call_watcher(cell.ansv());
 	case F_TAG_LOCALVARIABLE:
-		return lvar.GetValue(cell.name);
-		CALL_EVAL_WHEN_READ();
+		return lvar.GetPtr(cell.name)->call_watcher(cell.ansv());
 	default:
 		pvm->logger().Error(E_E, 16, dicfilename, st.linecount);
 		return emptyvalue;
@@ -847,17 +844,20 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<int> &sid, CStatemen
 
 	//既存変数への代入の場合だけは特殊扱いする
 	if ( sid_0_cell_type == F_TAG_VARIABLE || sid_0_cell_type == F_TAG_LOCALVARIABLE ) {
-		CValue* pSubstTo;
+		CVariable* pSubstTo;
 
 		if ( sid_0_cell_type == F_TAG_VARIABLE ) {
-			pSubstTo = pvm->variable().GetValuePtr(sid_0_cell->index);
+			pSubstTo = pvm->variable().GetPtr(sid_0_cell->index);
 		}
 		else {
-			pSubstTo = lvar.GetValuePtr(sid_0_cell->name);
+			pSubstTo = lvar.GetPtr(sid_0_cell->name);
 		}
 
+		CValue varback;
+
 		if ( pSubstTo ) {
-			CValue &substTo = *pSubstTo;
+			varback = pSubstTo->value();
+			CValue &substTo = pSubstTo->value();
 
 			answer.array_clear();
 
@@ -905,6 +905,8 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<int> &sid, CStatemen
 			if ( sid_0_cell_type == F_TAG_VARIABLE ) {
 				pvm->variable().EnableValue(sid_0_cell->index);
 			}
+
+			pSubstTo->call_setter(varback);
 
 			return 0;
 		}
