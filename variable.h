@@ -35,6 +35,7 @@
 #include "fix_old_compiler.h"
 
 class CAyaVM;
+class CFunction;
 
 class	CVariable
 {
@@ -44,9 +45,12 @@ public:
 
 
 protected:
-	char	erased;					// 消去されたことを示すフラグ（グローバル変数で使用）
-									// 0/1=有効/消去された
 	mutable std_shared_ptr<CValue> m_value;				// 値
+	bool	erased;					// 消去されたことを示すフラグ（グローバル変数で使用）
+									// 0/1=有効/消去された
+	yaya::string_t setter;
+	yaya::string_t watcher;
+	yaya::string_t destorier;
 
 public:
 	CVariable(const yaya::string_t &n)
@@ -105,6 +109,12 @@ public:
 		}
 		return *m_value;
 	}
+	const CValue& call_watcher(CAyaVM& vm, CValue& save);
+	void call_destorier(CAyaVM& vm);
+	void call_setter(CAyaVM& vm, const CValue& var_before);
+	void set_watcher(const yaya::string_t& _watcher){watcher=_watcher;}
+	void set_destorier(const yaya::string_t& _destorier){ destorier = _destorier;}
+	void set_setter(const yaya::string_t& _setter){ setter = _setter;}
 };
 
 //----
@@ -136,6 +146,8 @@ public:
 
 	int		GetNumber(int depth);
 	CVariable	*GetPtr(size_t depth,size_t index);
+	CVariable	*GetPtr(const yaya::char_t* name);
+	CVariable	*GetPtr(const yaya::string_t& name);
 
 public:
 	void	GetIndex(const yaya::char_t *name, int &id, int &dp);
@@ -198,6 +210,13 @@ public:
 	yaya::string_t	GetName(int index) { return var[index].name; }
 	size_t		GetNumber(void) { return var.size(); }
 	CVariable	*GetPtr(size_t index) { return &(var[index]); }
+	CVariable	*GetPtr(const yaya::string_t& name) {
+		int index= GetIndex(name);
+		if (index != -1)
+			return GetPtr(index);
+		else
+			return NULL;
+	}
 
 	CValue			*GetValuePtr(int index) { return &(var[index].value()); }
 	const CValue	*GetValuePtr(int index) const { return &(var[index].value_const()); }

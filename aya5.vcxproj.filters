@@ -108,6 +108,9 @@
     <ClCompile Include="messages.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="variable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="aya5.rc">

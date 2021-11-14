@@ -304,6 +304,9 @@ const CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::SETGLOBALDEFINE , L"SETGLOBALDEFINE" } ,
 	{ &CSystemFunction::APPEND_RUNTIME_DIC , L"APPEND_RUNTIME_DIC" } ,
 	{ &CSystemFunction::SLEEP , L"SLEEP" } ,
+	{ &CSystemFunction::FUNCDECL_READ , L"FUNCDECL_READ" },
+	{ &CSystemFunction::FUNCDECL_WRITE , L"FUNCDECL_WRITE" },
+	{ &CSystemFunction::FUNCDECL_ERASE , L"FUNCDECL_ERASE" },
 };
 
 #define SYSFUNC_NUM (sizeof(CSystemFunction::sysfunc)/sizeof(CSystemFunction::sysfunc[0]))
@@ -2797,7 +2800,7 @@ CValue	CSystemFunction::FDIGEST(CSF_FUNCPARAM &p)
 	// パスをMBCSに変換
 	const char *s_filestr;
 
-#if defined(WIN32)	
+#if defined(WIN32)
 	s_filestr = Ccct::Ucs2ToMbcs(ToFullPath(p.arg.array()[0].s_value), CHARSET_DEFAULT);
 	if (s_filestr == NULL) {
 		vm.logger().Error(E_E, 89, L"FDIGEST", p.dicname, p.line);
@@ -2805,7 +2808,7 @@ CValue	CSystemFunction::FDIGEST(CSF_FUNCPARAM &p)
 	}
 #elif defined(POSIX)
 	std::string path = narrow(ToFullPath(p.arg.array()[0].s_value));
-    fix_filepath(path);
+	fix_filepath(path);
 	s_filestr = path.c_str();
 #endif
 
@@ -2813,7 +2816,7 @@ CValue	CSystemFunction::FDIGEST(CSF_FUNCPARAM &p)
 	FILE *pF = fopen(s_filestr,"rb");
 	if ( ! pF ) { return CValue(-1); }
 
-#if defined(WIN32)	
+#if defined(WIN32)
 	free((void*)s_filestr);
 	s_filestr = NULL;
 	
@@ -3176,6 +3179,129 @@ CValue CSystemFunction::PROCESSGLOBALDEFINE(CSF_FUNCPARAM &p)
 	return CValue(aret);
 }
 
+CValue CSystemFunction::FUNCDECL_READ(CSF_FUNCPARAM& p)
+{
+	size_t arg_size = p.arg.array_size();
+
+	if (!arg_size) {
+		vm.logger().Error(E_W, 8, L"FUNCDECL_READ", p.dicname, p.line);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	//文字列かどうかチェック - 警告は吐くが処理続行
+	if ( ! p.arg.array()[0].IsString() ) {
+		vm.logger().Error(E_W, 9, L"FUNCDECL_READ", p.dicname, p.line);
+		SetError(9);
+	}
+	if ( ! p.arg.array()[1].IsString() ) {
+		vm.logger().Error(E_W, 9, L"FUNCDECL_READ", p.dicname, p.line);
+		SetError(9);
+	}
+
+	const yaya::string_t &var_name = p.arg.array()[0].GetValueString();
+	const yaya::string_t &func_name = p.arg.array()[1].GetValueString();
+
+	CVariable* pv;
+	if (var_name[0] == L'_')
+		pv=p.lvar.GetPtr(var_name);
+	else
+		pv=vm.variable().GetPtr(var_name);
+	if (pv) {
+		int	i = vm.function_exec().GetFunctionIndexFromName(func_name);
+		if(i != -1)
+			pv->set_watcher(func_name);
+		else if(func_name.empty())
+			pv->set_watcher(NULL);
+		else
+			vm.logger().Error(E_W, 9, L"FUNCDECL_READ", p.dicname, p.line);
+	}
+
+	return CValue(F_TAG_NOP, 0/*dmy*/);
+}
+
+CValue CSystemFunction::FUNCDECL_WRITE(CSF_FUNCPARAM& p)
+{
+	size_t arg_size = p.arg.array_size();
+
+	if (!arg_size) {
+		vm.logger().Error(E_W, 8, L"FUNCDECL_READ", p.dicname, p.line);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	//文字列かどうかチェック - 警告は吐くが処理続行
+	if ( ! p.arg.array()[0].IsString() ) {
+		vm.logger().Error(E_W, 9, L"FUNCDECL_READ", p.dicname, p.line);
+		SetError(9);
+	}
+	if ( ! p.arg.array()[1].IsString() ) {
+		vm.logger().Error(E_W, 9, L"FUNCDECL_READ", p.dicname, p.line);
+		SetError(9);
+	}
+
+	const yaya::string_t &var_name = p.arg.array()[0].GetValueString();
+	const yaya::string_t &func_name = p.arg.array()[1].GetValueString();
+
+	CVariable* pv;
+	if (var_name[0] == L'_')
+		pv=p.lvar.GetPtr(var_name);
+	else
+		pv=vm.variable().GetPtr(var_name);
+	if (pv) {
+		int	i = vm.function_exec().GetFunctionIndexFromName(func_name);
+		if(i != -1)
+			pv->set_setter(func_name);
+		else if(func_name.empty())
+			pv->set_setter(NULL);
+		else
+			vm.logger().Error(E_W, 9, L"FUNCDECL_READ", p.dicname, p.line);
+	}
+
+	return CValue(F_TAG_NOP, 0/*dmy*/);
+}
+
+CValue CSystemFunction::FUNCDECL_ERASE(CSF_FUNCPARAM& p)
+{
+	size_t arg_size = p.arg.array_size();
+
+	if (!arg_size) {
+		vm.logger().Error(E_W, 8, L"FUNCDECL_READ", p.dicname, p.line);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	//文字列かどうかチェック - 警告は吐くが処理続行
+	if ( ! p.arg.array()[0].IsString() ) {
+		vm.logger().Error(E_W, 9, L"FUNCDECL_READ", p.dicname, p.line);
+		SetError(9);
+	}
+	if ( ! p.arg.array()[1].IsString() ) {
+		vm.logger().Error(E_W, 9, L"FUNCDECL_READ", p.dicname, p.line);
+		SetError(9);
+	}
+
+	const yaya::string_t &var_name = p.arg.array()[0].GetValueString();
+	const yaya::string_t &func_name = p.arg.array()[1].GetValueString();
+
+	CVariable* pv;
+	if (var_name[0] == L'_')
+		pv=p.lvar.GetPtr(var_name);
+	else
+		pv=vm.variable().GetPtr(var_name);
+	if (pv) {
+		int	i = vm.function_exec().GetFunctionIndexFromName(func_name);
+		if(i != -1)
+			pv->set_destorier(func_name);
+		else if(func_name.empty())
+			pv->set_destorier(NULL);
+		else
+			vm.logger().Error(E_W, 9, L"FUNCDECL_READ", p.dicname, p.line);
+	}
+
+	return CValue(F_TAG_NOP, 0/*dmy*/);
+}
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::FSIZE
  *
@@ -3493,11 +3619,14 @@ CValue	CSystemFunction::ERASEVAR(CSF_FUNCPARAM &p)
 			continue;
 		}
 
-		if (arg0[0] == L'_') {
-			p.lvar.Erase(arg0);
-		}
-		else {
-			vm.variable().Erase(arg0);
+		CVariable* pv;
+		if (arg0[0] == L'_')
+			pv=p.lvar.GetPtr(arg0);
+		else
+			pv=vm.variable().GetPtr(arg0);
+		if (pv) {
+			pv->call_destorier(vm);
+			pv->Erase();
 		}
 	}
 
