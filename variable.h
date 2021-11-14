@@ -112,6 +112,9 @@ public:
 	const CValue& call_watcher(CValue& save);
 	void call_destorier();
 	void call_setter(const CValue& var_before);
+	void set_watcher(CFunction*_watcher){watcher=_watcher;}
+	void set_destorier(CFunction* _destorier){ destorier = _destorier;}
+	void set_setter(CFunction* _setter){ setter = _setter;}
 };
 
 //----
