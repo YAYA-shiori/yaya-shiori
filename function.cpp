@@ -635,9 +635,9 @@ const CValue& CFunction::GetValueRefForCalc(CCell &cell, CStatement &st, CLocalV
 		return cell.ansv();
 	}
 	case F_TAG_VARIABLE:
-		return pvm->variable().GetPtr(cell.index)->call_watcher(cell.ansv());
+		return pvm->variable().GetPtr(cell.index)->call_watcher(*pvm,cell.ansv());
 	case F_TAG_LOCALVARIABLE:
-		return lvar.GetPtr(cell.name)->call_watcher(cell.ansv());
+		return lvar.GetPtr(cell.name)->call_watcher(*pvm,cell.ansv());
 	default:
 		pvm->logger().Error(E_E, 16, dicfilename, st.linecount);
 		return emptyvalue;
@@ -906,7 +906,7 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<int> &sid, CStatemen
 				pvm->variable().EnableValue(sid_0_cell->index);
 			}
 
-			pSubstTo->call_setter(varback);
+			pSubstTo->call_setter(*pvm,varback);
 
 			return 0;
 		}

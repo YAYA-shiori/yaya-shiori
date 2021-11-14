@@ -3210,7 +3210,7 @@ CValue CSystemFunction::FUNCDECL_READ(CSF_FUNCPARAM& p)
 	if (pv) {
 		int	i = vm.function_exec().GetFunctionIndexFromName(func_name);
 		if(i != -1)
-			pv->set_watcher(&vm.function_exec().func[i]);
+			pv->set_watcher(func_name);
 		else if(func_name.empty())
 			pv->set_watcher(NULL);
 		else
@@ -3251,7 +3251,7 @@ CValue CSystemFunction::FUNCDECL_WRITE(CSF_FUNCPARAM& p)
 	if (pv) {
 		int	i = vm.function_exec().GetFunctionIndexFromName(func_name);
 		if(i != -1)
-			pv->set_setter(&vm.function_exec().func[i]);
+			pv->set_setter(func_name);
 		else if(func_name.empty())
 			pv->set_setter(NULL);
 		else
@@ -3292,7 +3292,7 @@ CValue CSystemFunction::FUNCDECL_ERASE(CSF_FUNCPARAM& p)
 	if (pv) {
 		int	i = vm.function_exec().GetFunctionIndexFromName(func_name);
 		if(i != -1)
-			pv->set_destorier(&vm.function_exec().func[i]);
+			pv->set_destorier(func_name);
 		else if(func_name.empty())
 			pv->set_destorier(NULL);
 		else
@@ -3625,7 +3625,7 @@ CValue	CSystemFunction::ERASEVAR(CSF_FUNCPARAM &p)
 		else
 			pv=vm.variable().GetPtr(arg0);
 		if (pv) {
-			pv->call_destorier();
+			pv->call_destorier(vm);
 			pv->Erase();
 		}
 	}

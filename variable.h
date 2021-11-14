@@ -48,9 +48,9 @@ protected:
 	mutable std_shared_ptr<CValue> m_value;				// 値
 	bool	erased;					// 消去されたことを示すフラグ（グローバル変数で使用）
 									// 0/1=有効/消去された
-	CFunction* setter=NULL;
-	CFunction* watcher=NULL;
-	CFunction* destorier=NULL;
+	yaya::string_t setter;
+	yaya::string_t watcher;
+	yaya::string_t destorier;
 
 public:
 	CVariable(const yaya::string_t &n)
@@ -109,12 +109,12 @@ public:
 		}
 		return *m_value;
 	}
-	const CValue& call_watcher(CValue& save);
-	void call_destorier();
-	void call_setter(const CValue& var_before);
-	void set_watcher(CFunction*_watcher){watcher=_watcher;}
-	void set_destorier(CFunction* _destorier){ destorier = _destorier;}
-	void set_setter(CFunction* _setter){ setter = _setter;}
+	const CValue& call_watcher(CAyaVM& vm, CValue& save);
+	void call_destorier(CAyaVM& vm);
+	void call_setter(CAyaVM& vm, const CValue& var_before);
+	void set_watcher(const yaya::string_t& _watcher){watcher=_watcher;}
+	void set_destorier(const yaya::string_t& _destorier){ destorier = _destorier;}
+	void set_setter(const yaya::string_t& _setter){ setter = _setter;}
 };
 
 //----
