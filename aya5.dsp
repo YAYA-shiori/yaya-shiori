@@ -300,6 +300,10 @@ SOURCE=.\valuesub.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\variable.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\wsex.cpp
 # End Source File
 # End Group

@@ -211,7 +211,7 @@ public:
 	size_t		GetNumber(void) { return var.size(); }
 	CVariable	*GetPtr(size_t index) { return &(var[index]); }
 	CVariable	*GetPtr(const yaya::string_t& name) {
-		auto index= GetIndex(name);
+		int index= GetIndex(name);
 		if (index != -1)
 			return GetPtr(index);
 		else
