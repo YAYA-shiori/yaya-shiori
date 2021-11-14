@@ -41,7 +41,11 @@ void CVariable::call_destorier(CAyaVM& vm)
 		}
 
 		CFunction* it = &vm.function_exec().func[size_t(index)];
-		it->Execute();
+
+		CValue arg(F_TAG_ARRAY, 0/*dmy*/);
+		arg.array().emplace_back(this->name);
+		arg.array().emplace_back(value_const());
+		it->Execute(arg);
 	}
 }
 
