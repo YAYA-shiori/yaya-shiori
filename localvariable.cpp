@@ -285,14 +285,14 @@ CVariable* CLocalVariable::GetPtr(const yaya::char_t* name)
 {
 	int a,b;
 	GetIndex(name, a, b);
-	return GetPtr(a,b);
+	return GetPtr(b,a);
 }
 
 CVariable* CLocalVariable::GetPtr(const yaya::string_t& name)
 {
 	int a,b;
 	GetIndex(name, a, b);
-	return GetPtr(a,b);
+	return GetPtr(b,a);
 }
 
 /* -----------------------------------------------------------------------
