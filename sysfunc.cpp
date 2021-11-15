@@ -3212,7 +3212,7 @@ CValue CSystemFunction::FUNCDECL_READ(CSF_FUNCPARAM& p)
 		if(i != -1)
 			pv->set_watcher(func_name);
 		else if(func_name.empty())
-			pv->set_watcher(NULL);
+			pv->set_watcher(L"");
 		else
 			vm.logger().Error(E_W, 9, L"FUNCDECL_READ", p.dicname, p.line);
 	}
@@ -3253,7 +3253,7 @@ CValue CSystemFunction::FUNCDECL_WRITE(CSF_FUNCPARAM& p)
 		if(i != -1)
 			pv->set_setter(func_name);
 		else if(func_name.empty())
-			pv->set_setter(NULL);
+			pv->set_setter(L"");
 		else
 			vm.logger().Error(E_W, 9, L"FUNCDECL_READ", p.dicname, p.line);
 	}
@@ -3294,7 +3294,7 @@ CValue CSystemFunction::FUNCDECL_ERASE(CSF_FUNCPARAM& p)
 		if(i != -1)
 			pv->set_destorier(func_name);
 		else if(func_name.empty())
-			pv->set_destorier(NULL);
+			pv->set_destorier(L"");
 		else
 			vm.logger().Error(E_W, 9, L"FUNCDECL_READ", p.dicname, p.line);
 	}
