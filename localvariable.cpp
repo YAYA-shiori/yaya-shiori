@@ -25,8 +25,9 @@
  *  CLocalVariableコンストラクタ
  * -----------------------------------------------------------------------
  */
-CLocalVariable::CLocalVariable(void)
+CLocalVariable::CLocalVariable(CAyaVM& vm)
 {
+	pvm=&vm;
 	depth = -1;
 
 	AddDepth();
@@ -38,7 +39,9 @@ CLocalVariable::CLocalVariable(void)
  */
 CLocalVariable::~CLocalVariable(void)
 {
-	stack.clear();
+	for(auto&s:stack)
+		for(auto&v:s.substack)
+			v.call_destorier(*pvm);
 }
 
 /* -----------------------------------------------------------------------

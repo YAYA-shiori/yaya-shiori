@@ -135,9 +135,9 @@ class	CLocalVariable
 protected:
 	std::vector<CLVSubStack> stack;
 	int	depth;
-
+	CAyaVM* pvm;
 public:
-	CLocalVariable(void);
+	CLocalVariable(CAyaVM&vm);
 	~CLocalVariable(void);
 
 	CVariable	*GetArgvPtr(void);
