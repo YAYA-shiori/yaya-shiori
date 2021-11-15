@@ -244,8 +244,8 @@ void	CLog::Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t
 	if (dicfilename.empty())
 		logstr = L"-(-) : ";
 	else {
-		logstr = dicfilename + L"(";
-		if (linecount == -1)
+		logstr = dicfilename + L'(';
+		if(linecount == -1)
 			logstr += L"-) : ";
 		else {
 			logstr += yaya::ws_itoa(linecount);

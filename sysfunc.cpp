@@ -4302,16 +4302,16 @@ CValue	CSystemFunction::RE_OPTION(CSF_FUNCPARAM &p)
 	yaya::string_t result = L"";
 
 	if ( (re_option & MULTILINE) != 0 ) {
-		result += L"m";
+		result += L'm';
 	}
 	if ( (re_option & SINGLELINE) != 0 ) {
-		result += L"s";
+		result += L's';
 	}
 	if ( (re_option & EXTENDED) != 0 ) {
-		result += L"x";
+		result += L'x';
 	}
 	if ( (re_option & IGNORECASE) != 0 ) {
-		result += L"i";
+		result += L'i';
 	}
 
 	return CValue(result);
@@ -5075,7 +5075,7 @@ CValue	CSystemFunction::STRFORM(CSF_FUNCPARAM &p)
 			result += arg_str;
 		}
 		else {
-			result += L"$" + vargs[i];
+			result += L'$' + vargs[i];
 		}
 	}
 
@@ -6381,7 +6381,7 @@ CValue	CSystemFunction::EXECUTE_WAIT(CSF_FUNCPARAM &p)
 
 	if ( p.arg.array_size() >= 2 ) {
 		if ( p.arg.array()[1].s_value.size() ) {
-			path += " ";
+			path += ' ';
 			std::string tmp(p.arg.array()[1].s_value.begin(), p.arg.array()[1].s_value.end()); 
 			path += tmp;
 		}
