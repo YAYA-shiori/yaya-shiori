@@ -43,14 +43,14 @@ public:
 	yaya::string_t	name;					// 名前
 	yaya::string_t	delimiter;				// デリミタ
 
+	yaya::string_t setter;
+	yaya::string_t watcher;
+	yaya::string_t destorier;
 
 protected:
 	mutable std_shared_ptr<CValue> m_value;				// 値
 	bool	erased;					// 消去されたことを示すフラグ（グローバル変数で使用）
 									// 0/1=有効/消去された
-	yaya::string_t setter;
-	yaya::string_t watcher;
-	yaya::string_t destorier;
 
 public:
 	CVariable(const yaya::string_t &n)
