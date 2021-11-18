@@ -989,7 +989,7 @@ char	CParser0::StoreInternalStatement(int targetfunc, yaya::string_t &str, int& 
 	else if (st == L"case") {
 		str = PREFIX_CASE_VAR + vm.function_parse().func[targetfunc].name;
 		str += yaya::ws_itoa(linecount);
-		str += L"=";
+		str += L'=';
 		str += par;
 		return MakeStatement(ST_FORMULA, targetfunc, str, dicfilename, linecount);
 	}
@@ -1854,7 +1854,7 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 		}
 		// 加算演算子を追加
 		if (nfirst)
-			resstr += L"+";
+			resstr += L'+';
 		// 先行する文字列項を追加
 		if (p_pers > 0) {
 			yaya::string_t	prestr;
@@ -1862,7 +1862,7 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 			AddDoubleQuoteAndEscape(prestr);
 			resstr += prestr;
 			str.erase(0, p_pers);
-			resstr += L"+";
+			resstr += L'+';
 		}
 		// "%"しか残らなかったらそれで終わり
 		if (str.size() == 1) {
@@ -1910,7 +1910,7 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 				embedstr = str;
 				if (embedstr.size()) {
 					AddDoubleQuoteAndEscape(embedstr);
-					resstr += L"+";
+					resstr += L'+';
 					resstr += embedstr;
 				}
 				break;
@@ -1951,7 +1951,7 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 			}
 			// 埋め込み要素を取り出し、"結果の再利用処理を行う関数"として追加
 			resstr += CSystemFunction::HistoryFunctionName();
-			resstr += L"(";
+			resstr += L'(';
 			
 			resstr += yaya::ws_itoa(nindex, 10);
 			resstr += L"-(";
@@ -1968,7 +1968,7 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 				embedstr = str;
 				if (embedstr.size()) {
 					AddDoubleQuoteAndEscape(embedstr);
-					resstr += L"+";
+					resstr += L'+';
 					resstr += embedstr;
 				}
 				break;

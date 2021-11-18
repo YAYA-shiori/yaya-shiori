@@ -280,7 +280,7 @@ void	CLogExCode::StructCellString(std::vector<CCell> *cellvector, yaya::string_t
 		if (it->value_GetType() >= F_TAG_ORIGIN &&
 			it->value_GetType() < F_TAG_FUNCPARAM) {
 			formula += formulatag[it->value_GetType()];
-			formula += L" ";
+			formula += L' ';
 			continue;
 		}
 		switch(it->value_GetType()) {
@@ -297,42 +297,42 @@ void	CLogExCode::StructCellString(std::vector<CCell> *cellvector, yaya::string_t
 			formula += L"# " ;
 			break;
 		case F_TAG_INT:
-			tmpstr = L"(int)" + yaya::ws_itoa(it->value_const().i_value) + L" ";
+			tmpstr = L"(int)" + yaya::ws_itoa(it->value_const().i_value) + L' ';
 			formula += tmpstr;
 			break;
 		case F_TAG_DOUBLE:
-			tmpstr = L"(double)" + yaya::ws_ftoa(it->value_const().d_value) + L" ";
+			tmpstr = L"(double)" + yaya::ws_ftoa(it->value_const().d_value) + L' ';
 			formula += tmpstr;
 			break;
 		case F_TAG_STRING:
 			formula += L"(string)";
 			formula += it->value_const().s_value;
-			formula += L" ";
+			formula += L' ';
 			break;
 		case F_TAG_STRING_EMBED:
 			formula += L"(emb string)";
 			formula += it->value_const().s_value;
-			formula += L" ";
+			formula += L' ';
 			break;
 		case F_TAG_SYSFUNC:
 			formula += L"(sysfunc)";
 			formula += CSystemFunction::GetNameFromIndex(it->index);
-			formula += L" ";
+			formula += L' ';
 			break;
 		case F_TAG_USERFUNC:
 			formula += L"(func)";
 			formula += vm.function_parse().func[it->index].name;
-			formula += L" ";
+			formula += L' ';
 			break;
 		case F_TAG_VARIABLE:
 			formula += L"(var)";
 			formula += vm.variable().GetName(it->index);
-			formula += L" ";
+			formula += L' ';
 			break;
 		case F_TAG_LOCALVARIABLE:
 			formula += L"(localvar)";
 			formula += it->name;
-			formula += L" ";
+			formula += L' ';
 			break;
 		default:
 			formula += L"(?UNKNOWN) ";
@@ -366,7 +366,7 @@ void	CLogExCode::StructSerialString(CStatement *st, yaya::string_t &formula)
 				formula += L"#(" ;
 			else if (type >= F_TAG_ORIGIN && type < F_TAG_ORIGIN_VALUE) {
 				formula += formulatag[type];
-				formula += L"(";
+				formula += L'(';
 			}
 			else if (type >= F_TAG_ORIGIN_VALUE) {
 				formula += L"direct" ;
@@ -378,13 +378,13 @@ void	CLogExCode::StructSerialString(CStatement *st, yaya::string_t &formula)
 			}
 
 			for(std::vector<int>::iterator it2 = it->index.begin(); it2 != it->index.end(); it2++) {
-				if (it2 != it->index.begin())
-					formula += L",";
+				if(it2 != it->index.begin())
+					formula += L',';
 				tmpstr = yaya::ws_itoa(*it2);
 				formula += tmpstr;
 			}
 
-			formula += L")";
+			formula += L')';
 		}
 	}
 }
@@ -454,17 +454,17 @@ void	CLogExCode::StructArrayString(const CValueArray &vs, yaya::string_t &enlist
 	for(CValueArray::const_iterator it = vs.begin(); it != vs.end(); it++) {
 		switch(it->GetType()) {
 		case F_TAG_INT:
-			tmpstr = L"(int)" + yaya::ws_itoa(it->i_value) + L" ";
+			tmpstr = L"(int)" + yaya::ws_itoa(it->i_value) + L' ';
 			enlist += tmpstr;
 			break;
 		case F_TAG_DOUBLE:
-			tmpstr = L"(double)" + yaya::ws_ftoa(it->d_value) + L" ";
+			tmpstr = L"(double)" + yaya::ws_ftoa(it->d_value) + L' ';
 			enlist += tmpstr;
 			break;
 		case F_TAG_STRING:
 			enlist += L"(string)";
 			enlist += it->s_value;
-			enlist += L" ";
+			enlist += L' ';
 			break;
 		case F_TAG_VOID:
 			enlist += L"(nop/void) ";

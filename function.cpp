@@ -62,7 +62,7 @@ CValue	CFunction::Execute() {
 	return Execute(arg);
 }
 CValue	CFunction::Execute(const CValue& arg) {
-	CLocalVariable	lvar;
+	CLocalVariable	lvar(*pvm);
 	CValue result;
 	Execute(result, arg, lvar);
 	return result;
@@ -630,7 +630,7 @@ const CValue& CFunction::GetValueRefForCalc(CCell &cell, CStatement &st, CLocalV
 		}
 	case F_TAG_USERFUNC: {
 		CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
-		CLocalVariable	t_lvar;
+		CLocalVariable	t_lvar(*pvm);
 		pvm->function_exec().func[cell.index].Execute(cell.ansv(), arg, t_lvar);
 		return cell.ansv();
 	}
@@ -1088,7 +1088,7 @@ char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<int> &sid, CSta
 	}
 
 	// 実行
-	CLocalVariable	t_lvar;
+	CLocalVariable	t_lvar(*pvm);
 	pvm->function_exec().func[index].Execute(answer, arg, t_lvar);
 
 	// フィードバック

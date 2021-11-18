@@ -477,8 +477,8 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		CDirEnum ef(dirname);
 		CDirEnumEntry entry;
 
-		while ( ef.next(entry) ) {
-			yaya::string_t relpath_and_cs = param1 + L"\\" + entry.name + L"," + param2;
+		while (ef.next(entry)) {
+			yaya::string_t relpath_and_cs = param1 + L"\\" + entry.name + L',' + param2;
 
 			if ( entry.isdir ) {
 				SetParameter(L"dicdir",relpath_and_cs,dics);
@@ -548,7 +548,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 				#if defined(WIN32) || defined(_WIN32_WCE)
 				base_path += L"\\";
 				#elif defined(POSIX)
-				base_path += L"/";
+				base_path += L'/';
 				#endif
 			}
 			return true;
@@ -876,17 +876,17 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 
 		// 名前の保存
 		str = var->name;
-		str += L",";
+		str += L',';
 
 		// 値の保存
 		switch(var->value_const().GetType()) {
-		case F_TAG_INT:
+		case F_TAG_INT:	
 			str += yaya::ws_itoa(var->value_const().i_value);
-			str += L",";
+			str += L',';
 			break;
 		case F_TAG_DOUBLE:
 			str += yaya::ws_ftoa(var->value_const().d_value);
-			str += L",";
+			str += L',';
 			break;
 		case F_TAG_STRING:
 			wstr = var->value_const().s_value;
@@ -904,8 +904,8 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 				CValueArray::const_iterator	itvbegin = var->value_const().array().begin();
 
 				for(itv = itvbegin; itv != var->value_const().array().end(); itv++) {
-					if (itv != itvbegin)
-						str += L":";
+					if(itv != itvbegin)
+						str += L':';
 					wstr = itv->GetValueString();
 					EscapeString(wstr);
 
@@ -925,14 +925,22 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 					str += L":" ESC_IARRAY;
 				}
 			}
-			str += L",";
+			str += L',';
 			break;
 		default:
 			vm.logger().Error(E_W, 7, var->name);
 			break;
 		};
 		// デリミタの保存
-		str += var->delimiter;
+		wstr = var->delimiter;
+		EscapeString(wstr);
+		str += L"\"";
+		str += wstr;
+		str += L"\",";
+		wstr = var->watcher+L'|'+var->setter+L'|'+var->destorier;
+		if(wstr!=L"||")
+			str += wstr;
+
 		str += L"\n";
 
 		yaya::ws_fputs(str,fp,save_charset,ayc);
@@ -1008,11 +1016,12 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 	yaya::string_t	linebuffer;
 	yaya::string_t	readline;
 	yaya::string_t	parseline;
-	yaya::string_t	varname, value, delimiter;
+	yaya::string_t	varname, value, delimiter, watcher, setter, destorier;
 
 	char savefile_charset = save_old_charset;
 
 	for (int i = 1; ; i++) {
+		watcher.erase(), setter.erase(), destorier.erase();
 		// 1行読み込み
 		if (yaya::ws_fgets(readline, fp, savefile_charset, ayc, i, false) == yaya::WS_EOF)
 			break;
@@ -1054,6 +1063,26 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 			vm.logger().Error(E_W, 3, filename, i);
 			continue;
 		}
+		// 
+		parseline = delimiter;
+		Split_IgnoreDQ(parseline, delimiter, yaya::string_t(), L",");
+		if (!IsLegalStrLiteral(delimiter)){
+			delimiter = parseline;
+			if (Split_IgnoreDQ(parseline, delimiter, watcher, L",")) {
+				parseline = watcher;
+				if (Split_IgnoreDQ(parseline, watcher, yaya::string_t(), L","))//将来のバージョンで得られる可能性のある追加情報の破棄
+					//可能であれば警告
+					1000-7;
+				parseline = watcher;
+				Split_IgnoreDQ(parseline, watcher, setter, L"|");
+				parseline = setter;
+				Split_IgnoreDQ(parseline, setter, destorier, L"|");
+			}
+			CutDoubleQuote(delimiter);
+			UnescapeString(delimiter);
+		}
+		else
+			delimiter = parseline;
 		// 値をチェックして型を判定
 		int	type;
 
@@ -1105,6 +1134,10 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 			continue;
 		}
 		vm.variable().SetDelimiter(index, delimiter);
+		CVariable& v = *vm.variable().GetPtr(index);
+		v.set_watcher(watcher);
+		v.set_destorier(destorier);
+		v.set_setter(setter);
 	}
 
 	// ファイルを閉じる
@@ -1179,7 +1212,7 @@ void	CBasis::ExecuteLoad(void)
 	arg.array().emplace_back(arg0);
 	// 実行　結果は使用しないのでそのまま捨てる
 	vm.call_limit().InitCall();
-	CLocalVariable	lvar;
+	CLocalVariable	lvar(vm);
 	vm.logger().Io(0, base_path);
 	CValue	result;
 	vm.function_exec().func[funcpos].Execute(result, arg, lvar);
@@ -1231,7 +1264,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 
 	// 実行
 	vm.call_limit().InitCall();
-	CLocalVariable	lvar;
+	CLocalVariable	lvar(vm);
 	CValue	result;
 	vm.function_exec().func[funcpos].Execute(result, arg, lvar);
 

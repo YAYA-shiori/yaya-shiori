@@ -90,6 +90,9 @@ typedef int ssize_t;
 
 #ifndef getpid
 #define  getpid() _getpid()
+#ifdef _ACRTIMP
+_ACRTIMP
+#endif
 extern pid_t __cdecl _getpid(void);
 #endif
 
