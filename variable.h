@@ -83,9 +83,9 @@ public:
 	void	Erase(void) {
 		erased = 1;
 		m_value.reset();
-		setter.clear();
-		watcher.clear();
-		destorier.clear();
+		setter.erase();
+		watcher.erase();
+		destorier.erase();
 	}
 	char	IsErased(void) { return erased; }
 

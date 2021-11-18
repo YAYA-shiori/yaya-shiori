@@ -39,9 +39,11 @@ CLocalVariable::CLocalVariable(CAyaVM& vm)
  */
 CLocalVariable::~CLocalVariable(void)
 {
-	for(auto&s:stack)
-		for(auto&v:s.substack)
-			v.call_destorier(*pvm);
+	for ( std::vector<CLVSubStack>::iterator its = stack.begin() ; its != stack.end() ; ++its ) {
+		for ( std::vector<CVariable>::iterator itv = its->substack.begin(); itv != its->substack.end() ; ++itv ) {
+			itv->call_destorier(*pvm);
+		}
+	}
 }
 
 /* -----------------------------------------------------------------------

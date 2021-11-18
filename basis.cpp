@@ -1021,7 +1021,7 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 	char savefile_charset = save_old_charset;
 
 	for (int i = 1; ; i++) {
-		watcher.clear(), setter.clear(), destorier.clear();
+		watcher.erase(), setter.erase(), destorier.erase();
 		// 1行読み込み
 		if (yaya::ws_fgets(readline, fp, savefile_charset, ayc, i, false) == yaya::WS_EOF)
 			break;
