@@ -1208,14 +1208,16 @@ void	CBasis::ExecuteLoad(void)
 
 	// 第一引数（dllのパス）を作成
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
-	CValueSub	arg0(base_path);
-	arg.array().emplace_back(arg0);
+	arg.array().emplace_back(CValueSub(base_path));
+
 	// 実行　結果は使用しないのでそのまま捨てる
 	vm.call_limit().InitCall();
 	CLocalVariable	lvar(vm);
 	vm.logger().Io(0, base_path);
 	CValue	result;
+	
 	vm.function_exec().func[funcpos].Execute(result, arg, lvar);
+	
 	yaya::string_t empty;
 	vm.logger().Io(1, empty);
 }
@@ -1252,9 +1254,8 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
 	wchar_t	*wistr = Ccct::MbcsToUcs2(istr, output_charset);
 	if (wistr != NULL) {
-		CValueSub	arg0 = wistr;
-		vm.logger().Io(0, arg0.s_value);
-		arg.array().emplace_back(arg0);
+		vm.logger().Io(0, wistr);
+		arg.array().emplace_back(CValueSub(wistr));
 		free(wistr);
 		wistr = NULL;
 	}
@@ -1329,9 +1330,8 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 	wchar_t *wistr = Ccct::MbcsToUcs2(istr, output_charset);
 
 	if (wistr != NULL) {
-		CValueSub arg0 = wistr;
-		vm.logger().Io(0, arg0.s_value);
-		arg.array().emplace_back(arg0);
+		vm.logger().Io(0, wistr);
+		arg.array().emplace_back(CValueSub(wistr));
 		free(wistr);
 		wistr = NULL;
 	}

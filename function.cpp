@@ -89,13 +89,23 @@ int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
 	// 実行
 	if (!pvm->call_limit().AddCall(name)) {
 		result.SetType(F_TAG_VOID);
+
 		CBasisFuncPos shiori_OnCallLimit;
 		int funcpos = shiori_OnCallLimit.Find(*pvm, L"shiori.OnCallLimit");
 		int lock = pvm->call_limit().temp_unlock();
-		if(funcpos >= 0)
-			pvm->function_exec().func[funcpos].Execute();
-		else
+
+		if(funcpos >= 0) {
+			//_argv[0] = dicname _argv[1] = linenum
+			CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
+			arg.array().emplace_back(CValueSub(dicfilename));
+			arg.array().emplace_back(CValueSub(linecount));
+
+			pvm->function_exec().func[funcpos].Execute(arg);
+		}
+		else {
 			pvm->logger().Error(E_E, 97, dicfilename, linecount);
+		}
+
 		pvm->call_limit().reset_lock(lock);
 		pvm->call_limit().DeleteCall();
 		return exitcode;
@@ -248,10 +258,18 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 				if ( loop_max <= loop_cur ) {
 					CBasisFuncPos shiori_OnLoopLimit;
 					int funcpos = shiori_OnLoopLimit.Find(*pvm, L"shiori.OnLoopLimit");
-					if (funcpos >= 0)
-						pvm->function_exec().func[funcpos].Execute();
-					else
+
+					if (funcpos >= 0) {
+						//_argv[0] = dicname _argv[1] = linenum
+						CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
+						arg.array().emplace_back(CValueSub(dicfilename));
+						arg.array().emplace_back(CValueSub(st.linecount));
+
+						pvm->function_exec().func[funcpos].Execute(arg);
+					}
+					else {
 						pvm->logger().Error(E_E, 98, dicfilename, st.linecount);
+					}
 				}
 
 				i = st.jumpto;
@@ -285,10 +303,18 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 				if ( loop_max <= loop_cur ) {
 					CBasisFuncPos shiori_OnLoopLimit;
 					int funcpos = shiori_OnLoopLimit.Find(*pvm, L"shiori.OnLoopLimit");
-					if (funcpos >= 0)
-						pvm->function_exec().func[funcpos].Execute();
-					else
+
+					if (funcpos >= 0) {
+						//_argv[0] = dicname _argv[1] = linenum
+						CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
+						arg.array().emplace_back(CValueSub(dicfilename));
+						arg.array().emplace_back(CValueSub(st.linecount));
+
+						pvm->function_exec().func[funcpos].Execute(arg);
+					}
+					else {
 						pvm->logger().Error(E_E, 98, dicfilename, st.linecount);
+					}
 				}
 
 				i = st.jumpto;
