@@ -3188,41 +3188,54 @@ CValue CSystemFunction::FUNCDECL_READ(CSF_FUNCPARAM& p)
 {
 	size_t arg_size = p.arg.array_size();
 
-	if (!arg_size) {
+	if (arg_size < 2) {
 		vm.logger().Error(E_W, 8, L"FUNCDECL_READ", p.dicname, p.line);
 		SetError(8);
-		return CValue(F_TAG_NOP, 0/*dmy*/);
+		return CValue(0);
 	}
 
-	//文字列かどうかチェック - 警告は吐くが処理続行
+	//文字列かどうかチェック
 	if ( ! p.arg.array()[0].IsString() ) {
 		vm.logger().Error(E_W, 9, L"FUNCDECL_READ", p.dicname, p.line);
 		SetError(9);
+		return CValue(0);
 	}
 	if ( ! p.arg.array()[1].IsString() ) {
 		vm.logger().Error(E_W, 9, L"FUNCDECL_READ", p.dicname, p.line);
 		SetError(9);
+		return CValue(0);
 	}
 
 	const yaya::string_t &var_name = p.arg.array()[0].GetValueString();
 	const yaya::string_t &func_name = p.arg.array()[1].GetValueString();
 
 	CVariable* pv;
-	if (var_name[0] == L'_')
+	if (var_name[0] == L'_') {
 		pv=p.lvar.GetPtr(var_name);
-	else
+	}
+	else {
 		pv=vm.variable().GetPtr(var_name);
-	if (pv) {
-		int	i = vm.function_exec().GetFunctionIndexFromName(func_name);
-		if(i != -1)
-			pv->set_watcher(func_name);
-		else if(func_name.empty())
-			pv->set_watcher(L"");
-		else
-			vm.logger().Error(E_W, 9, L"FUNCDECL_READ", p.dicname, p.line);
 	}
 
-	return CValue(F_TAG_NOP, 0/*dmy*/);
+	if (pv) {
+		if ( func_name.empty() ) {
+			pv->set_watcher(L"");
+			return CValue(1);
+		}
+		else {
+			int	i = vm.function_exec().GetFunctionIndexFromName(func_name);
+
+			if(i != -1) {
+				pv->set_watcher(func_name);
+				return CValue(1);
+			}
+			else {
+				vm.logger().Error(E_W, 9, L"FUNCDECL_READ", p.dicname, p.line);
+			}
+		}
+	}
+
+	return CValue(0);
 }
 
 /* -----------------------------------------------------------------------
@@ -3234,41 +3247,54 @@ CValue CSystemFunction::FUNCDECL_WRITE(CSF_FUNCPARAM& p)
 {
 	size_t arg_size = p.arg.array_size();
 
-	if (!arg_size) {
+	if (arg_size < 2) {
 		vm.logger().Error(E_W, 8, L"FUNCDECL_WRITE", p.dicname, p.line);
 		SetError(8);
-		return CValue(F_TAG_NOP, 0/*dmy*/);
+		return CValue(0);
 	}
 
-	//文字列かどうかチェック - 警告は吐くが処理続行
+	//文字列かどうかチェック
 	if ( ! p.arg.array()[0].IsString() ) {
 		vm.logger().Error(E_W, 9, L"FUNCDECL_WRITE", p.dicname, p.line);
 		SetError(9);
+		return CValue(0);
 	}
 	if ( ! p.arg.array()[1].IsString() ) {
 		vm.logger().Error(E_W, 9, L"FUNCDECL_WRITE", p.dicname, p.line);
 		SetError(9);
+		return CValue(0);
 	}
 
 	const yaya::string_t &var_name = p.arg.array()[0].GetValueString();
 	const yaya::string_t &func_name = p.arg.array()[1].GetValueString();
 
 	CVariable* pv;
-	if (var_name[0] == L'_')
+	if (var_name[0] == L'_') {
 		pv=p.lvar.GetPtr(var_name);
-	else
+	}
+	else {
 		pv=vm.variable().GetPtr(var_name);
-	if (pv) {
-		int	i = vm.function_exec().GetFunctionIndexFromName(func_name);
-		if(i != -1)
-			pv->set_setter(func_name);
-		else if(func_name.empty())
-			pv->set_setter(L"");
-		else
-			vm.logger().Error(E_W, 9, L"FUNCDECL_WRITE", p.dicname, p.line);
 	}
 
-	return CValue(F_TAG_NOP, 0/*dmy*/);
+	if (pv) {
+		if ( func_name.empty() ) {
+			pv->set_setter(L"");
+			return CValue(1);
+		}
+		else {
+			int	i = vm.function_exec().GetFunctionIndexFromName(func_name);
+
+			if(i != -1) {
+				pv->set_setter(func_name);
+				return CValue(1);
+			}
+			else {
+				vm.logger().Error(E_W, 9, L"FUNCDECL_WRITE", p.dicname, p.line);
+			}
+		}
+	}
+
+	return CValue(0);
 }
 
 /* -----------------------------------------------------------------------
@@ -3280,41 +3306,54 @@ CValue CSystemFunction::FUNCDECL_ERASE(CSF_FUNCPARAM& p)
 {
 	size_t arg_size = p.arg.array_size();
 
-	if (!arg_size) {
+	if (arg_size < 2) {
 		vm.logger().Error(E_W, 8, L"FUNCDECL_ERASE", p.dicname, p.line);
 		SetError(8);
-		return CValue(F_TAG_NOP, 0/*dmy*/);
+		return CValue(0);
 	}
 
-	//文字列かどうかチェック - 警告は吐くが処理続行
+	//文字列かどうかチェック
 	if ( ! p.arg.array()[0].IsString() ) {
 		vm.logger().Error(E_W, 9, L"FUNCDECL_ERASE", p.dicname, p.line);
 		SetError(9);
+		return CValue(0);
 	}
 	if ( ! p.arg.array()[1].IsString() ) {
 		vm.logger().Error(E_W, 9, L"FUNCDECL_ERASE", p.dicname, p.line);
 		SetError(9);
+		return CValue(0);
 	}
 
 	const yaya::string_t &var_name = p.arg.array()[0].GetValueString();
 	const yaya::string_t &func_name = p.arg.array()[1].GetValueString();
 
 	CVariable* pv;
-	if (var_name[0] == L'_')
+	if (var_name[0] == L'_') {
 		pv=p.lvar.GetPtr(var_name);
-	else
+	}
+	else {
 		pv=vm.variable().GetPtr(var_name);
-	if (pv) {
-		int	i = vm.function_exec().GetFunctionIndexFromName(func_name);
-		if(i != -1)
-			pv->set_destorier(func_name);
-		else if(func_name.empty())
-			pv->set_destorier(L"");
-		else
-			vm.logger().Error(E_W, 9, L"FUNCDECL_ERASE", p.dicname, p.line);
 	}
 
-	return CValue(F_TAG_NOP, 0/*dmy*/);
+	if (pv) {
+		if ( func_name.empty() ) {
+			pv->set_destorier(L"");
+			return CValue(1);
+		}
+		else {
+			int	i = vm.function_exec().GetFunctionIndexFromName(func_name);
+
+			if(i != -1) {
+				pv->set_destorier(func_name);
+				return CValue(1);
+			}
+			else {
+				vm.logger().Error(E_W, 9, L"FUNCDECL_ERASE", p.dicname, p.line);
+			}
+		}
+	}
+
+	return CValue(0);
 }
 
 /* -----------------------------------------------------------------------
