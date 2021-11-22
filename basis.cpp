@@ -1072,6 +1072,7 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 				parseline = watcher;
 				if (Split_IgnoreDQ(parseline, watcher, yaya::string_t(), L","))//将来のバージョンで得られる可能性のある追加情報の破棄
 					//可能であれば警告
+					//TODO: vm.logger().Error();
 					1000-7;
 				parseline = watcher;
 				Split_IgnoreDQ(parseline, watcher, setter, L"|");
@@ -1267,7 +1268,24 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 	vm.call_limit().InitCall();
 	CLocalVariable	lvar(vm);
 	CValue	result;
-	vm.function_exec().func[funcpos].Execute(result, arg, lvar);
+	try{
+		vm.function_exec().func[funcpos].Execute(result, arg, lvar);
+	}
+	catch (std::bad_alloc&) {
+		CBasisFuncPos shiori_OnMemoryLimit;
+		int funcpos = shiori_OnMemoryLimit.Find(vm, L"shiori.OnMemoryLimit");
+		int lock = vm.call_limit().temp_unlock();
+
+		if(funcpos >= 0) {
+			vm.function_exec().func[funcpos].Execute();//get info from GETCALLSTACK
+		}
+		else {
+			//TODO: vm.logger().Error();
+		}
+
+		vm.call_limit().reset_lock(lock);
+		vm.call_limit().DeleteCall();
+	}
 
 	// 結果を文字列として取得し、文字コードをMBCSに変換
 	yaya::string_t	res = result.GetValueString();
