@@ -259,7 +259,7 @@ public:
 
 	void	SetArrayValue(const CValue &oval, const CValue &value);
 
-	int		DecodeArrayOrder(int &order, int &order1, yaya::string_t &delimiter) const;
+	bool	DecodeArrayOrder(size_t& order, size_t& order1, yaya::string_t& delimiter) const;
 
 	CValue	&operator =(yaya::int_t value);
 	CValue	&operator =(double value);

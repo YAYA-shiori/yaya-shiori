@@ -17,6 +17,8 @@
 
 //////////DEBUG/////////////////////////
 #ifdef _WINDOWS
+#undef max
+#undef min
 #ifdef _DEBUG
 #include <crtdbg.h>
 #define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
@@ -64,18 +66,18 @@ yaya::int_t	CValueSub::GetValueInt(void) const
 		return i_value;
 	case F_TAG_DOUBLE:
 		{
-			if ( d_value > static_cast<double>(INT_MAX) ) {
-				return INT_MAX;
+			if( d_value > static_cast<double>(std::numeric_limits<yaya::int_t>::max()) ) {
+				return std::numeric_limits<yaya::int_t>::max();
 			}
-			else if ( d_value < static_cast<double>(INT_MIN) ) {
-				return INT_MIN;
+			else if( d_value < static_cast<double>(std::numeric_limits<yaya::int_t>::min()) ) {
+				return std::numeric_limits<yaya::int_t>::min();
 			}
 			else {
-				return static_cast<int>(d_value);
+				return (yaya::int_t)d_value;
 			}
 		}
 	case F_TAG_STRING:
-		return yaya::ws_atoi(s_value, 10);
+		return yaya::ws_atoll(s_value, 10);
 	default:
 		return 0;
 	};

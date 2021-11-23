@@ -1171,8 +1171,8 @@ void	CBasis::RestoreArrayVariable(CValue &var, yaya::string_t &value)
 			if (par == ESC_IVOID) {
 				var.array().emplace_back(CValueSub());
 			}
-			else if (IsIntString(par)) {
-				var.array().emplace_back(CValueSub( yaya::ws_atoi(par, 10) ));
+			else if(IsIntString(par)) {
+				var.array().emplace_back(CValueSub(yaya::ws_atoll(par, 10)));
 			}
 			else if (IsDoubleButNotIntString(par)) {
 				var.array().emplace_back(CValueSub( yaya::ws_atof(par) ));

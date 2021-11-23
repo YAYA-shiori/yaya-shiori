@@ -44,13 +44,6 @@ typedef long long int yaya_int64;
 
 #endif //MSC_VER
 
-template <class T> const T& __GETMAX( const T& a, const T& b ) {
-  return (b<a)?a:b;
-}
-template <class T> const T& __GETMIN( const T& a, const T& b ) {
-  return (b<a)?b:a;
-}
-
 namespace yaya {
 	typedef wchar_t char_t;
 	typedef std::basic_string<char_t> string_t;

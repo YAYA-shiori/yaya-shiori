@@ -49,7 +49,7 @@ CValue	CDuplEvInfo::Choice(CAyaVM &vm,int areanum, const std::vector<CVecValue> 
 
 	// 巡回位置を進める　巡回が完了したら巡回順序を初期化する
 	index++;
-	if ( index >= static_cast<int>(roundorder.size()) ) {
+	if ( index >= roundorder.size() ) {
 		InitRoundOrder(vm,mode);
 	}
 
@@ -71,7 +71,7 @@ void	CDuplEvInfo::InitRoundOrder(CAyaVM &vm,int mode_param)
 	int mode = mode_param & CHOICETYPE_SELECT_FILTER;
 
     if ( mode == CHOICETYPE_NONOVERLAP_FLAG ) {
-		for(int i = 0; i < total; ++i) {
+		for(size_t i = 0; i < total; ++i) {
 			if ( i != lastroundorder ) {
 				roundorder.emplace_back(i);
 			}
@@ -112,7 +112,7 @@ void	CDuplEvInfo::InitRoundOrder(CAyaVM &vm,int mode_param)
 		}
 	}
 	else {
-		for(int i = 0; i < total; ++i) {
+		for(size_t i = 0; i < total; ++i) {
 			roundorder.emplace_back(i);
 		}
 	}

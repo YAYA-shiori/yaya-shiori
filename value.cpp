@@ -20,6 +20,8 @@
 
 //////////DEBUG/////////////////////////
 #ifdef _WINDOWS
+#undef max
+#undef min
 #ifdef _DEBUG
 #include <crtdbg.h>
 #define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
@@ -44,18 +46,18 @@ yaya::int_t	CValue::GetValueInt(void) const
 		return i_value;
 	case F_TAG_DOUBLE:
 		{
-			if ( d_value > static_cast<double>(INT_MAX) ) {
-				return INT_MAX;
+			if( d_value > static_cast<double>(std::numeric_limits<yaya::int_t>::max()) ) {
+				return std::numeric_limits<yaya::int_t>::max();
 			}
-			else if ( d_value < static_cast<double>(INT_MIN) ) {
-				return INT_MIN;
+			else if( d_value < static_cast<double>(std::numeric_limits<yaya::int_t>::min()) ) {
+				return std::numeric_limits<yaya::int_t>::min();
 			}
 			else {
-				return static_cast<int>(d_value);
+				return static_cast<yaya::int_t>(d_value);
 			}
 		}
 	case F_TAG_STRING:
-		return yaya::ws_atoi(s_value, 10);
+		return yaya::ws_atoll(s_value, 10);
 	case F_TAG_ARRAY:
 		return 0;
 	default:
@@ -170,7 +172,7 @@ yaya::string_t	CValue::GetValueStringForLogging(void) const
 void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 {
 	// 序数とデリミタの取得
-	int	order, order1;
+	size_t	order, order1;
 	yaya::string_t	delimiter;
 	int	aoflg = oval.DecodeArrayOrder(order, order1, delimiter);
 
@@ -179,15 +181,15 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 		// 簡易配列
 		// 元の文字列をデリミタで分割
 		std::vector<yaya::string_t>	s_array;
-		int	sz = SplitToMultiString(s_value, &s_array, delimiter);
+		size_t	sz = SplitToMultiString(s_value, &s_array, delimiter);
 		// 更新
 		if (aoflg) {
 			// 範囲つき
 			if (order1 < 0)
 				return;
-			else if (order < sz) {
-				int	s_index   = __GETMAX(order, 0);
-				int	e_index   = __GETMIN(order1 + 1, sz);
+			else if(order < sz) {
+				size_t	s_index = (size_t)std::max<yaya::int_t>(order, 0);
+				size_t	e_index = (size_t)std::min<yaya::int_t>(order1 + 1, sz);
 
 				if ( value.GetType() == F_TAG_ARRAY ) {
 					std::vector<yaya::string_t>::iterator it = s_array.erase(s_array.begin() + s_index,s_array.begin() + e_index);
@@ -206,8 +208,8 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 				}
 			}
 			else {
-				int	addsize = order - sz;
-				for(int i = 0; i < addsize; i++) {
+				size_t addsize = (size_t)(order - sz);
+				for(size_t i = 0; i < addsize; i++) {
 					s_array.emplace_back(yaya::string_t());
 				}
 	
@@ -269,7 +271,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 			s_value = L"";
 		else {
 			s_value = s_array[0];
-			for(int i = 1; i < sz; i++) {
+			for(size_t i = 1; i < sz; i++) {
 				s_value += delimiter + s_array[i];
 			}
 		}
@@ -282,15 +284,15 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 			array().emplace_back(CValueSub(*this));
 		}
 
-		if (aoflg) {
-			int	sz = array_size();
+		if(aoflg) {
+			size_t	sz = array_size();
 			// 範囲つき
 			if (order1 < 0)
 				return;
 			if (order < sz) {
 				// 配列中途の書き換え
-				int	s_index   = __GETMAX(order, 0);
-				int	e_index   = __GETMIN(order1 + 1, sz);
+				size_t	s_index = (size_t)std::max<yaya::int_t>(order, 0);
+				size_t	e_index = (size_t)std::min<yaya::int_t>(order1 + 1, sz);
 				
 				if ( value.GetType() == F_TAG_ARRAY ) {
 					CValueArray::iterator it = array().erase(array().begin() + s_index,array().begin() + e_index);
@@ -324,7 +326,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 			// 範囲なし
 			if (order < 0)
 				return;
-			if (order < static_cast<int>(array_size()) ) {
+			if(order < array_size() ) {
 				// 配列中途の書き換え				
 				if (value.GetType() == F_TAG_ARRAY ) {
 					CValueArray::iterator it = array().erase(array().begin() + order);
@@ -363,7 +365,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
  *  返値　　：  0/1=order1(範囲指定)無効/有効
  * -----------------------------------------------------------------------
  */
-int	CValue::DecodeArrayOrder(int &order, int &order1, yaya::string_t &delimiter) const
+bool CValue::DecodeArrayOrder(size_t&order, size_t&order1, yaya::string_t &delimiter) const
 {
 	order  = 0;
 	order1 = 0;
@@ -374,9 +376,9 @@ int	CValue::DecodeArrayOrder(int &order, int &order1, yaya::string_t &delimiter)
 		if (sz) {
 			// 要素0:序数
 			if (array()[0].GetType() == F_TAG_INT)
-				order = static_cast<int>( array()[0].i_value );
+				order = (size_t)array()[0].i_value;
 			else if (array()[0].GetType() == F_TAG_DOUBLE)
-				order = (int)floor(array()[0].d_value);
+				order = (size_t)floor(array()[0].d_value);
 			else
 				return 0;
 			if (sz == 1)
@@ -384,13 +386,13 @@ int	CValue::DecodeArrayOrder(int &order, int &order1, yaya::string_t &delimiter)
 			// 要素1:数値なら範囲指定、文字列ならデリミタ
 			switch(array()[1].GetType()) {
 			case F_TAG_INT:
-				order1  = static_cast<int>( array()[1].i_value );
+				order1  = (size_t)array()[1].i_value;
 				if (order > order1)
 					exchange(order, order1);
 				break;
 			case F_TAG_DOUBLE:
-				order1  = (int)floor(array()[1].d_value);
-				if (order > order1)
+				order1  = (size_t)floor(array()[1].d_value);
+				if(order > order1)
 					exchange(order, order1);
 				break;
 			case F_TAG_STRING:
@@ -945,7 +947,7 @@ void CValue::operator %=(const CValue &value)
  */
 CValue CValue::operator [](const CValue &value) const
 {
-	int	order, order1;
+	size_t	order, order1;
 	yaya::string_t	delimiter;
 	int	aoflg = value.DecodeArrayOrder(order, order1, delimiter);
 
@@ -961,17 +963,17 @@ CValue CValue::operator [](const CValue &value) const
 
 		// 文字列をデリミタで分割
 		std::vector<yaya::string_t>	s_array;
-		int	sz = SplitToMultiString(s_value, &s_array, delimiter);
+		size_t	sz = SplitToMultiString(s_value, &s_array, delimiter);
 		// 値の取得
 		if (aoflg) {
 			// 範囲あり
 			if (order1 < 0 || order >= sz)
 				return CValue();
 			else {
-				int	s_index   = __GETMAX(order, 0);
-				int	e_index   = __GETMIN(order1 + 1, sz);
-				int	i         = 0;
-				int	j         = 0;
+				size_t	s_index = (size_t)std::max<yaya::int_t>(order, 0);
+				size_t	e_index = (size_t)std::min<yaya::int_t>(order1 + 1, sz);
+				size_t	i       = 0;
+				size_t	j       = 0;
 				yaya::string_t	result_str;
 				for(std::vector<yaya::string_t>::iterator it = s_array.begin();
 					it != s_array.end(); it++, i++) {
@@ -998,16 +1000,16 @@ CValue CValue::operator [](const CValue &value) const
 	else if (type == F_TAG_ARRAY) {
 		// 汎用配列
 
-		int	sz = array_size();
+		size_t	sz = array_size();
 		// 値の取得
 		if (aoflg) {
 			// 範囲あり
 			if (order1 < 0 || order >= sz)
 				return CValue(F_TAG_ARRAY, 0/*dmy*/);
 			else {
-				int	s_index   = __GETMAX(order, 0);
-				int	e_index   = __GETMIN(order1 + 1, sz);
-				int	i         = 0;
+				size_t	s_index = (size_t)std::max<yaya::int_t>(order, 0);
+				size_t	e_index = (size_t)std::min<yaya::int_t>((yaya::int_t)order1 + 1, sz);
+				size_t	i       = 0;
 				CValue	result_array(F_TAG_ARRAY, 0/*dmy*/);
 				for(CValueArray::const_iterator it = array().begin();
 					it != array().end(); it++, i++) {

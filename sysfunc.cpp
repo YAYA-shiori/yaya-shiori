@@ -869,7 +869,7 @@ CValue	CSystemFunction::CHARSETIDTOTEXT(CSF_FUNCPARAM &p)
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	return CValue(Ccct::CharsetIDToTextW(static_cast<int>( p.arg.array()[0].GetValueInt() ) ));
+	return CValue(Ccct::CharsetIDToTextW((const int)p.arg.array()[0].GetValueInt()));
 }
 
 /* -----------------------------------------------------------------------
@@ -929,7 +929,7 @@ CValue CSystemFunction::BITWISE_SHIFT(CSF_FUNCPARAM &p)
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	int shiftValue = static_cast<int>( p.arg.array()[1].GetValueInt() );
+	yaya::int_t shiftValue = p.arg.array()[1].GetValueInt();
 	if ( shiftValue > 0 ) {
 		return CValue(p.arg.array()[0].GetValueInt() << shiftValue );
 	}
@@ -1613,8 +1613,7 @@ CValue	CSystemFunction::STRSTR(CSF_FUNCPARAM &p)
 		vm.logger().Error(E_W, 9, L"STRSTR", p.dicname, p.line);
 		SetError(9);
 	}
-
-	return CValue( static_cast<int>( p.arg.array()[0].GetValueString().find(p.arg.array()[1].GetValueString(), static_cast<int>( p.arg.array()[2].GetValueInt() ) ) ) );
+	return(yaya::int_t)p.arg.array()[0].GetValueString().find(p.arg.array()[1].GetValueString(), (size_t)p.arg.array()[2].GetValueInt());
 }
 
 /* -----------------------------------------------------------------------
@@ -1656,13 +1655,13 @@ CValue	CSystemFunction::REPLACE(CSF_FUNCPARAM &p)
 		SetError(9);
 	}
 
-	int count = 0;
+	yaya::int_t count = 0;
 	if ( p.arg.array_size() >= 4 ) {
 		if (!p.arg.array()[3].IsInt()) {
 			vm.logger().Error(E_W, 9, L"REPLACE", p.dicname, p.line);
 			SetError(9);
 		}
-		count = static_cast<int>( p.arg.array()[3].GetValueInt() );
+		count = p.arg.array()[3].GetValueInt();
 	}
 
 	yaya::string_t	result = p.arg.array()[0].GetValueString();
@@ -1697,8 +1696,8 @@ CValue	CSystemFunction::SUBSTR(CSF_FUNCPARAM &p)
 	}
 
 	const yaya::string_t& src = p.arg.array()[0].GetValueString();
-	int pos = static_cast<int>(p.arg.array()[1].GetValueInt() );
-	int len = static_cast<int>(p.arg.array()[2].GetValueInt() );
+	yaya::int_t pos = p.arg.array()[1].GetValueInt();
+	yaya::int_t len = p.arg.array()[2].GetValueInt();
 
 	if ( pos < 0 ) {
 		pos += src.length();
@@ -1711,14 +1710,14 @@ CValue	CSystemFunction::SUBSTR(CSF_FUNCPARAM &p)
 		}
 	}
 
-	if ( pos >= static_cast<int>(src.length()) || len <= 0 ) {
-	    return CValue(L"");
+	if ( pos >= src.length() || len <= 0 ) {
+		return CValue(L"");
 	}
-	if ( pos + len >= static_cast<int>(src.length()) ) {
-	    len = src.length() - pos;
+	if ( pos + len >= src.length() ) {
+		len = src.length() - pos;
 	}
 
-	return CValue(src.substr(pos, len));
+	return CValue(src.substr((size_t)pos, (size_t)len));
 }
 
 /* -----------------------------------------------------------------------
@@ -1739,10 +1738,10 @@ CValue	CSystemFunction::ERASE(CSF_FUNCPARAM &p)
 		vm.logger().Error(E_W, 9, L"ERASE", p.dicname, p.line);
 		SetError(9);
 	}
-	
+
 	yaya::string_t src = p.arg.array()[0].GetValueString();
-	int pos = static_cast<int>( p.arg.array()[1].GetValueInt() );
-	int len = static_cast<int>( p.arg.array()[2].GetValueInt() );
+	yaya::int_t pos = p.arg.array()[1].GetValueInt();
+	yaya::int_t len = p.arg.array()[2].GetValueInt();
 
 	if ( pos < 0 ) {
 		pos += src.length();
@@ -1755,14 +1754,14 @@ CValue	CSystemFunction::ERASE(CSF_FUNCPARAM &p)
 		}
 	}
 
-	if ( pos >= static_cast<int>(src.length()) || len <= 0 ) {
+	if ( pos >= src.length() || len <= 0 ) {
 	    return CValue(L"");
 	}
-	if ( pos + len >= static_cast<int>(src.length()) ) {
+	if ( pos + len >= src.length() ) {
 	    len = src.length() - pos;
 	}
 
-	return CValue(src.erase(pos, len));
+	return CValue(src.erase((size_t)pos, (size_t)len));
 }
 
 /* -----------------------------------------------------------------------
@@ -1879,7 +1878,7 @@ CValue	CSystemFunction::TOBINSTR(CSF_FUNCPARAM &p)
 		SetError(9);
 	}
 
-	return CValue(yaya::ws_itoa(static_cast<int>( p.arg.array()[0].GetValueInt() ), 2));
+	return CValue(yaya::ws_lltoa(p.arg.array()[0].GetValueInt(), 2));
 }
 
 /* -----------------------------------------------------------------------
@@ -1899,7 +1898,7 @@ CValue	CSystemFunction::TOHEXSTR(CSF_FUNCPARAM &p)
 		SetError(9);
 	}
 
-	return CValue(yaya::ws_itoa(static_cast<int>( p.arg.array()[0].GetValueInt() ), 16));
+	return CValue(yaya::ws_lltoa(p.arg.array()[0].GetValueInt(), 16));
 }
 
 /* -----------------------------------------------------------------------
@@ -1925,7 +1924,7 @@ CValue	CSystemFunction::BINSTRTOI(CSF_FUNCPARAM &p)
 		return CValue(0);
 	}
 
-	return CValue(yaya::ws_atoi(p.arg.array()[0].GetValueString(), 2));
+	return CValue(yaya::ws_atoll(p.arg.array()[0].GetValueString(), 2));
 }
 
 /* -----------------------------------------------------------------------
@@ -1957,7 +1956,7 @@ CValue	CSystemFunction::HEXSTRTOI(CSF_FUNCPARAM &p)
 		return CValue(0);
 	}
 
-	return CValue(yaya::ws_atoi(str, 16));
+	return CValue(yaya::ws_atoll(str, 16));
 }
 
 /* -----------------------------------------------------------------------
@@ -3428,7 +3427,7 @@ CValue CSystemFunction::FSIZE(CSF_FUNCPARAM &p) {
     if (stat(path.c_str(), &sb) != 0) {
 	return CValue(-1);
     }
-    return CValue(static_cast<int>(sb.st_size));
+    return CValue(static_cast<yaya::int_t>(sb.st_size));
 }
 #endif
 
@@ -3523,7 +3522,7 @@ CValue	CSystemFunction::ArraySize(CSF_FUNCPARAM &p)
 	}
 
 	if ( p.valuearg[0].IsArray() ) {
-		return CValue(static_cast<int>(p.valuearg[0].array_size()));
+		return CValue(static_cast<yaya::int_t>(p.valuearg[0].array_size()));
 	}
 	else if ( p.valuearg[0].IsString() ) {
 		if ( p.valuearg[0].GetValueString().size() == 0 ) {
@@ -3711,15 +3710,15 @@ CValue	CSystemFunction::GETTIME(CSF_FUNCPARAM &p)
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 
 	if ( today ) {
-		result.array().emplace_back(CValueSub(static_cast<int>(today->tm_year) + 1900));
-		result.array().emplace_back(CValueSub(static_cast<int>(today->tm_mon) + 1));
-		result.array().emplace_back(CValueSub(static_cast<int>(today->tm_mday)));
-		result.array().emplace_back(CValueSub(static_cast<int>(today->tm_wday)));
-		result.array().emplace_back(CValueSub(static_cast<int>(today->tm_hour)));
-		result.array().emplace_back(CValueSub(static_cast<int>(today->tm_min)));
-		result.array().emplace_back(CValueSub(static_cast<int>(today->tm_sec)));
-		result.array().emplace_back(CValueSub(static_cast<int>(today->tm_yday)));
-		result.array().emplace_back(CValueSub(static_cast<int>(today->tm_isdst)));
+		result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today->tm_year) + 1900));
+		result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today->tm_mon) + 1));
+		result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today->tm_mday)));
+		result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today->tm_wday)));
+		result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today->tm_hour)));
+		result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today->tm_min)));
+		result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today->tm_sec)));
+		result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today->tm_yday)));
+		result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today->tm_isdst)));
 	}
 	else {
 		vm.logger().Error(E_W, 12, L"GETTIME", p.dicname, p.line);
@@ -3994,7 +3993,7 @@ CValue CSystemFunction::GETTICKCOUNT(CSF_FUNCPARAM &p) {
 	struct timezone tz;
     gettimeofday(&tv, &tz);
     
-    return static_cast<int>(tv.tv_sec * 1000 + tv.tv_usec / 1000);
+    return static_cast<yaya::int_t>(tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 #endif
 
@@ -4435,13 +4434,13 @@ CValue	CSystemFunction::RE_REPLACE(CSF_FUNCPARAM &p)
 		SetError(9);
 	}
 
-	int count = 0;
+	size_t count = 0;
 	if ( p.arg.array_size() >= 4 ) {
 		if (!p.arg.array()[3].IsInt()) {
 			vm.logger().Error(E_W, 9, L"RE_REPLACE", p.dicname, p.line);
 			SetError(9);
 		}
-		count = static_cast<int>( p.arg.array()[3].GetValueInt() );
+		count = static_cast<size_t>( p.arg.array()[3].GetValueInt() );
 		if ( count <= 0 ) { count = 0; }
 		else { count += 1; }
 	}
@@ -4494,13 +4493,13 @@ CValue	CSystemFunction::RE_REPLACEEX(CSF_FUNCPARAM &p)
 		SetError(9);
 	}
 
-	int count = -1;
+	size_t count = -1;
 	if ( p.arg.array_size() >= 4 ) {
 		if (!p.arg.array()[3].IsInt()) {
 			vm.logger().Error(E_W, 9, L"RE_REPLACEEX", p.dicname, p.line);
 			SetError(9);
 		}
-		count = static_cast<int>( p.arg.array()[3].GetValueInt() );
+		count = static_cast<size_t>( p.arg.array()[3].GetValueInt() );
 		if ( count <= 0 ) { count = -1; }
 	}
 
@@ -4717,7 +4716,7 @@ CValue	CSystemFunction::CHRCODE(CSF_FUNCPARAM &p)
 		}
 	}
 
-	return CValue(static_cast<int>(p.arg.array()[0].s_value[getpos]));
+	return CValue(static_cast<yaya::int_t>(p.arg.array()[0].s_value[getpos]));
 }
 
 /* -----------------------------------------------------------------------
@@ -4759,7 +4758,7 @@ CValue	CSystemFunction::ISREALSTR(CSF_FUNCPARAM &p)
 		return CValue(0);
 	}
 
-	return CValue( static_cast<int>(IsIntString(p.arg.array()[0].s_value) || IsDoubleButNotIntString(p.arg.array()[0].s_value)) );
+	return CValue( IsIntString(p.arg.array()[0].s_value) || IsDoubleButNotIntString(p.arg.array()[0].s_value) );
 }
 
 /* -----------------------------------------------------------------------
@@ -5769,7 +5768,7 @@ CValue	CSystemFunction::GETSETTING(CSF_FUNCPARAM &p)
 		case 0:	// AYAINFO_VERSION
 			return CValue(yaya::string_t(aya_version));
 		case 1:	// AYAINFO_CHARSET
-			return CValue(static_cast<int>(vm.basis().GetDicCharset()));
+			return CValue(static_cast<yaya::int_t>(vm.basis().GetDicCharset()));
 		case 2:	// AYAINFO_PATH
 			return CValue(vm.basis().GetRootPath());
 		case 3:	// AYAINFO_NAME

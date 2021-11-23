@@ -44,20 +44,19 @@ int	yaya::ws_atoi(const yaya::string_t &str, int base)
 {
 	if (!str.size())
 		return 0;
-	
-	wchar_t	*dmy;
-	return (int)wcstol(str.c_str(), &dmy, base);
+
+	return wcstol(str.c_str(), NULL, base);
 }
 
-yaya::int_t	yaya::ws_atoll(const yaya::string_t &str)
+yaya::int_t	yaya::ws_atoll(const yaya::string_t &str, int base)
 {
 	if (!str.size())
 		return 0;
 	
 #ifdef INT64_IS_NOT_STD
-	return (yaya::int_t)_wtoi64(str.c_str());
+	return _wcstoi64(str.c_str(),NULL,base);
 #else
-	return (yaya::int_t)_wtoll(str.c_str());
+	return wcstoll(str.c_str(),NULL,base);
 #endif
 }
 
@@ -156,7 +155,7 @@ void	yaya::ws_eraseend(yaya::string_t &str,wchar_t c)
 *  機能概要：  str内のbeforeをすべてafterに置換します
 * -----------------------------------------------------------------------
 */
-void	yaya::ws_replace(yaya::string_t &str, const wchar_t *before, const wchar_t *after, int count)
+void	yaya::ws_replace(yaya::string_t &str, const wchar_t *before, const wchar_t *after, yaya::int_t count)
 {
 	if ( ! after ) { after = L""; }
 
