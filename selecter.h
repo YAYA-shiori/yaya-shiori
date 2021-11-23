@@ -67,8 +67,8 @@ protected:
 	std::vector<size_t>	roundorder;		// 巡回順序
 
 	ptrdiff_t	lastroundorder; // 直前の巡回順序値
-	ptrdiff_t	total;			// 出力候補値の総数
-	ptrdiff_t	index;			// 現在の巡回位置
+	size_t	total;			// 出力候補値の総数
+	size_t	index;			// 現在の巡回位置
 
 private:
 	CDuplEvInfo(void);
@@ -100,15 +100,15 @@ class CSelecter
 protected:
 	CAyaVM &vm;
 	std::vector<CVecValue>	values;			// 出力候補値
-	int					areanum;		// 出力候補を蓄積する領域の数
-	CDuplEvInfo			*duplctl;		// 対応する重複回避情報へのポインタ
-	int					aindex;			// switch構文で使用
+	size_t					areanum;		// 出力候補を蓄積する領域の数
+	CDuplEvInfo				*duplctl;		// 対応する重複回避情報へのポインタ
+	size_t					aindex;			// switch構文で使用
 
 	friend class CFunction;//for pool
 private:
 	CSelecter(void);
 public:
-	CSelecter(CAyaVM &vmr, CDuplEvInfo *dc, int aid);
+	CSelecter(CAyaVM& vmr, CDuplEvInfo* dc, size_t aid);
 
 	void	AddArea(void);
 	void	Append(const CValue &value);
@@ -119,7 +119,7 @@ public:
 	static const yaya::char_t*	ChoiceTypeToString(choicetype_t ctype);
 
 protected:
-	CValue	StructArray1(int index);
+	CValue	StructArray1(size_t index);
 	CValue	StructArray(void);
 	CValue	ChoiceRandom(void);
 	CValue	ChoiceRandom1(size_t index);

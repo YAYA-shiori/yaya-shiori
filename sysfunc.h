@@ -50,7 +50,7 @@ private:
 
 	protected:
 	int		lasterror;					// 最期に発生したエラーの番号
-	int		lso;						// LSOが返す値
+	size_t	lso;						// LSOが返す値
 
 	CValue	re_str;						// 正規表現処理結果の詳細情報（一致した文字列）
 	CValue	re_pos;						// 正規表現処理結果の詳細情報（一致した位置）
@@ -77,7 +77,7 @@ public:
 	static int HistoryIndex(void);
 	static const yaya::char_t* HistoryFunctionName(void);
 
-	void	SetLso(int order) { lso = order; }
+	void	SetLso(size_t order) { lso = order; }
 
 	CValue	Execute(int index, const CValue &arg, const std::vector<CCell *> &pcellarg,
 				CValueArgArray &valuearg, CLocalVariable &lvar, int l, CFunction *thisfunc);
