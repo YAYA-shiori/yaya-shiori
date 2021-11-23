@@ -2831,7 +2831,7 @@ CValue	CSystemFunction::FDIGEST(CSF_FUNCPARAM &p)
 
 	unsigned char digest_result[32];
 	size_t digest_len;
-	unsigned char buf[32768];
+	unsigned char buf[32768];//TODO: https://docs.microsoft.com/ja-jp/cpp/code-quality/c6262?view=msvc-170
 
 	if ( wcsicmp(digest_type.c_str(),L"sha1") == 0 || wcsicmp(digest_type.c_str(),L"sha-1") == 0 ) {
 		SHA1Context sha1ctx;
