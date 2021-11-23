@@ -3917,7 +3917,7 @@ CValue	CSystemFunction::GETSECCOUNT(CSF_FUNCPARAM &p)
 
 	if (!p.arg.array_size()) {
 		time(&ltime);
-		return CValue((int)ltime);
+		return CValue(static_cast<yaya::int_t>(ltime));
 	}
 
 	struct tm input_time = {0};
@@ -3945,7 +3945,7 @@ CValue	CSystemFunction::GETSECCOUNT(CSF_FUNCPARAM &p)
 		struct tm* gmt_tm = gmtime(&now);
 		time_t local_gmt = now - mktime(gmt_tm);
 
-		return CValue((int)(gmt_local + local_gmt));
+		return CValue(static_cast<yaya::int_t>(gmt_local + local_gmt));
 	}
 	else {
 		switch ( asize ) {
@@ -3964,7 +3964,7 @@ CValue	CSystemFunction::GETSECCOUNT(CSF_FUNCPARAM &p)
 		case 1:
 			input_time.tm_year = static_cast<int>( p.arg.array()[0].GetValueInt()-1900);
 		}
-		return CValue((int)mktime(&input_time));
+		return CValue(static_cast<yaya::int_t>(mktime(&input_time)));
 	}
 }
 
@@ -3972,30 +3972,35 @@ CValue	CSystemFunction::GETSECCOUNT(CSF_FUNCPARAM &p)
  *  Èñ¢Êï∞Âêç  Ôºö  CSystemFunction::GETTICKCOUNT
  * -----------------------------------------------------------------------
  */
-#if defined(WIN32)
 CValue	CSystemFunction::GETTICKCOUNT(CSF_FUNCPARAM &p)
 {
-	DWORD	tickcount = GetTickCount();
-	int	highc = (int)(tickcount >> 31);
-	int	lowc  = (int)(tickcount & 0x7fffffff);
+	//for compat (64bitÇ…Ç»Ç¡ÇΩÇÃÇ≈Ç¢ÇÁÇ»Ç≠Ç»Ç¡ÇΩ)
+	if (p.arg.array_size() > 0) {
+		if (p.arg.array()[0].GetValueInt()) {
+			return CValue(0);
+		}
+	}
 
-	if (!p.arg.array_size())
-		return lowc;
+#if defined(WIN32)
+	typedef yaya::uint64 (WINAPI *DefGetTickCount64)();
 
-	if (p.arg.array()[0].IsInt() && p.arg.array()[0].GetValueInt() == 0)
-		return lowc;
+	DefGetTickCount64 pGetTickCount64 = (DefGetTickCount64)::GetProcAddress(::GetModuleHandle("kernel32"),"GetTickCount64");
 
-	return highc;
-}
+	if ( pGetTickCount64 ) {
+		return CValue(static_cast<yaya::int_t>(pGetTickCount64()));
+	}
+	else {
+		return CValue(static_cast<yaya::int_t>(::GetTickCount()));
+	}
+
 #elif defined(POSIX)
-CValue CSystemFunction::GETTICKCOUNT(CSF_FUNCPARAM &p) {
     struct timeval tv;
 	struct timezone tz;
     gettimeofday(&tv, &tz);
     
     return static_cast<yaya::int_t>(tv.tv_sec * 1000 + tv.tv_usec / 1000);
-}
 #endif
+}
 
 /* -----------------------------------------------------------------------
  *  Èñ¢Êï∞Âêç  Ôºö  CSystemFunction::GETMEMINFO
@@ -4007,17 +4012,34 @@ CValue CSystemFunction::GETTICKCOUNT(CSF_FUNCPARAM &p) {
 #if defined(WIN32)
 CValue	CSystemFunction::GETMEMINFO(CSF_FUNCPARAM &p)
 {
-	MEMORYSTATUSEX	meminfo = {0};
-	meminfo.dwLength=sizeof(meminfo);
-	GlobalMemoryStatusEx(&meminfo);
+	typedef BOOL (WINAPI *DefGlobalMemoryStatusEx)(LPMEMORYSTATUSEX lpBuffer);
+
+	DefGlobalMemoryStatusEx pGlobalMemoryStatusEx = (DefGlobalMemoryStatusEx)::GetProcAddress(::GetModuleHandle("kernel32"),"GlobalMemoryStatusEx");
 
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 
-	result.array().emplace_back(CValueSub((yaya::int_t)meminfo.dwMemoryLoad)  );
-	result.array().emplace_back(CValueSub((yaya::int_t)meminfo.ullTotalPhys)   );
-	result.array().emplace_back(CValueSub((yaya::int_t)meminfo.ullAvailPhys)   );
-	result.array().emplace_back(CValueSub((yaya::int_t)meminfo.ullTotalVirtual));
-	result.array().emplace_back(CValueSub((yaya::int_t)meminfo.ullAvailVirtual));
+	if ( pGlobalMemoryStatusEx ) {
+		MEMORYSTATUSEX	meminfo = {0};
+		meminfo.dwLength = sizeof(meminfo);
+		pGlobalMemoryStatusEx(&meminfo);
+
+		result.array().emplace_back(CValueSub((yaya::int_t)meminfo.dwMemoryLoad)   );
+		result.array().emplace_back(CValueSub((yaya::int_t)meminfo.ullTotalPhys)   );
+		result.array().emplace_back(CValueSub((yaya::int_t)meminfo.ullAvailPhys)   );
+		result.array().emplace_back(CValueSub((yaya::int_t)meminfo.ullTotalVirtual));
+		result.array().emplace_back(CValueSub((yaya::int_t)meminfo.ullAvailVirtual));
+	}
+	else {
+		MEMORYSTATUS meminfo = {0};
+		meminfo.dwLength = sizeof(meminfo);
+		::GlobalMemoryStatus(&meminfo);
+
+		result.array().emplace_back(CValueSub((yaya::int_t)meminfo.dwMemoryLoad)   );
+		result.array().emplace_back(CValueSub((yaya::int_t)meminfo.dwTotalPhys)    );
+		result.array().emplace_back(CValueSub((yaya::int_t)meminfo.dwAvailPhys)    );
+		result.array().emplace_back(CValueSub((yaya::int_t)meminfo.dwTotalVirtual) );
+		result.array().emplace_back(CValueSub((yaya::int_t)meminfo.dwAvailVirtual) );
+	}
 
 	return result;
 }

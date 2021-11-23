@@ -32,10 +32,6 @@
 
 #if _MSC_VER <= 1200
 #define for if(0);else for
-typedef __int64 yaya_int64;
-#define	INT64_IS_NOT_STD
-#else
-typedef long long int yaya_int64;
 #endif //1200
 
 #if _MSC_VER < 1900
@@ -45,9 +41,19 @@ typedef long long int yaya_int64;
 #endif //MSC_VER
 
 namespace yaya {
+
+#if _MSC_VER <= 1200
+	typedef __int64 int64;
+	typedef unsigned __int64 uint64;
+#define	INT64_IS_NOT_STD
+#else
+	typedef long long int int64;
+	typedef unsigned long long int uint64;
+#endif //1200
+
 	typedef wchar_t char_t;
 	typedef std::basic_string<char_t> string_t;
-	typedef yaya_int64 int_t;
+	typedef int64 int_t;
 
 	typedef std_shared_ptr<string_t> share_string_t;
 	typedef std_shared_ptr<const string_t> const_share_string_t;
