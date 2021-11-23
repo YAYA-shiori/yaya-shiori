@@ -20,6 +20,7 @@
 #include <list>
 
 #include "globaldef.h"
+#include "manifest.h"
 
 class	CFile1
 {
@@ -43,7 +44,7 @@ public:
 		bomcheck = 1;
 	}
 
-	CFile1(void) { fp = NULL; }
+	CFile1(void) { fp = NULL; charset = CHARSET_UTF8; size = 0; }
 	~CFile1(void) { Close(); }
 
 	inline const yaya::string_t& GetName(void) const { return name; }

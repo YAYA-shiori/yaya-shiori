@@ -18,6 +18,7 @@
 #include <deque>
 
 #include "globaldef.h"
+#include "manifest.h"
 
 #define	CLASSNAME_CHECKTOOL	"TamaWndClass"	/* チェックツールのウィンドウクラス名 */
 
@@ -52,6 +53,7 @@ protected:
 public:
 	CLog(void)
 	{
+		charset = CHARSET_UTF8;
 		enable = 1;
 		open = 0;
 		fileen = 1;

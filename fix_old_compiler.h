@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#ifdef FIX_OLD_COMPILER
-
+#ifndef FIX_OLD_COMPILER
+#define FIX_OLD_COMPILER
 
 #ifndef _MSVC_LANG
 //C++11 or older
@@ -39,6 +39,7 @@
 
 
 #if _MSC_VER >= 1300
+#undef AYX_WIN64_AWARE
 #define AYX_WIN64_AWARE __w64
 #endif
 

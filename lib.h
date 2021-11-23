@@ -20,6 +20,7 @@
 
 #include "aya5.h"
 #include "globaldef.h"
+#include "manifest.h"
 
 class CAyaVM;
 
@@ -94,6 +95,7 @@ private:
 
 public:
 	CLib(CAyaVM &vmr) : vm(vmr) {
+		charset = CHARSET_UTF8;
 	}
 	~CLib(void) { DeleteAll(); }
 
