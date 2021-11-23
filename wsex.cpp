@@ -54,7 +54,16 @@ yaya::int_t	yaya::ws_atoll(const yaya::string_t &str, int base)
 		return 0;
 	
 #ifdef INT64_IS_NOT_STD
+#if _MSC_VER >= 1300
 	return _wcstoi64(str.c_str(),NULL,base);
+#else
+	if ( base == 10 ) {
+		return _wtoi64(str.c_str());
+	}
+	else {
+		return (yaya::int_t)wcstol(str.c_str(),NULL,base);
+	}
+#endif
 #else
 	return wcstoll(str.c_str(),NULL,base);
 #endif
