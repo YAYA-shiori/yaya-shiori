@@ -49,7 +49,7 @@ CValue	CDuplEvInfo::Choice(CAyaVM &vm,int areanum, const std::vector<CVecValue> 
 
 	// 巡回位置を進める　巡回が完了したら巡回順序を初期化する
 	index++;
-	if ( index >= roundorder.size() ) {
+	if ( index >= static_cast<int>(roundorder.size()) ) {
 		InitRoundOrder(vm,mode);
 	}
 

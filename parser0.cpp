@@ -1349,7 +1349,7 @@ void	CParser0::StructFormulaCell(yaya::string_t &str, std::vector<CCell> &cells)
 			int result = -1;
 			int maxlen = 0;
 			for ( size_t r = 0 ; r < FORMULATAG_NUM ; ++r ) {
-				if ( formulatag_len[r] <= (long long)strlen - i ) {
+				if ( static_cast<size_t>(formulatag_len[r]) <= strlen - i ) {
 					if ( str.compare(i,formulatag_len[r],formulatag[r]) == 0 ) {
 						if ( maxlen < formulatag_len[r] ) {
 							result = r;

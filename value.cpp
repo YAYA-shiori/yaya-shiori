@@ -20,14 +20,15 @@
 
 //////////DEBUG/////////////////////////
 #ifdef _WINDOWS
-#undef max
-#undef min
 #ifdef _DEBUG
 #include <crtdbg.h>
 #define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
 #endif
 #endif
 ////////////////////////////////////////
+
+#undef max
+#undef min
 
 //からっぽ変数（ダミー用）
 const CValue emptyvalue;
@@ -46,11 +47,11 @@ yaya::int_t	CValue::GetValueInt(void) const
 		return i_value;
 	case F_TAG_DOUBLE:
 		{
-			if( d_value > static_cast<double>(std::numeric_limits<yaya::int_t>::max()) ) {
-				return std::numeric_limits<yaya::int_t>::max();
+			if ( d_value > static_cast<double>(LLONG_MAX) ) {
+				return LLONG_MAX;
 			}
-			else if( d_value < static_cast<double>(std::numeric_limits<yaya::int_t>::min()) ) {
-				return std::numeric_limits<yaya::int_t>::min();
+			else if ( d_value < static_cast<double>(LLONG_MIN) ) {
+				return LLONG_MIN;
 			}
 			else {
 				return static_cast<yaya::int_t>(d_value);

@@ -3974,7 +3974,7 @@ CValue	CSystemFunction::GETSECCOUNT(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::GETTICKCOUNT(CSF_FUNCPARAM &p)
 {
-	//for compat (64bit�ɂȂ����̂ł���Ȃ��Ȃ���)
+	//for compat (64bitになったのでいらなくなった)
 	if (p.arg.array_size() > 0) {
 		if (p.arg.array()[0].GetValueInt()) {
 			return CValue(0);
@@ -3994,11 +3994,11 @@ CValue	CSystemFunction::GETTICKCOUNT(CSF_FUNCPARAM &p)
 	}
 
 #elif defined(POSIX)
-	struct timeval tv;
+    struct timeval tv;
 	struct timezone tz;
-	gettimeofday(&tv, &tz);
-
-	return static_cast<yaya::int_t>(tv.tv_sec * 1000 + tv.tv_usec / 1000);
+    gettimeofday(&tv, &tz);
+    
+    return CValue(static_cast<yaya::int_t>(tv.tv_sec) * 1000 + static_cast<yaya::int_t>(tv.tv_usec) / 1000);
 #endif
 }
 
@@ -4045,14 +4045,14 @@ CValue	CSystemFunction::GETMEMINFO(CSF_FUNCPARAM &p)
 }
 #elif defined(POSIX)
 CValue CSystemFunction::GETMEMINFO(CSF_FUNCPARAM &p) {
-	// メモリの状態を取得するポータブルな方法は無いので…
-	CValue result(F_TAG_ARRAY, 0/*dmy*/);
-	result.array().emplace_back(CValueSub(0)); // dwMemoryLoad
-	result.array().emplace_back(CValueSub(0)); // dwTotalPhys
-	result.array().emplace_back(CValueSub(0)); // dwAvailPhys
-	result.array().emplace_back(CValueSub(0)); // dwTotalVirtual
-	result.array().emplace_back(CValueSub(0)); // dwAvailVirtual
-	return result;
+    // メモリの状態を取得するポータブルな方法は無いので…
+    CValue result(F_TAG_ARRAY, 0/*dmy*/);
+    result.array().emplace_back(CValueSub(0)); // dwMemoryLoad
+    result.array().emplace_back(CValueSub(0)); // dwTotalPhys
+    result.array().emplace_back(CValueSub(0)); // dwAvailPhys
+    result.array().emplace_back(CValueSub(0)); // dwTotalVirtual
+    result.array().emplace_back(CValueSub(0)); // dwAvailVirtual
+    return result;
 }
 #endif
 
@@ -4515,13 +4515,13 @@ CValue	CSystemFunction::RE_REPLACEEX(CSF_FUNCPARAM &p)
 		SetError(9);
 	}
 
-	size_t count = -1;
+	yaya::int_t count = -1;
 	if ( p.arg.array_size() >= 4 ) {
 		if (!p.arg.array()[3].IsInt()) {
 			vm.logger().Error(E_W, 9, L"RE_REPLACEEX", p.dicname, p.line);
 			SetError(9);
 		}
-		count = static_cast<size_t>( p.arg.array()[3].GetValueInt() );
+		count = static_cast<yaya::int_t>( p.arg.array()[3].GetValueInt() );
 		if ( count <= 0 ) { count = -1; }
 	}
 
@@ -4539,7 +4539,7 @@ CValue	CSystemFunction::RE_REPLACEEX(CSF_FUNCPARAM &p)
 		for ( yaya::string_t::iterator it = arg2.begin() ; it < (arg2.end()-1) ; ++it ) {
 			if ( *it == L'\\' ) {
 				yaya::char_t c = *(it+1);
-
+				
 				if ( c == L'\\' ) {
 					arg2.replace(it,it+2,L"\\");
 				}
@@ -4584,10 +4584,10 @@ CValue	CSystemFunction::RE_REPLACEEX(CSF_FUNCPARAM &p)
 		yaya::char_t *result;
 
 		if ( arg2.size() > 0 ) {
-			result = regex.Replace(arg0.c_str(),arg2.c_str(),0,count,&t_result);
+			result = regex.Replace(arg0.c_str(),arg2.c_str(),0,(int)count,&t_result);
 		}
 		else {
-			result = regex.Replace(arg0.c_str(),L"",0,count,&t_result);
+			result = regex.Replace(arg0.c_str(),L"",0,(int)count,&t_result);
 		}
 
 		str_result = result;
@@ -4816,7 +4816,7 @@ CValue	CSystemFunction::SPLITPATH(CSF_FUNCPARAM &p)
 }
 #elif defined(POSIX)
 CValue CSystemFunction::SPLITPATH(CSF_FUNCPARAM &p) {
-	if (!p.arg.array_size()) {
+    if (!p.arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"SPLITPATH", p.dicname, p.line);
 		SetError(8);
 		return CValue(0);
@@ -6306,7 +6306,7 @@ yaya::string_t	CSystemFunction::ToFullPath(const yaya::string_t &str)
 #elif defined(POSIX)
 yaya::string_t CSystemFunction::ToFullPath(const yaya::string_t &str)
 {
-	if (str.length() > 0 && str[0] == L'/') {
+    if (str.length() > 0 && str[0] == L'/') {
 	return str;
 	}
 	else {
