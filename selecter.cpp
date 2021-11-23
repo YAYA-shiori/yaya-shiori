@@ -31,7 +31,7 @@
  * CSelecterコンストラクタ
  * -----------------------------------------------------------------------
  */
-CSelecter::CSelecter(CAyaVM &vmr, CDuplEvInfo *dc, int aid) : vm(vmr), duplctl(dc), aindex(aid)
+CSelecter::CSelecter(CAyaVM &vmr, CDuplEvInfo *dc, size_t aid) : vm(vmr), duplctl(dc), aindex(aid)
 {
 	areanum = 0;
 
@@ -133,7 +133,7 @@ CValue	CSelecter::ChoiceRandom(void)
 {
 	if (areanum) {
 		yaya::string_t	result;
-		for(int i = 0; i <= areanum; i++)
+		for(size_t i = 0; i <= areanum; i++)
 			result += ChoiceRandom1(i).GetValueString();
 		return CValue(result);
 	}
@@ -146,13 +146,13 @@ CValue	CSelecter::ChoiceRandom(void)
  *  機能概要：  指定された領域からランダムに値を抽出します
  * -----------------------------------------------------------------------
  */
-CValue	CSelecter::ChoiceRandom1(int index)
+CValue	CSelecter::ChoiceRandom1(size_t index)
 {
 	if ( ! values[index].array.size() ) {
 		return CValue();
 	}
 
-    int choice = vm.genrand_int(static_cast<int>(values[index].array.size()));
+	size_t choice = vm.genrand_int(values[index].array.size());
 
     vm.sysfunction().SetLso(choice);
 
@@ -178,7 +178,7 @@ CValue	CSelecter::ChoiceByIndex()
 	// 主処理
 	if (areanum) {
 		yaya::string_t	result;
-		for(int i = 0; i <= areanum; i++)
+		for(size_t i = 0; i <= areanum; i++)
 			result += ChoiceByIndex1(i).GetValueString();
 		return CValue(result);
 	}
@@ -191,9 +191,9 @@ CValue	CSelecter::ChoiceByIndex()
  *  機能概要：  指定された領域から指定位置の値を抽出します
  * -----------------------------------------------------------------------
  */
-CValue	CSelecter::ChoiceByIndex1(int index)
+CValue	CSelecter::ChoiceByIndex1(size_t index)
 {
-	int	num = values[index].array.size();
+	size_t	num = values[index].array.size();
 
 	if (!num)
 		return CValue();
@@ -210,7 +210,7 @@ CValue CSelecter::StructArray()
 {
 	if (areanum) {
 		CValue	result(F_TAG_ARRAY, 0/*dmy*/);
-		for(int i = 0; i <= areanum; i++) {
+		for(size_t i = 0; i <= areanum; i++) {
 			result = result + StructArray1(i);
 //			result = result + StructArray1(i).GetValueString();
 		}
@@ -226,7 +226,7 @@ CValue CSelecter::StructArray()
  *  機能概要：  指定された領域の値を結合した汎用配列を作成します
  * -----------------------------------------------------------------------
  */
-CValue CSelecter::StructArray1(int index)
+CValue CSelecter::StructArray1(size_t index)
 {
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 

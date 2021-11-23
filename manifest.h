@@ -158,7 +158,7 @@ extern const yaya::char_t *aya_author;
 
 // 有効な演算子の数
 // 演算子の名前
-const yaya::char_t	formulatag[][19] = {
+constexpr yaya::char_t	formulatag[][19] = {
 	L",",   L"+",   L"-",    L"*",     L"/",
 	L"%",   L"==",  L"!=",   L">=",    L"<=",
 	L">",   L"<",   L"_in_", L"!_in_", L"||",
@@ -176,7 +176,7 @@ const yaya::char_t	formulatag[][19] = {
 #define	FORMULATAG_NUM			(sizeof(formulatag) / sizeof(formulatag[0]))
 
 // 演算子の名前の長さ
-const size_t	formulatag_len[FORMULATAG_NUM] = {
+constexpr size_t formulatag_len[FORMULATAG_NUM] = {
 	1, 1, 1, 1, 1,
 	1, 2, 2, 2, 2,
 	1, 1, 4, 5, 2,
@@ -192,7 +192,7 @@ const size_t	formulatag_len[FORMULATAG_NUM] = {
 };
 
 // 演算子で関係する項の数の最小値：エラー検出用（単項演算子か二項演算子か）
-const size_t	formulatag_params[FORMULATAG_NUM] = {
+constexpr size_t formulatag_params[FORMULATAG_NUM] = {
 	2, 2, 2, 2, 2,
 	2, 2, 2, 2, 2,
 	2, 2, 2, 2, 2,
@@ -211,7 +211,7 @@ const size_t	formulatag_params[FORMULATAG_NUM] = {
 // 演算子の優先順位
 // 数値が大きいほど優先度は高くなります。
 // ()と[]では、その中に入る際に優先度を上げ、出る際に戻すようにします。
-const int	formulatag_depth[FORMULATAG_NUM] = {
+constexpr int	formulatag_depth[FORMULATAG_NUM] = {
 	0, 7, 7, 8,  8,
 	8, 5, 5, 5,  5,
 	5, 5, 5, 5,  3,
@@ -229,7 +229,7 @@ const int	formulatag_depth[FORMULATAG_NUM] = {
 // 制御構文
 #define	FLOWCOM_NUM	(sizeof(flowcom) / sizeof(flowcom[0]))
 
-const yaya::char_t	flowcom[][16] = {
+constexpr yaya::char_t	flowcom[][16] = {
 	L"if",
 	L"elseif",
 	L"else",

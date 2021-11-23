@@ -46,6 +46,19 @@
 #ifndef	MTRANDH
 #define	MTRANDH
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+//because this code is based on C code, we cannot use std::int32_t / int64_t.
+
+typedef long std_int32_t;
+#if _MSC_VER <= 1200
+typedef __int64 std_int64_t;
+#else
+typedef long long std_int64_t;
+#endif //1200
+
 typedef struct tagMersenneTwister {
 	unsigned long state[624]; /* the array for the state vector  */
 	int left;
@@ -63,7 +76,13 @@ void init_genrand(MersenneTwister &rs,unsigned long s);
 void init_by_array(MersenneTwister &rs,const unsigned long init_key[],const int key_length);
 
 /* generates a random number on [0,0xffffffff]-interval */
-unsigned long genrand_int32(MersenneTwister &rs);
+std_int32_t genrand_int32(MersenneTwister &rs);
+
+// Returns an unsigned long in the range [0,2^64-1]
+// Its lowest value is : 0
+// Its highest value is: 18446744073709551615
+//
+std_int64_t genrand_int64(MersenneTwister& rs);
 
 /* generates a random number on [0,0x7fffffff]-interval */
 long genrand_int31(MersenneTwister &rs);
@@ -80,5 +99,9 @@ double genrand_real3(MersenneTwister &rs);
 
 /* generates a random number on [0,1) with 53-bit resolution*/
 double genrand_res53(MersenneTwister &rs);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

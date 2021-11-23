@@ -43,8 +43,11 @@
    email: m-mat @ math.sci.hiroshima-u.ac.jp (remove space)
 */
 
-#include <stdio.h>
 #include "mt19937ar.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Period parameters */  
 #define N 624
@@ -128,7 +131,7 @@ static void next_state(MersenneTwister &rs)
 }
 
 /* generates a random number on [0,0xffffffff]-interval */
-unsigned long genrand_int32(MersenneTwister &rs)
+std_int32_t genrand_int32(MersenneTwister &rs)
 {
     unsigned long y;
 
@@ -159,6 +162,15 @@ long genrand_int31(MersenneTwister &rs)
     y ^= (y >> 18);
 
     return (long)(y>>1);
+}
+
+// Returns an unsigned long in the range [0,2^64-1]
+// Its lowest value is : 0
+// Its highest value is: 18446744073709551615
+//
+std_int64_t genrand_int64(MersenneTwister& rs)
+{
+	return (std_int64_t)genrand_int32(rs) | ((std_int64_t)genrand_int32(rs)) << 32;
 }
 
 /* generates a random number on [0,1]-real-interval */
@@ -223,3 +235,6 @@ double genrand_res53(MersenneTwister &rs)
 } 
 /* These real versions are due to Isaku Wada, 2002/01/09 added */
 
+#ifdef __cplusplus
+}
+#endif
