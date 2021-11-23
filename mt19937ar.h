@@ -43,6 +43,8 @@
    email: m-mat @ math.sci.hiroshima-u.ac.jp (remove space)
 */
 
+#include <cstdint>
+
 #ifndef	MTRANDH
 #define	MTRANDH
 
@@ -63,7 +65,13 @@ void init_genrand(MersenneTwister &rs,unsigned long s);
 void init_by_array(MersenneTwister &rs,const unsigned long init_key[],const int key_length);
 
 /* generates a random number on [0,0xffffffff]-interval */
-unsigned long genrand_int32(MersenneTwister &rs);
+std::int32_t genrand_int32(MersenneTwister &rs);
+
+// Returns an unsigned long in the range [0,2^64-1]
+// Its lowest value is : 0
+// Its highest value is: 18446744073709551615
+//
+std::int64_t genrand_int64(MersenneTwister& rs);
 
 /* generates a random number on [0,0x7fffffff]-interval */
 long genrand_int31(MersenneTwister &rs);
