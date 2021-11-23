@@ -176,7 +176,7 @@ const yaya::char_t	formulatag[][19] = {
 #define	FORMULATAG_NUM			(sizeof(formulatag) / sizeof(formulatag[0]))
 
 // 演算子の名前の長さ
-const int	formulatag_len[FORMULATAG_NUM] = {
+const size_t	formulatag_len[FORMULATAG_NUM] = {
 	1, 1, 1, 1, 1,
 	1, 2, 2, 2, 2,
 	1, 1, 4, 5, 2,
@@ -192,7 +192,7 @@ const int	formulatag_len[FORMULATAG_NUM] = {
 };
 
 // 演算子で関係する項の数の最小値：エラー検出用（単項演算子か二項演算子か）
-const int	formulatag_params[FORMULATAG_NUM] = {
+const size_t	formulatag_params[FORMULATAG_NUM] = {
 	2, 2, 2, 2, 2,
 	2, 2, 2, 2, 2,
 	2, 2, 2, 2, 2,
