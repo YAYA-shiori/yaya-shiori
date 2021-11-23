@@ -57,8 +57,6 @@
 #endif
 ////////////////////////////////////////
 
-#undef max
-
 //for compatibility only
 #define MSGLANG_JAPANESE 0
 #define MSGLANG_ENGLISH  1
