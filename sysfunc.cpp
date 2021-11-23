@@ -2831,16 +2831,18 @@ CValue	CSystemFunction::FDIGEST(CSF_FUNCPARAM &p)
 
 	unsigned char digest_result[32];
 	size_t digest_len;
-	unsigned char buf[32768];//TODO: https://docs.microsoft.com/ja-jp/cpp/code-quality/c6262?view=msvc-170
 
+	const size_t buf_len = 32768;
+	unsigned char* buf_ptr = new unsigned char[buf_len];
+	
 	if ( wcsicmp(digest_type.c_str(),L"sha1") == 0 || wcsicmp(digest_type.c_str(),L"sha-1") == 0 ) {
 		SHA1Context sha1ctx;
 		SHA1Reset(&sha1ctx);
 
 		while ( ! feof(pF) ) {
-			size_t readsize = fread(buf,sizeof(buf[0]),sizeof(buf),pF);
-			SHA1Input(&sha1ctx,buf,readsize);
-			if ( readsize < sizeof(buf) ) { break; }
+			size_t readsize = fread(buf_ptr,sizeof(buf_ptr[0]),buf_len,pF);
+			SHA1Input(&sha1ctx,buf_ptr,readsize);
+			if ( readsize < buf_len ) { break; }
 		}
 
 		SHA1Result(&sha1ctx,digest_result);
@@ -2850,9 +2852,9 @@ CValue	CSystemFunction::FDIGEST(CSF_FUNCPARAM &p)
 		unsigned long crc = 0;
 
 		while ( ! feof(pF) ) {
-			size_t readsize = fread(buf,sizeof(buf[0]),sizeof(buf),pF);
-			crc = update_crc32(buf,readsize,crc);;
-			if ( readsize < sizeof(buf) ) { break; }
+			size_t readsize = fread(buf_ptr,sizeof(buf_ptr[0]),buf_len,pF);
+			crc = update_crc32(buf_ptr,readsize,crc);;
+			if ( readsize < buf_len ) { break; }
 		}
 
 		digest_result[0] = static_cast<unsigned char>(crc & 0xFFU);
@@ -2866,14 +2868,17 @@ CValue	CSystemFunction::FDIGEST(CSF_FUNCPARAM &p)
 		MD5Init(&md5ctx);
 
 		while ( ! feof(pF) ) {
-			size_t readsize = fread(buf,sizeof(buf[0]),sizeof(buf),pF);
-			MD5Update(&md5ctx,buf,readsize);
-			if ( readsize < sizeof(buf) ) { break; }
+			size_t readsize = fread(buf_ptr,sizeof(buf_ptr[0]),buf_len,pF);
+			MD5Update(&md5ctx,buf_ptr,readsize);
+			if ( readsize < buf_len ) { break; }
 		}
 
 		MD5Final(digest_result,&md5ctx);
 		digest_len = 16;
 	}
+
+	delete buf_ptr;
+	buf_ptr = NULL;
 
 	fclose(pF);
 

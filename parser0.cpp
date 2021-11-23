@@ -1336,12 +1336,12 @@ void	CParser0::StructFormulaCell(yaya::string_t &str, std::vector<CCell> &cells)
 		for(size_t i = 0; i < strlen; ++i) {
 			if (str[i] == L'\"') {
 				if (!in_sq)
-					in_dq = 1 - in_dq;
+					in_dq = !in_dq;
 				continue;
 			}
 			if (str[i] == L'\'') {
 				if (!in_dq)
-					in_sq = 1 - in_sq;
+					in_sq = !in_sq;
 				continue;
 			}
 			if (in_dq || in_sq)
