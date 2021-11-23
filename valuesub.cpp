@@ -34,17 +34,23 @@ CValueSub::CValueSub(const CValue &v)
 	switch(v.type) {
 	case F_TAG_INT:
 		i_value = v.i_value;
+		d_value = 0;
 		type = v.type;
 		return;
 	case F_TAG_DOUBLE:
+		i_value = 0;
 		d_value = v.d_value;
 		type = v.type;
 		return;
 	case F_TAG_STRING:
+		i_value = 0;
+		d_value = 0;
 		s_value = v.s_value;
 		type = v.type;
 		return;
 	default:
+		i_value = 0;
+		d_value = 0;
 		type = F_TAG_VOID;
 		return;
 	}

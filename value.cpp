@@ -186,8 +186,8 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 			if (order1 < 0)
 				return;
 			else if(order < sz) {
-				size_t	s_index = (size_t)std::max<yaya::int_t>(order, 0);
-				size_t	e_index = (size_t)std::min<yaya::int_t>(order1 + 1, sz);
+				size_t	s_index = (size_t)std::max<yaya::int_t>(static_cast<yaya::int_t>(order), 0);
+				size_t	e_index = (size_t)std::min<yaya::int_t>(static_cast<yaya::int_t>(order1) + 1, sz);
 
 				if ( value.GetType() == F_TAG_ARRAY ) {
 					std::vector<yaya::string_t>::iterator it = s_array.erase(s_array.begin() + s_index,s_array.begin() + e_index);
@@ -289,8 +289,8 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 				return;
 			if (order < sz) {
 				// ”z—ñ’†“r‚Ì‘‚«Š·‚¦
-				size_t	s_index = (size_t)std::max<yaya::int_t>(order, 0);
-				size_t	e_index = (size_t)std::min<yaya::int_t>(order1 + 1, sz);
+				size_t	s_index = (size_t)std::max<yaya::int_t>(static_cast<yaya::int_t>(order), 0);
+				size_t	e_index = (size_t)std::min<yaya::int_t>(static_cast<yaya::int_t>(order1) + 1, sz);
 				
 				if ( value.GetType() == F_TAG_ARRAY ) {
 					CValueArray::iterator it = array().erase(array().begin() + s_index,array().begin() + e_index);
@@ -968,8 +968,8 @@ CValue CValue::operator [](const CValue &value) const
 			if (order1 < 0 || order >= sz)
 				return CValue();
 			else {
-				size_t	s_index = (size_t)std::max<yaya::int_t>(order, 0);
-				size_t	e_index = (size_t)std::min<yaya::int_t>(order1 + 1, sz);
+				size_t	s_index = (size_t)std::max<yaya::int_t>(static_cast<yaya::int_t>(order), 0);
+				size_t	e_index = (size_t)std::min<yaya::int_t>(static_cast<yaya::int_t>(order1) + 1, sz);
 				size_t	i       = 0;
 				size_t	j       = 0;
 				yaya::string_t	result_str;
