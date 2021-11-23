@@ -2277,8 +2277,8 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 	// 0以上 演算子、数字が大きいほど優先度が高い
 
 	//ここはintでないとだめ……i--のループで負（＝0xFFFFFFFFになってunsignedだと巨大な値）になる可能性がある
-	size_t sz = st.cell_size();
-	signed long long i = 0;
+	ptrdiff_t sz = st.cell_size();
+	ptrdiff_t i = 0;
 
 	std::vector<int>	depthvec;
 	depthvec.reserve(sz);
@@ -2317,8 +2317,8 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 		// 同一深さの演算子の並列は最初のものが選ばれる。つまりAYA5では演算子は常に左から右へ結合される
 		// したがって i=j=1 は i=j; j=1 と等価である。i に 1 は代入されない。右から結合されるC/C++とは
 		// ここは異なっている。
-		int	t_index = -1;
-		int	t_depth = -1;
+		ptrdiff_t	t_index = -1;
+		ptrdiff_t	t_depth = -1;
 		for(i = 0; i < sz; i++)
 			if (depthvec[i] > t_depth) {
 				t_depth = depthvec[i];
