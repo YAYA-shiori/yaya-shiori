@@ -297,7 +297,7 @@ void	CLogExCode::StructCellString(std::vector<CCell> *cellvector, yaya::string_t
 			formula += L"# " ;
 			break;
 		case F_TAG_INT:
-			tmpstr = L"(int)" + yaya::ws_itoa(it->value_const().i_value) + L' ';
+			tmpstr = L"(int)" + yaya::ws_lltoa(it->value_const().i_value) + L' ';
 			formula += tmpstr;
 			break;
 		case F_TAG_DOUBLE:
@@ -412,7 +412,7 @@ void	CLogExCode::OutVariableInfoForCheck(void)
 		// 変数の値
 		switch(var->value().GetType()) {
 		case F_TAG_INT:
-			tmpstr = L"(int)" + yaya::ws_itoa(var->value_const().i_value) + L"\n";
+			tmpstr = L"(int)" + yaya::ws_lltoa(var->value_const().i_value) + L"\n";
 			vm.logger().Write(tmpstr);
 			break;
 		case F_TAG_DOUBLE:
@@ -454,7 +454,7 @@ void	CLogExCode::StructArrayString(const CValueArray &vs, yaya::string_t &enlist
 	for(CValueArray::const_iterator it = vs.begin(); it != vs.end(); it++) {
 		switch(it->GetType()) {
 		case F_TAG_INT:
-			tmpstr = L"(int)" + yaya::ws_itoa(it->i_value) + L' ';
+			tmpstr = L"(int)" + yaya::ws_lltoa(it->i_value) + L' ';
 			enlist += tmpstr;
 			break;
 		case F_TAG_DOUBLE:

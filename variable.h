@@ -231,7 +231,7 @@ public:
 	yaya::string_t&	GetDelimiter(int index) { return var[index].delimiter; }
 
 	void	SetValue(int index, const CValue &value) { var[index].Enable(); var[index].value() = value; }
-	void	SetValue(int index, int value) { var[index].Enable(); var[index].value() = value; }
+	void	SetValue(int index, yaya::int_t value) { var[index].Enable(); var[index].value() = value; }
 	void	SetValue(int index, double value) { var[index].Enable(); var[index].value() = value; }
 	void	SetValue(int index, const yaya::string_t &value) { var[index].Enable(); var[index].value() = value; }
 	void	SetValue(int index, const yaya::char_t *value) { var[index].Enable(); var[index].value() = value; }

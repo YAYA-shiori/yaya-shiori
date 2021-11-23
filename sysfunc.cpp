@@ -869,7 +869,7 @@ CValue	CSystemFunction::CHARSETIDTOTEXT(CSF_FUNCPARAM &p)
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	return CValue(Ccct::CharsetIDToTextW(p.arg.array()[0].GetValueInt()));
+	return CValue(Ccct::CharsetIDToTextW(static_cast<int>( p.arg.array()[0].GetValueInt() ) ));
 }
 
 /* -----------------------------------------------------------------------
@@ -929,7 +929,7 @@ CValue CSystemFunction::BITWISE_SHIFT(CSF_FUNCPARAM &p)
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	int shiftValue = p.arg.array()[1].GetValueInt();
+	int shiftValue = static_cast<int>( p.arg.array()[1].GetValueInt() );
 	if ( shiftValue > 0 ) {
 		return CValue(p.arg.array()[0].GetValueInt() << shiftValue );
 	}
@@ -1204,14 +1204,14 @@ CValue	CSystemFunction::CHARSETLIBEX(CSF_FUNCPARAM &p)
 CValue	CSystemFunction::RAND(CSF_FUNCPARAM &p)
 {
 	if (!p.arg.array_size())
-	        return vm.genrand_sysfunc_int(100);
+		return vm.genrand_sysfunc_int(100);
 
 	if (!p.arg.array()[0].IsNum()) {
 		vm.logger().Error(E_W, 9, L"RAND", p.dicname, p.line);
 		SetError(9);
 	}
 
-	int num = p.arg.array()[0].GetValueInt();
+	yaya::int_t num = p.arg.array()[0].GetValueInt();
 
 	if ( num == 0 ) {
 		vm.logger().Error(E_W, 19, L"RAND", p.dicname, p.line);
@@ -1219,7 +1219,7 @@ CValue	CSystemFunction::RAND(CSF_FUNCPARAM &p)
 		return CValue(0);
 	}
 
-	return vm.genrand_sysfunc_int(num);
+	return vm.genrand_sysfunc_ll(num);
 }
 
 
@@ -1238,8 +1238,8 @@ CValue	CSystemFunction::SRAND(CSF_FUNCPARAM &p)
 	}
 
 	if (p.arg.array()[0].IsInt()) {
-		int num = p.arg.array()[0].GetValueInt();
-		vm.genrand_sysfunc_srand(num);
+		yaya::int_t num = p.arg.array()[0].GetValueInt();
+		vm.genrand_sysfunc_srand_ll(num);
 	}
 	else if (p.arg.array()[0].IsDouble()) {
 		union {
@@ -1614,7 +1614,7 @@ CValue	CSystemFunction::STRSTR(CSF_FUNCPARAM &p)
 		SetError(9);
 	}
 
-	return CValue((int)p.arg.array()[0].GetValueString().find(p.arg.array()[1].GetValueString(), p.arg.array()[2].GetValueInt()));
+	return CValue( static_cast<int>( p.arg.array()[0].GetValueString().find(p.arg.array()[1].GetValueString(), static_cast<int>( p.arg.array()[2].GetValueInt() ) ) ) );
 }
 
 /* -----------------------------------------------------------------------
@@ -1662,7 +1662,7 @@ CValue	CSystemFunction::REPLACE(CSF_FUNCPARAM &p)
 			vm.logger().Error(E_W, 9, L"REPLACE", p.dicname, p.line);
 			SetError(9);
 		}
-		count = p.arg.array()[3].GetValueInt();
+		count = static_cast<int>( p.arg.array()[3].GetValueInt() );
 	}
 
 	yaya::string_t	result = p.arg.array()[0].GetValueString();
@@ -1697,8 +1697,8 @@ CValue	CSystemFunction::SUBSTR(CSF_FUNCPARAM &p)
 	}
 
 	const yaya::string_t& src = p.arg.array()[0].GetValueString();
-	int pos = p.arg.array()[1].GetValueInt();
-	int len = p.arg.array()[2].GetValueInt();
+	int pos = static_cast<int>(p.arg.array()[1].GetValueInt() );
+	int len = static_cast<int>(p.arg.array()[2].GetValueInt() );
 
 	if ( pos < 0 ) {
 		pos += src.length();
@@ -1741,8 +1741,8 @@ CValue	CSystemFunction::ERASE(CSF_FUNCPARAM &p)
 	}
 	
 	yaya::string_t src = p.arg.array()[0].GetValueString();
-	int pos = p.arg.array()[1].GetValueInt();
-	int len = p.arg.array()[2].GetValueInt();
+	int pos = static_cast<int>( p.arg.array()[1].GetValueInt() );
+	int len = static_cast<int>( p.arg.array()[2].GetValueInt() );
 
 	if ( pos < 0 ) {
 		pos += src.length();
@@ -1785,7 +1785,7 @@ CValue	CSystemFunction::INSERT(CSF_FUNCPARAM &p)
 	}
 
 	yaya::string_t str = p.arg.array()[0].GetValueString();
-	return CValue(str.insert(p.arg.array()[1].GetValueInt(), p.arg.array()[2].s_value));
+	return CValue(str.insert(static_cast<size_t>( p.arg.array()[1].GetValueInt() ), p.arg.array()[2].s_value));
 }
 
 /* -----------------------------------------------------------------------
@@ -1879,7 +1879,7 @@ CValue	CSystemFunction::TOBINSTR(CSF_FUNCPARAM &p)
 		SetError(9);
 	}
 
-	return CValue(yaya::ws_itoa(p.arg.array()[0].GetValueInt(), 2));
+	return CValue(yaya::ws_itoa(static_cast<int>( p.arg.array()[0].GetValueInt() ), 2));
 }
 
 /* -----------------------------------------------------------------------
@@ -1899,7 +1899,7 @@ CValue	CSystemFunction::TOHEXSTR(CSF_FUNCPARAM &p)
 		SetError(9);
 	}
 
-	return CValue(yaya::ws_itoa(p.arg.array()[0].GetValueInt(), 16));
+	return CValue(yaya::ws_itoa(static_cast<int>( p.arg.array()[0].GetValueInt() ), 16));
 }
 
 /* -----------------------------------------------------------------------
@@ -2095,7 +2095,7 @@ CValue	CSystemFunction::FREADBIN(CSF_FUNCPARAM &p)
 
 	size_t readsize = 0;
 	if ( p.arg.array_size() >= 2 ) {
-		readsize = p.arg.array()[1].GetValueInt();
+		readsize = static_cast<size_t>( p.arg.array()[1].GetValueInt() );
 	}
 
 	yaya::char_t alt = L' ';
@@ -2141,7 +2141,7 @@ CValue	CSystemFunction::FREADENCODE(CSF_FUNCPARAM &p)
 
 	size_t readsize = 0;
 	if ( p.arg.array_size() >= 2 ) {
-		readsize = p.arg.array()[1].GetValueInt();
+		readsize = static_cast<size_t>( p.arg.array()[1].GetValueInt() );
 	}
 
 	yaya::string_t type = L"base64";
@@ -2313,7 +2313,7 @@ CValue	CSystemFunction::FSEEK(CSF_FUNCPARAM &p){
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	int result=vm.files().FSeek(ToFullPath(p.arg.array()[0].s_value), p.arg.array()[1].i_value,p.arg.array()[2].s_value);
+	yaya::int_t result=vm.files().FSeek(ToFullPath(p.arg.array()[0].s_value), p.arg.array()[1].i_value ,p.arg.array()[2].s_value);
 	return CValue(result);
 }
 
@@ -2334,7 +2334,7 @@ CValue	CSystemFunction::FTELL(CSF_FUNCPARAM &p){
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	int result=vm.files().FTell(ToFullPath(p.arg.array()[0].s_value));
+	yaya::int_t result=vm.files().FTell(ToFullPath(p.arg.array()[0].s_value));
 	return CValue(result);
 }
 
@@ -3379,7 +3379,7 @@ CValue	CSystemFunction::FSIZE(CSF_FUNCPARAM &p)
 
 	//すでに開いているファイルならそっちから情報をパクる
 	yaya::string_t fullpath = ToFullPath(p.arg.array()[0].s_value);
-	long size = vm.files().Size(fullpath);
+	yaya::int_t size = vm.files().Size(fullpath);
 	if ( size >= 0 ) { return CValue((int)size); }
 
 	// パスをMBCSに変換
@@ -3951,19 +3951,19 @@ CValue	CSystemFunction::GETSECCOUNT(CSF_FUNCPARAM &p)
 	else {
 		switch ( asize ) {
 		case 7:
-			input_time.tm_sec = p.arg.array()[6].GetValueInt();
+			input_time.tm_sec = static_cast<int>(p.arg.array()[6].GetValueInt());
 		case 6:
-			input_time.tm_min = p.arg.array()[5].GetValueInt();
+			input_time.tm_min = static_cast<int>(p.arg.array()[5].GetValueInt());
 		case 5:
-			input_time.tm_hour = p.arg.array()[4].GetValueInt();
+			input_time.tm_hour = static_cast<int>(p.arg.array()[4].GetValueInt());
 		/*case 4:
-			input_time.tm_wday = p.arg.array()[3].GetValueInt();*/ //代入禁止
+			input_time.tm_wday = static_cast<int>( p.arg.array()[3].GetValueInt());*/ //代入禁止
 		case 3:
-			input_time.tm_mday = p.arg.array()[2].GetValueInt();
+			input_time.tm_mday = static_cast<int>(p.arg.array()[2].GetValueInt());
 		case 2:
-			input_time.tm_mon = p.arg.array()[1].GetValueInt()-1;
+			input_time.tm_mon = static_cast<int>(p.arg.array()[1].GetValueInt()-1);
 		case 1:
-			input_time.tm_year = p.arg.array()[0].GetValueInt()-1900;
+			input_time.tm_year = static_cast<int>( p.arg.array()[0].GetValueInt()-1900);
 		}
 		return CValue((int)mktime(&input_time));
 	}
@@ -4008,17 +4008,17 @@ CValue CSystemFunction::GETTICKCOUNT(CSF_FUNCPARAM &p) {
 #if defined(WIN32)
 CValue	CSystemFunction::GETMEMINFO(CSF_FUNCPARAM &p)
 {
-	MEMORYSTATUSEX	meminfo{};
+	MEMORYSTATUSEX	meminfo = {0};
 	meminfo.dwLength=sizeof(meminfo);
 	GlobalMemoryStatusEx(&meminfo);
 
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 
-	result.array().emplace_back(CValueSub((int)meminfo.dwMemoryLoad)  );
-	result.array().emplace_back(CValueSub((int)meminfo.ullTotalPhys)   );
-	result.array().emplace_back(CValueSub((int)meminfo.ullAvailPhys)   );
-	result.array().emplace_back(CValueSub((int)meminfo.ullTotalVirtual));
-	result.array().emplace_back(CValueSub((int)meminfo.ullAvailVirtual));
+	result.array().emplace_back(CValueSub((yaya::int_t)meminfo.dwMemoryLoad)  );
+	result.array().emplace_back(CValueSub((yaya::int_t)meminfo.ullTotalPhys)   );
+	result.array().emplace_back(CValueSub((yaya::int_t)meminfo.ullAvailPhys)   );
+	result.array().emplace_back(CValueSub((yaya::int_t)meminfo.ullTotalVirtual));
+	result.array().emplace_back(CValueSub((yaya::int_t)meminfo.ullAvailVirtual));
 
 	return result;
 }
@@ -4308,7 +4308,7 @@ CValue	CSystemFunction::SETLASTERROR(CSF_FUNCPARAM &p)
 	}
 
 	if (p.arg.array()[0].IsNum()) {
-		lasterror = p.arg.array()[0].GetValueInt();
+		lasterror = static_cast<int>( p.arg.array()[0].GetValueInt() );
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
@@ -4441,7 +4441,7 @@ CValue	CSystemFunction::RE_REPLACE(CSF_FUNCPARAM &p)
 			vm.logger().Error(E_W, 9, L"RE_REPLACE", p.dicname, p.line);
 			SetError(9);
 		}
-		count = p.arg.array()[3].GetValueInt();
+		count = static_cast<int>( p.arg.array()[3].GetValueInt() );
 		if ( count <= 0 ) { count = 0; }
 		else { count += 1; }
 	}
@@ -4500,7 +4500,7 @@ CValue	CSystemFunction::RE_REPLACEEX(CSF_FUNCPARAM &p)
 			vm.logger().Error(E_W, 9, L"RE_REPLACEEX", p.dicname, p.line);
 			SetError(9);
 		}
-		count = p.arg.array()[3].GetValueInt();
+		count = static_cast<int>( p.arg.array()[3].GetValueInt() );
 		if ( count <= 0 ) { count = -1; }
 	}
 
@@ -4711,7 +4711,7 @@ CValue	CSystemFunction::CHRCODE(CSF_FUNCPARAM &p)
 			SetError(9);
 			return CValue(0);
 		}
-		getpos = p.arg.array()[1].GetValueInt();
+		getpos = static_cast<size_t>( p.arg.array()[1].GetValueInt() );
 		if ( getpos >= p.arg.array()[0].s_value.length() ) {
 			getpos = p.arg.array()[0].s_value.length() - 1;
 		}
@@ -5880,7 +5880,7 @@ CValue	CSystemFunction::SETTAMAHWND(CSF_FUNCPARAM &p)
 	}
 
 	if(p.arg.array()[0].IsNum()) {
-		size_t hwnd = p.arg.array()[0].GetValueInt();
+		size_t hwnd = static_cast<size_t>( p.arg.array()[0].GetValueInt() );
 		vm.basis().SetLogRcvWnd((long)hwnd);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
@@ -6245,7 +6245,7 @@ void	CSystemFunction::SetError(int code)
 int CSystemFunction::GetCharset(const CValueSub &var,const wchar_t *fname, const yaya::string_t &d, int l)
 {
 	if (var.IsNum()) {
-		int	charset = var.GetValueInt();
+		int	charset = static_cast<int>( var.GetValueInt() );
 		if (Ccct::CheckInvalidCharset(charset)) {
 			vm.logger().Error(E_W, 12, fname, d, l);
 			SetError(12);
@@ -6511,7 +6511,7 @@ CValue	CSystemFunction::SLEEP(CSF_FUNCPARAM &p)
 		return CValue(-1);
 	}
 
-	int time = p.arg.array()[0].GetValueInt();
+	int time = static_cast<int>( p.arg.array()[0].GetValueInt() );
 
 	if ( time <= 0 ) {
 		vm.logger().Error(E_W, 9, L"SLEEP", p.dicname, p.line);

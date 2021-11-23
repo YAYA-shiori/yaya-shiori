@@ -30,6 +30,14 @@
 #ifdef POSIX
 #define wcsicmp wcscasecmp
 #endif
+
+#ifdef INT64_IS_NOT_STD
+extern "C" {
+__int64 __cdecl _ftelli64(FILE *);
+int __cdecl _fseeki64(FILE *, __int64, int);
+}
+#endif
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CFile1::Open
  *  機能概要：  ファイルをオープンします
@@ -209,7 +217,7 @@ int	CFile1::ReadBin(yaya::string_t &ostr, size_t len, yaya::char_t alt)
 		return 0;
 
 	if(len<1){ //0=デフォルトサイズ指定
-		len = size;
+		len = static_cast<size_t>( size );
 	}
 
 	char f_buffer[1024];
@@ -257,7 +265,7 @@ int	CFile1::ReadEncode(yaya::string_t &ostr, size_t len, const yaya::string_t &t
 		return 0;
 
 	if(len<1){ //0=デフォルトサイズ指定
-		len = size;
+		len = static_cast<size_t>( size );
 	}
 
 	char f_buffer[3*3*3*3*3*3*3]; //3の倍数にすること base64対策
@@ -308,11 +316,15 @@ int	CFile1::ReadEncode(yaya::string_t &ostr, size_t len, const yaya::string_t &t
  *  返値　　：　0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-int CFile1::FSeek(int offset,int origin){
+yaya::int_t CFile1::FSeek(yaya::int_t offset,int origin){
 	if (fp == NULL)
 		return 0;
 
-	int result=::fseek(fp,offset,origin);
+#ifdef POSIX
+	yaya::int_t result = fseeko(fp, offset, origin);
+#else
+	yaya::int_t result=::_fseeki64(fp,offset,origin);
+#endif
 
 	if(result!=0){
 		return 0;
@@ -328,11 +340,15 @@ int CFile1::FSeek(int offset,int origin){
  *  返値　　：　-1/その他=失敗/成功（ftellの結果）
  * -----------------------------------------------------------------------
  */
-int CFile1::FTell(){
+yaya::int_t CFile1::FTell(){
 	if (fp == NULL)
 		return -1;
 
-	int result=::ftell(fp);
+#ifdef POSIX
+	yaya::int_t result = ftello(fp);
+#else
+	yaya::int_t result=::_ftelli64(fp);
+#endif
 
 	if(result<0){
 		return -1;

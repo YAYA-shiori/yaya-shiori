@@ -321,7 +321,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 				break;
 			}
 		case ST_SWITCH: {				// switch
-				int	sw_index = GetFormulaAnswer(lvar, st).GetValueInt();
+				int sw_index = static_cast<int>( GetFormulaAnswer(lvar, st).GetValueInt() );
 				if (sw_index < 0)
 					sw_index = BRACE_SWITCH_OUT_OF_RANGE;
 				i = ExecuteInBrace(i + 2, t_value, lvar, sw_index, exitcode, POOL_TO_NEXT);
@@ -1207,7 +1207,7 @@ char	CFunction::ExecSystemFunctionWithArgs(CCell& cell, std::vector<int> &sid, C
 void	CFunction::ExecHistoryP1(int start_index, CCell& cell, const CValue &arg, CStatement &st)
 {
 	if (arg.array_size()) {
-		cell.ansv()    = start_index;
+		cell.ansv()    = CValue(start_index);
 		cell.order()   = arg.array()[0];
 	}
 	else {
@@ -1229,11 +1229,11 @@ void	CFunction::ExecHistoryP2(CCell& cell, CStatement &st)
 	if (!cell.order_const().IsNum())
 		return;
 
-	int	index = cell.order_const().GetValueInt();
+	int	index = static_cast<int>( cell.order_const().GetValueInt() );
 	if (index < 0)
 		return;
 
-	int start = __GETMIN(static_cast<int>(st.cell().size())-1,cell.ansv_const().GetValueInt());
+	int start = __GETMIN(static_cast<int>(st.cell().size())-1,static_cast<int>(cell.ansv_const().GetValueInt()));
 
 	for(int i = start ; i >= 0; i--) {
 		if (st.cell()[i].value_GetType() == F_TAG_STRING_EMBED) {

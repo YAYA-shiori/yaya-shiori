@@ -22,8 +22,10 @@ namespace yaya {
 	static const int WS_EOF = -1;
 
 	int		ws_atoi(const yaya::string_t &str, int base = 10);
+	yaya::int_t	ws_atoll(const yaya::string_t &str);
 	double	ws_atof(const yaya::string_t &str);
 
+	yaya::string_t	ws_lltoa(yaya::int_t num, int base = 10);
 	yaya::string_t	ws_itoa(int num, int base = 10);
 	yaya::string_t	ws_ftoa(double num);
 

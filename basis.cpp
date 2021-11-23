@@ -881,7 +881,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 		// 値の保存
 		switch(var->value_const().GetType()) {
 		case F_TAG_INT:	
-			str += yaya::ws_itoa(var->value_const().i_value);
+			str += yaya::ws_lltoa(var->value_const().i_value);
 			str += L',';
 			break;
 		case F_TAG_DOUBLE:
@@ -1114,7 +1114,7 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 
 		if (type == F_TAG_INT) {
 			// 整数型
-			vm.variable().SetValue(index, yaya::ws_atoi(value, 10));
+			vm.variable().SetValue(index, yaya::ws_atoll(value));
 		}
 		else if (type == F_TAG_DOUBLE) {
 			// 実数型
