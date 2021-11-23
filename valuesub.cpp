@@ -24,6 +24,9 @@
 #endif
 ////////////////////////////////////////
 
+#undef max
+#undef min
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CValueSub::CValueSub
  *  機能概要：  CValueからCValueSubを構築します
@@ -71,11 +74,11 @@ yaya::int_t	CValueSub::GetValueInt(void) const
 				return LLONG_MIN;
 			}
 			else {
-				return static_cast<int>(d_value);
+				return (yaya::int_t)d_value;
 			}
 		}
 	case F_TAG_STRING:
-		return yaya::ws_atoi(s_value, 10);
+		return yaya::ws_atoll(s_value, 10);
 	default:
 		return 0;
 	};

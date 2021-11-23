@@ -439,15 +439,15 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 
 		yaya::string_t load_path_bak = load_path;
 		load_path = filename.substr(0,std::max(filename.rfind('/'),filename.rfind('\\')))+L'/';
-		
+
 		yaya::string_t base_path_bak = base_path;
 		base_path = load_path;
-		
+
 		LoadBaseConfigureFile_Base(filename,*dics,cset);
-		
+
 		load_path = load_path_bak;
 		base_path = base_path_bak;
-		
+
 		return true;
 	}
 	// dic
@@ -880,7 +880,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 
 		// ’l‚Ì•Û‘¶
 		switch(var->value_const().GetType()) {
-		case F_TAG_INT:	
+		case F_TAG_INT:
 			str += yaya::ws_lltoa(var->value_const().i_value);
 			str += L',';
 			break;
@@ -1063,7 +1063,7 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 			vm.logger().Error(E_W, 3, filename, i);
 			continue;
 		}
-		// 
+		//
 		parseline = delimiter;
 		Split_IgnoreDQ(parseline, delimiter, yaya::string_t(), L",");
 		if (!IsLegalStrLiteral(delimiter)){
@@ -1171,8 +1171,8 @@ void	CBasis::RestoreArrayVariable(CValue &var, yaya::string_t &value)
 			if (par == ESC_IVOID) {
 				var.array().emplace_back(CValueSub());
 			}
-			else if (IsIntString(par)) {
-				var.array().emplace_back(CValueSub( yaya::ws_atoi(par, 10) ));
+			else if(IsIntString(par)) {
+				var.array().emplace_back(CValueSub(yaya::ws_atoll(par, 10)));
 			}
 			else if (IsDoubleButNotIntString(par)) {
 				var.array().emplace_back(CValueSub( yaya::ws_atof(par) ));
@@ -1216,9 +1216,9 @@ void	CBasis::ExecuteLoad(void)
 	CLocalVariable	lvar(vm);
 	vm.logger().Io(0, base_path);
 	CValue	result;
-	
+
 	vm.function_exec().func[funcpos].Execute(result, arg, lvar);
-	
+
 	yaya::string_t empty;
 	vm.logger().Io(1, empty);
 }

@@ -1561,12 +1561,12 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 	}
 	// 整数リテラル(BIN)
 	if (IsIntBinString(scell.value_const().s_value, 1)) {
-		scell.value() = static_cast<yaya::int_t>(yaya::ws_atoi(scell.value_const().s_value, 2));
+		scell.value() = yaya::ws_atoll(scell.value_const().s_value, 2);
 		return 0;
 	}
 	// 整数リテラル(HEX)
 	if (IsIntHexString(scell.value_const().s_value, 1)) {
-		scell.value() = static_cast<yaya::int_t>(yaya::ws_atoi(scell.value_const().s_value, 16));
+		scell.value() = yaya::ws_atoll(scell.value_const().s_value, 16);
 		return 0;
 	}
 	// 実数リテラル
@@ -2277,13 +2277,13 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 	// 0以上 演算子、数字が大きいほど優先度が高い
 
 	//ここはintでないとだめ……i--のループで負（＝0xFFFFFFFFになってunsignedだと巨大な値）になる可能性がある
-	int sz = static_cast<int>(st.cell_size());
-	int i = 0;
+	ptrdiff_t sz = st.cell_size();
+	ptrdiff_t i = 0;
 
 	std::vector<int>	depthvec;
 	depthvec.reserve(sz);
 
-	int depth = 0;
+	size_t depth = 0;
 	for(i = 0; i < sz; i++) {
 		// 演算子
 		int	type = st.cell()[i].value_GetType();
@@ -2306,7 +2306,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 		vm.logger().Error(E_E, 48, dicfilename, st.linecount);
 		return 1;
 	}
-	if (sz != static_cast<int>(depthvec.size())) {
+	if (sz != depthvec.size()) {
 		vm.logger().Error(E_E, 21, dicfilename, st.linecount);
 		return 1;
 	}
@@ -2317,8 +2317,8 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 		// 同一深さの演算子の並列は最初のものが選ばれる。つまりAYA5では演算子は常に左から右へ結合される
 		// したがって i=j=1 は i=j; j=1 と等価である。i に 1 は代入されない。右から結合されるC/C++とは
 		// ここは異なっている。
-		int	t_index = -1;
-		int	t_depth = -1;
+		ptrdiff_t	t_index = -1;
+		ptrdiff_t	t_depth = -1;
 		for(i = 0; i < sz; i++)
 			if (depthvec[i] > t_depth) {
 				t_depth = depthvec[i];

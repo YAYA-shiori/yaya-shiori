@@ -22,7 +22,7 @@ namespace yaya {
 	static const int WS_EOF = -1;
 
 	int		ws_atoi(const yaya::string_t &str, int base = 10);
-	yaya::int_t	ws_atoll(const yaya::string_t &str);
+	yaya::int_t ws_atoll(const yaya::string_t& str, int base = 10);
 	double	ws_atof(const yaya::string_t &str);
 
 	yaya::string_t	ws_lltoa(yaya::int_t num, int base = 10);
@@ -30,7 +30,7 @@ namespace yaya {
 	yaya::string_t	ws_ftoa(double num);
 
 	void	ws_eraseend(yaya::string_t &str, wchar_t c);
-	void	ws_replace(yaya::string_t &str, const wchar_t *before, const wchar_t *after, int count = 0);
+	void	ws_replace(yaya::string_t& str, const wchar_t* before, const wchar_t* after, yaya::int_t count = 0);
 
 	FILE	*w_fopen(const yaya::char_t *fname, const yaya::char_t *mode); 
 	//void	write_utf8bom(FILE *fp);

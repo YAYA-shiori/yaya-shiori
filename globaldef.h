@@ -40,13 +40,6 @@
 
 #endif //MSC_VER
 
-template <class T> const T& __GETMAX( const T& a, const T& b ) {
-  return (b<a)?a:b;
-}
-template <class T> const T& __GETMIN( const T& a, const T& b ) {
-  return (b<a)?b:a;
-}
-
 namespace yaya {
 
 #if _MSC_VER <= 1200
@@ -56,6 +49,13 @@ namespace yaya {
 #else
 	typedef long long int int64;
 	typedef unsigned long long int uint64;
+#ifdef _MSVC_LANG
+#if _MSVC_LANG >= 201703
+	static_assert(sizeof(int64)==8);
+	static_assert(sizeof(uint64)==8);
+#endif
+#endif //_MSVC_LANG
+
 #endif //1200
 
 	typedef wchar_t char_t;

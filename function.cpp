@@ -321,10 +321,10 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 				break;
 			}
 		case ST_SWITCH: {				// switch
-				int sw_index = static_cast<int>( GetFormulaAnswer(lvar, st).GetValueInt() );
+				yaya::int_t sw_index = GetFormulaAnswer(lvar, st).GetValueInt();
 				if (sw_index < 0)
 					sw_index = BRACE_SWITCH_OUT_OF_RANGE;
-				i = ExecuteInBrace(i + 2, t_value, lvar, sw_index, exitcode, POOL_TO_NEXT);
+				i = ExecuteInBrace(i + 2, t_value, lvar, (int)sw_index, exitcode, POOL_TO_NEXT);
 				output.Append(t_value);
 			}
 			break;
@@ -733,7 +733,7 @@ void	CFunction::SolveEmbedCell(CCell &cell, CStatement &st, CLocalVariable &lvar
 			max_len   = t_len;
 		}
 		// ƒVƒXƒeƒ€ŠÖ”
-		if ( max_len < static_cast<size_t>(CSystemFunction::GetMaxNameLength()) ) {
+		if ( max_len < (size_t)CSystemFunction::GetMaxNameLength() ) {
 			t_len = CSystemFunction::FindIndexLongestMatch(cell.value_const().s_value,max_len);
 			if (t_len > max_len) {
 				solve_src = 3;
@@ -1229,16 +1229,16 @@ void	CFunction::ExecHistoryP2(CCell& cell, CStatement &st)
 	if (!cell.order_const().IsNum())
 		return;
 
-	int	index = static_cast<int>( cell.order_const().GetValueInt() );
+	yaya::int_t	index = cell.order_const().GetValueInt();
 	if (index < 0)
 		return;
 
-	int start = __GETMIN(static_cast<int>(st.cell().size())-1,static_cast<int>(cell.ansv_const().GetValueInt()));
+	yaya::int_t start = std::min<yaya::int_t>(st.cell().size()-1,cell.ansv_const().GetValueInt());
 
-	for(int i = start ; i >= 0; i--) {
-		if (st.cell()[i].value_GetType() == F_TAG_STRING_EMBED) {
+	for(yaya::int_t i = start ; i >= 0; i--) {
+		if (st.cell()[(size_t)i].value_GetType() == F_TAG_STRING_EMBED) {
 			if (!index) {
-				cell.ansv_shared() = st.cell()[i].emb_ansv_shared();
+				cell.ansv_shared() = st.cell()[(size_t)i].emb_ansv_shared();
 				return;
 			}
 			index--;
