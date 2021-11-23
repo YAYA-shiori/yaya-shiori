@@ -1323,15 +1323,16 @@ void	CParser0::StructFormulaCell(yaya::string_t &str, std::vector<CCell> &cells)
 
 	for( ; ; ) {
 		// 分割位置を取得　最も手前で最も名前が長く、クォートされていない演算子を探す
-		int	tagpoint = -1;
+		ptrdiff_t tagpoint = -1;
 		int	tagtype  = 0;
-		int	taglen   = 0;
+		size_t taglen   = 0;
 		
 //		wcout << endl << "str: " << str << endl;
 //		wcout << "WordMatch:" << endl;
-		int in_dq = 0;
-		int	in_sq = 0;
-		int strlen = (int)str.size();
+
+		bool in_dq = 0;
+		bool in_sq = 0;
+		size_t strlen = str.size();
 		for(size_t i = 0; i < strlen; ++i) {
 			if (str[i] == L'\"') {
 				if (!in_sq)
@@ -1346,8 +1347,8 @@ void	CParser0::StructFormulaCell(yaya::string_t &str, std::vector<CCell> &cells)
 			if (in_dq || in_sq)
 				continue;
 
-			int result = -1;
-			int maxlen = 0;
+			ptrdiff_t result = -1;
+			size_t maxlen = 0;
 			for ( size_t r = 0 ; r < FORMULATAG_NUM ; ++r ) {
 				if ( formulatag_len[r] <= strlen - i ) {
 					if ( str.compare(i,formulatag_len[r],formulatag[r]) == 0 ) {
