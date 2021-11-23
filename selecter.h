@@ -66,9 +66,9 @@ protected:
 	std::vector<size_t>	num;			// --で区切られた領域毎の候補数
 	std::vector<size_t>	roundorder;		// 巡回順序
 
-	size_t				lastroundorder; // 直前の巡回順序値
-	size_t				total;			// 出力候補値の総数
-	size_t				index;			// 現在の巡回位置
+	ptrdiff_t	lastroundorder; // 直前の巡回順序値
+	ptrdiff_t	total;			// 出力候補値の総数
+	ptrdiff_t	index;			// 現在の巡回位置
 
 private:
 	CDuplEvInfo(void);
