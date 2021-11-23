@@ -2278,7 +2278,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 
 	//ここはintでないとだめ……i--のループで負（＝0xFFFFFFFFになってunsignedだと巨大な値）になる可能性がある
 	size_t sz = st.cell_size();
-	size_t i = 0;
+	signed long long i = 0;
 
 	std::vector<int>	depthvec;
 	depthvec.reserve(sz);
