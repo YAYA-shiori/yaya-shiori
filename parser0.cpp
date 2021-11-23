@@ -1556,17 +1556,17 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 
 	// 整数リテラル(DEC)
 	if (IsIntString(scell.value_const().s_value)) {
-		scell.value() = yaya::ws_atoi(scell.value_const().s_value, 10);
+		scell.value() = yaya::ws_atoll(scell.value_const().s_value);
 		return 0;
 	}
 	// 整数リテラル(BIN)
 	if (IsIntBinString(scell.value_const().s_value, 1)) {
-		scell.value() = yaya::ws_atoi(scell.value_const().s_value, 2);
+		scell.value() = static_cast<yaya::int_t>(yaya::ws_atoi(scell.value_const().s_value, 2));
 		return 0;
 	}
 	// 整数リテラル(HEX)
 	if (IsIntHexString(scell.value_const().s_value, 1)) {
-		scell.value() = yaya::ws_atoi(scell.value_const().s_value, 16);
+		scell.value() = static_cast<yaya::int_t>(yaya::ws_atoi(scell.value_const().s_value, 16));
 		return 0;
 	}
 	// 実数リテラル

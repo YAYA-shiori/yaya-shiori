@@ -78,8 +78,10 @@ public:
 
 	unsigned int genrand_sysfunc(void);
 	int genrand_sysfunc_int(int n);
+	yaya::int_t genrand_sysfunc_ll(yaya::int_t n);
 
 	void genrand_sysfunc_srand(int n);
+	void genrand_sysfunc_srand_ll(yaya::int_t n);
 	void genrand_sysfunc_srand_array(const unsigned long a[],const int n);
 
 	// å§Œä

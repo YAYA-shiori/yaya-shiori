@@ -37,7 +37,7 @@ const CValue emptyvalue;
  *  型が配列であった場合は0を返します
  * -----------------------------------------------------------------------
  */
-int	CValue::GetValueInt(void) const
+yaya::int_t	CValue::GetValueInt(void) const
 {
 	switch(type) {
 	case F_TAG_INT:
@@ -97,7 +97,7 @@ yaya::string_t	CValue::GetValueString(void) const
 {
 	switch(type) {
 	case F_TAG_INT: {
-			return yaya::ws_itoa(i_value, 10);
+			return yaya::ws_lltoa(i_value, 10);
 		}
 	case F_TAG_DOUBLE: {
 			return yaya::ws_ftoa(d_value);
@@ -130,7 +130,7 @@ yaya::string_t	CValue::GetValueStringForLogging(void) const
 {
 	switch(type) {
 	case F_TAG_INT: {
-			return yaya::ws_itoa(i_value);
+			return yaya::ws_lltoa(i_value);
 		}
 	case F_TAG_DOUBLE: {
 			return yaya::ws_ftoa(d_value);
@@ -374,7 +374,7 @@ int	CValue::DecodeArrayOrder(int &order, int &order1, yaya::string_t &delimiter)
 		if (sz) {
 			// 要素0:序数
 			if (array()[0].GetType() == F_TAG_INT)
-				order = array()[0].i_value;
+				order = static_cast<int>( array()[0].i_value );
 			else if (array()[0].GetType() == F_TAG_DOUBLE)
 				order = (int)floor(array()[0].d_value);
 			else
@@ -384,7 +384,7 @@ int	CValue::DecodeArrayOrder(int &order, int &order1, yaya::string_t &delimiter)
 			// 要素1:数値なら範囲指定、文字列ならデリミタ
 			switch(array()[1].GetType()) {
 			case F_TAG_INT:
-				order1  = array()[1].i_value;
+				order1  = static_cast<int>( array()[1].i_value );
 				if (order > order1)
 					exchange(order, order1);
 				break;
@@ -417,7 +417,7 @@ int	CValue::DecodeArrayOrder(int &order, int &order1, yaya::string_t &delimiter)
  *  operator = (int)
  * -----------------------------------------------------------------------
  */
-CValue &CValue::operator =(int value)
+CValue &CValue::operator =(yaya::int_t value)
 {
 	type    = F_TAG_INT;
 	i_value = value;
@@ -855,7 +855,7 @@ CValue CValue::operator /(const CValue &value) const
 	switch(t) {
 	case F_TAG_INT:
 		{
-			int denom = value.GetValueInt();
+			yaya::int_t denom = value.GetValueInt();
 			if ( denom ) {
 				return CValue(GetValueInt() / denom);
 			}
@@ -904,7 +904,7 @@ CValue CValue::operator %(const CValue &value) const
 	case F_TAG_INT:
 	case F_TAG_DOUBLE:
 		{
-			int denom = value.GetValueInt();
+			yaya::int_t denom = value.GetValueInt();
 			if ( denom ) {
 				return CValue(GetValueInt() % denom);
 			}

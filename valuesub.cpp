@@ -57,7 +57,7 @@ CValueSub::CValueSub(const CValue &v)
  *  返値　　：  0/1/2=エラー発生/取得できた/取得できた(型が読み替えられた)
  * -----------------------------------------------------------------------
  */
-int	CValueSub::GetValueInt(void) const
+yaya::int_t	CValueSub::GetValueInt(void) const
 {
 	switch(type) {
 	case F_TAG_INT:
@@ -111,7 +111,7 @@ yaya::string_t	CValueSub::GetValueString(void) const
 {
 	switch(type) {
 	case F_TAG_INT: {
-			return yaya::ws_itoa(i_value);
+			return yaya::ws_lltoa(i_value);
 		}
 	case F_TAG_DOUBLE: {
 			return yaya::ws_ftoa(d_value);
@@ -127,7 +127,7 @@ yaya::string_t	CValueSub::GetValueString(void) const
  *  operator = (int)
  * -----------------------------------------------------------------------
  */
-CValueSub &CValueSub::operator =(int value)
+CValueSub &CValueSub::operator =(yaya::int_t value)
 {
 	type    = F_TAG_INT;
 	i_value = value;
@@ -330,7 +330,7 @@ CValueSub CValueSub::operator /(const CValueSub &value) const
 	switch(t) {
 	case F_TAG_INT:
 		{
-			int denom = value.GetValueInt();
+			yaya::int_t denom = value.GetValueInt();
 			if ( denom ) {
 				return CValueSub(GetValueInt() / denom);
 			}
@@ -370,7 +370,7 @@ CValueSub CValueSub::operator %(const CValueSub &value) const
 	case F_TAG_INT:
 	case F_TAG_DOUBLE:
 		{
-			int denom = value.GetValueInt();
+			yaya::int_t denom = value.GetValueInt();
 			if ( denom ) {
 				return CValueSub(GetValueInt() % denom);
 			}

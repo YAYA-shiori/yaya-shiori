@@ -174,9 +174,28 @@ int CAyaVM::genrand_sysfunc_int(int n)
 	return genrand_int32(rs_sysfunc) % n;
 }
 
+yaya::int_t CAyaVM::genrand_sysfunc_ll(yaya::int_t n)
+{
+	yaya::int_t r = genrand_int32(rs_sysfunc);
+	r <<= 32;
+	r += genrand_int32(rs_sysfunc);
+
+	return r % n;
+}
+
 void CAyaVM::genrand_sysfunc_srand(int n)
 {
 	init_genrand(rs_sysfunc,n);
+}
+
+void CAyaVM::genrand_sysfunc_srand_ll(yaya::int_t n)
+{
+	unsigned long a[2];
+
+	a[0] = static_cast<unsigned long>(n & 0xFFFFFFFFU);
+	a[1] = static_cast<unsigned long>(n >> 32);
+
+	init_by_array(rs_sysfunc,a,2);
 }
 
 void CAyaVM::genrand_sysfunc_srand_array(const unsigned long a[],const int n)

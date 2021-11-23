@@ -28,16 +28,21 @@
 #if _MSC_VER >= 1300
 #undef JGX_WIN64_AWARE
 #define JGX_WIN64_AWARE __w64
-#endif
-#endif
+#endif //1300
 
 #if _MSC_VER <= 1200
 #define for if(0);else for
-#endif
+typedef __int64 yaya_int64;
+#define	INT64_IS_NOT_STD
+#else
+typedef long long int yaya_int64;
+#endif //1200
 
 #if _MSC_VER < 1900
 #define emplace_back(p) push_back(p)
-#endif
+#endif //1900
+
+#endif //MSC_VER
 
 template <class T> const T& __GETMAX( const T& a, const T& b ) {
   return (b<a)?a:b;
@@ -49,6 +54,7 @@ template <class T> const T& __GETMIN( const T& a, const T& b ) {
 namespace yaya {
 	typedef wchar_t char_t;
 	typedef std::basic_string<char_t> string_t;
+	typedef yaya_int64 int_t;
 
 	typedef std_shared_ptr<string_t> share_string_t;
 	typedef std_shared_ptr<const string_t> const_share_string_t;
@@ -65,7 +71,7 @@ namespace yaya {
 	}
 
 #ifdef _WIN64
-	typedef __int64 native_signed;
+	typedef yaya_int64 native_signed;
 #else
 	typedef int JGX_WIN64_AWARE native_signed;
 #endif
