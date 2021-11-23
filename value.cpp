@@ -27,9 +27,6 @@
 #endif
 ////////////////////////////////////////
 
-#undef max
-#undef min
-
 //からっぽ変数（ダミー用）
 const CValue emptyvalue;
 

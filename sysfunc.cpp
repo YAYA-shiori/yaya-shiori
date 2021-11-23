@@ -3994,11 +3994,11 @@ CValue	CSystemFunction::GETTICKCOUNT(CSF_FUNCPARAM &p)
 	}
 
 #elif defined(POSIX)
-    struct timeval tv;
+	struct timeval tv;
 	struct timezone tz;
-    gettimeofday(&tv, &tz);
-    
-    return CValue(static_cast<yaya::int_t>(tv.tv_sec) * 1000 + static_cast<yaya::int_t>(tv.tv_usec) / 1000);
+	gettimeofday(&tv, &tz);
+
+	return CValue(static_cast<yaya::int_t>(tv.tv_sec) * 1000 + static_cast<yaya::int_t>(tv.tv_usec) / 1000);
 #endif
 }
 
@@ -4045,14 +4045,14 @@ CValue	CSystemFunction::GETMEMINFO(CSF_FUNCPARAM &p)
 }
 #elif defined(POSIX)
 CValue CSystemFunction::GETMEMINFO(CSF_FUNCPARAM &p) {
-    // メモリの状態を取得するポータブルな方法は無いので…
-    CValue result(F_TAG_ARRAY, 0/*dmy*/);
-    result.array().emplace_back(CValueSub(0)); // dwMemoryLoad
-    result.array().emplace_back(CValueSub(0)); // dwTotalPhys
-    result.array().emplace_back(CValueSub(0)); // dwAvailPhys
-    result.array().emplace_back(CValueSub(0)); // dwTotalVirtual
-    result.array().emplace_back(CValueSub(0)); // dwAvailVirtual
-    return result;
+	// メモリの状態を取得するポータブルな方法は無いので…
+	CValue result(F_TAG_ARRAY, 0/*dmy*/);
+	result.array().emplace_back(CValueSub(0)); // dwMemoryLoad
+	result.array().emplace_back(CValueSub(0)); // dwTotalPhys
+	result.array().emplace_back(CValueSub(0)); // dwAvailPhys
+	result.array().emplace_back(CValueSub(0)); // dwTotalVirtual
+	result.array().emplace_back(CValueSub(0)); // dwAvailVirtual
+	return result;
 }
 #endif
 
@@ -4113,8 +4113,11 @@ CValue	CSystemFunction::RE_ASEARCH(CSF_FUNCPARAM &p)
 	int	sz = p.arg.array_size();
 
 	if (sz < 2) {
-		vm.logger().Error(E_W, 8, L"RE_ASEARCHEX", p.dicname, p.line);
-		SetError(8);
+		//check real arg size : if search target is empty array , arg array is 1
+		if (p.valuearg.size() < 2) {
+			vm.logger().Error(E_W, 8, L"RE_ASEARCH", p.dicname, p.line);
+			SetError(8);
+		}
 		return CValue(-1);
 	}
 
@@ -4131,18 +4134,18 @@ CValue	CSystemFunction::RE_ASEARCH(CSF_FUNCPARAM &p)
 				}
 			}
 			catch(const std::runtime_error &) {
-				vm.logger().Error(E_W, 16, L"RE_ASEARCHEX", p.dicname, p.line);
+				vm.logger().Error(E_W, 16, L"RE_ASEARCH", p.dicname, p.line);
 				SetError(16);
 			}
 			catch(...) {
-				vm.logger().Error(E_W, 17, L"RE_ASEARCHEX", p.dicname, p.line);
+				vm.logger().Error(E_W, 17, L"RE_ASEARCH", p.dicname, p.line);
 				SetError(17);
 			}
 		}
 
 	}
 	catch(...) {
-		vm.logger().Error(E_W, 17, L"RE_ASEARCHEX", p.dicname, p.line);
+		vm.logger().Error(E_W, 17, L"RE_ASEARCH", p.dicname, p.line);
 		SetError(17);
 		return CValue(F_TAG_ARRAY, 0/*dmy*/);
 	}
@@ -4155,8 +4158,11 @@ CValue	CSystemFunction::RE_ASEARCHEX(CSF_FUNCPARAM &p)
 	int	sz = p.arg.array_size();
 
 	if (sz < 2) {
-		vm.logger().Error(E_W, 8, L"RE_ASEARCHEX", p.dicname, p.line);
-		SetError(8);
+		//check real arg size : if search target is empty array , arg array is 1
+		if (p.valuearg.size() < 2) {
+			vm.logger().Error(E_W, 8, L"RE_ASEARCHEX", p.dicname, p.line);
+			SetError(8);
+		}
 		return CValue(F_TAG_ARRAY, 0/*dmy*/);
 	}
 
@@ -4816,7 +4822,7 @@ CValue	CSystemFunction::SPLITPATH(CSF_FUNCPARAM &p)
 }
 #elif defined(POSIX)
 CValue CSystemFunction::SPLITPATH(CSF_FUNCPARAM &p) {
-    if (!p.arg.array_size()) {
+	if (!p.arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"SPLITPATH", p.dicname, p.line);
 		SetError(8);
 		return CValue(0);
@@ -5405,9 +5411,9 @@ CValue	CSystemFunction::ASEARCH(CSF_FUNCPARAM &p)
 	int	sz = p.arg.array_size();
 
 	if (sz < 2) {
-		//要素1コ＝空配列の探索である。正常。
-		if (sz < 1) {
-			vm.logger().Error(E_W, 8, L"ASEARCHEX", p.dicname, p.line);
+		//check real arg size : if search target is empty array , arg array is 1
+		if (p.valuearg.size() < 2) {
+			vm.logger().Error(E_W, 8, L"ASEARCH", p.dicname, p.line);
 			SetError(8);
 		}
 		return CValue(-1);
@@ -5428,8 +5434,8 @@ CValue	CSystemFunction::ASEARCHEX(CSF_FUNCPARAM &p)
 	int	sz = p.arg.array_size();
 
 	if (sz < 2) {
-		//要素1コ＝空配列の探索である。正常。
-		if (sz < 1) {
+		//check real arg size : if search target is empty array , arg array is 1
+		if (p.valuearg.size() < 2) {
 			vm.logger().Error(E_W, 8, L"ASEARCHEX", p.dicname, p.line);
 			SetError(8);
 		}
@@ -6306,11 +6312,11 @@ yaya::string_t	CSystemFunction::ToFullPath(const yaya::string_t &str)
 #elif defined(POSIX)
 yaya::string_t CSystemFunction::ToFullPath(const yaya::string_t &str)
 {
-    if (str.length() > 0 && str[0] == L'/') {
-	return str;
+	if (str.length() > 0 && str[0] == L'/') {
+		return str;
 	}
 	else {
-	return vm.basis().path + str;
+		return vm.basis().path + str;
 	}
 }
 #endif

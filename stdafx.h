@@ -27,6 +27,7 @@
 #endif
 
 #define WIN32_LEAN_AND_MEAN		// Windows ヘッダーから殆ど使用されないスタッフを除外します
+#define NOMINMAX
 
 #include <windows.h>
 #include <winreg.h>

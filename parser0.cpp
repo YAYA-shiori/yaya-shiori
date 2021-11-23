@@ -1331,7 +1331,7 @@ void	CParser0::StructFormulaCell(yaya::string_t &str, std::vector<CCell> &cells)
 //		wcout << "WordMatch:" << endl;
 		int in_dq = 0;
 		int	in_sq = 0;
-		size_t strlen = str.size();
+		int strlen = (int)str.size();
 		for(size_t i = 0; i < strlen; ++i) {
 			if (str[i] == L'\"') {
 				if (!in_sq)
@@ -1349,7 +1349,7 @@ void	CParser0::StructFormulaCell(yaya::string_t &str, std::vector<CCell> &cells)
 			int result = -1;
 			int maxlen = 0;
 			for ( size_t r = 0 ; r < FORMULATAG_NUM ; ++r ) {
-				if ( static_cast<size_t>(formulatag_len[r]) <= strlen - i ) {
+				if ( formulatag_len[r] <= strlen - i ) {
 					if ( str.compare(i,formulatag_len[r],formulatag[r]) == 0 ) {
 						if ( maxlen < formulatag_len[r] ) {
 							result = r;
