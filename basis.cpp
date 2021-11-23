@@ -1266,12 +1266,12 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 
 	// 実行
 	vm.call_limit().InitCall();
-	CLocalVariable	lvar(vm);
 	CValue	result;
 	try{
+		CLocalVariable	lvar(vm);
 		vm.function_exec().func[funcpos].Execute(result, arg, lvar);
 	}
-	catch (std::bad_alloc&) {
+	catch (const std::bad_alloc&) {
 		CBasisFuncPos shiori_OnMemoryLimit;
 		int funcpos = shiori_OnMemoryLimit.Find(vm, L"shiori.OnMemoryLimit");
 		int lock = vm.call_limit().temp_unlock();
@@ -1284,7 +1284,6 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 		}
 
 		vm.call_limit().reset_lock(lock);
-		vm.call_limit().DeleteCall();
 	}
 
 	// 結果を文字列として取得し、文字コードをMBCSに変換
