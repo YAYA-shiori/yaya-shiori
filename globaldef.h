@@ -32,10 +32,6 @@
 
 #if _MSC_VER <= 1200
 #define for if(0);else for
-typedef __int64 yaya_int64;
-#define	INT64_IS_NOT_STD
-#else
-typedef long long int yaya_int64;
 #endif //1200
 
 #if _MSC_VER < 1900
@@ -52,9 +48,19 @@ template <class T> const T& __GETMIN( const T& a, const T& b ) {
 }
 
 namespace yaya {
+
+#if _MSC_VER <= 1200
+	typedef __int64 int64;
+	typedef unsigned __int64 uint64;
+#define	INT64_IS_NOT_STD
+#else
+	typedef long long int int64;
+	typedef unsigned long long int uint64;
+#endif //1200
+
 	typedef wchar_t char_t;
 	typedef std::basic_string<char_t> string_t;
-	typedef yaya_int64 int_t;
+	typedef int64 int_t;
 
 	typedef std_shared_ptr<string_t> share_string_t;
 	typedef std_shared_ptr<const string_t> const_share_string_t;
@@ -77,5 +83,22 @@ namespace yaya {
 #endif
 
 }; // namespace yaya {
+
+
+#ifdef INT64_IS_NOT_STD
+
+#ifndef LLONG_MIN
+#define LLONG_MIN _I64_MIN
+#endif
+#ifndef LLONG_MAX
+#define LLONG_MAX _I64_MAX
+#endif
+#ifndef ULLONG_MAX
+#define ULLONG_MAX _UI64_MAX
+#endif
+
+#endif //INT64_IS_NOT_STD
+
+
 
 #endif // #ifndef YAYA_STRTYPE_H__

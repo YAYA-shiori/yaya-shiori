@@ -44,11 +44,11 @@ yaya::int_t	CValue::GetValueInt(void) const
 		return i_value;
 	case F_TAG_DOUBLE:
 		{
-			if ( d_value > static_cast<double>(INT_MAX) ) {
-				return INT_MAX;
+			if ( d_value > static_cast<double>(LLONG_MAX) ) {
+				return LLONG_MAX;
 			}
-			else if ( d_value < static_cast<double>(INT_MIN) ) {
-				return INT_MIN;
+			else if ( d_value < static_cast<double>(LLONG_MIN) ) {
+				return LLONG_MIN;
 			}
 			else {
 				return static_cast<int>(d_value);
