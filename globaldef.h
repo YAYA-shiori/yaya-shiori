@@ -49,6 +49,8 @@ namespace yaya {
 #else
 	typedef long long int int64;
 	typedef unsigned long long int uint64;
+	static_assert(sizeof(int64)==8);
+	static_assert(sizeof(uint64)==8);
 #endif //1200
 
 	typedef wchar_t char_t;
