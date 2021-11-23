@@ -161,7 +161,7 @@ unsigned int CAyaVM::genrand(void)
 	return genrand_int32(rs_internal);
 }
 
-int CAyaVM::genrand_int(int n)
+size_t CAyaVM::genrand_int(size_t n)
 {
 	return genrand_int32(rs_internal) % n;
 }

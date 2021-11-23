@@ -146,13 +146,13 @@ CValue	CSelecter::ChoiceRandom(void)
  *  機能概要：  指定された領域からランダムに値を抽出します
  * -----------------------------------------------------------------------
  */
-CValue	CSelecter::ChoiceRandom1(int index)
+CValue	CSelecter::ChoiceRandom1(size_t index)
 {
 	if ( ! values[index].array.size() ) {
 		return CValue();
 	}
 
-    int choice = vm.genrand_int(static_cast<int>(values[index].array.size()));
+	size_t choice = vm.genrand_int(values[index].array.size());
 
     vm.sysfunction().SetLso(choice);
 
@@ -191,7 +191,7 @@ CValue	CSelecter::ChoiceByIndex()
  *  機能概要：  指定された領域から指定位置の値を抽出します
  * -----------------------------------------------------------------------
  */
-CValue	CSelecter::ChoiceByIndex1(int index)
+CValue	CSelecter::ChoiceByIndex1(size_t index)
 {
 	int	num = values[index].array.size();
 

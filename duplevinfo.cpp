@@ -83,10 +83,10 @@ void	CDuplEvInfo::InitRoundOrder(CAyaVM &vm,int mode_param)
 		}
 
 		//シャッフルする
-		int n = roundorder.size();
+		size_t n = roundorder.size();
 		if ( n >= 2 ) {
-			for ( int i = 0 ; i < n ; ++i ) {
-				int s = vm.genrand_int(n);
+			for (size_t i = 0 ; i < n ; ++i ) {
+				size_t s = vm.genrand_int(n);
 				if ( i != s ) {
 					int tmp = roundorder[i];
 					roundorder[i] = roundorder[s];
@@ -98,7 +98,7 @@ void	CDuplEvInfo::InitRoundOrder(CAyaVM &vm,int mode_param)
 		//lastroundorderは i = 1 以降 (2個目以降) のランダムな位置に差し込む
 		if ( lastroundorder >= 0 ) {
 			if ( n >= 2 ) {
-				int lrand = vm.genrand_int(n) + 1;
+				size_t lrand = vm.genrand_int(n) + 1;
 				if ( lrand == n ) {
 					roundorder.emplace_back(lastroundorder);
 				}

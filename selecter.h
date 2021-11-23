@@ -63,8 +63,8 @@ class	CDuplEvInfo
 protected:
 	choicetype_t	type;			// 選択種別
 
-	std::vector<int>	num;			// --で区切られた領域毎の候補数
-	std::vector<int>	roundorder;		// 巡回順序
+	std::vector<size_t>	num;			// --で区切られた領域毎の候補数
+	std::vector<size_t>	roundorder;		// 巡回順序
 
 	size_t				lastroundorder; // 直前の巡回順序値
 	size_t				total;			// 出力候補値の総数
@@ -122,9 +122,9 @@ protected:
 	CValue	StructArray1(int index);
 	CValue	StructArray(void);
 	CValue	ChoiceRandom(void);
-	CValue	ChoiceRandom1(int index);
+	CValue	ChoiceRandom1(size_t index);
 	CValue	ChoiceByIndex(void);
-	CValue	ChoiceByIndex1(int index);
+	CValue	ChoiceByIndex1(size_t index);
 };
 
 //----
