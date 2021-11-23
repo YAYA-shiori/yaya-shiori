@@ -4008,16 +4008,16 @@ CValue CSystemFunction::GETTICKCOUNT(CSF_FUNCPARAM &p) {
 #if defined(WIN32)
 CValue	CSystemFunction::GETMEMINFO(CSF_FUNCPARAM &p)
 {
-	MEMORYSTATUS	meminfo;
-	GlobalMemoryStatus(&meminfo);
+	MEMORYSTATUSEX	meminfo;
+	GlobalMemoryStatusEx(&meminfo);
 
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 
 	result.array().emplace_back(CValueSub((int)meminfo.dwMemoryLoad)  );
-	result.array().emplace_back(CValueSub((int)meminfo.dwTotalPhys)   );
-	result.array().emplace_back(CValueSub((int)meminfo.dwAvailPhys)   );
-	result.array().emplace_back(CValueSub((int)meminfo.dwTotalVirtual));
-	result.array().emplace_back(CValueSub((int)meminfo.dwAvailVirtual));
+	result.array().emplace_back(CValueSub((int)meminfo.ullTotalPhys)   );
+	result.array().emplace_back(CValueSub((int)meminfo.ullAvailPhys)   );
+	result.array().emplace_back(CValueSub((int)meminfo.ullTotalVirtual));
+	result.array().emplace_back(CValueSub((int)meminfo.ullAvailVirtual));
 
 	return result;
 }
