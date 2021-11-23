@@ -1613,7 +1613,15 @@ CValue	CSystemFunction::STRSTR(CSF_FUNCPARAM &p)
 		vm.logger().Error(E_W, 9, L"STRSTR", p.dicname, p.line);
 		SetError(9);
 	}
-	return(yaya::int_t)p.arg.array()[0].GetValueString().find(p.arg.array()[1].GetValueString(), (size_t)p.arg.array()[2].GetValueInt());
+
+	yaya::string_t &str = p.arg.array()[0].GetValueString();
+	yaya::string_t &target = p.arg.array()[1].GetValueString();
+	yaya::int_t start_tmp = p.arg.array()[2].GetValueInt();
+	yaya::string_t::size_type start = start_tmp < 0 ? 0 : static_cast<yaya::string_t::size_type>(start_tmp);
+
+	yaya::string_t::size_type found = str.find(target,start);
+
+	return CValue(found == yaya::string_t::npos ? -1 : static_cast<yaya::int_t>(found) );
 }
 
 /* -----------------------------------------------------------------------
@@ -4462,13 +4470,13 @@ CValue	CSystemFunction::RE_REPLACE(CSF_FUNCPARAM &p)
 		SetError(9);
 	}
 
-	size_t count = 0;
+	yaya::int_t count = 0;
 	if ( p.arg.array_size() >= 4 ) {
 		if (!p.arg.array()[3].IsInt()) {
 			vm.logger().Error(E_W, 9, L"RE_REPLACE", p.dicname, p.line);
 			SetError(9);
 		}
-		count = static_cast<size_t>( p.arg.array()[3].GetValueInt() );
+		count = p.arg.array()[3].GetValueInt();
 		if ( count <= 0 ) { count = 0; }
 		else { count += 1; }
 	}
@@ -4527,7 +4535,7 @@ CValue	CSystemFunction::RE_REPLACEEX(CSF_FUNCPARAM &p)
 			vm.logger().Error(E_W, 9, L"RE_REPLACEEX", p.dicname, p.line);
 			SetError(9);
 		}
-		count = static_cast<yaya::int_t>( p.arg.array()[3].GetValueInt() );
+		count = p.arg.array()[3].GetValueInt();
 		if ( count <= 0 ) { count = -1; }
 	}
 

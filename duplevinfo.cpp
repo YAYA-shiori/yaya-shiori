@@ -71,7 +71,7 @@ void	CDuplEvInfo::InitRoundOrder(CAyaVM &vm,int mode_param)
 	int mode = mode_param & CHOICETYPE_SELECT_FILTER;
 
     if ( mode == CHOICETYPE_NONOVERLAP_FLAG ) {
-		for(size_t i = 0; i < total; ++i) {
+		for(ptrdiff_t i = 0; i < total; ++i) {
 			if ( i != lastroundorder ) {
 				roundorder.emplace_back(i);
 			}
@@ -112,7 +112,7 @@ void	CDuplEvInfo::InitRoundOrder(CAyaVM &vm,int mode_param)
 		}
 	}
 	else {
-		for(size_t i = 0; i < total; ++i) {
+		for(ptrdiff_t i = 0; i < total; ++i) {
 			roundorder.emplace_back(i);
 		}
 	}
