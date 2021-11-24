@@ -57,10 +57,7 @@ private:
 	MersenneTwister rs_internal;
 
 public:
-	CAyaVM() {
-//		rs_sysfunc  = { 0 };
-//		rs_internal = { 0 };
-	}
+	CAyaVM();
 	CAyaVM(CAyaVM &vm);
 	virtual ~CAyaVM() {}
 

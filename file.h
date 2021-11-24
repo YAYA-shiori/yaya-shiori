@@ -41,10 +41,17 @@ public:
 		mode     = md;
 		fp       = NULL;
 
+		size = 0;
 		bomcheck = 1;
 	}
 
-	CFile1(void) { fp = NULL; charset = CHARSET_UTF8; size = 0; }
+	CFile1(void) {
+		charset = CHARSET_UTF8;
+		fp = NULL;
+
+		size = 0;
+		bomcheck = 1;
+	}
 	~CFile1(void) { Close(); }
 
 	inline const yaya::string_t& GetName(void) const { return name; }
@@ -78,6 +85,7 @@ protected:
 	bool    ProcessOpenMode(yaya::string_t &mode);
 
 public:
+	CFile() { charset = CHARSET_UTF8; }
 	~CFile(void) { DeleteAll(); }
 
 	void	SetCharset(int cs) { charset = cs; }

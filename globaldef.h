@@ -83,9 +83,15 @@ namespace std {
 
 
 #ifndef _MSVC_LANG
+
 //C++11 or older
 #define constexpr const
 #define emplace_back(p) push_back(p)
+
+#else
+
+#define enum_class enum class
+
 #endif //_MSVC_LANG
 
 
@@ -98,7 +104,7 @@ namespace std {
 namespace yaya {
 	typedef wchar_t char_t;
 	typedef std::basic_string<char_t> string_t;
-	typedef __int64 int_t;
+	typedef std::int64_t int_t;
 
 	typedef std_shared_ptr<string_t> share_string_t;
 	typedef std_shared_ptr<const string_t> const_share_string_t;
