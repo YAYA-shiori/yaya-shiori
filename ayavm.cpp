@@ -171,10 +171,16 @@ unsigned int CAyaVM::genrand(void)
 	return genrand_int32(rs_internal);
 }
 
-size_t CAyaVM::genrand_int(size_t n)
+int CAyaVM::genrand_int(int n)
+{
+	return genrand_int31(rs_internal) % n;
+}
+
+size_t CAyaVM::genrand_uint(size_t n)
 {
 	return genrand_int32(rs_internal) % n;
 }
+
 unsigned int CAyaVM::genrand_sysfunc(void)
 {
 	return genrand_int32(rs_sysfunc);
@@ -182,12 +188,12 @@ unsigned int CAyaVM::genrand_sysfunc(void)
 
 int CAyaVM::genrand_sysfunc_int(int n)
 {
-	return genrand_int32(rs_sysfunc) % n;
+	return genrand_int31(rs_sysfunc) % n;
 }
 
 yaya::int_t CAyaVM::genrand_sysfunc_ll(yaya::int_t n)
 {
-	return genrand_int64(rs_sysfunc) % n;
+	return genrand_int63(rs_sysfunc) % n;
 }
 
 void CAyaVM::genrand_sysfunc_srand(int n)

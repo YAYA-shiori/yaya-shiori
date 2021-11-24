@@ -148,7 +148,7 @@ std_int32_t genrand_int32(MersenneTwister &rs)
 }
 
 /* generates a random number on [0,0x7fffffff]-interval */
-long genrand_int31(MersenneTwister &rs)
+std_int32_t genrand_int31(MersenneTwister &rs)
 {
     unsigned long y;
 
@@ -171,6 +171,15 @@ long genrand_int31(MersenneTwister &rs)
 std_int64_t genrand_int64(MersenneTwister& rs)
 {
 	return (std_int64_t)genrand_int32(rs) | ((std_int64_t)genrand_int32(rs)) << 32;
+}
+
+// Returns an unsigned long in the range [0,2^63-1]
+// Its lowest value is : 0
+// Its highest value is: 9223372036854775807
+//
+std_int64_t genrand_int63(MersenneTwister& rs)
+{
+	return ((std_int64_t)genrand_int32(rs)) >> 1 | ((std_int64_t)genrand_int32(rs)) << 31;
 }
 
 /* generates a random number on [0,1]-real-interval */
