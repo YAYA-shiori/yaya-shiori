@@ -5213,13 +5213,13 @@ CValue	CSystemFunction::ANY(CSF_FUNCPARAM &p)
 			return CValue();
 		}
 
-		int s_pos = vm.genrand_int(a_sz);
+		size_t s_pos = vm.genrand_uint(a_sz);
 		SetLso(s_pos);
 		return CValue(s_array[s_pos]);
 	}
 
 	// 引数が複数なら汎用配列として処理
-	int s_pos = vm.genrand_int(sz);
+	size_t s_pos = vm.genrand_uint(sz);
 	SetLso(s_pos);
 	return CValue(p.arg.array()[s_pos]);
 }

@@ -78,14 +78,20 @@ void init_by_array(MersenneTwister &rs,const unsigned long init_key[],const int 
 /* generates a random number on [0,0xffffffff]-interval */
 std_int32_t genrand_int32(MersenneTwister &rs);
 
-// Returns an unsigned long in the range [0,2^64-1]
+/* generates a random number on [0,0x7fffffff]-interval */
+std_int32_t genrand_int31(MersenneTwister &rs);
+
+// Returns an 64bit long in the range [0,2^64-1]
 // Its lowest value is : 0
 // Its highest value is: 18446744073709551615
 //
 std_int64_t genrand_int64(MersenneTwister& rs);
 
-/* generates a random number on [0,0x7fffffff]-interval */
-long genrand_int31(MersenneTwister &rs);
+// Returns an 63bit long in the range [0,2^63-1]
+// Its lowest value is : 0
+// Its highest value is: 9223372036854775807
+//
+std_int64_t genrand_int63(MersenneTwister& rs);
 
 /* These real versions are due to Isaku Wada, 2002/01/09 added */
 /* generates a random number on [0,1]-real-interval */

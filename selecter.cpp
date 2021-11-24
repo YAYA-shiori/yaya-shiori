@@ -152,7 +152,7 @@ CValue	CSelecter::ChoiceRandom1(size_t index)
 		return CValue();
 	}
 
-	size_t choice = vm.genrand_int(values[index].array.size());
+	size_t choice = vm.genrand_uint(values[index].array.size());
 
     vm.sysfunction().SetLso(choice);
 

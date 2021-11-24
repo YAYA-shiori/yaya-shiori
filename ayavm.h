@@ -74,7 +74,8 @@ public:
 	void func_parse_new(void);
 
 	unsigned int genrand(void);
-	size_t genrand_int(size_t n);
+	int genrand_int(int n);
+	size_t genrand_uint(size_t n);
 
 	unsigned int genrand_sysfunc(void);
 	int genrand_sysfunc_int(int n);
