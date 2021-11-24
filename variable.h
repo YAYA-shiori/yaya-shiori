@@ -32,7 +32,6 @@
 #include "cell.h"
 #include "globaldef.h"
 #include "value.h"
-#include "fix_old_compiler.h"
 
 class CAyaVM;
 class CFunction;

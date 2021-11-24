@@ -26,7 +26,6 @@
 
 #include "manifest.h"
 #include "globaldef.h"
-#include "fix_old_compiler.h"
 
 class CValue;
 class CValueSub;

@@ -15,7 +15,7 @@
 #include <memory>
 #include "log.h"
 #include "mt19937ar.h"
-#include "fix_old_compiler.h"
+#include "globaldef.h"
 
 class CBasis;
 class CFunction;
@@ -57,7 +57,7 @@ private:
 	MersenneTwister rs_internal;
 
 public:
-	CAyaVM() {}
+	CAyaVM();
 	CAyaVM(CAyaVM &vm);
 	virtual ~CAyaVM() {}
 

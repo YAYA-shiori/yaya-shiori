@@ -59,7 +59,7 @@ typedef __int64 std_int64_t;
 typedef long long std_int64_t;
 #endif //1200
 
-typedef struct tagMersenneTwister {
+typedef struct MersenneTwister {
 	unsigned long state[624]; /* the array for the state vector  */
 	int left;
 //	int initf;

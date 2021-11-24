@@ -57,12 +57,21 @@ int	CFile1::Open(void)
 		return 0;
 	}
 
-	long cur = ftell(fp);
-	fseek(fp,0,SEEK_SET);
-	long start = ftell(fp);
-	fseek(fp,0,SEEK_END);
-	long end = ftell(fp);
-	fseek(fp,cur,SEEK_SET);
+#ifdef POSIX
+	yaya::int_t cur = ftello(fp);
+	fseeko(fp, 0, SEEK_SET);
+	yaya::int_t start = ftello(fp);
+	fseeko(fp, 0, SEEK_END);
+	yaya::int_t end = ftello(fp);
+	fseeko(fp, cur, SEEK_SET);
+#else
+	yaya::int_t cur = _ftelli64(fp);
+	_fseeki64(fp,0,SEEK_SET);
+	yaya::int_t start = _ftelli64(fp);
+	_fseeki64(fp,0,SEEK_END);
+	yaya::int_t end = _ftelli64(fp);
+	_fseeki64(fp,cur,SEEK_SET);
+#endif
 
 	size = end-start;
 	
