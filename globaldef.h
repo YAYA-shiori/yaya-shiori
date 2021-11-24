@@ -88,10 +88,6 @@ namespace std {
 #define constexpr const
 #define emplace_back(p) push_back(p)
 
-#else
-
-#define enum_class enum class
-
 #endif //_MSVC_LANG
 
 
