@@ -54,6 +54,9 @@ public:
 	CLog(void)
 	{
 		charset = CHARSET_UTF8;
+#if defined(WIN32)
+		hWnd = NULL;
+#endif
 		enable = 1;
 		open = 0;
 		fileen = 1;

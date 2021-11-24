@@ -21,7 +21,7 @@
 #include <memory>
 
 #include "value.h"
-#include "fix_old_compiler.h"
+#include "globaldef.h"
 
 class	CSerial
 {

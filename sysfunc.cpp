@@ -323,6 +323,8 @@ public:
 	CSystemFunctionInit(void) {
 		sysfunc_len_max = 0;
 		sysfunc_len_min = 65536;
+		sysfunc_his_pos = 0;
+
 		for(size_t i = 0; i < SYSFUNC_NUM; i++) {
 			if ( ::wcscmp(CSystemFunction::sysfunc[i].name,SYSFUNC_HIS_NAME) == 0 ) {
 				sysfunc_his_pos = i;
@@ -2877,7 +2879,7 @@ CValue	CSystemFunction::FDIGEST(CSF_FUNCPARAM &p)
 		digest_len = 16;
 	}
 
-	delete buf_ptr;
+	delete [] buf_ptr;
 	buf_ptr = NULL;
 
 	fclose(pF);

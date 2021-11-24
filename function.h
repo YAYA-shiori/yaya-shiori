@@ -25,7 +25,6 @@
 #include "globaldef.h"
 #include "variable.h"
 #include "value.h"
-#include "fix_old_compiler.h"
 
 class CAyaVM;
 class CCell;
