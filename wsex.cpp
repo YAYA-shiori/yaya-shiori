@@ -78,9 +78,8 @@ double	yaya::ws_atof(const yaya::string_t &str)
 {
 	if (!str.size())
 		return 0.0;
-	
-	wchar_t	*dmy;
-	return wcstod(str.c_str(), &dmy);
+
+	return wcstod(str.c_str(), NULL);
 }
 
 /* -----------------------------------------------------------------------
