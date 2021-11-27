@@ -656,8 +656,8 @@ char	IsLegalFunctionName(const yaya::string_t &str)
 			return 4;
 	}
 
-	int sysidx = CSystemFunction::FindIndex(str);
-	if ( sysidx >= 0 ) { return 5; }
+	ptrdiff_t sysidx = CSystemFunction::FindIndex(str);
+	if( sysidx >= 0 ) { return 5; }
 
 	for(size_t i= 0; i < FLOWCOM_NUM; i++) {
 		if (str == flowcom[i]) {
@@ -710,8 +710,8 @@ char	IsLegalVariableName(const yaya::string_t &str)
 			return 4;
 	}
 
-	int sysidx = CSystemFunction::FindIndex(str);
-	if ( sysidx >= 0 ) { return 5; }
+	ptrdiff_t sysidx = CSystemFunction::FindIndex(str);
+	if( sysidx >= 0 ) { return 5; }
 
 	for(size_t i= 0; i < FLOWCOM_NUM; i++) {
 		if (str == flowcom[i]) {

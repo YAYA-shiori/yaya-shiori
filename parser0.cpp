@@ -627,7 +627,7 @@ char	CParser0::GetPreProcess(yaya::string_t &str, std::vector<CDefine>& defines,
 	bef.assign(str, sep_pos_end, rep_pos - sep_pos_end);
 	CutSpace(bef);
 
-	aft.assign(str, rep_pos_end, (int)str.size() - rep_pos_end);
+	aft.assign(str, rep_pos_end, str.size() - rep_pos_end);
 	CutSpace(aft);
 
 	//aftはカラでもよい
@@ -1547,7 +1547,7 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 */
 
 	// システム関数
-	int sysidx = CSystemFunction::FindIndex(scell.value_const().s_value);
+	ptrdiff_t sysidx = CSystemFunction::FindIndex(scell.value_const().s_value);
 	if ( sysidx >= 0 ) {
 		scell.value_SetType(F_TAG_SYSFUNC);
 		scell.index     = sysidx;

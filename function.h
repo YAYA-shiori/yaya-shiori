@@ -141,8 +141,8 @@ public:
 	yaya::string_t				dicfilename;	// 対応する辞書ファイル名
 
 protected:
-	int					statelenm1;		// statementの長さ-1（1を減じているのは終端の"}"を処理しないためです）
-	int					linecount;		// 定義された行
+	size_t					statelenm1;		// statementの長さ-1（1を減じているのは終端の"}"を処理しないためです）
+	size_t					linecount;		// 定義された行
 
 private:
 	CFunction(void);
@@ -172,28 +172,28 @@ public:
 	size_t	GetLineNumEnd() const   { return statement.empty() ? 0 : statement[statement.size()-1].linecount;}
 
 protected:
-	int		ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, int type, int &exitcode, std::vector<CVecValue>* pool);
+	int		ExecuteInBrace(size_t line, CValue &result, CLocalVariable &lvar, int type, int &exitcode, std::vector<CVecValue>* pool);
 
-	void	Foreach(CLocalVariable &lvar, CSelecter &output, int line, int &exitcode, std::vector<CVecValue>* pool);
+	void	Foreach(CLocalVariable &lvar, CSelecter &output, size_t line, int &exitcode, std::vector<CVecValue>* pool);
 
 	const	CValue& GetValueRefForCalc(CCell &cell, CStatement &st, CLocalVariable &lvar);
 	
 	void	SolveEmbedCell(CCell &cell, CStatement &st, CLocalVariable &lvar);
 
-	char	Comma(CValue &answer, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar);
-	char	CommaAdd(CValue &answer, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar);
-	char	Subst(int type, CValue &answer, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar);
+	char	Comma(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	char	CommaAdd(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	char	Subst(int type, CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	char	SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatement &st, CLocalVariable &lvar);
-	char	Array(CCell &anscell, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar);
+	char	Array(CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	int		_in_(const CValue &src, const CValue &dst);
 	int		not_in_(const CValue &src, const CValue &dst);
-	char	ExecFunctionWithArgs(CValue &answer, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar);
-	char	ExecSystemFunctionWithArgs(CCell& cell, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar);
+	char	ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	char	ExecSystemFunctionWithArgs(CCell& cell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	void	ExecHistoryP1(int start_index, CCell& cell, const CValue &arg, CStatement &st);
 	void	ExecHistoryP2(CCell &cell, CStatement &st);
-	char	Feedback(CCell &anscell, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar);
+	char	Feedback(CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	void	EncodeArrayOrder(CCell &vcell, const CValue &order, CLocalVariable &lvar, CValue &result);
-	void	FeedLineToTail(int &line);
+	void	FeedLineToTail(size_t&line);
 };
 
 //----
@@ -206,8 +206,8 @@ private:
 public:
 	std::vector<CFunction> func;
 	
-	int  GetFunctionIndexFromName(const yaya::string_t& name);
-	void AddFunctionIndex(const yaya::string_t& name,int index);
+	ptrdiff_t GetFunctionIndexFromName(const yaya::string_t& name);
+	void AddFunctionIndex(const yaya::string_t& name,size_t index);
 	void ClearFunctionIndex(void);
 	void RebuildFunctionMap(void);
 	void deep_copy_func(CFunctionDef &from);

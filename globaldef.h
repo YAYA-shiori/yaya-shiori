@@ -105,7 +105,7 @@ namespace yaya {
 	typedef std_shared_ptr<string_t> share_string_t;
 	typedef std_shared_ptr<const string_t> const_share_string_t;
 
-	typedef std::map<yaya::string_t,int> indexmap;
+	typedef std::map<yaya::string_t,size_t> indexmap;
 
 	template<class T> void shared_ptr_deep_copy(const std_shared_ptr<T> &from,std_shared_ptr<T> &to) {
 		if ( from.get() ) {

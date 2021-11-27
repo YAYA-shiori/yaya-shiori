@@ -78,11 +78,11 @@ public:
 	void	Message(int id, int mode = 0);
 	void	Filename(const yaya::string_t &filename);
 
-	void	Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t &dicfilename, int linecount);
-	void	Error(int mode, int id, const yaya::string_t &ref, const yaya::string_t &dicfilename, int linecount);
+	void	Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t &dicfilename, ptrdiff_t linecount);
+	void	Error(int mode, int id, const yaya::string_t &ref, const yaya::string_t &dicfilename, ptrdiff_t linecount);
 	void	Error(int mode, int id, const yaya::char_t *ref);
 	void	Error(int mode, int id, const yaya::string_t &ref);
-	void	Error(int mode, int id, const yaya::string_t &dicfilename, int linecount);
+	void	Error(int mode, int id, const yaya::string_t &dicfilename, ptrdiff_t linecount);
 	void	Error(int mode, int id);
 
 	void	Io(char io, const yaya::char_t *str);
