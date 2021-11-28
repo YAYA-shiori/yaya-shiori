@@ -129,7 +129,7 @@ void CFunction::Execute_SEHbody(CValue& result, CLocalVariable& lvar, int& exitc
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
-		throw aya::memory_error();
+		throw yaya::memory_error();
 	}
 }
 

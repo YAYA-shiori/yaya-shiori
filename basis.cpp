@@ -1269,7 +1269,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 		CLocalVariable	lvar(vm);
 		vm.function_exec().func[funcpos].Execute(result, arg, lvar);
 	}
-	catch (const aya::memory_error&) {
+	catch (const yaya::memory_error&) {
 		if(vm.call_limit().StackCall().size()>512)
 			CallOnMemoryLimit();
 		else
