@@ -160,6 +160,7 @@ public:
 
 	void	CompleteSetting(void);
 	int		Execute(CValue &result, const CValue &arg, CLocalVariable &lvar);
+	void	Execute_SEHbody(CValue& result, CLocalVariable& lvar, int& exitcode);
 	CValue	Execute();
 	CValue	Execute(const CValue& arg);
 

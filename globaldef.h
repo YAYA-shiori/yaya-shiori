@@ -98,6 +98,11 @@ namespace std {
 //=============================================================================================================
 
 namespace yaya {
+	struct memory_error:std::exception{
+		virtual const char*what()const{
+			return "memory error";
+		}
+	};
 	typedef wchar_t char_t;
 	typedef std::basic_string<char_t> string_t;
 	typedef std::int64_t int_t;

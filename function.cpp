@@ -110,7 +110,8 @@ int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
 		pvm->call_limit().DeleteCall();
 		return exitcode;
 	}
-	ExecuteInBrace(0, result, lvar, BRACE_DEFAULT, exitcode, NULL);
+	Execute_SEHbody(result, lvar, exitcode);
+	
 	pvm->call_limit().DeleteCall();
 
 	for ( size_t i = 0 ; i < statement.size() ; ++i ) {
@@ -118,6 +119,18 @@ int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
 	}
 
 	return exitcode;
+}
+
+void CFunction::Execute_SEHbody(CValue& result, CLocalVariable& lvar, int& exitcode)
+{
+	__try
+	{
+		ExecuteInBrace(0, result, lvar, BRACE_DEFAULT, exitcode, NULL);
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER)
+	{
+		throw aya::memory_error();
+	}
 }
 
 /* -----------------------------------------------------------------------

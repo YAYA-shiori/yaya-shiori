@@ -118,6 +118,8 @@ public:
 
 	void	ExecuteLoad(void);
 	yaya::global_t	ExecuteRequest(yaya::global_t h, long *len, bool is_debug);
+	void	CallOnMemoryLimit();
+	void	CallOnMemoryError();
 	void	ExecuteUnload(void);
 
 	void	SaveVariable(const yaya::char_t* pName = NULL);

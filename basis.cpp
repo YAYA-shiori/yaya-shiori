@@ -1269,19 +1269,14 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 		CLocalVariable	lvar(vm);
 		vm.function_exec().func[funcpos].Execute(result, arg, lvar);
 	}
+	catch (const aya::memory_error&) {
+		if(vm.call_limit().StackCall().size()>512)
+			CallOnMemoryLimit();
+		else
+			CallOnMemoryError();
+	}
 	catch (const std::bad_alloc&) {
-		CBasisFuncPos shiori_OnMemoryLimit;
-		ptrdiff_t funcpos = shiori_OnMemoryLimit.Find(vm, L"shiori.OnMemoryLimit");
-		size_t lock = vm.call_limit().temp_unlock();
-
-		if(funcpos >= 0) {
-			vm.function_exec().func[funcpos].Execute();//get info from GETCALLSTACK
-		}
-		else {
-			//TODO: vm.logger().Error();
-		}
-
-		vm.call_limit().reset_lock(lock);
+		CallOnMemoryLimit();
 	}
 
 	// 結果を文字列として取得し、文字コードをMBCSに変換
@@ -1318,6 +1313,36 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 	free(mostr);
 	mostr = NULL;
 	return r_h;
+}
+void CBasis::CallOnMemoryLimit()
+{
+	CBasisFuncPos shiori_OnMemoryLimit;
+	ptrdiff_t funcpos = shiori_OnMemoryLimit.Find(vm, L"shiori.OnMemoryLimit");
+	size_t lock = vm.call_limit().temp_unlock();
+
+	if (funcpos >= 0) {
+		vm.function_exec().func[funcpos].Execute();//get info from GETCALLSTACK
+	}
+	else {
+		//TODO: vm.logger().Error();
+	}
+
+	vm.call_limit().reset_lock(lock);
+}
+void CBasis::CallOnMemoryError()
+{
+	CBasisFuncPos shiori_OnMemoryError;
+	ptrdiff_t funcpos = shiori_OnMemoryError.Find(vm, L"shiori.OnMemoryError");
+	size_t lock = vm.call_limit().temp_unlock();
+
+	if (funcpos >= 0) {
+		vm.function_exec().func[funcpos].Execute();//get info from GETCALLSTACK
+	}
+	else {
+		//TODO: vm.logger().Error();
+	}
+
+	vm.call_limit().reset_lock(lock);
 }
 #elif defined(POSIX)
 yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug)
