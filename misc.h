@@ -85,18 +85,18 @@ inline bool IsSpace(const yaya::char_t &c) {
 class	CCallLimit
 {
 protected:
-	int	depth;
-	int	maxdepth;
-	int maxloop;
+	size_t	depth;
+	size_t	maxdepth;
+	size_t maxloop;
 	std::vector<yaya::string_t> stack;
 
 public:
 	CCallLimit(void) { depth = 0; maxdepth = CCALLLIMIT_CALLDEPTH_MAX; maxloop = CCALLLIMIT_LOOP_MAX; }
 
-	void	SetMaxDepth(int value) { maxdepth = value; }
+	void	SetMaxDepth(size_t value) { maxdepth = value; }
 	int 	GetMaxDepth(void) { return maxdepth; }
 
-	void	SetMaxLoop(int value) { maxloop = value; }
+	void	SetMaxLoop(size_t value) { maxloop = value; }
 	int		GetMaxLoop(void) { return maxloop; }
 
 	void	InitCall(void) { depth = 0; stack.clear(); }
@@ -122,12 +122,14 @@ public:
 	}
 
 	int temp_unlock() {
-		int aret=0;
-		std::swap(aret, maxdepth);
+		size_t aret=0;
+		using std::swap;
+		swap(aret, maxdepth);
 		return aret;
 	}
-	void reset_lock(int lock) {
-		std::swap(lock, maxdepth);
+	void reset_lock(size_t lock) {
+		using std::swap;
+		swap(lock, maxdepth);
 	}
 };
 

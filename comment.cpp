@@ -106,8 +106,8 @@ void	CComment::Process_Tail(yaya::string_t &str)
 	if (str.empty()) { return; }
 
 	yaya::string_t::size_type found = Find_IgnoreDQ(str, L"//");
-	if ( found != yaya::string_t::npos ) {
-		str.erase(found, (int)str.size() - found);
+	if( found != yaya::string_t::npos ) {
+		str.erase(found, str.size() - found);
 		CutSpace(str);
 	}
 }

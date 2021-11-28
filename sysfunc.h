@@ -68,13 +68,13 @@ private:
 public:
 	CSystemFunction(CAyaVM &vmr);
 
-	static int FindIndex(const yaya::string_t &str);
-	static int FindIndexLongestMatch(const yaya::string_t &str,int max_len = 0);
+	static ptrdiff_t FindIndex(const yaya::string_t &str);
+	static size_t FindIndexLongestMatch(const yaya::string_t &str,size_t max_len = 0);
 
 	static const yaya::char_t* GetNameFromIndex(int idx);
-	static int GetMaxNameLength(void);
+	static size_t GetMaxNameLength(void);
 
-	static int HistoryIndex(void);
+	static size_t HistoryIndex(void);
 	static const yaya::char_t* HistoryFunctionName(void);
 
 	void	SetLso(size_t order) { lso = order; }

@@ -36,7 +36,7 @@ class   CBasisFuncPos
 {
 private:
 	bool is_try_find;
-	int pos_saved;
+	ptrdiff_t pos_saved;
 
 public:
 	CBasisFuncPos() : is_try_find(false) , pos_saved(-1) { }
@@ -46,7 +46,7 @@ public:
 
 	bool IsNotFound() { return is_try_find && (pos_saved == -1); }
 
-	int Find(CAyaVM &vm,const yaya::char_t *name);
+	ptrdiff_t Find(CAyaVM &vm,const yaya::char_t *name);
 };
 
 class	CBasis
@@ -118,6 +118,8 @@ public:
 
 	void	ExecuteLoad(void);
 	yaya::global_t	ExecuteRequest(yaya::global_t h, long *len, bool is_debug);
+	void	CallOnMemoryLimit();
+	void	CallOnMemoryError();
 	void	ExecuteUnload(void);
 
 	void	SaveVariable(const yaya::char_t* pName = NULL);

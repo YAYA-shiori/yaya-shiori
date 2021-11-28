@@ -81,7 +81,7 @@ int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
 	// _argvを作成
 	lvar.SetValue(L"_argv", arg);
 	// _argcを作成
-	CValue	t_argc((int)arg.array_size());
+	CValue	t_argc((yaya::int_t)arg.array_size());
 	lvar.SetValue(L"_argc", t_argc);
 	//_FUNC_NAME_を作成
 	lvar.SetValue(L"_FUNC_NAME_", this->name);
@@ -91,14 +91,14 @@ int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
 		result.SetType(F_TAG_VOID);
 
 		CBasisFuncPos shiori_OnCallLimit;
-		int funcpos = shiori_OnCallLimit.Find(*pvm, L"shiori.OnCallLimit");
-		int lock = pvm->call_limit().temp_unlock();
+		ptrdiff_t funcpos = shiori_OnCallLimit.Find(*pvm, L"shiori.OnCallLimit");
+		size_t lock = pvm->call_limit().temp_unlock();
 
 		if(funcpos >= 0) {
 			//_argv[0] = dicname _argv[1] = linenum
 			CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
 			arg.array().emplace_back(CValueSub(dicfilename));
-			arg.array().emplace_back(CValueSub(linecount));
+			arg.array().emplace_back(CValueSub((yaya::int_t)linecount));
 
 			pvm->function_exec().func[funcpos].Execute(arg);
 		}
@@ -110,7 +110,8 @@ int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
 		pvm->call_limit().DeleteCall();
 		return exitcode;
 	}
-	ExecuteInBrace(0, result, lvar, BRACE_DEFAULT, exitcode, NULL);
+	Execute_SEHbody(result, lvar, exitcode);
+	
 	pvm->call_limit().DeleteCall();
 
 	for ( size_t i = 0 ; i < statement.size() ; ++i ) {
@@ -118,6 +119,18 @@ int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
 	}
 
 	return exitcode;
+}
+
+void CFunction::Execute_SEHbody(CValue& result, CLocalVariable& lvar, int& exitcode)
+{
+	__try
+	{
+		ExecuteInBrace(0, result, lvar, BRACE_DEFAULT, exitcode, NULL);
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER)
+	{
+		throw yaya::memory_error();
+	}
 }
 
 /* -----------------------------------------------------------------------
@@ -131,7 +144,7 @@ int	CFunction::Execute(CValue &result, const CValue &arg, CLocalVariable &lvar)
  *  返値は実行を終了した"}"の位置です。
  * -----------------------------------------------------------------------
  */
-int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, int type, int &exitcode, std::vector<CVecValue>* pool)
+int	CFunction::ExecuteInBrace(size_t line, CValue &result, CLocalVariable &lvar, int type, int &exitcode, std::vector<CVecValue>* pool)
 {
 	// 開始時の処理
 	lvar.AddDepth();
@@ -164,9 +177,9 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 
 	CValue		t_value;
 
-	int	t_statelenm1 = statelenm1;
+	size_t t_statelenm1 = statelenm1;
 
-	int i = 0;
+	size_t i = 0;
 	for(i = line; i < t_statelenm1; i++) {
 		CStatement& st = statement[i];
 
@@ -257,7 +270,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 
 				if ( loop_max <= loop_cur ) {
 					CBasisFuncPos shiori_OnLoopLimit;
-					int funcpos = shiori_OnLoopLimit.Find(*pvm, L"shiori.OnLoopLimit");
+					ptrdiff_t funcpos = shiori_OnLoopLimit.Find(*pvm, L"shiori.OnLoopLimit");
 
 					if (funcpos >= 0) {
 						//_argv[0] = dicname _argv[1] = linenum
@@ -279,8 +292,8 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 			{
 				GetFormulaAnswer(lvar, st); //for第一パラメータ
 
-				int loop_max = pvm->call_limit().GetMaxLoop();
-				int loop_cur = 0;
+				size_t loop_max = pvm->call_limit().GetMaxLoop();
+				size_t loop_cur = 0;
 
 				while ( (loop_max == 0) || (loop_max > loop_cur++) ) {
 					if (!GetFormulaAnswer(lvar, statement[i + 1]).GetTruth()) //for第二パラメータ
@@ -302,7 +315,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
 
 				if ( loop_max <= loop_cur ) {
 					CBasisFuncPos shiori_OnLoopLimit;
-					int funcpos = shiori_OnLoopLimit.Find(*pvm, L"shiori.OnLoopLimit");
+					ptrdiff_t funcpos = shiori_OnLoopLimit.Find(*pvm, L"shiori.OnLoopLimit");
 
 					if (funcpos >= 0) {
 						//_argv[0] = dicname _argv[1] = linenum
@@ -380,7 +393,7 @@ int	CFunction::ExecuteInBrace(int line, CValue &result, CLocalVariable &lvar, in
  *  実際に送るのは"}"の1つ手前の行の位置です
  * -----------------------------------------------------------------------
  */
-void	CFunction::Foreach(CLocalVariable &lvar, CSelecter &output, int line,int &exitcode, std::vector<CVecValue>* pool)
+void	CFunction::Foreach(CLocalVariable &lvar, CSelecter &output,size_t line,int &exitcode, std::vector<CVecValue>* pool)
 {
 	CStatement &st0 = statement[line];
 	CStatement &st1 = statement[line + 1];
@@ -393,7 +406,7 @@ void	CFunction::Foreach(CLocalVariable &lvar, CSelecter &output, int line,int &e
 	// 簡易配列かつ変数からの取得の場合、その変数に設定されているデリミタを取得する
 	bool isPseudoarray = false;
 
-	int	sz;
+	ptrdiff_t sz;
 	std::vector<yaya::string_t>	s_array;
 	if (value.IsString()) {
 		isPseudoarray = true;
@@ -801,12 +814,12 @@ void	CFunction::SolveEmbedCell(CCell &cell, CStatement &st, CLocalVariable &lvar
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char	CFunction::Comma(CValue &answer, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar)
+char	CFunction::Comma(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar)
 {
 	// 結合して配列値を作成
 	CValueArray	t_array;
 
-	for(std::vector<int>::iterator it = sid.begin(); it != sid.end(); it++) {
+	for(std::vector<size_t>::iterator it = sid.begin(); it != sid.end(); it++) {
 		const CValue &addv = GetValueRefForCalc(st.cell()[*it], st, lvar);
 		
 		if (addv.GetType() == F_TAG_ARRAY) {
@@ -828,7 +841,7 @@ char	CFunction::Comma(CValue &answer, std::vector<int> &sid, CStatement &st, CLo
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char	CFunction::CommaAdd(CValue &answer, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar)
+char	CFunction::CommaAdd(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar)
 {
 	if ( answer.GetType() != F_TAG_ARRAY ) {
 		CValueSub st(answer);
@@ -837,7 +850,7 @@ char	CFunction::CommaAdd(CValue &answer, std::vector<int> &sid, CStatement &st, 
 	}
 	CValueArray &t_array = answer.array();
 
-	std::vector<int>::iterator it = sid.begin();
+	std::vector<size_t>::iterator it = sid.begin();
 	it++; //最初＝左辺は代入先なので飛ばす
 
 	for( ; it != sid.end(); it++) {
@@ -861,7 +874,7 @@ char	CFunction::CommaAdd(CValue &answer, std::vector<int> &sid, CStatement &st, 
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char	CFunction::Subst(int type, CValue &answer, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar)
+char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar)
 {
 	CCell	*sid_0_cell = &(st.cell()[sid[0]]);
 	CCell	*sid_1_cell = &(st.cell()[sid[1]]);
@@ -1034,7 +1047,7 @@ char	CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatem
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char	CFunction::Array(CCell &anscell, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar)
+char	CFunction::Array(CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar)
 {
 	CCell	*v_cell = &(st.cell()[sid[0]]);
 	CCell	*n_cell = &(st.cell()[sid[1]]);
@@ -1086,11 +1099,11 @@ int	CFunction::not_in_(const CValue &src, const CValue &dst)
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar)
+char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar)
 {
 	// 関数の格納位置を取得
-	std::vector<int>::iterator it = sid.begin();
-	int	index = st.cell()[*it].index;
+	std::vector<size_t>::iterator it = sid.begin();
+	size_t index = st.cell()[*it].index;
 	it++;
 
 	// 引数作成
@@ -1155,19 +1168,19 @@ char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<int> &sid, CSta
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char	CFunction::ExecSystemFunctionWithArgs(CCell& cell, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar)
+char	CFunction::ExecSystemFunctionWithArgs(CCell& cell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar)
 {
 	// 関数の格納位置を取得
-	std::vector<int>::iterator it = sid.begin();
-	int	func_index = *it;
-	int	index = st.cell()[func_index].index;
+	std::vector<size_t>::iterator it = sid.begin();
+	size_t	func_index = *it;
+	size_t	index = st.cell()[func_index].index;
 	it++;
 
 	// 引数作成
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
 	std::vector<CCell *> pcellarg;
 	std::vector<CValue> valuearg;
-	std::vector<int>::size_type sidsize = sid.size();
+	std::vector<size_t>::size_type sidsize = sid.size();
 
 	for( ; it != sid.end(); it++) {
 		const CValue &addv = GetValueRefForCalc(st.cell()[*it], st, lvar);
@@ -1253,7 +1266,7 @@ void	CFunction::ExecHistoryP2(CCell& cell, CStatement &st)
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char	CFunction::Feedback(CCell &anscell, std::vector<int> &sid, CStatement &st, CLocalVariable &lvar)
+char	CFunction::Feedback(CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar)
 {
 	CCell	*v_cell = &(st.cell()[sid[1]]);
 
@@ -1313,11 +1326,11 @@ void CFunction::EncodeArrayOrder(CCell &vcell, const CValue &order, CLocalVariab
  *  実際に送るのは"}"の1つ手前の行の位置です
  * -----------------------------------------------------------------------
  */
-void	CFunction::FeedLineToTail(int &line)
+void	CFunction::FeedLineToTail(size_t&line)
 {
-	int	t_statelenm1 = statelenm1;
+	size_t	t_statelenm1 = statelenm1;
 
-	int	depth = 1;
+	size_t	depth = 1;
 	line++;
 	for( ; line < t_statelenm1; line++) {
 		depth += ((statement[line].type == ST_OPEN) - (statement[line].type == ST_CLOSE));
@@ -1333,7 +1346,7 @@ void	CFunction::FeedLineToTail(int &line)
  *  機能概要：  関数名に対応する配列の序数を取得します
  * -----------------------------------------------------------------------
  */
-int	CFunctionDef::GetFunctionIndexFromName(const yaya::string_t& name)
+ptrdiff_t CFunctionDef::GetFunctionIndexFromName(const yaya::string_t& name)
 {
 	if ( map.empty() ) {
 		RebuildFunctionMap();
@@ -1351,7 +1364,7 @@ int	CFunctionDef::GetFunctionIndexFromName(const yaya::string_t& name)
  *  機能概要：  関数名に対応する配列の序数を追加します
  * -----------------------------------------------------------------------
  */
-void CFunctionDef::AddFunctionIndex(const yaya::string_t& name,int index)
+void CFunctionDef::AddFunctionIndex(const yaya::string_t& name,size_t index)
 {
 	map.insert(yaya::indexmap::value_type(name, index));
 }
@@ -1375,7 +1388,7 @@ void CFunctionDef::RebuildFunctionMap(void)
 {
 	ClearFunctionIndex();
 	for (size_t fcnt = 0; fcnt < func.size(); ++fcnt) {
-		map.insert(yaya::indexmap::value_type(func[fcnt].name, static_cast<int>(fcnt)));
+		map.insert(yaya::indexmap::value_type(func[fcnt].name,fcnt));
 	}
 }
 

@@ -261,7 +261,7 @@ CValue*	CLocalVariable::GetValuePtr(const yaya::string_t &name)
  */
 int		CLocalVariable::GetNumber(int depth)
 {
-	if (depth < 0 || depth >= (int)stack.size()) {
+	if(depth < 0 || (size_t)depth >= stack.size()) {
 		return 0;
 	}
 	return stack[depth].substack.size();

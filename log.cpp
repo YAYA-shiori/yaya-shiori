@@ -164,9 +164,9 @@ void	CLog::Write(const yaya::char_t *str, int mode, int id)
 
 	// 文字列中の\rは消す
 	yaya::string_t	cstr = str;
-	int	len = cstr.size();
-	for(int i = 0; i < len; ) {
-		if (cstr[i] == L'\r') {
+	size_t	len = cstr.size();
+	for(size_t i = 0; i < len; ) {
+		if(cstr[i] == L'\r') {
 			cstr.erase(i, 1);
 			len--;
 			continue;
@@ -236,7 +236,7 @@ void	CLog::Message(int id, int mode)
  *  　　　　　  非表示にできます
  * -----------------------------------------------------------------------
  */
-void	CLog::Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t &dicfilename, int linecount)
+void	CLog::Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t &dicfilename, ptrdiff_t linecount)
 {
 	// ログに書き込み文字列を作成（辞書ファイル名と行番号）
 	yaya::string_t	logstr;
@@ -248,7 +248,7 @@ void	CLog::Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t
 		if(linecount == -1)
 			logstr += L"-) : ";
 		else {
-			logstr += yaya::ws_itoa(linecount);
+			logstr += yaya::ws_lltoa(linecount);
 			logstr += L") : ";
 		}
 	}
@@ -281,7 +281,7 @@ void	CLog::Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t
 
 //----
 
-void	CLog::Error(int mode, int id, const yaya::string_t& ref, const yaya::string_t& dicfilename, int linecount)
+void	CLog::Error(int mode, int id, const yaya::string_t& ref, const yaya::string_t& dicfilename, ptrdiff_t linecount)
 {
 	Error(mode, id, (yaya::char_t *)ref.c_str(), dicfilename, linecount);
 }
@@ -302,7 +302,7 @@ void	CLog::Error(int mode, int id, const yaya::string_t& ref)
 
 //----
 
-void	CLog::Error(int mode, int id, const yaya::string_t& dicfilename, int linecount)
+void	CLog::Error(int mode, int id, const yaya::string_t& dicfilename, ptrdiff_t linecount)
 {
 	Error(mode, id, (yaya::char_t *)NULL, dicfilename, linecount);
 }
