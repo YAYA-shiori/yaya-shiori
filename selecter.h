@@ -84,13 +84,13 @@ public:
 
 	choicetype_t	GetType(void) { return type; }
 
-	CValue	Choice(CAyaVM &vm,int areanum, const std::vector<CVecValue> &values, int mode);
+	CValue	Choice(CAyaVM &vm, size_t areanum, const std::vector<CVecValue> &values, int mode);
 
 protected:
 	void	InitRoundOrder(CAyaVM &vm,int mode);
-	bool	UpdateNums(int areanum, const std::vector<CVecValue> &values);
+	bool	UpdateNums(size_t areanum, const std::vector<CVecValue> &values);
 	bool	UpdateNums(const CValue& value);
-	CValue	GetValue(CAyaVM &vm,int areanum, const std::vector<CVecValue> &values);
+	CValue	GetValue(CAyaVM &vm, size_t areanum, const std::vector<CVecValue> &values);
 };
 
 //----
@@ -115,7 +115,7 @@ public:
 	CValue	Output(void);
 
 	static choicetype_t			GetDefaultBlockChoicetype(choicetype_t nowtype);
-	static choicetype_t			StringToChoiceType(const yaya::string_t& ctypestr, CAyaVM &vm, const yaya::string_t& dicfilename, int linecount);
+	static choicetype_t			StringToChoiceType(const yaya::string_t& ctypestr, CAyaVM &vm, const yaya::string_t& dicfilename, size_t linecount);
 	static const yaya::char_t*	ChoiceTypeToString(choicetype_t ctype);
 
 protected:
