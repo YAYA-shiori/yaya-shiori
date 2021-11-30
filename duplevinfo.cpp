@@ -144,7 +144,8 @@ bool	CDuplEvInfo::UpdateNums(size_t areanum, const std::vector<CVecValue> &value
 			changed = true;
 		}
 
-		total *= t_num;
+		if(t_num)
+			total *= t_num;
 		num[i] = t_num;
 	}
 
