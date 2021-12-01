@@ -37,7 +37,7 @@
  */
 char	CParser1::CheckExecutionCode(const yaya::string_t& dicfilename)
 {
-	int	errcount = 0;
+	size_t errcount = 0;
 
 	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
@@ -69,7 +69,7 @@ char	CParser1::CheckExecutionCode(const yaya::string_t& dicfilename)
  */
 char	CParser1::CheckExecutionCode1(CStatement& st, const yaya::string_t& dicfilename)
 {
-	int	errcount = 0;
+	size_t errcount = 0;
 
 	errcount += CheckNomialCount(st, dicfilename);
 	errcount += CheckSubstSyntax(st, dicfilename);
@@ -89,14 +89,14 @@ char	CParser1::CheckExecutionCode1(CStatement& st, const yaya::string_t& dicfile
  */
 char	CParser1::CheckNomialCount(CStatement& st, const yaya::string_t& dicfilename)
 {
-	int	errcount = 0;
+	size_t errcount = 0;
 
 	for(std::vector<CSerial>::iterator it = st.serial().begin(); it != st.serial().end(); it++) {
 		int t_type = st.cell()[it->tindex].value_GetType();
 
 		//演算に関係してる項の数を確認 二項演算子なのに単項で使われてるとか
-		if ( t_type >= F_TAG_ORIGIN && t_type < F_TAG_ORIGIN_VALUE ) {
-			if ( static_cast<int>(it->index.size()) < formulatag_params[t_type-F_TAG_ORIGIN] ) {
+		if( t_type >= F_TAG_ORIGIN && t_type < F_TAG_ORIGIN_VALUE ) {
+			if( it->index.size() < formulatag_params[t_type-F_TAG_ORIGIN] ) {
 				vm.logger().Error(E_E, 22, dicfilename, st.linecount);
 				errcount++;
 			}
@@ -115,7 +115,7 @@ char	CParser1::CheckNomialCount(CStatement& st, const yaya::string_t& dicfilenam
  */
 char	CParser1::CheckSubstSyntax(CStatement& st, const yaya::string_t& dicfilename)
 {
-	int	errcount = 0;
+	size_t errcount = 0;
 
 	for(size_t i = 0; i < st.cell_size(); ++i) {
 		int t_type = st.cell()[i].value_GetType();
@@ -128,7 +128,7 @@ char	CParser1::CheckSubstSyntax(CStatement& st, const yaya::string_t& dicfilenam
 			}
 			// 先頭/最後尾でない位置の場合はさらに確認
 			else {
-				int	before = i - 1;
+				size_t before = i - 1;
 				// 代入演算子の手前は変数、ローカル変数、閉じスクウェアブラケット("]")の
 				// いずれかであるはずなので、これを確認
 				if (st.cell()[before].value_GetType() != F_TAG_VARIABLE &&
@@ -138,9 +138,9 @@ char	CParser1::CheckSubstSyntax(CStatement& st, const yaya::string_t& dicfilenam
 					errcount++;
 				}
 				// 手前が閉じスクウェアブラケット("]")だった場合はブラケット手前の変数を確認
-				if (st.cell()[before].value_GetType() == F_TAG_HOOKBRACKETOUT) {
-					int	depth = 1;
-					int     j = 0;
+				if(st.cell()[before].value_GetType() == F_TAG_HOOKBRACKETOUT) {
+					ptrdiff_t depth = 1;
+					ptrdiff_t j = 0;
 					for(j = before - 1; j >= 0; j--) {
 						if (st.cell()[j].value_GetType() == F_TAG_HOOKBRACKETOUT)
 							depth++;
@@ -178,12 +178,12 @@ char	CParser1::CheckSubstSyntax(CStatement& st, const yaya::string_t& dicfilenam
  */
 char	CParser1::CheckFeedbackOperatorPos(CStatement& st, const yaya::string_t& dicfilename)
 {
-	int	errcount = 0;
+	size_t errcount = 0;
 
-	int	sz = st.cell_size();
-	for(int i = 0; i < sz; i++)
-		if (st.cell()[i].value_GetType() == F_TAG_FEEDBACK) {
-			if (i < 2 || i == sz - 1) {
+	size_t sz = st.cell_size();
+	for(size_t i = 0; i < sz; i++)
+		if(st.cell()[i].value_GetType() == F_TAG_FEEDBACK) {
+			if(i < 2 || i == sz - 1) {
 				vm.logger().Error(E_E, 87, dicfilename, st.linecount);
 				errcount++;
 			}
@@ -215,7 +215,7 @@ char	CParser1::SetFormulaType(CStatement& st, const yaya::string_t& dicfilename)
 	if (st.type != ST_FORMULA)
 		return 0;
 
-	int	sz = st.cell_size();
+	size_t sz = st.cell_size();
 	// 項が一つも無い場合はエラー
 	if (!sz) {
 		vm.logger().Error(E_E, 26, dicfilename, st.linecount);
@@ -229,8 +229,8 @@ char	CParser1::SetFormulaType(CStatement& st, const yaya::string_t& dicfilename)
 	}
 
 	// 最後に計算する演算子が代入系か否かで種類を判定
-	int	lastsr = st.serial_size();
-	if (!lastsr) {
+	size_t lastsr = st.serial_size();
+	if(!lastsr) {
 		vm.logger().Error(E_E, 83, dicfilename, st.linecount);
 		return 1;
 	}
@@ -255,7 +255,7 @@ char	CParser1::SetFormulaType(CStatement& st, const yaya::string_t& dicfilename)
  */
 char	CParser1::SetBreakJumpNo(const yaya::string_t& dicfilename)
 {
-	int	errcount = 0;
+	size_t errcount = 0;
 
 	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
@@ -263,7 +263,7 @@ char	CParser1::SetBreakJumpNo(const yaya::string_t& dicfilename)
 		std::vector<CVecint>	dline;
 		CVecint	addvecint;
 		dline.emplace_back(addvecint);
-		int	depth = 0;
+		ptrdiff_t depth = 0;
 		for(size_t i = 0; i < it->statement.size(); ++i) {
 			// {
 			if (it->statement[i].type == ST_OPEN) {
@@ -272,10 +272,10 @@ char	CParser1::SetBreakJumpNo(const yaya::string_t& dicfilename)
 				depth++;
 			}
 			// }
-			else if (it->statement[i].type == ST_CLOSE) {
-				if (depth >= 0) {
-					int	len = dline[depth].i_array.size();
-					for(int j = 0; j < len; j++)
+			else if(it->statement[i].type == ST_CLOSE) {
+				if(depth >= 0) {
+					size_t len = dline[depth].i_array.size();
+					for(size_t j = 0; j < len; j++)
 						it->statement[dline[depth].i_array[j]].jumpto = i;
 					dline.erase(dline.end() - 1);
 					depth--;
@@ -308,12 +308,12 @@ char	CParser1::SetBreakJumpNo(const yaya::string_t& dicfilename)
  */
 char	CParser1::CheckCaseSyntax(const yaya::string_t& dicfilename)
 {
-	int	errcount = 0;
+	size_t errcount = 0;
 
 	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
 
-		int	casev = 0;
+		bool casev = 0;
 		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++) {
 			if (it2->type == ST_FORMULA_SUBST) {
 				if (!wcsncmp(PREFIX_CASE_VAR, it2->cell()[0].name.c_str(),PREFIX_CASE_VAR_SIZE)) {
@@ -342,7 +342,7 @@ char	CParser1::CheckCaseSyntax(const yaya::string_t& dicfilename)
  */
 char	CParser1::CheckIfSyntax(const yaya::string_t& dicfilename)
 {
-	int	errcount = 0;
+	size_t errcount = 0;
 
 	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
@@ -391,7 +391,7 @@ char	CParser1::CheckIfSyntax(const yaya::string_t& dicfilename)
  */
 char	CParser1::CheckElseSyntax(const yaya::string_t& dicfilename)
 {
-	int	errcount = 0;
+	size_t errcount = 0;
 
 	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
@@ -422,7 +422,7 @@ char	CParser1::CheckElseSyntax(const yaya::string_t& dicfilename)
  */
 char	CParser1::CheckForSyntax(const yaya::string_t& dicfilename)
 {
-	int	errcount = 0;
+	size_t errcount = 0;
 
 	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
@@ -463,7 +463,7 @@ char	CParser1::CheckForSyntax(const yaya::string_t& dicfilename)
  */
 char	CParser1::CheckForeachSyntax(const yaya::string_t& dicfilename)
 {
-	int	errcount = 0;
+	size_t errcount = 0;
 
 	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
@@ -504,16 +504,16 @@ char	CParser1::CheckForeachSyntax(const yaya::string_t& dicfilename)
  */
 char	CParser1::SetIfJumpNo(const yaya::string_t& dicfilename)
 {
-	int	errcount = 0;
+	size_t errcount = 0;
 
 	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
 		if ( it->dicfilename != dicfilename ) { continue; }
 
-		std::vector<int>	dline;
+		std::vector<size_t>	dline;
 		dline.emplace_back(-1);
-		std::vector<int>	ifchain;
+		std::vector<size_t>	ifchain;
 		ifchain.emplace_back(0);
-		int	depth = 0;
+		ptrdiff_t depth = 0;
 		for(size_t i = 0; i < it->statement.size(); i++) {
 			// {
 			if (it->statement[i].type == ST_OPEN) {
@@ -617,7 +617,7 @@ char	CParser1::SetIfJumpNo(const yaya::string_t& dicfilename)
  */
 char	CParser1::CheckFunctionArgument(CStatement& st, const yaya::string_t& dicfilename)
 {
-	int	errcount = 0;
+	size_t errcount = 0;
 
 	if (st.type >= ST_FORMULA_OUT_FORMULA && st.type <= ST_VOID) {
 		int	beftype = F_TAG_UNKNOWN;
