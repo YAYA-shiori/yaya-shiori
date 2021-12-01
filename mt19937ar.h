@@ -105,7 +105,7 @@ void init_genrand64(MersenneTwister64& rs,unsigned long long seed);
 /* initialize by an array with array-length */
 /* init_key is the array for initializing keys */
 /* key_length is its length */
-void init_by_array64(MersenneTwister64& rs,unsigned long long init_key[],
+void init_by_array64(MersenneTwister64& rs,const unsigned long long init_key[],
 		     unsigned long long key_length);
 
 /* generates a random number on [0, 2^64-1]-interval */

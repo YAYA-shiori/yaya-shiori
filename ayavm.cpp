@@ -46,8 +46,8 @@
 
 CAyaVM::CAyaVM()
 {
-	memset(&rs_sysfunc,  0, sizeof(rs_sysfunc));
-	memset(&rs_internal, 0, sizeof(rs_internal));
+	memset(&rs_sysfunc64,  0, sizeof(rs_sysfunc64));
+	memset(&rs_internal64, 0, sizeof(rs_internal64));
 }
 
 /*-----------------------------------------------
@@ -71,8 +71,8 @@ CAyaVM::CAyaVM(CAyaVM &ovm)
 	#undef copy_new
 
 	m_logger = ovm.m_logger;
-	rs_sysfunc = ovm.rs_sysfunc;
-	rs_internal = ovm.rs_internal;
+	rs_sysfunc64 = ovm.rs_sysfunc64;
+	rs_internal64 = ovm.rs_internal64;
 }
 
 CAyaVM* CAyaVM::get_a_deep_copy()
@@ -105,8 +105,8 @@ void CAyaVM::load(void)
 	dwSeed = ::GetTickCount();
 #endif
 
-	init_genrand(rs_internal,dwSeed);
-	init_genrand(rs_sysfunc,dwSeed);
+	init_genrand64(rs_internal64, dwSeed);
+	init_genrand64(rs_sysfunc64, dwSeed);
 }
 
 /*-----------------------------------------------
@@ -166,54 +166,24 @@ void CAyaVM::func_parse_new(void)
 /*-----------------------------------------------
 	乱数生成
 -----------------------------------------------*/
-unsigned int CAyaVM::genrand(void)
-{
-	return genrand_int32(rs_internal);
-}
-
-int CAyaVM::genrand_int(int n)
-{
-	return genrand_int31(rs_internal) % n;
-}
-
 size_t CAyaVM::genrand_uint(size_t n)
 {
-	return genrand_int32(rs_internal) % n;
-}
-
-unsigned int CAyaVM::genrand_sysfunc(void)
-{
-	return genrand_int32(rs_sysfunc);
-}
-
-int CAyaVM::genrand_sysfunc_int(int n)
-{
-	return genrand_int31(rs_sysfunc) % n;
+	return genrand64_int63(rs_internal64) % n;
 }
 
 yaya::int_t CAyaVM::genrand_sysfunc_ll(yaya::int_t n)
 {
-	return genrand_int63(rs_sysfunc) % n;
-}
-
-void CAyaVM::genrand_sysfunc_srand(int n)
-{
-	init_genrand(rs_sysfunc,n);
+	return genrand64_int63(rs_sysfunc64) % n;
 }
 
 void CAyaVM::genrand_sysfunc_srand_ll(yaya::int_t n)
 {
-	unsigned long a[2];
-
-	a[0] = static_cast<unsigned long>(n & 0xFFFFFFFFU);
-	a[1] = static_cast<unsigned long>(n >> 32);
-
-	init_by_array(rs_sysfunc,a,2);
+	init_genrand64(rs_sysfunc64,n);
 }
 
-void CAyaVM::genrand_sysfunc_srand_array(const unsigned long a[],const int n)
+void CAyaVM::genrand_sysfunc_srand_array(const unsigned long long a[],const int n)
 {
-	init_by_array(rs_sysfunc,a,n);
+	init_by_array64(rs_sysfunc64,a,n);
 }
 
 // ちょっとひどいハックですが……

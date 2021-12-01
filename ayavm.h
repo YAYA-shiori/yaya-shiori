@@ -53,8 +53,8 @@ private:
 
 	CLog	m_logger;
 
-	MersenneTwister rs_sysfunc;
-	MersenneTwister rs_internal;
+	MersenneTwister64 rs_sysfunc64;
+	MersenneTwister64 rs_internal64;
 
 public:
 	CAyaVM();
@@ -73,17 +73,12 @@ public:
 	void func_parse_destruct(void);
 	void func_parse_new(void);
 
-	unsigned int genrand(void);
-	int genrand_int(int n);
 	size_t genrand_uint(size_t n);
 
-	unsigned int genrand_sysfunc(void);
-	int genrand_sysfunc_int(int n);
 	yaya::int_t genrand_sysfunc_ll(yaya::int_t n);
 
-	void genrand_sysfunc_srand(int n);
 	void genrand_sysfunc_srand_ll(yaya::int_t n);
-	void genrand_sysfunc_srand_array(const unsigned long a[],const int n);
+	void genrand_sysfunc_srand_array(const unsigned long long a[],const int n);
 
 	// 主制御
 	CBasis&					basis();
