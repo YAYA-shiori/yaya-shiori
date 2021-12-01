@@ -8,6 +8,10 @@
 #if defined(WIN32) || defined(_WIN32_WCE)
 # include "stdafx.h"
 #endif
+#ifdef _MSC_VER
+#include <corecrt.h>
+#endif // _MSC_AVR
+
 
 #if defined(POSIX)
 # include <iomanip>
@@ -365,7 +369,13 @@ int yaya::ws_fputs(const yaya::char_t *str, FILE *stream, int charset, int ayc)
 *  機能概要：  snprintf互換処理
 * -----------------------------------------------------------------------
 */
-int yaya::snprintf(yaya::char_t *buf,size_t count,const yaya::char_t *format,...)
+#if defined(__GNUC__)
+int yaya::snprintf(yaya::char_t* buf, size_t count, const yaya::char_t* format, ...)__attribute__((format(printf, 3, 4)));
+#elif defined(_MSC_VER)
+int yaya::snprintf(_Pre_notnull_ _Always_(_Post_z_) yaya::char_t *buf,size_t count, _Printf_format_string_ const yaya::char_t *format,...)
+#else
+int yaya::snprintf(yaya::char_t* buf, size_t count, const yaya::char_t* format, ...)
+#endif
 {
 	va_list list;
 	va_start( list, format );
