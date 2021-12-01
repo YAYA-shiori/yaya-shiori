@@ -66,6 +66,11 @@ typedef struct MersenneTwister {
 	unsigned long *next;
 } MersenneTwister;
 
+typedef struct MersenneTwister64 {
+	unsigned long long mt[312];
+	int mti;
+} MersenneTwister64;
+
 /* initializes mt[N] with a seed */
 void init_genrand(MersenneTwister &rs,unsigned long s);
 
@@ -81,18 +86,6 @@ std_int32_t genrand_int32(MersenneTwister &rs);
 /* generates a random number on [0,0x7fffffff]-interval */
 std_int32_t genrand_int31(MersenneTwister &rs);
 
-// Returns an 64bit long in the range [0,2^64-1]
-// Its lowest value is : 0
-// Its highest value is: 18446744073709551615
-//
-std_int64_t genrand_int64(MersenneTwister& rs);
-
-// Returns an 63bit long in the range [0,2^63-1]
-// Its lowest value is : 0
-// Its highest value is: 9223372036854775807
-//
-std_int64_t genrand_int63(MersenneTwister& rs);
-
 /* These real versions are due to Isaku Wada, 2002/01/09 added */
 /* generates a random number on [0,1]-real-interval */
 double genrand_real1(MersenneTwister &rs);
@@ -105,6 +98,31 @@ double genrand_real3(MersenneTwister &rs);
 
 /* generates a random number on [0,1) with 53-bit resolution*/
 double genrand_res53(MersenneTwister &rs);
+
+/* initializes mt[NN] with a seed */
+void init_genrand64(MersenneTwister64& rs,unsigned long long seed);
+
+/* initialize by an array with array-length */
+/* init_key is the array for initializing keys */
+/* key_length is its length */
+void init_by_array64(MersenneTwister64& rs,unsigned long long init_key[],
+		     unsigned long long key_length);
+
+/* generates a random number on [0, 2^64-1]-interval */
+unsigned long long genrand64_int64(MersenneTwister64& rs);
+
+
+/* generates a random number on [0, 2^63-1]-interval */
+long long genrand64_int63(MersenneTwister64& rs);
+
+/* generates a random number on [0,1]-real-interval */
+double genrand64_real1(MersenneTwister64& rs);
+
+/* generates a random number on [0,1)-real-interval */
+double genrand64_real2(MersenneTwister64& rs);
+
+/* generates a random number on (0,1)-real-interval */
+double genrand64_real3(MersenneTwister64& rs);
 
 #ifdef __cplusplus
 }
