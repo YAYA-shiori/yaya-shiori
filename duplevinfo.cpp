@@ -34,7 +34,7 @@
  *  機能概要：  候補から選択して出力します
  * -----------------------------------------------------------------------
  */
-CValue	CDuplEvInfo::Choice(CAyaVM &vm,int areanum, const std::vector<CVecValue> &values, int mode)
+CValue	CDuplEvInfo::Choice(CAyaVM &vm, size_t areanum, const std::vector<CVecValue> &values, int mode)
 {
 	// 領域毎の候補数と総数を更新　変化があった場合は巡回順序を初期化する
 	if ( UpdateNums(areanum, values) ) {
@@ -49,7 +49,7 @@ CValue	CDuplEvInfo::Choice(CAyaVM &vm,int areanum, const std::vector<CVecValue> 
 
 	// 巡回位置を進める　巡回が完了したら巡回順序を初期化する
 	index++;
-	if ( index >= static_cast<int>(roundorder.size()) ) {
+	if ( index >= roundorder.size() ) {
 		InitRoundOrder(vm,mode);
 	}
 
@@ -124,10 +124,10 @@ void	CDuplEvInfo::InitRoundOrder(CAyaVM &vm,int mode_param)
  *  返値　　　  0/1=変化なし/あり
  * -----------------------------------------------------------------------
  */
-bool	CDuplEvInfo::UpdateNums(int areanum, const std::vector<CVecValue> &values)
+bool	CDuplEvInfo::UpdateNums(size_t areanum, const std::vector<CVecValue> &values)
 {
 	// 元の候補数を保存しておく
-	int	bef_numlenm1 = num.size() - 1;
+	size_t	bef_numlenm1 = num.size() - 1;
 
 	// 領域毎の候補数と組み合わせ総数を更新
 	// 候補数に変化があった場合はフラグに記録する
@@ -137,14 +137,15 @@ bool	CDuplEvInfo::UpdateNums(int areanum, const std::vector<CVecValue> &values)
 	}
 	total = 1;
 
-	for(int i = 0; i <= areanum; i++) {
-		int	t_num = values[i].array.size();
+	for(size_t i = 0; i <= areanum; i++) {
+		size_t t_num = values[i].array.size();
 
 		if (num[i] != t_num) {
 			changed = true;
 		}
 
-		total *= t_num;
+		if(t_num)
+			total *= t_num;
 		num[i] = t_num;
 	}
 
@@ -176,17 +177,17 @@ bool	CDuplEvInfo::UpdateNums(const CValue& value)
  *  領域が複数ある場合はそれらは文字列として結合されますので、文字列型での出力となります。
  * -----------------------------------------------------------------------
  */
-CValue	CDuplEvInfo::GetValue(CAyaVM &vm,int areanum, const std::vector<CVecValue> &values)
+CValue	CDuplEvInfo::GetValue(CAyaVM &vm, size_t areanum, const std::vector<CVecValue> &values)
 {
-	int	t_index = roundorder[index];
+	size_t t_index = roundorder[index];
 
 	vm.sysfunction().SetLso(t_index);
 
 	if (areanum) {
 		yaya::string_t	result;
-		for ( int i = 0; i <= areanum; i++ ) {
+		for (size_t i = 0; i <= areanum; i++ ) {
 			if ( num[i] ) {
-				int	next = t_index/num[i];
+				size_t next = t_index/num[i];
 				result += values[i].array[t_index - next*(num[i])].GetValueString();
 				t_index = next;
 			}

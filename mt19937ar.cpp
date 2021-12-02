@@ -45,13 +45,10 @@
 
 #include "mt19937ar.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* Period parameters */  
 #define N 624
 #define M 397
+#undef MATRIX_A
 #define MATRIX_A 0x9908b0dfUL   /* constant vector a */
 #define UMASK 0x80000000UL /* most significant w-r bits */
 #define LMASK 0x7fffffffUL /* least significant r bits */
@@ -131,7 +128,7 @@ static void next_state(MersenneTwister &rs)
 }
 
 /* generates a random number on [0,0xffffffff]-interval */
-std_int32_t genrand_int32(MersenneTwister &rs)
+unsigned long genrand_int32(MersenneTwister &rs)
 {
     unsigned long y;
 
@@ -148,7 +145,7 @@ std_int32_t genrand_int32(MersenneTwister &rs)
 }
 
 /* generates a random number on [0,0x7fffffff]-interval */
-std_int32_t genrand_int31(MersenneTwister &rs)
+long genrand_int31(MersenneTwister &rs)
 {
     unsigned long y;
 
@@ -162,24 +159,6 @@ std_int32_t genrand_int31(MersenneTwister &rs)
     y ^= (y >> 18);
 
     return (long)(y>>1);
-}
-
-// Returns an unsigned long in the range [0,2^64-1]
-// Its lowest value is : 0
-// Its highest value is: 18446744073709551615
-//
-std_int64_t genrand_int64(MersenneTwister& rs)
-{
-	return (std_int64_t)genrand_int32(rs) | ((std_int64_t)genrand_int32(rs)) << 32;
-}
-
-// Returns an unsigned long in the range [0,2^63-1]
-// Its lowest value is : 0
-// Its highest value is: 9223372036854775807
-//
-std_int64_t genrand_int63(MersenneTwister& rs)
-{
-	return ((std_int64_t)genrand_int32(rs)) >> 1 | ((std_int64_t)genrand_int32(rs)) << 31;
 }
 
 /* generates a random number on [0,1]-real-interval */
@@ -244,6 +223,113 @@ double genrand_res53(MersenneTwister &rs)
 } 
 /* These real versions are due to Isaku Wada, 2002/01/09 added */
 
-#ifdef __cplusplus
+#define NN 312
+#define MM 156
+#undef MATRIX_A
+#define MATRIX_A ULL_DEF(0xB5026F5AA96619E9)
+#define UM ULL_DEF(0xFFFFFFFF80000000) /* Most significant 33 bits */
+#define LM ULL_DEF(0x7FFFFFFF) /* Least significant 31 bits */
+
+
+/* The array for the state vector //
+static std::uint64_t mt[NN]; 
+static int mti=NN+1; 
+*/
+
+/* initializes mt[NN] with a seed */
+void init_genrand64(MersenneTwister64& rs,std::uint64_t seed)
+{
+	rs.mt[0] = seed;
+	for (rs.mti=1; rs.mti<NN; rs.mti++) 
+		rs.mt[rs.mti] =  (ULL_DEF(6364136223846793005) * (rs.mt[rs.mti-1] ^ (rs.mt[rs.mti-1] >> 62)) + rs.mti);
 }
-#endif
+
+/* initialize by an array with array-length */
+/* init_key is the array for initializing keys */
+/* key_length is its length */
+void init_by_array64(MersenneTwister64& rs,const std::uint64_t init_key[],
+		     std::uint64_t key_length)
+{
+	std::uint64_t i, j, k;
+	init_genrand64(rs,ULL_DEF(19650218));
+	i=1; j=0;
+	k = (NN>key_length ? NN : key_length);
+	for (; k; k--) {
+		rs.mt[i] = (rs.mt[i] ^ ((rs.mt[i-1] ^ (rs.mt[i-1] >> 62)) * ULL_DEF(3935559000370003845)))
+		  + init_key[j] + j; /* non linear */
+		i++; j++;
+		if (i>=NN) { rs.mt[0] = rs.mt[NN-1]; i=1; }
+		if (j>=key_length) j=0;
+	}
+	for (k=NN-1; k; k--) {
+		rs.mt[i] = (rs.mt[i] ^ ((rs.mt[i-1] ^ (rs.mt[i-1] >> 62)) * ULL_DEF(2862933555777941757)))
+		  - i; /* non linear */
+		i++;
+		if (i>=NN) { rs.mt[0] = rs.mt[NN-1]; i=1; }
+	}
+
+	rs.mt[0] = ULL_DEF(1) << 63; /* MSB is 1; assuring non-zero initial array */ 
+}
+
+/* generates a random number on [0, 2^64-1]-interval */
+std::uint64_t genrand64_int64(MersenneTwister64& rs)
+{
+	int i;
+	std::uint64_t x;
+	static std::uint64_t mag01[2]={ULL_DEF(0), MATRIX_A};
+
+	if (rs.mti >= NN) { /* generate NN words at one time */
+		for (i=0;i<NN-MM;i++) {
+			x = (rs.mt[i]&UM)|(rs.mt[i+1]&LM);
+			rs.mt[i] = rs.mt[i+MM] ^ (x>>1) ^ mag01[(int)(x&ULL_DEF(1))];
+		}
+		for (;i<NN-1;i++) {
+			x = (rs.mt[i]&UM)|(rs.mt[i+1]&LM);
+			rs.mt[i] = rs.mt[i+(MM-NN)] ^ (x>>1) ^ mag01[(int)(x&ULL_DEF(1))];
+		}
+		x = (rs.mt[NN-1]&UM)|(rs.mt[0]&LM);
+		rs.mt[NN-1] = rs.mt[MM-1] ^ (x>>1) ^ mag01[(int)(x&ULL_DEF(1))];
+
+		rs.mti = 0;
+	}
+  
+	x = rs.mt[rs.mti++];
+
+	x ^= (x >> 29) & ULL_DEF(0x5555555555555555);
+	x ^= (x << 17) & ULL_DEF(0x71D67FFFEDA60000);
+	x ^= (x << 37) & ULL_DEF(0xFFF7EEE000000000);
+	x ^= (x >> 43);
+
+	return x;
+}
+
+/* generates a random number on [0, 2^63-1]-interval */
+std::int64_t genrand64_int63(MersenneTwister64& rs)
+{
+	return (std::int64_t)(genrand64_int64(rs) >> 1);
+}
+
+#ifdef INT64_IS_NOT_STD
+#define AVOID_C2520_ERROR(p) (std::int64_t)(p)
+#else
+#define AVOID_C2520_ERROR(p) (p)
+#endif //INT64_IS_NOT_STD
+
+/* generates a random number on [0,1]-real-interval */
+double genrand64_real1(MersenneTwister64& rs)
+{
+	return AVOID_C2520_ERROR(genrand64_int64(rs) >> 11) * (1.0/9007199254740991.0);
+}
+
+/* generates a random number on [0,1)-real-interval */
+double genrand64_real2(MersenneTwister64& rs)
+{
+	return AVOID_C2520_ERROR(genrand64_int64(rs) >> 11) * (1.0/9007199254740992.0);
+}
+
+/* generates a random number on (0,1)-real-interval */
+double genrand64_real3(MersenneTwister64& rs)
+{
+	return (AVOID_C2520_ERROR(genrand64_int64(rs) >> 12) + 0.5) * (1.0/4503599627370496.0);
+}
+

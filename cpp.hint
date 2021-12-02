@@ -1,0 +1,4 @@
+// https://go.microsoft.com/fwlink/?linkid=865984
+#ifdef _MSC_VER
+#include <corecrt.h>
+#endif // _MSC_AVR

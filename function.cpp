@@ -1108,7 +1108,7 @@ char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, C
 
 	// à¯êîçÏê¨
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);	
-	std::vector<int>::size_type sidsize = sid.size();
+	std::vector<size_t>::size_type sidsize = sid.size();
 
 	for( ; it != sid.end(); it++) {
 		const CValue &addv = GetValueRefForCalc(st.cell()[*it], st, lvar);

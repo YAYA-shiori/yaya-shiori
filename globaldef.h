@@ -1,5 +1,7 @@
-#ifndef YAYA_STRTYPE_H__
-#define YAYA_STRTYPE_H__
+#ifndef YAYA_GLOBALDEF_H_
+#define YAYA_GLOBALDEF_H_
+
+#ifdef __cplusplus
 
 #include <cwchar>
 #include <string>
@@ -7,12 +9,15 @@
 
 #include <memory>
 
+#endif
+
 //=============================================================================================================
 // compiler compat section
 //=============================================================================================================
 
 #ifndef _MSVC_LANG
 //C++11 or older
+
 
 #include <boost/shared_ptr.hpp>
 
@@ -57,11 +62,14 @@
 #define for if(0);else for
 
 
+#ifdef __cplusplus
 namespace std {
+#endif
 	typedef __int64 int64_t;
 	typedef unsigned __int64 uint64_t;
+#ifdef __cplusplus
 };
-
+#endif
 
 #define	INT64_IS_NOT_STD
 
@@ -75,9 +83,20 @@ namespace std {
 #define ULLONG_MAX _UI64_MAX
 #endif
 
+#define ULL_DEF(p) p ## Ui64
+#define LL_DEF(p) p ## i64
+
 #else
 
 #include <cstdint>
+
+#ifndef __cplusplus
+typedef long long int64_t;
+typedef unsigned long long uint64_t;
+#endif
+
+#define ULL_DEF(p) p ## ULL
+#define LL_DEF(p) p ## LL
 
 #endif //1200
 
@@ -88,6 +107,10 @@ namespace std {
 #define constexpr const
 #define emplace_back(p) push_back(p)
 
+#define _Pre_notnull_
+#define _Always_(p)
+#define _Printf_format_string_
+
 #endif //_MSVC_LANG
 
 
@@ -96,6 +119,8 @@ namespace std {
 //=============================================================================================================
 // yaya type section
 //=============================================================================================================
+
+#ifdef __cplusplus
 
 namespace yaya {
 	struct memory_error:std::exception{
@@ -129,4 +154,6 @@ namespace yaya {
 
 }; // namespace yaya {
 
-#endif // #ifndef YAYA_STRTYPE_H__
+#endif //__cplusplus
+
+#endif // YAYA_GLOBALDEF_H_

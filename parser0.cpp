@@ -55,7 +55,7 @@ char	CParser0::Parse(int charset, const std::vector<CDic1>& dics)
 	vm.logger().Message(3);
 	std::vector<CDefine> &gdefines =vm.gdefines();
 
-	int	errcount = 0;
+	size_t errcount = 0;
 	
 	// すべて一旦読み込んでから…
 	for(std::vector<CDic1>::const_iterator it = dics.begin(); it != dics.end(); it++) {
@@ -111,7 +111,7 @@ bool	CParser0::ParseAfterLoad(const yaya::string_t &dicfilename)
  *  返値　　：  0/1=正常/エラー
  * -----------------------------------------------------------------------
  */
-char	CParser0::ParseEmbedString(yaya::string_t& str, CStatement &st, const yaya::string_t& dicfilename, int linecount)
+char	CParser0::ParseEmbedString(yaya::string_t& str, CStatement& st, const yaya::string_t& dicfilename, ptrdiff_t linecount)
 {
 	// 文字列を数式に成形
 	if (!StructFormula(str, st.cell(), dicfilename, linecount))
@@ -204,8 +204,8 @@ int CParser0::DynamicAppendRuntimeDictionary(const yaya::string_t& codes)
 	bool isnoterror = 1;
 	{
 		std::vector<yaya::string_t>	factors;
-		int	depth = 0;
-		int	targetfunction = -1;
+		size_t depth = 0;
+		ptrdiff_t targetfunction = -1;
 		// {、}、;で分割
 		SeparateFactor(factors, yaya::string_t(codes));
 		// 分割された文字列を解析して関数を作成し、内部のステートメントを蓄積していく
@@ -391,8 +391,8 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 	CComment	comment;
 	char	ciphered = IsCipheredDic(file);
 	yaya::string_t	linebuffer;
-	int	depth = 0;
-	int	targetfunction = -1;
+	size_t depth = 0;
+	ptrdiff_t targetfunction = -1;
 	std::vector<CDefine>	defines;
 	char	errcount = 0;
 
@@ -403,7 +403,7 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 	std::vector<yaya::string_t>	factors;
 	int	ret;
 
-	for (int i = 1; ; i++) {
+	for (size_t i = 1; ; i++) {
 		// 1行読み込み　暗号化ファイルの場合は復号も行なう
 		ret = yaya::ws_fgets(readline, fp, charset, ciphered, i);
 		if (ret == yaya::WS_EOF)
@@ -586,7 +586,7 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
  * -----------------------------------------------------------------------
  */
 char	CParser0::GetPreProcess(yaya::string_t &str, std::vector<CDefine>& defines, std::vector<CDefine>& gdefines, const yaya::string_t& dicfilename,
-			int linecount)
+		ptrdiff_t linecount)
 {
 #if !defined(POSIX) && !defined(__MINGW32__)
 	static const yaya::string_t space_delim(L" \t　");
@@ -600,21 +600,21 @@ char	CParser0::GetPreProcess(yaya::string_t &str, std::vector<CDefine>& defines,
 		return 0;
 
 	// デリミタである空白もしくはタブを探す
-	int	sep_pos = str.find_first_of(space_delim);
+	ptrdiff_t sep_pos = str.find_first_of(space_delim);
 	if (sep_pos == -1) {
 		vm.logger().Error(E_E, 74, dicfilename, linecount);
 		return 2;
 	}
-	int sep_pos_end = sep_pos + 1;
+	ptrdiff_t sep_pos_end = sep_pos + 1;
 	while (IsSpace(str[sep_pos_end])) { ++sep_pos_end; }
 
 	// こっちは名前と値の区切り
-	int	rep_pos = str.find_first_of(space_delim,sep_pos_end);
+	ptrdiff_t rep_pos = str.find_first_of(space_delim,sep_pos_end);
 	if (rep_pos == -1) {
 		vm.logger().Error(E_E, 75, dicfilename, linecount);
 		return 2;
 	}
-	int rep_pos_end = rep_pos + 1;
+	ptrdiff_t rep_pos_end = rep_pos + 1;
 	while (IsSpace(str[rep_pos_end])) { ++rep_pos_end; }
 
 	// プリプロセス名称、変換前文字列、変換後文字列を取得
@@ -673,7 +673,7 @@ void	CParser0::ExecDefinePreProcess(yaya::string_t &str, const std::vector<CDefi
  *  機能概要：  組み込み定義文字列を置換します。
  * -----------------------------------------------------------------------
  */
-void	CParser0::ExecInternalPreProcess(yaya::string_t &str,const yaya::string_t &file,int line)
+void	CParser0::ExecInternalPreProcess(yaya::string_t &str,const yaya::string_t &file, ptrdiff_t line)
 {
 	if ( str.find_first_of(L"__AYA_SYSTEM_FILE__") != yaya::string_t::npos ) {
 
@@ -702,7 +702,7 @@ void	CParser0::ExecInternalPreProcess(yaya::string_t &str,const yaya::string_t &
  */
 char	CParser0::IsCipheredDic(const yaya::string_t& filename)
 {
-	int	len = filename.size();
+	size_t len = filename.size();
 	if (len < 5)
 		return 0;
 
@@ -785,7 +785,7 @@ void	CParser0::SeparateFactor(std::vector<yaya::string_t> &s, yaya::string_t &li
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser0::DefineFunctions(std::vector<yaya::string_t> &s, const yaya::string_t& dicfilename, int linecount, int &depth, int &targetfunction)
+char	CParser0::DefineFunctions(std::vector<yaya::string_t>& s, const yaya::string_t& dicfilename, ptrdiff_t linecount, size_t& depth, ptrdiff_t& targetfunction)
 {
 	char	retcode = 0;
 
@@ -861,9 +861,9 @@ char	CParser0::DefineFunctions(std::vector<yaya::string_t> &s, const yaya::strin
  *  　　　　　  指定された名前の関数が既に作成済の場合はエラーで、-1を返します
  * -----------------------------------------------------------------------
  */
-int	CParser0::MakeFunction(const yaya::string_t& name, choicetype_t chtype, const yaya::string_t& dicfilename, int linecount)
+ptrdiff_t	CParser0::MakeFunction(const yaya::string_t& name, choicetype_t chtype, const yaya::string_t& dicfilename, ptrdiff_t linecount)
 {
-	int	i = vm.function_parse().GetFunctionIndexFromName(name);
+	ptrdiff_t i = vm.function_parse().GetFunctionIndexFromName(name);
 	if(i != -1)
 		return -1;
 /*	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++)
@@ -886,7 +886,7 @@ int	CParser0::MakeFunction(const yaya::string_t& name, choicetype_t chtype, cons
  *  返値　　：  0/1=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser0::StoreInternalStatement(int targetfunc, yaya::string_t &str, int& depth, const yaya::string_t& dicfilename, int linecount)
+char	CParser0::StoreInternalStatement(size_t targetfunc, yaya::string_t &str, size_t& depth, const yaya::string_t& dicfilename, ptrdiff_t linecount)
 {
 	// パラメータのないステートメント
 	CFunction& targetfunction = vm.function_parse().func[targetfunc];
@@ -1020,7 +1020,7 @@ char	CParser0::StoreInternalStatement(int targetfunc, yaya::string_t &str, int& 
  *  返値　　：  0/1=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser0::MakeStatement(int type, int targetfunc, yaya::string_t &str, const yaya::string_t& dicfilename, int linecount)
+char	CParser0::MakeStatement(int type, size_t targetfunc, yaya::string_t& str, const yaya::string_t& dicfilename, ptrdiff_t linecount)
 {
 	if (!str.size()) {
 		vm.logger().Error(E_E, 27, dicfilename, linecount);
@@ -1050,7 +1050,7 @@ char	CParser0::MakeStatement(int type, int targetfunc, yaya::string_t &str, cons
  *  渡された文字列はこの関数で破壊されます
  * -----------------------------------------------------------------------
  */
-char	CParser0::StructFormula(yaya::string_t &str, std::vector<CCell> &cells, const yaya::string_t& dicfilename, int linecount)
+char	CParser0::StructFormula(yaya::string_t& str, std::vector<CCell>& cells, const yaya::string_t& dicfilename, ptrdiff_t linecount)
 {
 	// 演算子と項に分解　項の種別はこの時点では調べていない
 	StructFormulaCell(str, cells);
@@ -1238,7 +1238,7 @@ char	CParser0::StructFormula(yaya::string_t &str, std::vector<CCell> &cells, con
  *  渡された文字列はこの関数で破壊されます
  * -----------------------------------------------------------------------
  */
-char	CParser0::StructWhen(yaya::string_t &str, std::vector<CCell> &cells, const yaya::string_t& dicfilename, int linecount)
+char	CParser0::StructWhen(yaya::string_t& str, std::vector<CCell>& cells, const yaya::string_t& dicfilename, ptrdiff_t linecount)
 {
 	// 演算子と項に分解　項の種別はこの時点では調べていない
 	StructFormulaCell(str, cells);
@@ -1521,10 +1521,10 @@ char	CParser0::SetCellType(const yaya::string_t &dicfilename)
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
-char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfilename, int linecount)
+char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfilename, ptrdiff_t linecount)
 {
 	// 関数
-	int	i = vm.function_parse().GetFunctionIndexFromName(scell.value_const().s_value);
+	ptrdiff_t i = vm.function_parse().GetFunctionIndexFromName(scell.value_const().s_value);
 	if(i >= 0) {
 		scell.name = scell.value_const().s_value;
 		scell.value_SetType(F_TAG_USERFUNC);
@@ -1534,7 +1534,7 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 	}
 
 /*
-	int i = 0;
+	size_t i = 0;
 	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++, i++)
 		if (!scell.value_const().s_value != it->name) {
 			scell.value_SetType(F_TAG_USERFUNC);
@@ -1777,8 +1777,8 @@ char	CParser0::ParseEmbeddedFactor1(CStatement& st, const yaya::string_t& dicfil
 					// 元の式の該当位置へ挿入
 					if (!t_errcount) {
 						it = st.cell().erase(it);
-						int	c_num = addcells.size();
-						for(int i = c_num - 1; i >= 0; i--)
+						size_t c_num = addcells.size();
+						for(ptrdiff_t i = c_num - 1; i >= 0; i--)
 							it = st.cell().insert(it, addcells[i]);
 						it += c_num;
 						continue;
@@ -1842,13 +1842,13 @@ static void AddDoubleQuoteAndEscape(yaya::string_t &str)
 	AddDoubleQuote(str);
 }
 
-char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::string_t& dicfilename, int linecount)
+char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::string_t& dicfilename, ptrdiff_t linecount)
 {
 	yaya::string_t	resstr;
-	int	nindex = -1;
-	for(int nfirst = 0; ; nfirst++) {
+	ptrdiff_t nindex = -1;
+	for(size_t nfirst = 0; ; nfirst++) {
 		// "%"の発見
-		int	p_pers = str.find(L'%', 0);
+		ptrdiff_t p_pers = str.find(L'%', 0);
 		if (p_pers == -1) {
 			vm.logger().Error(E_E, 55, dicfilename, linecount);
 			return 1;
@@ -1873,9 +1873,9 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 		// "%"の次が"("なら長さ指定付きの埋め込みなのでそれを抜き出す
 		if (str[1] == L'(') {
 			// 抜き出し位置検索
-			int	bdepth = 1;
-			int	len = str.size();
-			int     spos = 0;
+			size_t bdepth = 1;
+			size_t len = str.size();
+			size_t spos = 0;
 			for(spos = 2; spos < len; spos++) {
 				bdepth += ((str[spos] == L'(') - (str[spos] == L')'));
 				if (!bdepth)
@@ -1926,9 +1926,9 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 				return 1;
 			}
 			// 抜き出し位置検索
-			int	bdepth = 1;
-			int	len = str.size();
-			int     spos = 0;
+			size_t bdepth = 1;
+			size_t len = str.size();
+			size_t spos = 0;
 			for(spos = 2; spos < len; spos++) {
 				bdepth += ((str[spos] == L'[') - (str[spos] == L']'));
 				if (!bdepth)
@@ -2062,9 +2062,9 @@ char	CParser0::MakeCompleteConvertionWhenToIf(const yaya::string_t& dicfilename)
 		std::vector<yaya::string_t>	caseary;
 		yaya::string_t	dmystr = L"";
 		caseary.emplace_back(dmystr);
-		std::vector<int>		whencnt;
+		std::vector<size_t> whencnt;
 		whencnt.emplace_back(0);
-		int	depth = 0;
+		ptrdiff_t depth = 0;
 		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++) {
 			if (depth == -1) {
 				vm.logger().Error(E_E, 52, it->dicfilename, it2->linecount);
@@ -2102,7 +2102,7 @@ char	CParser0::MakeCompleteConvertionWhenToIf(const yaya::string_t& dicfilename)
 			}
 			// when
 			if (it2->type == ST_WHEN) {
-				int	depthm1 = depth - 1;
+				ptrdiff_t depthm1 = depth - 1;
 				if (depthm1 < 0) {
 					vm.logger().Error(E_E, 64, it->dicfilename, it2->linecount);
 					errcount++;
@@ -2120,7 +2120,7 @@ char	CParser0::MakeCompleteConvertionWhenToIf(const yaya::string_t& dicfilename)
 					it2->type = ST_ELSEIF;
 				(whencnt[depthm1])++;
 				// 仮の数式を判定式に書き換える
-				int	i = 0;
+				bool i = 0;
 
 				if ( it2->cell_size() ) { //高速化用
 					for(std::vector<CCell>::iterator it3 = it2->cell().begin(); it3 != it2->cell().end(); ) {
@@ -2230,8 +2230,8 @@ char	CParser0::MakeCompleteConvertionWhenToIf(const yaya::string_t& dicfilename)
 char	CParser0::CheckDepth1(CStatement& st, const yaya::string_t& dicfilename)
 {
 	// ()/[]の対応づけを検査
-	std::vector<int>	hb_depth;
-	int	depth = 0;
+	std::vector<size_t>	hb_depth;
+	ptrdiff_t depth = 0;
 	if ( st.cell_size() ) { //高速化用
 		for(std::vector<CCell>::iterator it = st.cell().begin(); it != st.cell().end(); it++) {
 			if (it->value_GetType() == F_TAG_BRACKETIN)
@@ -2241,7 +2241,7 @@ char	CParser0::CheckDepth1(CStatement& st, const yaya::string_t& dicfilename)
 			else if (it->value_GetType() == F_TAG_HOOKBRACKETIN)
 				hb_depth.emplace_back(depth);
 			else if (it->value_GetType() == F_TAG_HOOKBRACKETOUT) {
-				int	gb_depth_size = hb_depth.size();
+				size_t gb_depth_size = hb_depth.size();
 				if (!gb_depth_size) {
 					vm.logger().Error(E_E, 20, dicfilename, st.linecount);
 					return 1;
@@ -2281,7 +2281,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 	ptrdiff_t sz = st.cell_size();
 	ptrdiff_t i = 0;
 
-	std::vector<int>	depthvec;
+	std::vector<ptrdiff_t> depthvec;
 	depthvec.reserve(sz);
 
 	size_t depth = 0;
@@ -2334,7 +2334,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 		CSerial	addserial(t_index);
 		depthvec[t_index] = -2;
 		// 左辺の項を取得
-		int	f_depth = 1;
+		ptrdiff_t f_depth = 1;
 		bool out_of_bracket = false;
 		for(i = t_index - 1; i >= 0; i--) {
 			// カッコ深さ検査
@@ -2404,7 +2404,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 			// 右辺の項を取得　演算子が","の場合は列挙されたすべてを一括して取得する
 			//if (t_type == F_TAG_COMMA) {
 			// ","
-			int	gflg = 0;
+			bool gflg = 0;
 			f_depth = 1;
 			for(i = t_index + 1; i < sz; i++) {
 				// カッコ深さ検査
@@ -2460,7 +2460,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 	//
 	// もし未処理項が演算子でない場合は、有効な項が1つしかないため演算が無かったことを意味している。
 	// そのままでは結果が得られないので、「残った項から結果を得る」ことを指示するフラグを追加する
-	int	scount = 0;
+	size_t scount = 0;
 	for(i = 0; i < sz; i++) {
 		if (depthvec[i] == -2) {
 			scount++;

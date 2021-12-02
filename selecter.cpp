@@ -275,7 +275,7 @@ choicetype_t CSelecter::GetDefaultBlockChoicetype(choicetype_t nowtype)
  *  機能概要：  文字列->choicetype_t
  * -----------------------------------------------------------------------
  */
-choicetype_t CSelecter::StringToChoiceType(const yaya::string_t& ctypestr, CAyaVM &vm, const yaya::string_t& dicfilename, int linecount)
+choicetype_t CSelecter::StringToChoiceType(const yaya::string_t& ctypestr, CAyaVM &vm, const yaya::string_t& dicfilename, size_t linecount)
 {
 	unsigned int outtype = CHOICETYPE_PICKONE_FLAG;
 

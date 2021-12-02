@@ -1206,7 +1206,7 @@ CValue	CSystemFunction::CHARSETLIBEX(CSF_FUNCPARAM &p)
 CValue	CSystemFunction::RAND(CSF_FUNCPARAM &p)
 {
 	if (!p.arg.array_size())
-		return vm.genrand_sysfunc_int(100);
+		return vm.genrand_sysfunc_ll(100);
 
 	if (!p.arg.array()[0].IsNum()) {
 		vm.logger().Error(E_W, 9, L"RAND", p.dicname, p.line);
@@ -1246,15 +1246,15 @@ CValue	CSystemFunction::SRAND(CSF_FUNCPARAM &p)
 	else if (p.arg.array()[0].IsDouble()) {
 		union {
 			double d;
-			unsigned long i[2];
+			std::uint64_t i[1];
 		} num;
 
 		num.d = p.arg.array()[0].GetValueDouble();
 
-		vm.genrand_sysfunc_srand_array(num.i,2);
+		vm.genrand_sysfunc_srand_array(num.i,1);
 	}
 	else if (p.arg.array()[0].IsString()) {
-		std::vector<unsigned long> num;
+		std::vector<std::uint64_t> num;
 
 		yaya::string_t str = p.arg.array()[0].GetValueString();
 
@@ -1262,10 +1262,7 @@ CValue	CSystemFunction::SRAND(CSF_FUNCPARAM &p)
 		int n = nlen / 2;
 
 		for ( int i = 0 ; i < n ; ++i ) {
-			num.emplace_back( static_cast<unsigned long>(str[i]) | (static_cast<unsigned long>(str[i+1]) << 16) );
-		}
-		if ( (n*2) != nlen ) { //Šï”
-			num.emplace_back( static_cast<unsigned long>(str[nlen-1]) );
+			num.emplace_back( str[i]);
 		}
 
 		vm.genrand_sysfunc_srand_array(&(num[0]),num.size());
