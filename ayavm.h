@@ -78,7 +78,7 @@ public:
 	yaya::int_t genrand_sysfunc_ll(yaya::int_t n);
 
 	void genrand_sysfunc_srand_ll(yaya::int_t n);
-	void genrand_sysfunc_srand_array(const unsigned long long a[],const int n);
+	void genrand_sysfunc_srand_array(const std::uint64_t a[],const int n);
 
 	// 主制御
 	CBasis&					basis();

@@ -9,7 +9,9 @@
 # include "stdafx.h"
 #endif
 #ifdef _MSC_VER
+#if (_MSC_VER >= 1900)
 #include <corecrt.h>
+#endif
 #endif // _MSC_AVR
 
 

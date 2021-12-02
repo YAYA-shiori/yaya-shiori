@@ -181,7 +181,7 @@ void CAyaVM::genrand_sysfunc_srand_ll(yaya::int_t n)
 	init_genrand64(rs_sysfunc64,n);
 }
 
-void CAyaVM::genrand_sysfunc_srand_array(const unsigned long long a[],const int n)
+void CAyaVM::genrand_sysfunc_srand_array(const std::uint64_t a[],const int n)
 {
 	init_by_array64(rs_sysfunc64,a,n);
 }

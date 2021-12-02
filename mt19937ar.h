@@ -46,18 +46,7 @@
 #ifndef	MTRANDH
 #define	MTRANDH
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-//because this code is based on C code, we cannot use std::int32_t / int64_t.
-
-typedef long std_int32_t;
-#if _MSC_VER <= 1200
-typedef __int64 std_int64_t;
-#else
-typedef long long std_int64_t;
-#endif //1200
+#include "globaldef.h"
 
 typedef struct MersenneTwister {
 	unsigned long state[624]; /* the array for the state vector  */
@@ -67,7 +56,7 @@ typedef struct MersenneTwister {
 } MersenneTwister;
 
 typedef struct MersenneTwister64 {
-	unsigned long long mt[312];
+	std::uint64_t mt[312];
 	int mti;
 } MersenneTwister64;
 
@@ -81,10 +70,10 @@ void init_genrand(MersenneTwister &rs,unsigned long s);
 void init_by_array(MersenneTwister &rs,const unsigned long init_key[],const int key_length);
 
 /* generates a random number on [0,0xffffffff]-interval */
-std_int32_t genrand_int32(MersenneTwister &rs);
+unsigned long genrand_int32(MersenneTwister &rs);
 
 /* generates a random number on [0,0x7fffffff]-interval */
-std_int32_t genrand_int31(MersenneTwister &rs);
+long genrand_int31(MersenneTwister &rs);
 
 /* These real versions are due to Isaku Wada, 2002/01/09 added */
 /* generates a random number on [0,1]-real-interval */
@@ -100,20 +89,20 @@ double genrand_real3(MersenneTwister &rs);
 double genrand_res53(MersenneTwister &rs);
 
 /* initializes mt[NN] with a seed */
-void init_genrand64(MersenneTwister64& rs,unsigned long long seed);
+void init_genrand64(MersenneTwister64& rs,std::uint64_t seed);
 
 /* initialize by an array with array-length */
 /* init_key is the array for initializing keys */
 /* key_length is its length */
-void init_by_array64(MersenneTwister64& rs,const unsigned long long init_key[],
-		     unsigned long long key_length);
+void init_by_array64(MersenneTwister64& rs,const std::uint64_t init_key[],
+					 std::uint64_t key_length);
 
 /* generates a random number on [0, 2^64-1]-interval */
-unsigned long long genrand64_int64(MersenneTwister64& rs);
+std::uint64_t genrand64_int64(MersenneTwister64& rs);
 
 
 /* generates a random number on [0, 2^63-1]-interval */
-long long genrand64_int63(MersenneTwister64& rs);
+std::int64_t genrand64_int63(MersenneTwister64& rs);
 
 /* generates a random number on [0,1]-real-interval */
 double genrand64_real1(MersenneTwister64& rs);
@@ -123,9 +112,5 @@ double genrand64_real2(MersenneTwister64& rs);
 
 /* generates a random number on (0,1)-real-interval */
 double genrand64_real3(MersenneTwister64& rs);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
