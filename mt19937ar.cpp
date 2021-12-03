@@ -274,7 +274,7 @@ void init_by_array64(MersenneTwister64& rs,const std::uint64_t init_key[],
 /* generates a random number on [0, 2^64-1]-interval */
 std::uint64_t genrand64_int64(MersenneTwister64& rs)
 {
-	int i;
+	int i=0;
 	std::uint64_t x;
 	static std::uint64_t mag01[2]={ULL_DEF(0), MATRIX_A};
 
