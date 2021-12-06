@@ -105,8 +105,15 @@ CValue	CSelecter::Output()
 		return ChoiceRandom();
 
 	// 重複回避制御付き選択
-	if (duplctl->GetType() == CHOICETYPE_VOID)
-		return CValue(F_TAG_NOP, 0/*dmy*/);
+	if (duplctl->GetType() & CHOICETYPE_SPECOUT_FILTER)
+		switch(duplctl->GetType()){
+		case CHOICETYPE_VOID:
+			return CValue(F_TAG_NOP, 0/*dmy*/);
+		case CHOICETYPE_ALL:
+			return StructString();
+		case CHOICETYPE_LAST:
+			return *values.rbegin()->array.rbegin();
+		}
 
 	switch ( duplctl->GetType() & CHOICETYPE_SELECT_FILTER ) {
 	case CHOICETYPE_NONOVERLAP_FLAG:
@@ -246,29 +253,61 @@ CValue CSelecter::StructArray1(size_t index)
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CSelecter::StructArray
+ *  機能概要：  各領域の値を結合した汎用配列を作成し返します
+ * -----------------------------------------------------------------------
+ */
+CValue CSelecter::StructString()
+{
+	if (areanum) {
+		CValue	result(F_TAG_STRING, 0/*dmy*/);
+		for(size_t i = 0; i <= areanum; i++) {
+			result.s_value += StructString1(i).s_value;
+		}
+		return result;
+	}
+	else {
+		return StructString1(0);
+	}
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSelecter::StructArray1
+ *  機能概要：  指定された領域の値を結合した汎用配列を作成します
+ * -----------------------------------------------------------------------
+ */
+CValue CSelecter::StructString1(size_t index)
+{
+	CValue	result(F_TAG_STRING, 0/*dmy*/);
+
+    for(size_t i = 0; i < values[index].array.size(); ++i) {
+		const CValue &target = values[index].array[i];
+		int	valtype = target.GetType();
+		
+		if (valtype == F_TAG_STRING) {
+			result.s_value += target.s_value;
+		}
+		else {
+			result.s_value += target.GetValueString();
+		}
+	}
+
+    return result;
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CSelecter::GetDefaultBlockChoicetype
  *  機能概要：  { } の出力タイプ未指定の時の標準タイプ
  * -----------------------------------------------------------------------
  */
 choicetype_t CSelecter::GetDefaultBlockChoicetype(choicetype_t nowtype)
 {
-	unsigned int outtype = CHOICETYPE_PICKONE_FLAG;
-	if (nowtype & CHOICETYPE_POOL_FLAG) {
-		outtype = CHOICETYPE_POOL_FLAG;
-	}
-	else if (nowtype & CHOICETYPE_PICKONE_FLAG) {
-		outtype = CHOICETYPE_PICKONE_FLAG;
-	}
-	else if (nowtype & CHOICETYPE_VOID_FLAG) {
-		outtype = CHOICETYPE_VOID_FLAG;
-	}
-	else if (nowtype & CHOICETYPE_MELT_FLAG) {
-		outtype = CHOICETYPE_MELT_FLAG;
-	}
-
 	unsigned int choicetype = 0;
 
-	if ( outtype != CHOICETYPE_VOID_FLAG ) {
+	if (nowtype & CHOICETYPE_SPECOUT_FILTER) {
+		return nowtype;
+	}
+	else {
 		if (nowtype & CHOICETYPE_ARRAY_FLAG) {
 			choicetype = CHOICETYPE_ARRAY_FLAG;
 		}
@@ -276,6 +315,18 @@ choicetype_t CSelecter::GetDefaultBlockChoicetype(choicetype_t nowtype)
 			choicetype = CHOICETYPE_RANDOM_FLAG;
 		}
 	}
+
+	unsigned int outtype = CHOICETYPE_PICKONE_FLAG;
+	if (nowtype & CHOICETYPE_POOL_FLAG) {
+		outtype = CHOICETYPE_POOL_FLAG;
+	}
+	else if (nowtype & CHOICETYPE_PICKONE_FLAG) {
+		outtype = CHOICETYPE_PICKONE_FLAG;
+	}
+	else if (nowtype & CHOICETYPE_MELT_FLAG) {
+		outtype = CHOICETYPE_MELT_FLAG;
+	}
+
 	return static_cast<choicetype_t>(outtype | choicetype);
 }
 
@@ -294,18 +345,26 @@ choicetype_t CSelecter::StringToChoiceType(const yaya::string_t& ctypestr, CAyaV
 		outtype = CHOICETYPE_POOL_FLAG;
 		yaya::ws_replace(checkstr,L"pool",L"");
 	}
+	else if ( checkstr.find(L"melt") != yaya::string_t::npos ) {
+		outtype = CHOICETYPE_MELT_FLAG;
+		yaya::ws_replace(checkstr,L"melt",L"");
+	}
 	else if ( checkstr.find(L"void") != yaya::string_t::npos ) {
 		outtype = CHOICETYPE_VOID_FLAG;
 		yaya::ws_replace(checkstr,L"void",L"");
 	}
-	else if ( checkstr.find(L"melt") != aya::string_t::npos ) {
-		outtype = CHOICETYPE_MELT_FLAG;
-		aya::ws_replace(checkstr,L"melt",L"");
+	else if ( checkstr.find(L"all") != yaya::string_t::npos ) {
+		outtype = CHOICETYPE_ALL_FLAG;
+		yaya::ws_replace(checkstr,L"all",L"");
+	}
+	else if ( checkstr.find(L"last") != yaya::string_t::npos ) {
+		outtype = CHOICETYPE_LAST_FLAG;
+		yaya::ws_replace(checkstr,L"last",L"");
 	}
 
 	unsigned int choicetype = 0;
 
-	if ( outtype != CHOICETYPE_VOID_FLAG ) {
+	if (! (outtype & CHOICETYPE_SPECOUT_FILTER) ) {
 		choicetype = CHOICETYPE_RANDOM_FLAG;
 
 		if ( checkstr.find(L"sequential") != yaya::string_t::npos ) {

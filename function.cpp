@@ -372,20 +372,20 @@ size_t	CFunction::ExecuteInBrace(size_t line, CValue &result, CLocalVariable &lv
 
 	// 候補から出力を選び出す　入れ子の深さが0なら重複回避が働く
 	if (inpool&&!ispoolbegin) {
-		std::vector<CValue>& thepool = (--(*UpperLvCandidatePool).end())->array;
+		std::vector<CValue>& thepool = UpperLvCandidatePool->rbegin()->array;
 		std::vector<CValue>& thispool = output.values[0].array;
 
 		if(notpoolblock || inmutiarea)
 			thepool.insert(thepool.end(), output.Output());
 		else
 			thepool.insert(thepool.end(), thispool.begin(), thispool.end());
-		result = CValue();
+		result = CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 	else
 		result = output.Output();
 
 	if(meltblock){
-		std::vector<CValue>& pool_of_uplv = (--(*UpperLvCandidatePool).end())->array;
+		std::vector<CValue>& pool_of_uplv = UpperLvCandidatePool->rbegin()->array;
 
 		if (result.GetType() == F_TAG_ARRAY) {
 			for(size_t j = 0; j < result.array_size(); ++j)
@@ -393,7 +393,7 @@ size_t	CFunction::ExecuteInBrace(size_t line, CValue &result, CLocalVariable &lv
 		}
 		else
 			pool_of_uplv.emplace_back(result);
-		result = CValue();
+		result = CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 	// 終了時の処理
 	lvar.DelDepth();
