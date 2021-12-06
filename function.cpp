@@ -160,6 +160,7 @@ size_t	CFunction::ExecuteInBrace(size_t line, CValue &result, CLocalVariable &lv
 	bool		inmutiarea	 = 0;		// pool用
 	bool		notpoolblock = 0;		// pool用
 	const bool	ispoolbegin	 = !inpool;	// pool用
+	bool		meltblock	 = 0;
 	if(!UpperLvCandidatePool)
 		UpperLvCandidatePool = &output.values;
 	if(pdupl){
@@ -170,6 +171,9 @@ size_t	CFunction::ExecuteInBrace(size_t line, CValue &result, CLocalVariable &lv
 		}
 		else {
 			notpoolblock = true;
+		}
+		if ( pdupl->GetType() & CHOICETYPE_MELT_FLAG ) {
+			meltblock = 1;
 		}
 	}
 
@@ -380,6 +384,17 @@ size_t	CFunction::ExecuteInBrace(size_t line, CValue &result, CLocalVariable &lv
 	else
 		result = output.Output();
 
+	if(meltblock){
+		std::vector<CValue>& pool_of_uplv = (--(*UpperLvCandidatePool).end())->array;
+
+		if (result.GetType() == F_TAG_ARRAY) {
+			for(size_t j = 0; j < result.array_size(); ++j)
+				pool_of_uplv.emplace_back(CValue(result.array()[j]));
+		}
+		else
+			pool_of_uplv.emplace_back(result);
+		result = CValue();
+	}
 	// 終了時の処理
 	lvar.DelDepth();
 

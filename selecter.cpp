@@ -289,6 +289,10 @@ choicetype_t CSelecter::StringToChoiceType(const yaya::string_t& ctypestr, CAyaV
 		outtype = CHOICETYPE_VOID_FLAG;
 		yaya::ws_replace(checkstr,L"void",L"");
 	}
+	else if ( checkstr.find(L"melt") != aya::string_t::npos ) {
+		outtype = CHOICETYPE_MELT_FLAG;
+		aya::ws_replace(checkstr,L"melt",L"");
+	}
 
 	unsigned int choicetype = 0;
 
