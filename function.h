@@ -173,7 +173,7 @@ public:
 	size_t	GetLineNumEnd() const   { return statement.empty() ? 0 : statement[statement.size()-1].linecount;}
 
 protected:
-	int		ExecuteInBrace(size_t line, CValue &result, CLocalVariable &lvar, int type, int &exitcode, std::vector<CVecValue>* pool);
+	size_t	ExecuteInBrace(size_t line, CValue &result, CLocalVariable &lvar, int type, int &exitcode, std::vector<CVecValue>* pool);
 
 	void	Foreach(CLocalVariable &lvar, CSelecter &output, size_t line, int &exitcode, std::vector<CVecValue>* pool);
 

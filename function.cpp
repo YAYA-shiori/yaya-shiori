@@ -144,7 +144,7 @@ void CFunction::Execute_SEHbody(CValue& result, CLocalVariable& lvar, int& exitc
  *  返値は実行を終了した"}"の位置です。
  * -----------------------------------------------------------------------
  */
-int	CFunction::ExecuteInBrace(size_t line, CValue &result, CLocalVariable &lvar, int type, int &exitcode, std::vector<CVecValue>* pool)
+size_t	CFunction::ExecuteInBrace(size_t line, CValue &result, CLocalVariable &lvar, int type, int &exitcode, std::vector<CVecValue>* pool)
 {
 	// 開始時の処理
 	lvar.AddDepth();
