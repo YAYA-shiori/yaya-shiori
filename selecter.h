@@ -29,13 +29,19 @@
 #define CHOICETYPE_ARRAY_FLAG        0x0008U
 #define CHOICETYPE_PICKONE_FLAG      0x0100U
 #define CHOICETYPE_POOL_FLAG         0x0200U
-#define CHOICETYPE_VOID_FLAG         0x0400U
+#define CHOICETYPE_MELT_FLAG         0x0400U
+#define CHOICETYPE_ALL_FLAG          0x1000U
+#define CHOICETYPE_LAST_FLAG         0x2000U
+#define CHOICETYPE_VOID_FLAG         0x4000U
 
 #define CHOICETYPE_SELECT_FILTER     0x00FFU
 #define CHOICETYPE_OUTPUT_FILTER     0xFF00U
+#define CHOICETYPE_SPECOUT_FILTER    0xF000U
 
 typedef enum choicetype_t {
 	CHOICETYPE_VOID             = CHOICETYPE_VOID_FLAG,									/* 出力なし */
+	CHOICETYPE_ALL				= CHOICETYPE_ALL_FLAG,									/* Sum all outputs as strings */
+	CHOICETYPE_LAST				= CHOICETYPE_LAST_FLAG,									/* return last var only */
 	CHOICETYPE_RANDOM           = CHOICETYPE_PICKONE_FLAG | CHOICETYPE_RANDOM_FLAG,		/* 常に無作為にランダム（デフォルト）*/
 	CHOICETYPE_NONOVERLAP       = CHOICETYPE_PICKONE_FLAG | CHOICETYPE_NONOVERLAP_FLAG,	/* ランダムだが一巡するまで重複選択しない */
 	CHOICETYPE_SEQUENTIAL       = CHOICETYPE_PICKONE_FLAG | CHOICETYPE_SEQUENTIAL_FLAG,	/* 順番に選択する */
@@ -121,6 +127,8 @@ public:
 protected:
 	CValue	StructArray1(size_t index);
 	CValue	StructArray(void);
+	CValue	StructString1(size_t index);
+	CValue	StructString(void);
 	CValue	ChoiceRandom(void);
 	CValue	ChoiceRandom1(size_t index);
 	CValue	ChoiceByIndex(void);
