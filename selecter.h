@@ -38,7 +38,7 @@
 #define CHOICETYPE_OUTPUT_FILTER     0xFF00U
 #define CHOICETYPE_SPECOUT_FILTER    0xF000U
 
-typedef enum choicetype_t {
+typedef enum choicetype_t:unsigned int {
 	CHOICETYPE_VOID             = CHOICETYPE_VOID_FLAG,									/* 出力なし */
 	CHOICETYPE_ALL				= CHOICETYPE_ALL_FLAG,									/* Sum all outputs as strings */
 	CHOICETYPE_LAST				= CHOICETYPE_LAST_FLAG,									/* return last var only */
@@ -122,7 +122,7 @@ public:
 
 	static choicetype_t			GetDefaultBlockChoicetype(choicetype_t nowtype);
 	static choicetype_t			StringToChoiceType(const yaya::string_t& ctypestr, CAyaVM &vm, const yaya::string_t& dicfilename, size_t linecount);
-	static const yaya::char_t*	ChoiceTypeToString(choicetype_t ctype);
+	static yaya::string_t		ChoiceTypeToString(choicetype_t ctype);
 
 protected:
 	CValue	StructArray1(size_t index);
