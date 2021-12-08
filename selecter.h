@@ -108,13 +108,13 @@ protected:
 	std::vector<CVecValue>	values;			// 出力候補値
 	size_t					areanum;		// 出力候補を蓄積する領域の数
 	CDuplEvInfo				*duplctl;		// 対応する重複回避情報へのポインタ
-	size_t					aindex;			// switch構文で使用
+	ptrdiff_t				aindex;			// switch構文で使用
 
 	friend class CFunction;//for pool
 private:
 	CSelecter(void);
 public:
-	CSelecter(CAyaVM& vmr, CDuplEvInfo* dc, size_t aid);
+	CSelecter(CAyaVM& vmr, CDuplEvInfo* dc, ptrdiff_t aid);
 
 	void	AddArea(void);
 	void	Append(const CValue &value);

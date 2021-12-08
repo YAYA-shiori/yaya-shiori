@@ -31,7 +31,7 @@
  * CSelecterコンストラクタ
  * -----------------------------------------------------------------------
  */
-CSelecter::CSelecter(CAyaVM &vmr, CDuplEvInfo *dc, size_t aid) : vm(vmr), duplctl(dc), aindex(aid)
+CSelecter::CSelecter(CAyaVM &vmr, CDuplEvInfo *dc, ptrdiff_t aid) : vm(vmr), duplctl(dc), aindex(aid)
 {
 	areanum = 0;
 
@@ -205,7 +205,7 @@ CValue	CSelecter::ChoiceByIndex1(size_t index)
 	if (!num)
 		return CValue();
 
-	return (aindex >= 0 && aindex < num) ? values[index].array[aindex] : CValue();
+	return (aindex >= 0 && (size_t)aindex < num) ? values[index].array[aindex] : CValue();
 }
 
 /* -----------------------------------------------------------------------
