@@ -106,11 +106,10 @@ void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 			if (fp != NULL) {
 /*				if (charset == CHARSET_UTF8)
 					write_utf8bom(fp);*/
-				fprintf(fp, "%s", tmpstr);
+				fputs(tmpstr,fp);
 				fclose(fp);
 			}
 			free(tmpstr);
-			tmpstr = NULL;
 		}
 	}
 	open = 1;
@@ -181,11 +180,10 @@ void	CLog::Write(const yaya::char_t *str, int mode, int id)
 			if (tmpstr != NULL) {
 				FILE	*fp = yaya::w_fopen(path.c_str(), L"a");
 				if (fp != NULL) {
-					fprintf(fp, "%s", tmpstr);
+					fputs(tmpstr, fp);
 					fclose(fp);
 				}
 				free(tmpstr);
-				tmpstr = NULL;
 			}
 		}
 	}
