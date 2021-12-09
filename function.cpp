@@ -144,7 +144,7 @@ void CFunction::Execute_SEHbody(CValue& result, CLocalVariable& lvar, int& exitc
  *  返値は実行を終了した"}"の位置です。
  * -----------------------------------------------------------------------
  */
-size_t	CFunction::ExecuteInBrace(size_t line, CValue &result, CLocalVariable &lvar, int type, int &exitcode, std::vector<CVecValue>* UpperLvCandidatePool,bool inpool)
+size_t	CFunction::ExecuteInBrace(size_t line, CValue &result, CLocalVariable &lvar, yaya::int_t type, int &exitcode, std::vector<CVecValue>* UpperLvCandidatePool,bool inpool)
 {
 	// 開始時の処理
 	lvar.AddDepth();
@@ -154,15 +154,13 @@ size_t	CFunction::ExecuteInBrace(size_t line, CValue &result, CLocalVariable &lv
 	}
 
 	// 実行
-	CSelecter	output(*pvm, pdupl, type);
+	CSelecter	output(*pvm, pdupl, (ptrdiff_t)type);
 	bool		exec_end	 = 0;		// この{}の実行を終了するためのフラグ 1で終了
 	bool		ifflg		 = 0;		// if-elseif-else制御用。1でそのブロックを処理したことを示す
 	bool		inmutiarea	 = 0;		// pool用
 	bool		notpoolblock = 0;		// pool用
 	const bool	ispoolbegin	 = !inpool;	// pool用
 	bool		meltblock	 = 0;
-	if(!UpperLvCandidatePool)
-		UpperLvCandidatePool = &output.values;
 	if(pdupl){
 		if ( pdupl->GetType() & CHOICETYPE_POOL_FLAG ) {
 			if(!inpool) {
@@ -175,6 +173,10 @@ size_t	CFunction::ExecuteInBrace(size_t line, CValue &result, CLocalVariable &lv
 		if ( pdupl->GetType() & CHOICETYPE_MELT_FLAG ) {
 			meltblock = 1;
 		}
+	}
+	if(!UpperLvCandidatePool){
+		UpperLvCandidatePool = &output.values;
+		meltblock = 0;
 	}
 
 	#define INPOOL_TO_NEXT (!inmutiarea ? inpool : false)
@@ -341,7 +343,7 @@ size_t	CFunction::ExecuteInBrace(size_t line, CValue &result, CLocalVariable &lv
 				yaya::int_t sw_index = GetFormulaAnswer(lvar, st).GetValueInt();
 				if (sw_index < 0)
 					sw_index = BRACE_SWITCH_OUT_OF_RANGE;
-				i = ExecuteInBrace(i + 2, t_value, lvar, (int)sw_index, exitcode, UpperLvCandidatePool, INPOOL_TO_NEXT);
+				i = ExecuteInBrace(i + 2, t_value, lvar, sw_index, exitcode, NULL, 0);
 				output.Append(t_value);
 			}
 			break;

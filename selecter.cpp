@@ -31,7 +31,7 @@
  * CSelecterコンストラクタ
  * -----------------------------------------------------------------------
  */
-CSelecter::CSelecter(CAyaVM &vmr, CDuplEvInfo *dc, size_t aid) : vm(vmr), duplctl(dc), aindex(aid)
+CSelecter::CSelecter(CAyaVM &vmr, CDuplEvInfo *dc, ptrdiff_t aid) : vm(vmr), duplctl(dc), aindex(aid)
 {
 	areanum = 0;
 
@@ -205,7 +205,7 @@ CValue	CSelecter::ChoiceByIndex1(size_t index)
 	if (!num)
 		return CValue();
 
-	return (aindex >= 0 && aindex < num) ? values[index].array[aindex] : CValue();
+	return (aindex >= 0 && (size_t)aindex < num) ? values[index].array[aindex] : CValue();
 }
 
 /* -----------------------------------------------------------------------
@@ -399,29 +399,63 @@ choicetype_t CSelecter::StringToChoiceType(const yaya::string_t& ctypestr, CAyaV
  *  機能概要：  choicetype_t->文字列
  * -----------------------------------------------------------------------
  */
-const yaya::char_t* CSelecter::ChoiceTypeToString(choicetype_t ctype)
+yaya::string_t CSelecter::ChoiceTypeToString(choicetype_t ctype)
 {
-	switch ( ctype ) {
-	case CHOICETYPE_RANDOM:
-		return L"random";
-	case CHOICETYPE_NONOVERLAP:
-		return L"nonoverlap";
-	case CHOICETYPE_SEQUENTIAL:
-		return L"sequential";
-	case CHOICETYPE_VOID:
+	yaya::string_t aret;
+
+	switch (ctype & CHOICETYPE_OUTPUT_FILTER)
+	{
+	case CHOICETYPE_POOL_FLAG:
+		break;
+	case CHOICETYPE_MELT_FLAG:
+		aret += L"melt";
+		break;
+	case CHOICETYPE_VOID_FLAG:
 		return L"void";
-	case CHOICETYPE_ARRAY:
-		return L"array";
-	case CHOICETYPE_POOL:
-		return L"pool";
-	case CHOICETYPE_POOL_ARRAY:
-		return L"array_pool";
-	case CHOICETYPE_NONOVERLAP_POOL:
-		return L"nonoverlap_pool";
-	case CHOICETYPE_SEQUENTIAL_POOL:
-		return L"sequential_pool";
+	case CHOICETYPE_ALL_FLAG:
+		return L"all";
+	case CHOICETYPE_LAST_FLAG:
+		return L"last";
+	case CHOICETYPE_PICKONE_FLAG:
+		break;
+	default:
+		return L"unknown";
 	}
 
-	return L"unknown";
+	aret += L'_';
+
+	switch (ctype & CHOICETYPE_SELECT_FILTER)
+	{
+	case CHOICETYPE_SEQUENTIAL_FLAG:
+		aret += L"sequential";
+		break;
+	case CHOICETYPE_ARRAY_FLAG:
+		aret += L"array";
+		break;
+	case CHOICETYPE_NONOVERLAP_FLAG:
+		aret += L"nonoverlap";
+		break;
+	case CHOICETYPE_RANDOM_FLAG:
+		aret += L"random";
+		break;
+	default:
+		return L"unknown";
+	}
+
+	aret += L'_';
+
+	switch (ctype & CHOICETYPE_OUTPUT_FILTER)
+	{
+	case CHOICETYPE_POOL_FLAG:
+		aret += L"pool";
+		break;
+	}
+
+	auto beg = aret.find_first_not_of(L'_');
+	auto end = aret.find_last_not_of(L'_');
+	auto siz = end - beg + 1;
+	aret = aret.substr(beg, siz);
+
+	return aret;
 }
 

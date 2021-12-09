@@ -23,34 +23,36 @@
 #include "value.h"
 #include "variable.h"
 
-#define CHOICETYPE_RANDOM_FLAG       0x0001U
-#define CHOICETYPE_SEQUENTIAL_FLAG   0x0002U
-#define CHOICETYPE_NONOVERLAP_FLAG   0x0004U
-#define CHOICETYPE_ARRAY_FLAG        0x0008U
-#define CHOICETYPE_PICKONE_FLAG      0x0100U
-#define CHOICETYPE_POOL_FLAG         0x0200U
-#define CHOICETYPE_MELT_FLAG         0x0400U
-#define CHOICETYPE_ALL_FLAG          0x1000U
-#define CHOICETYPE_LAST_FLAG         0x2000U
-#define CHOICETYPE_VOID_FLAG         0x4000U
+//There's no reason to define it in enum anymore.
+typedef unsigned int choicetype_t;
 
-#define CHOICETYPE_SELECT_FILTER     0x00FFU
-#define CHOICETYPE_OUTPUT_FILTER     0xFF00U
-#define CHOICETYPE_SPECOUT_FILTER    0xF000U
+//alternative definitions for constexpr
+static const choicetype_t CHOICETYPE_RANDOM_FLAG       = 0x0001U;
+static const choicetype_t CHOICETYPE_SEQUENTIAL_FLAG   = 0x0002U;
+static const choicetype_t CHOICETYPE_NONOVERLAP_FLAG   = 0x0004U;
+static const choicetype_t CHOICETYPE_ARRAY_FLAG        = 0x0008U;
+static const choicetype_t CHOICETYPE_PICKONE_FLAG      = 0x0100U;
+static const choicetype_t CHOICETYPE_POOL_FLAG         = 0x0200U;
+static const choicetype_t CHOICETYPE_MELT_FLAG         = 0x0400U;
+static const choicetype_t CHOICETYPE_ALL_FLAG          = 0x1000U;
+static const choicetype_t CHOICETYPE_LAST_FLAG         = 0x2000U;
+static const choicetype_t CHOICETYPE_VOID_FLAG         = 0x4000U;
 
-typedef enum choicetype_t {
-	CHOICETYPE_VOID             = CHOICETYPE_VOID_FLAG,									/* 出力なし */
-	CHOICETYPE_ALL				= CHOICETYPE_ALL_FLAG,									/* Sum all outputs as strings */
-	CHOICETYPE_LAST				= CHOICETYPE_LAST_FLAG,									/* return last var only */
-	CHOICETYPE_RANDOM           = CHOICETYPE_PICKONE_FLAG | CHOICETYPE_RANDOM_FLAG,		/* 常に無作為にランダム（デフォルト）*/
-	CHOICETYPE_NONOVERLAP       = CHOICETYPE_PICKONE_FLAG | CHOICETYPE_NONOVERLAP_FLAG,	/* ランダムだが一巡するまで重複選択しない */
-	CHOICETYPE_SEQUENTIAL       = CHOICETYPE_PICKONE_FLAG | CHOICETYPE_SEQUENTIAL_FLAG,	/* 順番に選択する */
-	CHOICETYPE_ARRAY            = CHOICETYPE_PICKONE_FLAG | CHOICETYPE_ARRAY_FLAG,		/* 簡易配列編成 */
-	CHOICETYPE_POOL             = CHOICETYPE_POOL_FLAG    | CHOICETYPE_RANDOM_FLAG,		/* randomのスコープ無視版 */
-	CHOICETYPE_POOL_ARRAY       = CHOICETYPE_POOL_FLAG    | CHOICETYPE_ARRAY_FLAG,		/* arrayのスコープ無視版 : 全選択候補を配列として返す */
-	CHOICETYPE_NONOVERLAP_POOL  = CHOICETYPE_POOL_FLAG    | CHOICETYPE_NONOVERLAP_FLAG,	/* nonoverlapのスコープ無視版 */
-	CHOICETYPE_SEQUENTIAL_POOL  = CHOICETYPE_POOL_FLAG    | CHOICETYPE_SEQUENTIAL_FLAG,	/* sequentialのスコープ無視版 */
-} choicetype_t;
+static const choicetype_t CHOICETYPE_SELECT_FILTER     = 0x00FFU;
+static const choicetype_t CHOICETYPE_OUTPUT_FILTER     = 0xFF00U;
+static const choicetype_t CHOICETYPE_SPECOUT_FILTER    = 0xF000U;
+
+static const choicetype_t CHOICETYPE_VOID              = CHOICETYPE_VOID_FLAG;                                  /* no output */
+static const choicetype_t CHOICETYPE_ALL               = CHOICETYPE_ALL_FLAG;                                   /* Sum all outputs as strings */
+static const choicetype_t CHOICETYPE_LAST              = CHOICETYPE_LAST_FLAG;                                  /* return last var only */
+static const choicetype_t CHOICETYPE_RANDOM            = CHOICETYPE_PICKONE_FLAG | CHOICETYPE_RANDOM_FLAG;      /* random pick one */
+static const choicetype_t CHOICETYPE_NONOVERLAP        = CHOICETYPE_PICKONE_FLAG | CHOICETYPE_NONOVERLAP_FLAG;  /* random but not overlapped until the cycle ends */
+static const choicetype_t CHOICETYPE_SEQUENTIAL        = CHOICETYPE_PICKONE_FLAG | CHOICETYPE_SEQUENTIAL_FLAG;  /* pick sequential */
+static const choicetype_t CHOICETYPE_ARRAY             = CHOICETYPE_PICKONE_FLAG | CHOICETYPE_ARRAY_FLAG;       /* extract as array */
+static const choicetype_t CHOICETYPE_POOL              = CHOICETYPE_POOL_FLAG    | CHOICETYPE_RANDOM_FLAG;      /* random, ignoring scope */
+static const choicetype_t CHOICETYPE_POOL_ARRAY        = CHOICETYPE_POOL_FLAG    | CHOICETYPE_ARRAY_FLAG;       /* array, ignoring scope : pick all candidates as array */
+static const choicetype_t CHOICETYPE_NONOVERLAP_POOL   = CHOICETYPE_POOL_FLAG    | CHOICETYPE_NONOVERLAP_FLAG;  /* nonoverlap, ignoring scope */
+static const choicetype_t CHOICETYPE_SEQUENTIAL_POOL   = CHOICETYPE_POOL_FLAG    | CHOICETYPE_SEQUENTIAL_FLAG;  /* sequential, ignoring scope */
 
 class CAyaVM;
 
@@ -108,13 +110,13 @@ protected:
 	std::vector<CVecValue>	values;			// 出力候補値
 	size_t					areanum;		// 出力候補を蓄積する領域の数
 	CDuplEvInfo				*duplctl;		// 対応する重複回避情報へのポインタ
-	size_t					aindex;			// switch構文で使用
+	ptrdiff_t				aindex;			// switch構文で使用
 
 	friend class CFunction;//for pool
 private:
 	CSelecter(void);
 public:
-	CSelecter(CAyaVM& vmr, CDuplEvInfo* dc, size_t aid);
+	CSelecter(CAyaVM& vmr, CDuplEvInfo* dc, ptrdiff_t aid);
 
 	void	AddArea(void);
 	void	Append(const CValue &value);
@@ -122,7 +124,7 @@ public:
 
 	static choicetype_t			GetDefaultBlockChoicetype(choicetype_t nowtype);
 	static choicetype_t			StringToChoiceType(const yaya::string_t& ctypestr, CAyaVM &vm, const yaya::string_t& dicfilename, size_t linecount);
-	static const yaya::char_t*	ChoiceTypeToString(choicetype_t ctype);
+	static yaya::string_t		ChoiceTypeToString(choicetype_t ctype);
 
 protected:
 	CValue	StructArray1(size_t index);
