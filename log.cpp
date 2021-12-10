@@ -32,8 +32,6 @@
 #endif
 ////////////////////////////////////////
 
-#define MAX_ERROR_LOG_HISTORY 100
-
 /* -----------------------------------------------------------------------
  *  関数名  ：  CLog::Start
  *  機能概要：  ロギングを開始します
@@ -544,7 +542,7 @@ void CLog::SetIologFilterMode(char mode)
  * -----------------------------------------------------------------------
  */
 void    CLog::AddErrorLogHistory(const yaya::string_t &err) {
-	if ( error_log_history.size() >= MAX_ERROR_LOG_HISTORY ) {
+	if(logmaxnum && error_log_history.size() >= logmaxnum) {
 		error_log_history.pop_back();
 	}
 	error_log_history.push_front(err);
@@ -575,4 +573,14 @@ void CLog::AppendErrorLogHistoryToBegin(std::deque<yaya::string_t> &&log) {
 		error_log_history.insert(error_log_history.begin(),log.begin(),log.end());
 	else
 		error_log_history=log;
+}
+
+void CLog::SetMaxLogNum(size_t num)
+{
+	logmaxnum = num;
+}
+
+size_t CLog::GetMaxLogNum()
+{
+	return logmaxnum;
 }
