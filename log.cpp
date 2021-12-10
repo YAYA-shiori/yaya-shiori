@@ -560,13 +560,19 @@ std::deque<yaya::string_t> & CLog::GetErrorLogHistory(void) {
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CLog::SetErrorLogHistory
+ *  関数名  ：  CLog::AppendErrorLogHistoryToBegin
  *  機能概要：  内部エラーログ履歴を直接設定します
  * -----------------------------------------------------------------------
  */
-void CLog::SetErrorLogHistory(std::deque<yaya::string_t> &log) {
-	for ( std::deque<yaya::string_t>::iterator it = log.begin() ; it != log.end() ; ++it ) {
-		error_log_history.push_front(*it);
-	}
+void CLog::AppendErrorLogHistoryToBegin(std::deque<yaya::string_t> &log) {
+	if(error_log_history.size())
+		error_log_history.insert(error_log_history.begin(),log.begin(),log.end());
+	else
+		error_log_history=log;
 }
-
+void CLog::AppendErrorLogHistoryToBegin(std::deque<yaya::string_t> &&log) {
+	if(error_log_history.size())
+		error_log_history.insert(error_log_history.begin(),log.begin(),log.end());
+	else
+		error_log_history=log;
+}

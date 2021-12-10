@@ -110,7 +110,8 @@ public:
 	char	GetIologFilterMode(void) { return iolog_filter_mode; }
 
 	std::deque<yaya::string_t> & GetErrorLogHistory(void);
-	void SetErrorLogHistory(std::deque<yaya::string_t> &log);
+	void AppendErrorLogHistoryToBegin(std::deque<yaya::string_t> &log);
+	void AppendErrorLogHistoryToBegin(std::deque<yaya::string_t>&&log);
 
 protected:
 #if defined(WIN32)
