@@ -248,9 +248,6 @@ void	CBasis::Configure(void)
 	vm.libs().SetCharset(extension_charset);
 	vm.files().SetCharset(file_charset);
 
-	// load関数を実行
-	ExecuteLoad();
-
 	run = 1;
 }
 
