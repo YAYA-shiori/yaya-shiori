@@ -94,10 +94,10 @@ public:
 	CCallLimit(void) { depth = 0; maxdepth = CCALLLIMIT_CALLDEPTH_MAX; maxloop = CCALLLIMIT_LOOP_MAX; }
 
 	void	SetMaxDepth(size_t value) { maxdepth = value; }
-	int 	GetMaxDepth(void) { return maxdepth; }
+	size_t	GetMaxDepth(void) { return maxdepth; }
 
 	void	SetMaxLoop(size_t value) { maxloop = value; }
-	int		GetMaxLoop(void) { return maxloop; }
+	size_t	GetMaxLoop(void) { return maxloop; }
 
 	void	InitCall(void) { depth = 0; stack.clear(); }
 

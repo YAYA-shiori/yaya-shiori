@@ -451,9 +451,9 @@ yaya::string_t CSelecter::ChoiceTypeToString(choicetype_t ctype)
 		break;
 	}
 
-	auto beg = aret.find_first_not_of(L'_');
-	auto end = aret.find_last_not_of(L'_');
-	auto siz = end - beg + 1;
+	size_t beg = aret.find_first_not_of(L'_');
+	size_t end = aret.find_last_not_of(L'_');
+	size_t siz = end - beg + 1;
 	aret = aret.substr(beg, siz);
 
 	return aret;

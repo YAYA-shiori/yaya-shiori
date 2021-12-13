@@ -290,6 +290,7 @@ const CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::FWRITEDECODE , L"FWRITEDECODE" } ,
 	// デバッグ用(4)
 	{ &CSystemFunction::GETERRORLOG , L"GETERRORLOG" } ,
+	{ &CSystemFunction::CLEARERRORLOG , L"CLEARERRORLOG" },
 	// 特殊(9)
 	{ &CSystemFunction::DICLOAD , L"DICLOAD" } ,
 	{ &CSystemFunction::GETSYSTEMFUNCLIST , L"GETSYSTEMFUNCLIST" } ,
@@ -741,6 +742,23 @@ CValue	CSystemFunction::GETERRORLOG(CSF_FUNCPARAM &p)
 	for(std::deque<yaya::string_t>::iterator it = log.begin(); it != log.end(); it++) {
 		result.array().emplace_back(CValueSub(*it));
 	}
+
+	return result;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::CLEARERRORLOG
+ *
+ *  エラーログを消去します
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::CLEARERRORLOG(CSF_FUNCPARAM &p)
+{
+
+	CValue result(F_TAG_ARRAY, 0/*dmy*/);
+
+	//絞りこみ文字列がない場合
+	vm.logger().GetErrorLogHistory().clear();
 
 	return result;
 }

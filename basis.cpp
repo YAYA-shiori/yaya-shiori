@@ -248,9 +248,6 @@ void	CBasis::Configure(void)
 	vm.libs().SetCharset(extension_charset);
 	vm.files().SetCharset(file_charset);
 
-	// loadä÷êîÇé¿çs
-	ExecuteLoad();
-
 	run = 1;
 }
 
@@ -616,6 +613,11 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		vm.call_limit().SetMaxLoop(loop_max);
 		return true;
 	}
+	else if ( cmd == L"maxlognum" ) {
+		size_t maxlognum = (size_t)yaya::ws_atoll(param, 10);
+		vm.logger().SetMaxLogNum(maxlognum);
+		return true;
+	}
 	// checkparser closed function
 	else if ( cmd == L"checkparser" ) {
 		checkparser = param == L"on";
@@ -720,11 +722,15 @@ CValue CBasis::GetParameter(const yaya::string_t &cmd)
 	}
 	// fncdepth
 	else if ( cmd == L"fncdepth" ) {
-		return CValue(vm.call_limit().GetMaxDepth());
+		return CValue((yaya::int_t)vm.call_limit().GetMaxDepth());
 	}
 	// looplimit
 	else if ( cmd == L"looplimit" ) {
-		return CValue(vm.call_limit().GetMaxLoop());
+		return CValue((yaya::int_t)vm.call_limit().GetMaxLoop());
+	}
+	// maxlognum
+	else if ( cmd == L"maxlognum" ) {
+		return CValue((yaya::int_t)vm.logger().GetMaxLogNum());
 	}
 	// checkparser closed function
 	else if ( cmd == L"checkparser" ) {

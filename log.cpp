@@ -32,8 +32,6 @@
 #endif
 ////////////////////////////////////////
 
-#define MAX_ERROR_LOG_HISTORY 100
-
 /* -----------------------------------------------------------------------
  *  関数名  ：  CLog::Start
  *  機能概要：  ロギングを開始します
@@ -106,11 +104,10 @@ void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 			if (fp != NULL) {
 /*				if (charset == CHARSET_UTF8)
 					write_utf8bom(fp);*/
-				fprintf(fp, "%s", tmpstr);
+				fputs(tmpstr,fp);
 				fclose(fp);
 			}
 			free(tmpstr);
-			tmpstr = NULL;
 		}
 	}
 	open = 1;
@@ -181,11 +178,10 @@ void	CLog::Write(const yaya::char_t *str, int mode, int id)
 			if (tmpstr != NULL) {
 				FILE	*fp = yaya::w_fopen(path.c_str(), L"a");
 				if (fp != NULL) {
-					fprintf(fp, "%s", tmpstr);
+					fputs(tmpstr, fp);
 					fclose(fp);
 				}
 				free(tmpstr);
-				tmpstr = NULL;
 			}
 		}
 	}
@@ -546,7 +542,7 @@ void CLog::SetIologFilterMode(char mode)
  * -----------------------------------------------------------------------
  */
 void    CLog::AddErrorLogHistory(const yaya::string_t &err) {
-	if ( error_log_history.size() >= MAX_ERROR_LOG_HISTORY ) {
+	if(logmaxnum && error_log_history.size() >= logmaxnum) {
 		error_log_history.pop_back();
 	}
 	error_log_history.push_front(err);
@@ -562,13 +558,32 @@ std::deque<yaya::string_t> & CLog::GetErrorLogHistory(void) {
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CLog::SetErrorLogHistory
+ *  関数名  ：  CLog::AppendErrorLogHistoryToBegin
  *  機能概要：  内部エラーログ履歴を直接設定します
  * -----------------------------------------------------------------------
  */
-void CLog::SetErrorLogHistory(std::deque<yaya::string_t> &log) {
-	for ( std::deque<yaya::string_t>::iterator it = log.begin() ; it != log.end() ; ++it ) {
-		error_log_history.push_front(*it);
-	}
+void CLog::AppendErrorLogHistoryToBegin(std::deque<yaya::string_t> &log) {
+	if(error_log_history.size())
+		error_log_history.insert(error_log_history.begin(),log.begin(),log.end());
+	else
+		error_log_history=log;
 }
 
+#if CPP_STD_VER >= 2011
+void CLog::AppendErrorLogHistoryToBegin(std::deque<yaya::string_t> &&log) {
+	if(error_log_history.size())
+		error_log_history.insert(error_log_history.begin(),log.begin(),log.end());
+	else
+		error_log_history=log;
+}
+#endif
+
+void CLog::SetMaxLogNum(size_t num)
+{
+	logmaxnum = num;
+}
+
+size_t CLog::GetMaxLogNum()
+{
+	return logmaxnum;
+}

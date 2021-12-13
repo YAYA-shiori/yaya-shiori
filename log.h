@@ -34,6 +34,8 @@ protected:
 #endif
 	void		(*loghandler)(const yaya::char_t *str, int mode, int id);
 
+	size_t logmaxnum;
+
 	char		enable;		// ロギング有効フラグ
 	char		open;		// ロギング開始フラグ
 	char		fileen;		// ファイルへのロギング有効フラグ
@@ -64,6 +66,7 @@ public:
 		skip_next_log_output=0;
 		iolog_filter_mode = 0;
 		loghandler = NULL;
+		logmaxnum = 256;
 	}
 
 #if defined(POSIX)
@@ -110,8 +113,13 @@ public:
 	char	GetIologFilterMode(void) { return iolog_filter_mode; }
 
 	std::deque<yaya::string_t> & GetErrorLogHistory(void);
-	void SetErrorLogHistory(std::deque<yaya::string_t> &log);
+	void AppendErrorLogHistoryToBegin(std::deque<yaya::string_t> &log);
+#if CPP_STD_VER >= 2011
+	void AppendErrorLogHistoryToBegin(std::deque<yaya::string_t>&&log);
+#endif
 
+	void SetMaxLogNum(size_t num);
+	size_t GetMaxLogNum();
 protected:
 #if defined(WIN32)
 	HWND	GetCheckerWnd(void);

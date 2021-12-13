@@ -35,6 +35,24 @@
 #define AYX_WIN64_AWARE
 
 
+
+
+#ifdef _MSVC_LANG
+#define CPP_STD_VER (_MSVC_LANG/100)
+#else
+#ifdef _MSC_VER
+#if _MSC_VER > 1600
+#define CPP_STD_VER 2011
+#else
+#define CPP_STD_VER 1998
+#endif
+#else
+#define CPP_STD_VER 2020
+#endif
+#endif
+
+
+
 #ifdef _MSC_VER
 
 
@@ -100,8 +118,11 @@ typedef unsigned long long uint64_t;
 
 #endif //1200
 
+#endif //MSC_VER
 
-#ifndef _MSVC_LANG
+
+
+#if CPP_STD_VER < 2011
 
 //C++11 or older
 #define constexpr const
@@ -111,10 +132,15 @@ typedef unsigned long long uint64_t;
 #define _Always_(p)
 #define _Printf_format_string_
 
-#endif //_MSVC_LANG
+#define std_move(d) (d)
+
+#else
+
+#define std_move(d) std::move(d)
+
+#endif //CPP_STD_VER
 
 
-#endif //MSC_VER
 
 //=============================================================================================================
 // yaya type section
