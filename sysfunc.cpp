@@ -747,9 +747,9 @@ CValue	CSystemFunction::GETERRORLOG(CSF_FUNCPARAM &p)
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::GETERRORLOG
+ *  関数名  ：  CSystemFunction::CLEARERRORLOG
  *
- *  エラーログを配列で返します
+ *  エラーログを消去します
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::CLEARERRORLOG(CSF_FUNCPARAM &p)

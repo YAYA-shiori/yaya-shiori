@@ -74,7 +74,7 @@ public:
 			vme->logger().Message(11,E_E);
 
 			if( ! vme->basis().IsSuppress() ) {
-				vme->logger().AppendErrorLogHistoryToBegin(std::move(vm->logger().GetErrorLogHistory())); //エラーログを引き継ぐ
+				vme->logger().AppendErrorLogHistoryToBegin(std_move(vm->logger().GetErrorLogHistory())); //エラーログを引き継ぐ
 
 				std::swap(vm, vme);
 			}

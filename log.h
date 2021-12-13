@@ -114,7 +114,9 @@ public:
 
 	std::deque<yaya::string_t> & GetErrorLogHistory(void);
 	void AppendErrorLogHistoryToBegin(std::deque<yaya::string_t> &log);
+#if CPP_STD_VER >= 2011
 	void AppendErrorLogHistoryToBegin(std::deque<yaya::string_t>&&log);
+#endif
 
 	void SetMaxLogNum(size_t num);
 	size_t GetMaxLogNum();

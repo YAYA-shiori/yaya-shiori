@@ -568,12 +568,15 @@ void CLog::AppendErrorLogHistoryToBegin(std::deque<yaya::string_t> &log) {
 	else
 		error_log_history=log;
 }
+
+#if CPP_STD_VER >= 2011
 void CLog::AppendErrorLogHistoryToBegin(std::deque<yaya::string_t> &&log) {
 	if(error_log_history.size())
 		error_log_history.insert(error_log_history.begin(),log.begin(),log.end());
 	else
 		error_log_history=log;
 }
+#endif
 
 void CLog::SetMaxLogNum(size_t num)
 {
