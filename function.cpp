@@ -34,7 +34,7 @@
 #endif
 ////////////////////////////////////////
 
-inline CFunction::CFunction(CAyaVM& vmr, const yaya::string_t& n, choicetype_t ct, const yaya::string_t& df, int lc) : pvm(&vmr), name(n), dupl_func(ct), dicfilename(df), linecount(lc), dicfilename_fullpath(vmr.basis().ToFullPath(df))
+CFunction::CFunction(CAyaVM& vmr, const yaya::string_t& n, choicetype_t ct, const yaya::string_t& df, int lc) : pvm(&vmr), name(n), dupl_func(ct), dicfilename(df), linecount(lc), dicfilename_fullpath(vmr.basis().ToFullPath(df))
 {
 	statelenm1 = 0;
 	namelen = name.size();

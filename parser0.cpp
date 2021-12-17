@@ -652,10 +652,10 @@ char	CParser0::GetPreProcess(yaya::string_t &str, std::vector<CDefine>& defines,
 
 	// 種別の判定と情報の保持
 	if (pname == L"#define") {
-		defines.emplace_back(vm, bef, aft, dicfilename);
+		defines.emplace_back(CDefine(vm, bef, aft, dicfilename));
 	}
 	else if (pname == L"#globaldefine") {
-		gdefines.emplace_back(vm, bef, aft, dicfilename);
+		gdefines.emplace_back(CDefine(vm, bef, aft, dicfilename));
 	}
 	else {
 		vm.logger().Error(E_E, 76, pname, dicfilename, linecount);

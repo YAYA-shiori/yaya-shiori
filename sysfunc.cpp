@@ -3140,7 +3140,7 @@ CValue	CSystemFunction::SETGLOBALDEFINE(CSF_FUNCPARAM &p)
 		}
 	}
 
-	gdefines.emplace_back(vm, defname, defbody, L"_RUNTIME_DIC_");
+	gdefines.emplace_back(CDefine(vm, defname, defbody, L"_RUNTIME_DIC_"));
 	return CValue(0);
 }
 
