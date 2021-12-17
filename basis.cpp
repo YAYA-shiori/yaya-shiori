@@ -299,6 +299,45 @@ char	CBasis::IsSuppress(void)
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::ToFullPath
+ *  機能概要：  渡された文字列が相対パス表記なら絶対パスに書き換えます
+ * -----------------------------------------------------------------------
+ */
+#if defined(WIN32)
+yaya::string_t	CBasis::ToFullPath(const yaya::string_t& str)
+{
+	yaya::char_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
+	_wsplitpath(str.c_str(), drive, dir, fname, ext);
+	yaya::string_t aret = str;
+
+	if (!::wcslen(drive))
+		aret = vm.basis().base_path + str;
+
+	yaya::ws_replace(aret,L"/",L"\\");
+	size_t index;
+	while((index = aret.find(L"\\\\")) != yaya::string_t::npos)
+		aret.replace(index,2,L"\\");
+
+	return aret;
+}
+#elif defined(POSIX)
+yaya::string_t CBasis::ToFullPath(const yaya::string_t& str)
+{
+	yaya::string_t aret = str;
+	if (!(str.length() > 0 && str[0] == L'/')) {
+		aret = vm.basis().path + str;
+	}
+
+	yaya::ws_replace(aret, L"/", L"\\");
+	size_t index;
+	while ((index = aret.find(L"\\\\")) != yaya::string_t::npos)
+		aret.replace(index, 2, L"\\");
+
+	return aret;
+}
+#endif
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CBasis::SetSuppress
  *  機能概要：  自律動作抑止を設定します
  * -----------------------------------------------------------------------
