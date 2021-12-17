@@ -292,7 +292,6 @@ protected:
 	void	SetError(int code);
 
 	int		GetCharset(const CValueSub &var,const wchar_t *fname, const yaya::string_t &d, int l);
-	yaya::string_t	ToFullPath(const yaya::string_t &str);
 };
 
 //----

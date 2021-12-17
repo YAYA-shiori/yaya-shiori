@@ -27,11 +27,9 @@ public:
 	yaya::string_t	before;
 	yaya::string_t	after;
 	yaya::string_t	dicfilename;
+	yaya::string_t	dicfilename_fullpath;
 public:
-	CDefine(const yaya::string_t &bef, const yaya::string_t &aft, const yaya::string_t &df) : 
-	  before(bef) , after(aft) , dicfilename(df)
-	{
-	}
+	CDefine(CAyaVM& vm, const yaya::string_t& bef, const yaya::string_t& aft, const yaya::string_t& df);
 
 	CDefine(void) {}
 	~CDefine(void) {}
@@ -62,7 +60,7 @@ public:
 
 	int		DynamicLoadDictionary(const yaya::string_t& dicfilename, int charset);
 	int		DynamicAppendRuntimeDictionary(const yaya::string_t& codes);
-	int		DynamicUnloadDictionary(const yaya::string_t& dicfilename);
+	int		DynamicUnloadDictionary(yaya::string_t dicfilename);
 	int		DynamicUndefFunc(const yaya::string_t& funcname);
 
 	//changed to public, for processglobaldefine
@@ -102,7 +100,7 @@ protected:
 	char	CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dicfilename);
 	char	MakeCompleteConvertionWhenToIf(const yaya::string_t& dicfilename);
 
-	char	IsDicFileAlreadyExist(const yaya::string_t& dicfilename);
+	char	IsDicFileAlreadyExist(yaya::string_t dicfilename);
 };
 
 //----

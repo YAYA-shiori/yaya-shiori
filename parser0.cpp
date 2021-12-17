@@ -240,8 +240,9 @@ int CParser0::DynamicAppendRuntimeDictionary(const yaya::string_t& codes)
  *  返値　　：  0=正常 71=関数行方不明 96=ファイルなし
  * -----------------------------------------------------------------------
  */
-int	CParser0::DynamicUnloadDictionary(const yaya::string_t& dicfilename)
+int	CParser0::DynamicUnloadDictionary(yaya::string_t dicfilename)
 {
+	dicfilename = vm.basis().ToFullPath(dicfilename);
 	if ( ! IsDicFileAlreadyExist(dicfilename) ) {
 		vm.logger().Error(E_E, 96, dicfilename);
 		return 96;
@@ -254,7 +255,7 @@ int	CParser0::DynamicUnloadDictionary(const yaya::string_t& dicfilename)
 
 	//remove function
 	while (itf != functions.end()) {
-		if ( itf->dicfilename == dicfilename ) {
+		if ( itf->dicfilename_fullpath == dicfilename ) {
 			itf = functions.erase(itf);
 		}
 		else {
@@ -282,7 +283,7 @@ int	CParser0::DynamicUnloadDictionary(const yaya::string_t& dicfilename)
 	std::vector<CDefine>::iterator itg = gdefines.begin();
 
 	while (itg != gdefines.end()) {
-		if ( itg->dicfilename == dicfilename ) {
+		if ( itg->dicfilename_fullpath == dicfilename ) {
 			itg = gdefines.erase(itg);
 		}
 		else {
@@ -353,16 +354,27 @@ int	CParser0::DynamicUndefFunc(const yaya::string_t& funcname)
  *  返値　　：  0/1=ない/あった
  * -----------------------------------------------------------------------
  */
-char CParser0::IsDicFileAlreadyExist(const yaya::string_t& dicfilename)
+char CParser0::IsDicFileAlreadyExist(yaya::string_t dicfilename)
 {
+	dicfilename = vm.basis().ToFullPath(dicfilename);
 	std::vector<CFunction> &functions = vm.function_parse().func;
 	std::vector<CFunction>::iterator itf = functions.begin();
 
 	while (itf != functions.end()) {
-		if ( itf->dicfilename == dicfilename ) {
+		if ( itf->dicfilename_fullpath == dicfilename ) {
 			return 1;
 		}
 		++itf;
+	}
+
+	std::vector<CDefine> &gdefines = vm.gdefines();
+	std::vector<CDefine>::iterator itg = gdefines.begin();
+
+	while (itg != gdefines.end()) {
+		if ( itg->dicfilename_fullpath == dicfilename ) {
+			return 1;
+		}
+		++itg;
 	}
 	return 0;
 }
@@ -640,11 +652,10 @@ char	CParser0::GetPreProcess(yaya::string_t &str, std::vector<CDefine>& defines,
 
 	// 種別の判定と情報の保持
 	if (pname == L"#define") {
-		CDefine	adddefine(bef, aft, dicfilename);
-		defines.emplace_back(adddefine);
+		defines.emplace_back(CDefine(vm, bef, aft, dicfilename));
 	}
 	else if (pname == L"#globaldefine") {
-		gdefines.emplace_back(CDefine(bef, aft, dicfilename));
+		gdefines.emplace_back(CDefine(vm, bef, aft, dicfilename));
 	}
 	else {
 		vm.logger().Error(E_E, 76, pname, dicfilename, linecount);
@@ -2480,3 +2491,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 	return 0;
 }
 
+inline CDefine::CDefine(CAyaVM& vm, const yaya::string_t& bef, const yaya::string_t& aft, const yaya::string_t& df) :
+	before(bef), after(aft), dicfilename(df), dicfilename_fullpath(vm.basis().ToFullPath(df))
+{
+}

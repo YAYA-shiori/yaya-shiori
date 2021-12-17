@@ -139,6 +139,7 @@ public:
 	std::vector<CStatement>		statement;		// 命令郡
 	CDuplEvInfo					dupl_func;		// 重複回避制御
 	yaya::string_t				dicfilename;	// 対応する辞書ファイル名
+	yaya::string_t				dicfilename_fullpath;
 
 protected:
 	size_t					statelenm1;		// statementの長さ-1（1を減じているのは終端の"}"を処理しないためです）
@@ -148,11 +149,7 @@ private:
 	CFunction(void);
 
 public:
-	CFunction(CAyaVM &vmr, const yaya::string_t& n, choicetype_t ct, const yaya::string_t& df, int lc) : pvm(&vmr) , name(n) , dupl_func(ct) , dicfilename(df) , linecount(lc)
-	{
-		statelenm1  = 0;
-		namelen     = name.size();
-	}
+	CFunction(CAyaVM& vmr, const yaya::string_t& n, choicetype_t ct, const yaya::string_t& df, int lc);
 
 	~CFunction(void) {}
 

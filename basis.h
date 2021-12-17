@@ -133,6 +133,7 @@ public:
 
 	char	IsSuppress(void);
 
+	yaya::string_t	ToFullPath(const yaya::string_t& str);
 protected:
 	void	SetSuppress(void);
 	void	ResetSuppress(void);
