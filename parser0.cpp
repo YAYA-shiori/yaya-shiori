@@ -240,8 +240,9 @@ int CParser0::DynamicAppendRuntimeDictionary(const yaya::string_t& codes)
  *  返値　　：  0=正常 71=関数行方不明 96=ファイルなし
  * -----------------------------------------------------------------------
  */
-int	CParser0::DynamicUnloadDictionary(const yaya::string_t& dicfilename)
+int	CParser0::DynamicUnloadDictionary(yaya::string_t dicfilename)
 {
+	dicfilename = vm.basis().ToFullPath(dicfilename);
 	if ( ! IsDicFileAlreadyExist(dicfilename) ) {
 		vm.logger().Error(E_E, 96, dicfilename);
 		return 96;
@@ -254,7 +255,7 @@ int	CParser0::DynamicUnloadDictionary(const yaya::string_t& dicfilename)
 
 	//remove function
 	while (itf != functions.end()) {
-		if ( itf->dicfilename == dicfilename ) {
+		if ( itf->dicfilename_fullpath == dicfilename ) {
 			itf = functions.erase(itf);
 		}
 		else {
@@ -282,7 +283,7 @@ int	CParser0::DynamicUnloadDictionary(const yaya::string_t& dicfilename)
 	std::vector<CDefine>::iterator itg = gdefines.begin();
 
 	while (itg != gdefines.end()) {
-		if ( itg->dicfilename == dicfilename ) {
+		if ( itg->dicfilename_fullpath == dicfilename ) {
 			itg = gdefines.erase(itg);
 		}
 		else {
@@ -353,13 +354,14 @@ int	CParser0::DynamicUndefFunc(const yaya::string_t& funcname)
  *  返値　　：  0/1=ない/あった
  * -----------------------------------------------------------------------
  */
-char CParser0::IsDicFileAlreadyExist(const yaya::string_t& dicfilename)
+char CParser0::IsDicFileAlreadyExist(yaya::string_t dicfilename)
 {
+	dicfilename = vm.basis().ToFullPath(dicfilename);
 	std::vector<CFunction> &functions = vm.function_parse().func;
 	std::vector<CFunction>::iterator itf = functions.begin();
 
 	while (itf != functions.end()) {
-		if ( itf->dicfilename == dicfilename ) {
+		if ( itf->dicfilename_fullpath == dicfilename ) {
 			return 1;
 		}
 		++itf;
