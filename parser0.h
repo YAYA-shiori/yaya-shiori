@@ -27,11 +27,9 @@ public:
 	yaya::string_t	before;
 	yaya::string_t	after;
 	yaya::string_t	dicfilename;
+	yaya::string_t	dicfilename_fullpath;
 public:
-	CDefine(const yaya::string_t &bef, const yaya::string_t &aft, const yaya::string_t &df) : 
-	  before(bef) , after(aft) , dicfilename(df)
-	{
-	}
+	CDefine(CAyaVM& vm, const yaya::string_t& bef, const yaya::string_t& aft, const yaya::string_t& df);
 
 	CDefine(void) {}
 	~CDefine(void) {}

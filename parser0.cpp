@@ -640,11 +640,10 @@ char	CParser0::GetPreProcess(yaya::string_t &str, std::vector<CDefine>& defines,
 
 	// 種別の判定と情報の保持
 	if (pname == L"#define") {
-		CDefine	adddefine(bef, aft, dicfilename);
-		defines.emplace_back(adddefine);
+		defines.emplace_back(vm, bef, aft, dicfilename);
 	}
 	else if (pname == L"#globaldefine") {
-		gdefines.emplace_back(CDefine(bef, aft, dicfilename));
+		gdefines.emplace_back(vm, bef, aft, dicfilename);
 	}
 	else {
 		vm.logger().Error(E_E, 76, pname, dicfilename, linecount);
@@ -2480,3 +2479,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 	return 0;
 }
 
+inline CDefine::CDefine(CAyaVM& vm, const yaya::string_t& bef, const yaya::string_t& aft, const yaya::string_t& df) :
+	before(bef), after(aft), dicfilename(df), dicfilename_fullpath(vm.basis().ToFullPath(df))
+{
+}
