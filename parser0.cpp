@@ -366,6 +366,16 @@ char CParser0::IsDicFileAlreadyExist(yaya::string_t dicfilename)
 		}
 		++itf;
 	}
+
+	std::vector<CDefine> &gdefines = vm.gdefines();
+	std::vector<CDefine>::iterator itg = gdefines.begin();
+
+	while (itg != gdefines.end()) {
+		if ( itg->dicfilename_fullpath == dicfilename ) {
+			return 1;
+		}
+		++itg;
+	}
 	return 0;
 }
 
