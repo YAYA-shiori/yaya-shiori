@@ -62,11 +62,13 @@ protected:
 	char	msglang_for_compat;
 
 	char	dic_charset;				// 文字コードセット（Shift_JIS/UTF-8/OSデフォルト）
+	char    setting_charset;
 	char	output_charset;
 	char	file_charset;
 	char	save_charset;
 	char    save_old_charset;
 	char	extension_charset;
+
 	bool	encode_savefile;
 	bool	auto_save;
 

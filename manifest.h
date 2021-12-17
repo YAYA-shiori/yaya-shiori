@@ -29,8 +29,9 @@ extern const yaya::char_t *aya_author;
 #define	CHARSET_GB2312			4
 #define	CHARSET_EUCKR			5
 #define	CHARSET_JIS				6
-#define	CHARSET_BINARY	126						/* 変換しない（一部でのみ利用） */
-#define	CHARSET_DEFAULT	127						/* OSデフォルトの言語を使用する */
+#define CHARSET_UNDEF			125				/* 未定義 */
+#define	CHARSET_BINARY			126				/* 変換しない（一部でのみ利用） */
+#define	CHARSET_DEFAULT			127				/* OSデフォルトの言語を使用する */
 
 // 基底プレフィックス文字列
 #define	PREFIX_BASE_LEN	2
