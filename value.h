@@ -119,6 +119,28 @@ public:
 	bool Compare(const CValueSub &value) const;
 };
 
+// std::hash 的自定义特化能注入 namespace std
+namespace std
+{
+	template<> struct hash<CValueSub>
+	{
+		typedef CValueSub argument_type;
+		typedef std::size_t result_type;
+		result_type operator()(argument_type const& s) const
+		{
+			switch(s.GetType()){
+			default:
+				return 0;
+			case F_TAG_INT:
+				return std::hash<yaya::int_t>{}(s.GetValueInt());
+			case F_TAG_DOUBLE:
+				return std::hash<double>{}(s.GetValueDouble());
+			case F_TAG_STRING:
+				return std::hash<yaya::string_t>{}(s.GetValueString());
+			}
+		}
+	};
+}
 //----
 
 class	CValue
