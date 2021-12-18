@@ -511,7 +511,7 @@ void	CFunction::Foreach(CLocalVariable &lvar, CSelecter &output,size_t line,int 
  */
 const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 {
-	int		o_index = 0;
+	size_t	o_index = 0;
 
 	if ( st.serial_size() ) { //高速化用
 		for (std::vector<CSerial>::iterator it = st.serial().begin(); it != st.serial().end(); it++) {
