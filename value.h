@@ -105,18 +105,18 @@ public:
 	void	operator /=(const CValueSub &value);
 	void	operator %=(const CValueSub &value);
 
-	inline CValueSub operator ==(const CValueSub &value) const {
-		return CValueSub(Compare(value));
+	inline bool operator ==(const CValueSub &value) const {
+		return Compare(value);
 	}
-	inline CValueSub operator !=(const CValueSub &value) const {
-		return CValueSub(1 - Compare(value));
+	inline bool operator !=(const CValueSub &value) const {
+		return !operator==(value);
 	}
 	inline bool operator <(const CValueSub &value) const {
 		return Less(value);
 	}
 
 	bool Less(const CValueSub &value) const;
-	int Compare(const CValueSub &value) const;
+	bool Compare(const CValueSub &value) const;
 };
 
 //----

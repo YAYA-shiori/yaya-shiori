@@ -401,7 +401,7 @@ void CValueSub::operator %=(const CValueSub &value)
  *  intとdoubleの演算はdouble扱いです。yaya::string_tとの演算は空文字列を返します。
  * -----------------------------------------------------------------------
  */
-int CValueSub::Compare(const CValueSub &value) const
+bool CValueSub::Compare(const CValueSub &value) const
 {
 	int t = CalcEscalationTypeStr(value.type);
 
