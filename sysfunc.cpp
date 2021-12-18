@@ -26,6 +26,7 @@
 
 #include <cstring>
 #include <stdexcept>
+#include <unordered_set>
 
 #include "fix_unistd.h"
 
@@ -211,6 +212,7 @@ const CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::ATAN , L"ATAN" } ,
 	// 文字列操作(6)
 	{ &CSystemFunction::SPLIT , L"SPLIT" } ,
+	{ &CSystemFunction::ARRAYDEDUPLIC , L"ARRAYDEDUPLIC" },
 	// ファイル操作(2)
 	{ &CSystemFunction::FATTRIB , L"FATTRIB" } ,
 	// 型取得/変換(3)
@@ -5910,7 +5912,20 @@ CValue	CSystemFunction::GETSETTING(CSF_FUNCPARAM &p)
 	SetError(12);
 	return CValue(F_TAG_NOP, 0/*dmy*/);
 }
+CValue	CSystemFunction::ARRAYDEDUPLIC(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size())
+		return CValue(F_TAG_ARRAY, 0/*dmy*/);
 
+	CValue result(F_TAG_ARRAY, 0/*dmy*/);
+	std::unordered_set<CValueSub> tmpset;
+
+	for(auto&i:p.arg.array())
+		tmpset.insert(i);
+
+	result.array() = { tmpset.begin(),tmpset.end() };
+	return result;
+}
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::SPLIT
  * -----------------------------------------------------------------------
