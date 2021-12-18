@@ -286,6 +286,14 @@ protected:
 	CValue	FUNCDECL_WRITE(CSF_FUNCPARAM& p);
 	CValue	FUNCDECL_ERASE(CSF_FUNCPARAM& p);
 
+	//LINT
+	CValue	LINT_GetFuncUsedBy(CSF_FUNCPARAM& p);
+	CValue	LINT_GetUserDefFuncUsedBy(CSF_FUNCPARAM& p);
+	CValue	LINT_GetGlobalVarUsedBy(CSF_FUNCPARAM& p);
+	CValue	LINT_GetLocalVarUsedBy(CSF_FUNCPARAM& p);
+	CValue	LINT_GetGlobalVarLetted(CSF_FUNCPARAM& p);
+	CValue	LINT_GetLocalVarLetted(CSF_FUNCPARAM& p);
+
 	CValue	RE_SPLIT_CORE(const CValue &arg, const yaya::string_t &d, int l, const yaya::char_t *fncname, size_t num);
 
 	void	StoreReResultDetails(const yaya::string_t &str,MatchResult &result);

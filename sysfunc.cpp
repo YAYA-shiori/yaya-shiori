@@ -311,6 +311,13 @@ const CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::FUNCDECL_READ , L"FUNCDECL_READ" },
 	{ &CSystemFunction::FUNCDECL_WRITE , L"FUNCDECL_WRITE" },
 	{ &CSystemFunction::FUNCDECL_ERASE , L"FUNCDECL_ERASE" },
+	//LINT
+	{ &CSystemFunction::LINT_GetFuncUsedBy , L"LINT.GetFuncUsedBy" },
+	{ &CSystemFunction::LINT_GetUserDefFuncUsedBy , L"LINT.GetUserDefFuncUsedBy" },
+	{ &CSystemFunction::LINT_GetGlobalVarUsedBy , L"LINT.GetGlobalVarUsedBy" },
+	{ &CSystemFunction::LINT_GetLocalVarUsedBy , L"LINT.GetLocalVarUsedBy" },
+	{ &CSystemFunction::LINT_GetGlobalVarLetted , L"LINT.GetGlobalVarLetted" },
+	{ &CSystemFunction::LINT_GetLocalVarLetted , L"LINT.GetLocalVarLetted" },
 };
 
 #define SYSFUNC_NUM (sizeof(CSystemFunction::sysfunc)/sizeof(CSystemFunction::sysfunc[0]))
@@ -6953,4 +6960,229 @@ CValue	CSystemFunction::LICENSE(CSF_FUNCPARAM &p)
 	v.array().emplace_back(L"");
 
 	return v;
+}
+//LINT
+CValue	CSystemFunction::LINT_GetFuncUsedBy(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"LINT.GetFuncUsedBy", p.dicname, p.line);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!p.arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"LINT.GetFuncUsedBy", p.dicname, p.line);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	ptrdiff_t index = vm.function_exec().GetFunctionIndexFromName(p.arg.array()[0].s_value);
+	if ( index < 0 ) {
+		vm.logger().Error(E_W, 12, L"LINT.GetFuncUsedBy", p.dicname, p.line);
+		SetError(12);
+		return CValue(-1);
+	}
+
+	CValue result(F_TAG_ARRAY, 0/*dmy*/);
+	const CFunction *it = &vm.function_exec().func[size_t(index)];
+	std::unordered_set<yaya::string_t> name_set;
+
+	for(auto&s:it->statement)
+		for(auto c:s.cell())
+			if (F_TAG_ISFUNC(c.value_GetType()))
+				name_set.insert(c.name);
+
+	result.array() = { name_set.begin(),name_set.end() };
+	return result;
+}
+CValue	CSystemFunction::LINT_GetUserDefFuncUsedBy(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"LINT.GetUserDefFuncUsedBy", p.dicname, p.line);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!p.arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"LINT.GetUserDefFuncUsedBy", p.dicname, p.line);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	ptrdiff_t index = vm.function_exec().GetFunctionIndexFromName(p.arg.array()[0].s_value);
+	if ( index < 0 ) {
+		vm.logger().Error(E_W, 12, L"LINT.GetUserDefFuncUsedBy", p.dicname, p.line);
+		SetError(12);
+		return CValue(-1);
+	}
+
+	CValue result(F_TAG_ARRAY, 0/*dmy*/);
+	const CFunction *it = &vm.function_exec().func[size_t(index)];
+	std::unordered_set<yaya::string_t> name_set;
+
+	for(auto&s:it->statement)
+		for(auto c:s.cell())
+			if (c.value_GetType() == F_TAG_USERFUNC)
+				name_set.insert(c.name);
+
+	result.array() = { name_set.begin(),name_set.end() };
+	return result;
+}
+CValue	CSystemFunction::LINT_GetGlobalVarUsedBy(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"LINT.GetGlobalVarUsedBy", p.dicname, p.line);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!p.arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"LINT.GetGlobalVarUsedBy", p.dicname, p.line);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	ptrdiff_t index = vm.function_exec().GetFunctionIndexFromName(p.arg.array()[0].s_value);
+	if ( index < 0 ) {
+		vm.logger().Error(E_W, 12, L"LINT.GetGlobalVarUsedBy", p.dicname, p.line);
+		SetError(12);
+		return CValue(-1);
+	}
+
+	CValue result(F_TAG_ARRAY, 0/*dmy*/);
+	const CFunction *it = &vm.function_exec().func[size_t(index)];
+	std::unordered_set<yaya::string_t> name_set;
+
+	for(auto&s:it->statement)
+		for(auto c:s.cell())
+			if (c.value_GetType() == F_TAG_VARIABLE)
+				name_set.insert(vm.variable().GetName(c.index));
+
+	result.array() = { name_set.begin(),name_set.end() };
+	return result;
+}
+CValue	CSystemFunction::LINT_GetLocalVarUsedBy(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"LINT.GetLocalVarUsedBy", p.dicname, p.line);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!p.arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"LINT.GetLocalVarUsedBy", p.dicname, p.line);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	ptrdiff_t index = vm.function_exec().GetFunctionIndexFromName(p.arg.array()[0].s_value);
+	if ( index < 0 ) {
+		vm.logger().Error(E_W, 12, L"LINT.GetLocalVarUsedBy", p.dicname, p.line);
+		SetError(12);
+		return CValue(-1);
+	}
+
+	CValue result(F_TAG_ARRAY, 0/*dmy*/);
+	const CFunction *it = &vm.function_exec().func[size_t(index)];
+	auto& array = result.array();
+
+	for(auto&s:it->statement){
+		if(s.type==ST_OPEN)
+			array.emplace_back(L"{");
+		else if(s.type==ST_CLOSE)
+			array.emplace_back(L"}");
+		else
+			for(auto c:s.cell())
+				if(c.value_GetType()==F_TAG_LOCALVARIABLE)
+					array.emplace_back(c.name);
+	}
+
+	return result;
+}
+CValue	CSystemFunction::LINT_GetGlobalVarLetted(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"LINT.GetGlobalVarLetted", p.dicname, p.line);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!p.arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"LINT.GetGlobalVarLetted", p.dicname, p.line);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	ptrdiff_t index = vm.function_exec().GetFunctionIndexFromName(p.arg.array()[0].s_value);
+	if ( index < 0 ) {
+		vm.logger().Error(E_W, 12, L"LINT.GetGlobalVarLetted", p.dicname, p.line);
+		SetError(12);
+		return CValue(-1);
+	}
+
+	CValue result(F_TAG_ARRAY, 0/*dmy*/);
+	const CFunction *it = &vm.function_exec().func[size_t(index)];
+	std::unordered_set<yaya::string_t> name_set;
+	const CCell* sid_0_cell = 0;
+	size_t o_index;
+
+	for(auto&s:it->statement)
+		for(auto&se:s.serial()){
+			o_index = se.tindex;
+			const CCell& o_cell = s.cell()[o_index];
+			if(F_TAG_ISLET(o_cell.value_GetType())){
+				sid_0_cell = &(s.cell()[se.index[0]]);
+				if(sid_0_cell->value_GetType()==F_TAG_VARIABLE)
+					name_set.insert(vm.variable().GetName(sid_0_cell->index));
+			}
+		}
+
+	result.array() = { name_set.begin(),name_set.end() };
+	return result;
+}
+CValue	CSystemFunction::LINT_GetLocalVarLetted(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"LINT.GetLocalVarLetted", p.dicname, p.line);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!p.arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"LINT.GetLocalVarLetted", p.dicname, p.line);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	ptrdiff_t index = vm.function_exec().GetFunctionIndexFromName(p.arg.array()[0].s_value);
+	if ( index < 0 ) {
+		vm.logger().Error(E_W, 12, L"LINT.GetLocalVarLetted", p.dicname, p.line);
+		SetError(12);
+		return CValue(-1);
+	}
+
+	CValue result(F_TAG_ARRAY, 0/*dmy*/);
+	const CFunction *it = &vm.function_exec().func[size_t(index)];
+	auto& array = result.array();
+	const CCell* sid_0_cell = 0;
+	size_t o_index;
+
+	for(auto&s:it->statement){
+		if (s.type == ST_OPEN)
+			array.emplace_back(L"{");
+		else if (s.type == ST_CLOSE)
+			array.emplace_back(L"}");
+		else
+			for(auto&se:s.serial()){
+				o_index = se.tindex;
+				const CCell& o_cell = s.cell()[o_index];
+				if(F_TAG_ISLET(o_cell.value_GetType())){
+					sid_0_cell = &(s.cell()[se.index[0]]);
+					if(sid_0_cell->value_GetType()==F_TAG_LOCALVARIABLE)
+						array.emplace_back(sid_0_cell->name);
+				}
+			}
+	}
+
+	return result;
 }
