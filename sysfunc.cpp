@@ -254,6 +254,7 @@ const CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::READFMO , L"READFMO" } ,
 	// ファイル操作(4)
 	{ &CSystemFunction::FDIGEST , L"FDIGEST" } ,
+	{ &CSystemFunction::STRDIGEST , L"STRDIGEST" } ,
 	// 特殊(6)
 	{ &CSystemFunction::EXECUTE , L"EXECUTE" } ,
 	{ &CSystemFunction::SETSETTING , L"SETSETTING" } ,
@@ -2898,6 +2899,76 @@ CValue	CSystemFunction::FDIGEST(CSF_FUNCPARAM &p)
 	buf_ptr = NULL;
 
 	fclose(pF);
+
+	yaya::char_t md5str[65];
+	md5str[digest_len*2] = 0; //ゼロ終端
+
+	for ( unsigned int i = 0 ; i < digest_len ; ++i ) {
+		yaya::snprintf(md5str+i*2,sizeof(md5str)/sizeof(md5str[0]), L"%02X",digest_result[i]);
+	}
+
+	return CValue(yaya::string_t(md5str));
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::STRDIGEST
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::STRDIGEST(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"STRDIGEST", p.dicname, p.line);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!p.arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"STRDIGEST", p.dicname, p.line);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	yaya::string_t digest_type = L"md5";
+	if (p.arg.array_size()>=2) {
+		digest_type = p.arg.array()[1].GetValueString();
+	}
+	auto buf = p.arg.array()[0].GetValueString();
+
+	unsigned char digest_result[32];
+	size_t digest_len;
+
+	const size_t buf_len = buf.size();
+	unsigned char* buf_ptr = (unsigned char*)buf.c_str();
+	
+	if ( wcsicmp(digest_type.c_str(),L"sha1") == 0 || wcsicmp(digest_type.c_str(),L"sha-1") == 0 ) {
+		SHA1Context sha1ctx;
+		SHA1Reset(&sha1ctx);
+
+		SHA1Input(&sha1ctx,buf_ptr,buf_len);
+
+		SHA1Result(&sha1ctx,digest_result);
+		digest_len = SHA1HashSize;
+	}
+	else if ( wcsicmp(digest_type.c_str(),L"crc32") == 0 ) {
+		unsigned long crc = 0;
+
+		crc = update_crc32(buf_ptr,buf_len,crc);
+
+		digest_result[0] = static_cast<unsigned char>(crc & 0xFFU);
+		digest_result[1] = static_cast<unsigned char>((crc >> 8) & 0xFFU);
+		digest_result[2] = static_cast<unsigned char>((crc >> 16) & 0xFFU);
+		digest_result[3] = static_cast<unsigned char>((crc >> 24) & 0xFFU);
+		digest_len = 4;
+	}
+	else { //md5
+		MD5_CTX md5ctx;
+		MD5Init(&md5ctx);
+
+		MD5Update(&md5ctx,buf_ptr,buf_len);
+
+		MD5Final(digest_result,&md5ctx);
+		digest_len = 16;
+	}
 
 	yaya::char_t md5str[65];
 	md5str[digest_len*2] = 0; //ゼロ終端
