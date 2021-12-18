@@ -722,7 +722,7 @@ int CFunction::ReindexUserFunctions(void)
 			CCell &cl = st.cell()[j];
 
 			if ( cl.value_GetType() == F_TAG_USERFUNC ) {
-				int index = pvm->function_parse().GetFunctionIndexFromName(cl.name);
+				ptrdiff_t index = pvm->function_parse().GetFunctionIndexFromName(cl.name);
 				if ( index < 0 ) {
 					pvm->logger().Error(E_E, 71, dicfilename, st.linecount);
 					error += 1;
