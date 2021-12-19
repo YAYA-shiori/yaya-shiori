@@ -401,7 +401,7 @@ void CValueSub::operator %=(const CValueSub &value)
  *  int‚Ædouble‚Ì‰‰Z‚Ídoubleˆµ‚¢‚Å‚·Byaya::string_t‚Æ‚Ì‰‰Z‚Í‹ó•¶š—ñ‚ğ•Ô‚µ‚Ü‚·B
  * -----------------------------------------------------------------------
  */
-int CValueSub::Compare(const CValueSub &value) const
+bool CValueSub::Compare(const CValueSub &value) const
 {
 	int t = CalcEscalationTypeStr(value.type);
 

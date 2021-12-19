@@ -7,7 +7,7 @@ const CValue& CVariable::call_watcher(CAyaVM&vm,CValue& save) {
 	if (!this)
 		return emptyvalue;
 	if (watcher.size()) {
-		int index = vm.function_exec().GetFunctionIndexFromName(watcher);
+		ptrdiff_t index = vm.function_exec().GetFunctionIndexFromName(watcher);
 
 		if (index < 0) {
 			vm.logger().Error(E_W, 12, watcher);
@@ -32,7 +32,7 @@ const CValue& CVariable::call_watcher(CAyaVM&vm,CValue& save) {
 void CVariable::call_destorier(CAyaVM& vm)
 {
 	if(destorier.size()){
-		int index = vm.function_exec().GetFunctionIndexFromName(destorier);
+		ptrdiff_t index = vm.function_exec().GetFunctionIndexFromName(destorier);
 
 		if (index < 0) {
 			vm.logger().Error(E_W, 12, destorier);
@@ -52,7 +52,7 @@ void CVariable::call_destorier(CAyaVM& vm)
 void CVariable::call_setter(CAyaVM& vm, const CValue& var_before)
 {
 	if(setter.size()){
-		int index = vm.function_exec().GetFunctionIndexFromName(setter);
+		ptrdiff_t index = vm.function_exec().GetFunctionIndexFromName(setter);
 
 		if (index < 0) {
 			vm.logger().Error(E_W, 12, setter);

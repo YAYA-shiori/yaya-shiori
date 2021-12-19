@@ -908,11 +908,11 @@ char	CParser0::StoreInternalStatement(size_t targetfunc, yaya::string_t &str, si
 	if (str[str.size()-1]==L'{') {
 		// blockと重複回避オプションを取得
 		choicetype_t	chtype = CSelecter::GetDefaultBlockChoicetype(m_defaultBlockChoicetypeStack[m_defaultBlockChoicetypeStack.size()-1]);
-		m_defaultBlockChoicetypeStack.emplace_back(chtype);
 		yaya::string_t	d0, d1;
 		if (Split(str, d0, d1, L":")){
 			chtype = CSelecter::StringToChoiceType(d0, vm, dicfilename, linecount);
 		}
+		m_defaultBlockChoicetypeStack.emplace_back(chtype);
 		depth++;
 		targetfunction.statement.emplace_back(CStatement(ST_OPEN, linecount, new CDuplEvInfo(chtype)));
 		return 1;
@@ -1085,9 +1085,7 @@ char	CParser0::StructFormula(yaya::string_t& str, std::vector<CCell>& cells, con
 			}
 			std::vector<CCell>::iterator	itm = it;
 			itm--;
-			if (itm->value_GetType() != F_TAG_NOP &&
-				itm->value_GetType() != F_TAG_BRACKETOUT &&
-				itm->value_GetType() != F_TAG_HOOKBRACKETOUT) {
+			if (!F_TAG_ISOUT_OR_NOP(itm->value_GetType())) {
 				it = cells.erase(it);
 				continue;
 			}
@@ -1105,9 +1103,8 @@ char	CParser0::StructFormula(yaya::string_t& str, std::vector<CCell>& cells, con
 			}
 			std::vector<CCell>::iterator	itm = it;
 			itm--;
-			if (itm->value_GetType() != F_TAG_NOP &&
-				itm->value_GetType() != F_TAG_BRACKETOUT &&
-				itm->value_GetType() != F_TAG_HOOKBRACKETOUT) {
+			if (!F_TAG_ISOUT_OR_NOP(itm->value_GetType()))
+			{
 				it->value_SetType(F_TAG_NOP);
 				it->value().s_value = L"-1";
 				it++;
@@ -2300,10 +2297,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 		// 演算子
 		int	type = st.cell()[i].value_GetType();
 		if (type >= F_TAG_ORIGIN && type < F_TAG_ORIGIN_VALUE) {
-			if (type == F_TAG_BRACKETIN ||
-				type == F_TAG_BRACKETOUT ||
-				type == F_TAG_HOOKBRACKETIN ||
-				type == F_TAG_HOOKBRACKETOUT) {
+			if (F_TAG_ISIN_OR_OUT(type)) {
 				depth += formulatag_depth[type];
 				depthvec.emplace_back(-1);
 			}
@@ -2349,11 +2343,9 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 		bool out_of_bracket = false;
 		for(i = t_index - 1; i >= 0; i--) {
 			// カッコ深さ検査
-			if (st.cell()[i].value_GetType() == F_TAG_BRACKETIN ||
-				st.cell()[i].value_GetType() == F_TAG_HOOKBRACKETIN)
+			if (F_TAG_ISIN(st.cell()[i].value_GetType()))
 				f_depth--;
-			else if (st.cell()[i].value_GetType() == F_TAG_BRACKETOUT ||
-				st.cell()[i].value_GetType() == F_TAG_HOOKBRACKETOUT)
+			else if (F_TAG_ISOUT(st.cell()[i].value_GetType()))
 				f_depth++;
 			if (!f_depth) {
 				out_of_bracket = true;
@@ -2380,11 +2372,9 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 			f_depth = 1;
 			for( ; i >= 0; i--) {
 				// カッコ深さ検査
-				if (st.cell()[i].value_GetType() == F_TAG_BRACKETIN ||
-					st.cell()[i].value_GetType() == F_TAG_HOOKBRACKETIN)
+				if (F_TAG_ISIN(st.cell()[i].value_GetType()))
 					f_depth--;
-				else if (st.cell()[i].value_GetType() == F_TAG_BRACKETOUT ||
-					st.cell()[i].value_GetType() == F_TAG_HOOKBRACKETOUT)
+				else if (F_TAG_ISOUT(st.cell()[i].value_GetType()))
 					f_depth++;
 				if (!f_depth) {
 					i--;
@@ -2402,9 +2392,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 						vm.logger().Error(E_E, 25, dicfilename, st.linecount);
 						return 1;
 					}
-					if ((st.cell()[i].value_GetType() == F_TAG_SYSFUNC ||
-						st.cell()[i].value_GetType() == F_TAG_USERFUNC) &&
-						depthvec[i] == -2) {
+					if (F_TAG_ISFUNC(st.cell()[i].value_GetType()) && depthvec[i] == -2) {
 						addserial.index.insert(addserial.index.begin(), i);
 						depthvec[i] = -1;
 					}
@@ -2419,11 +2407,9 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 			f_depth = 1;
 			for(i = t_index + 1; i < sz; i++) {
 				// カッコ深さ検査
-				if (st.cell()[i].value_GetType() == F_TAG_BRACKETIN ||
-					st.cell()[i].value_GetType() == F_TAG_HOOKBRACKETIN)
+				if (F_TAG_ISIN(st.cell()[i].value_GetType()))
 					f_depth++;
-				else if (st.cell()[i].value_GetType() == F_TAG_BRACKETOUT ||
-					st.cell()[i].value_GetType() == F_TAG_HOOKBRACKETOUT)
+				else if (F_TAG_ISOUT(st.cell()[i].value_GetType()))
 					f_depth--;
 				if (!f_depth)
 					break;

@@ -157,6 +157,7 @@ protected:
 	CValue	FDEL(CSF_FUNCPARAM &p);
 	CValue	FRENAME(CSF_FUNCPARAM &p);
 	CValue	FDIGEST(CSF_FUNCPARAM &p);
+	CValue	STRDIGEST(CSF_FUNCPARAM& p);
 	CValue	FSIZE(CSF_FUNCPARAM &p);
 	CValue	FENUM(CSF_FUNCPARAM &p);
 	CValue	FCHARSET(CSF_FUNCPARAM &p);
@@ -222,6 +223,7 @@ protected:
 	CValue	GETSETTING(CSF_FUNCPARAM &p);
 	CValue	SETSETTING(CSF_FUNCPARAM &p);
 
+	CValue	ARRAYDEDUPLIC(CSF_FUNCPARAM& p);
 	CValue	SPLIT(CSF_FUNCPARAM &p);
 
 	CValue	SETTAMAHWND(CSF_FUNCPARAM &p);
@@ -283,6 +285,14 @@ protected:
 	CValue	FUNCDECL_READ(CSF_FUNCPARAM& p);
 	CValue	FUNCDECL_WRITE(CSF_FUNCPARAM& p);
 	CValue	FUNCDECL_ERASE(CSF_FUNCPARAM& p);
+
+	//LINT
+	CValue	LINT_GetFuncUsedBy(CSF_FUNCPARAM& p);
+	CValue	LINT_GetUserDefFuncUsedBy(CSF_FUNCPARAM& p);
+	CValue	LINT_GetGlobalVarUsedBy(CSF_FUNCPARAM& p);
+	CValue	LINT_GetLocalVarUsedBy(CSF_FUNCPARAM& p);
+	CValue	LINT_GetGlobalVarLetted(CSF_FUNCPARAM& p);
+	CValue	LINT_GetLocalVarLetted(CSF_FUNCPARAM& p);
 
 	CValue	RE_SPLIT_CORE(const CValue &arg, const yaya::string_t &d, int l, const yaya::char_t *fncname, size_t num);
 

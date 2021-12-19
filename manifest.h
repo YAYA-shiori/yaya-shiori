@@ -157,6 +157,33 @@ extern const yaya::char_t *aya_author;
 #define	F_TAG_ARRAY				4096			/* 汎用配列 */
 #define F_TAG_HASH              8192            /* ハッシュ */
 
+inline bool F_TAG_ISIN(int type)
+{
+	return (type == F_TAG_BRACKETIN ||
+			type == F_TAG_HOOKBRACKETIN );
+}
+inline bool F_TAG_ISOUT(int type)
+{
+	return (type == F_TAG_BRACKETOUT ||
+			type == F_TAG_HOOKBRACKETOUT);
+}
+inline bool F_TAG_ISIN_OR_OUT(int type)
+{
+	return (F_TAG_ISIN(type) || F_TAG_ISOUT(type));
+}
+inline bool F_TAG_ISOUT_OR_NOP(int type)
+{
+	return (type == F_TAG_NOP || F_TAG_ISOUT(type));
+}
+inline bool F_TAG_ISFUNC(int type)
+{
+	return (type == F_TAG_SYSFUNC ||
+			type == F_TAG_USERFUNC);
+}
+inline bool F_TAG_ISLET(int type)
+{
+	return (type >= 20 && type <= 32);
+}
 // 有効な演算子の数
 // 演算子の名前
 constexpr yaya::char_t	formulatag[][19] = {

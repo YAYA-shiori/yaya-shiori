@@ -171,6 +171,7 @@ size_t	CFunction::ExecuteInBrace(size_t line, CValue &result, CLocalVariable &lv
 		if ( pdupl->GetType() & CHOICETYPE_POOL_FLAG ) {
 			if(!inpool) {
 				UpperLvCandidatePool = &output.values;
+				inpool = 1;
 			}
 		}
 		else {
@@ -511,7 +512,7 @@ void	CFunction::Foreach(CLocalVariable &lvar, CSelecter &output,size_t line,int 
  */
 const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 {
-	int		o_index = 0;
+	size_t	o_index = 0;
 
 	if ( st.serial_size() ) { //çÇë¨âªóp
 		for (std::vector<CSerial>::iterator it = st.serial().begin(); it != st.serial().end(); it++) {
@@ -722,7 +723,7 @@ int CFunction::ReindexUserFunctions(void)
 			CCell &cl = st.cell()[j];
 
 			if ( cl.value_GetType() == F_TAG_USERFUNC ) {
-				int index = pvm->function_parse().GetFunctionIndexFromName(cl.name);
+				ptrdiff_t index = pvm->function_parse().GetFunctionIndexFromName(cl.name);
 				if ( index < 0 ) {
 					pvm->logger().Error(E_E, 71, dicfilename, st.linecount);
 					error += 1;
