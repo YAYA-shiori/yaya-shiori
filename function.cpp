@@ -171,6 +171,7 @@ size_t	CFunction::ExecuteInBrace(size_t line, CValue &result, CLocalVariable &lv
 		if ( pdupl->GetType() & CHOICETYPE_POOL_FLAG ) {
 			if(!inpool) {
 				UpperLvCandidatePool = &output.values;
+				inpool = 1;
 			}
 		}
 		else {
