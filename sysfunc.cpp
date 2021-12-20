@@ -22,11 +22,12 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 #include <ctime>
+#include <iterator>
 
 #include <cstring>
 #include <stdexcept>
-#include <unordered_set>
 
 #include "fix_unistd.h"
 
@@ -212,7 +213,7 @@ const CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::ATAN , L"ATAN" } ,
 	// 文字列操作(6)
 	{ &CSystemFunction::SPLIT , L"SPLIT" } ,
-	{ &CSystemFunction::ARRAYDEDUPLIC , L"ARRAYDEDUPLIC" },
+	{ &CSystemFunction::ARRAYDEDUP , L"ARRAYDEDUP" },
 	// ファイル操作(2)
 	{ &CSystemFunction::FATTRIB , L"FATTRIB" } ,
 	// 型取得/変換(3)
@@ -2941,7 +2942,7 @@ CValue	CSystemFunction::STRDIGEST(CSF_FUNCPARAM &p)
 	if (p.arg.array_size()>=2) {
 		digest_type = p.arg.array()[1].GetValueString();
 	}
-	auto buf = p.arg.array()[0].GetValueString();
+	yaya::string_t buf = p.arg.array()[0].GetValueString();
 
 	unsigned char digest_result[32];
 	size_t digest_len;
@@ -5919,20 +5920,28 @@ CValue	CSystemFunction::GETSETTING(CSF_FUNCPARAM &p)
 	SetError(12);
 	return CValue(F_TAG_NOP, 0/*dmy*/);
 }
-CValue	CSystemFunction::ARRAYDEDUPLIC(CSF_FUNCPARAM &p)
+
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::ARRAYDEDUP
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::ARRAYDEDUP(CSF_FUNCPARAM &p)
 {
 	if (!p.arg.array_size())
 		return CValue(F_TAG_ARRAY, 0/*dmy*/);
 
 	CValue result(F_TAG_ARRAY, 0/*dmy*/);
-	std::unordered_set<CValueSub> tmpset;
+	std::set<CValueSub> tmpset;
 
-	for(auto&i:p.arg.array())
-		tmpset.insert(i);
+	for ( CValueArray::const_iterator itr = p.arg.array().begin() ; itr != p.arg.array().end() ; ++itr ) {
+		tmpset.insert(*itr);
+	}
 
-	result.array() = { tmpset.begin(),tmpset.end() };
+	std::copy(tmpset.begin(), tmpset.end(), std::back_inserter(result.array()));
 	return result;
 }
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::SPLIT
  * -----------------------------------------------------------------------
@@ -6961,7 +6970,11 @@ CValue	CSystemFunction::LICENSE(CSF_FUNCPARAM &p)
 
 	return v;
 }
-//LINT
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::LINT_GetFuncUsedBy
+ * -----------------------------------------------------------------------
+ */
 CValue	CSystemFunction::LINT_GetFuncUsedBy(CSF_FUNCPARAM &p)
 {
 	if (!p.arg.array_size()) {
@@ -6985,16 +6998,24 @@ CValue	CSystemFunction::LINT_GetFuncUsedBy(CSF_FUNCPARAM &p)
 
 	CValue result(F_TAG_ARRAY, 0/*dmy*/);
 	const CFunction *it = &vm.function_exec().func[size_t(index)];
-	std::unordered_set<yaya::string_t> name_set;
+	std::set<yaya::string_t> name_set;
 
-	for(auto&s:it->statement)
-		for(auto c:s.cell())
-			if (F_TAG_ISFUNC(c.value_GetType()))
-				name_set.insert(c.name);
+	for ( std::vector<CStatement>::const_iterator s = it->statement.begin() ; s != it->statement.end() ; ++s ) {
+		for ( std::vector<CCell>::const_iterator c = s->cell().begin() ; c != s->cell().end() ; ++c ) {
+			if (F_TAG_ISFUNC(c->value_GetType())) {
+				name_set.insert(c->name);
+			}
+		}
+	}
 
-	result.array() = { name_set.begin(),name_set.end() };
+	std::copy(name_set.begin(), name_set.end(), std::back_inserter(result.array()));
 	return result;
 }
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::LINT_GetUserDefFuncUsedBy
+ * -----------------------------------------------------------------------
+ */
 CValue	CSystemFunction::LINT_GetUserDefFuncUsedBy(CSF_FUNCPARAM &p)
 {
 	if (!p.arg.array_size()) {
@@ -7018,16 +7039,24 @@ CValue	CSystemFunction::LINT_GetUserDefFuncUsedBy(CSF_FUNCPARAM &p)
 
 	CValue result(F_TAG_ARRAY, 0/*dmy*/);
 	const CFunction *it = &vm.function_exec().func[size_t(index)];
-	std::unordered_set<yaya::string_t> name_set;
+	std::set<yaya::string_t> name_set;
 
-	for(auto&s:it->statement)
-		for(auto c:s.cell())
-			if (c.value_GetType() == F_TAG_USERFUNC)
-				name_set.insert(c.name);
+	for ( std::vector<CStatement>::const_iterator s = it->statement.begin() ; s != it->statement.end() ; ++s ) {
+		for ( std::vector<CCell>::const_iterator c = s->cell().begin() ; c != s->cell().end() ; ++c ) {
+			if ( c->value_GetType() == F_TAG_USERFUNC ) {
+				name_set.insert(c->name);
+			}
+		}
+	}
 
-	result.array() = { name_set.begin(),name_set.end() };
+	std::copy(name_set.begin(), name_set.end(), std::back_inserter(result.array()));
 	return result;
 }
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::LINT_GetGlobalVarUsedBy
+ * -----------------------------------------------------------------------
+ */
 CValue	CSystemFunction::LINT_GetGlobalVarUsedBy(CSF_FUNCPARAM &p)
 {
 	if (!p.arg.array_size()) {
@@ -7051,16 +7080,24 @@ CValue	CSystemFunction::LINT_GetGlobalVarUsedBy(CSF_FUNCPARAM &p)
 
 	CValue result(F_TAG_ARRAY, 0/*dmy*/);
 	const CFunction *it = &vm.function_exec().func[size_t(index)];
-	std::unordered_set<yaya::string_t> name_set;
+	std::set<yaya::string_t> name_set;
 
-	for(auto&s:it->statement)
-		for(auto c:s.cell())
-			if (c.value_GetType() == F_TAG_VARIABLE)
-				name_set.insert(vm.variable().GetName(c.index));
+	for ( std::vector<CStatement>::const_iterator s = it->statement.begin() ; s != it->statement.end() ; ++s ) {
+		for ( std::vector<CCell>::const_iterator c = s->cell().begin() ; c != s->cell().end() ; ++c ) {
+			if ( c->value_GetType() == F_TAG_VARIABLE) {
+				name_set.insert(c->name);
+			}
+		}
+	}
 
-	result.array() = { name_set.begin(),name_set.end() };
+	std::copy(name_set.begin(), name_set.end(), std::back_inserter(result.array()));
 	return result;
 }
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::LINT_GetLocalVarUsedBy
+ * -----------------------------------------------------------------------
+ */
 CValue	CSystemFunction::LINT_GetLocalVarUsedBy(CSF_FUNCPARAM &p)
 {
 	if (!p.arg.array_size()) {
@@ -7084,21 +7121,31 @@ CValue	CSystemFunction::LINT_GetLocalVarUsedBy(CSF_FUNCPARAM &p)
 
 	CValue result(F_TAG_ARRAY, 0/*dmy*/);
 	const CFunction *it = &vm.function_exec().func[size_t(index)];
-	auto& array = result.array();
+	std::vector<CValueSub>& array = result.array();
 
-	for(auto&s:it->statement){
-		if(s.type==ST_OPEN)
+	for ( std::vector<CStatement>::const_iterator s = it->statement.begin() ; s != it->statement.end() ; ++s ) {
+		if(s->type==ST_OPEN) {
 			array.emplace_back(L"{");
-		else if(s.type==ST_CLOSE)
+		}
+		else if(s->type==ST_CLOSE) {
 			array.emplace_back(L"}");
-		else
-			for(auto c:s.cell())
-				if(c.value_GetType()==F_TAG_LOCALVARIABLE)
-					array.emplace_back(c.name);
+		}
+		else {
+			for ( std::vector<CCell>::const_iterator c = s->cell().begin() ; c != s->cell().end() ; ++c ) {
+				if ( c->value_GetType() == F_TAG_LOCALVARIABLE ) {
+					array.emplace_back(c->name);
+				}
+			}
+		}
 	}
 
 	return result;
 }
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::LINT_GetGlobalVarLetted
+ * -----------------------------------------------------------------------
+ */
 CValue	CSystemFunction::LINT_GetGlobalVarLetted(CSF_FUNCPARAM &p)
 {
 	if (!p.arg.array_size()) {
@@ -7122,24 +7169,32 @@ CValue	CSystemFunction::LINT_GetGlobalVarLetted(CSF_FUNCPARAM &p)
 
 	CValue result(F_TAG_ARRAY, 0/*dmy*/);
 	const CFunction *it = &vm.function_exec().func[size_t(index)];
-	std::unordered_set<yaya::string_t> name_set;
+	std::set<yaya::string_t> name_set;
 	const CCell* sid_0_cell = 0;
 	size_t o_index;
 
-	for(auto&s:it->statement)
-		for(auto&se:s.serial()){
-			o_index = se.tindex;
-			const CCell& o_cell = s.cell()[o_index];
-			if(F_TAG_ISLET(o_cell.value_GetType())){
-				sid_0_cell = &(s.cell()[se.index[0]]);
-				if(sid_0_cell->value_GetType()==F_TAG_VARIABLE)
+	for ( std::vector<CStatement>::const_iterator s = it->statement.begin() ; s != it->statement.end() ; ++s ) {
+		for ( std::vector<CSerial>::const_iterator se = s->serial().begin() ; se != s->serial().end() ; ++se ) {
+			o_index = se->tindex;
+			const CCell& o_cell = s->cell()[o_index];
+
+			if ( F_TAG_ISLET(o_cell.value_GetType()) ) {
+				sid_0_cell = &(s->cell()[se->index[0]]);
+				if ( sid_0_cell->value_GetType()==F_TAG_VARIABLE ) {
 					name_set.insert(vm.variable().GetName(sid_0_cell->index));
+				}
 			}
 		}
+	}
 
-	result.array() = { name_set.begin(),name_set.end() };
+	std::copy(name_set.begin(), name_set.end(), std::back_inserter(result.array()));
 	return result;
 }
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::LINT_GetLocalVarLetted
+ * -----------------------------------------------------------------------
+ */
 CValue	CSystemFunction::LINT_GetLocalVarLetted(CSF_FUNCPARAM &p)
 {
 	if (!p.arg.array_size()) {
@@ -7163,25 +7218,31 @@ CValue	CSystemFunction::LINT_GetLocalVarLetted(CSF_FUNCPARAM &p)
 
 	CValue result(F_TAG_ARRAY, 0/*dmy*/);
 	const CFunction *it = &vm.function_exec().func[size_t(index)];
-	auto& array = result.array();
+	std::vector<CValueSub>& array = result.array();
 	const CCell* sid_0_cell = 0;
 	size_t o_index;
 
-	for(auto&s:it->statement){
-		if (s.type == ST_OPEN)
+	for ( std::vector<CStatement>::const_iterator s = it->statement.begin() ; s != it->statement.end() ; ++s ) {
+		if (s->type == ST_OPEN) {
 			array.emplace_back(L"{");
-		else if (s.type == ST_CLOSE)
+		}
+		else if (s->type == ST_CLOSE) {
 			array.emplace_back(L"}");
-		else
-			for(auto&se:s.serial()){
-				o_index = se.tindex;
-				const CCell& o_cell = s.cell()[o_index];
-				if(F_TAG_ISLET(o_cell.value_GetType())){
-					sid_0_cell = &(s.cell()[se.index[0]]);
-					if(sid_0_cell->value_GetType()==F_TAG_LOCALVARIABLE)
+		}
+		else {
+			for ( std::vector<CSerial>::const_iterator se = s->serial().begin() ; se != s->serial().end() ; ++se ) {
+				o_index = se->tindex;
+				const CCell& o_cell = s->cell()[o_index];
+
+				if ( F_TAG_ISLET(o_cell.value_GetType()) ) {
+					sid_0_cell = &(s->cell()[se->index[0]]);
+
+					if(sid_0_cell->value_GetType()==F_TAG_LOCALVARIABLE) {
 						array.emplace_back(sid_0_cell->name);
+					}
 				}
 			}
+		}
 	}
 
 	return result;
