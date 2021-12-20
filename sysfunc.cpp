@@ -213,7 +213,7 @@ const CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::ATAN , L"ATAN" } ,
 	// 文字列操作(6)
 	{ &CSystemFunction::SPLIT , L"SPLIT" } ,
-	{ &CSystemFunction::ARRAYDEDUPLIC , L"ARRAYDEDUPLIC" },
+	{ &CSystemFunction::ARRAYDEDUP , L"ARRAYDEDUP" },
 	// ファイル操作(2)
 	{ &CSystemFunction::FATTRIB , L"FATTRIB" } ,
 	// 型取得/変換(3)
@@ -5923,10 +5923,10 @@ CValue	CSystemFunction::GETSETTING(CSF_FUNCPARAM &p)
 
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::ARRAYDEDUPLIC
+ *  関数名  ：  CSystemFunction::ARRAYDEDUP
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::ARRAYDEDUPLIC(CSF_FUNCPARAM &p)
+CValue	CSystemFunction::ARRAYDEDUP(CSF_FUNCPARAM &p)
 {
 	if (!p.arg.array_size())
 		return CValue(F_TAG_ARRAY, 0/*dmy*/);
