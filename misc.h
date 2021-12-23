@@ -43,6 +43,10 @@ void	CutCrLf(yaya::string_t &str);
 
 yaya::string_t	GetDateString(void);
 
+yaya::time_t GetEpochTime();
+struct tm EpochTimeToLocalTime(yaya::time_t tv);
+yaya::time_t LocalTimeToEpochTime(struct tm &tm);
+
 extern const yaya::string_t::size_type IsInDQ_notindq;
 extern const yaya::string_t::size_type IsInDQ_runaway;
 extern const yaya::string_t::size_type IsInDQ_npos;
