@@ -157,6 +157,7 @@ namespace yaya {
 	typedef wchar_t char_t;
 	typedef std::basic_string<char_t> string_t;
 	typedef std::int64_t int_t;
+	typedef std::int64_t time_t;
 
 	typedef std_shared_ptr<string_t> share_string_t;
 	typedef std_shared_ptr<const string_t> const_share_string_t;

@@ -1841,10 +1841,12 @@ CValue	CSystemFunction::TOUPPER(CSF_FUNCPARAM &p)
 	}
 
 	yaya::string_t	result = p.arg.array()[0].GetValueString();
-	int	len = result.size();
-	for(int i = 0; i < len; i++)
-		if (result[i] >= L'a' && result[i] <= L'z')
+	size_t len = result.size();
+	for(size_t i = 0; i < len; i++) {
+		if (result[i] >= L'a' && result[i] <= L'z') {
 			result[i] += static_cast<yaya::string_t::value_type>(L'A' - L'a');
+		}
+	}
 	return CValue(result);
 }
 
@@ -2406,26 +2408,33 @@ CValue	CSystemFunction::FCOPY(CSF_FUNCPARAM &p)
 	yaya::string_t	d_path = ((::wcslen(drive)) ?
 						yaya::string_t(L"") : vm.basis().base_path) + p.arg.array()[1].s_value + L"\\" + fname + ext;
 
-	// パスをMBCSに変換
-	char	*s_pstr = Ccct::Ucs2ToMbcs(s_path, CHARSET_DEFAULT);
-	if (s_pstr == NULL) {
-		vm.logger().Error(E_E, 89, L"FCOPY", p.dicname, p.line);
-		return CValue(0);
+	int result;
+
+	if ( IsUnicodeAware() ) {
+		result = ::CopyFileW(s_path.c_str(),d_path.c_str(),FALSE) ? 1 : 0;
 	}
-	char	*d_pstr = Ccct::Ucs2ToMbcs(d_path, CHARSET_DEFAULT);
-	if (d_pstr == NULL) {
+	else {
+		// パスをMBCSに変換
+		char	*s_pstr = Ccct::Ucs2ToMbcs(s_path, CHARSET_DEFAULT);
+		if (s_pstr == NULL) {
+			vm.logger().Error(E_E, 89, L"FCOPY", p.dicname, p.line);
+			return CValue(0);
+		}
+		char	*d_pstr = Ccct::Ucs2ToMbcs(d_path, CHARSET_DEFAULT);
+		if (d_pstr == NULL) {
+			free(s_pstr);
+			s_pstr = NULL;
+			vm.logger().Error(E_E, 89, L"FCOPY", p.dicname, p.line);
+			return CValue(0);
+		}
+
+		// 実行
+		result = (::CopyFileA(s_pstr, d_pstr, FALSE) ? 1 : 0);
 		free(s_pstr);
 		s_pstr = NULL;
-		vm.logger().Error(E_E, 89, L"FCOPY", p.dicname, p.line);
-		return CValue(0);
+		free(d_pstr);
+		d_pstr = NULL;
 	}
-
-	// 実行
-	int	result = (CopyFile(s_pstr, d_pstr, FALSE) ? 1 : 0);
-	free(s_pstr);
-	s_pstr = NULL;
-	free(d_pstr);
-	d_pstr = NULL;
 
 	return CValue(result);
 }
@@ -2514,26 +2523,33 @@ CValue	CSystemFunction::FMOVE(CSF_FUNCPARAM &p)
 	yaya::string_t	d_path = ((::wcslen(drive)) ?
 						yaya::string_t(L"") : vm.basis().base_path) + p.arg.array()[1].s_value + L"\\" + fname + ext;
 
-	// パスをMBCSに変換
-	char	*s_pstr = Ccct::Ucs2ToMbcs(s_path, CHARSET_DEFAULT);
-	if (s_pstr == NULL) {
-		vm.logger().Error(E_E, 89, L"FMOVE", p.dicname, p.line);
-		return CValue(0);
+	int result;
+
+	if ( IsUnicodeAware() ) {
+		result = ::MoveFileW(s_path.c_str(),d_path.c_str()) ? 1 : 0;
 	}
-	char	*d_pstr = Ccct::Ucs2ToMbcs(d_path, CHARSET_DEFAULT);
-	if (d_pstr == NULL) {
+	else {
+		// パスをMBCSに変換
+		char	*s_pstr = Ccct::Ucs2ToMbcs(s_path, CHARSET_DEFAULT);
+		if (s_pstr == NULL) {
+			vm.logger().Error(E_E, 89, L"FMOVE", p.dicname, p.line);
+			return CValue(0);
+		}
+		char	*d_pstr = Ccct::Ucs2ToMbcs(d_path, CHARSET_DEFAULT);
+		if (d_pstr == NULL) {
+			free(s_pstr);
+			s_pstr = NULL;
+			vm.logger().Error(E_E, 89, L"FMOVE", p.dicname, p.line);
+			return CValue(0);
+		}
+
+		// 実行
+		result = (::MoveFileA(s_pstr, d_pstr) ? 1 : 0);
 		free(s_pstr);
 		s_pstr = NULL;
-		vm.logger().Error(E_E, 89, L"FMOVE", p.dicname, p.line);
-		return CValue(0);
+		free(d_pstr);
+		d_pstr = NULL;
 	}
-
-	// 実行
-	int	result = (MoveFile(s_pstr, d_pstr) ? 1 : 0);
-	free(s_pstr);
-	s_pstr = NULL;
-	free(d_pstr);
-	d_pstr = NULL;
 
 	return CValue(result);
 }
@@ -2698,17 +2714,25 @@ CValue	CSystemFunction::FDEL(CSF_FUNCPARAM &p)
 		return CValue(0);
 	}
 
-	// パスをMBCSに変換
-	char	*s_filestr = Ccct::Ucs2ToMbcs(vm.basis().ToFullPath(p.arg.array()[0].s_value), CHARSET_DEFAULT);
-	if (s_filestr == NULL) {
-		vm.logger().Error(E_E, 89, L"FDEL", p.dicname, p.line);
-		return CValue(0);
-	}
+	int result;
+	yaya::string_t fullpath = vm.basis().ToFullPath(p.arg.array()[0].s_value);
 
-	// 実行
-	int	result = (DeleteFile(s_filestr) ? 1 : 0);
-	free(s_filestr);
-	s_filestr = NULL;
+	if ( IsUnicodeAware() ) {
+		result = (::DeleteFileW(fullpath.c_str()) ? 1 : 0);
+	}
+	else {
+		// パスをMBCSに変換
+		char	*s_filestr = Ccct::Ucs2ToMbcs(fullpath, CHARSET_DEFAULT);
+		if (s_filestr == NULL) {
+			vm.logger().Error(E_E, 89, L"FDEL", p.dicname, p.line);
+			return CValue(0);
+		}
+
+		// 実行
+		result = (::DeleteFileA(s_filestr) ? 1 : 0);
+		free(s_filestr);
+		s_filestr = NULL;
+	}
 
 	return CValue(result);
 }
@@ -2756,27 +2780,36 @@ CValue	CSystemFunction::FRENAME(CSF_FUNCPARAM &p)
 		return CValue(0);
 	}
 
-	// パスをMBCSに変換
-	char	*s_filestr = Ccct::Ucs2ToMbcs(vm.basis().ToFullPath(p.arg.array()[0].s_value), CHARSET_DEFAULT);
-	if (s_filestr == NULL) {
-		vm.logger().Error(E_E, 89, L"FRENAME", p.dicname, p.line);
-		return CValue(0);
+	int result;
+
+	yaya::string_t s_file = vm.basis().ToFullPath(p.arg.array()[0].s_value);
+	yaya::string_t d_file = vm.basis().ToFullPath(p.arg.array()[1].s_value);
+
+	if ( IsUnicodeAware() ) {
+		result = ::MoveFileW(s_file.c_str(), d_file.c_str()) ? 1 : 0;
 	}
-	char	*d_filestr = Ccct::Ucs2ToMbcs(vm.basis().ToFullPath(p.arg.array()[1].s_value), CHARSET_DEFAULT);
-	if (d_filestr == NULL) {
+	else {
+		// パスをMBCSに変換
+		char	*s_filestr = Ccct::Ucs2ToMbcs(s_file, CHARSET_DEFAULT);
+		if (s_filestr == NULL) {
+			vm.logger().Error(E_E, 89, L"FRENAME", p.dicname, p.line);
+			return CValue(0);
+		}
+		char	*d_filestr = Ccct::Ucs2ToMbcs(d_file, CHARSET_DEFAULT);
+		if (d_filestr == NULL) {
+			free(s_filestr);
+			s_filestr = NULL;
+			vm.logger().Error(E_E, 89, L"FRENAME", p.dicname, p.line);
+			return CValue(0);
+		}
+
+		// 実行
+		result = (::MoveFileA(s_filestr, d_filestr) ? 1 : 0);
 		free(s_filestr);
 		s_filestr = NULL;
-		vm.logger().Error(E_E, 89, L"FRENAME", p.dicname, p.line);
-		return CValue(0);
+		free(d_filestr);
+		d_filestr = NULL;
 	}
-
-	// 実行
-	int	result = (MoveFile(s_filestr, d_filestr) ? 1 : 0);
-	free(s_filestr);
-	s_filestr = NULL;
-	free(d_filestr);
-	d_filestr = NULL;
-
 
 	return CValue(result);
 }
@@ -2832,30 +2865,35 @@ CValue	CSystemFunction::FDIGEST(CSF_FUNCPARAM &p)
 		digest_type = p.arg.array()[1].GetValueString();
 	}
 
-	// パスをMBCSに変換
-	const char *s_filestr;
+	FILE *pF = NULL;
+
+	yaya::string_t full_path = vm.basis().ToFullPath(p.arg.array()[0].s_value);
 
 #if defined(WIN32)
-	s_filestr = Ccct::Ucs2ToMbcs(vm.basis().ToFullPath(p.arg.array()[0].s_value), CHARSET_DEFAULT);
-	if (s_filestr == NULL) {
-		vm.logger().Error(E_E, 89, L"FDIGEST", p.dicname, p.line);
-		return CValue(-1);
+	if ( IsUnicodeAware() ) {
+		pF = _wfopen(full_path.c_str(),L"rb");
+	}
+	else {
+		// パスをMBCSに変換
+		const char *s_filestr = Ccct::Ucs2ToMbcs(full_path, CHARSET_DEFAULT);
+		if (s_filestr == NULL) {
+			vm.logger().Error(E_E, 89, L"FDIGEST", p.dicname, p.line);
+			return CValue(-1);
+		}
+
+		pF = fopen(s_filestr,"rb");
+
+		free((void*)s_filestr);
+		s_filestr = NULL;
 	}
 #elif defined(POSIX)
-	std::string path = narrow(vm.basis().ToFullPath(p.arg.array()[0].s_value));
+	std::string path = narrow(full_path);
 	fix_filepath(path);
-	s_filestr = path.c_str();
+
+	pF = fopen(path.c_str(),"rb");
 #endif
 
-	// 実行
-	FILE *pF = fopen(s_filestr,"rb");
 	if ( ! pF ) { return CValue(-1); }
-
-#if defined(WIN32)
-	free((void*)s_filestr);
-	s_filestr = NULL;
-
-#endif
 
 	unsigned char digest_result[32];
 	size_t digest_len;
@@ -3490,23 +3528,36 @@ CValue	CSystemFunction::FSIZE(CSF_FUNCPARAM &p)
 	yaya::int_t size = vm.files().Size(fullpath);
 	if ( size >= 0 ) { return CValue((yaya::int_t)size); }
 
-	// パスをMBCSに変換
-	char *s_filestr = Ccct::Ucs2ToMbcs(fullpath, CHARSET_DEFAULT);
-	if (s_filestr == NULL) {
-		vm.logger().Error(E_E, 89, L"FSIZE", p.dicname, p.line);
-		return CValue(-1);
+	HANDLE hFile = INVALID_HANDLE_VALUE;
+
+	if ( IsUnicodeAware() ) {
+		hFile = ::CreateFileW(fullpath.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	}
+	else {
+		// パスをMBCSに変換
+		char *s_filestr = Ccct::Ucs2ToMbcs(fullpath, CHARSET_DEFAULT);
+		if (s_filestr == NULL) {
+			vm.logger().Error(E_E, 89, L"FSIZE", p.dicname, p.line);
+			return CValue(-1);
+		}
+
+		// 実行
+		hFile = ::CreateFileA(s_filestr, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		free(s_filestr);
+		s_filestr = NULL;
 	}
 
-	// 実行
-	HANDLE	hFile = CreateFile(s_filestr, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	free(s_filestr);
-	s_filestr = NULL;
-	if (hFile == INVALID_HANDLE_VALUE)
+	if (hFile == INVALID_HANDLE_VALUE) {
 		return CValue(-1);
+	}
+	
 	LARGE_INTEGER result;
-	if(!GetFileSizeEx(hFile, &result))
+
+	if(!::GetFileSizeEx(hFile, &result)) {
 		result.QuadPart=-1;
-	CloseHandle(hFile);
+	}
+	
+	::CloseHandle(hFile);
 
 	return CValue((yaya::int_t)result.QuadPart);
 }
@@ -3804,34 +3855,28 @@ CValue	CSystemFunction::ERASEVAR(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::GETTIME(CSF_FUNCPARAM &p)
 {
-	time_t	ltime;
+	yaya::time_t ltime;
 
 	if (!p.arg.array_size()) {
-		time(&ltime);
+		ltime = GetEpochTime();
 	}
 	else {
 		ltime = p.arg.array()[0].GetValueInt();
 	}
 
-	struct tm *today = localtime(&ltime);
+	struct tm today = EpochTimeToLocalTime(ltime);
 
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 
-	if ( today ) {
-		result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today->tm_year) + 1900));
-		result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today->tm_mon) + 1));
-		result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today->tm_mday)));
-		result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today->tm_wday)));
-		result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today->tm_hour)));
-		result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today->tm_min)));
-		result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today->tm_sec)));
-		result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today->tm_yday)));
-		result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today->tm_isdst)));
-	}
-	else {
-		vm.logger().Error(E_W, 12, L"GETTIME", p.dicname, p.line);
-		SetError(12);
-	}
+	result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today.tm_year) + 1900));
+	result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today.tm_mon) + 1));
+	result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today.tm_mday)));
+	result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today.tm_wday)));
+	result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today.tm_hour)));
+	result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today.tm_min)));
+	result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today.tm_sec)));
+	result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today.tm_yday)));
+	result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today.tm_isdst)));
 
 	return result;
 }
@@ -4021,23 +4066,18 @@ static bool Utils_HTTPToTM(const char *pText,struct tm &outTime)
 
 CValue	CSystemFunction::GETSECCOUNT(CSF_FUNCPARAM &p)
 {
-	time_t	ltime;
+	yaya::time_t ltime = GetEpochTime();
 
 	if (!p.arg.array_size()) {
-		time(&ltime);
 		return CValue(static_cast<yaya::int_t>(ltime));
 	}
 
 	struct tm input_time = {0};
+	struct tm today = EpochTimeToLocalTime(ltime);
 
-	time(&ltime);
-	struct tm *today = localtime(&ltime);
-
-	if ( today ) {
-		input_time = *today;
-		input_time.tm_yday = 0;
-		input_time.tm_wday = 0;
-	}
+	input_time = today;
+	input_time.tm_yday = 0;
+	input_time.tm_wday = 0;
 
 	unsigned int asize = p.arg.array_size();
 	if ( asize > 7 ) { asize = 7; }
@@ -4046,14 +4086,8 @@ CValue	CSystemFunction::GETSECCOUNT(CSF_FUNCPARAM &p)
 		char* text = Ccct::Ucs2ToMbcs(p.arg.array()[0].GetValueString().c_str(),CHARSET_DEFAULT);
 		Utils_HTTPToTM(text,input_time);
 		free(text);
-		time_t gmt_local = mktime(&input_time);
 
-		time_t now;
-		time(&now);
-		struct tm* gmt_tm = gmtime(&now);
-		time_t local_gmt = now - mktime(gmt_tm);
-
-		return CValue(static_cast<yaya::int_t>(gmt_local + local_gmt));
+		return CValue(static_cast<yaya::int_t>(LocalTimeToEpochTime(input_time)));
 	}
 	else {
 		switch ( asize ) {
@@ -4072,7 +4106,7 @@ CValue	CSystemFunction::GETSECCOUNT(CSF_FUNCPARAM &p)
 		case 1:
 			input_time.tm_year = static_cast<int>( p.arg.array()[0].GetValueInt()-1900);
 		}
-		return CValue(static_cast<yaya::int_t>(mktime(&input_time)));
+		return CValue(static_cast<yaya::int_t>(LocalTimeToEpochTime(input_time)));
 	}
 }
 
@@ -5218,6 +5252,11 @@ CValue	CSystemFunction::STRFORM(CSF_FUNCPARAM &p)
 		int type = F_TAG_VOID;
 		if ( (*arg_str == L'c') || (*arg_str == L'C') || (*arg_str == L'd') || (*arg_str == L'i') || (*arg_str == L'o') || (*arg_str == L'u') || (*arg_str == L'x') || (*arg_str == L'X') ) {
 			type = F_TAG_INT;
+#ifdef INT64_IS_NOT_STD
+			t_format += L"I64";
+#else
+			t_format += L"ll";
+#endif
 			t_format += *arg_str;
 			arg_str += 1;
 		}
@@ -6001,29 +6040,6 @@ CValue	CSystemFunction::SPLIT(CSF_FUNCPARAM &p)
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::FATTRIB
- * -----------------------------------------------------------------------
- */
-
-#if defined(WIN32)
-static time_t FileTimeToUnixTime(FILETIME &filetime)
-{
-	FILETIME localfiletime;
-	SYSTEMTIME systime;
-	struct tm utime;
-	FileTimeToLocalFileTime(&filetime, &localfiletime);
-	FileTimeToSystemTime(&localfiletime, &systime);
-	utime.tm_sec=systime.wSecond;
-	utime.tm_min=systime.wMinute;
-	utime.tm_hour=systime.wHour;
-	utime.tm_mday=systime.wDay;
-	utime.tm_mon=systime.wMonth-1;
-	utime.tm_year=systime.wYear-1900;
-	utime.tm_isdst=-1;
-	return(mktime(&utime));
-}
-#endif
-/* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::SETTAMAHWND
  * -----------------------------------------------------------------------
  */
@@ -6046,6 +6062,30 @@ CValue	CSystemFunction::SETTAMAHWND(CSF_FUNCPARAM &p)
 	return CValue(F_TAG_NOP, 0/*dmy*/);
 }
 
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FATTRIB
+ * -----------------------------------------------------------------------
+ */
+
+#if defined(WIN32)
+static time_t FileTimeToUnixTime(FILETIME &filetime)
+{
+	FILETIME localfiletime;
+	SYSTEMTIME systime;
+	struct tm utime;
+	FileTimeToLocalFileTime(&filetime, &localfiletime);
+	FileTimeToSystemTime(&localfiletime, &systime);
+	utime.tm_sec=systime.wSecond;
+	utime.tm_min=systime.wMinute;
+	utime.tm_hour=systime.wHour;
+	utime.tm_mday=systime.wDay;
+	utime.tm_mon=systime.wMonth-1;
+	utime.tm_year=systime.wYear-1900;
+	utime.tm_isdst=-1;
+	return(mktime(&utime));
+}
+#endif
+
 CValue	CSystemFunction::FATTRIB(CSF_FUNCPARAM &p)
 {
 	if (!p.arg.array_size()) {
@@ -6061,87 +6101,59 @@ CValue	CSystemFunction::FATTRIB(CSF_FUNCPARAM &p)
 	}
 
 #if defined(WIN32)
-	// パスをMBCSに変換
-	char	*s_filestr = Ccct::Ucs2ToMbcs(vm.basis().ToFullPath(p.arg.array()[0].s_value), CHARSET_DEFAULT);
-	if (s_filestr == NULL) {
-		vm.logger().Error(E_E, 89, L"FATTRIB", p.dicname, p.line);
-		return CValue(-1);
-	}
+	yaya::string_t fullpath = vm.basis().ToFullPath(p.arg.array()[0].s_value);
 
-	// 取得
-	DWORD	attrib = GetFileAttributes(s_filestr);
-	if (attrib == 0xFFFFFFFF) {
-		return CValue(-1);
-	}
-
-	// 返値生成
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 
-	result.array().emplace_back(CValueSub((attrib & FILE_ATTRIBUTE_ARCHIVE   ) ? 1 : 0));
-	result.array().emplace_back(CValueSub((attrib & FILE_ATTRIBUTE_COMPRESSED) ? 1 : 0));
-	result.array().emplace_back(CValueSub((attrib & FILE_ATTRIBUTE_DIRECTORY ) ? 1 : 0));
-	result.array().emplace_back(CValueSub((attrib & FILE_ATTRIBUTE_HIDDEN    ) ? 1 : 0));
-	result.array().emplace_back(CValueSub((attrib == FILE_ATTRIBUTE_NORMAL   ) ? 1 : 0));
-	result.array().emplace_back(CValueSub((attrib & FILE_ATTRIBUTE_OFFLINE   ) ? 1 : 0));
-	result.array().emplace_back(CValueSub((attrib & FILE_ATTRIBUTE_READONLY  ) ? 1 : 0));
-	result.array().emplace_back(CValueSub((attrib & FILE_ATTRIBUTE_SYSTEM    ) ? 1 : 0));
-	result.array().emplace_back(CValueSub((attrib & FILE_ATTRIBUTE_TEMPORARY ) ? 1 : 0));
+	if ( IsUnicodeAware() ) {
+		WIN32_FIND_DATAW ffdata;
+		if ( ::GetFileAttributesExW(fullpath.c_str(),GetFileExInfoStandard,&ffdata) ) {
+			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE   ) ? 1 : 0));
+			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) ? 1 : 0));
+			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) ? 1 : 0));
+			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN    ) ? 1 : 0));
+			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes == FILE_ATTRIBUTE_NORMAL   ) ? 1 : 0));
+			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_OFFLINE   ) ? 1 : 0));
+			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_READONLY  ) ? 1 : 0));
+			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM    ) ? 1 : 0));
+			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_TEMPORARY ) ? 1 : 0));
 
-	if ( attrib & FILE_ATTRIBUTE_DIRECTORY ) { //ディレクトリ
-		//GetFileAttributesExつかいたい、けどWin95蹴るので却下
-		size_t len = strlen(s_filestr);
-		char *s_newstr = (char*)malloc(len+3);
-		strcpy(s_newstr,s_filestr);
-
-		if ( s_filestr[len-1] != '\\' && s_filestr[len-1] != '/' ) {
-			strcat(s_newstr,"\\*");
-		}
-		else {
-			strcat(s_newstr,"*");
-		}
-		free(s_filestr);
-		s_filestr = s_newstr;
-
-		WIN32_FIND_DATA ffdata;
-		HANDLE hFind = ::FindFirstFile(s_filestr,&ffdata);
-		if ( hFind == INVALID_HANDLE_VALUE ) { return CValue(-1); }
-
-		bool found = false;
-		do {
-			if ( strcmp(ffdata.cFileName,".") == 0 ) {
-				found = true;
-				break;
-			}
-		} while ( ::FindNextFile(hFind,&ffdata) );
-		::FindClose(hFind);
-
-		if ( ! found ) {
-			result.array().emplace_back(CValueSub(0));
-			result.array().emplace_back(CValueSub(0));
-		}
-		else {
 			result.array().emplace_back(CValueSub((yaya::int_t)FileTimeToUnixTime(ffdata.ftCreationTime)));
 			result.array().emplace_back(CValueSub((yaya::int_t)FileTimeToUnixTime(ffdata.ftLastWriteTime)));
 		}
+		else {
+			result = CValue(-1);
+		}
 	}
-	else { //ただのファイル
-		HANDLE hFile = ::CreateFile(s_filestr , GENERIC_READ , FILE_SHARE_READ | FILE_SHARE_WRITE , NULL ,OPEN_EXISTING , FILE_ATTRIBUTE_NORMAL , NULL);
-		if (hFile == INVALID_HANDLE_VALUE) {
-			result.array().emplace_back(CValueSub(0));
-			result.array().emplace_back(CValueSub(0));
+	else {
+		// パスをMBCSに変換
+		char	*s_filestr = Ccct::Ucs2ToMbcs(fullpath, CHARSET_DEFAULT);
+		if (s_filestr == NULL) {
+			vm.logger().Error(E_E, 89, L"FATTRIB", p.dicname, p.line);
+			return CValue(-1);
+		}
+
+		WIN32_FIND_DATAA ffdata;
+		if ( ::GetFileAttributesExA(s_filestr,GetFileExInfoStandard,&ffdata) ) {
+			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE   ) ? 1 : 0));
+			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) ? 1 : 0));
+			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) ? 1 : 0));
+			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN    ) ? 1 : 0));
+			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes == FILE_ATTRIBUTE_NORMAL   ) ? 1 : 0));
+			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_OFFLINE   ) ? 1 : 0));
+			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_READONLY  ) ? 1 : 0));
+			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM    ) ? 1 : 0));
+			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_TEMPORARY ) ? 1 : 0));
+
+			result.array().emplace_back(CValueSub((yaya::int_t)FileTimeToUnixTime(ffdata.ftCreationTime)));
+			result.array().emplace_back(CValueSub((yaya::int_t)FileTimeToUnixTime(ffdata.ftLastWriteTime)));
 		}
 		else {
-			FILETIME ftctime,ftmtime;
-			::GetFileTime(hFile , &ftctime , NULL , &ftmtime);
-
-			result.array().emplace_back(CValueSub((yaya::int_t)FileTimeToUnixTime(ftctime)));
-			result.array().emplace_back(CValueSub((yaya::int_t)FileTimeToUnixTime(ftmtime)));
-
-			::CloseHandle(hFile);
+			result = CValue(-1);
 		}
+
+		free(s_filestr);
 	}
-	free(s_filestr);
-	s_filestr = NULL;
 
 #elif defined(POSIX)
 	std::string path = narrow(vm.basis().ToFullPath(p.arg.array()[0].s_value));

@@ -54,25 +54,61 @@ int	yaya::ws_atoi(const yaya::string_t &str, int base)
 	return wcstol(str.c_str(), NULL, base);
 }
 
-yaya::int_t	yaya::ws_atoll(const yaya::string_t &str, int base)
+yaya::int_t yaya::ws_atoll(const yaya::string_t &str, int rdx_arg)
 {
-	if (!str.size())
-		return 0;
+	yaya::int_t num = 0;
+	yaya::int_t rdx = rdx_arg;
 	
-#ifdef INT64_IS_NOT_STD
-#if _MSC_VER >= 1300
-	return _wcstoi64(str.c_str(),NULL,base);
-#else
-	if ( base == 10 ) {
-		return _wtoi64(str.c_str());
+	if ( rdx < 2 ) { rdx = 2; }
+	if ( rdx > 36 ) { rdx = 36; }
+
+	const yaya::char_t *ptr = str.c_str();
+	
+	bool minus = false;
+	if ( *ptr == L'-' ) {
+		minus = true;
+		ptr += 1;
+	}
+	else if ( *ptr == L'+' ) {
+		ptr += 1;
+	}
+	else if ( wcsnicmp(ptr,L"0x",2) == 0 ) {
+		ptr += 2;
+		rdx = 16;
+	}
+	else if ( wcsnicmp(ptr,L"0b",2) == 0 ) {
+		ptr += 2;
+		rdx = 2;
+	}
+
+	while ( *ptr ) {
+		yaya::int_t add = -1;
+
+		if ( *ptr >= L'0' && *ptr <= L'9' ) {
+			add = *ptr - L'0';
+		}
+		else if ( *ptr >= L'A' && *ptr <= L'Z' ) {
+			add = *ptr - L'A' + 10;
+		}
+		else if ( *ptr >= L'a' && *ptr <= L'z' ) {
+			add = *ptr - L'a' + 10;
+		}
+
+		if ( add < 0 || add > rdx ) {
+			break;
+		}
+		num *= rdx;
+		num += add;
+
+		ptr += 1;
+	}
+	
+	if ( minus ) {
+		return 0-num;
 	}
 	else {
-		return (yaya::int_t)wcstol(str.c_str(),NULL,base);
+		return num;
 	}
-#endif
-#else
-	return wcstoll(str.c_str(),NULL,base);
-#endif
 }
 
 /* -----------------------------------------------------------------------
@@ -102,7 +138,8 @@ yaya::string_t yaya::ws_lltoa(yaya::int_t num, int rdx)
 {
 	int idx;
 
-	yaya::char_t buf[] = L"                  ";
+	//                     123456789012345678901234567890123456789012345678901234567890123456 //64bitmax = 64chars + (+/-) = 65
+	yaya::char_t buf[] = L"                                                                  ";
 	int offset = (sizeof(buf) / sizeof(buf[0])) - 2;
 	
 	const yaya::char_t convchars[] = L"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";

@@ -522,9 +522,9 @@ char	IsIntString(const yaya::string_t &str)
 	int	advance = (str[0] == L'-' || str[0] == L'+') ? 1 : 0;
 	int i = advance;
 
-	//32bit
-	//2147483647
-	if ( (len-i) > 10 ) { return 0; }
+	//64bit
+	//9223372036854775807
+	if ( (len-i) > 19 ) { return 0; }
 
 	for( ; i < len; i++) {
 //		if (!::iswdigit((int)str[i]))
@@ -533,8 +533,8 @@ char	IsIntString(const yaya::string_t &str)
 		}
 	}
 
-	if ( (len-advance) == 10 ) {
-		if ( wcscmp(str.c_str(),L"2147483647") > 0 ) {
+	if ( (len-advance) == 19 ) {
+		if ( wcscmp(str.c_str(),L"9223372036854775807") > 0 ) {
 			return 0; //Overflow
 		}
 	}
@@ -565,8 +565,8 @@ char	IsIntBinString(const yaya::string_t &str, char header)
 		i += PREFIX_BASE_LEN;
 	}
 
-	//32bit
-	if ( (len-i) > 32 ) { return 0; }
+	//64bit
+	if ( (len-i) > 64 ) { return 0; }
 	
 	for( ; i < len; i++) {
 		yaya::char_t	j = str[i];
@@ -599,9 +599,9 @@ char	IsIntHexString(const yaya::string_t &str, char header)
 		i += PREFIX_BASE_LEN;
 	}
 
-	//32bit
-	//7fffffff
-	if ( (len-i) > 8 ) { return 0; }
+	//64bit
+	//7fffffffffffffff
+	if ( (len-i) > 16 ) { return 0; }
 
 	for( ; i < len; i++) {
 		yaya::char_t	j = str[i];
@@ -854,6 +854,154 @@ bool	IsUnicodeAware(void)
 	return true;
 }
 #endif
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  GetEpochTime
+ *  機能概要：  64bit対応の time() 相当
+ * -----------------------------------------------------------------------
+ */
+#if defined(WIN32) || defined(_WIN32_WCE)
+static yaya::time_t FileTimeToEpochTime(FILETIME &ft)
+{
+	ULARGE_INTEGER ul;
+	ul.LowPart = ft.dwLowDateTime;
+	ul.HighPart = ft.dwHighDateTime;
+
+	yaya::time_t tv = ul.QuadPart;
+	tv -= LL_DEF(116444736000000000);
+	tv /= LL_DEF(10000000);
+
+	return tv;
+}
+
+static FILETIME EpochTimeToFileTime(yaya::time_t &tv)
+{
+	union {
+		ULARGE_INTEGER ul;
+		FILETIME ft;
+	} tc;
+
+	tc.ul.QuadPart = tv;
+	tc.ul.QuadPart *= LL_DEF(10000000);
+	tc.ul.QuadPart += LL_DEF(116444736000000000);
+
+	return tc.ft;
+}
+
+static unsigned int month_to_day_table[] = {
+	0,
+	31,
+	31+28,
+	31+28+31,
+	31+28+31+30,
+	31+28+31+30+31,
+	31+28+31+30+31+30,
+	31+28+31+30+31+30+31,
+	31+28+31+30+31+30+31+31,
+	31+28+31+30+31+30+31+31+30,
+	31+28+31+30+31+30+31+31+30+31,
+	31+28+31+30+31+30+31+31+30+31+30,
+};
+
+static bool IsLeapYear(unsigned int year)
+{
+	if (year % 4 == 0) {
+		if (year % 100 == 0) {
+			if (year % 400 == 0) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return true;
+		}
+	}
+	else {
+		return false;
+	}
+}
+
+#endif
+
+yaya::time_t GetEpochTime()
+{
+#if defined(WIN32) || defined(_WIN32_WCE)
+	FILETIME ft;
+	::GetSystemTimeAsFileTime(&ft);
+
+	return FileTimeToEpochTime(ft);
+#else
+	time_t tv;
+	time(&tv);
+	return (yaya::time_t)tv;
+#endif
+}
+
+struct tm EpochTimeToLocalTime(yaya::time_t tv)
+{
+#if defined(WIN32) || defined(_WIN32_WCE)
+	FILETIME ft = EpochTimeToFileTime(tv);
+	FILETIME lft;
+
+	::FileTimeToLocalFileTime(&ft,&lft);
+
+	SYSTEMTIME stime;
+	::FileTimeToSystemTime(&lft,&stime);
+
+	struct tm tmtime;
+	tmtime.tm_sec = stime.wSecond;
+	tmtime.tm_min = stime.wMinute;
+	tmtime.tm_hour = stime.wHour;
+	tmtime.tm_mday = stime.wDay;
+	tmtime.tm_mon = stime.wMonth - 1; //struct tm 0-11 = SYSTEMTIME 1-12
+	tmtime.tm_year = stime.wYear - 1900; //struct tm 100 = SYSTEMTIME 2000
+	tmtime.tm_wday = stime.wDayOfWeek;
+	tmtime.tm_yday = month_to_day_table[stime.wMonth-1] + stime.wDay;
+	if ( IsLeapYear(stime.wYear) && stime.wMonth >= 3 ) { tmtime.tm_yday += 1; }
+
+	TIME_ZONE_INFORMATION tzinfo;
+	tmtime.tm_isdst = ::GetTimeZoneInformation(&tzinfo) == TIME_ZONE_ID_DAYLIGHT;
+
+	return tmtime;
+#else
+	time_t tc = tv;
+	return *localtime(&tc);
+#endif
+}
+
+yaya::time_t LocalTimeToEpochTime(struct tm &tm)
+{
+#if defined(WIN32) || defined(_WIN32_WCE)
+	SYSTEMTIME stime;
+	ZeroMemory(&stime,sizeof(stime));
+
+	stime.wSecond = tm.tm_sec;
+	stime.wMinute = tm.tm_min;
+	stime.wHour = tm.tm_hour;
+	stime.wDay = tm.tm_mday;
+	stime.wMonth = tm.tm_mon + 1; //struct tm 0-11 = SYSTEMTIME 1-12
+	stime.wYear = tm.tm_year + 1900; //struct tm 100 = SYSTEMTIME 2000
+
+	FILETIME lft;
+	::SystemTimeToFileTime(&stime,&lft);
+
+	FILETIME ft;
+	::LocalFileTimeToFileTime(&lft,&ft);
+
+	return FileTimeToEpochTime(ft);
+#else
+	time_t gmt_local = mktime(&tm);
+
+	time_t now;
+	time(&now);
+	struct tm* gmt_tm = gmtime(&now);
+	time_t local_gmt = now - mktime(gmt_tm);
+
+	return (yaya::time_t)(gmt_local + local_gmt);
+#endif
+}
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  EscapeString
