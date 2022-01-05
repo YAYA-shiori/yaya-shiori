@@ -155,12 +155,22 @@ public:
 
 	void    deep_copy_statement(CFunction &from);
 
-	void	CompleteSetting(void);
-	int		Execute(CValue &result, const CValue &arg, CLocalVariable &lvar);
-	void	Execute_SEHbody(CValue& result, CLocalVariable& lvar, int& exitcode);
-	CValue	Execute();
-	CValue	Execute(const CValue& arg);
+	struct ExecutionResult {
+		CSelecter PossibleResults;
+		ExecutionResult(CAyaVM* pvm) :PossibleResults(pvm, NULL, BRACE_DEFAULT) {}
+		ExecutionResult(CSelecter& a) :PossibleResults(a) {}
+		CValue Output() { return PossibleResults.Output(); }
+		operator CValue() { return Output(); }
+	};
 
+	void	CompleteSetting(void);
+	ExecutionResult	Execute();
+	ExecutionResult	Execute(const CValue& arg);
+	ExecutionResult	Execute(const CValue &arg, CLocalVariable &lvar);
+private:
+	void Execute_SEHhelper(ExecutionResult& aret, CLocalVariable& lvar, int& exitcode);
+	void Execute_SEHbody(ExecutionResult& retas, CLocalVariable& lvar, int& exitcode);
+public:
 	const CValue& GetFormulaAnswer(CLocalVariable &lvar, CStatement &st);
 
 	int     ReindexUserFunctions(void);
@@ -170,7 +180,11 @@ public:
 	size_t	GetLineNumEnd() const   { return statement.empty() ? 0 : statement[statement.size()-1].linecount;}
 
 protected:
-	size_t	ExecuteInBrace(size_t line, CValue& result, CLocalVariable& lvar, yaya::int_t type, int& exitcode, std::vector<CVecValue>* UpperLvCandidatePool, bool inpool);
+	struct ExecutionInBraceResult:ExecutionResult {
+		size_t linenum;
+		ExecutionInBraceResult(CSelecter& a, size_t b) :ExecutionResult(a), linenum(b) {}
+	};
+	ExecutionInBraceResult	ExecuteInBrace(size_t line, CLocalVariable& lvar, yaya::int_t type, int& exitcode, std::vector<CVecValue>* UpperLvCandidatePool, bool inpool);
 
 	void	Foreach(CLocalVariable& lvar, CSelecter& output, size_t line, int& exitcode, std::vector<CVecValue>* UpperLvCandidatePool, bool inpool);
 
