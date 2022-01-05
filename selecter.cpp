@@ -31,7 +31,7 @@
  * CSelecterコンストラクタ
  * -----------------------------------------------------------------------
  */
-CSelecter::CSelecter(CAyaVM &vmr, CDuplEvInfo *dc, ptrdiff_t aid) : vm(vmr), duplctl(dc), aindex(aid)
+CSelecter::CSelecter(CAyaVM *pvmr, CDuplEvInfo *dc, ptrdiff_t aid) : pvm(pvmr), duplctl(dc), aindex(aid)
 {
 	areanum = 0;
 
@@ -86,13 +86,13 @@ CValue	CSelecter::Output()
 {
 	// switch選択
 	if (aindex >= BRACE_SWITCH_OUT_OF_RANGE) {
-		vm.sysfunction().SetLso(aindex);
+		pvm->sysfunction().SetLso(aindex);
 		return ChoiceByIndex();
 	}
 
 	// 領域が1つしかなく、かつ候補が存在しない場合は出力なし
 	if (!areanum && !values[0].array.size()) {
-		vm.sysfunction().SetLso(-1);
+		pvm->sysfunction().SetLso(-1);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
@@ -117,9 +117,9 @@ CValue	CSelecter::Output()
 
 	switch ( duplctl->GetType() & CHOICETYPE_SELECT_FILTER ) {
 	case CHOICETYPE_NONOVERLAP_FLAG:
-		return duplctl->Choice(vm, areanum, values, CHOICETYPE_NONOVERLAP_FLAG);
+		return duplctl->Choice(*pvm, areanum, values, CHOICETYPE_NONOVERLAP_FLAG);
 	case CHOICETYPE_SEQUENTIAL_FLAG:
-		return duplctl->Choice(vm, areanum, values, CHOICETYPE_SEQUENTIAL_FLAG);
+		return duplctl->Choice(*pvm, areanum, values, CHOICETYPE_SEQUENTIAL_FLAG);
 	case CHOICETYPE_ARRAY_FLAG:
 		return StructArray();
 	case CHOICETYPE_RANDOM_FLAG:
@@ -159,9 +159,9 @@ CValue	CSelecter::ChoiceRandom1(size_t index)
 		return CValue();
 	}
 
-	size_t choice = vm.genrand_uint(values[index].array.size());
+	size_t choice = pvm->genrand_uint(values[index].array.size());
 
-    vm.sysfunction().SetLso(choice);
+    pvm->sysfunction().SetLso(choice);
 
     return values[index].array[choice];
 }
