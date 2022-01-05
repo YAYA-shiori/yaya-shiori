@@ -125,6 +125,11 @@ public:
 	static choicetype_t			StringToChoiceType(const yaya::string_t& ctypestr, CAyaVM &vm, const yaya::string_t& dicfilename, size_t linecount);
 	static yaya::string_t		ChoiceTypeToString(choicetype_t ctype);
 
+	void clear() {
+		areanum = 0;
+		values.clear();
+		values.emplace_back();
+	}
 protected:
 	CValue	StructArray1(size_t index);
 	CValue	StructArray(void);
