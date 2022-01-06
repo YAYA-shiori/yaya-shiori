@@ -266,8 +266,8 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 			break;
 		case ST_WHILE:					// while
 			{
-				int loop_max = pvm->call_limit().GetMaxLoop();
-				int loop_cur = 0;
+				size_t loop_max = pvm->call_limit().GetMaxLoop();
+				size_t loop_cur = 0;
 
 				while ( (loop_max == 0) || (loop_max > loop_cur++) ) {
 					if (!GetFormulaAnswer(lvar, st).GetTruth())
@@ -285,7 +285,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 						exitcode = ST_NOP;
 				}
 
-				if ( loop_max <= loop_cur ) {
+				if (loop_max && loop_max <= loop_cur ) {
 					CBasisFuncPos shiori_OnLoopLimit;
 					ptrdiff_t funcpos = shiori_OnLoopLimit.Find(*pvm, L"shiori.OnLoopLimit");
 
@@ -330,7 +330,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 					GetFormulaAnswer(lvar, statement[i + 2]); //for第三パラメータ
 				}
 
-				if ( loop_max <= loop_cur ) {
+				if (loop_max && loop_max <= loop_cur ) {
 					CBasisFuncPos shiori_OnLoopLimit;
 					ptrdiff_t funcpos = shiori_OnLoopLimit.Find(*pvm, L"shiori.OnLoopLimit");
 
