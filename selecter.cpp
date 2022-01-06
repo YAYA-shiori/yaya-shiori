@@ -128,6 +128,51 @@ CValue	CSelecter::Output()
 	};
 }
 
+size_t CSelecter::OutputNum()
+{
+	// switch選択
+	if (aindex >= BRACE_SWITCH_OUT_OF_RANGE) {
+		pvm->sysfunction().SetLso(aindex);
+		return 1;
+	}
+
+	// 領域が1つしかなく、かつ候補が存在しない場合は出力なし
+	if (!areanum && !values[0].array.size()) {
+		pvm->sysfunction().SetLso(-1);
+		return 0;
+	}
+
+	// 最後の領域が空だった場合はダミーの空文字列を追加
+	if (!values[areanum].array.size())
+		Append(CValue());
+
+	// ランダム選択
+	if (duplctl == NULL)
+		return ChoiceRandom_NumGet();
+
+	// 重複回避制御付き選択
+	if (duplctl->GetType() & CHOICETYPE_SPECOUT_FILTER)
+		switch(duplctl->GetType()){
+		case CHOICETYPE_VOID:
+			return 0;
+		case CHOICETYPE_ALL:
+		case CHOICETYPE_LAST:
+			return 1;
+		}
+
+	switch ( duplctl->GetType() & CHOICETYPE_SELECT_FILTER ) {
+	case CHOICETYPE_NONOVERLAP_FLAG:
+		return duplctl->GetNum(*pvm, areanum, values, CHOICETYPE_NONOVERLAP_FLAG);
+	case CHOICETYPE_SEQUENTIAL_FLAG:
+		return duplctl->GetNum(*pvm, areanum, values, CHOICETYPE_SEQUENTIAL_FLAG);
+	case CHOICETYPE_ARRAY_FLAG:
+		return 1;
+	case CHOICETYPE_RANDOM_FLAG:
+	default:
+		return ChoiceRandom_NumGet();
+	};
+}
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSelecter::ChoiceRandom
  *  機能概要：  各領域からランダムに値を抽出して出力を作成し返します
@@ -146,6 +191,18 @@ CValue	CSelecter::ChoiceRandom(void)
 	}
 	else
 		return ChoiceRandom1(0);
+}
+
+size_t	CSelecter::ChoiceRandom_NumGet(void)
+{
+	if (areanum) {
+		size_t aret=0;
+		for (size_t i = 0; i <= areanum; i++)
+			aret *= values[i].array.size();
+		return aret;
+	}
+	else
+		return values[0].array.size();
 }
 
 /* -----------------------------------------------------------------------

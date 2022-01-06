@@ -93,6 +93,7 @@ public:
 	choicetype_t	GetType(void) { return type; }
 
 	CValue	Choice(CAyaVM &vm, size_t areanum, const std::vector<CVecValue> &values, int mode);
+	size_t	GetNum(CAyaVM& vm, size_t areanum, const std::vector<CVecValue>& values, int mode);
 
 protected:
 	void	InitRoundOrder(CAyaVM &vm,int mode);
@@ -120,6 +121,7 @@ public:
 	void	AddArea(void);
 	void	Append(const CValue &value);
 	CValue	Output(void);
+	size_t	OutputNum();
 
 	static choicetype_t			GetDefaultBlockChoicetype(choicetype_t nowtype);
 	static choicetype_t			StringToChoiceType(const yaya::string_t& ctypestr, CAyaVM &vm, const yaya::string_t& dicfilename, size_t linecount);
@@ -136,6 +138,7 @@ protected:
 	CValue	StructString1(size_t index);
 	CValue	StructString(void);
 	CValue	ChoiceRandom(void);
+	size_t	ChoiceRandom_NumGet(void);
 	CValue	ChoiceRandom1(size_t index);
 	CValue	ChoiceByIndex(void);
 	CValue	ChoiceByIndex1(size_t index);

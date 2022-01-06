@@ -160,6 +160,7 @@ public:
 		ExecutionResult(CAyaVM* pvm) :PossibleResults(pvm, NULL, BRACE_DEFAULT) {}
 		ExecutionResult(CSelecter& a) :PossibleResults(a) {}
 		CValue Output() { return PossibleResults.Output(); }
+		size_t OutputNum() { return PossibleResults.OutputNum(); }
 		operator CValue() { return Output(); }
 	};
 

@@ -56,6 +56,25 @@ CValue	CDuplEvInfo::Choice(CAyaVM &vm, size_t areanum, const std::vector<CVecVal
 	return result;
 }
 
+size_t	CDuplEvInfo::GetNum(CAyaVM &vm, size_t areanum, const std::vector<CVecValue> &values, int mode)
+{
+	// 領域毎の候補数と総数を更新　変化があった場合は巡回順序を初期化する
+	if ( UpdateNums(areanum, values) ) {
+		lastroundorder = -1;
+		InitRoundOrder(vm,mode);
+	}
+
+	lastroundorder = roundorder[index];
+
+	// 巡回位置を進める　巡回が完了したら巡回順序を初期化する
+	index++;
+	if ( index >= roundorder.size() ) {
+		InitRoundOrder(vm,mode);
+	}
+
+	return total - index;
+}
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CDuplEvInfo::InitRoundOrder
  *  機能概要：  巡回順序を初期化します
