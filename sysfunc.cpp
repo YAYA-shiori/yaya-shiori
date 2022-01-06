@@ -312,6 +312,7 @@ const CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::FUNCDECL_READ , L"FUNCDECL_READ" },
 	{ &CSystemFunction::FUNCDECL_WRITE , L"FUNCDECL_WRITE" },
 	{ &CSystemFunction::FUNCDECL_ERASE , L"FUNCDECL_ERASE" },
+	{ &CSystemFunction::OUTPUTNUM , L"OUTPUTNUM" },
 	//LINT
 	{ &CSystemFunction::LINT_GetFuncUsedBy , L"LINT.GetFuncUsedBy" },
 	{ &CSystemFunction::LINT_GetUserDefFuncUsedBy , L"LINT.GetUserDefFuncUsedBy" },
@@ -3500,6 +3501,35 @@ CValue CSystemFunction::FUNCDECL_ERASE(CSF_FUNCPARAM& p)
 	}
 
 	return CValue(0);
+}
+
+CValue CSystemFunction::OUTPUTNUM(CSF_FUNCPARAM& p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"OUTPUTNUM", p.dicname, p.line);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!p.arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"OUTPUTNUM", p.dicname, p.line);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	yaya::string_t name = p.arg.array()[0].GetValueString();
+
+	ptrdiff_t index = vm.function_exec().GetFunctionIndexFromName(name);
+
+	if ( index < 0 ) {
+		vm.logger().Error(E_W, 12, L"OUTPUTNUM", p.dicname, p.line);
+		SetError(12);
+		return CValue(-1);
+	}
+
+	CFunction *it = &vm.function_exec().func[size_t(index)];
+
+	return (yaya::int_t)it->Execute().OutputNum();
 }
 
 /* -----------------------------------------------------------------------
