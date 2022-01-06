@@ -64,15 +64,7 @@ size_t	CDuplEvInfo::GetNum(CAyaVM &vm, size_t areanum, const std::vector<CVecVal
 		InitRoundOrder(vm,mode);
 	}
 
-	lastroundorder = roundorder[index];
-
-	// 巡回位置を進める　巡回が完了したら巡回順序を初期化する
-	index++;
-	if ( index >= roundorder.size() ) {
-		InitRoundOrder(vm,mode);
-	}
-
-	return total - index;
+	return total;
 }
 
 /* -----------------------------------------------------------------------
