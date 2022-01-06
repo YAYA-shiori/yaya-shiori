@@ -126,7 +126,7 @@ CFunction::ExecutionResult	CFunction::Execute(const CValue &arg, CLocalVariable 
 
 void CFunction::Execute_SEHhelper(CFunction::ExecutionResult& aret, CLocalVariable& lvar, int& exitcode)
 {
-	aret = CFunction::ExecutionResult( ExecuteInBrace(0, lvar, BRACE_DEFAULT, exitcode, NULL, 0) );
+	aret = ExecuteInBrace(0, lvar, BRACE_DEFAULT, exitcode, NULL, 0);
 }
 
 void CFunction::Execute_SEHbody(ExecutionResult& retas, CLocalVariable& lvar, int& exitcode)
