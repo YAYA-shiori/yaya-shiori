@@ -845,7 +845,7 @@ CValue CBasis::GetParameter(const yaya::string_t &cmd)
 void	CBasis::SaveVariable(const yaya::char_t* pName)
 {
 	// •Ï”‚Ì•Û‘¶
-	std::string old_locale = setlocale(LC_NUMERIC,NULL);
+	std::string old_locale = yaya::get_safe_str(setlocale(LC_NUMERIC,NULL));
 	setlocale(LC_NUMERIC,"English"); //¬”“_–â‘è‰ñ”ð
 
 	bool ayc = encode_savefile;
@@ -1025,7 +1025,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
  */
 void	CBasis::RestoreVariable(const yaya::char_t* pName)
 {
-	std::string old_locale = setlocale(LC_NUMERIC,NULL);
+	std::string old_locale = yaya::get_safe_str(setlocale(LC_NUMERIC,NULL));
 	setlocale(LC_NUMERIC,"English"); //¬”“_–â‘è‰ñ”ð
 
 	bool ayc = encode_savefile;
@@ -1279,10 +1279,8 @@ void	CBasis::ExecuteLoad(void)
 	vm.call_limit().InitCall();
 	CLocalVariable	lvar(vm);
 	vm.logger().Io(0, base_path);
-	CValue	result;
 
-	vm.function_exec().func[funcpos].Execute(result, arg, lvar);
-
+	vm.function_exec().func[funcpos].Execute(arg, lvar);
 	yaya::string_t empty;
 	vm.logger().Io(1, empty);
 }
@@ -1333,7 +1331,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 	CValue	result;
 	try{
 		CLocalVariable	lvar(vm);
-		vm.function_exec().func[funcpos].Execute(result, arg, lvar);
+		result = vm.function_exec().func[funcpos].Execute(arg, lvar);
 	}
 	catch (const yaya::memory_error&) {
 		if(vm.call_limit().StackCall().size()>512)

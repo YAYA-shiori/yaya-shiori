@@ -409,9 +409,9 @@ int yaya::ws_fputs(const yaya::char_t *str, FILE *stream, int charset, int ayc)
 * -----------------------------------------------------------------------
 */
 #if defined(__GNUC__)
-int yaya::snprintf(yaya::char_t* buf, size_t count, const yaya::char_t* format, ...)__attribute__((format(printf, 3, 4)));
+int yaya::snprintf(yaya::char_t* buf, size_t count, const yaya::char_t* format, ...)__attribute__((format(printf, 3, 4)))
 #elif defined(_MSC_VER)
-int yaya::snprintf(_Pre_notnull_ _Always_(_Post_z_) yaya::char_t *buf,size_t count, _Printf_format_string_ const yaya::char_t *format,...)
+int yaya::snprintf(_Pre_notnull_ yaya::char_t *buf,size_t count, _Printf_format_string_ const yaya::char_t *format,...)
 #else
 int yaya::snprintf(yaya::char_t* buf, size_t count, const yaya::char_t* format, ...)
 #endif

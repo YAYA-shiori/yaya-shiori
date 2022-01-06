@@ -93,6 +93,7 @@ public:
 	choicetype_t	GetType(void) { return type; }
 
 	CValue	Choice(CAyaVM &vm, size_t areanum, const std::vector<CVecValue> &values, int mode);
+	size_t	GetNum(CAyaVM& vm, size_t areanum, const std::vector<CVecValue>& values, int mode);
 
 protected:
 	void	InitRoundOrder(CAyaVM &vm,int mode);
@@ -106,32 +107,45 @@ protected:
 class CSelecter
 {
 protected:
-	CAyaVM &vm;
+	CAyaVM *pvm;
 	std::vector<CVecValue>	values;			// 出力候補値
 	size_t					areanum;		// 出力候補を蓄積する領域の数
 	CDuplEvInfo				*duplctl;		// 対応する重複回避情報へのポインタ
 	ptrdiff_t				aindex;			// switch構文で使用
 
 	friend class CFunction;//for pool
-private:
-	CSelecter(void);
 public:
-	CSelecter(CAyaVM& vmr, CDuplEvInfo* dc, ptrdiff_t aid);
+
+#if CPP_STD_VER < 2011
+private:
+	CSelecter() { }
+public:
+#else
+	CSelecter()=delete;
+#endif
+	CSelecter(CAyaVM *pvmr, CDuplEvInfo* dc, ptrdiff_t aid);
 
 	void	AddArea(void);
 	void	Append(const CValue &value);
 	CValue	Output(void);
+	size_t	OutputNum();
 
 	static choicetype_t			GetDefaultBlockChoicetype(choicetype_t nowtype);
 	static choicetype_t			StringToChoiceType(const yaya::string_t& ctypestr, CAyaVM &vm, const yaya::string_t& dicfilename, size_t linecount);
 	static yaya::string_t		ChoiceTypeToString(choicetype_t ctype);
 
+	void clear() {
+		areanum = 0;
+		values.clear();
+		values.emplace_back(CVecValue());
+	}
 protected:
 	CValue	StructArray1(size_t index);
 	CValue	StructArray(void);
 	CValue	StructString1(size_t index);
 	CValue	StructString(void);
 	CValue	ChoiceRandom(void);
+	size_t	ChoiceRandom_NumGet(void);
 	CValue	ChoiceRandom1(size_t index);
 	CValue	ChoiceByIndex(void);
 	CValue	ChoiceByIndex1(size_t index);

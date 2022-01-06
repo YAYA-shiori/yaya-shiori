@@ -155,12 +155,29 @@ public:
 
 	void    deep_copy_statement(CFunction &from);
 
-	void	CompleteSetting(void);
-	int		Execute(CValue &result, const CValue &arg, CLocalVariable &lvar);
-	void	Execute_SEHbody(CValue& result, CLocalVariable& lvar, int& exitcode);
-	CValue	Execute();
-	CValue	Execute(const CValue& arg);
+	class ExecutionResult {
+	public:
+		CSelecter PossibleResults;
 
+		ExecutionResult(CAyaVM* pvm) :PossibleResults(pvm, NULL, BRACE_DEFAULT) {}
+		ExecutionResult(CSelecter& a) :PossibleResults(a) {}
+
+		virtual ~ExecutionResult() { }
+		
+		CValue Output() { return PossibleResults.Output(); }
+		size_t OutputNum() { return PossibleResults.OutputNum(); }
+		
+		operator CValue() { return Output(); }
+	};
+
+	void	CompleteSetting(void);
+	ExecutionResult	Execute();
+	ExecutionResult	Execute(const CValue& arg);
+	ExecutionResult	Execute(const CValue &arg, CLocalVariable &lvar);
+private:
+	void Execute_SEHhelper(ExecutionResult& aret, CLocalVariable& lvar, int& exitcode);
+	void Execute_SEHbody(ExecutionResult& retas, CLocalVariable& lvar, int& exitcode);
+public:
 	const CValue& GetFormulaAnswer(CLocalVariable &lvar, CStatement &st);
 
 	int     ReindexUserFunctions(void);
@@ -170,7 +187,16 @@ public:
 	size_t	GetLineNumEnd() const   { return statement.empty() ? 0 : statement[statement.size()-1].linecount;}
 
 protected:
-	size_t	ExecuteInBrace(size_t line, CValue& result, CLocalVariable& lvar, yaya::int_t type, int& exitcode, std::vector<CVecValue>* UpperLvCandidatePool, bool inpool);
+	
+	class ExecutionInBraceResult : public ExecutionResult {
+	public:
+		size_t linenum;
+
+		ExecutionInBraceResult(CSelecter& a, size_t b) : ExecutionResult(a), linenum(b) {}
+		virtual ~ExecutionInBraceResult() { }
+	};
+
+	ExecutionInBraceResult	ExecuteInBrace(size_t line, CLocalVariable& lvar, yaya::int_t type, int& exitcode, std::vector<CVecValue>* UpperLvCandidatePool, bool inpool);
 
 	void	Foreach(CLocalVariable& lvar, CSelecter& output, size_t line, int& exitcode, std::vector<CVecValue>* UpperLvCandidatePool, bool inpool);
 
@@ -183,8 +209,8 @@ protected:
 	char	Subst(int type, CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	char	SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatement &st, CLocalVariable &lvar);
 	char	Array(CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
-	int		_in_(const CValue &src, const CValue &dst);
-	int		not_in_(const CValue &src, const CValue &dst);
+	bool	_in_(const CValue &src, const CValue &dst);
+	bool	not_in_(const CValue &src, const CValue &dst);
 	char	ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	char	ExecSystemFunctionWithArgs(CCell& cell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	void	ExecHistoryP1(int start_index, CCell& cell, const CValue &arg, CStatement &st);

@@ -31,7 +31,7 @@
  * CSelecterコンストラクタ
  * -----------------------------------------------------------------------
  */
-CSelecter::CSelecter(CAyaVM &vmr, CDuplEvInfo *dc, ptrdiff_t aid) : vm(vmr), duplctl(dc), aindex(aid)
+CSelecter::CSelecter(CAyaVM *pvmr, CDuplEvInfo *dc, ptrdiff_t aid) : pvm(pvmr), duplctl(dc), aindex(aid)
 {
 	areanum = 0;
 
@@ -86,13 +86,13 @@ CValue	CSelecter::Output()
 {
 	// switch選択
 	if (aindex >= BRACE_SWITCH_OUT_OF_RANGE) {
-		vm.sysfunction().SetLso(aindex);
+		pvm->sysfunction().SetLso(aindex);
 		return ChoiceByIndex();
 	}
 
 	// 領域が1つしかなく、かつ候補が存在しない場合は出力なし
 	if (!areanum && !values[0].array.size()) {
-		vm.sysfunction().SetLso(-1);
+		pvm->sysfunction().SetLso(-1);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
@@ -117,14 +117,59 @@ CValue	CSelecter::Output()
 
 	switch ( duplctl->GetType() & CHOICETYPE_SELECT_FILTER ) {
 	case CHOICETYPE_NONOVERLAP_FLAG:
-		return duplctl->Choice(vm, areanum, values, CHOICETYPE_NONOVERLAP_FLAG);
+		return duplctl->Choice(*pvm, areanum, values, CHOICETYPE_NONOVERLAP_FLAG);
 	case CHOICETYPE_SEQUENTIAL_FLAG:
-		return duplctl->Choice(vm, areanum, values, CHOICETYPE_SEQUENTIAL_FLAG);
+		return duplctl->Choice(*pvm, areanum, values, CHOICETYPE_SEQUENTIAL_FLAG);
 	case CHOICETYPE_ARRAY_FLAG:
 		return StructArray();
 	case CHOICETYPE_RANDOM_FLAG:
 	default:
 		return ChoiceRandom();
+	};
+}
+
+size_t CSelecter::OutputNum()
+{
+	// switch選択
+	if (aindex >= BRACE_SWITCH_OUT_OF_RANGE) {
+		pvm->sysfunction().SetLso(aindex);
+		return 1;
+	}
+
+	// 領域が1つしかなく、かつ候補が存在しない場合は出力なし
+	if (!areanum && !values[0].array.size()) {
+		pvm->sysfunction().SetLso(-1);
+		return 0;
+	}
+
+	// 最後の領域が空だった場合はダミーの空文字列を追加
+	if (!values[areanum].array.size())
+		Append(CValue());
+
+	// ランダム選択
+	if (duplctl == NULL)
+		return ChoiceRandom_NumGet();
+
+	// 重複回避制御付き選択
+	if (duplctl->GetType() & CHOICETYPE_SPECOUT_FILTER)
+		switch(duplctl->GetType()){
+		case CHOICETYPE_VOID:
+			return 0;
+		case CHOICETYPE_ALL:
+		case CHOICETYPE_LAST:
+			return 1;
+		}
+
+	switch ( duplctl->GetType() & CHOICETYPE_SELECT_FILTER ) {
+	case CHOICETYPE_NONOVERLAP_FLAG:
+		return duplctl->GetNum(*pvm, areanum, values, CHOICETYPE_NONOVERLAP_FLAG);
+	case CHOICETYPE_SEQUENTIAL_FLAG:
+		return duplctl->GetNum(*pvm, areanum, values, CHOICETYPE_SEQUENTIAL_FLAG);
+	case CHOICETYPE_ARRAY_FLAG:
+		return 1;
+	case CHOICETYPE_RANDOM_FLAG:
+	default:
+		return ChoiceRandom_NumGet();
 	};
 }
 
@@ -148,6 +193,18 @@ CValue	CSelecter::ChoiceRandom(void)
 		return ChoiceRandom1(0);
 }
 
+size_t	CSelecter::ChoiceRandom_NumGet(void)
+{
+	if (areanum) {
+		size_t aret=0;
+		for (size_t i = 0; i <= areanum; i++)
+			aret *= values[i].array.size();
+		return aret;
+	}
+	else
+		return values[0].array.size();
+}
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSelecter::ChoiceRandom1
  *  機能概要：  指定された領域からランダムに値を抽出します
@@ -159,9 +216,9 @@ CValue	CSelecter::ChoiceRandom1(size_t index)
 		return CValue();
 	}
 
-	size_t choice = vm.genrand_uint(values[index].array.size());
+	size_t choice = pvm->genrand_uint(values[index].array.size());
 
-    vm.sysfunction().SetLso(choice);
+    pvm->sysfunction().SetLso(choice);
 
     return values[index].array[choice];
 }

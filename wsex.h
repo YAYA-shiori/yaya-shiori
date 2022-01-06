@@ -45,10 +45,16 @@ namespace yaya {
 	#if defined(__GNUC__)
 		int snprintf(yaya::char_t* buf, size_t count, const yaya::char_t* format, ...)__attribute__((format(printf, 3, 4)));
 	#elif defined(_MSC_VER)
-		int snprintf(_Pre_notnull_ _Always_(_Post_z_) yaya::char_t* buf, size_t count, _Printf_format_string_ const yaya::char_t* format, ...);
+		int snprintf(_Pre_notnull_ yaya::char_t* buf, size_t count, _Printf_format_string_ const yaya::char_t* format, ...);
 	#else
 		int snprintf(yaya::char_t* buf, size_t count, const yaya::char_t* format, ...);
 	#endif
+
+	template<class T>
+	const T* get_safe_str(const T*a) {
+		static constexpr T Zero_Termination_String[1] = { 0 };
+		return a ? a : Zero_Termination_String;
+	}
 };
 
 //----
