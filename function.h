@@ -198,8 +198,8 @@ protected:
 	char	Subst(int type, CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	char	SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatement &st, CLocalVariable &lvar);
 	char	Array(CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
-	int		_in_(const CValue &src, const CValue &dst);
-	int		not_in_(const CValue &src, const CValue &dst);
+	bool	_in_(const CValue &src, const CValue &dst);
+	bool	not_in_(const CValue &src, const CValue &dst);
 	char	ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	char	ExecSystemFunctionWithArgs(CCell& cell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	void	ExecHistoryP1(int start_index, CCell& cell, const CValue &arg, CStatement &st);

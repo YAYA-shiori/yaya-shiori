@@ -1102,7 +1102,7 @@ char	CFunction::Array(CCell &anscell, std::vector<size_t> &sid, CStatement &st, 
  *  機能概要：  _in_演算子を処理します
  * -----------------------------------------------------------------------
  */
-int	CFunction::_in_(const CValue &src, const CValue &dst)
+bool CFunction::_in_(const CValue &src, const CValue &dst)
 {
 	if (src.IsString() && dst.IsString())
 		return (dst.s_value.find(src.s_value) != yaya::string_t::npos) ? 1 : 0;
@@ -1115,7 +1115,7 @@ int	CFunction::_in_(const CValue &src, const CValue &dst)
  *  機能概要：  !_in_演算子を処理します
  * -----------------------------------------------------------------------
  */
-int	CFunction::not_in_(const CValue &src, const CValue &dst)
+bool CFunction::not_in_(const CValue &src, const CValue &dst)
 {
 	return ! _in_(src,dst);
 }
