@@ -155,12 +155,18 @@ public:
 
 	void    deep_copy_statement(CFunction &from);
 
-	struct ExecutionResult {
+	class ExecutionResult {
+	public:
 		CSelecter PossibleResults;
+
 		ExecutionResult(CAyaVM* pvm) :PossibleResults(pvm, NULL, BRACE_DEFAULT) {}
 		ExecutionResult(CSelecter& a) :PossibleResults(a) {}
+
+		virtual ~ExecutionResult() { }
+		
 		CValue Output() { return PossibleResults.Output(); }
 		size_t OutputNum() { return PossibleResults.OutputNum(); }
+		
 		operator CValue() { return Output(); }
 	};
 
@@ -181,10 +187,15 @@ public:
 	size_t	GetLineNumEnd() const   { return statement.empty() ? 0 : statement[statement.size()-1].linecount;}
 
 protected:
-	struct ExecutionInBraceResult:ExecutionResult {
+	
+	class ExecutionInBraceResult : public ExecutionResult {
+	public:
 		size_t linenum;
-		ExecutionInBraceResult(CSelecter& a, size_t b) :ExecutionResult(a), linenum(b) {}
+
+		ExecutionInBraceResult(CSelecter& a, size_t b) : ExecutionResult(a), linenum(b) {}
+		virtual ~ExecutionInBraceResult() { }
 	};
+
 	ExecutionInBraceResult	ExecuteInBrace(size_t line, CLocalVariable& lvar, yaya::int_t type, int& exitcode, std::vector<CVecValue>* UpperLvCandidatePool, bool inpool);
 
 	void	Foreach(CLocalVariable& lvar, CSelecter& output, size_t line, int& exitcode, std::vector<CVecValue>* UpperLvCandidatePool, bool inpool);

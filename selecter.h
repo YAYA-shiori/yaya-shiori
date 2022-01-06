@@ -115,7 +115,14 @@ protected:
 
 	friend class CFunction;//for pool
 public:
+
+#if CPP_STD_VER < 2011
+private:
+	CSelecter() { }
+public:
+#else
 	CSelecter()=delete;
+#endif
 	CSelecter(CAyaVM *pvmr, CDuplEvInfo* dc, ptrdiff_t aid);
 
 	void	AddArea(void);
@@ -130,7 +137,7 @@ public:
 	void clear() {
 		areanum = 0;
 		values.clear();
-		values.emplace_back();
+		values.emplace_back(CVecValue());
 	}
 protected:
 	CValue	StructArray1(size_t index);

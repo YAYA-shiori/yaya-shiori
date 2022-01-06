@@ -110,7 +110,7 @@ CFunction::ExecutionResult	CFunction::Execute(const CValue &arg, CLocalVariable 
 
 		pvm->call_limit().reset_lock(lock);
 		pvm->call_limit().DeleteCall();
-		return {pvm};
+		return ExecutionResult(pvm);
 	}
 	ExecutionResult result(NULL);
 	Execute_SEHbody(result,lvar, exitcode);
@@ -123,11 +123,12 @@ CFunction::ExecutionResult	CFunction::Execute(const CValue &arg, CLocalVariable 
 
 	return result;
 }
+
 void CFunction::Execute_SEHhelper(CFunction::ExecutionResult& aret, CLocalVariable& lvar, int& exitcode)
 {
-	aret.~ExecutionResult();
-	new(&aret)CFunction::ExecutionResult{ ExecuteInBrace(0, lvar, BRACE_DEFAULT, exitcode, NULL, 0) };
+	aret = ExecuteInBrace(0, lvar, BRACE_DEFAULT, exitcode, NULL, 0);
 }
+
 void CFunction::Execute_SEHbody(ExecutionResult& retas, CLocalVariable& lvar, int& exitcode)
 {
 	__try
@@ -197,7 +198,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 
 		switch(st.type) {
 		case ST_OPEN: {					// "{"
-			auto info = ExecuteInBrace(i + 1, lvar, BRACE_DEFAULT, exitcode, UpperLvCandidatePool, INPOOL_TO_NEXT);
+			ExecutionInBraceResult info = ExecuteInBrace(i + 1, lvar, BRACE_DEFAULT, exitcode, UpperLvCandidatePool, INPOOL_TO_NEXT);
 			i = info.linenum;
 			output.Append(info.Output());
 			break;
@@ -218,7 +219,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 		case ST_IF:						// if
 			ifflg = 0;
 			if (GetFormulaAnswer(lvar, st).GetTruth()) {
-				auto info = ExecuteInBrace(i + 2, lvar, BRACE_DEFAULT, exitcode, UpperLvCandidatePool, INPOOL_TO_NEXT);
+				ExecutionInBraceResult info = ExecuteInBrace(i + 2, lvar, BRACE_DEFAULT, exitcode, UpperLvCandidatePool, INPOOL_TO_NEXT);
 				i = info.linenum;
 				output.Append(info.Output());
 				ifflg = 1;
@@ -230,7 +231,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 			if (ifflg)
 				i = st.jumpto;
 			else if (GetFormulaAnswer(lvar, st).GetTruth()) {
-				auto info = ExecuteInBrace(i + 2, lvar, BRACE_DEFAULT, exitcode, UpperLvCandidatePool, INPOOL_TO_NEXT);
+				ExecutionInBraceResult info = ExecuteInBrace(i + 2, lvar, BRACE_DEFAULT, exitcode, UpperLvCandidatePool, INPOOL_TO_NEXT);
 				i = info.linenum;
 				output.Append(info.Output());
 				ifflg = 1;
@@ -242,7 +243,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 			if (ifflg)
 				i = st.jumpto;
 			else {
-				auto info = ExecuteInBrace(i + 2, lvar, BRACE_DEFAULT, exitcode, UpperLvCandidatePool, INPOOL_TO_NEXT);
+				ExecutionInBraceResult info = ExecuteInBrace(i + 2, lvar, BRACE_DEFAULT, exitcode, UpperLvCandidatePool, INPOOL_TO_NEXT);
 				i = info.linenum;
 				output.Append(info.Output());
 			}
@@ -354,7 +355,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 				yaya::int_t sw_index = GetFormulaAnswer(lvar, st).GetValueInt();
 				if (sw_index < 0)
 					sw_index = BRACE_SWITCH_OUT_OF_RANGE;
-				auto info = ExecuteInBrace(i + 2, lvar, sw_index, exitcode, NULL, 0);
+				ExecutionInBraceResult info = ExecuteInBrace(i + 2, lvar, sw_index, exitcode, NULL, 0);
 				i = info.linenum;
 				output.Append(info.Output());
 			}
@@ -398,11 +399,12 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 
 	if(meltblock){
 		std::vector<CValue>& pool_of_uplv = UpperLvCandidatePool->rbegin()->array;
-		auto result = output.Output();
+		CValue result = output.Output();
 
 		if (result.GetType() == F_TAG_ARRAY) {
-			for(size_t j = 0; j < result.array_size(); ++j)
+			for(size_t j = 0; j < result.array_size(); ++j) {
 				pool_of_uplv.emplace_back(CValue(result.array()[j]));
+			}
 		}
 		else
 			pool_of_uplv.emplace_back(result);
@@ -411,7 +413,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 	// 終了時の処理
 	lvar.DelDepth();
 
-	return { output,i };
+	return CFunction::ExecutionInBraceResult( output,i );
 }
 /* -----------------------------------------------------------------------
  *  関数名  ：  CFunction::Foreach
