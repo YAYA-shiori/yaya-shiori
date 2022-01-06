@@ -3503,6 +3503,12 @@ CValue CSystemFunction::FUNCDECL_ERASE(CSF_FUNCPARAM& p)
 	return CValue(0);
 }
 
+/* -----------------------------------------------------------------------
+ *  ŠÖ”–¼  F  CSystemFunction::OUTPUTNUM
+ *
+ *  OUTPUTNUM("function_name") -> number of candidate element
+ * -----------------------------------------------------------------------
+ */
 CValue CSystemFunction::OUTPUTNUM(CSF_FUNCPARAM& p)
 {
 	if (!p.arg.array_size()) {
