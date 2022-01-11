@@ -136,7 +136,7 @@
 *warning W0020 : Requires even number of elements to create hash.
 *warning W0021 : Empty here document found.
 *warning W0022 : Here document start sequence found.
-*warning W0023 : There is a info loss of variable recovery.
+*warning W0023 : Some information was lost during the process of restoring variables.
 //
 // 注記文字列（英語）
 !!!msgn
