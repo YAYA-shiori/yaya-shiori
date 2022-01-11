@@ -621,6 +621,7 @@ char	CParser1::CheckFunctionArgument(CStatement& st, const yaya::string_t& dicfi
 
 	if (st.type >= ST_FORMULA_OUT_FORMULA && st.type <= ST_VOID) {
 		int	beftype = F_TAG_UNKNOWN;
+		ptrdiff_t befindex = -1;
 	
 		if ( st.cell_size() ) { //高速化用
 			for(std::vector<CCell>::iterator it = st.cell().begin(); it != st.cell().end(); it++) {
@@ -632,6 +633,7 @@ char	CParser1::CheckFunctionArgument(CStatement& st, const yaya::string_t& dicfi
 
 					if (beftype == F_TAG_SYSFUNC) {
 						it->value_SetType(F_TAG_SYSFUNCPARAM);
+						it->index = befindex;
 					}
 					else if (beftype != F_TAG_USERFUNC) {
 						vm.logger().Error(E_E, 71, dicfilename, st.linecount);
@@ -639,6 +641,7 @@ char	CParser1::CheckFunctionArgument(CStatement& st, const yaya::string_t& dicfi
 					}
 				}
 				beftype = it->value_GetType();
+				befindex = it->index;
 			}
 		}
 	}

@@ -672,7 +672,7 @@ const CValue& CFunction::GetValueRefForCalc(CCell &cell, CStatement &st, CLocalV
 
 	// %[n]処理
 	if (cell.value_GetType() == F_TAG_SYSFUNCPARAM) {
-		if ( cell.index == CSystemFunction::HistoryIndex() ) {//TODO: index aways was -1
+		if ( cell.index == CSystemFunction::HistoryIndex() ) {
 			ExecHistoryP2(cell, st);
 		}
 	}
@@ -1250,7 +1250,7 @@ char	CFunction::ExecSystemFunctionWithArgs(CCell& cell, std::vector<size_t> &sid
 void	CFunction::ExecHistoryP1(size_t start_index, CCell& cell, const CValue &arg, CStatement &st)
 {
 	if (arg.array_size()) {
-		cell.ansv()    = CValue(start_index);
+		cell.ansv()    = CValue((yaya::int_t)start_index);
 		cell.order()   = arg.array()[0];
 	}
 	else {
