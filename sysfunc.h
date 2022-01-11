@@ -40,7 +40,7 @@ typedef CValue (CSystemFunction::*SysFuncProc)(CSF_FUNCPARAM &p);
 typedef struct CSF_FUNCTABLE
 {
 	SysFuncProc func;
-	yaya::char_t* name;
+	const yaya::char_t* name;
 } CSF_FUNCTABLE;
 
 class	CSystemFunction
@@ -79,7 +79,7 @@ public:
 
 	void	SetLso(size_t order) { lso = order; }
 
-	CValue	Execute(int index, const CValue &arg, const std::vector<CCell *> &pcellarg,
+	CValue	Execute(ptrdiff_t index, const CValue &arg, const std::vector<CCell *> &pcellarg,
 				CValueArgArray &valuearg, CLocalVariable &lvar, int l, CFunction *thisfunc);
 
 private:

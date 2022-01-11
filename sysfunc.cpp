@@ -96,7 +96,7 @@ extern "C" {
 
 #define SYSFUNC_HIS_NAME L"EmBeD_HiStOrY"
 
-const CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
+constexpr CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	// 型取得/変換
 	{ &CSystemFunction::TOINT , L"TOINT" } ,
 	{ &CSystemFunction::TOREAL , L"TOREAL" } ,
@@ -451,11 +451,11 @@ const yaya::char_t* CSystemFunction::HistoryFunctionName(void)
 class CSF_FUNCPARAM
 {
 public:
-	CSF_FUNCPARAM(int pindex,const CValue &parg,const std::vector<CCell *> &ppcellarg,CValueArgArray &pvaluearg,CLocalVariable &plvar,int pline,CFunction *pthisfunc,const yaya::string_t &pdicname) :
+	CSF_FUNCPARAM(ptrdiff_t pindex,const CValue &parg,const std::vector<CCell *> &ppcellarg,CValueArgArray &pvaluearg,CLocalVariable &plvar,int pline,CFunction *pthisfunc,const yaya::string_t &pdicname) :
 		index(pindex) , arg(parg) , pcellarg(ppcellarg), valuearg(pvaluearg), lvar(plvar), line(pline), thisfunc(pthisfunc), dicname(pdicname) {
 	}
 
-	int index;
+	ptrdiff_t index;
 	const CValue &arg;
 	const std::vector<CCell *> &pcellarg;
 	CValueArgArray &valuearg;
@@ -465,7 +465,7 @@ public:
 	const yaya::string_t &dicname;
 };
 
-CValue	CSystemFunction::Execute(int index, const CValue &arg, const std::vector<CCell *> &pcellarg,
+CValue	CSystemFunction::Execute(ptrdiff_t index, const CValue &arg, const std::vector<CCell *> &pcellarg,
 			CValueArgArray &valuearg, CLocalVariable &lvar, int line, CFunction *thisfunc)
 {
 	CSF_FUNCPARAM p(index,arg,pcellarg,valuearg,lvar,line,thisfunc,thisfunc->dicfilename);

@@ -71,8 +71,8 @@ bool yayamsg::LoadMessageFromTxt(const yaya::string_t &file,char cset)
 
 		CutCrLf(line);
 
-		if ( line.substr(0,3)==L"!!!" ) {
-			yaya::string_t&type = line.substr(3);
+		if( line.substr(0,3)==L"!!!" ) {
+			yaya::string_t type = line.substr(3);
 
 			if ( type == L"msgf" ) {
 				ptr = &msgf;
@@ -122,7 +122,7 @@ bool yayamsg::LoadMessageFromTxt(const yaya::string_t &file,char cset)
 const yaya::string_t yayamsg::GetTextFromTable(int mode,int id)
 {
 	yayamsg::MessageArray *ptr;
-	yaya::char_t *emsg;
+	const yaya::char_t *emsg;
 
 	if (mode == E_F) {
 		ptr = &yayamsg::msgf;
