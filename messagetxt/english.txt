@@ -108,6 +108,8 @@
 *error E0096 : Attempted to unload a dictionary that was not loaded.
 *error E0097 : Depth of the function call has reached its limit. Following execution has been aborted.
 *error E0098 : Loop count has reached its limit. Following execution has been aborted.
+*error E0099 : The occupied memory limit has been reached. Following execution has been aborted.
+*error E0100 : Wrong memory address accessed. Following execution has been aborted.
 //
 // ワーニング文字列（英語）
 !!!msgw
@@ -134,6 +136,7 @@
 *warning W0020 : Requires even number of elements to create hash.
 *warning W0021 : Empty here document found.
 *warning W0022 : Here document start sequence found.
+*warning W0023 : Some information was lost during the process of restoring variables.
 //
 // 注記文字列（英語）
 !!!msgn

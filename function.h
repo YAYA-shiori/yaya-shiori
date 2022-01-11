@@ -213,7 +213,7 @@ protected:
 	bool	not_in_(const CValue &src, const CValue &dst);
 	char	ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	char	ExecSystemFunctionWithArgs(CCell& cell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
-	void	ExecHistoryP1(int start_index, CCell& cell, const CValue &arg, CStatement &st);
+	void	ExecHistoryP1(size_t start_index, CCell& cell, const CValue &arg, CStatement &st);
 	void	ExecHistoryP2(CCell &cell, CStatement &st);
 	char	Feedback(CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	void	EncodeArrayOrder(CCell &vcell, const CValue &order, CLocalVariable &lvar, CValue &result);

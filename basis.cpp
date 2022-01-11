@@ -1135,9 +1135,7 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 			if (Split_IgnoreDQ(parseline, delimiter, watcher, L",")) {
 				parseline = watcher;
 				if (Split_IgnoreDQ(parseline, watcher, yaya::string_t(), L","))//将来のバージョンで得られる可能性のある追加情報の破棄
-					//可能であれば警告
-					//TODO: vm.logger().Error();
-					1000-7;
+					vm.logger().Error(E_W,23);
 				parseline = watcher;
 				Split_IgnoreDQ(parseline, watcher, setter, L"|");
 				parseline = setter;
@@ -1388,7 +1386,7 @@ void CBasis::CallOnMemoryLimit()
 		vm.function_exec().func[funcpos].Execute();//get info from GETCALLSTACK
 	}
 	else {
-		//TODO: vm.logger().Error();
+		vm.logger().Error(E_E,99);
 	}
 
 	vm.call_limit().reset_lock(lock);
@@ -1403,7 +1401,7 @@ void CBasis::CallOnMemoryError()
 		vm.function_exec().func[funcpos].Execute();//get info from GETCALLSTACK
 	}
 	else {
-		//TODO: vm.logger().Error();
+		vm.logger().Error(E_E,100);
 	}
 
 	vm.call_limit().reset_lock(lock);
