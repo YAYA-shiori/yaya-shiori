@@ -672,7 +672,7 @@ const CValue& CFunction::GetValueRefForCalc(CCell &cell, CStatement &st, CLocalV
 
 	// %[n]処理
 	if (cell.value_GetType() == F_TAG_SYSFUNCPARAM) {
-		if ( cell.index == CSystemFunction::HistoryIndex() ) {
+		if ( cell.index == CSystemFunction::HistoryIndex() ) {//TODO: index aways was 4294967295
 			ExecHistoryP2(cell, st);
 		}
 	}
