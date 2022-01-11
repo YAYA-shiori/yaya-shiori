@@ -42,8 +42,8 @@ class	CCell
 {
 public:
 	yaya::string_t	name;			// この項の"名前"（thisがローカル変数/関数の時に使用します）
-	ptrdiff_t		index;				// 位置番号（thisが変数/ローカル変数/関数の際に使用します）
-	ptrdiff_t		depth;				// {}入れ子の深さ（thisがローカル変数の時に使用します）
+	ptrdiff_t		index;			// 位置番号（thisが変数/ローカル変数/関数の際に使用します）
+	ptrdiff_t		depth;			// {}入れ子の深さ（thisがローカル変数の時に使用します）
 
 private:
 	int     m_type;									// m_valueにタイプしか格納しない場合に使用
