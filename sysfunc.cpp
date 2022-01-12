@@ -3803,7 +3803,17 @@ CValue	CSystemFunction::ISEVALUABLE(CSF_FUNCPARAM &p)
 	// êîéÆÇ÷ìWäJ
 	yaya::string_t	str = p.arg.array()[0].GetValueString();
 	CStatement	t_state(ST_FORMULA, p.line);
-	return CValue(!vm.parser0().ParseEmbedString(str, t_state, p.dicname, p.line));
+	bool result;
+	vm.logger().lock();
+	try {
+		result = !vm.parser0().ParseEmbedString(str, t_state, p.dicname, p.line);
+	}
+	catch (...) {
+		vm.logger().unlock();
+		throw;
+	}
+	vm.logger().unlock();
+	return CValue(result);
 }
 
 /* -----------------------------------------------------------------------

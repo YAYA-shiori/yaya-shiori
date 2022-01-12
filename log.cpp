@@ -234,6 +234,8 @@ void	CLog::Message(int id, int mode)
  */
 void	CLog::Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t &dicfilename, ptrdiff_t linecount)
 {
+	if (locking)
+		return;
 	// ログに書き込み文字列を作成（辞書ファイル名と行番号）
 	yaya::string_t	logstr;
 

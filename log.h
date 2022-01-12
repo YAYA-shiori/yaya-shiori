@@ -40,6 +40,7 @@ protected:
 	char		open;		// ロギング開始フラグ
 	char		fileen;		// ファイルへのロギング有効フラグ
 	char		iolog;		// 入出力ロギング有効フラグ
+	bool		locking;
 
 	//入力でこの文字列があったらログ出力しないリスト
 	std::vector<yaya::string_t> iolog_filter_keyword;
@@ -67,6 +68,7 @@ public:
 		iolog_filter_mode = 0;
 		loghandler = NULL;
 		logmaxnum = 256;
+		locking = 0;
 	}
 
 #if defined(POSIX)
@@ -120,6 +122,9 @@ public:
 
 	void SetMaxLogNum(size_t num);
 	size_t GetMaxLogNum();
+
+	void lock() { locking = 1; }
+	void unlock() { locking = 0; }
 protected:
 #if defined(WIN32)
 	HWND	GetCheckerWnd(void);
