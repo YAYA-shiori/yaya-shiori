@@ -175,6 +175,9 @@ public:
 	}
 	//////////////////////////////////////
 	std_shared_ptr<CValue> &emb_ansv_shared(void) const {
+		if (!m_emb_ansv.get()) {
+			m_emb_ansv.reset(new CValue());
+		}
 		return m_emb_ansv;
 	}
 	const CValue &emb_ansv_const(void) const {
