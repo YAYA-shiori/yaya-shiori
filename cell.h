@@ -105,10 +105,6 @@ public:
 		if ( ! m_value.get() ) {
 			m_value.reset(new CValue(m_type,0));
 		}
-		else if ( m_value.use_count() >= 2 ) {
-			CValue *pV = m_value.get();
-			m_value.reset(new CValue(*pV));
-		}
 		return *m_value;
 	}
 	void value_Delete(void) {
@@ -131,6 +127,16 @@ public:
 		}
 		return m_ansv;
 	}
+	std_shared_ptr<CValue> &ansv_shared_get(void) const {
+		if( ! m_ansv.get() ) {
+			m_ansv.reset(new CValue());
+		}
+		else if( m_ansv.use_count() >= 2 ) {
+			CValue *pV = m_ansv.get();
+			m_ansv.reset(new CValue(*pV));
+		}
+		return m_ansv;
+	}
 	const CValue &ansv_const(void) const {
 		if ( ! m_ansv.get() ) {
 			return emptyvalue;
@@ -143,10 +149,6 @@ public:
 	CValue &ansv(void) {
 		if ( ! m_ansv.get() ) {
 			m_ansv.reset(new CValue());
-		}
-		else if ( m_ansv.use_count() >= 2 ) {
-			CValue *pV = m_ansv.get();
-			m_ansv.reset(new CValue(*pV));
 		}
 		return *m_ansv;
 	}
@@ -167,15 +169,24 @@ public:
 		if ( ! m_order.get() ) {
 			m_order.reset(new CValue());
 		}
-		else if ( m_order.use_count() >= 2 ) {
-			CValue *pV = m_order.get();
-			m_order.reset(new CValue(*pV));
-		}
 		return *m_order;
 	}
 	//////////////////////////////////////
 	std_shared_ptr<CValue> &emb_ansv_shared(void) const {
-		if (!m_emb_ansv.get()) {
+		return m_emb_ansv;
+	}
+	std_shared_ptr<CValue> &emb_shared_create(void) const {
+		if( ! m_emb_ansv.get() ) {
+			m_emb_ansv.reset(new CValue());
+		}
+		else if( m_emb_ansv.use_count() >= 2 ) {
+			CValue *pV = m_emb_ansv.get();
+			m_emb_ansv.reset(new CValue(*pV));
+		}
+		return m_emb_ansv;
+	}
+	std_shared_ptr<CValue> &emb_shared_get(void) const {
+		if( ! m_emb_ansv.get() ) {
 			m_emb_ansv.reset(new CValue());
 		}
 		return m_emb_ansv;
@@ -192,10 +203,6 @@ public:
 	CValue &emb_ansv(void) {
 		if ( ! m_emb_ansv.get() ) {
 			m_emb_ansv.reset(new CValue());
-		}
-		else if ( m_emb_ansv.use_count() >= 2 ) {
-			CValue *pV = m_emb_ansv.get();
-			m_emb_ansv.reset(new CValue(*pV));
 		}
 		return *m_emb_ansv;
 	}

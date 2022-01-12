@@ -105,10 +105,6 @@ public:
 		if ( ! m_value.get() ) {
 			m_value.reset(new CValue);
 		}
-		else if ( m_value.use_count() >= 2 ) {
-			CValue *pV = m_value.get();
-			m_value.reset(new CValue(*pV));
-		}
 		return *m_value;
 	}
 	const CValue& call_watcher(CAyaVM& vm, CValue& save);
