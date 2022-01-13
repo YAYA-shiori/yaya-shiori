@@ -85,10 +85,6 @@ public:
 		if ( ! m_cell.get() ) {
 			m_cell.reset(new std::vector<CCell>);
 		}
-		else if ( m_cell.use_count() >= 2 ) {
-			std::vector<CCell> *pV = m_cell.get();
-			m_cell.reset(new std::vector<CCell>(*pV));
-		}
 		return *m_cell;
 	}
 	//////////////////////////////////////////////
@@ -109,10 +105,6 @@ public:
 	std::vector<CSerial>& serial(void) {
 		if ( ! m_serial.get() ) {
 			m_serial.reset(new std::vector<CSerial>);
-		}
-		else if ( m_serial.use_count() >= 2 ) {
-			std::vector<CSerial> *pV = m_serial.get();
-			m_serial.reset(new std::vector<CSerial>(*pV));
 		}
 		return *m_serial;
 	}

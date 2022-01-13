@@ -1281,7 +1281,7 @@ void	CFunction::ExecHistoryP2(CCell& cell, CStatement &st)
 	for(ptrdiff_t i = start ; i >= 0; i--) {
 		if (st.cell()[i].value_GetType() == F_TAG_STRING_EMBED) {
 			if (!index) {
-				cell.ansv_shared() = st.cell()[i].emb_ansv_shared();
+				cell.ansv_shared() = st.cell()[i].emb_shared_get();
 				return;
 			}
 			index--;
