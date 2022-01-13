@@ -417,10 +417,12 @@ bool CValue::DecodeArrayOrder(size_t&order, size_t&order1, yaya::string_t &delim
  *  operator = (int)
  * -----------------------------------------------------------------------
  */
-CValue &CValue::operator =(yaya::int_t value)
+CValue &CValue::operator =(yaya::int_t value) LVALUE_MODIFIER
 {
 	type    = F_TAG_INT;
 	i_value = value;
+	m_array.reset();
+	s_value.erase();
 
 	return *this;
 }
@@ -429,10 +431,12 @@ CValue &CValue::operator =(yaya::int_t value)
  *  operator = (double)
  * -----------------------------------------------------------------------
  */
-CValue &CValue::operator =(double value)
+CValue &CValue::operator =(double value) LVALUE_MODIFIER
 {
 	type    = F_TAG_DOUBLE;
 	d_value = value;
+	m_array.reset();
+	s_value.erase();
 
 	return *this;
 }
@@ -441,10 +445,19 @@ CValue &CValue::operator =(double value)
  *  operator = (yaya::string_t)
  * -----------------------------------------------------------------------
  */
-CValue &CValue::operator =(const yaya::string_t &value)
+CValue &CValue::operator =(const yaya::string_t &value) LVALUE_MODIFIER
 {
 	type    = F_TAG_STRING;
 	s_value = value;
+	m_array.reset();
+
+	return *this;
+}
+CValue& CValue::operator =(yaya::string_t MOVE_SEMANTICS value) LVALUE_MODIFIER
+{
+	type = F_TAG_STRING;
+	std::swap(s_value,value);
+	m_array.reset();
 
 	return *this;
 }
@@ -453,10 +466,11 @@ CValue &CValue::operator =(const yaya::string_t &value)
  *  operator = (yaya::char_t*)
  * -----------------------------------------------------------------------
  */
-CValue &CValue::operator =(const yaya::char_t *value)
+CValue &CValue::operator =(const yaya::char_t *value) LVALUE_MODIFIER
 {
 	type    = F_TAG_STRING;
 	s_value = value;
+	m_array.reset();
 
 	return *this;
 }
@@ -465,25 +479,27 @@ CValue &CValue::operator =(const yaya::char_t *value)
  *  operator = (CValueArray)
  * -----------------------------------------------------------------------
  */
-CValue &CValue::operator =(const CValueArray &value)
+CValue &CValue::operator =(const CValueArray &value) LVALUE_MODIFIER
 {
 	type    = F_TAG_ARRAY;
 	array().assign(value.begin(), value.end());
+	s_value.erase();
 
 	return *this;
 }
 
-void CValue::SubstToArray(CValueArray &value)
+void CValue::SubstToArray(CValueArray &value) LVALUE_MODIFIER
 {
 	type    = F_TAG_ARRAY;
 	array().swap(value);
+	s_value.erase();
 }
 
 /* -----------------------------------------------------------------------
  *  operator = (CValueSub)
  * -----------------------------------------------------------------------
  */
-CValue &CValue::operator =(const CValueSub &value)
+CValue &CValue::operator =(const CValueSub &value) LVALUE_MODIFIER
 {
 	switch(value.GetType()) {
 	case F_TAG_INT:
@@ -499,10 +515,11 @@ CValue &CValue::operator =(const CValueSub &value)
 		type = F_TAG_VOID;
 		i_value = 0;
 		d_value = 0;
-		s_value = L"";
+		m_array.reset();
+		s_value.erase();
 		break;
 	default:
-		*this = L"";
+		*this = yaya::string_t();
 		break;
 	};
 
@@ -746,7 +763,7 @@ CValue CValue::operator +(const CValue &value) const
 	return CValue(value);
 }
 
-void CValue::operator +=(const CValue &value)
+void CValue::operator +=(const CValue &value) LVALUE_MODIFIER
 {
 	int t = CalcEscalationTypeStr(value.type);
 	if ( t == type ) { //ç∂ï”(é©êg)ÇÃå^Ç∆ìØÇ∂èÍçáÇ…å¿ÇË
@@ -792,7 +809,7 @@ CValue CValue::operator -(const CValue &value) const
 	return CValue(value);
 }
 
-void CValue::operator -=(const CValue &value)
+void CValue::operator -=(const CValue &value) LVALUE_MODIFIER
 {
 	int t = CalcEscalationTypeStr(value.type);
 	if ( t == type ) { //ç∂ï”(é©êg)ÇÃå^Ç∆ìØÇ∂èÍçáÇ…å¿ÇË
@@ -832,7 +849,7 @@ CValue CValue::operator *(const CValue &value) const
 	return CValue(value);
 }
 
-void CValue::operator *=(const CValue &value)
+void CValue::operator *=(const CValue &value) LVALUE_MODIFIER
 {
 	int t = CalcEscalationTypeStr(value.type);
 	if ( t == type ) { //ç∂ï”(é©êg)ÇÃå^Ç∆ìØÇ∂èÍçáÇ…å¿ÇË
@@ -880,7 +897,7 @@ CValue CValue::operator /(const CValue &value) const
 	return CValue(value);
 }
 
-void CValue::operator /=(const CValue &value)
+void CValue::operator /=(const CValue &value) LVALUE_MODIFIER
 {
 	int t = CalcEscalationTypeStr(value.type);
 	if ( t == type ) { //ç∂ï”(é©êg)ÇÃå^Ç∆ìØÇ∂èÍçáÇ…å¿ÇË
@@ -919,7 +936,7 @@ CValue CValue::operator %(const CValue &value) const
 	return CValue(value);
 }
 
-void CValue::operator %=(const CValue &value)
+void CValue::operator %=(const CValue &value) LVALUE_MODIFIER
 {
 	int t = CalcEscalationTypeStr(value.type);
 	if ( t == type ) { //ç∂ï”(é©êg)ÇÃå^Ç∆ìØÇ∂èÍçáÇ…å¿ÇË

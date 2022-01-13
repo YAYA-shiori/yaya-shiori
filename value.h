@@ -87,11 +87,12 @@ public:
 	double			GetValueDouble(void) const;
 	yaya::string_t	GetValueString(void) const;
 
-	CValueSub	&operator =(yaya::int_t value);
-	CValueSub	&operator =(double value);
-	CValueSub	&operator =(const yaya::string_t &value);
-	CValueSub	&operator =(const yaya::char_t *value);
-	CValueSub	&operator =(const CValue &v);
+	CValueSub	&operator =(yaya::int_t value) LVALUE_MODIFIER;
+	CValueSub	&operator =(double value) LVALUE_MODIFIER;
+	CValueSub	&operator =(const yaya::string_t &value) LVALUE_MODIFIER;
+	CValueSub	&operator =(yaya::string_t MOVE_SEMANTICS value) LVALUE_MODIFIER;
+	CValueSub	&operator =(const yaya::char_t *value) LVALUE_MODIFIER;
+	CValueSub	&operator =(const CValue &v) LVALUE_MODIFIER;
 
 	CValueSub	operator +(const CValueSub &value) const;
 	CValueSub	operator -(const CValueSub &value) const;
@@ -99,11 +100,11 @@ public:
 	CValueSub	operator /(const CValueSub &value) const;
 	CValueSub	operator %(const CValueSub &value) const;
 
-	void	operator +=(const CValueSub &value);
-	void	operator -=(const CValueSub &value);
-	void	operator *=(const CValueSub &value);
-	void	operator /=(const CValueSub &value);
-	void	operator %=(const CValueSub &value);
+	void	operator +=(const CValueSub &value) LVALUE_MODIFIER;
+	void	operator -=(const CValueSub &value) LVALUE_MODIFIER;
+	void	operator *=(const CValueSub &value) LVALUE_MODIFIER;
+	void	operator /=(const CValueSub &value) LVALUE_MODIFIER;
+	void	operator %=(const CValueSub &value) LVALUE_MODIFIER;
 
 	inline bool operator ==(const CValueSub &value) const {
 		return Compare(value);
@@ -259,14 +260,15 @@ public:
 
 	bool	DecodeArrayOrder(size_t& order, size_t& order1, yaya::string_t& delimiter) const;
 
-	CValue	&operator =(yaya::int_t value);
-	CValue	&operator =(double value);
-	CValue	&operator =(const yaya::string_t &value);
-	CValue	&operator =(const yaya::char_t *value);
-	CValue	&operator =(const CValueArray &value);
-	CValue	&operator =(const CValueSub &value);
+	CValue	&operator =(yaya::int_t value) LVALUE_MODIFIER;
+	CValue	&operator =(double value) LVALUE_MODIFIER;
+	CValue	&operator =(const yaya::string_t &value) LVALUE_MODIFIER;
+	CValue	&operator =(yaya::string_t MOVE_SEMANTICS value) LVALUE_MODIFIER;
+	CValue	&operator =(const yaya::char_t *value) LVALUE_MODIFIER;
+	CValue	&operator =(const CValueArray &value) LVALUE_MODIFIER;
+	CValue	&operator =(const CValueSub &value) LVALUE_MODIFIER;
 
-	void SubstToArray(CValueArray &value);
+	void SubstToArray(CValueArray &value) LVALUE_MODIFIER;
 
 	CValue	operator +(const CValue &value) const;
 	CValue	operator -(const CValue &value) const;
@@ -274,11 +276,11 @@ public:
 	CValue	operator /(const CValue &value) const;
 	CValue	operator %(const CValue &value) const;
 
-	void	operator +=(const CValue &value);
-	void	operator -=(const CValue &value);
-	void	operator *=(const CValue &value);
-	void	operator /=(const CValue &value);
-	void	operator %=(const CValue &value);
+	void	operator +=(const CValue &value) LVALUE_MODIFIER;
+	void	operator -=(const CValue &value) LVALUE_MODIFIER;
+	void	operator *=(const CValue &value) LVALUE_MODIFIER;
+	void	operator /=(const CValue &value) LVALUE_MODIFIER;
+	void	operator %=(const CValue &value) LVALUE_MODIFIER;
 
 	CValue	operator [](const CValue &value) const;
 
