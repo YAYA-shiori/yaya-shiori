@@ -131,10 +131,6 @@ public:
 		if( ! m_ansv.get() ) {
 			m_ansv.reset(new CValue());
 		}
-		else if( m_ansv.use_count() >= 2 ) {
-			CValue *pV = m_ansv.get();
-			m_ansv.reset(new CValue(*pV));
-		}
 		return m_ansv;
 	}
 	const CValue &ansv_const(void) const {
