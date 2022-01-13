@@ -35,13 +35,13 @@ CValueSub::CValueSub(const CValue &v)
 	case F_TAG_INT:
 		i_value = v.i_value;
 		d_value = 0;
-		s_value.clear();
+		s_value.erase();
 		type = v.type;
 		return;
 	case F_TAG_DOUBLE:
 		i_value = 0;
 		d_value = v.d_value;
-		s_value.clear();
+		s_value.erase();
 		type = v.type;
 		return;
 	case F_TAG_STRING:
@@ -53,7 +53,7 @@ CValueSub::CValueSub(const CValue &v)
 	default:
 		i_value = 0;
 		d_value = 0;
-		s_value.clear();
+		s_value.erase();
 		type = F_TAG_VOID;
 		return;
 	}
@@ -136,11 +136,11 @@ yaya::string_t	CValueSub::GetValueString(void) const
  *  operator = (int)
  * -----------------------------------------------------------------------
  */
-CValueSub &CValueSub::operator =(yaya::int_t value)&
+CValueSub &CValueSub::operator =(yaya::int_t value) LVALUE_MODIFIER
 {
 	type	= F_TAG_INT;
 	i_value	= value;
-	s_value.clear();
+	s_value.erase();
 
 	return *this;
 }
@@ -149,11 +149,11 @@ CValueSub &CValueSub::operator =(yaya::int_t value)&
  *  operator = (double)
  * -----------------------------------------------------------------------
  */
-CValueSub &CValueSub::operator =(double value)&
+CValueSub &CValueSub::operator =(double value) LVALUE_MODIFIER
 {
 	type	= F_TAG_DOUBLE;
 	d_value	= value;
-	s_value.clear();
+	s_value.erase();
 
 	return *this;
 }
@@ -162,17 +162,17 @@ CValueSub &CValueSub::operator =(double value)&
  *  operator = (yaya::string_t)
  * -----------------------------------------------------------------------
  */
-CValueSub &CValueSub::operator =(const yaya::string_t &value)&
+CValueSub &CValueSub::operator =(const yaya::string_t &value) LVALUE_MODIFIER
 {
 	type	= F_TAG_STRING;
 	s_value = value;
 
 	return *this;
 }
-CValueSub &CValueSub::operator =(yaya::string_t &&value)&
+CValueSub &CValueSub::operator =(yaya::string_t MOVE_SEMANTICS value) LVALUE_MODIFIER
 {
 	type	= F_TAG_STRING;
-	swap(s_value,value);
+	std::swap(s_value,value);
 
 	return *this;
 }
@@ -181,7 +181,7 @@ CValueSub &CValueSub::operator =(yaya::string_t &&value)&
  *  operator = (yaya::char_t*)
  * -----------------------------------------------------------------------
  */
-CValueSub &CValueSub::operator =(const yaya::char_t *value)&
+CValueSub &CValueSub::operator =(const yaya::char_t *value) LVALUE_MODIFIER
 {
 	type	= F_TAG_STRING;
 	s_value	= value;
@@ -193,17 +193,17 @@ CValueSub &CValueSub::operator =(const yaya::char_t *value)&
  *  operator = (CValue)
  * -----------------------------------------------------------------------
  */
-CValueSub &CValueSub::operator =(const CValue &v)&
+CValueSub &CValueSub::operator =(const CValue &v) LVALUE_MODIFIER
 {
 	switch(v.type) {
 	case F_TAG_INT:
 		i_value = v.i_value;
-		s_value.clear();
+		s_value.erase();
 		type = v.type;
 		return *this;
 	case F_TAG_DOUBLE:
 		d_value = v.d_value;
-		s_value.clear();
+		s_value.erase();
 		type = v.type;
 		return *this;
 	case F_TAG_STRING:
@@ -212,7 +212,7 @@ CValueSub &CValueSub::operator =(const CValue &v)&
 		return *this;
 	default:
 		type = F_TAG_VOID;
-		s_value.clear();
+		s_value.erase();
 		return *this;
 	}
 }
@@ -273,7 +273,7 @@ CValueSub CValueSub::operator +(const CValueSub &value) const
 	return CValueSub(value);
 }
 
-void CValueSub::operator +=(const CValueSub &value)&
+void CValueSub::operator +=(const CValueSub &value) LVALUE_MODIFIER
 {
 	int t = CalcEscalationTypeStr(value.type);
 	if ( t != type ) {
@@ -310,7 +310,7 @@ CValueSub CValueSub::operator -(const CValueSub &value) const
 	return CValueSub(value);
 }
 
-void CValueSub::operator -=(const CValueSub &value)&
+void CValueSub::operator -=(const CValueSub &value) LVALUE_MODIFIER
 {
 	*this = operator-(value);
 }
@@ -333,7 +333,7 @@ CValueSub CValueSub::operator *(const CValueSub &value) const
 	return CValueSub(value);
 }
 
-void CValueSub::operator *=(const CValueSub &value)&
+void CValueSub::operator *=(const CValueSub &value) LVALUE_MODIFIER
 {
 	*this = operator*(value);
 }
@@ -372,7 +372,7 @@ CValueSub CValueSub::operator /(const CValueSub &value) const
 	return CValueSub(value);
 }
 
-void CValueSub::operator /=(const CValueSub &value)&
+void CValueSub::operator /=(const CValueSub &value) LVALUE_MODIFIER
 {
 	*this = operator/(value);
 }
@@ -402,7 +402,7 @@ CValueSub CValueSub::operator %(const CValueSub &value) const
 	return CValueSub(value);
 }
 
-void CValueSub::operator %=(const CValueSub &value)&
+void CValueSub::operator %=(const CValueSub &value) LVALUE_MODIFIER
 {
 	*this = operator%(value);
 }
