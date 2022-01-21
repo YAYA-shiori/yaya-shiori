@@ -453,7 +453,9 @@ CValue &CValue::operator =(const yaya::string_t &value) LVALUE_MODIFIER
 
 	return *this;
 }
-CValue& CValue::operator =(yaya::string_t MOVE_SEMANTICS value) LVALUE_MODIFIER
+
+#if CPP_STD_VER > 2011
+CValue& CValue::operator =(yaya::string_t&& value) LVALUE_MODIFIER
 {
 	type = F_TAG_STRING;
 	std::swap(s_value,value);
@@ -461,6 +463,7 @@ CValue& CValue::operator =(yaya::string_t MOVE_SEMANTICS value) LVALUE_MODIFIER
 
 	return *this;
 }
+#endif
 
 /* -----------------------------------------------------------------------
  *  operator = (yaya::char_t*)

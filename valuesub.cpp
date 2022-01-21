@@ -169,13 +169,16 @@ CValueSub &CValueSub::operator =(const yaya::string_t &value) LVALUE_MODIFIER
 
 	return *this;
 }
-CValueSub &CValueSub::operator =(yaya::string_t MOVE_SEMANTICS value) LVALUE_MODIFIER
+
+#if CPP_STD_VER > 2011
+CValueSub &CValueSub::operator =(yaya::string_t&& value) LVALUE_MODIFIER
 {
 	type	= F_TAG_STRING;
 	std::swap(s_value,value);
 
 	return *this;
 }
+#endif
 
 /* -----------------------------------------------------------------------
  *  operator = (yaya::char_t*)
