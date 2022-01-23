@@ -30,6 +30,7 @@ static std::vector<CAyaVMWrapper*> vm;
 static yaya::string_t modulename;
 static std::vector<void (*)(const yaya::char_t *str, int mode, int id)> loghandler_list;
 static size_t id_now=0;
+static long logsend_hwnd = 0;
 
 //////////DEBUG/////////////////////////
 #ifdef _WINDOWS
@@ -47,6 +48,11 @@ private:
 public:
 	CAyaVMWrapper(const yaya::string_t &path, yaya::global_t h, long len) {
 		vm = new CAyaVM();
+
+		if (logsend_hwnd != 0) {
+			SetLogRcvWnd(logsend_hwnd);
+			logsend_hwnd = 0;
+		}
 
 		vm->logger().Set_loghandler(loghandler_list[id_now]);
 
@@ -365,6 +371,9 @@ extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB logsend(long hwnd)
 	}
 	else if ( vm.size() >= 2 && vm[1] ) {
 		vm[1]->SetLogRcvWnd(hwnd);
+	}
+	else {
+		logsend_hwnd = hwnd;
 	}
 
 	return TRUE;
