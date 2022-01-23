@@ -90,7 +90,9 @@ public:
 	CValueSub	&operator =(yaya::int_t value) LVALUE_MODIFIER;
 	CValueSub	&operator =(double value) LVALUE_MODIFIER;
 	CValueSub	&operator =(const yaya::string_t &value) LVALUE_MODIFIER;
-	CValueSub	&operator =(yaya::string_t MOVE_SEMANTICS value) LVALUE_MODIFIER;
+	#if CPP_STD_VER > 2011
+	CValueSub	&operator =(yaya::string_t&& value) LVALUE_MODIFIER;
+	#endif
 	CValueSub	&operator =(const yaya::char_t *value) LVALUE_MODIFIER;
 	CValueSub	&operator =(const CValue &v) LVALUE_MODIFIER;
 
@@ -263,7 +265,9 @@ public:
 	CValue	&operator =(yaya::int_t value) LVALUE_MODIFIER;
 	CValue	&operator =(double value) LVALUE_MODIFIER;
 	CValue	&operator =(const yaya::string_t &value) LVALUE_MODIFIER;
-	CValue	&operator =(yaya::string_t MOVE_SEMANTICS value) LVALUE_MODIFIER;
+	#if CPP_STD_VER > 2011
+	CValue	&operator =(yaya::string_t&& value) LVALUE_MODIFIER;
+	#endif
 	CValue	&operator =(const yaya::char_t *value) LVALUE_MODIFIER;
 	CValue	&operator =(const CValueArray &value) LVALUE_MODIFIER;
 	CValue	&operator =(const CValueSub &value) LVALUE_MODIFIER;

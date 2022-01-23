@@ -133,7 +133,6 @@ typedef unsigned long long uint64_t;
 #define _Printf_format_string_
 
 #define LVALUE_MODIFIER 
-#define MOVE_SEMANTICS &
 
 #define std_move(d) (d)
 
@@ -142,7 +141,6 @@ typedef unsigned long long uint64_t;
 #define std_move(d) std::move(d)
 
 #define LVALUE_MODIFIER &
-#define MOVE_SEMANTICS &&
 
 #endif //CPP_STD_VER
 
