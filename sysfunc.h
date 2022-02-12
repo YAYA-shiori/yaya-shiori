@@ -89,6 +89,8 @@ private:
 
 	bool ProcessTranslateSyntax(std::vector<yaya::char_t> &array,yaya::string_t &str, const yaya::string_t &d, int l);
 
+	CValue	ToLowerOrUpper(CSF_FUNCPARAM &p,const yaya::char_t *funcname,bool isUpper);
+
 protected:
 	CValue	TOINT(CSF_FUNCPARAM &p);
 	CValue	TOREAL(CSF_FUNCPARAM &p);

@@ -68,7 +68,7 @@ public:
 
 			CAyaVM *vme = new CAyaVM();
 
-			vm->logger().Set_loghandler(loghandler_list[id_now]);
+			vme->logger().Set_loghandler(loghandler_list[id_now]);
 
 			vme->basis().SetModuleName(modulename,L"_emerg",L"emergency");
 

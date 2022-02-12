@@ -33,6 +33,7 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <locale.h>
 #if defined(POSIX)
 # include <sys/stat.h>
 # include <sys/time.h>
@@ -1830,25 +1831,7 @@ CValue	CSystemFunction::INSERT(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::TOUPPER(CSF_FUNCPARAM &p)
 {
-	if (!p.arg.array_size()) {
-		vm.logger().Error(E_W, 8, L"TOUPPER", p.dicname, p.line);
-		SetError(8);
-		return CValue();
-	}
-
-	if (!p.arg.array()[0].IsString()) {
-		vm.logger().Error(E_W, 9, L"TOUPPER", p.dicname, p.line);
-		SetError(9);
-	}
-
-	yaya::string_t	result = p.arg.array()[0].GetValueString();
-	size_t len = result.size();
-	for(size_t i = 0; i < len; i++) {
-		if (result[i] >= L'a' && result[i] <= L'z') {
-			result[i] += static_cast<yaya::string_t::value_type>(L'A' - L'a');
-		}
-	}
-	return CValue(result);
+	return ToLowerOrUpper(p,L"TOUPPER",true);
 }
 
 /* -----------------------------------------------------------------------
@@ -1857,22 +1840,74 @@ CValue	CSystemFunction::TOUPPER(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::TOLOWER(CSF_FUNCPARAM &p)
 {
+	return ToLowerOrUpper(p,L"TOLOWER",false);
+}
+
+/* -----------------------------------------------------------------------
+ *  TOLOWER/TOUPPERの本体
+ * -----------------------------------------------------------------------
+ */
+CValue CSystemFunction::ToLowerOrUpper(CSF_FUNCPARAM &p,const yaya::char_t *funcname,bool isUpper)
+{
 	if (!p.arg.array_size()) {
-		vm.logger().Error(E_W, 8, L"TOLOWER", p.dicname, p.line);
+		vm.logger().Error(E_W, 8, funcname, p.dicname, p.line);
 		SetError(8);
 		return CValue();
 	}
 
 	if (!p.arg.array()[0].IsString()) {
-		vm.logger().Error(E_W, 9, L"TOLOWER", p.dicname, p.line);
+		vm.logger().Error(E_W, 9, funcname, p.dicname, p.line);
 		SetError(9);
 	}
 
-	yaya::string_t	result = p.arg.array()[0].GetValueString();
-	int	len = result.size();
-	for(int i = 0; i < len; i++)
-		if (result[i] >= L'A' && result[i] <= L'Z')
-			result[i] += (L'a' - L'A');
+	std::string locale("C");
+
+	if (p.arg.array_size() >= 2) {
+		if (!p.arg.array()[1].IsString()) {
+			vm.logger().Error(E_W, 9, funcname, p.dicname, p.line);
+			SetError(9);
+		}
+		char *p_locale = Ccct::Ucs2ToMbcs(p.arg.array()[1].GetValueString(), CHARSET_UTF8);
+		locale = p_locale;
+		free(p_locale);
+	}
+
+	yaya::string_t result = p.arg.array()[0].GetValueString();
+	size_t len = result.size();
+
+	if ( locale == "C" ) {
+		if ( isUpper ) {
+			for ( size_t i = 0; i < len; ++i ) {
+				if (result[i] >= L'a' && result[i] <= L'z') {
+					result[i] -= static_cast<yaya::string_t::value_type>(L'a' - L'A'); //小文字のほうがでかい
+				}
+			}
+		}
+		else {
+			for ( size_t i = 0; i < len; ++i ) {
+				if (result[i] >= L'A' && result[i] <= L'Z') {
+					result[i] += static_cast<yaya::string_t::value_type>(L'a' - L'A');
+				}
+			}
+		}
+	}
+	else {
+		char *pOldLocale = setlocale(LC_CTYPE,locale.c_str());
+
+
+		if ( isUpper ) {
+			for ( size_t i = 0; i < len; ++i ) {
+				result[i] = towupper(result[i]);
+			}
+		}
+		else {
+			for ( size_t i = 0; i < len; ++i ) {
+				result[i] = towlower(result[i]);
+			}
+		}
+
+		setlocale(LC_CTYPE,pOldLocale);
+	}
 
 	return CValue(result);
 }
