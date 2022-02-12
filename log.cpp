@@ -41,8 +41,8 @@ void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 {
 	iolog   = il;
 
-	if ( open ) {
-		if ( path != p || charset != cs ) {
+	if( open ) {
+		if(path != p || charset != cs || hw != hWnd) {
 			Termination();
 		}
 		else {
@@ -80,6 +80,7 @@ void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 	}
 	else {
 		fileen = 0;
+		enable = 1;
 		if( 
 			loghandler == NULL
 #if defined(WIN32)
