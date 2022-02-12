@@ -146,10 +146,16 @@ const yaya::string_t yayamsg::GetTextFromTable(int mode,int id)
 	}
 
 	if ( id < 0 || ptr->size() <= static_cast<size_t>(id) ) { //catch overflow
-		yaya::char_t buf[64] = L"";
-		yaya::snprintf(buf,63,L"%04d",id);
+		if ( id == 0 && ptr == &yayamsg::msgj ) {
+			//need special care, because msgj id=0 will call before loading configure file.
+			return L"// AYA request log (before loading base configure file)\r\n// load time: ";
+		}
+		else {
+			yaya::char_t buf[64] = L"";
+			yaya::snprintf(buf,63,L"%04d",id);
 
-		return yaya::string_t(emsg) + buf + L" : (please specify messagetxt)\r\n";
+			return yaya::string_t(emsg) + buf + L" : (please specify messagetxt)\r\n";
+		}
 	}
 	else {
 		return (*ptr)[id];
