@@ -19,6 +19,7 @@
 
 #include "globaldef.h"
 #include "manifest.h"
+#include "timer.h"
 
 #define	CLASSNAME_CHECKTOOL	"TamaWndClass"	/* チェックツールのウィンドウクラス名 */
 
@@ -32,7 +33,8 @@ protected:
 #if defined(WIN32)
 	HWND		hWnd;		// チェックツールのHWND
 #endif
-	void		(*loghandler)(const yaya::char_t *str, int mode, int id);
+	void (*loghandler)(const aya::char_t *str, int mode, int id) = NULL;
+	yaya::timer timer;
 
 	size_t logmaxnum;
 
