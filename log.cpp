@@ -92,6 +92,8 @@ void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 		}
 	}
 
+	timer.restart();
+
 	// •¶š—ñì¬
 	yaya::string_t	str = yayamsg::GetTextFromTable(E_J,0);
 	str += GetDateString();
@@ -324,9 +326,7 @@ void	CLog::Io(char io, const yaya::char_t *str)
 	if (!enable || !iolog)
 		return;
 
-	static	yaya::timer		timer;
-
-	if (!io) {
+	if(!io) {
 		//ignoreiolog‹@”\B
 		if ( iolog_filter_keyword.size() > 0 || iolog_filter_keyword_regex.size() > 0 ) {
 			yaya::string_t cstr=str;
