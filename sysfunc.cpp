@@ -3575,11 +3575,12 @@ CValue CSystemFunction::OUTPUTNUM(CSF_FUNCPARAM& p)
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::FSIZE
- *
- *  4GB以上のサイズは取得できません
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
+
+typedef BOOL (WINAPI* YGetFileSizeEx)(HANDLE hFile,PLARGE_INTEGER lpFileSize);
+
 CValue	CSystemFunction::FSIZE(CSF_FUNCPARAM &p)
 {
 	if (!p.arg.array_size()) {
@@ -3624,10 +3625,20 @@ CValue	CSystemFunction::FSIZE(CSF_FUNCPARAM &p)
 	
 	LARGE_INTEGER result;
 
-	if(!::GetFileSizeEx(hFile, &result)) {
-		result.QuadPart=-1;
-	}
+	YGetFileSizeEx pGetFileSizeEx = (YGetFileSizeEx)::GetProcAddress(::GetModuleHandle("kernel32"),"GetFileSizeEx");
 	
+	if ( pGetFileSizeEx ) {
+		if(!pGetFileSizeEx(hFile, &result)) {
+			result.QuadPart=-1;
+		}
+	}
+	else {
+		result.LowPart = ::GetFileSize(hFile,(DWORD*)&result.HighPart);
+		if ( result.LowPart == INVALID_FILE_SIZE ) {
+			result.QuadPart=-1;
+		}
+	}
+
 	::CloseHandle(hFile);
 
 	return CValue((yaya::int_t)result.QuadPart);

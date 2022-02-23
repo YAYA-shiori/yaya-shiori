@@ -23,6 +23,7 @@
 #include "ccct.h"
 #include "manifest.h"
 #include "messages.h"
+#include "misc.h"
 
 class CAyaVMWrapper;
 
@@ -156,17 +157,29 @@ static CAyaVMPrepare prepare; //これはコンストラクタ・デストラク
 
 static void AYA_InitModule(HMODULE hModule)
 {
-	char path[MAX_PATH] = "";
-	GetModuleFileName(hModule, path, sizeof(path));
-	char drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
-	_splitpath(path, drive, dir, fname, ext);
-	std::string	mbmodulename = fname;
+	if ( IsUnicodeAware() ) {
+		WORD path[MAX_PATH] = L"";
+		::GetModuleFileNameW(hModule, path, sizeof(path) / sizeof(path[0]));
+		
+		WORD drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
+		_wsplitpath(path, drive, dir, fname, ext);
 
-	wchar_t	*wcmodulename = Ccct::MbcsToUcs2(mbmodulename, CHARSET_DEFAULT);
-	modulename = wcmodulename;
+		modulename = fname;
+	}
+	else {
+		char path[MAX_PATH] = "";
+		::GetModuleFileNameA(hModule, path, sizeof(path));
+		
+		char drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
+		_splitpath(path, drive, dir, fname, ext);
 
-	free(wcmodulename);
-	wcmodulename = NULL;
+		std::string	mbmodulename = fname;
+
+		wchar_t	*wcmodulename = Ccct::MbcsToUcs2(mbmodulename, CHARSET_DEFAULT);
+		modulename = wcmodulename;
+
+		free(wcmodulename);
+	}
 
 	Ccct::sys_setlocale(LC_ALL);
 }

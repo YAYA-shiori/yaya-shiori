@@ -33,7 +33,7 @@ protected:
 #if defined(WIN32)
 	HWND		hWnd;		// チェックツールのHWND
 #endif
-	void (*loghandler)(const aya::char_t *str, int mode, int id) = NULL;
+	void (*loghandler)(const yaya::char_t *str, int mode, int id);
 	yaya::timer timer;
 
 	size_t logmaxnum;
