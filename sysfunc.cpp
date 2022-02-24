@@ -3578,9 +3578,6 @@ CValue CSystemFunction::OUTPUTNUM(CSF_FUNCPARAM& p)
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
-
-typedef BOOL (WINAPI* YGetFileSizeEx)(HANDLE hFile,PLARGE_INTEGER lpFileSize);
-
 CValue	CSystemFunction::FSIZE(CSF_FUNCPARAM &p)
 {
 	if (!p.arg.array_size()) {
@@ -3625,7 +3622,8 @@ CValue	CSystemFunction::FSIZE(CSF_FUNCPARAM &p)
 	
 	LARGE_INTEGER result;
 
-	YGetFileSizeEx pGetFileSizeEx = (YGetFileSizeEx)::GetProcAddress(::GetModuleHandle("kernel32"),"GetFileSizeEx");
+	typedef BOOL (WINAPI* YGetFileSizeEx)(HANDLE hFile,PLARGE_INTEGER lpFileSize);
+	static const YGetFileSizeEx pGetFileSizeEx = (YGetFileSizeEx)::GetProcAddress(::GetModuleHandle("kernel32"),"GetFileSizeEx");
 	
 	if ( pGetFileSizeEx ) {
 		if(!pGetFileSizeEx(hFile, &result)) {
