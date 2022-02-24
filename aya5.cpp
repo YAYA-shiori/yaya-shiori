@@ -158,10 +158,10 @@ static CAyaVMPrepare prepare; //これはコンストラクタ・デストラクタ作動用
 static void AYA_InitModule(HMODULE hModule)
 {
 	if ( IsUnicodeAware() ) {
-		WORD path[MAX_PATH] = L"";
+		wchar_t path[MAX_PATH] = L"";
 		::GetModuleFileNameW(hModule, path, sizeof(path) / sizeof(path[0]));
 		
-		WORD drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
+		wchar_t drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
 		_wsplitpath(path, drive, dir, fname, ext);
 
 		modulename = fname;
