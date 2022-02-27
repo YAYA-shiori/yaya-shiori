@@ -118,7 +118,11 @@ public:
 
 #if CPP_STD_VER < 2011
 private:
-	CSelecter() { }
+	CSelecter() {
+		aindex = areanum = 0;
+		duplctl			 = nullptr;
+		pvm				 = nullptr;
+	}
 public:
 #else
 	CSelecter()=delete;
