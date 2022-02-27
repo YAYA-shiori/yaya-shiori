@@ -122,9 +122,9 @@ int	CLib1::LoadLib(void)
 	if (dllpathname == NULL)
 		return 0;
 
-	isAlreadyLoaded = ::GetModuleHandle(dllpathname) != NULL;
+	isAlreadyLoaded = ::GetModuleHandleA(dllpathname) != NULL;
 
-	hDLL = ::LoadLibrary(dllpathname);
+	hDLL = ::LoadLibraryA(dllpathname);
 	free(dllpathname);
 	dllpathname= NULL;
 	
@@ -232,6 +232,12 @@ int	CLib1::Load(void)
 
 		// パス文字列をヒープにコピー
 		HGLOBAL	gmem = ::GlobalAlloc(GMEM_FIXED, len);
+		if (!gmem) {
+			free(t_dllpath);
+			t_dllpath = NULL;
+			return 0;
+		}
+
 		memcpy(gmem, t_dllpath, len);
 		free(t_dllpath);
 		t_dllpath = NULL;
@@ -387,6 +393,11 @@ int	CLib1::Request(const yaya::string_t &istr, yaya::string_t &ostr)
 
 	// request文字列をヒープにコピー
 	HGLOBAL	igmem = ::GlobalAlloc(GMEM_FIXED, len);
+	if (!igmem) {
+		free(t_istr);
+		t_istr = NULL;
+		return 0;
+	}
 	memcpy(igmem, t_istr, len);
 	free(t_istr);
 	t_istr = NULL;

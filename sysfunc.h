@@ -16,7 +16,10 @@
 
 #include <vector>
 
+#pragma warning(push)
+#pragma warning(disable: 4800)
 #include "deelx.h"
+#pragma warning(pop)
 
 #include "globaldef.h"
 #include "value.h"
