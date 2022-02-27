@@ -257,8 +257,12 @@ template <class ELT> CBufferT <ELT> :: CBufferT(const ELT * pcsz, int length) : 
 	m_nMaxLength = CBufferRefT <ELT> :: m_nSize + 1;
 
 	CBufferRefT <ELT> :: m_pBuffer = (ELT *) malloc(sizeof(ELT) * m_nMaxLength);
-	memcpy(CBufferRefT<ELT>::m_pBuffer, pcsz, sizeof(ELT) * CBufferRefT <ELT> :: m_nSize);
-	CBufferRefT<ELT>::m_pBuffer[CBufferRefT <ELT> :: m_nSize] = 0;
+	if(m_pBuffer) {
+		memcpy(CBufferRefT<ELT>::m_pBuffer, pcsz, sizeof(ELT) * CBufferRefT<ELT>::m_nSize);
+		CBufferRefT<ELT>::m_pBuffer[CBufferRefT<ELT>::m_nSize] = 0;
+	}
+	else
+		m_nMaxLength = 0;
 }
 
 template <class ELT> CBufferT <ELT> :: CBufferT(const ELT * pcsz) : CBufferRefT <ELT> (pcsz)
