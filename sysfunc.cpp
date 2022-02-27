@@ -2644,7 +2644,7 @@ CValue	CSystemFunction::MKDIR(CSF_FUNCPARAM &p)
 	}
 
 	// 実行
-	int	result = (::CreateDirectory(s_dirstr,NULL) ? 1 : 0); //mkdirと論理が逆
+	int	result = (::CreateDirectoryA(s_dirstr,NULL) ? 1 : 0); //mkdirと論理が逆
 	free(s_dirstr);
 	s_dirstr = NULL;
 
@@ -2701,7 +2701,7 @@ CValue	CSystemFunction::RMDIR(CSF_FUNCPARAM &p)
 	}
 
 	// 実行
-	int	result = (::RemoveDirectory(s_dirstr) == 0 ? 0 : 1);
+	int	result = (::RemoveDirectoryA(s_dirstr) == 0 ? 0 : 1);
 	free(s_dirstr);
 	s_dirstr = NULL;
 
@@ -3623,7 +3623,7 @@ CValue	CSystemFunction::FSIZE(CSF_FUNCPARAM &p)
 	LARGE_INTEGER result;
 
 	typedef BOOL (WINAPI* YGetFileSizeEx)(HANDLE hFile,PLARGE_INTEGER lpFileSize);
-	static const YGetFileSizeEx pGetFileSizeEx = (YGetFileSizeEx)::GetProcAddress(::GetModuleHandle("kernel32"),"GetFileSizeEx");
+	static const YGetFileSizeEx pGetFileSizeEx = (YGetFileSizeEx)::GetProcAddress(::GetModuleHandleA("kernel32"),"GetFileSizeEx");
 	
 	if ( pGetFileSizeEx ) {
 		if(!pGetFileSizeEx(hFile, &result)) {
@@ -4216,7 +4216,7 @@ CValue	CSystemFunction::GETTICKCOUNT(CSF_FUNCPARAM &p)
 #if defined(WIN32)
 	typedef std::uint64_t (WINAPI *DefGetTickCount64)();
 
-	DefGetTickCount64 pGetTickCount64 = (DefGetTickCount64)::GetProcAddress(::GetModuleHandle("kernel32"),"GetTickCount64");
+	static const DefGetTickCount64 pGetTickCount64 = (DefGetTickCount64)::GetProcAddress(::GetModuleHandleA("kernel32"),"GetTickCount64");
 
 	if ( pGetTickCount64 ) {
 		return CValue(static_cast<yaya::int_t>(pGetTickCount64()));
@@ -4246,7 +4246,7 @@ CValue	CSystemFunction::GETMEMINFO(CSF_FUNCPARAM &p)
 {
 	typedef BOOL (WINAPI *DefGlobalMemoryStatusEx)(LPMEMORYSTATUSEX lpBuffer);
 
-	DefGlobalMemoryStatusEx pGlobalMemoryStatusEx = (DefGlobalMemoryStatusEx)::GetProcAddress(::GetModuleHandle("kernel32"),"GlobalMemoryStatusEx");
+	static const DefGlobalMemoryStatusEx pGlobalMemoryStatusEx = (DefGlobalMemoryStatusEx)::GetProcAddress(::GetModuleHandleA("kernel32"),"GlobalMemoryStatusEx");
 
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 
@@ -6545,7 +6545,7 @@ CValue CSystemFunction::READFMO(CSF_FUNCPARAM &p)
 	//UNICODE→SJISにして呼ぶ（for win95）
 	char* tmpstr=Ccct::Ucs2ToMbcs(fmoname.c_str(),CHARSET_SJIS);
 
-	hFMO=OpenFileMapping(FILE_MAP_READ,false,tmpstr);
+	hFMO=OpenFileMappingA(FILE_MAP_READ,false,tmpstr);
 	if(hFMO == NULL){
 		vm.logger().Error(E_W, 13, L"READFMO(" + fmoname + L").OpenFileMapping Failed", p.dicname, p.line);
 		SetError(13);
@@ -6636,7 +6636,7 @@ CValue	CSystemFunction::EXECUTE_WAIT(CSF_FUNCPARAM &p)
 		}
 	}
 
-	SHELLEXECUTEINFO inf;
+	SHELLEXECUTEINFOA inf;
 	ZeroMemory(&inf,sizeof(inf));
 	inf.cbSize = sizeof(inf);
 	inf.fMask = SEE_MASK_NOCLOSEPROCESS;
@@ -6645,7 +6645,7 @@ CValue	CSystemFunction::EXECUTE_WAIT(CSF_FUNCPARAM &p)
 	inf.lpParameters = s_parameter;
 	inf.nShow = SW_SHOWNORMAL;
 
-	if ( ::ShellExecuteEx(&inf) ) {
+	if ( ::ShellExecuteExA(&inf) ) {
 		::WaitForSingleObject(inf.hProcess,INFINITE);
 		DWORD status;
 		result = ::GetExitCodeProcess(inf.hProcess,&status);
@@ -6803,7 +6803,7 @@ CValue	CSystemFunction::EXECUTE(CSF_FUNCPARAM &p)
 		}
 	}
 
-	result = (int)::ShellExecute(NULL,"open",s_filestr,s_parameter,NULL,SW_SHOWNORMAL);
+	result = (int)::ShellExecuteA(NULL,"open",s_filestr,s_parameter,NULL,SW_SHOWNORMAL);
 	if ( result <= 32 ) { result = -1; }
 
 	free(s_filestr);

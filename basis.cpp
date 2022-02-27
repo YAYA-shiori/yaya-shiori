@@ -862,7 +862,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 	if ( ayc ) {
 		char *s_filestr = Ccct::Ucs2ToMbcs(filename,CHARSET_DEFAULT);
 #if defined(WIN32)
-		DeleteFile(s_filestr);
+		DeleteFileA(s_filestr);
 #else
 	std::remove(s_filestr);
 #endif
@@ -876,7 +876,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 
 		char *s_filestr = Ccct::Ucs2ToMbcs(filename,CHARSET_DEFAULT);
 #if defined(WIN32)
-		DeleteFile(s_filestr);
+		DeleteFileA(s_filestr);
 #else
 	std::remove(s_filestr);
 #endif
