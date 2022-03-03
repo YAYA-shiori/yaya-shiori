@@ -21,7 +21,7 @@
 #include "manifest.h"
 #include "timer.h"
 
-#define	CLASSNAME_CHECKTOOL	"TamaWndClass"	/* チェックツールのウィンドウクラス名 */
+#define	CLASSNAME_CHECKTOOL	L"TamaWndClass"	/* チェックツールのウィンドウクラス名 */
 
 //----
 

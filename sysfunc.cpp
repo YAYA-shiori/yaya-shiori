@@ -305,7 +305,6 @@ constexpr CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::UNDEFGLOBALDEFINE , L"UNDEFGLOBALDEFINE" } ,
 	{ &CSystemFunction::DICUNLOAD , L"DICUNLOAD" } ,
 	{ &CSystemFunction::ISEVALUABLE , L"ISEVALUABLE" } ,
-	{ &CSystemFunction::SETTAMAHWND , L"SETTAMAHWND" } ,
 	{ &CSystemFunction::ISGLOBALDEFINE , L"ISGLOBALDEFINE" } ,
 	{ &CSystemFunction::SETGLOBALDEFINE , L"SETGLOBALDEFINE" } ,
 	{ &CSystemFunction::APPEND_RUNTIME_DIC , L"APPEND_RUNTIME_DIC" } ,
@@ -314,6 +313,9 @@ constexpr CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::FUNCDECL_WRITE , L"FUNCDECL_WRITE" },
 	{ &CSystemFunction::FUNCDECL_ERASE , L"FUNCDECL_ERASE" },
 	{ &CSystemFunction::OUTPUTNUM , L"OUTPUTNUM" },
+	//Tama
+	{ &CSystemFunction::SETTAMAHWND , L"SETTAMAHWND" } ,
+	{ &CSystemFunction::GETTAMAHWND , L"GETTAMAHWND" } ,
 	//LINT
 	{ &CSystemFunction::LINT_GetFuncUsedBy , L"LINT.GetFuncUsedBy" },
 	{ &CSystemFunction::LINT_GetUserDefFuncUsedBy , L"LINT.GetUserDefFuncUsedBy" },
@@ -6150,6 +6152,24 @@ CValue	CSystemFunction::SETTAMAHWND(CSF_FUNCPARAM &p)
 	vm.logger().Error(E_W, 9, L"SETTAMAHWND", p.dicname, p.line);
 	SetError(9);
 	return CValue(F_TAG_NOP, 0/*dmy*/);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::GETTAMAHWND
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::GETTAMAHWND(CSF_FUNCPARAM &p)
+{
+	if(p.arg.array_size()) {
+		if(!p.arg.array()[0].IsNum()) {//ghost hwnd
+			vm.logger().Error(E_W, 9, L"GETTAMAHWND", p.dicname, p.line);
+			SetError(9);
+		}
+		//https://github.com/nikolat/tama/blob/c3a4d41c908d0cbb027d9111a50cef22c6dca9a2/tama.cpp#L278
+		//Convenient for ghost to reconnect with tama after reloading shiori
+		return (yaya::int_t)FindWindowW((CLASSNAME_CHECKTOOL "_Targeted" + p.arg.array()[0].GetValueString()).c_str(), NULL);
+	}
+	return (yaya::int_t)FindWindowW(CLASSNAME_CHECKTOOL, NULL);
 }
 
 /* -----------------------------------------------------------------------
