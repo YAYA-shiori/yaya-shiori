@@ -472,7 +472,7 @@ void	CLog::SendLogToWnd(const yaya::char_t *str, int mode)
 #if defined(WIN32)
 HWND	CLog::GetCheckerWnd(void)
 {
-	return FindWindowW(CLASSNAME_CHECKTOOL, NULL);
+	return FindWindowA(CLASSNAME_CHECKTOOL, NULL);
 }
 #endif
 
