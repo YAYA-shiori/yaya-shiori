@@ -115,7 +115,7 @@ yaya::string_t	CValue::GetValueString(void) const
 			return result;
 		}
 	default:
-		return yaya::string_t(L"");
+		return yaya::string_t();
 	};
 }
 
@@ -156,7 +156,7 @@ yaya::string_t	CValue::GetValueStringForLogging(void) const
 			return result;
 		}
 	default:
-		return yaya::string_t(L"");
+		return yaya::string_t();
 	};
 }
 /* -----------------------------------------------------------------------
@@ -265,8 +265,8 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 		}
 		// 文字列の復元
 		sz = s_array.size();
-		if (!sz)
-			s_value = L"";
+		if(!sz)
+			s_value.clear();
 		else {
 			s_value = s_array[0];
 			for(size_t i = 1; i < sz; i++) {
@@ -1045,12 +1045,12 @@ CValue CValue::operator [](const CValue &value) const
 				return CValue(array()[order]);
 			}
 			else {
-				return CValue(L"");
+				return yaya::string_t();
 			}
 		}
 	}
 
-	return CValue(L"");
+	return yaya::string_t();
 }
 
 /* -----------------------------------------------------------------------

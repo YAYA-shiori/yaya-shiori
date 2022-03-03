@@ -70,7 +70,7 @@ public:
 
 	CVariable(void)
 	{
-		name       = L"";
+		name.clear();
 		delimiter  = VAR_DELIMITER;
 
 		erased     = 0;

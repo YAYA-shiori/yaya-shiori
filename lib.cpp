@@ -172,6 +172,6 @@ int	CLib::Request(const yaya::string_t &name, const yaya::string_t &istr, yaya::
 		}
 	}
 
-	ostr = L"";
+	ostr.clear();
 	return 0;
 }

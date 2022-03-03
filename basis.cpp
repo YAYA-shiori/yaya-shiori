@@ -809,18 +809,18 @@ CValue CBasis::GetParameter(const yaya::string_t &cmd)
 		return value;
 	}
 	// iolog.filter.keyword.delete (for SETSETTING only)
-	else if ( cmd == L"iolog.filter.keyword.delete" ){
-		return L""; //NOOP
+	else if(cmd == L"iolog.filter.keyword.delete"){
+		return yaya::string_t(); //NOOP
 	}
 	// iolog.filter.keyword.regex.delete (for SETSETTING only)
-	else if ( cmd == L"iolog.filter.keyword.regex.delete" ){
-		return L""; //NOOP
+	else if(cmd == L"iolog.filter.keyword.regex.delete"){
+		return yaya::string_t(); //NOOP
 	}
 	// iolog.filter.mode
 	else if ( cmd == L"iolog.filter.mode" ){
 		return vm.logger().GetIologFilterMode() ? L"allowlist" : L"denylist";
 	}
-	return L"";
+	return yaya::string_t();
 }
 
 /* -----------------------------------------------------------------------

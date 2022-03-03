@@ -49,7 +49,7 @@ private:
 
 public:
 	CValueSub(void) :
-		type(F_TAG_VOID) , s_value(L""), d_value(0.0), i_value(0) { }
+		type(F_TAG_VOID) , s_value(), d_value(0.0), i_value(0) { }
 
 	CValueSub(int value) :
 		type(F_TAG_INT) , d_value(0.0) , i_value(value) { }

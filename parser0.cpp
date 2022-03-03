@@ -786,7 +786,7 @@ void	CParser0::SeparateFactor(std::vector<yaya::string_t> &s, yaya::string_t &li
 	}
 
 	// 元の文字列はクリアする
-	line = L"";
+	line.clear();
 }
 
 /* -----------------------------------------------------------------------
@@ -2070,7 +2070,7 @@ char	CParser0::MakeCompleteConvertionWhenToIf(const yaya::string_t& dicfilename)
 		if ( it->dicfilename != dicfilename ) { continue; }
 
 		std::vector<yaya::string_t>	caseary;
-		yaya::string_t	dmystr = L"";
+		yaya::string_t	dmystr;
 		caseary.emplace_back(dmystr);
 		std::vector<size_t> whencnt;
 		whencnt.emplace_back(0);
@@ -2084,7 +2084,7 @@ char	CParser0::MakeCompleteConvertionWhenToIf(const yaya::string_t& dicfilename)
 			// {
 			if (it2->type == ST_OPEN) {
 				depth++;
-				yaya::string_t	dmystr = L"";
+				yaya::string_t	dmystr;
 				caseary.emplace_back(dmystr);
 				whencnt.emplace_back(0);
 				continue;
