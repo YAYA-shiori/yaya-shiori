@@ -914,7 +914,7 @@ char	CParser0::StoreInternalStatement(size_t targetfunc, yaya::string_t &str, si
 		}
 		m_defaultBlockChoicetypeStack.emplace_back(chtype);
 		depth++;
-		targetfunction.statement.emplace_back(CStatement(ST_OPEN, linecount, new CDuplEvInfo(chtype)));
+		targetfunction.statement.emplace_back(ST_OPEN, linecount, std::make_shared<CDuplEvInfo>(chtype));
 		return 1;
 	}
 	// }

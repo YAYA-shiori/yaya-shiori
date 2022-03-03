@@ -102,8 +102,8 @@ public:
 		return value_const();
 	}
 	CValue &value(void) {
-		if ( ! m_value.get() ) {
-			m_value.reset(new CValue);
+		if( ! m_value.get() ) {
+			m_value=std::make_shared<CValue>();
 		}
 		return *m_value;
 	}
