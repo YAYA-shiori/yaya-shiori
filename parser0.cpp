@@ -1588,6 +1588,7 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 	i = IsLegalStrLiteral(scell.value_const().s_value);
 	if (!i) {
 		CutDoubleQuote(scell.value().s_value);
+		RemoveInsideDoubleDoubleQuote(scell.value().s_value);
 		UnescapeSpecialString(scell.value().s_value);
 		
 		if (!emb) {
@@ -1623,6 +1624,7 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 	i = IsLegalPlainStrLiteral(scell.value_const().s_value);
 	if (!i) {
 		CutSingleQuote(scell.value().s_value);
+		RemoveInsideDoubleSingleQuote(scell.value().s_value);
 		UnescapeSpecialString(scell.value().s_value);
 		scell.value_SetType(F_TAG_STRING_PLAIN);
 		return 0;
