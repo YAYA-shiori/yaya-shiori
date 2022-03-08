@@ -30,7 +30,7 @@
 #else
 
 #define std_shared_ptr   std::shared_ptr
-#define std_make_shared  std_make_shared
+#define std_make_shared  std::make_shared
 
 #endif //_MSVC_LANG
 
