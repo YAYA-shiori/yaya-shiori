@@ -309,7 +309,7 @@ yaya::string_t	CLocalVariable::GetDelimiter(const yaya::char_t *name)
 	if (id >= 0)
 		return stack[dp].substack[id].delimiter;
 
-	return yaya::string_t(L"");
+	return yaya::string_t();
 }
 
 //----
@@ -321,7 +321,7 @@ yaya::string_t	CLocalVariable::GetDelimiter(const yaya::string_t &name)
 	if (id >= 0)
 		return stack[dp].substack[id].delimiter;
 
-	return yaya::string_t(L"");
+	return yaya::string_t();
 }
 
 /* -----------------------------------------------------------------------

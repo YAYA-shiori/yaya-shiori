@@ -70,7 +70,7 @@ public:
 
 	CVariable(void)
 	{
-		name       = L"";
+		name.erase();
 		delimiter  = VAR_DELIMITER;
 
 		erased     = 0;
@@ -102,8 +102,8 @@ public:
 		return value_const();
 	}
 	CValue &value(void) {
-		if ( ! m_value.get() ) {
-			m_value.reset(new CValue);
+		if( ! m_value.get() ) {
+			m_value=std_make_shared<CValue>();
 		}
 		return *m_value;
 	}

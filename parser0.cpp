@@ -786,7 +786,7 @@ void	CParser0::SeparateFactor(std::vector<yaya::string_t> &s, yaya::string_t &li
 	}
 
 	// Œ³‚Ì•¶Žš—ñ‚ÍƒNƒŠƒA‚·‚é
-	line = L"";
+	line.erase();
 }
 
 /* -----------------------------------------------------------------------
@@ -914,7 +914,7 @@ char	CParser0::StoreInternalStatement(size_t targetfunc, yaya::string_t &str, si
 		}
 		m_defaultBlockChoicetypeStack.emplace_back(chtype);
 		depth++;
-		targetfunction.statement.emplace_back(CStatement(ST_OPEN, linecount, new CDuplEvInfo(chtype)));
+		targetfunction.statement.emplace_back(CStatement(ST_OPEN, linecount, std_make_shared<CDuplEvInfo>(chtype)));
 		return 1;
 	}
 	// }
@@ -1588,6 +1588,7 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 	i = IsLegalStrLiteral(scell.value_const().s_value);
 	if (!i) {
 		CutDoubleQuote(scell.value().s_value);
+		EscapingInsideDoubleDoubleQuote(scell.value().s_value);
 		UnescapeSpecialString(scell.value().s_value);
 		
 		if (!emb) {
@@ -1623,6 +1624,7 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 	i = IsLegalPlainStrLiteral(scell.value_const().s_value);
 	if (!i) {
 		CutSingleQuote(scell.value().s_value);
+		EscapingInsideDoubleSingleQuote(scell.value().s_value);
 		UnescapeSpecialString(scell.value().s_value);
 		scell.value_SetType(F_TAG_STRING_PLAIN);
 		return 0;
@@ -2070,7 +2072,7 @@ char	CParser0::MakeCompleteConvertionWhenToIf(const yaya::string_t& dicfilename)
 		if ( it->dicfilename != dicfilename ) { continue; }
 
 		std::vector<yaya::string_t>	caseary;
-		yaya::string_t	dmystr = L"";
+		yaya::string_t	dmystr;
 		caseary.emplace_back(dmystr);
 		std::vector<size_t> whencnt;
 		whencnt.emplace_back(0);
@@ -2084,7 +2086,7 @@ char	CParser0::MakeCompleteConvertionWhenToIf(const yaya::string_t& dicfilename)
 			// {
 			if (it2->type == ST_OPEN) {
 				depth++;
-				yaya::string_t	dmystr = L"";
+				yaya::string_t	dmystr;
 				caseary.emplace_back(dmystr);
 				whencnt.emplace_back(0);
 				continue;

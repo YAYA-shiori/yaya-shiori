@@ -16,6 +16,11 @@
 #ifndef __DEELX_REGEXP__H__
 #define __DEELX_REGEXP__H__
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4800)
+#endif //_MSC_VER
+
 #include <memory.h>
 #include <ctype.h>
 #include <limits.h>
@@ -4594,5 +4599,9 @@ typedef CRegexpW CRegexp;
 #else
 typedef CRegexpA CRegexp;
 #endif
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif //_MSC_VER
 
 #endif		 //__DEELX_REGEXP__H__

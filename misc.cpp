@@ -44,7 +44,7 @@ char	Split(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dst
 	yaya::string_t::size_type seppoint = str.find(sepstr);
 	if (seppoint == yaya::string_t::npos) {
 		dstr0 = str;
-		dstr1 = L"";
+		dstr1.erase();
 		return 0;
 	}
 
@@ -65,7 +65,7 @@ char	Split(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dst
 	yaya::string_t::size_type seppoint = str.find(sepstr);
 	if (seppoint == yaya::string_t::npos) {
 		dstr0 = str;
-		dstr1 = L"";
+		dstr1.erase();
 		return 0;
 	}
 
@@ -91,7 +91,7 @@ char	SplitOnly(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t 
 	yaya::string_t::size_type seppoint = str.find(sepstr);
 	if (seppoint == yaya::string_t::npos) {
 		dstr0 = str;
-		dstr1 = L"";
+		dstr1.erase();
 		return 0;
 	}
 
@@ -177,7 +177,7 @@ char	Split_IgnoreDQ(const yaya::string_t &str, yaya::string_t &dstr0, yaya::stri
 	yaya::string_t::size_type seppoint = Find_IgnoreDQ(str,sepstr);
 	if ( seppoint == yaya::string_t::npos ) {
 		dstr0 = str;
-		dstr1 = L"";
+		dstr1.erase();
 		return 0;
 	}
 
@@ -358,6 +358,13 @@ void	CutSingleQuote(yaya::string_t &str)
 	// 後方
 	if (str[len - 1] == L'\'')
 		str.erase(len - 1, 1);
+}
+
+void EscapingInsideDoubleDoubleQuote(yaya::string_t &str) {
+	yaya::ws_replace(str, L"\"\"", L"\"");
+}
+void EscapingInsideDoubleSingleQuote(yaya::string_t &str) {
+	yaya::ws_replace(str, L"\'\'", L"\'");
 }
 
 /* -----------------------------------------------------------------------
@@ -750,13 +757,20 @@ char	IsLegalStrLiteral(const yaya::string_t &str)
 		if (str[len - 1] == L'\"')
 			flg += 2;
 	// 内包されているダブルクォートの探索
-	if (len > 2) {
-		int	lenm1 = len - 1;
-		for(int i = 1; i < lenm1; i++)
-			if (str[i] == L'\"') {
-				flg = 4;
-				break;
+	if(len > 2) {
+		int lenm1 = len - 1;
+		int i	  = 1;
+		while(i < lenm1) {
+			if(str[i] == L'\"') {
+				if(str[i + 1] != L'\"') {
+					flg = 4;
+					break;
+				}
+				else
+					i++;
 			}
+			i++;
+		}
 	}
 
 	// 結果を返します
@@ -799,11 +813,18 @@ char	IsLegalPlainStrLiteral(const yaya::string_t &str)
 	// 内包されているシングルクォートの探索
 	if (len > 2) {
 		int	lenm1 = len - 1;
-		for(int i = 1; i < lenm1; i++)
-			if (str[i] == L'\'') {
-				flg = 4;
-				break;
+		int i	  = 1;
+		while(i < lenm1) {
+			if(str[i] == L'\'') {
+				if(str[i + 1] != L'\'') {
+					flg = 4;
+					break;
+				}
+				else
+					i++;
 			}
+			i++;
+		}
 	}
 
 	// 結果を返します

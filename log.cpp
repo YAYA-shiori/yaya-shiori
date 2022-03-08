@@ -9,10 +9,7 @@
 # include "stdafx.h"
 #endif
 
-#pragma warning(push)
-#pragma warning(disable: 4800)
 #include "deelx.h"
-#pragma warning(pop)
 
 #include "ccct.h"
 #include "log.h"
@@ -60,7 +57,7 @@ void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 	charset = cs;
 	
 	if( hw || loghandler) { //hwがある＝玉からの呼び出しなので強制ON、ファイル無効
-		path = L"";
+		path.erase();
 	}
 	else if ( ! il ) {
 		enable = 0;

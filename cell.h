@@ -93,8 +93,8 @@ public:
 		return m_value;
 	}
 	const CValue &value_const(void) const {
-		if ( ! m_value.get() ) {
-			m_value.reset(new CValue(m_type,0));
+		if( ! m_value.get() ) {
+			m_value=std_make_shared<CValue>(m_type,0);
 		}
 		return *m_value;
 	}
@@ -102,8 +102,8 @@ public:
 		return value_const();
 	}
 	CValue &value(void) {
-		if ( ! m_value.get() ) {
-			m_value.reset(new CValue(m_type,0));
+		if( ! m_value.get() ) {
+			m_value=std_make_shared<CValue>(m_type,0);
 		}
 		return *m_value;
 	}
@@ -118,18 +118,18 @@ public:
 		return m_ansv;
 	}
 	std_shared_ptr<CValue> &ansv_shared_create(void) const {
-		if ( ! m_ansv.get() ) {
-			m_ansv.reset(new CValue());
+		if( ! m_ansv.get() ) {
+			m_ansv=std_make_shared<CValue>();
 		}
 		else if ( m_ansv.use_count() >= 2 ) {
 			CValue *pV = m_ansv.get();
-			m_ansv.reset(new CValue(*pV));
+			m_ansv=std_make_shared<CValue>(*pV);
 		}
 		return m_ansv;
 	}
 	std_shared_ptr<CValue> &ansv_shared_get(void) const {
 		if( ! m_ansv.get() ) {
-			m_ansv.reset(new CValue());
+			m_ansv=std_make_shared<CValue>();
 		}
 		return m_ansv;
 	}
@@ -143,8 +143,8 @@ public:
 		return ansv_const();
 	}
 	CValue &ansv(void) {
-		if ( ! m_ansv.get() ) {
-			m_ansv.reset(new CValue());
+		if( ! m_ansv.get() ) {
+			m_ansv=std_make_shared<CValue>();
 		}
 		return *m_ansv;
 	}
@@ -162,8 +162,8 @@ public:
 		return order_const();
 	}
 	CValue &order(void) {
-		if ( ! m_order.get() ) {
-			m_order.reset(new CValue());
+		if( ! m_order.get() ) {
+			m_order=std_make_shared<CValue>();
 		}
 		return *m_order;
 	}
@@ -173,17 +173,17 @@ public:
 	}
 	std_shared_ptr<CValue> &emb_shared_create(void) const {
 		if( ! m_emb_ansv.get() ) {
-			m_emb_ansv.reset(new CValue());
+			m_emb_ansv=std_make_shared<CValue>();
 		}
 		else if( m_emb_ansv.use_count() >= 2 ) {
 			CValue *pV = m_emb_ansv.get();
-			m_emb_ansv.reset(new CValue(*pV));
+			m_emb_ansv=std_make_shared<CValue>(*pV);
 		}
 		return m_emb_ansv;
 	}
 	std_shared_ptr<CValue> &emb_shared_get(void) const {
 		if( ! m_emb_ansv.get() ) {
-			m_emb_ansv.reset(new CValue());
+			m_emb_ansv=std_make_shared<CValue>();
 		}
 		return m_emb_ansv;
 	}
@@ -197,8 +197,8 @@ public:
 		return emb_ansv_const();
 	}
 	CValue &emb_ansv(void) {
-		if ( ! m_emb_ansv.get() ) {
-			m_emb_ansv.reset(new CValue());
+		if( ! m_emb_ansv.get() ) {
+			m_emb_ansv=std_make_shared<CValue>();
 		}
 		return *m_emb_ansv;
 	}

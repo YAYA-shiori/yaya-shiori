@@ -49,7 +49,7 @@ private:
 
 public:
 	CValueSub(void) :
-		type(F_TAG_VOID) , s_value(L""), d_value(0.0), i_value(0) { }
+		type(F_TAG_VOID) , s_value(), d_value(0.0), i_value(0) { }
 
 	CValueSub(int value) :
 		type(F_TAG_INT) , d_value(0.0) , i_value(value) { }
@@ -327,18 +327,18 @@ public:
 		return m_array;
 	}
 	const CValueArray& array(void) const {
-		if ( ! m_array.get() ) {
-			m_array.reset(new CValueArray);
+		if( ! m_array.get() ) {
+			m_array=std_make_shared<CValueArray>();
 		}
 		return *m_array;
 	}
 	CValueArray& array(void) {
-		if ( ! m_array.get() ) {
-			m_array.reset(new CValueArray);
+		if( ! m_array.get() ) {
+			m_array=std_make_shared<CValueArray>();
 		}
 		else if ( m_array.use_count() >= 2 ) {
 			CValueArray *pV = m_array.get();
-			m_array.reset(new CValueArray(*pV));
+			m_array=std_make_shared<CValueArray>(*pV);
 		}
 		return *m_array;
 	}

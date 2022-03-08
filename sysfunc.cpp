@@ -1743,13 +1743,13 @@ CValue	CSystemFunction::SUBSTR(CSF_FUNCPARAM &p)
 			len += pos; //負値なのでたしざんで引かれる
 			pos = 0;
 			if ( len <= 0 ) {
-				return CValue(L"");
+				return yaya::string_t();
 			}
 		}
 	}
 
 	if ( pos >= src.length() || len <= 0 ) {
-		return CValue(L"");
+		return yaya::string_t();
 	}
 	if ( pos + len >= src.length() ) {
 		len = src.length() - pos;
@@ -1787,13 +1787,13 @@ CValue	CSystemFunction::ERASE(CSF_FUNCPARAM &p)
 			len += pos; //負値なのでたしざんで引かれる
 			pos = 0;
 			if ( len <= 0 ) {
-				return CValue(L"");
+				return yaya::string_t();
 			}
 		}
 	}
 
 	if ( pos >= src.length() || len <= 0 ) {
-	    return CValue(L"");
+		return yaya::string_t();
 	}
 	if ( pos + len >= src.length() ) {
 	    len = src.length() - pos;
@@ -2437,12 +2437,12 @@ CValue	CSystemFunction::FCOPY(CSF_FUNCPARAM &p)
 	// 絶対パス化
 	yaya::char_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
 	_wsplitpath(p.arg.array()[0].s_value.c_str(), drive, dir, fname, ext);
-	yaya::string_t	s_path = ((::wcslen(drive)) ? yaya::string_t(L"") : vm.basis().base_path) + p.arg.array()[0].s_value;
+	yaya::string_t	s_path = ((::wcslen(drive)) ? yaya::string_t() : vm.basis().base_path) + p.arg.array()[0].s_value;
 
 	yaya::char_t	fname2[_MAX_FNAME], ext2[_MAX_EXT];
 	_wsplitpath(p.arg.array()[1].s_value.c_str(), drive, dir, fname2, ext2);
 	yaya::string_t	d_path = ((::wcslen(drive)) ?
-						yaya::string_t(L"") : vm.basis().base_path) + p.arg.array()[1].s_value + L"\\" + fname + ext;
+						yaya::string_t() : vm.basis().base_path) + p.arg.array()[1].s_value + L"\\" + fname + ext;
 
 	int result;
 
@@ -2552,12 +2552,12 @@ CValue	CSystemFunction::FMOVE(CSF_FUNCPARAM &p)
 	// 絶対パス化
 	yaya::char_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
 	_wsplitpath(p.arg.array()[0].s_value.c_str(), drive, dir, fname, ext);
-	yaya::string_t	s_path = ((::wcslen(drive)) ? yaya::string_t(L"") : vm.basis().base_path) + p.arg.array()[0].s_value;
+	yaya::string_t	s_path = ((::wcslen(drive)) ? yaya::string_t() : vm.basis().base_path) + p.arg.array()[0].s_value;
 
 	yaya::char_t	fname2[_MAX_FNAME], ext2[_MAX_EXT];
 	_wsplitpath(p.arg.array()[1].s_value.c_str(), drive, dir, fname2, ext2);
 	yaya::string_t	d_path = ((::wcslen(drive)) ?
-						yaya::string_t(L"") : vm.basis().base_path) + p.arg.array()[1].s_value + L"\\" + fname + ext;
+						yaya::string_t() : vm.basis().base_path) + p.arg.array()[1].s_value + L"\\" + fname + ext;
 
 	int result;
 
@@ -3401,7 +3401,7 @@ CValue CSystemFunction::FUNCDECL_READ(CSF_FUNCPARAM& p)
 
 	if (pv) {
 		if ( func_name.empty() ) {
-			pv->set_watcher(L"");
+			pv->set_watcher(yaya::string_t());
 			return CValue(1);
 		}
 		else {
@@ -3460,7 +3460,7 @@ CValue CSystemFunction::FUNCDECL_WRITE(CSF_FUNCPARAM& p)
 
 	if (pv) {
 		if ( func_name.empty() ) {
-			pv->set_setter(L"");
+			pv->set_setter(yaya::string_t());
 			return CValue(1);
 		}
 		else {
@@ -3519,7 +3519,7 @@ CValue CSystemFunction::FUNCDECL_ERASE(CSF_FUNCPARAM& p)
 
 	if (pv) {
 		if ( func_name.empty() ) {
-			pv->set_destorier(L"");
+			pv->set_destorier(yaya::string_t());
 			return CValue(1);
 		}
 		else {
@@ -4613,7 +4613,7 @@ CValue	CSystemFunction::RE_OPTION(CSF_FUNCPARAM &p)
 		}
 	}
 
-	yaya::string_t result = L"";
+	yaya::string_t result;
 
 	if ( (re_option & MULTILINE) != 0 ) {
 		result += L'm';
@@ -4921,7 +4921,7 @@ CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, const yaya::string_t &d
 			splits.array().emplace_back(arg0.substr(t_pos, len));
 		}
 		else {
-			splits.array().emplace_back(L"");
+			splits.array().emplace_back(yaya::string_t());
 		}
 	}
 	catch(const std::runtime_error &) {
@@ -5069,12 +5069,12 @@ CValue CSystemFunction::SPLITPATH(CSF_FUNCPARAM &p) {
 	fix_filepath(path);
 
 	CValue result(F_TAG_ARRAY, 0/*dmy*/);
-	result.array().emplace_back(L""); // driveは常に空文字列
+	result.array().emplace_back(yaya::string_t()); // driveは常に空文字列
 
 	yaya::string_t::size_type pos_slash = path.rfind(L'/');
 	yaya::string_t fname;
 	if (pos_slash == yaya::string_t::npos) {
-		result.array().emplace_back(L""); // dirも空
+		result.array().emplace_back(yaya::string_t()); // dirも空
 		fname = path;
 	}
 	else {
@@ -5085,7 +5085,7 @@ CValue CSystemFunction::SPLITPATH(CSF_FUNCPARAM &p) {
 	yaya::string_t::size_type pos_period = fname.rfind(L'.');
 	if (pos_period == yaya::string_t::npos) {
 		result.array().emplace_back(fname);
-		result.array().emplace_back(L""); // extは空
+		result.array().emplace_back(yaya::string_t()); // extは空
 	}
 	else {
 		result.array().emplace_back(fname.substr(0, pos_period));
@@ -5951,10 +5951,10 @@ CValue	CSystemFunction::GETDELIM(CSF_FUNCPARAM &p)
 	if (!p.pcellarg.size()) {
 		vm.logger().Error(E_W, 8, L"GETDELIM", p.dicname, p.line);
 		SetError(8);
-		return CValue(L"");
+		return yaya::string_t();
 	}
 
-	CValue	delimiter(L"");
+	CValue	delimiter(yaya::string_t());
 	if (p.pcellarg[0]->value_GetType() == F_TAG_VARIABLE)
 		delimiter = vm.variable().GetDelimiter(p.pcellarg[0]->index);
 	else if (p.pcellarg[0]->value_GetType() == F_TAG_LOCALVARIABLE)
@@ -6689,20 +6689,20 @@ CValue	CSystemFunction::GETENV(CSF_FUNCPARAM &p)
 	if (!p.arg.array_size()) {
 		vm.logger().Error(E_W, 8, L"GETENV", p.dicname, p.line);
 		SetError(8);
-		return CValue(L"");
+		return yaya::string_t();
 	}
 
 	if (!p.arg.array()[0].IsString()) {
 		vm.logger().Error(E_W, 9, L"GETENV", p.dicname, p.line);
 		SetError(9);
-		return CValue(L"");
+		return yaya::string_t();
 	}
 
 	char *s_name = Ccct::Ucs2ToMbcs(p.arg.array()[0].s_value, CHARSET_DEFAULT);
 	if (s_name == NULL) {
 		vm.logger().Error(E_E, 89, L"GETENV", p.dicname, p.line);
 		SetError(89);
-		return CValue(L"");
+		return yaya::string_t();
 	}
 
 	const char *s_env = getenv(s_name);
@@ -6710,14 +6710,14 @@ CValue	CSystemFunction::GETENV(CSF_FUNCPARAM &p)
 	if (s_env == NULL) {
 		vm.logger().Error(E_W, 12, L"GETENV", p.dicname, p.line);
 		SetError(12);
-		return CValue(L"");
+		return yaya::string_t();
 	}
 
 	yaya::char_t	*t_env = Ccct::MbcsToUcs2(s_env, CHARSET_DEFAULT);
 	if (t_env == NULL) {
 		vm.logger().Error(E_E, 89, L"GETENV", p.dicname, p.line);
 		SetError(89);
-		return CValue(L"");
+		return yaya::string_t();
 	}
 
 	return CValue(t_env);

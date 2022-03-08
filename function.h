@@ -46,12 +46,12 @@ private:
 	mutable std_shared_ptr<std::vector<CSerial> >	m_serial;			// ”®‚Ì‰‰Z‡˜
 
 public:
-	CStatement(int t, int l, CDuplEvInfo* dupl = NULL)
+	CStatement(int t, int l, std_shared_ptr<CDuplEvInfo> dupl = std_shared_ptr<CDuplEvInfo>() )
 	{
 		type = t;
 		linecount = l;
 		jumpto = 0;
-		dupl_block.reset(dupl);
+		dupl_block=dupl;
 	}
 	CStatement(void) {
 		type = ST_NOP;
@@ -77,13 +77,13 @@ public:
 	}
 	const std::vector<CCell>& cell(void) const {
 		if ( ! m_cell.get() ) {
-			m_cell.reset(new std::vector<CCell>);
+			m_cell=std_make_shared<std::vector<CCell> >();
 		}
 		return *m_cell;
 	}
 	std::vector<CCell>& cell(void) {
-		if ( ! m_cell.get() ) {
-			m_cell.reset(new std::vector<CCell>);
+		if ( ! m_cell.get() ) { 
+			m_cell=std_make_shared<std::vector<CCell> >();
 		}
 		return *m_cell;
 	}
@@ -98,13 +98,13 @@ public:
 	}
 	const std::vector<CSerial>& serial(void) const {
 		if ( ! m_serial.get() ) {
-			m_serial.reset(new std::vector<CSerial>);
+			m_serial=std_make_shared<std::vector<CSerial> >();
 		}
 		return *m_serial;
 	}
 	std::vector<CSerial>& serial(void) {
 		if ( ! m_serial.get() ) {
-			m_serial.reset(new std::vector<CSerial>);
+			m_serial=std_make_shared<std::vector<CSerial> >();
 		}
 		return *m_serial;
 	}
