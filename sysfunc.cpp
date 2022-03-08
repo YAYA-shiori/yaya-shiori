@@ -5954,7 +5954,7 @@ CValue	CSystemFunction::GETDELIM(CSF_FUNCPARAM &p)
 		return yaya::string_t();
 	}
 
-	CValue	delimiter{yaya::string_t()};
+	CValue delimiter = CValue(yaya::string_t());
 	if (p.pcellarg[0]->value_GetType() == F_TAG_VARIABLE)
 		delimiter = vm.variable().GetDelimiter(p.pcellarg[0]->index);
 	else if (p.pcellarg[0]->value_GetType() == F_TAG_LOCALVARIABLE)

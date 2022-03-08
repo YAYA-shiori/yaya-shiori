@@ -191,7 +191,7 @@ void CAyaVM::genrand_sysfunc_srand_array(const std::uint64_t a[],const int n)
 #define FACTORY_DEFINE_THIS(classt,deft) \
 	classt & CAyaVM:: deft () { \
 		if( m_ ## deft .get() == NULL ) { \
-			m_##deft = std::make_shared<classt>(*this); \
+			m_##deft = std_make_shared<classt >(classt(*this)); \
 		} \
 		return *(m_ ## deft .get()); \
 	} 
@@ -199,7 +199,7 @@ void CAyaVM::genrand_sysfunc_srand_array(const std::uint64_t a[],const int n)
 #define FACTORY_DEFINE_PLAIN(classt,deft) \
 	classt & CAyaVM:: deft () { \
 		if( m_ ## deft .get() == NULL ) { \
-			m_##deft = std::make_shared<classt>(); \
+			m_##deft = std_make_shared<classt >(); \
 		} \
 		return *(m_ ## deft .get()); \
 	} 

@@ -266,7 +266,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 		// 文字列の復元
 		sz = s_array.size();
 		if(!sz)
-			s_value.clear();
+			s_value.erase();
 		else {
 			s_value = s_array[0];
 			for(size_t i = 1; i < sz; i++) {

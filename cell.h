@@ -94,7 +94,7 @@ public:
 	}
 	const CValue &value_const(void) const {
 		if( ! m_value.get() ) {
-			m_value=std::make_shared<CValue>(m_type,0);
+			m_value=std_make_shared<CValue>(m_type,0);
 		}
 		return *m_value;
 	}
@@ -103,7 +103,7 @@ public:
 	}
 	CValue &value(void) {
 		if( ! m_value.get() ) {
-			m_value=std::make_shared<CValue>(m_type,0);
+			m_value=std_make_shared<CValue>(m_type,0);
 		}
 		return *m_value;
 	}
@@ -119,17 +119,17 @@ public:
 	}
 	std_shared_ptr<CValue> &ansv_shared_create(void) const {
 		if( ! m_ansv.get() ) {
-			m_ansv=std::make_shared<CValue>();
+			m_ansv=std_make_shared<CValue>();
 		}
 		else if ( m_ansv.use_count() >= 2 ) {
 			CValue *pV = m_ansv.get();
-			m_ansv=std::make_shared<CValue>(*pV);
+			m_ansv=std_make_shared<CValue>(*pV);
 		}
 		return m_ansv;
 	}
 	std_shared_ptr<CValue> &ansv_shared_get(void) const {
 		if( ! m_ansv.get() ) {
-			m_ansv=std::make_shared<CValue>();
+			m_ansv=std_make_shared<CValue>();
 		}
 		return m_ansv;
 	}
@@ -144,7 +144,7 @@ public:
 	}
 	CValue &ansv(void) {
 		if( ! m_ansv.get() ) {
-			m_ansv=std::make_shared<CValue>();
+			m_ansv=std_make_shared<CValue>();
 		}
 		return *m_ansv;
 	}
@@ -163,7 +163,7 @@ public:
 	}
 	CValue &order(void) {
 		if( ! m_order.get() ) {
-			m_order=std::make_shared<CValue>();
+			m_order=std_make_shared<CValue>();
 		}
 		return *m_order;
 	}
@@ -173,17 +173,17 @@ public:
 	}
 	std_shared_ptr<CValue> &emb_shared_create(void) const {
 		if( ! m_emb_ansv.get() ) {
-			m_emb_ansv=std::make_shared<CValue>();
+			m_emb_ansv=std_make_shared<CValue>();
 		}
 		else if( m_emb_ansv.use_count() >= 2 ) {
 			CValue *pV = m_emb_ansv.get();
-			m_emb_ansv=std::make_shared<CValue>(*pV);
+			m_emb_ansv=std_make_shared<CValue>(*pV);
 		}
 		return m_emb_ansv;
 	}
 	std_shared_ptr<CValue> &emb_shared_get(void) const {
 		if( ! m_emb_ansv.get() ) {
-			m_emb_ansv=std::make_shared<CValue>();
+			m_emb_ansv=std_make_shared<CValue>();
 		}
 		return m_emb_ansv;
 	}
@@ -198,7 +198,7 @@ public:
 	}
 	CValue &emb_ansv(void) {
 		if( ! m_emb_ansv.get() ) {
-			m_emb_ansv=std::make_shared<CValue>();
+			m_emb_ansv=std_make_shared<CValue>();
 		}
 		return *m_emb_ansv;
 	}

@@ -786,7 +786,7 @@ void	CParser0::SeparateFactor(std::vector<yaya::string_t> &s, yaya::string_t &li
 	}
 
 	// 元の文字列はクリアする
-	line.clear();
+	line.erase();
 }
 
 /* -----------------------------------------------------------------------
@@ -914,7 +914,7 @@ char	CParser0::StoreInternalStatement(size_t targetfunc, yaya::string_t &str, si
 		}
 		m_defaultBlockChoicetypeStack.emplace_back(chtype);
 		depth++;
-		targetfunction.statement.emplace_back(ST_OPEN, linecount, std::make_shared<CDuplEvInfo>(chtype));
+		targetfunction.statement.emplace_back(CStatement(ST_OPEN, linecount, std_make_shared<CDuplEvInfo>(chtype)));
 		return 1;
 	}
 	// }

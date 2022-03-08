@@ -371,7 +371,7 @@ void CLib1::Release(void) {
 #if defined(WIN32)
 int	CLib1::Request(const yaya::string_t &istr, yaya::string_t &ostr)
 {
-	ostr.clear();
+	ostr.erase();
 
 	if (hDLL == NULL)
 		return 0;

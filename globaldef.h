@@ -20,14 +20,17 @@
 
 
 #include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 
 #define std_shared_ptr   boost::shared_ptr
+#define std_make_shared  boost::make_shared
 
 #define nullptr 0
 
 #else
 
 #define std_shared_ptr   std::shared_ptr
+#define std_make_shared  std::make_shared
 
 #endif //_MSVC_LANG
 
@@ -170,7 +173,7 @@ namespace yaya {
 
 	template<class T> void shared_ptr_deep_copy(const std_shared_ptr<T> &from,std_shared_ptr<T> &to) {
 		if( from.get() ) {
-			to = std::make_shared<T>(*from);
+			to = std_make_shared<T>(*from);
 		}
 		else {
 			to.reset();

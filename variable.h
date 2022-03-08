@@ -70,7 +70,7 @@ public:
 
 	CVariable(void)
 	{
-		name.clear();
+		name.erase();
 		delimiter  = VAR_DELIMITER;
 
 		erased     = 0;
@@ -103,7 +103,7 @@ public:
 	}
 	CValue &value(void) {
 		if( ! m_value.get() ) {
-			m_value=std::make_shared<CValue>();
+			m_value=std_make_shared<CValue>();
 		}
 		return *m_value;
 	}

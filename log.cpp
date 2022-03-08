@@ -57,7 +57,7 @@ void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 	charset = cs;
 	
 	if( hw || loghandler) { //hwがある＝玉からの呼び出しなので強制ON、ファイル無効
-		path.clear();
+		path.erase();
 	}
 	else if ( ! il ) {
 		enable = 0;

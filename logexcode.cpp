@@ -274,7 +274,7 @@ void	CLogExCode::OutExecutionCodeForCheck(void)
  */
 void	CLogExCode::StructCellString(std::vector<CCell> *cellvector, yaya::string_t &formula)
 {
-	formula.clear();
+	formula.erase();
 	yaya::string_t	tmpstr;
 	for(std::vector<CCell>::iterator it = cellvector->begin(); it != cellvector->end(); it++) {
 		if (it->value_GetType() >= F_TAG_ORIGIN &&
@@ -348,7 +348,7 @@ void	CLogExCode::StructCellString(std::vector<CCell> *cellvector, yaya::string_t
  */
 void	CLogExCode::StructSerialString(CStatement *st, yaya::string_t &formula)
 {
-	formula.clear();
+	formula.erase();
 	yaya::string_t	tmpstr;
 
 	if ( st->serial_size() ) { //高速化用
@@ -449,7 +449,7 @@ void	CLogExCode::OutVariableInfoForCheck(void)
  */
 void	CLogExCode::StructArrayString(const CValueArray &vs, yaya::string_t &enlist)
 {
-	enlist.clear();
+	enlist.erase();
 	yaya::string_t	tmpstr;
 	for(CValueArray::const_iterator it = vs.begin(); it != vs.end(); it++) {
 		switch(it->GetType()) {
