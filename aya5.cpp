@@ -412,7 +412,7 @@ int main( int argc, char *argv[ ], char *envp[ ] )
 	_setmode( _fileno( stdout ), _O_BINARY );
 
 	while ( 1 ) {
-		bufstr.clear();
+		bufstr.erase();
 
 		while ( 1 ) {
 			char buf[2];
