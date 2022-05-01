@@ -524,41 +524,54 @@ CValue	CSystemFunction::TOSTR(CSF_FUNCPARAM &p)
 	}
 
 	yaya::string_t str;
+
 	for ( size_t i = 0; i < p.valuearg.size(); i++ ) {
 		if(p.pcellarg[i]->value_GetType() == F_TAG_VARIABLE) {
-			auto &var = vm.variable().GetValue(p.pcellarg[i]->index);
+			const CValue &var = vm.variable().GetValue(p.pcellarg[i]->index);
+
 			if(var.GetType() == F_TAG_ARRAY) {
 				yaya::string_t delimiter = vm.variable().GetDelimiter(p.pcellarg[i]->index);
+
 				if(delimiter.empty()) {
 					delimiter = VAR_DELIMITER;
 				}
 				for(CValueArray::const_iterator it =var.array().begin(); it != var.array().end(); it++) {
-					if(it != var.array().begin())
+					if(it != var.array().begin()) {
 						str += delimiter;
+					}
+
 					str += it->GetValueString();
 				}
 			}
-			else
+			else {
 				str += var.GetValueString();
+			}
 		}
 		else if(p.pcellarg[i]->value_GetType() == F_TAG_LOCALVARIABLE) {
-			auto &var = p.lvar.GetValue(p.pcellarg[i]->name);
+			const CValue &var = p.lvar.GetValue(p.pcellarg[i]->name);
+
 			if(var.GetType() == F_TAG_ARRAY) {
+
 				yaya::string_t delimiter = p.lvar.GetDelimiter(p.pcellarg[i]->name);
+
 				if(delimiter.empty()) {
 					delimiter = VAR_DELIMITER;
 				}
 				for(CValueArray::const_iterator it =var.array().begin(); it != var.array().end(); it++) {
-					if(it != var.array().begin())
+					if(it != var.array().begin()) {
 						str += delimiter;
+					}
+
 					str += it->GetValueString();
 				}
 			}
-			else
+			else {
 				str += var.GetValueString();
+			}
 		}	
-		else
+		else {
 			str += p.valuearg[i].GetValueString();
+		}
 	}
 	return CValue(str);
 }
