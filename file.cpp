@@ -340,3 +340,37 @@ yaya::int_t CFile::FTell(const yaya::string_t &name)
 }
 
 
+bool CFile::MoveFileANSI(const char *s_filestr, const char *d_filestr) {
+	//reset error code
+	SetLastError(NO_ERROR);
+	bool result = ::MoveFileA(s_filestr, d_filestr) ? 1 : 0;
+	//MoveFile seems to return TRUE in the Wine environment even if the move fails
+	//so we have to check the error code
+	if(result) {
+		DWORD dwError = ::GetLastError();
+		if(dwError != NO_ERROR) {
+			result = false;
+		}
+	}
+	//Even if the move file is successful, somehow the source file may be left behind and should be deleted
+	if(result)
+		::DeleteFileA(s_filestr);
+	return result;
+}
+bool CFile::MoveFileUnicode(const yaya::string_t &s_file,const yaya::string_t &d_file) {
+	//reset error code
+	SetLastError(NO_ERROR);
+	bool result = ::MoveFileW(s_file.c_str(), d_file.c_str()) ? 1 : 0;
+	//MoveFile seems to return TRUE in the Wine environment even if the move fails
+	//so we have to check the error code
+	if(result) {
+		DWORD dwError = ::GetLastError();
+		if(dwError != NO_ERROR) {
+			result = false;
+		}
+	}
+	//Even if the move file is successful, somehow the source file may be left behind and should be deleted
+	if(result)
+		::DeleteFileW(s_file.c_str());
+	return result;
+}

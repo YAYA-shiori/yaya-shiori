@@ -2608,7 +2608,7 @@ CValue	CSystemFunction::FMOVE(CSF_FUNCPARAM &p)
 	int result;
 
 	if ( IsUnicodeAware() ) {
-		result = ::MoveFileW(s_path.c_str(),d_path.c_str()) ? 1 : 0;
+		result = CFile::MoveFileUnicode(s_path, d_path);
 	}
 	else {
 		// パスをMBCSに変換
@@ -2626,7 +2626,7 @@ CValue	CSystemFunction::FMOVE(CSF_FUNCPARAM &p)
 		}
 
 		// 実行
-		result = (::MoveFileA(s_pstr, d_pstr) ? 1 : 0);
+		result = CFile::MoveFileANSI(s_pstr, d_pstr);
 		free(s_pstr);
 		s_pstr = NULL;
 		free(d_pstr);
@@ -2868,7 +2868,7 @@ CValue	CSystemFunction::FRENAME(CSF_FUNCPARAM &p)
 	yaya::string_t d_file = vm.basis().ToFullPath(p.arg.array()[1].s_value);
 
 	if ( IsUnicodeAware() ) {
-		result = ::MoveFileW(s_file.c_str(), d_file.c_str()) ? 1 : 0;
+		result=CFile::MoveFileUnicode(s_file, d_file);
 	}
 	else {
 		// パスをMBCSに変換
@@ -2886,7 +2886,7 @@ CValue	CSystemFunction::FRENAME(CSF_FUNCPARAM &p)
 		}
 
 		// 実行
-		result = (::MoveFileA(s_filestr, d_filestr) ? 1 : 0);
+		result = CFile::MoveFileANSI(s_filestr, d_filestr);
 		free(s_filestr);
 		s_filestr = NULL;
 		free(d_filestr);
@@ -7094,26 +7094,6 @@ CValue	CSystemFunction::LICENSE(CSF_FUNCPARAM &p)
 	v.array().emplace_back(L"LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING");
 	v.array().emplace_back(L"NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS");
 	v.array().emplace_back(L"SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.");
-	v.array().emplace_back(L"");
-
-	v.array().emplace_back(L"---zlib---");
-	v.array().emplace_back(L"(C) 1995-2002 Jean-loup Gailly and Mark Adler");
-	v.array().emplace_back(L"");
-	v.array().emplace_back(L"This software is provided 'as-is', without any express or implied");
-	v.array().emplace_back(L"warranty.  In no event will the authors be held liable for any damages");
-	v.array().emplace_back(L"arising from the use of this software.");
-	v.array().emplace_back(L"");
-	v.array().emplace_back(L"Permission is granted to anyone to use this software for any purpose,");
-	v.array().emplace_back(L"including commercial applications, and to alter it and redistribute it");
-	v.array().emplace_back(L"freely, subject to the following restrictions:");
-	v.array().emplace_back(L"");
-	v.array().emplace_back(L"1. The origin of this software must not be misrepresented; you must not");
-	v.array().emplace_back(L" claim that you wrote the original software. If you use this software");
-	v.array().emplace_back(L" in a product, an acknowledgment in the product documentation would be");
-	v.array().emplace_back(L" appreciated but is not required.");
-	v.array().emplace_back(L"2. Altered source versions must be plainly marked as such, and must not be");
-	v.array().emplace_back(L" misrepresented as being the original software.");
-	v.array().emplace_back(L"3. This notice may not be removed or altered from any source distribution.");
 	v.array().emplace_back(L"");
 
 	return v;
