@@ -2869,6 +2869,8 @@ CValue	CSystemFunction::FRENAME(CSF_FUNCPARAM &p)
 
 	if ( IsUnicodeAware() ) {
 		result = ::MoveFileW(s_file.c_str(), d_file.c_str()) ? 1 : 0;
+		if(result)
+			::DeleteFileW(s_file.c_str());
 	}
 	else {
 		// パスをMBCSに変換
@@ -2887,6 +2889,8 @@ CValue	CSystemFunction::FRENAME(CSF_FUNCPARAM &p)
 
 		// 実行
 		result = (::MoveFileA(s_filestr, d_filestr) ? 1 : 0);
+		if(result)
+			::DeleteFileA(s_filestr);
 		free(s_filestr);
 		s_filestr = NULL;
 		free(d_filestr);
