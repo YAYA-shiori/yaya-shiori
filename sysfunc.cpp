@@ -2608,7 +2608,7 @@ CValue	CSystemFunction::FMOVE(CSF_FUNCPARAM &p)
 	int result;
 
 	if ( IsUnicodeAware() ) {
-		result = ::MoveFileW(s_path.c_str(),d_path.c_str()) ? 1 : 0;
+		result = CFile::MoveFileUnicode(s_path, d_path);
 	}
 	else {
 		// パスをMBCSに変換
@@ -2626,7 +2626,7 @@ CValue	CSystemFunction::FMOVE(CSF_FUNCPARAM &p)
 		}
 
 		// 実行
-		result = (::MoveFileA(s_pstr, d_pstr) ? 1 : 0);
+		result = CFile::MoveFileANSI(s_pstr, d_pstr);
 		free(s_pstr);
 		s_pstr = NULL;
 		free(d_pstr);
@@ -2868,9 +2868,7 @@ CValue	CSystemFunction::FRENAME(CSF_FUNCPARAM &p)
 	yaya::string_t d_file = vm.basis().ToFullPath(p.arg.array()[1].s_value);
 
 	if ( IsUnicodeAware() ) {
-		result = ::MoveFileW(s_file.c_str(), d_file.c_str()) ? 1 : 0;
-		if(result)
-			::DeleteFileW(s_file.c_str());
+		result=CFile::MoveFileUnicode(s_file, d_file);
 	}
 	else {
 		// パスをMBCSに変換
@@ -2888,9 +2886,7 @@ CValue	CSystemFunction::FRENAME(CSF_FUNCPARAM &p)
 		}
 
 		// 実行
-		result = (::MoveFileA(s_filestr, d_filestr) ? 1 : 0);
-		if(result)
-			::DeleteFileA(s_filestr);
+		result = CFile::MoveFileANSI(s_filestr, d_filestr);
 		free(s_filestr);
 		s_filestr = NULL;
 		free(d_filestr);
