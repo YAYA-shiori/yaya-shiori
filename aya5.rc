@@ -28,7 +28,7 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,69,11,0
+ FILEVERSION 5,69,12,0
  PRODUCTVERSION 5,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -47,7 +47,7 @@ BEGIN
             VALUE "Comments", "YAYA\0"
             VALUE "CompanyName", "YAYA Development Team\0"
             VALUE "FileDescription", "yaya\0"
-            VALUE "FileVersion", "5, 69, 11, 0\0"
+            VALUE "FileVersion", "5, 69, 12, 0\0"
             VALUE "InternalName", "Yet Another AYA5\0"
             VALUE "LegalCopyright", " \0"
             VALUE "LegalTrademarks", " \0"

@@ -106,8 +106,6 @@ public:
 
 	yaya::int_t FSeek(const yaya::string_t &name, yaya::int_t offset,const yaya::string_t &mode);
 	yaya::int_t FTell(const yaya::string_t &name);
-	static bool MoveFileANSI(const char *s_filestr, const char *d_filestr);
-	static bool MoveFileUnicode(const yaya::string_t &s_file, const yaya::string_t &d_file);
 };
 
 //----
