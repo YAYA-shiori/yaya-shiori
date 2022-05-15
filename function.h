@@ -35,29 +35,32 @@ class	CStatement
 {
 public:
 	int				type;			// ステートメントの種別
-	int				jumpto;			// 飛び先行番号 break/continue/return/if/elseif/else/for/foreachで使用します
+	ptrdiff_t		jumpto;			// 飛び先行番号 break/continue/return/if/elseif/else/for/foreachで使用します
 									// 該当単位終端の"}"の位置が格納されています
-	int	linecount;					// 辞書ファイル中の行番号
+	ptrdiff_t linecount;			// 辞書ファイル中の行番号
 
 	mutable std_shared_ptr < CDuplEvInfo >	dupl_block;		// pool:{ //...
+	mutable bool						ismutiarea;
 
 private:
 	mutable std_shared_ptr<std::vector<CCell> >		m_cell;				// 数式の項の群　
 	mutable std_shared_ptr<std::vector<CSerial> >	m_serial;			// 数式の演算順序
 
 public:
-	CStatement(int t, int l, std_shared_ptr<CDuplEvInfo> dupl = std_shared_ptr<CDuplEvInfo>() )
+	CStatement(int t, ptrdiff_t l, std_shared_ptr<CDuplEvInfo> dupl = std_shared_ptr<CDuplEvInfo>() )
 	{
 		type = t;
 		linecount = l;
 		jumpto = 0;
 		dupl_block=dupl;
+		ismutiarea = false;
 	}
 	CStatement(void) {
 		type = ST_NOP;
 		linecount = 0;
 		jumpto = 0;
 		dupl_block.reset();
+		ismutiarea = false;
 	}
 	~CStatement(void) {}
 
@@ -129,7 +132,6 @@ public:
 	yaya::string_t				name;			// 名前
 	yaya::string_t::size_type	namelen;		// 名前の長さ
 	std::vector<CStatement>		statement;		// 命令郡
-	CDuplEvInfo					dupl_func;		// 重複回避制御
 	yaya::string_t				dicfilename;	// 対応する辞書ファイル名
 	yaya::string_t				dicfilename_fullpath;
 
@@ -141,7 +143,7 @@ private:
 	CFunction(void);
 
 public:
-	CFunction(CAyaVM& vmr, const yaya::string_t& n, choicetype_t ct, const yaya::string_t& df, int lc);
+	CFunction(CAyaVM& vmr, const yaya::string_t& n, const yaya::string_t& df, int lc);
 
 	~CFunction(void) {}
 
@@ -176,7 +178,7 @@ public:
 
 	const yaya::string_t&	GetFileName() const {return dicfilename;}
 	size_t	GetLineNumBegin() const { return linecount;}
-	size_t	GetLineNumEnd() const   { return statement.empty() ? 0 : statement[statement.size()-1].linecount;}
+	size_t	GetLineNumEnd() const   { return statement.empty() ? 0 : statement.back().linecount;}
 
 protected:
 	

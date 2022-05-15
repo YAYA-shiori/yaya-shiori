@@ -34,7 +34,7 @@
 #endif
 ////////////////////////////////////////
 
-CFunction::CFunction(CAyaVM& vmr, const yaya::string_t& n, choicetype_t ct, const yaya::string_t& df, int lc) : pvm(&vmr), name(n), dupl_func(ct), dicfilename(df), linecount(lc), dicfilename_fullpath(vmr.basis().ToFullPath(df))
+CFunction::CFunction(CAyaVM& vmr, const yaya::string_t& n, const yaya::string_t& df, int lc) : pvm(&vmr), name(n), dicfilename(df), linecount(lc), dicfilename_fullpath(vmr.basis().ToFullPath(df))
 {
 	statelenm1 = 0;
 	namelen = name.size();
@@ -126,7 +126,7 @@ CFunction::ExecutionResult	CFunction::Execute(const CValue &arg, CLocalVariable 
 
 void CFunction::Execute_SEHhelper(CFunction::ExecutionResult& aret, CLocalVariable& lvar, int& exitcode)
 {
-	aret = ExecuteInBrace(0, lvar, BRACE_DEFAULT, exitcode, NULL, 0);
+	aret = ExecuteInBrace(1, lvar, BRACE_DEFAULT, exitcode, NULL, 0);
 }
 
 void CFunction::Execute_SEHbody(ExecutionResult& retas, CLocalVariable& lvar, int& exitcode)
@@ -156,16 +156,13 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 {
 	// 開始時の処理
 	lvar.AddDepth();
-	CDuplEvInfo* pdupl = &dupl_func;
-	if (lvar.GetDepth() != 1) {
-		pdupl = statement[line-1].dupl_block.get();
-	}
+	CDuplEvInfo* pdupl = statement[line-1].dupl_block.get();
+	const bool	 inmutiarea = statement[line-1].ismutiarea;		// pool用
 
 	// 実行
 	CSelecter	output(pvm, pdupl, (ptrdiff_t)type);
 	bool		exec_end	 = 0;		// この{}の実行を終了するためのフラグ 1で終了
 	bool		ifflg		 = 0;		// if-elseif-else制御用。1でそのブロックを処理したことを示す
-	bool		inmutiarea	 = 0;		// pool用
 	bool		notpoolblock = 0;		// pool用
 	const bool	ispoolbegin	 = !inpool;	// pool用
 	bool		meltblock	 = 0;
@@ -188,7 +185,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 		meltblock = 0;
 	}
 
-	#define INPOOL_TO_NEXT (!inmutiarea ? inpool : false)
+	const bool inpool_to_next = (!inmutiarea ? !notpoolblock : false);
 
 	size_t t_statelenm1 = statelenm1;
 
@@ -198,7 +195,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 
 		switch(st.type) {
 		case ST_OPEN: {					// "{"
-			ExecutionInBraceResult info = ExecuteInBrace(i + 1, lvar, BRACE_DEFAULT, exitcode, UpperLvCandidatePool, INPOOL_TO_NEXT);
+			ExecutionInBraceResult info = ExecuteInBrace(i + 1, lvar, BRACE_DEFAULT, exitcode, UpperLvCandidatePool, inpool_to_next);
 			i = info.linenum;
 			output.Append(info.Output());
 			break;
@@ -207,7 +204,6 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 			exec_end = 1;
 			break;
 		case ST_COMBINE:				// "--"
-			inmutiarea = 1;
 			output.AddArea();
 			break;
 		case ST_FORMULA_OUT_FORMULA:	// 出力（数式。配列、引数つき関数も含まれる）
@@ -219,7 +215,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 		case ST_IF:						// if
 			ifflg = 0;
 			if (GetFormulaAnswer(lvar, st).GetTruth()) {
-				ExecutionInBraceResult info = ExecuteInBrace(i + 2, lvar, BRACE_DEFAULT, exitcode, UpperLvCandidatePool, INPOOL_TO_NEXT);
+				ExecutionInBraceResult info = ExecuteInBrace(i + 2, lvar, BRACE_DEFAULT, exitcode, UpperLvCandidatePool, inpool_to_next);
 				i = info.linenum;
 				output.Append(info.Output());
 				ifflg = 1;
@@ -231,7 +227,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 			if (ifflg)
 				i = st.jumpto;
 			else if (GetFormulaAnswer(lvar, st).GetTruth()) {
-				ExecutionInBraceResult info = ExecuteInBrace(i + 2, lvar, BRACE_DEFAULT, exitcode, UpperLvCandidatePool, INPOOL_TO_NEXT);
+				ExecutionInBraceResult info = ExecuteInBrace(i + 2, lvar, BRACE_DEFAULT, exitcode, UpperLvCandidatePool, inpool_to_next);
 				i = info.linenum;
 				output.Append(info.Output());
 				ifflg = 1;
@@ -243,7 +239,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 			if (ifflg)
 				i = st.jumpto;
 			else {
-				ExecutionInBraceResult info = ExecuteInBrace(i + 2, lvar, BRACE_DEFAULT, exitcode, UpperLvCandidatePool, INPOOL_TO_NEXT);
+				ExecutionInBraceResult info = ExecuteInBrace(i + 2, lvar, BRACE_DEFAULT, exitcode, UpperLvCandidatePool, inpool_to_next);
 				i = info.linenum;
 				output.Append(info.Output());
 			}
@@ -273,7 +269,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 				while ( (loop_max == 0) || (loop_max > loop_cur++) ) {
 					if (!GetFormulaAnswer(lvar, st).GetTruth())
 						break;
-					CValue t_value = ExecuteInBrace(i + 2, lvar, BRACE_LOOP, exitcode, UpperLvCandidatePool, INPOOL_TO_NEXT);
+					CValue t_value = ExecuteInBrace(i + 2, lvar, BRACE_LOOP, exitcode, UpperLvCandidatePool, inpool_to_next);
 					output.Append(t_value);
 
 					if (exitcode == ST_BREAK) {
@@ -316,7 +312,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 				while ( (loop_max == 0) || (loop_max > loop_cur++) ) {
 					if (!GetFormulaAnswer(lvar, statement[i + 1]).GetTruth()) //for第二パラメータ
 						break;
-					CValue t_value = ExecuteInBrace(i + 4, lvar, BRACE_LOOP, exitcode, UpperLvCandidatePool, INPOOL_TO_NEXT);
+					CValue t_value = ExecuteInBrace(i + 4, lvar, BRACE_LOOP, exitcode, UpperLvCandidatePool, inpool_to_next);
 					output.Append(t_value);
 
 					if (exitcode == ST_BREAK) {
@@ -361,7 +357,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 			}
 			break;
 		case ST_FOREACH:				// foreach
-			Foreach(lvar, output, i, exitcode, UpperLvCandidatePool, INPOOL_TO_NEXT);
+			Foreach(lvar, output, i, exitcode, UpperLvCandidatePool, inpool_to_next);
 			i  = st.jumpto;
 			break;
 		case ST_BREAK:					// break

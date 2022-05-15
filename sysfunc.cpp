@@ -7273,10 +7273,6 @@ CValue	CSystemFunction::LINT_GetLocalVarUsedBy(CSF_FUNCPARAM &p)
 		//no local variable detected. clear all and return empty array.
 		array.clear();
 	}
-	else {
-		//erase last "}", because all user function has terminator ST_CLOSE.
-		array.pop_back();
-	}
 
 	return result;
 }
@@ -7389,10 +7385,6 @@ CValue	CSystemFunction::LINT_GetLocalVarLetted(CSF_FUNCPARAM &p)
 	if ( value_count == 0 ) {
 		//no local variable detected. clear all and return empty array.
 		array.clear();
-	}
-	else {
-		//erase last "}", because all user function has terminator ST_CLOSE.
-		array.pop_back();
 	}
 
 	return result;
