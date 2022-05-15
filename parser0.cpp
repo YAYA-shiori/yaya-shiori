@@ -882,12 +882,12 @@ ptrdiff_t	CParser0::MakeFunction(const yaya::string_t& name, choicetype_t chtype
 			return -1;
 */
 
-	vm.function_parse().func.emplace_back(vm, name, dicfilename, linecount);
+	vm.function_parse().func.emplace_back(CFunction(vm, name, dicfilename, linecount));
 	size_t index = vm.function_parse().func.size()-1;
 	vm.function_parse().AddFunctionIndex(name, index);
 	
 	CFunction& targetfunction = vm.function_parse().func[index];
-	targetfunction.statement.emplace_back(ST_OPEN, linecount, std::make_shared<CDuplEvInfo>(chtype));
+	targetfunction.statement.emplace_back( CStatement(ST_OPEN, linecount, std_make_shared<CDuplEvInfo>(chtype)) );
 	
 	m_BlockhHeaderOfProcessing.clear();
 	m_BlockhHeaderOfProcessing.emplace_back(&targetfunction.statement[0]);
@@ -912,7 +912,7 @@ char	CParser0::StoreInternalStatement(size_t targetfunc, yaya::string_t &str, si
 	if(!str.size())
 		return 1;
 	// {
-	if(str.back() == L'{') {
+	if(str[str.length()-1] == L'{') {
 		// blockと重複回避オプションを取得
 		choicetype_t	chtype = CSelecter::GetDefaultBlockChoicetype(m_defaultBlockChoicetypeStack.back());
 		yaya::string_t	d0, d1;
@@ -921,7 +921,7 @@ char	CParser0::StoreInternalStatement(size_t targetfunc, yaya::string_t &str, si
 		}
 		m_defaultBlockChoicetypeStack.emplace_back(chtype);
 		depth++;
-		targetfunction.statement.emplace_back(ST_OPEN, linecount, std::make_shared<CDuplEvInfo>(chtype));
+		targetfunction.statement.emplace_back(CStatement(ST_OPEN, linecount, std_make_shared<CDuplEvInfo>(chtype)));
 		m_BlockhHeaderOfProcessing.push_back(&targetfunction.statement.back());
 		return 1;
 	}
@@ -961,7 +961,7 @@ char	CParser0::StoreInternalStatement(size_t targetfunc, yaya::string_t &str, si
 	// --
 	else if (str == L"--") {
 		m_BlockhHeaderOfProcessing.back()->ismutiarea = true;
-		targetfunction.statement.emplace_back(ST_COMBINE, linecount);
+		targetfunction.statement.emplace_back(CStatement(ST_COMBINE, linecount));
 		return 1;
 	}
 
