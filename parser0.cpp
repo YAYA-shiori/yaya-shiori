@@ -889,8 +889,8 @@ ptrdiff_t	CParser0::MakeFunction(const yaya::string_t& name, choicetype_t chtype
 	CFunction& targetfunction = vm.function_parse().func[index];
 	targetfunction.statement.emplace_back( CStatement(ST_OPEN, linecount, std_make_shared<CDuplEvInfo>(chtype)) );
 	
-	m_BlockhHeaderOfProcessing.clear();
-	m_BlockhHeaderOfProcessing.emplace_back(&targetfunction.statement[0]);
+	m_BlockhHeaderOfProcessingIndexStack.clear();
+	m_BlockhHeaderOfProcessingIndexStack.emplace_back(0);
 	m_defaultBlockChoicetypeStack.clear();
 	m_defaultBlockChoicetypeStack.emplace_back(CSelecter::GetDefaultBlockChoicetype(chtype));
 
@@ -922,12 +922,12 @@ char	CParser0::StoreInternalStatement(size_t targetfunc, yaya::string_t &str, si
 		m_defaultBlockChoicetypeStack.emplace_back(chtype);
 		depth++;
 		targetfunction.statement.emplace_back(CStatement(ST_OPEN, linecount, std_make_shared<CDuplEvInfo>(chtype)));
-		m_BlockhHeaderOfProcessing.push_back(&targetfunction.statement.back());
+		m_BlockhHeaderOfProcessingIndexStack.emplace_back(targetfunction.statement.size()-1);
 		return 1;
 	}
 	// }
 	else if (str == L"}") {
-		m_BlockhHeaderOfProcessing.pop_back();
+		m_BlockhHeaderOfProcessingIndexStack.pop_back();
 		m_defaultBlockChoicetypeStack.pop_back();
 		depth--;
 		targetfunction.statement.emplace_back(CStatement(ST_CLOSE, linecount));
@@ -960,7 +960,7 @@ char	CParser0::StoreInternalStatement(size_t targetfunc, yaya::string_t &str, si
 	}
 	// --
 	else if (str == L"--") {
-		m_BlockhHeaderOfProcessing.back()->ismutiarea = true;
+		targetfunction.statement[m_BlockhHeaderOfProcessingIndexStack.back()].ismutiarea = true;
 		targetfunction.statement.emplace_back(CStatement(ST_COMBINE, linecount));
 		return 1;
 	}

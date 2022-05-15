@@ -50,7 +50,7 @@ private:
 	CParser0(void);
 
 	std::vector<choicetype_t> m_defaultBlockChoicetypeStack;
-	std::vector<CStatement*>  m_BlockhHeaderOfProcessing;
+	std::vector<size_t>  m_BlockhHeaderOfProcessingIndexStack;
 
 public:
 	CParser0(CAyaVM &vmr) : vm(vmr) {
