@@ -53,7 +53,7 @@ void	CLogExCode::OutExecutionCodeForCheck(void)
 		vm.logger().Write(L"       ------------------------------------------------------------------------\n");
 		// 関数の重複回避モード
 		vm.logger().Write(L"Duplication evasion mode : ");
-		vm.logger().Write(CSelecter::ChoiceTypeToString(it->dupl_func.GetType()));
+		vm.logger().Write(CSelecter::ChoiceTypeToString(it->statement[0].dupl_block.get()->GetType()));
 		vm.logger().Write(L"\n");
 		// 関数が記述されている辞書ファイル名
 		vm.logger().Write(L"dic filename : ");
