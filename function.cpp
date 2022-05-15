@@ -188,6 +188,21 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 		meltblock = 0;
 	}
 
+	{//init inmutiarea
+		size_t i = 0;
+		size_t st_num = 0;
+		for(i = line; i < statelenm1; i++) {
+			if(statement[i].type == ST_OPEN)
+				st_num++;
+			if(statement[i].type == ST_CLOSE)
+				st_num--;
+			if(statement[i].type == ST_COMBINE && st_num==0) {
+				inmutiarea = 1;
+				break;
+			}
+		}
+	}
+
 	#define INPOOL_TO_NEXT (!inmutiarea ? inpool : false)
 
 	size_t t_statelenm1 = statelenm1;
@@ -207,7 +222,6 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 			exec_end = 1;
 			break;
 		case ST_COMBINE:				// "--"
-			inmutiarea = 1;
 			output.AddArea();
 			break;
 		case ST_FORMULA_OUT_FORMULA:	// 出力（数式。配列、引数つき関数も含まれる）
