@@ -995,19 +995,68 @@ struct tm EpochTimeToLocalTime(yaya::time_t tv)
 yaya::time_t LocalTimeToEpochTime(struct tm &tm)
 {
 #if defined(WIN32) || defined(_WIN32_WCE)
-	SYSTEMTIME stime;
-	ZeroMemory(&stime,sizeof(stime));
+	__int64 t1 = tm.tm_year;
 
-	stime.wSecond = tm.tm_sec;
-	stime.wMinute = tm.tm_min;
-	stime.wHour = tm.tm_hour;
-	stime.wDay = tm.tm_mday;
-	stime.wMonth = tm.tm_mon + 1; //struct tm 0-11 = SYSTEMTIME 1-12
-	stime.wYear = tm.tm_year + 1900; //struct tm 100 = SYSTEMTIME 2000
+	if ( tm.tm_mon < 0 || tm.tm_mon > 11 ) { //1-12‚æ‚èŠO
+		t1 += (tm.tm_mon / 12);
 
-	FILETIME lft;
-	::SystemTimeToFileTime(&stime,&lft);
+		tm.tm_mon %= 12;
+		if ( tm.tm_mon < 0 ) {
+			tm.tm_mon += 12;
+			t1 -= 1;
+		}
+	}
 
+	//t1 = ”N
+	static __int64 count_days[] = {
+		0,
+		31,
+		31+28,
+		31+28+31,
+		31+28+31+30,
+		31+28+31+30+31,
+		31+28+31+30+31+30,
+		31+28+31+30+31+30+31,
+		31+28+31+30+31+30+31+31,
+		31+28+31+30+31+30+31+31+30,
+		31+28+31+30+31+30+31+31+30+31,
+		31+28+31+30+31+30+31+31+30+31+30};
+
+	__int64 t2 = count_days[tm.tm_mon] - 1;
+
+	if ( !(t1 & 3) && (tm.tm_mon > 1) ) {
+		t2 += 1;
+	}
+
+	__int64 t3 = (t1 - 70) * 365i64 + ((t1 - 1i64) >> 2) - 17i64;
+
+	t3 += t2;
+	t2 = tm.tm_mday;
+
+	t1 = t3 + t2;
+
+	//t1 = “ú
+	t2 = t1 * 24i64;
+	t3 = tm.tm_hour;
+
+	t1 = t2 + t3;
+
+	//t1 = Žž
+	t2 = t1 * 60i64;
+	t3 = tm.tm_min;
+
+	t1 = t2 + t3;
+
+	//t1 = •ª
+	t2 = t1 * 60i64;
+	t3 = tm.tm_sec;
+
+	t1 = t2 + t3;
+
+	//t1 = •b(local EPOCH)
+	
+	FILETIME lft = EpochTimeToFileTime(t1);
+	
 	FILETIME ft;
 	::LocalFileTimeToFileTime(&lft,&ft);
 
