@@ -68,6 +68,7 @@ protected:
 	char	save_charset;
 	char    save_old_charset;
 	char	extension_charset;
+	char    log_charset;
 
 	bool	encode_savefile;
 	bool	auto_save;
