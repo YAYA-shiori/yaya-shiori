@@ -6577,61 +6577,75 @@ int CSystemFunction::GetCharset(const CValueSub &var,const wchar_t *fname, const
 #if defined(WIN32)
 CValue CSystemFunction::READFMO(CSF_FUNCPARAM &p)
 {
-	yaya::string_t fmoname;
-	if (p.arg.array_size()==0) {
-		fmoname=L"Sakura";
-	}else{
+	yaya::string_t fmoname = L"Sakura";
+
+	if (p.arg.array_size() >= 1) {
 		fmoname=p.arg.array()[0].GetValueString();
 	}
 
-	HANDLE hFMO;
-	void* pData;
-	CValue result=CValue(F_TAG_NOP, 0/*dmy*/);
+	int charset = CHARSET_DEFAULT;
 
-	//UNICODE¨SJIS‚É‚µ‚ÄŒÄ‚Ôifor win95j
-	char* tmpstr=Ccct::Ucs2ToMbcs(fmoname.c_str(),CHARSET_SJIS);
+	if (p.arg.array_size() >= 2) {
+		charset = GetCharset(p.arg.array()[1],L"READFMO", p.dicname, p.line);
+		if ( charset < 0 ) {
+			charset = CHARSET_DEFAULT;
+		}
+	}
 
-	hFMO=OpenFileMappingA(FILE_MAP_READ,false,tmpstr);
+	char* tmpstr=Ccct::Ucs2ToMbcs(fmoname.c_str(),CHARSET_DEFAULT);
+
+	HANDLE hFMO = ::OpenFileMappingA(FILE_MAP_READ,false,tmpstr);
 	if(hFMO == NULL){
 		vm.logger().Error(E_W, 13, L"READFMO(" + fmoname + L").OpenFileMapping Failed", p.dicname, p.line);
 		SetError(13);
-		return result;
+		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
 	free(tmpstr);
 	tmpstr = NULL;
 
-	pData=MapViewOfFile(hFMO,FILE_MAP_READ,0,0,0);
+	void *pData = ::MapViewOfFile(hFMO,FILE_MAP_READ,0,0,0);
 	if(pData == NULL){
-		CloseHandle(hFMO);
+		::CloseHandle(hFMO);
 		vm.logger().Error(E_W, 13, L"READFMO(" + fmoname + L").MapViewOfFile Failed" , p.dicname, p.line);
 		SetError(13);
-		return result;
+		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
 	unsigned int size=*(unsigned int*)(pData);
-	if(size<=4){
-		UnmapViewOfFile(pData);
-		CloseHandle(hFMO);
+	if ( size<=4 ) {
+		::UnmapViewOfFile(pData);
+		::CloseHandle(hFMO);
 		vm.logger().Error(E_W, 13, L"READFMO(" + fmoname + L").FMO size less than 4 bytes" , p.dicname, p.line);
 		SetError(13);
-		return result;
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+	else if ( size > 1000000 ) {
+		::UnmapViewOfFile(pData);
+		::CloseHandle(hFMO);
+		vm.logger().Error(E_W, 13, L"READFMO(" + fmoname + L").FMO size too big" , p.dicname, p.line);
+		SetError(13);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	char* pBuf=new char[size];
+	char* pBuf = new char[size+1];
 	strncpy( pBuf , (const char*) pData+4, size-4 );
-	UnmapViewOfFile(pData);
-	CloseHandle(hFMO);
+	pBuf[size] = 0;
 
-	yaya::char_t *t_str = Ccct::MbcsToUcs2(pBuf,CHARSET_DEFAULT);
+	::UnmapViewOfFile(pData);
+	::CloseHandle(hFMO);
+
+	yaya::char_t *t_str = Ccct::MbcsToUcs2(pBuf,charset);
+
 	if (t_str == NULL) {
 		vm.logger().Error(E_E, 13, L"READFMO(" + fmoname + L").MbcsToUcs2 Failed", p.dicname, p.line);
 		SetError(13);
-		return result;
+		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
+	
 	delete[](pBuf);
 	pBuf = NULL;
-	result=CValue(t_str);
+	CValue result = CValue(t_str);
 	free(t_str);
 	t_str= NULL;
 
