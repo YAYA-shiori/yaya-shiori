@@ -54,7 +54,7 @@ bool yayamsg::IsEmpty(void)
 extern void*  g_hModule;
 #endif
 
-bool yayamsg::LoadMessageFromTxt(const yaya::string_t &basepath,const yaya::string_t &filename,char cset)
+bool yayamsg::LoadMessageFromTxt(const yaya::string_t &basepath,yaya::string_t &filename /* in and out : filename should not const */,char cset)
 {
 	std::vector<yaya::string_t> lines;
 
@@ -116,9 +116,16 @@ bool yayamsg::LoadMessageFromTxt(const yaya::string_t &basepath,const yaya::stri
 		yaya::string_t file = basepath + filename;
 
 		FILE *fp = yaya::w_fopen(file.c_str(), L"rb");
-
 		if (fp == NULL) {
-			return false;
+			file = basepath + L"messagetxt/" + filename + L".txt";
+			fp = yaya::w_fopen(file.c_str(), L"rb");
+
+			if ( fp ) {
+				filename = L"messagetxt/" + filename + L".txt";
+			}
+			else {
+				return false;
+			}
 		}
 
 		yaya::string_t linebuf;

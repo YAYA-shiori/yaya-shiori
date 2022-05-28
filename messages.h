@@ -30,7 +30,7 @@
 
 namespace yayamsg {
 
-bool LoadMessageFromTxt(const yaya::string_t &basepath,const yaya::string_t &filename,char cset);
+bool LoadMessageFromTxt(const yaya::string_t &basepath,yaya::string_t &filename,char cset);
 const yaya::string_t GetTextFromTable(int mode,int id);
 bool IsEmpty(void);
 
