@@ -275,6 +275,24 @@ char	*Ccct::Ucs2ToMbcs(const yaya::string_t &wstr, int charset)
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  Ccct::Ucs2ToPlainASCII
+ *  機能概要：  UTF-16BEからASCII std::string へ文字列のコード変換
+ * -----------------------------------------------------------------------
+ */
+std::string Ccct::Ucs2ToPlainASCII(const yaya::string_t &wstr)
+{
+	std::string str;
+	for ( size_t i = 0 ; i < wstr.length() ; ++i ) {
+		char c = (char)(wstr[i] & 0x7FU);
+		if ( c >= 0x20U && c <= 0x7EU ) {
+			str += c;
+		}
+	}
+	return str;
+}
+
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  Ccct::MbcsToUcs2
  *  機能概要：  MBCS -> UTF-16BE へ文字列のコード変換
  * -----------------------------------------------------------------------

@@ -33,6 +33,10 @@ static std::vector<void (*)(const yaya::char_t *str, int mode, int id)> loghandl
 static size_t id_now=0;
 static long logsend_hwnd = 0;
 
+#if defined(WIN32)
+void*  g_hModule = NULL;
+#endif
+
 //////////DEBUG/////////////////////////
 #ifdef _WINDOWS
 #ifdef _DEBUG
@@ -157,6 +161,8 @@ static CAyaVMPrepare prepare; //これはコンストラクタ・デストラク
 
 static void AYA_InitModule(HMODULE hModule)
 {
+	g_hModule = hModule;
+
 	if ( IsUnicodeAware() ) {
 		wchar_t path[MAX_PATH] = L"";
 		::GetModuleFileNameW(hModule, path, sizeof(path) / sizeof(path[0]));

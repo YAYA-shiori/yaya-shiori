@@ -1,5 +1,7 @@
-﻿//Microsoft Developer Studio generated resource script.
+//Microsoft Developer Studio generated resource script.
 //
+#pragma code_page(65001)
+
 #include "resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
@@ -28,7 +30,7 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,69,15,0
+ FILEVERSION 5,70,1,0
  PRODUCTVERSION 5,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -47,7 +49,7 @@ BEGIN
             VALUE "Comments", "YAYA\0"
             VALUE "CompanyName", "YAYA Development Team\0"
             VALUE "FileDescription", "yaya\0"
-            VALUE "FileVersion", "5, 69, 15, 0\0"
+            VALUE "FileVersion", "5, 70, 1, 0\0"
             VALUE "InternalName", "Yet Another AYA5\0"
             VALUE "LegalCopyright", " \0"
             VALUE "LegalTrademarks", " \0"
@@ -92,6 +94,17 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// MESSAGETXT
+//
+
+CLASSICAL-CHINESE       MESSAGETXT MOVEABLE PURE "messagetxt\\classical-chinese.txt"
+ENGLISH                 MESSAGETXT MOVEABLE PURE "messagetxt\\english.txt"
+JAPANESE                MESSAGETXT MOVEABLE PURE "messagetxt\\japanese.txt"
+SIMPLIFIED-CHINESE      MESSAGETXT MOVEABLE PURE "messagetxt\\simplified-chinese.txt"
+TRADITIONAL-CHINESE     MESSAGETXT MOVEABLE PURE "messagetxt\\traditional-chinese.txt"
 #endif    // 日本語 resources
 /////////////////////////////////////////////////////////////////////////////
 

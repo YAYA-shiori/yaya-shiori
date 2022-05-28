@@ -431,5 +431,25 @@ SOURCE=.\wsex.h
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # End Group
+# Begin Source File
+
+SOURCE=".\messagetxt\classical-chinese.txt"
+# End Source File
+# Begin Source File
+
+SOURCE=.\messagetxt\english.txt
+# End Source File
+# Begin Source File
+
+SOURCE=.\messagetxt\japanese.txt
+# End Source File
+# Begin Source File
+
+SOURCE=".\messagetxt\simplified-chinese.txt"
+# End Source File
+# Begin Source File
+
+SOURCE=".\messagetxt\traditional-chinese.txt"
+# End Source File
 # End Target
 # End Project
