@@ -154,7 +154,10 @@ const yaya::string_t yayamsg::GetTextFromTable(int mode,int id)
 			yaya::char_t buf[64] = L"";
 			yaya::snprintf(buf,63,L"%04d",id);
 
-			return yaya::string_t(emsg) + buf + L" : (please specify messagetxt)\r\n";
+			if(IsEmpty())
+				return yaya::string_t(emsg) + buf + L" : (please specify messagetxt)\r\n";
+			else
+				return yaya::string_t(emsg) + buf + L" : (not found, please update messagetxt or contact the developer)\r\n";
 		}
 	}
 	else {
