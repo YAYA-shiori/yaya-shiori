@@ -13,6 +13,7 @@
 
 #include "globaldef.h"
 #include "wsex.h"
+#include "ccct.h"
 #include "misc.h"
 
 //////////DEBUG/////////////////////////
@@ -49,13 +50,85 @@ bool yayamsg::IsEmpty(void)
  *  機能概要：  テキストファイルからエラーメッセージテーブルに読み込みます
  * -----------------------------------------------------------------------
  */
-bool yayamsg::LoadMessageFromTxt(const yaya::string_t &file,char cset)
-{
-	FILE *fp = yaya::w_fopen(file.c_str(), L"rb");
+#if defined(WIN32) || defined(_WIN32_WCE)
+extern void*  g_hModule;
+#endif
 
-	if (fp == NULL) {
-		return false;
+bool yayamsg::LoadMessageFromTxt(const yaya::string_t &basepath,const yaya::string_t &filename,char cset)
+{
+	std::vector<yaya::string_t> lines;
+
+#if defined(WIN32) || defined(_WIN32_WCE)
+	{
+
+		yaya::string_t name_w = filename;
+
+		yaya::ws_replace(name_w,L"messagetxt",L"");
+		yaya::ws_replace(name_w,L".txt",L"");
+		yaya::ws_replace(name_w,L"\\",L"");
+		yaya::ws_replace(name_w,L"/",L"");
+
+		std::string name_a = Ccct::Ucs2ToPlainASCII(name_w);
+
+		HRSRC hFound = ::FindResourceA((HINSTANCE)g_hModule,name_a.c_str(),"MESSAGETXT");
+		if ( ! hFound ) {
+			return false;
+		}
+
+		HGLOBAL hRes = ::LoadResource((HINSTANCE)g_hModule,hFound);
+		if ( ! hRes ) {
+			return false;
+		}
+
+		void *p = ::LockResource(hRes);
+		if ( ! p ) {
+			return false;
+		}
+
+		yaya::char_t *pc = Ccct::MbcsToUcs2((const char*)p,cset);
+		if ( ! pc ) {
+			return false;
+		}
+
+		yaya::char_t *pcs = pc;
+		while ( true ) {
+			yaya::char_t *pce = wcschr(pcs,L'\n');
+			if ( ! pce ) {
+				lines.emplace_back(yaya::string_t(pcs));
+				break;
+			}
+
+			*pce = 0;
+			lines.emplace_back(yaya::string_t(pcs));
+
+			pcs = pce + 1;
+		}
 	}
+
+#else
+	{
+		yaya::string_t file = basepath + filename;
+
+		FILE *fp = yaya::w_fopen(file.c_str(), L"rb");
+
+		if (fp == NULL) {
+			return false;
+		}
+
+		yaya::string_t linebuf;
+
+		while ( true ) {
+			if (yaya::ws_fgets(linebuf, fp, cset, 0 /*no_enc*/, 1 /*skip_bom*/, 1 /*cut_heading_space*/) == yaya::WS_EOF) {
+				break;
+			}
+
+			lines.emplace_back(linebuf);
+		}
+
+		fclose(fp);
+	}
+
+#endif
 
 	MessageArray *ptr = NULL;
 
@@ -63,11 +136,9 @@ bool yayamsg::LoadMessageFromTxt(const yaya::string_t &file,char cset)
 
 	ClearMessageArrays();
 
-	while ( true )
+	for ( std::vector<yaya::string_t>::const_iterator it = lines.begin() ; it != lines.end() ; ++it )
 	{
-		if (yaya::ws_fgets(line, fp, cset, 0 /*no_enc*/, 1 /*skip_bom*/, 1 /*cut_heading_space*/) == yaya::WS_EOF) {
-			break;
-		}
+		line = *it;
 
 		CutCrLf(line);
 
@@ -108,8 +179,6 @@ bool yayamsg::LoadMessageFromTxt(const yaya::string_t &file,char cset)
 			continue;
 		}
 	}
-
-	fclose(fp);
 
 	return true;
 }
@@ -154,7 +223,10 @@ const yaya::string_t yayamsg::GetTextFromTable(int mode,int id)
 			yaya::char_t buf[64] = L"";
 			yaya::snprintf(buf,63,L"%04d",id);
 
-			return yaya::string_t(emsg) + buf + L" : (please specify messagetxt)\r\n";
+			if(IsEmpty())
+				return yaya::string_t(emsg) + buf + L" : (please specify messagetxt)\r\n";
+			else
+				return yaya::string_t(emsg) + buf + L" : (not found, please update messagetxt or contact the developer)\r\n";
 		}
 	}
 	else {

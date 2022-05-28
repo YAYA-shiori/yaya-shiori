@@ -165,7 +165,7 @@
     <Link>
       <ShowProgress>NotSet</ShowProgress>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <ProgramDatabaseFile>.\Debug/yaya.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>.\Debug/yaya.map</MapFileName>
@@ -326,6 +326,7 @@
     <ClInclude Include="mt19937ar.h" />
     <ClInclude Include="parser0.h" />
     <ClInclude Include="parser1.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="selecter.h" />
     <ClInclude Include="sha1.h" />
     <ClInclude Include="StdAfx.h" />
@@ -335,7 +336,9 @@
     <ClInclude Include="wsex.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="bin00001.bin" />
     <None Include="cpp.hint" />
+    <None Include="messaget.bin" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

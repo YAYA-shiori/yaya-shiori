@@ -42,6 +42,8 @@ public:
 	static wchar_t	*MbcsToUcs2(const char *mstr, int charset);
 	static wchar_t	*MbcsToUcs2(const std::string &mstr, int charset);
 
+	static std::string Ucs2ToPlainASCII(const yaya::string_t &wstr);
+
 	static bool     CheckInvalidCharset(int charset);
 	static int      CharsetTextToID(const wchar_t *ctxt);
 	static int      CharsetTextToID(const char *ctxt);
