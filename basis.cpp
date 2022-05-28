@@ -1527,8 +1527,8 @@ ptrdiff_t CBasisFuncPos::Find(CAyaVM &vm,const yaya::char_t *name)
 	pos_saved = vm.function_exec().GetFunctionIndexFromName(name);
 	is_try_find = true;
 
-	if ( pos_saved < 0 ) {
-		vm.logger().Error(E_W, 32, name);
+	if(pos_saved < 0) {
+		vm.logger().Error(E_E, 32, name);
 	}
 
 	return pos_saved;
