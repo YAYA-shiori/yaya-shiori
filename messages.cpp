@@ -80,12 +80,16 @@ bool yayamsg::LoadMessageFromTxt(const yaya::string_t &basepath,const yaya::stri
 			return false;
 		}
 
+		size_t sz = ::SizeofResource((HINSTANCE)g_hModule,hFound);
+
 		void *p = ::LockResource(hRes);
 		if ( ! p ) {
 			return false;
 		}
 
-		yaya::char_t *pc = Ccct::MbcsToUcs2((const char*)p,cset);
+		std::string restxt((const char*)p,sz);
+
+		yaya::char_t *pc = Ccct::MbcsToUcs2(restxt,cset);
 		if ( ! pc ) {
 			return false;
 		}
@@ -103,6 +107,8 @@ bool yayamsg::LoadMessageFromTxt(const yaya::string_t &basepath,const yaya::stri
 
 			pcs = pce + 1;
 		}
+
+		free(pc);
 	}
 
 #else
