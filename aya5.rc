@@ -28,7 +28,7 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,69,15,0
+ FILEVERSION 5,70,1,0
  PRODUCTVERSION 5,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -47,7 +47,7 @@ BEGIN
             VALUE "Comments", "YAYA\0"
             VALUE "CompanyName", "YAYA Development Team\0"
             VALUE "FileDescription", "yaya\0"
-            VALUE "FileVersion", "5, 69, 15, 0\0"
+            VALUE "FileVersion", "5, 70, 1, 0\0"
             VALUE "InternalName", "Yet Another AYA5\0"
             VALUE "LegalCopyright", " \0"
             VALUE "LegalTrademarks", " \0"
@@ -84,7 +84,7 @@ BEGIN
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE MOVEABLE PURE 
 BEGIN
     "\r\n"
     "\0"
@@ -97,13 +97,13 @@ END
 //
 // MESSAGETXT
 //
-classical-chinese     MESSAGETXT    MOVEABLE PURE   "messagetxt\\classical-chinese.txt"
-english               MESSAGETXT    MOVEABLE PURE   "messagetxt\\english.txt"
-japanese              MESSAGETXT    MOVEABLE PURE   "messagetxt\\japanese.txt"
-simplified-chinese    MESSAGETXT    MOVEABLE PURE   "messagetxt\\simplified-chinese.txt"
-traditional-chinese   MESSAGETXT    MOVEABLE PURE   "messagetxt\\traditional-chinese.txt"
 
-#endif    // “ú–{Œê (“ú–{) resources
+CLASSICAL-CHINESE       MESSAGETXT MOVEABLE PURE "messagetxt\\classical-chinese.txt"
+ENGLISH                 MESSAGETXT MOVEABLE PURE "messagetxt\\english.txt"
+JAPANESE                MESSAGETXT MOVEABLE PURE "messagetxt\\japanese.txt"
+SIMPLIFIED-CHINESE      MESSAGETXT MOVEABLE PURE "messagetxt\\simplified-chinese.txt"
+TRADITIONAL-CHINESE     MESSAGETXT MOVEABLE PURE "messagetxt\\traditional-chinese.txt"
+#endif    // “ú–{Œê resources
 /////////////////////////////////////////////////////////////////////////////
 
 
