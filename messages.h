@@ -31,6 +31,9 @@
 namespace yayamsg {
 
 bool LoadMessageFromTxt(const yaya::string_t &basepath,yaya::string_t &filename,char cset);
+bool LoadMessageFromTxtResource(const yaya::string_t &basepath,yaya::string_t &filename,char cset,std::vector<yaya::string_t> &lines);
+bool LoadMessageFromTxtFile(const yaya::string_t &basepath,yaya::string_t &filename,char cset,std::vector<yaya::string_t> &lines);
+
 const yaya::string_t GetTextFromTable(int mode,int id);
 bool IsEmpty(void);
 
