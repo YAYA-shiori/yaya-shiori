@@ -264,6 +264,13 @@ constexpr CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::SETSETTING , L"SETSETTING" } ,
 	// デバッグ用(3)
 	{ &CSystemFunction::DUMPVAR , L"DUMPVAR" } ,
+    // ハッシュ
+    { &CSystemFunction::IHASH , L"IHASH" } ,
+	{ &CSystemFunction::HASH_KEYS , L"HASH_KEYS" } ,
+	{ &CSystemFunction::HASH_VALUES , L"HASH_VALUES" } ,
+	{ &CSystemFunction::HASH_SPLIT , L"HASH_SPLIT" } ,
+	{ &CSystemFunction::HASH_EXIST , L"HASH_EXIST" } ,
+	{ &CSystemFunction::HASH_SIZE , L"HASH_SIZE" } ,
 	// ファイル操作(5)
 	{ &CSystemFunction::FSEEK , L"FSEEK" } ,
 	{ &CSystemFunction::FTELL , L"FTELL" } ,
@@ -648,6 +655,8 @@ CValue	CSystemFunction::GETTYPE(CSF_FUNCPARAM &p)
 				return CValue(4);
 			}
 		}
+	case F_TAG_HASH:
+		return CValue(5);
 	default:
 		vm.logger().Error(E_E, 88, L"GETTYPE", p.dicname, p.line);
 		return CValue(0);
@@ -704,6 +713,8 @@ CValue	CSystemFunction::GETTYPEEX(CSF_FUNCPARAM &p)
 		return CValue(3);
 	case F_TAG_ARRAY:
 		return CValue(4);
+	case F_TAG_HASH:
+		return CValue(5);
 	default:
 		return CValue(0);
 	}
@@ -3874,6 +3885,159 @@ CValue	CSystemFunction::SETDELIM(CSF_FUNCPARAM &p)
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::IHASH
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::IHASH(CSF_FUNCPARAM &p)
+{
+	if ( ! p.arg.array_size() ) {
+		return CValue(F_TAG_HASH, 0);
+	}
+
+	if ( p.arg.array_size() % 2 ) {
+		vm.logger().Error(E_W, 20, L"IHASH", p.dicname, p.line);
+	}
+
+	CValue result(F_TAG_HASH,0/*dmy*/);
+	
+	CValueArray::const_iterator itr = p.arg.array().begin();
+	CValueArray::const_iterator ite = p.arg.array().end();
+
+	while ( itr != ite ) {
+		++itr;
+		if ( itr != ite ) {
+			result.hash().insert(std::pair<CValueSub,CValueSub>(*(itr-1),*(itr)));
+			++itr;
+		}
+		else {
+			result.hash().insert(std::pair<CValueSub,CValueSub>(*(itr-1),CValueSub()));
+		}
+	}
+
+	return result;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::HASH_KEYS
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::HASH_KEYS(CSF_FUNCPARAM &p)
+{
+	if (p.valuearg.size() < 1) {
+		vm.logger().Error(E_W, 8, L"HASH_KEYS", p.dicname, p.line);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	if ( p.valuearg[0].GetType() != F_TAG_HASH ) {
+		vm.logger().Error(E_W, 9, L"HASH_KEYS", p.dicname, p.line);
+		SetError(9);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	const CValueHash &map = p.valuearg[0].hash();
+
+	if ( map.empty() ) {
+		return CValue(F_TAG_ARRAY,0/*dmy*/);
+	}
+
+	CValue result(F_TAG_ARRAY,0/*dmy*/);
+	
+	CValueHash::const_iterator itr = map.begin();
+	CValueHash::const_iterator ite = map.end();
+
+	for ( ; itr != ite ; ++itr ) {
+		result.array().push_back(itr->first);
+	}
+
+	return result;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::HASH_VALUES
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::HASH_VALUES(CSF_FUNCPARAM &p)
+{
+	if (p.valuearg.size() < 1) {
+		vm.logger().Error(E_W, 8, L"HASH_VALUES", p.dicname, p.line);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	if ( p.valuearg[0].GetType() != F_TAG_HASH ) {
+		vm.logger().Error(E_W, 9, L"HASH_VALUES", p.dicname, p.line);
+		SetError(9);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	const CValueHash &map = p.valuearg[0].hash();
+
+	if ( map.empty() ) {
+		return CValue(F_TAG_ARRAY,0/*dmy*/);
+	}
+
+	CValue result(F_TAG_ARRAY,0/*dmy*/);
+	
+	CValueHash::const_iterator itr = map.begin();
+	CValueHash::const_iterator ite = map.end();
+
+	for ( ; itr != ite ; ++itr ) {
+		result.array().push_back(itr->second);
+	}
+
+	return result;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::HASH_EXIST
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::HASH_EXIST(CSF_FUNCPARAM &p)
+{
+	if (p.valuearg.size() < 2) {
+		vm.logger().Error(E_W, 8, L"HASH_EXIST", p.dicname, p.line);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	if ( p.valuearg[0].GetType() == F_TAG_HASH || p.valuearg[0].GetType() == F_TAG_ARRAY ) {
+		vm.logger().Error(E_W, 9, L"HASH_EXIST", p.dicname, p.line);
+		SetError(9);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	if ( p.valuearg[1].GetType() != F_TAG_HASH ) {
+		vm.logger().Error(E_W, 9, L"HASH_EXIST", p.dicname, p.line);
+		SetError(9);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	return CValue(p.valuearg[1].hash().find(CValueSub(p.valuearg[0])) != p.valuearg[1].hash().end() ? 1 : 0);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::HASH_SIZE
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::HASH_SIZE(CSF_FUNCPARAM &p)
+{
+	if (p.valuearg.size() < 1) {
+		vm.logger().Error(E_W, 8, L"HASH_SIZE", p.dicname, p.line);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	if ( p.valuearg[0].GetType() != F_TAG_HASH ) {
+		vm.logger().Error(E_W, 9, L"HASH_SIZE", p.dicname, p.line);
+		SetError(9);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	return CValue((int)p.valuearg[0].hash().size());
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::ISEVALUABLE
  * -----------------------------------------------------------------------
  */
@@ -6196,6 +6360,85 @@ CValue	CSystemFunction::SETTAMAHWND(CSF_FUNCPARAM &p)
 	vm.logger().Error(E_W, 9, L"SETTAMAHWND", p.dicname, p.line);
 	SetError(9);
 	return CValue(F_TAG_NOP, 0/*dmy*/);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::HASH_SPLIT
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::HASH_SPLIT(CSF_FUNCPARAM &p)
+{
+	int	sz = p.arg.array_size();
+	if (sz < 3) {
+		vm.logger().Error(E_W, 8, L"HASH_SPLIT", p.dicname, p.line);
+		SetError(8);
+		return CValue(F_TAG_HASH, 0/*dmy*/);
+	}
+
+	if (!p.arg.array()[0].IsString() ||
+		!p.arg.array()[1].IsString() ||
+		!p.arg.array()[2].IsString()) {
+		vm.logger().Error(E_W, 9, L"HASH_SPLIT", p.dicname, p.line);
+		SetError(9);
+	}
+
+	CValue	result(F_TAG_HASH, 0/*dmy*/);
+
+	const yaya::string_t &tgt_str  = p.arg.array()[0].GetValueString();
+	const yaya::string_t &sep_str1 = p.arg.array()[1].GetValueString();
+	const yaya::string_t &sep_str2 = p.arg.array()[2].GetValueString();
+
+	if (sep_str1.length() == 0 || sep_str2.length() == 0) {
+		vm.logger().Error(E_W, 10, L"HASH_SPLIT", p.dicname, p.line);
+		SetError(10);
+		return CValue(F_TAG_HASH, 0/*dmy*/);
+	}
+	
+	const yaya::string_t::size_type sep_str1len = sep_str1.size();
+	const yaya::string_t::size_type sep_str2len = sep_str2.size();
+	const yaya::string_t::size_type tgt_strlen  = tgt_str.size();
+	yaya::string_t::size_type seppoint = 0;
+	yaya::string_t::size_type spoint,spoint2;
+	yaya::string_t element;
+
+	while(true) {
+		if ( tgt_strlen-seppoint == 0 ) {
+			break;
+		}
+
+		spoint = tgt_str.find(sep_str1,seppoint);
+		if ( spoint == seppoint ) {
+			seppoint += sep_str1len;
+			continue;
+		}
+
+		if (spoint == yaya::string_t::npos) {
+			element = tgt_str.substr(seppoint,tgt_strlen - seppoint);
+		}
+		else {
+			element = tgt_str.substr(seppoint, spoint-seppoint);
+		}
+		
+		spoint2 = element.find(sep_str2,0);
+
+		if ( spoint2 == yaya::string_t::npos ) {
+			result.hash().insert(std::pair<CValueSub,CValueSub>(element,CValueSub()));
+		}
+		else {
+			if ( spoint2 != 0 ) {
+				result.hash().insert(std::pair<CValueSub,CValueSub>(CValueSub(element.substr(0,spoint2))
+					,CValueSub(element.substr(spoint2+sep_str2len,element.size()-spoint2-sep_str2len))));
+			}
+		}
+
+		if (spoint == yaya::string_t::npos) {
+			break;
+		}
+
+		seppoint = spoint + sep_str1len;
+	}
+
+	return result;
 }
 
 /* -----------------------------------------------------------------------
