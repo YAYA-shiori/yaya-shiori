@@ -131,20 +131,22 @@ char	CParser1::CheckSubstSyntax(CStatement& st, const yaya::string_t& dicfilenam
 				size_t before = i - 1;
 				// 代入演算子の手前は変数、ローカル変数、閉じスクウェアブラケット("]")の
 				// いずれかであるはずなので、これを確認
-				if (st.cell()[before].value_GetType() != F_TAG_VARIABLE &&
-					st.cell()[before].value_GetType() != F_TAG_LOCALVARIABLE &&
-					st.cell()[before].value_GetType() != F_TAG_HOOKBRACKETOUT) {
+				auto before_type = st.cell()[before].value_GetType();
+				if(before_type != F_TAG_VARIABLE &&
+				   before_type != F_TAG_LOCALVARIABLE &&
+				   before_type != F_TAG_HOOKBRACKETOUT) {
 					vm.logger().Error(E_E, 29, dicfilename, st.linecount);
-					errcount++;
+					errcount++; 
 				}
 				// 手前が閉じスクウェアブラケット("]")だった場合はブラケット手前の変数を確認
-				if(st.cell()[before].value_GetType() == F_TAG_HOOKBRACKETOUT) {
+				if(before_type == F_TAG_HOOKBRACKETOUT) {
 					ptrdiff_t depth = 1;
 					ptrdiff_t j = 0;
 					for(j = before - 1; j >= 0; j--) {
-						if (st.cell()[j].value_GetType() == F_TAG_HOOKBRACKETOUT)
+						auto type = st.cell()[j].value_GetType();
+						if(type == F_TAG_HOOKBRACKETOUT)
 							depth++;
-						else if (st.cell()[j].value_GetType() == F_TAG_HOOKBRACKETIN)
+						else if(type == F_TAG_HOOKBRACKETIN)
 							depth--;
 						else {
 							if (!depth)
@@ -155,11 +157,16 @@ char	CParser1::CheckSubstSyntax(CStatement& st, const yaya::string_t& dicfilenam
 						vm.logger().Error(E_E, 29, dicfilename, st.linecount);
 						errcount++;
 					}
-					else if (st.cell()[j].value_GetType() != F_TAG_ARRAYORDER ||
-						(st.cell()[j - 1].value_GetType() != F_TAG_VARIABLE &&
-						st.cell()[j - 1].value_GetType() != F_TAG_LOCALVARIABLE)) {
-						vm.logger().Error(E_E, 29, dicfilename, st.linecount);
-						errcount++;
+					else {
+						auto type = st.cell()[j].value_GetType();
+						auto before_type = st.cell()[j-1].value_GetType();
+						if(type != F_TAG_ARRAYORDER ||
+						   (before_type != F_TAG_VARIABLE &&
+							before_type != F_TAG_LOCALVARIABLE &&
+							before_type != F_TAG_HOOKBRACKETOUT)) {
+							vm.logger().Error(E_E, 29, dicfilename, st.linecount);
+							errcount++;
+						}
 					}
 				}
 			}
