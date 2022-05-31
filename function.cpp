@@ -559,17 +559,11 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 				}
 				break;
 			case F_TAG_EQUAL:
-			case F_TAG_EQUAL_D:
 			case F_TAG_PLUSEQUAL:
-			case F_TAG_PLUSEQUAL_D:
 			case F_TAG_MINUSEQUAL:
-			case F_TAG_MINUSEQUAL_D:
 			case F_TAG_MULEQUAL:
-			case F_TAG_MULEQUAL_D:
 			case F_TAG_DIVEQUAL:
-			case F_TAG_DIVEQUAL_D:
 			case F_TAG_SURPEQUAL:
-			case F_TAG_SURPEQUAL_D:
 			case F_TAG_COMMAEQUAL:
 				{
 					std_shared_ptr<CValue> tmp_ansv = o_cell.ansv_shared_create();
@@ -945,27 +939,21 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CState
 
 			switch(type) {
 			case F_TAG_EQUAL:
-			case F_TAG_EQUAL_D:
 				substTo = GetValueRefForCalc(*sid_1_cell, st, lvar);
 				break;
 			case F_TAG_PLUSEQUAL:
-			case F_TAG_PLUSEQUAL_D:
 				substTo += GetValueRefForCalc(*sid_1_cell, st, lvar);
 				break;
 			case F_TAG_MINUSEQUAL:
-			case F_TAG_MINUSEQUAL_D:
 				substTo -= GetValueRefForCalc(*sid_1_cell, st, lvar);
 				break;
 			case F_TAG_MULEQUAL:
-			case F_TAG_MULEQUAL_D:
 				substTo *= GetValueRefForCalc(*sid_1_cell, st, lvar);
 				break;
 			case F_TAG_DIVEQUAL:
-			case F_TAG_DIVEQUAL_D:
 				substTo /= GetValueRefForCalc(*sid_1_cell, st, lvar);
 				break;
 			case F_TAG_SURPEQUAL:
-			case F_TAG_SURPEQUAL_D:
 				substTo %= GetValueRefForCalc(*sid_1_cell, st, lvar);
 				break;
 
@@ -997,27 +985,21 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CState
 	// 代入元の値を取得　演算子つきなら演算も行う
 	switch(type) {
 	case F_TAG_EQUAL:
-	case F_TAG_EQUAL_D:
 		answer = GetValueRefForCalc(*sid_1_cell, st, lvar);
 		break;
 	case F_TAG_PLUSEQUAL:
-	case F_TAG_PLUSEQUAL_D:
 		answer = GetValueRefForCalc(*sid_0_cell, st, lvar) + GetValueRefForCalc(*sid_1_cell, st, lvar);
 		break;
 	case F_TAG_MINUSEQUAL:
-	case F_TAG_MINUSEQUAL_D:
 		answer = GetValueRefForCalc(*sid_0_cell, st, lvar) - GetValueRefForCalc(*sid_1_cell, st, lvar);
 		break;
 	case F_TAG_MULEQUAL:
-	case F_TAG_MULEQUAL_D:
 		answer = GetValueRefForCalc(*sid_0_cell, st, lvar) * GetValueRefForCalc(*sid_1_cell, st, lvar);
 		break;
 	case F_TAG_DIVEQUAL:
-	case F_TAG_DIVEQUAL_D:
 		answer = GetValueRefForCalc(*sid_0_cell, st, lvar) / GetValueRefForCalc(*sid_1_cell, st, lvar);
 		break;
 	case F_TAG_SURPEQUAL:
-	case F_TAG_SURPEQUAL_D:
 		answer = GetValueRefForCalc(*sid_0_cell, st, lvar) % GetValueRefForCalc(*sid_1_cell, st, lvar);
 		break;
 	case F_TAG_COMMAEQUAL:

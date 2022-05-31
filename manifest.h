@@ -123,22 +123,16 @@ extern const yaya::char_t *aya_author;
 #define	F_TAG_MULEQUAL			23				/* *= */
 #define	F_TAG_DIVEQUAL			24				/* /= */
 #define	F_TAG_SURPEQUAL			25				/* %= */
-#define	F_TAG_EQUAL_D			26				/* := （AYA5においては= と同一） */
-#define	F_TAG_PLUSEQUAL_D		27				/* +:=（AYA5においては+=と同一） */
-#define	F_TAG_MINUSEQUAL_D		28				/* -:=（AYA5においては-=と同一） */
-#define	F_TAG_MULEQUAL_D		29				/* *:=（AYA5においては*=と同一） */
-#define	F_TAG_DIVEQUAL_D		30				/* /:=（AYA5においては/=と同一） */
-#define	F_TAG_SURPEQUAL_D		31				/* %:=（AYA5においては%=と同一） */
-#define	F_TAG_COMMAEQUAL		32				/* ,= */
+#define	F_TAG_COMMAEQUAL		26				/* ,= */
 
-#define	F_TAG_BRACKETIN			33				/* ( */
-#define	F_TAG_BRACKETOUT		34				/* ) */
-#define	F_TAG_HOOKBRACKETIN		35				/* [ */
-#define	F_TAG_HOOKBRACKETOUT	36				/* ] */
+#define	F_TAG_BRACKETIN			27				/* ( */
+#define	F_TAG_BRACKETOUT		28				/* ) */
+#define	F_TAG_HOOKBRACKETIN		29				/* [ */
+#define	F_TAG_HOOKBRACKETOUT	30				/* ] */
 
-#define	F_TAG_FUNCPARAM			37				/* 引数を関数に渡すための演算子 */
-#define	F_TAG_ARRAYORDER		38				/* 配列の序数を変数に渡すための演算子 */
-#define	F_TAG_SYSFUNCPARAM		39				/* 引数をシステム関数に渡すための演算子 */
+#define	F_TAG_FUNCPARAM			31				/* 引数を関数に渡すための演算子 */
+#define	F_TAG_ARRAYORDER		32				/* 配列の序数を変数に渡すための演算子 */
+#define	F_TAG_SYSFUNCPARAM		33				/* 引数をシステム関数に渡すための演算子 */
 
 #define	F_TAG_ORIGIN_VALUE		128				/* 項の定義開始位置 */
 
@@ -182,7 +176,7 @@ inline bool F_TAG_ISFUNC(int type)
 }
 inline bool F_TAG_ISLET(int type)
 {
-	return (type >= 20 && type <= 32);
+	return (type >= 20 && type <= 26);
 }
 // 有効な演算子の数
 // 演算子の名前
@@ -193,8 +187,7 @@ constexpr yaya::char_t	formulatag[][19] = {
 	L"&&",  L"&",   L"!",    L"++",    L"--",
 
 	L"=",   L"+=",  L"-=",   L"*=",    L"/=",
-	L"%=",  L":=",  L"+:=",  L"-:=",   L"*:=",
-    L"/:=", L"%:=", L",=",
+	L"%=",  L",=",
 
 	L"(",   L")",   L"[",    L"]",
 
@@ -211,8 +204,7 @@ constexpr size_t formulatag_len[FORMULATAG_NUM] = {
 	2, 1, 1, 2, 2,
 
 	1, 2, 2, 2, 2,
-	2, 2, 3, 3, 3,
-	3, 3, 2,
+	2, 2,
 
 	1, 1, 1, 1,
 
@@ -227,8 +219,7 @@ constexpr size_t formulatag_params[FORMULATAG_NUM] = {
 	2, 2, 1, 1, 1,
 
 	2, 2, 2, 2, 2,
-	2, 2, 2, 2, 2,
-	2, 2, 2,
+	2, 2,
 
 	1, 1, 1, 1,
 
@@ -246,8 +237,7 @@ constexpr int	formulatag_depth[FORMULATAG_NUM] = {
 	4, 6, 10, 9, 9,
 
 	2, 1, 1, 1, 1,
-	1, 2, 1, 1, 1,
-	1, 1, 1,
+	1, 1,
 
 	20, -20, 20, -20,
 
