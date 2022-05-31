@@ -120,7 +120,7 @@ char	CParser1::CheckSubstSyntax(CStatement& st, const yaya::string_t& dicfilenam
 	for(size_t i = 0; i < st.cell_size(); ++i) {
 		int t_type = st.cell()[i].value_GetType();
 
-		if (t_type >= F_TAG_EQUAL && t_type <= F_TAG_COMMAEQUAL) {
+		if(F_TAG_ISLET(t_type)) {
 			// 代入演算子が式の先頭、もしくは最後尾にある場合はエラー
 			if (!i || i == static_cast<size_t>(st.cell_size()) - 1) {
 				vm.logger().Error(E_E, 29, dicfilename, st.linecount);
@@ -236,8 +236,7 @@ char	CParser1::SetFormulaType(CStatement& st, const yaya::string_t& dicfilename)
 	}
 
 	int	lasttag = st.cell()[st.serial()[lastsr - 1].tindex].value_GetType();
-	if (lasttag >= F_TAG_EQUAL &&
-		lasttag <= F_TAG_COMMAEQUAL)
+	if(F_TAG_ISLET(lasttag))
 		st.type = ST_FORMULA_SUBST;
 	else
 		st.type = ST_FORMULA_OUT_FORMULA;
