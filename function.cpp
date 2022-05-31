@@ -1051,12 +1051,7 @@ char	CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatem
 
 	// 更新
     if (value.GetType() == F_TAG_HASH) {
-        if (answer.GetType() != F_TAG_HASH) { //hash�̗v�f��hash�����ł���Ƃ������Ȃ��ƂɂȂ�̂őʖ�
-            value.hash()[CValue(t_order.array()[0])] = CValue(answer);
-        }
-		else {
-			pvm->logger().Error(E_W, 8, dicfilename, linecount);
-		}
+        value.hash()[CValue(t_order.array()[0])] = CValue(answer);
     }
     else {
 	    value.SetArrayValue(t_order, answer);
