@@ -454,16 +454,16 @@ void	CLogExCode::StructArrayString(const CValueArray &vs, yaya::string_t &enlist
 	for(CValueArray::const_iterator it = vs.begin(); it != vs.end(); it++) {
 		switch(it->GetType()) {
 		case F_TAG_INT:
-			tmpstr = L"(int)" + yaya::ws_lltoa(it->i_value) + L' ';
+			tmpstr = L"(int)" + yaya::ws_lltoa(it->GetValueInt()) + L' ';
 			enlist += tmpstr;
 			break;
 		case F_TAG_DOUBLE:
-			tmpstr = L"(double)" + yaya::ws_ftoa(it->d_value) + L' ';
+			tmpstr = L"(double)" + yaya::ws_ftoa(it->GetValueDouble()) + L' ';
 			enlist += tmpstr;
 			break;
 		case F_TAG_STRING:
 			enlist += L"(string)";
-			enlist += it->s_value;
+			enlist += it->GetValueString();
 			enlist += L' ';
 			break;
 		case F_TAG_VOID:

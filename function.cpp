@@ -887,7 +887,7 @@ char	CFunction::Comma(CValue &answer, std::vector<size_t> &sid, CStatement &st, 
 char	CFunction::CommaAdd(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar)
 {
 	if ( answer.GetType() != F_TAG_ARRAY ) {
-		CValueSub st(answer);
+		CValue st(answer);
 		answer.SetType(F_TAG_ARRAY);
 		answer.array().emplace_back(st);
 	}
@@ -1069,8 +1069,8 @@ char	CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatem
 
 	// 更新
     if (value.GetType() == F_TAG_HASH) {
-        if (answer.GetType() != F_TAG_HASH) { //hashの要素にhashを代入できるとおかしなことになるので駄目
-            value.hash()[CValueSub(t_order.array()[0])] = CValueSub(answer);
+        if (answer.GetType() != F_TAG_HASH) { //hash�̗v�f��hash�����ł���Ƃ������Ȃ��ƂɂȂ�̂őʖ�
+            value.hash()[CValue(t_order.array()[0])] = CValue(answer);
         }
 		else {
 			pvm->logger().Error(E_W, 8, dicfilename, linecount);
@@ -1363,7 +1363,7 @@ void CFunction::EncodeArrayOrder(CCell &vcell, const CValue &order, CLocalVariab
 
 	// デリミタ
 	if (result.array_size() < 2) {
-		CValueSub	adddlm(VAR_DELIMITER);
+		CValue	adddlm(VAR_DELIMITER);
 		if (vcell.value_GetType() == F_TAG_VARIABLE)
 			adddlm = pvm->variable().GetDelimiter(vcell.index);
 		else if (vcell.value_GetType() == F_TAG_LOCALVARIABLE)

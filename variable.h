@@ -155,7 +155,6 @@ public:
 	void	Make(const yaya::string_t &name);
 	void	Make(const yaya::char_t *name, const CValue &value);
 	void	Make(const yaya::string_t &name, const CValue &value);
-	void	Make(const yaya::string_t &name, const CValueSub &value);
 	void	Make(const yaya::char_t *name, const yaya::string_t &delimiter);
 	void	Make(const yaya::string_t &name, const yaya::string_t &delimiter);
 
@@ -231,7 +230,6 @@ public:
 	void	SetValue(size_t index, const yaya::string_t &value) { var[index].Enable(); var[index].value() = value; }
 	void	SetValue(size_t index, const yaya::char_t *value) { var[index].Enable(); var[index].value() = value; }
 	void	SetValue(size_t index, const CValueArray &value) { var[index].Enable(); var[index].value() = value; }
-	void	SetValue(size_t index, const CValueSub &value) { var[index].Enable(); var[index].value() = value; }
 	void	SetDelimiter(size_t index, const yaya::string_t value) { var[index].Enable(); var[index].delimiter = value; }
 
 	void	EnableValue(size_t index) { var[index].Enable(); }
