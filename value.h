@@ -48,8 +48,14 @@ public:
 	int Less(const CValue &value) const;
 private:
 	mutable std_shared_ptr<CValueArray> m_array;		// 汎用配列
-    mutable std_shared_ptr<CValueHash> m_hash;  // ハッシュ
-
+    mutable std_shared_ptr<CValueHash> m_hash;  // �n�b�V��
+public:
+	bool is_array_empty() const {
+		return m_array.get() == nullptr || m_array->empty();
+	}
+	bool is_hash_empty() const {
+		return m_hash.get() == nullptr || m_hash->empty();
+	}
 private:
 	int CalcEscalationTypeNum(const int rhs) const;
 	int CalcEscalationTypeStr(const int rhs) const;
@@ -286,7 +292,9 @@ namespace std {
 			case F_TAG_VOID:
 				return 0;
 			case F_TAG_ARRAY:
-				{
+				if(s.is_array_empty())
+					return 0;
+				else{
 					std::size_t hash_value = 0;
 					for(CValueArray::size_type i=0; i<s.array_size(); ++i) {
 						hash_value += hash<CValue>{}(s.array()[i]);
@@ -295,7 +303,9 @@ namespace std {
 					return hash_value;
 				}
 			case F_TAG_HASH:
-				{
+				if(s.is_hash_empty())
+					return 0;
+				else {
 					std::size_t hash_value = 0;
 					for(CValueHash::const_iterator it=s.hash().begin(); it!=s.hash().end(); ++it) {
 						hash_value += hash<CValue>{}(it->first);
