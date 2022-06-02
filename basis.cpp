@@ -705,7 +705,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 	else if ( cmd == L"ignoreiolog" ){
 		//Remove "ID:" and possible spaces from the param variable
 		auto pos	= param.find(L"ID");
-		if(pos == std::wstring::npos)
+		if(pos == std::wstring::npos || pos != 0)
 			return false;
 		pos = param.find_first_not_of(L" \t", pos+2);
 		if(pos == std::wstring::npos || param[pos] != L':')
