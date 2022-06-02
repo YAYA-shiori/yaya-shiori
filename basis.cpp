@@ -696,9 +696,24 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		checkparser = param == L"on";
 		return true;
 	}
-	// iolog.filter.keyword (old syntax : ignoreiolog)
-	else if ( cmd == L"iolog.filter.keyword" || cmd == L"ignoreiolog" ){
+	// iolog.filter.keyword
+	else if ( cmd == L"iolog.filter.keyword" ){
 		vm.logger().AddIologFilterKeyword(param);
+		return true;
+	}
+	// old syntax : ignoreiolog
+	else if ( cmd == L"ignoreiolog" ){
+		//Remove "ID:" and possible spaces from the param variable
+		auto pos	= param.find(L"ID");
+		if(pos == std::wstring::npos)
+			return false;
+		pos = param.find_first_not_of(L" \t", pos+2);
+		if(pos == std::wstring::npos || param[pos] != L':')
+			return false;
+		pos = param.find_first_not_of(L" \t", pos+1);
+		if(pos == std::wstring::npos)
+			return false;
+		vm.logger().AddIologFilterKeyword(param.substr(pos));
 		return true;
 	}
 	// iolog.filter.keyword.regex
