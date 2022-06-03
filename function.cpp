@@ -552,7 +552,7 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 			case F_TAG_COMMA:
 				{
 					std_shared_ptr<CValue> tmp_ansv = o_cell.ansv_shared_create();
-					if (Comma(*tmp_ansv.get(), it->index, st, lvar)) {
+					if (Comma(tmp_ansv, it->index, st, lvar)) {
 						pvm->logger().Error(E_E, 33, L",", dicfilename, st.linecount);
 					}
 					o_cell.ansv_shared() = tmp_ansv;
@@ -567,7 +567,7 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 			case F_TAG_COMMAEQUAL:
 				{
 					std_shared_ptr<CValue> tmp_ansv = o_cell.ansv_shared_create();
-					if (Subst(o_cell.value_GetType(), *tmp_ansv.get(), it->index, st, lvar)) {
+					if(Subst(o_cell.value_GetType(), tmp_ansv, it->index, st, lvar)) {
 						pvm->logger().Error(E_E, 33, L"=", dicfilename, st.linecount);
 					}
 					o_cell.ansv_shared() = tmp_ansv;
@@ -636,7 +636,7 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 			case F_TAG_FUNCPARAM:
 				{
 					std_shared_ptr<CValue> tmp_ansv = o_cell.ansv_shared_create();
-					if (ExecFunctionWithArgs(*tmp_ansv.get(), it->index, st, lvar)) {
+					if (ExecFunctionWithArgs(tmp_ansv, it->index, st, lvar)) {
 						pvm->logger().Error(E_E, 33, pvm->function_exec().func[st.cell()[it->index[0]].index].name, dicfilename, st.linecount);
 					}
 					o_cell.ansv_shared() = tmp_ansv;
@@ -851,8 +851,7 @@ void	CFunction::SolveEmbedCell(CCell &cell, CStatement &st, CLocalVariable &lvar
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char	CFunction::Comma(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar)
-{
+char CFunction::Comma(CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar) {
 	// 結合して配列値を作成
 	CValueArray	t_array;
 
@@ -878,8 +877,7 @@ char	CFunction::Comma(CValue &answer, std::vector<size_t> &sid, CStatement &st, 
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char	CFunction::CommaAdd(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar)
-{
+char CFunction::CommaAdd(CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar) {
 	if ( answer.GetType() != F_TAG_ARRAY ) {
 		CValue st(answer);
 		answer.SetType(F_TAG_ARRAY);
@@ -911,8 +909,7 @@ char	CFunction::CommaAdd(CValue &answer, std::vector<size_t> &sid, CStatement &s
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar)
-{
+char CFunction::Subst(int type, CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar) {
 	CCell	*sid_0_cell = &(st.cell()[sid[0]]);
 	CCell	*sid_1_cell = &(st.cell()[sid[1]]);
 
@@ -959,7 +956,7 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CState
 
 				//カンマ特殊処理
 			case F_TAG_COMMAEQUAL:
-				if (CommaAdd(substTo, sid, st, lvar)) {
+				if(CommaAdd(pSubstTo->value_shared(), sid, st, lvar)) {
 					return 1;
 				}
 				break;
@@ -1037,8 +1034,7 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CState
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char	CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatement &st, CLocalVariable &lvar)
-{
+char CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValueRef answer, CStatement &st, CLocalVariable &lvar) {
 	// 序数を取得
 	CValue	t_order;
 	EncodeArrayOrder(vcell, ocell.order(), lvar, t_order);
@@ -1051,7 +1047,7 @@ char	CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatem
 
 	// 更新
     if (value.GetType() == F_TAG_HASH) {
-        value.hash()[CValue(t_order.array()[0])] = CValue(answer);
+        value.hash()[t_order.array()[0]] = CValue(answer);
     }
     else {
 	    value.SetArrayValue(t_order, answer);
@@ -1094,7 +1090,7 @@ char	CFunction::Array(CCell &anscell, std::vector<size_t> &sid, CStatement &st, 
 	}
 
 	// 値を取得
-	anscell.ansv() = GetValueRefForCalc(*v_cell, st, lvar)[t_order];
+	anscell.ansv_shared() = GetValueRefForCalc(*v_cell, st, lvar)[t_order].self_shared();
 
 	return 0;
 }
@@ -1129,8 +1125,7 @@ bool CFunction::not_in_(const CValue &src, const CValue &dst)
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar)
-{
+char CFunction::ExecFunctionWithArgs(CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar) {
 	// 関数の格納位置を取得
 	std::vector<size_t>::iterator it = sid.begin();
 	size_t index = st.cell()[*it].index;
@@ -1167,8 +1162,7 @@ char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, C
 
 	for(it = sid.begin() + 1; it != sid.end(); it++, i++) {
 		if (st.cell()[*it].value_GetType() == F_TAG_FEEDBACK) {
-			CValue	v_value;
-			v_value = v_argv->array()[i];
+			CValueRef v_value = v_argv->array()[i];
 
 			if (st.cell()[*it].order_const().GetType() != F_TAG_NOP)
 				errcount += SubstToArray(st.cell()[(*it) + 1], st.cell()[*it], v_value, st, lvar);

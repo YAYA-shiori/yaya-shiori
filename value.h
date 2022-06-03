@@ -28,9 +28,10 @@
 #include "globaldef.h"
 
 class CValue;
+struct CValueRef;
 
-typedef std::vector<CValue> CValueArray;
-typedef std::map<CValue, CValue> CValueHash;
+typedef std::vector<CValueRef>	 CValueArray;
+typedef std::map<CValueRef, CValueRef> CValueHash;
 
 class	CValue
 {
@@ -196,7 +197,7 @@ public:
 	void	operator /=(const CValue &value) LVALUE_MODIFIER;
 	void	operator %=(const CValue &value) LVALUE_MODIFIER;
 
-	CValue	operator [](const CValue &value) const;
+	CValueRef operator[](const CValue &value) const;
 
 	inline bool operator ==(const CValue &value) const {
 		return Compare(value);
@@ -267,11 +268,205 @@ public:
 	}
 	const CValueHash &hash(void) const;
 	CValueHash	   &hash(void);
+
 	inline void array_clear(void) {
 		m_array.reset();
 	}
+	inline void hash_clear(void) {
+		m_hash.reset();
+	}
 };
 //----
+// 
+struct CValueRef {
+	std::shared_ptr<CValue> _m;
+	explicit CValueRef(CValue v):
+		_m(std::make_shared<CValue>(v)) {}
+	CValueRef(const CValueRef &v):
+		_m(v._m) {}
+	CValueRef():
+		_m(std::make_shared<CValue>()) {}
+	CValueRef(const std::shared_ptr<CValue> &v):
+		_m(v) {}
+	CValueRef &operator=(const CValueRef &v) {
+		*_m = *v._m;
+		return *this;
+	}
+	CValueRef &operator=(const CValue &v) {
+		*_m = v;
+		return *this;
+	}
+	operator CValue&() const {
+		return *_m;
+	}
+
+	
+	int			Compare(const CValue &value) const {
+		return _m->Compare(value);
+	}
+	int			Great(const CValue &value) const {
+		return _m->Great(value);
+	}
+	int			Less(const CValue &value) const {
+		return _m->Less(value);
+	}
+	inline void SetType(int tp) {
+		_m->SetType(tp);
+	}
+	inline int	GetType(void) const {
+		return _m->GetType();
+	}
+
+	inline bool IsVoid(void) const {
+		return _m->IsVoid();
+	}
+	inline bool IsString(void) const {
+		return _m->IsString();
+	}
+	inline bool IsStringReal(void) const {
+		return _m->IsStringReal();
+	}
+	inline bool IsInt(void) const {
+		return _m->IsInt();
+	}
+	inline bool IsIntReal(void) const {
+		return _m->IsIntReal();
+	}
+	inline bool IsDouble(void) const {
+		return _m->IsDouble();
+	}
+	inline bool IsDoubleReal(void) const {
+		return _m->IsDoubleReal();
+	}
+	inline bool IsArray(void) const {
+		return _m->IsArray();
+	}
+	inline bool IsHash(void) const {
+		return _m->IsHash();
+	}
+
+	inline bool IsNum(void) const {
+		return _m->IsNum();
+	}
+
+	bool GetTruth(void) const {
+		return _m->GetTruth();
+	}
+
+	aya::int_t	  GetValueInt(void) const {
+		return _m->GetValueInt();
+	}
+	double		  GetValueDouble(void) const {
+		return _m->GetValueDouble();
+	}
+	aya::string_t GetValueString(void) const {
+		return _m->GetValueString();
+	}
+	aya::string_t GetValueStringForLogging(void) const {
+		return _m->GetValueStringForLogging();
+	}
+
+	void SubstToArray(CValueArray &value) & {
+		_m->SubstToArray(value);
+	}
+
+	CValue operator+(const CValue &value) const {
+		return _m->operator+(value);
+	}
+	CValue operator-(const CValue &value) const {
+		return _m->operator-(value);
+	}
+	CValue operator*(const CValue &value) const {
+		return _m->operator*(value);
+	}
+	CValue operator/(const CValue &value) const {
+		return _m->operator/(value);
+	}
+	CValue operator%(const CValue &value) const {
+		return _m->operator%(value);
+	}
+
+	void operator+=(const CValue &value) & {
+		_m->operator+=(value);
+	}
+	void operator-=(const CValue &value) & {
+		_m->operator-=(value);
+	}
+	void operator*=(const CValue &value) & {
+		_m->operator*=(value);
+	}
+	void operator/=(const CValue &value) & {
+		_m->operator/=(value);
+	}
+	void operator%=(const CValue &value) & {
+		_m->operator%=(value);
+	}
+
+	CValueRef operator[](const CValue &value) const {
+		return _m->operator[](value);
+	}
+
+	inline bool operator==(const CValue &value) const {
+		return _m->operator==(value);
+	}
+	inline bool operator!=(const CValue &value) const {
+		return _m->operator!=(value);
+	}
+	inline bool operator>(const CValue &value) const {
+		return _m->operator>(value);
+	}
+	inline bool operator<=(const CValue &value) const {
+		return _m->operator<=(value);
+	}
+	inline bool operator<(const CValue &value) const {
+		return _m->operator<(value);
+	}
+	inline bool operator>=(const CValue &value) const {
+		return _m->operator>=(value);
+	}
+
+	inline bool operator||(const CValue &value) const {
+		return _m->operator||(value);
+	}
+	inline bool operator&&(const CValue &value) const {
+		return _m->operator&&(value);
+	}
+
+	CValueArray &array(void) {
+		return _m->array();
+	}
+	const CValueArray &array(void) const {
+		return _m->array();
+	}
+	CValueHash &hash(void) {
+		return _m->hash();
+	}
+	const CValueHash &hash(void) const {
+		return _m->hash();
+	}
+	std::shared_ptr<CValueArray> &array_shared(void) const {
+		return _m->array_shared();
+	}
+	std::shared_ptr<CValueHash> &hash_shared(void) const {
+		return _m->hash_shared();
+	}
+	std::shared_ptr<CValueArray> array_shared(void) {
+		return _m->array_shared();
+	}
+	std::shared_ptr<CValueHash> hash_shared(void) {
+		return _m->hash_shared();
+	}
+	void array_clear(void) {
+		_m->array_clear();
+	}
+	void hash_clear(void) {
+		_m->hash_clear();
+	}
+
+	std::shared_ptr<CValue> self_shared() const {
+		return _m;
+	}
+};
 // std::hash 的自定义特化能注入 namespace std
 namespace std {
 	template<>

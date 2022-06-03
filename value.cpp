@@ -989,18 +989,17 @@ void CValue::operator %=(const CValue &value) LVALUE_MODIFIER
  *  （呼び出し側でそのように成形する必要があります）
  * -----------------------------------------------------------------------
  */
-CValue CValue::operator [](const CValue &value) const
-{
+CValueRef CValue::operator[](const CValue &value) const {
 	size_t	order, order1;
 	yaya::string_t	delimiter;
 	int	aoflg = value.DecodeArrayOrder(order, order1, delimiter);
 
 	if (type == F_TAG_INT || type == F_TAG_DOUBLE) {
 		// 数値　序数が0ならthis、1以外では空文字列を返す
-		if (!order)
-			return *this;
+		if(!order)
+			return CValueRef(*this);
 		else
-			return CValue();
+			return CValueRef();
 	}
 	if (type == F_TAG_STRING) {
 		// 簡易配列
@@ -1011,8 +1010,8 @@ CValue CValue::operator [](const CValue &value) const
 		// 値の取得
 		if (aoflg) {
 			// 範囲あり
-			if (order1 < 0 || order >= sz)
-				return CValue();
+			if(order1 < 0 || order >= sz)
+				return CValueRef();
 			else {
 				size_t	s_index = (size_t)std::max<yaya::int_t>(static_cast<yaya::int_t>(order), 0);
 				size_t	e_index = (size_t)std::min<yaya::int_t>(static_cast<yaya::int_t>(order1) + 1, sz);
@@ -1030,15 +1029,15 @@ CValue CValue::operator [](const CValue &value) const
 					else if (i >= e_index)
 						break;
 				}
-				return result_str;
+				return CValueRef(CValue(result_str));
 			}
 		}
 		else {
 			// 範囲なし
-			if (0 <= order && order < sz)
-				return CValue(s_array[order]);
+			if(0 <= order && order < sz)
+				return CValueRef(CValue(s_array[order]));
 			else 
-				return CValue();
+				return CValueRef();
 		}
 	}
 	else if (type == F_TAG_ARRAY) {
@@ -1048,8 +1047,8 @@ CValue CValue::operator [](const CValue &value) const
 		// 値の取得
 		if (aoflg) {
 			// 範囲あり
-			if (order1 < 0 || order >= sz)
-				return CValue(F_TAG_ARRAY, 0/*dmy*/);
+			if(order1 < 0 || order >= sz)
+				return CValueRef(CValue(F_TAG_ARRAY, 0 /*dmy*/));
 			else {
 				size_t	s_index = (size_t)std::max<yaya::int_t>(order, 0);
 				size_t	e_index = (size_t)std::min<yaya::int_t>((yaya::int_t)order1 + 1, sz);
@@ -1062,16 +1061,16 @@ CValue CValue::operator [](const CValue &value) const
 					else if (i >= e_index)
 						break;
 				}
-				return result_array;
+				return CValueRef(result_array);
 			}
 		}
 		else {
 			// 範囲なし
-			if (0 <= order && order < sz) {
-				return CValue(array()[order]);
+			if(0 <= order && order < sz) {
+				return array()[order];
 			}
 			else {
-				return yaya::string_t();
+				return CValueRef(yaya::string_t());
 			}
 		}
 	}
@@ -1081,15 +1080,15 @@ CValue CValue::operator [](const CValue &value) const
         {
             if (hash().count(value.array()[0]))
             {
-                return CValue(hash().find(value.array()[0])->second);
+                return hash().find(value.array()[0])->second;
             }
             else {
-                return CValue(L"");
+				return CValueRef(yaya::string_t());
             }
         }
     }
 
-	return yaya::string_t();
+	return CValueRef(yaya::string_t());
 }
 
 inline const CValueHash &CValue::hash(void) const {

@@ -4013,7 +4013,7 @@ CValue	CSystemFunction::HASH_EXIST(CSF_FUNCPARAM &p)
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	return CValue(p.valuearg[1].hash().find(CValue(p.valuearg[0])) != p.valuearg[1].hash().end() ? 1 : 0);
+	return CValue(p.valuearg[1].hash().find(CValueRef(p.valuearg[0])) != p.valuearg[1].hash().end() ? 1 : 0);
 }
 
 /* -----------------------------------------------------------------------
@@ -7506,7 +7506,7 @@ CValue	CSystemFunction::LINT_GetLocalVarUsedBy(CSF_FUNCPARAM &p)
 
 	CValue result(F_TAG_ARRAY, 0/*dmy*/);
 	const CFunction *it = &vm.function_exec().func[size_t(index)];
-	std::vector<CValue>& array = result.array();
+	std::vector<CValueRef>& array = result.array();
 	size_t value_count = 0;
 
 	for ( std::vector<CStatement>::const_iterator s = it->statement.begin() ; s != it->statement.end() ; ++s ) {
