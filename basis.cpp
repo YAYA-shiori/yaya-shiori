@@ -520,33 +520,44 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		yaya::string_t param1,param2;
 		Split(param, param1, param2, L",");
 
-		yaya::string_t dirname = base_path + param1;
-
-		CDirEnum ef(dirname);
-		CDirEnumEntry entry;
-
-		while (ef.next(entry)) {
-			const yaya::char_t* ext = wcsrchr(entry.name.c_str(),L'.');
-			if ( ext ) {
-				if ( wcsicmp(ext,L".bak") == 0 ) {
-					continue;
-				}
-				if ( wcsicmp(ext,L".tmp") == 0 ) {
-					continue;
-				}
-			}
-
-			yaya::string_t relpath_and_cs = param1 + L"\\" + entry.name + L',' + param2;
-
-			if ( entry.isdir ) {
-				SetParameter(L"dicdir",relpath_and_cs,dics);
-			}
-			else {
-				SetParameter(L"dic",relpath_and_cs,dics);
+		//if the target folder has _loading_order.txt & not has param2 in this line, then includeEX this file
+		if(param2.empty()) {
+			yaya::string_t file = param1 + L"/_loading_order.txt";
+			yaya::string_t filename = load_path + file;
+			//_waccess is not use as it does not support mixed forward and back slashes
+			if(FILE*tmp=yaya::w_fopen(filename.c_str(), L"rb")) {
+				fclose(tmp);
+				return SetParameter(L"includeEX", file, dics);
 			}
 		}
+		//else include this folder
+		{
+			yaya::string_t dirname = base_path + param1;
+			CDirEnum	  ef(dirname);
+			CDirEnumEntry entry;
+			bool		  aret = true;
+			
+			while(ef.next(entry)) {
+				//If the file suffix is bak or tmp, skip it.
+				size_t extbegpos=entry.name.rfind('.');
+				if(extbegpos!=entry.name.npos) {
+					auto ext=entry.name.substr(extbegpos+1);
+					if(ext==L"bak" || ext==L"tmp") {
+						continue;
+					}
+				}
 
-		return true;
+				yaya::string_t relpath_and_cs = param1 + L"\\" + entry.name + L',' + param2;
+
+				if(entry.isdir) {
+					aret &= SetParameter(L"dicdir", relpath_and_cs, dics);
+				}
+				else {
+					aret &= SetParameter(L"dic", relpath_and_cs, dics);
+				}
+			}
+			return aret;
+		}
 	}
 	// messagetxt
 	else if ( cmd == L"messagetxt" ) { //多言語化
