@@ -283,13 +283,19 @@ struct CValueRef {
 	explicit CValueRef(CValue v):
 		_m(std::make_shared<CValue>(v)) {}
 	CValueRef(const CValueRef &v):
-		_m(v._m) {}
+		_m(std::make_shared<CValue>(*v._m)) {}
+	CValueRef(CValueRef &&v)noexcept:
+		_m(std::move(v._m)) {}
 	CValueRef():
 		_m(std::make_shared<CValue>()) {}
 	CValueRef(const std::shared_ptr<CValue> &v):
 		_m(v) {}
 	CValueRef &operator=(const CValueRef &v) {
 		*_m = *v._m;
+		return *this;
+	}
+	CValueRef &operator=(CValueRef &&v)noexcept {
+		_m = std::move(v._m);
 		return *this;
 	}
 	CValueRef &operator=(const CValue &v) {
