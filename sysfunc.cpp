@@ -3751,13 +3751,15 @@ CValue	CSystemFunction::FENUM(CSF_FUNCPARAM &p)
 
 	CDirEnum ef(vm.basis().ToFullPath(p.arg.array()[0].s_value));
 	CDirEnumEntry entry;
-	int count = 0;
-	CValue result(F_TAG_STRING,0);
+	size_t count = 0;
+	yaya::string_t result;
 
 	while ( ef.next(entry) ) {
-		if ( count ) { result.s_value += delimiter; }
-		if ( entry.isdir ) { result.s_value +=  L"\\"; }
-		result.s_value += entry.name;
+		if(count)
+			result += delimiter;
+		if(entry.isdir)
+			result += L'\\';
+		result += entry.name;
 
 		count += 1;
 	}
