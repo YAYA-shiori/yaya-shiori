@@ -541,7 +541,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 				//If the file suffix is bak or tmp, skip it.
 				size_t extbegpos=entry.name.rfind('.');
 				if(extbegpos!=entry.name.npos) {
-					auto ext=entry.name.substr(extbegpos+1);
+					yaya::string_t ext=entry.name.substr(extbegpos+1);
 					if(ext==L"bak" || ext==L"tmp") {
 						continue;
 					}
@@ -715,7 +715,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 	// old syntax : ignoreiolog
 	else if ( cmd == L"ignoreiolog" ){
 		//Remove "ID:" and possible spaces from the param variable
-		auto pos	= param.find(L"ID");
+		yaya::string_t::size_type pos = param.find(L"ID");
 		if(pos == std::wstring::npos || pos != 0)
 			return false;
 		pos = param.find_first_not_of(L" \t", pos+2);
