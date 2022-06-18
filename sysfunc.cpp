@@ -592,16 +592,45 @@ CValue	CSystemFunction::TOAUTO(CSF_FUNCPARAM &p)
 		return CValue(p.arg.array()[0]);
 	}
 
+	bool is_strict = false;
+	if (p.arg.array_size() > 1) {
+		is_strict = (p.arg.array()[1].GetValueInt() != 0);
+	}
+
 	yaya::string_t str = p.arg.array()[0].GetValueString();
 
-	if ( IsIntString(str) ) {
-		return CValue(p.arg.array()[0].GetValueInt());
-	}
-	else if ( IsDoubleButNotIntString(str) ) {
-		return CValue(p.arg.array()[0].GetValueDouble());
+	if ( is_strict ) {
+		CValue val;
+
+		if ( IsIntString(str) ) {
+			val = p.arg.array()[0].GetValueInt();
+		}
+		else if ( IsDoubleButNotIntString(str) ) {
+			val = p.arg.array()[0].GetValueDouble();
+		}
+		else {
+			return CValue(str);
+		}
+
+		yaya::string_t str_result = val.GetValueString();
+
+		if ( str == str_result ) {
+			return val;
+		}
+		else {
+			return CValue(str);
+		}
 	}
 	else {
-		return CValue(str);
+		if ( IsIntString(str) ) {
+			return CValue(p.arg.array()[0].GetValueInt());
+		}
+		else if ( IsDoubleButNotIntString(str) ) {
+			return CValue(p.arg.array()[0].GetValueDouble());
+		}
+		else {
+			return CValue(str);
+		}
 	}
 }
 
@@ -5242,24 +5271,51 @@ CValue	CSystemFunction::CVAUTO(CSF_FUNCPARAM &p)
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	if ( IsIntString(p.arg.array()[0].GetValueString()) ) {
+	bool is_strict = false;
+	if (p.arg.array_size() > 1) {
+		is_strict = (p.arg.array()[1].GetValueInt() != 0);
+	}
+
+	yaya::string_t str = p.arg.array()[0].GetValueString();
+
+	if ( IsIntString(str) ) {
+		yaya::int_t ret = p.arg.array()[0].GetValueInt();
+
+		if ( is_strict ) {
+			yaya::string_t ret_str = yaya::ws_lltoa(ret, 10);
+
+			if ( ret_str != str ) {
+				return CValue(F_TAG_NOP, 0/*dmy*/);
+			}
+		}
+
 		if (p.pcellarg[0]->value_GetType() == F_TAG_VARIABLE) {
-			vm.variable().SetValue(p.pcellarg[0]->index, p.arg.array()[0].GetValueInt());
+			vm.variable().SetValue(p.pcellarg[0]->index, ret);
 		}
 		else if (p.pcellarg[0]->value_GetType() == F_TAG_LOCALVARIABLE) {
-			p.lvar.SetValue(p.pcellarg[0]->name, CValue(p.arg.array()[0].GetValueInt()));
+			p.lvar.SetValue(p.pcellarg[0]->name, CValue(ret));
 		}
 		else {
 			vm.logger().Error(E_W, 11, L"CVAUTO", p.dicname, p.line);
 			SetError(11);
 		}
 	}
-	else if ( IsDoubleButNotIntString(p.arg.array()[0].GetValueString()) ) {
+	else if ( IsDoubleButNotIntString(str) ) {
+		double ret = p.arg.array()[0].GetValueDouble();
+
+		if ( is_strict ) {
+			yaya::string_t ret_str = yaya::ws_ftoa(ret);
+
+			if ( ret_str != str ) {
+				return CValue(F_TAG_NOP, 0/*dmy*/);
+			}
+		}
+
 		if (p.pcellarg[0]->value_GetType() == F_TAG_VARIABLE) {
-			vm.variable().SetValue(p.pcellarg[0]->index, p.arg.array()[0].GetValueDouble());
+			vm.variable().SetValue(p.pcellarg[0]->index, ret);
 		}
 		else if (p.pcellarg[0]->value_GetType() == F_TAG_LOCALVARIABLE) {
-			p.lvar.SetValue(p.pcellarg[0]->name, CValue(p.arg.array()[0].GetValueDouble()));
+			p.lvar.SetValue(p.pcellarg[0]->name, CValue(ret));
 		}
 		else {
 			vm.logger().Error(E_W, 11, L"CVAUTO", p.dicname, p.line);

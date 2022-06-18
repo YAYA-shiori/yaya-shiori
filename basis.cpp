@@ -499,7 +499,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		return true;
 	}
 	// dic
-	else if ( cmd == L"dic" && dics) {
+	else if ( (cmd == L"dic" || cmd == L"dicif") && dics) {
 		yaya::string_t param1,param2;
 		Split(param, param1, param2, L",");
 
@@ -512,6 +512,15 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 				cset = cx;
 			}
 		}
+
+		if ( cmd == L"dicif" ) {
+			FILE *fp = yaya::w_fopen(filename.c_str(), L"rb");
+			if ( !fp ) {
+				return true; //skip loading if file not exist
+			}
+			fclose(fp);
+		}
+
 		dics->emplace_back(CDic1(filename,cset));
 		return true;
 	}
@@ -522,15 +531,25 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 
 		//if the target folder has _loading_order.txt & not has param2 in this line, then includeEX this file
 		if(param2.empty()) {
-			yaya::string_t file = param1 + L"/_loading_order.txt";
+			yaya::string_t file = param1 + L"/_loading_order_override.txt";
 			yaya::string_t filename = load_path + file;
+			FILE *fp = yaya::w_fopen(filename.c_str(), L"rb");
+
+			if ( ! fp ) {
+				file = param1 + L"/_loading_order.txt";
+				filename = load_path + file;
+
+				fp = yaya::w_fopen(filename.c_str(), L"rb");
+			}
+
 			//_waccess is not use as it does not support mixed forward and back slashes
-			if(FILE*tmp=yaya::w_fopen(filename.c_str(), L"rb")) {
-				fclose(tmp);
+			if ( fp ) {
+				fclose(fp);
 				return SetParameter(L"includeEX", file, dics);
 			}
 		}
-		//else include this folder
+
+		//else (loading_order not exist | param2 exist) include this folder
 		{
 			yaya::string_t dirname = base_path + param1;
 			CDirEnum	  ef(dirname);
