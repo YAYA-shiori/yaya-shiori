@@ -196,9 +196,11 @@ bool yayamsg::LoadMessageFromTxtFile(const yaya::string_t &basepath,yaya::string
 	}
 
 	yaya::string_t linebuf;
+	std::string buf;
+	buf.reserve(1000);
 
 	while ( true ) {
-		if (yaya::ws_fgets(linebuf, fp, cset, 0 /*no_enc*/, 1 /*skip_bom*/, 1 /*cut_heading_space*/) == yaya::WS_EOF) {
+		if (yaya::ws_fgets(buf, linebuf, fp, cset, 0 /*no_enc*/, 1 /*skip_bom*/, 1 /*cut_heading_space*/) == yaya::WS_EOF) {
 			break;
 		}
 

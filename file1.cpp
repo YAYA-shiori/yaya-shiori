@@ -203,7 +203,10 @@ int	CFile1::Read(yaya::string_t &ostr)
 	if (fp == NULL)
 		return 0;
 
-	if (yaya::ws_fgets(ostr, fp, charset, 0, bomcheck, false) == yaya::WS_EOF)
+	std::string buf;
+	buf.reserve(1000);
+
+	if (yaya::ws_fgets(buf, ostr, fp, charset, 0, bomcheck, false) == yaya::WS_EOF)
 		return -1;
 
 	bomcheck++;
