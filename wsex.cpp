@@ -307,15 +307,14 @@ static int encodecipher(const int c)
 *  機能概要：  yaya::string_tに取り出せる簡易版fgets、暗号復号とUCS-2 BOM削除も行なう
 * -----------------------------------------------------------------------
 */
-int yaya::ws_fgets(yaya::string_t &str, FILE *stream, int charset, int ayc, int lc, int cutspace)
+int yaya::ws_fgets(std::string &buf, yaya::string_t &str, FILE *stream, int charset, int ayc, int lc, int cutspace)
 {
 	//ayc = 1 復号化
 	//lc = 1 BOM削除
 	//cutspace = 1 先頭の空白削除
 
 	str.erase();
-	std::string buf;
-	buf.reserve(1000);
+	buf.erase();
 	int c = 1;
 	
 	if (ayc) {

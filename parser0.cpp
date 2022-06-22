@@ -414,10 +414,12 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 	yaya::string_t	readline;
 	std::vector<yaya::string_t>	factors;
 	int	ret;
+	std::string buf;
+	buf.reserve(1000);
 
 	for (size_t i = 1; ; i++) {
 		// 1行読み込み　暗号化ファイルの場合は復号も行なう
-		ret = yaya::ws_fgets(readline, fp, charset, ciphered, i);
+		ret = yaya::ws_fgets(buf, readline, fp, charset, ciphered, i);
 		if (ret == yaya::WS_EOF)
 			break;
 
