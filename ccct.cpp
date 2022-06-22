@@ -307,33 +307,52 @@ static yaya::char_t* wstring_to_malloc(const yaya::string_t &str)
 
 yaya::char_t	*Ccct::MbcsToUcs2(const char *mstr, int charset)
 {
-	return MbcsToUcs2(std::string(mstr), charset);
+	if ( charset == CHARSET_UTF8 ) {
+		yaya::string_t buf;
+		buf.reserve(1000);
+		Ccct_ConvUTF8ToUnicode(buf,mstr);
+		return wstring_to_malloc(buf);
+	}
+	else {
+		return mbcs_to_utf16be(mstr,charset);
+	}
 }
 
 //----
 
 yaya::char_t	*Ccct::MbcsToUcs2(const std::string &mstr, int charset)
 {
-	/*if ( charset == CHARSET_UTF8 ) {
-		return wstring_to_malloc(babel::utf8_to_unicode(mstr));
-	}
-	else if ( charset == CHARSET_SJIS ) {
-		return wstring_to_malloc(babel::sjis_to_unicode(mstr));
-	}
-	else if ( charset == CHARSET_EUCJP ) {
-		return wstring_to_malloc(babel::euc_to_unicode(mstr));
-	}
-	else if ( charset == CHARSET_JIS ) {
-		return wstring_to_malloc(babel::jis_to_unicode(mstr));
-	}*/
+	return MbcsToUcs2(mstr.c_str(), charset);
+}
+
+//----
+
+bool Ccct::MbcsToUcs2Buf(yaya::string_t &out, const char *mstr, int charset)
+{
 	if ( charset == CHARSET_UTF8 ) {
-		yaya::string_t buf;
-		Ccct_ConvUTF8ToUnicode(buf,mstr.c_str());
-		return wstring_to_malloc(buf);
+		out.erase();
+		Ccct_ConvUTF8ToUnicode(out,mstr);
+		return true;
 	}
 	else {
-		return mbcs_to_utf16be(mstr.c_str(),charset);
+		yaya::char_t *p = mbcs_to_utf16be(mstr,charset);
+		if ( p ) {
+			out = p;
+			free(p);
+			return true;
+		}
+		else {
+			out.erase();
+			return false;
+		}
 	}
+}
+
+//----
+
+bool Ccct::MbcsToUcs2Buf(yaya::string_t &out, const std::string &mstr, int charset)
+{
+	return MbcsToUcs2Buf(out, mstr.c_str(), charset);
 }
 
 /* -----------------------------------------------------------------------

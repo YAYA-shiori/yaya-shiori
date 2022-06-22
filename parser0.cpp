@@ -402,7 +402,6 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 	// “Ç‚ÝŽæ‚è
 	CComment	comment;
 	char	ciphered = IsCipheredDic(file);
-	yaya::string_t	linebuffer;
 	size_t depth = 0;
 	ptrdiff_t targetfunction = -1;
 	std::vector<CDefine>	defines;
@@ -412,6 +411,11 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 	bool isHereDocumentFirstLine = true;
 
 	yaya::string_t	readline;
+	readline.reserve(1000);
+
+	yaya::string_t	linebuffer;
+	linebuffer.reserve(2000);
+
 	std::vector<yaya::string_t>	factors;
 	int	ret;
 	std::string buf;

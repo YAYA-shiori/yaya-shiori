@@ -188,10 +188,7 @@ static void AYA_InitModule(HMODULE hModule)
 
 		std::string	mbmodulename = fname;
 
-		wchar_t	*wcmodulename = Ccct::MbcsToUcs2(mbmodulename, CHARSET_DEFAULT);
-		modulename = wcmodulename;
-
-		free(wcmodulename);
+		Ccct::MbcsToUcs2Buf(modulename, mbmodulename, CHARSET_DEFAULT);
 	}
 
 	Ccct::sys_setlocale(LC_ALL);
