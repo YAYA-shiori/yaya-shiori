@@ -35,7 +35,7 @@ namespace yaya {
 	FILE	*w_fopen(const yaya::char_t *fname, const yaya::char_t *mode); 
 	//void	write_utf8bom(FILE *fp);
 
-	int		ws_fgets(yaya::string_t &str, FILE *stream, int charset, int ayc, int lc, int cutspace = true);
+	int		ws_fgets(std::string &buf, yaya::string_t &str, FILE *stream, int charset, int ayc, int lc, int cutspace = true);
 	
 	int		ws_fputs(const yaya::char_t *str, FILE *stream, int charset, int ayc);
 	inline int ws_fputs(const yaya::string_t &str, FILE *stream, int charset, int ayc) {
