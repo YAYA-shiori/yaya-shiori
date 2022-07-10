@@ -328,6 +328,9 @@ constexpr CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::LINT_GetLocalVarUsedBy , L"LINT.GetLocalVarUsedBy" },
 	{ &CSystemFunction::LINT_GetGlobalVarLetted , L"LINT.GetGlobalVarLetted" },
 	{ &CSystemFunction::LINT_GetLocalVarLetted , L"LINT.GetLocalVarLetted" },
+	// 型取得/変換(5)
+	{ &CSystemFunction::CVAUTOEX , L"CVAUTOEX" } ,
+	{ &CSystemFunction::TOAUTOEX , L"TOAUTOEX" } ,
 };
 
 #define SYSFUNC_NUM (sizeof(CSystemFunction::sysfunc)/sizeof(CSystemFunction::sysfunc[0]))
@@ -599,45 +602,56 @@ CValue	CSystemFunction::TOAUTO(CSF_FUNCPARAM &p)
 		return CValue(p.arg.array()[0]);
 	}
 
-	bool is_strict = false;
-	if (p.arg.array_size() > 1) {
-		is_strict = (p.arg.array()[1].GetValueInt() != 0);
+	yaya::string_t str = p.arg.array()[0].GetValueString();
+
+	if ( IsIntString(str) ) {
+		return CValue(p.arg.array()[0].GetValueInt());
+	}
+	else if ( IsDoubleButNotIntString(str) ) {
+		return CValue(p.arg.array()[0].GetValueDouble());
+	}
+	else {
+		return CValue(str);
+	}
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::TOAUTOEX
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::TOAUTOEX(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"TOAUTOEX", p.dicname, p.line);
+		SetError(8);
+		return CValue();
+	}
+
+	if (!p.arg.array()[0].IsString()) {
+		return CValue(p.arg.array()[0]);
 	}
 
 	yaya::string_t str = p.arg.array()[0].GetValueString();
 
-	if ( is_strict ) {
-		CValue val;
+	CValue val;
 
-		if ( IsIntString(str) ) {
-			val = p.arg.array()[0].GetValueInt();
-		}
-		else if ( IsDoubleButNotIntString(str) ) {
-			val = p.arg.array()[0].GetValueDouble();
-		}
-		else {
-			return CValue(str);
-		}
-
-		yaya::string_t str_result = val.GetValueString();
-
-		if ( str == str_result ) {
-			return val;
-		}
-		else {
-			return CValue(str);
-		}
+	if ( IsIntString(str) ) {
+		val = p.arg.array()[0].GetValueInt();
+	}
+	else if ( IsDoubleButNotIntString(str) ) {
+		val = p.arg.array()[0].GetValueDouble();
 	}
 	else {
-		if ( IsIntString(str) ) {
-			return CValue(p.arg.array()[0].GetValueInt());
-		}
-		else if ( IsDoubleButNotIntString(str) ) {
-			return CValue(p.arg.array()[0].GetValueDouble());
-		}
-		else {
-			return CValue(str);
-		}
+		return CValue(str);
+	}
+
+	yaya::string_t str_result = val.GetValueString();
+
+	if ( str == str_result ) {
+		return val;
+	}
+	else {
+		return CValue(str);
 	}
 }
 
@@ -5435,9 +5449,54 @@ CValue	CSystemFunction::CVAUTO(CSF_FUNCPARAM &p)
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	bool is_strict = false;
-	if (p.arg.array_size() > 1) {
-		is_strict = (p.arg.array()[1].GetValueInt() != 0);
+	yaya::string_t str = p.arg.array()[0].GetValueString();
+
+	if ( IsIntString(str) ) {
+		yaya::int_t ret = p.arg.array()[0].GetValueInt();
+
+		if (p.pcellarg[0]->value_GetType() == F_TAG_VARIABLE) {
+			vm.variable().SetValue(p.pcellarg[0]->index, ret);
+		}
+		else if (p.pcellarg[0]->value_GetType() == F_TAG_LOCALVARIABLE) {
+			p.lvar.SetValue(p.pcellarg[0]->name, CValue(ret));
+		}
+		else {
+			vm.logger().Error(E_W, 11, L"CVAUTO", p.dicname, p.line);
+			SetError(11);
+		}
+	}
+	else if ( IsDoubleButNotIntString(str) ) {
+		double ret = p.arg.array()[0].GetValueDouble();
+
+		if (p.pcellarg[0]->value_GetType() == F_TAG_VARIABLE) {
+			vm.variable().SetValue(p.pcellarg[0]->index, ret);
+		}
+		else if (p.pcellarg[0]->value_GetType() == F_TAG_LOCALVARIABLE) {
+			p.lvar.SetValue(p.pcellarg[0]->name, CValue(ret));
+		}
+		else {
+			vm.logger().Error(E_W, 11, L"CVAUTO", p.dicname, p.line);
+			SetError(11);
+		}
+	}
+
+	return CValue(F_TAG_NOP, 0/*dmy*/);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::CVAUTOEX
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::CVAUTOEX(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"CVAUTO", p.dicname, p.line);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	if (!p.arg.array()[0].IsString()) {
+		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
 	yaya::string_t str = p.arg.array()[0].GetValueString();
@@ -5445,12 +5504,10 @@ CValue	CSystemFunction::CVAUTO(CSF_FUNCPARAM &p)
 	if ( IsIntString(str) ) {
 		yaya::int_t ret = p.arg.array()[0].GetValueInt();
 
-		if ( is_strict ) {
-			yaya::string_t ret_str = yaya::ws_lltoa(ret, 10);
+		yaya::string_t ret_str = yaya::ws_lltoa(ret, 10);
 
-			if ( ret_str != str ) {
-				return CValue(F_TAG_NOP, 0/*dmy*/);
-			}
+		if ( ret_str != str ) {
+			return CValue(F_TAG_NOP, 0/*dmy*/);
 		}
 
 		if (p.pcellarg[0]->value_GetType() == F_TAG_VARIABLE) {
@@ -5467,12 +5524,10 @@ CValue	CSystemFunction::CVAUTO(CSF_FUNCPARAM &p)
 	else if ( IsDoubleButNotIntString(str) ) {
 		double ret = p.arg.array()[0].GetValueDouble();
 
-		if ( is_strict ) {
-			yaya::string_t ret_str = yaya::ws_ftoa(ret);
+		yaya::string_t ret_str = yaya::ws_ftoa(ret);
 
-			if ( ret_str != str ) {
-				return CValue(F_TAG_NOP, 0/*dmy*/);
-			}
+		if ( ret_str != str ) {
+			return CValue(F_TAG_NOP, 0/*dmy*/);
 		}
 
 		if (p.pcellarg[0]->value_GetType() == F_TAG_VARIABLE) {

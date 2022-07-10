@@ -14,6 +14,7 @@ Debug
 Debug_EXE
 Release
 Release_EXE
+ReleaseLangSep
 tmp
 _UpgradeReport_Files
 /*.opensdf

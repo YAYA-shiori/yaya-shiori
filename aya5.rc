@@ -100,11 +100,16 @@ END
 // MESSAGETXT
 //
 
+#ifndef AYA_RES_NO_LANG
+
 CLASSICAL-CHINESE       MESSAGETXT MOVEABLE PURE "messagetxt\\classical-chinese.txt"
 ENGLISH                 MESSAGETXT MOVEABLE PURE "messagetxt\\english.txt"
 JAPANESE                MESSAGETXT MOVEABLE PURE "messagetxt\\japanese.txt"
 SIMPLIFIED-CHINESE      MESSAGETXT MOVEABLE PURE "messagetxt\\simplified-chinese.txt"
 TRADITIONAL-CHINESE     MESSAGETXT MOVEABLE PURE "messagetxt\\traditional-chinese.txt"
+
+#endif //AYA_RES_NO_LANG
+
 #endif    // 日本語 resources
 /////////////////////////////////////////////////////////////////////////////
 
