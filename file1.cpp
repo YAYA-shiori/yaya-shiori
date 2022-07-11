@@ -45,9 +45,8 @@ int __cdecl _fseeki64(FILE *, __int64, int);
  *  返値　　：　0/1=失敗/成功(既にロードされている含む)
  * -----------------------------------------------------------------------
  */
-int	CFile1::Open(void)
-{
-	if (fp != NULL)
+bool CFile1::Open(void) {
+	if(fp != NULL)
 		return 1;
 
 	fp = yaya::w_fopen(name.c_str(), (wchar_t *)mode.c_str());
@@ -104,9 +103,8 @@ int	CFile1::Close(void)
  *  返値　　：　0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-int	CFile1::Write(const yaya::string_t &istr)
-{
-	if (fp == NULL)
+bool CFile1::Write(const yaya::string_t &istr) {
+	if(fp == NULL)
 		return 0;
 
 	// 文字列をマルチバイト文字コードに変換
@@ -131,14 +129,15 @@ int	CFile1::Write(const yaya::string_t &istr)
  *  返値　　：　0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-int	CFile1::WriteBin(const yaya::string_t &istr, const yaya::char_t alt)
-{
-	if (fp == NULL)
+bool CFile1::WriteBin(const yaya::string_t &istr, const yaya::char_t alt) {
+	if(fp == NULL)
 		return 0;
 
 	size_t len = istr.size();
 
 	unsigned char *t_istr = reinterpret_cast<unsigned char*>(malloc(len+1));
+	if(t_istr == NULL)
+		return 0;
 	t_istr[len] = 0; //念のためゼロ終端（いらない）
 	
 	//altを0に置き換えつつデータ構築
@@ -166,9 +165,8 @@ int	CFile1::WriteBin(const yaya::string_t &istr, const yaya::char_t alt)
  *  返値　　：　0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-int	CFile1::WriteDecode(const yaya::string_t &istr, const yaya::string_t &type)
-{
-	if (fp == NULL)
+bool CFile1::WriteDecode(const yaya::string_t &istr, const yaya::string_t &type) {
+	if(fp == NULL)
 		return 0;
 
 	std::string out;
@@ -328,7 +326,7 @@ int	CFile1::ReadEncode(yaya::string_t &ostr, size_t len, const yaya::string_t &t
  *  返値　　：　0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-yaya::int_t CFile1::FSeek(yaya::int_t offset,int origin){
+bool CFile1::FSeek(yaya::int_t offset, int origin) {
 	if (fp == NULL)
 		return 0;
 

@@ -36,8 +36,7 @@
  *  指定された名前の変数が既に存在していた場合は追加は行わず、既存の位置を返します
  * -----------------------------------------------------------------------
  */
-int	CGlobalVariable::Make(const yaya::string_t &name, char erased)
-{
+int CGlobalVariable::Make(const yaya::string_t &name, bool erased) {
 	// 既に存在するか調べ、存在していたらそれを返す
 	yaya::indexmap::const_iterator it = varmap.find(name);
 	if ( it != varmap.end() ) {

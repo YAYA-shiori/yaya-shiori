@@ -19,7 +19,7 @@
 class	CComment
 {
 protected:
-	char	flag;		// 領域フラグ 0/1=コメントエリア外/内
+	bool	flag;		 // 領域フラグ 0/1=コメントエリア外/内
 public:
 	CComment(void) { flag = 0; }
 	~CComment(void) {}

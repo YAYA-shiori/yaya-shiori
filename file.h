@@ -57,20 +57,20 @@ public:
 	inline const yaya::string_t& GetName(void) const { return name; }
 	inline bool operator==(const yaya::string_t &n) const { return n == name; }
 
-	int	Open(void);
+	bool Open(void);
 	int	Close(void);
 
 	inline yaya::int_t Size(void) const { return size; }
 
-	int	Write(const yaya::string_t &istr);
-	int	WriteBin(const yaya::string_t &istr, const yaya::char_t alt);
-	int	WriteDecode(const yaya::string_t &istr, const yaya::string_t &type);
+	bool Write(const yaya::string_t &istr);
+	bool WriteBin(const yaya::string_t &istr, const yaya::char_t alt);
+	bool WriteDecode(const yaya::string_t &istr, const yaya::string_t &type);
 
 	int	Read(yaya::string_t &ostr);
 	int	ReadBin(yaya::string_t &ostr, size_t len, yaya::char_t alt);
 	int	ReadEncode(yaya::string_t &ostr, size_t len, const yaya::string_t &type);
 
-	yaya::int_t FSeek(yaya::int_t offset,int origin);
+	bool	   FSeek(yaya::int_t offset, int origin);
 	yaya::int_t FTell();
 };
 
@@ -94,9 +94,9 @@ public:
 	int		Delete(const yaya::string_t &name);
 	void	DeleteAll(void);
 
-	int		Write(const yaya::string_t &name, const yaya::string_t &istr);
-	int		WriteBin(const yaya::string_t &name, const yaya::string_t &istr, const yaya::char_t alt);
-	int		WriteDecode(const yaya::string_t &name, const yaya::string_t &istr, const yaya::string_t &type);
+	bool	Write(const yaya::string_t &name, const yaya::string_t &istr);
+	bool	WriteBin(const yaya::string_t &name, const yaya::string_t &istr, const yaya::char_t alt);
+	bool	WriteDecode(const yaya::string_t &name, const yaya::string_t &istr, const yaya::string_t &type);
 
 	int		Read(const yaya::string_t &name, yaya::string_t &ostr);
 	int		ReadBin(const yaya::string_t &name, yaya::string_t &ostr, size_t len, yaya::char_t alt);
@@ -104,7 +104,7 @@ public:
 
 	yaya::int_t Size(const yaya::string_t &name);
 
-	yaya::int_t FSeek(const yaya::string_t &name, yaya::int_t offset,const yaya::string_t &mode);
+	bool	   FSeek(const yaya::string_t &name, yaya::int_t offset, const yaya::string_t &mode);
 	yaya::int_t FTell(const yaya::string_t &name);
 };
 

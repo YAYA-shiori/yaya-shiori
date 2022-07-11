@@ -82,7 +82,7 @@ protected:
 	yaya::string_t	modulename;				// モジュールの主ファイル名（例えばa.dllの場合は"a"）
 	yaya::string_t  config_file_name_trailer;  // 主設定ファイル名生成時のトレイラー(通常は空)
 	yaya::string_t	modename;				// 現在のモード (emergency or normal)
-	char	suppress;				// 自律動作抑止（構文解析でエラーが起きた際に動作をマスクするために使用します）
+	bool			suppress;				   // 自律動作抑止（構文解析でエラーが起きた際に動作をマスクするために使用します）
 	char	checkparser;			// 構文解析結果のログへの記録を指示するフラグ
 	char	iolog;					// 入出力のログへの記録を指示するフラグ
 
@@ -134,7 +134,7 @@ public:
 
 	void    SetOutputCharset(char cst) { output_charset = cst; }
 
-	char	IsSuppress(void);
+	bool IsSuppress(void);
 
 	yaya::string_t	ToFullPath(const yaya::string_t& str);
 protected:

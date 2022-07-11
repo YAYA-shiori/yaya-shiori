@@ -24,10 +24,10 @@ yaya::string_t::size_type Find_IgnoreDQ(const yaya::string_t &str, const yaya::s
 yaya::string_t::size_type find_last_str(const yaya::string_t &str, const yaya::char_t *findstr);
 yaya::string_t::size_type find_last_str(const yaya::string_t &str, const yaya::string_t &findstr);
 
-char	Split(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::char_t *sepstr);
-char	Split(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::string_t &sepstr);
+bool	Split(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::char_t *sepstr);
+bool	Split(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::string_t &sepstr);
 char	SplitOnly(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, yaya::char_t *sepstr);
-char	Split_IgnoreDQ(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::char_t *sepstr);
+bool	Split_IgnoreDQ(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::char_t *sepstr);
 char	Split_IgnoreDQ(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::string_t &sepstr);
 size_t	SplitToMultiString(const yaya::string_t &str, std::vector<yaya::string_t> *array, const yaya::string_t &delimiter);
 
@@ -54,10 +54,10 @@ extern const yaya::string_t::size_type IsInDQ_runaway;
 extern const yaya::string_t::size_type IsInDQ_npos;
 yaya::string_t::size_type IsInDQ(const yaya::string_t &str, yaya::string_t::size_type startpoint, yaya::string_t::size_type checkpoint);
 
-char	IsDoubleButNotIntString(const yaya::string_t &str);
-char	IsIntString(const yaya::string_t &str);
-char	IsIntBinString(const yaya::string_t &str, char header);
-char	IsIntHexString(const yaya::string_t &str, char header);
+bool	IsDoubleButNotIntString(const yaya::string_t &str);
+bool	IsIntString(const yaya::string_t &str);
+bool	IsIntBinString(const yaya::string_t &str, bool header);
+bool	IsIntHexString(const yaya::string_t &str, bool header);
 
 char	IsLegalFunctionName(const yaya::string_t &str);
 char	IsLegalVariableName(const yaya::string_t &str);

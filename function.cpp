@@ -414,7 +414,6 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 /* -----------------------------------------------------------------------
  *  関数名  ：  CFunction::Foreach
  *  機能概要：  foreach処理を行います
- *  返値　　：  0/1=ループ脱出/ループ実行
  *
  *  実際に送るのは"}"の1つ手前の行の位置です
  * -----------------------------------------------------------------------
@@ -851,7 +850,7 @@ void	CFunction::SolveEmbedCell(CCell &cell, CStatement &st, CLocalVariable &lvar
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char CFunction::Comma(CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar) {
+bool CFunction::Comma(CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar) {
 	// 結合して配列値を作成
 	CValueArray	t_array;
 
@@ -877,7 +876,7 @@ char CFunction::Comma(CValueRef answer, std::vector<size_t> &sid, CStatement &st
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char CFunction::CommaAdd(CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar) {
+bool CFunction::CommaAdd(CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar) {
 	if ( answer.GetType() != F_TAG_ARRAY ) {
 		CValue st(answer);
 		answer.SetType(F_TAG_ARRAY);
@@ -909,7 +908,7 @@ char CFunction::CommaAdd(CValueRef answer, std::vector<size_t> &sid, CStatement 
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char CFunction::Subst(int type, CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar) {
+bool CFunction::Subst(int type, CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar) {
 	CCell	*sid_0_cell = &(st.cell()[sid[0]]);
 	CCell	*sid_1_cell = &(st.cell()[sid[1]]);
 
@@ -1034,7 +1033,7 @@ char CFunction::Subst(int type, CValueRef answer, std::vector<size_t> &sid, CSta
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValueRef answer, CStatement &st, CLocalVariable &lvar) {
+bool CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValueRef answer, CStatement &st, CLocalVariable &lvar) {
 	// 序数を取得
 	CValue	t_order;
 	EncodeArrayOrder(vcell, ocell.order(), lvar, t_order);
@@ -1073,8 +1072,7 @@ char CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValueRef answer, CStat
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char	CFunction::Array(CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar)
-{
+bool CFunction::Array(CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar) {
 	CCell	*v_cell = &(st.cell()[sid[0]]);
 	CCell	*n_cell = &(st.cell()[sid[1]]);
 
@@ -1125,7 +1123,7 @@ bool CFunction::not_in_(const CValue &src, const CValue &dst)
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char CFunction::ExecFunctionWithArgs(CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar) {
+bool CFunction::ExecFunctionWithArgs(CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar) {
 	// 関数の格納位置を取得
 	std::vector<size_t>::iterator it = sid.begin();
 	size_t index = st.cell()[*it].index;
@@ -1192,8 +1190,7 @@ char CFunction::ExecFunctionWithArgs(CValueRef answer, std::vector<size_t> &sid,
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char	CFunction::ExecSystemFunctionWithArgs(CCell& cell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar)
-{
+bool CFunction::ExecSystemFunctionWithArgs(CCell &cell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar) {
 	// 関数の格納位置を取得
 	std::vector<size_t>::iterator it = sid.begin();
 	size_t	func_index = *it;
@@ -1290,8 +1287,7 @@ void	CFunction::ExecHistoryP2(CCell& cell, CStatement &st)
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char	CFunction::Feedback(CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar)
-{
+bool CFunction::Feedback(CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar) {
 	CCell	*v_cell = &(st.cell()[sid[1]]);
 
 	// 値は右辺をそのままコピー

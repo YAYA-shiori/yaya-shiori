@@ -56,8 +56,8 @@ public:
 	CParser0(CAyaVM &vmr) : vm(vmr) {
 		; //NOOP
 	}
-	char	Parse(int charset, const std::vector<CDic1>& dics);
-	char	ParseEmbedString(yaya::string_t& str, CStatement &st, const yaya::string_t &dicfilename, ptrdiff_t linecount);
+	bool	Parse(int charset, const std::vector<CDic1>& dics);
+	bool	ParseEmbedString(yaya::string_t& str, CStatement& st, const yaya::string_t& dicfilename, ptrdiff_t linecount);
 
 	int		DynamicLoadDictionary(const yaya::string_t& dicfilename, int charset);
 	int		DynamicAppendRuntimeDictionary(const yaya::string_t& codes);
@@ -79,16 +79,16 @@ protected:
 	void	SeparateFactor(std::vector<yaya::string_t> &s, yaya::string_t &line);
 	char	DefineFunctions(std::vector<yaya::string_t> &s, const yaya::string_t& dicfilename, ptrdiff_t linecount, size_t&depth, ptrdiff_t&targetfunction);
 	ptrdiff_t MakeFunction(const yaya::string_t& name, choicetype_t chtype, const yaya::string_t& dicfilename, ptrdiff_t linecount);
-	char	StoreInternalStatement(size_t targetfunc, yaya::string_t& str, size_t& depth, const yaya::string_t& dicfilename, ptrdiff_t linecount);
-	char	MakeStatement(int type, size_t targetfunc, yaya::string_t &str, const yaya::string_t& dicfilename, ptrdiff_t linecount);
-	char	StructWhen(yaya::string_t &str, std::vector<CCell> &cells, const yaya::string_t& dicfilename, ptrdiff_t linecount);
-	char	StructFormula(yaya::string_t &str, std::vector<CCell> &cells, const yaya::string_t& dicfilename, ptrdiff_t linecount);
+	bool	StoreInternalStatement(size_t targetfunc, yaya::string_t& str, size_t& depth, const yaya::string_t& dicfilename, ptrdiff_t linecount);
+	bool	MakeStatement(int type, size_t targetfunc, yaya::string_t& str, const yaya::string_t& dicfilename, ptrdiff_t linecount);
+	bool	StructWhen(yaya::string_t &str, std::vector<CCell> &cells, const yaya::string_t& dicfilename, ptrdiff_t linecount);
+	bool	StructFormula(yaya::string_t &str, std::vector<CCell> &cells, const yaya::string_t& dicfilename, ptrdiff_t linecount);
 	void	StructFormulaCell(yaya::string_t &str, std::vector<CCell> &cells);
 
 	char	AddSimpleIfBrace(const yaya::string_t &dicfilename);
 
 	char	SetCellType(const yaya::string_t &dicfilename);
-	char	SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfilename, ptrdiff_t linecount);
+	bool	SetCellType1(CCell& scell, bool emb, const yaya::string_t& dicfilename, ptrdiff_t linecount);
 
 	char	MakeCompleteFormula(const yaya::string_t &dicfilename);
 	char	ParseEmbeddedFactor(const yaya::string_t& dicfilename);
@@ -101,7 +101,7 @@ protected:
 	char	CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dicfilename);
 	char	MakeCompleteConvertionWhenToIf(const yaya::string_t& dicfilename);
 
-	char	IsDicFileAlreadyExist(yaya::string_t dicfilename);
+	bool	IsDicFileAlreadyExist(yaya::string_t dicfilename);
 };
 
 //----

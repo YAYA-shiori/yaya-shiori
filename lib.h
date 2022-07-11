@@ -66,8 +66,8 @@ public:
 
 	yaya::string_t	GetName(void) { return name; }
 
-	int		LoadLib(void);
-	int		Load(void);
+	bool	LoadLib(void);
+	bool	Load(void);
 	int		Unload(void);
 	void	Release(void);
 
@@ -109,7 +109,7 @@ public:
 	int		Delete(const yaya::string_t &name);
 	void	DeleteAll(void);
 
-	int		Request(const yaya::string_t &name, const yaya::string_t &istr, yaya::string_t &ostr);
+	bool Request(const yaya::string_t &name, const yaya::string_t &istr, yaya::string_t &ostr);
 };
 
 //----

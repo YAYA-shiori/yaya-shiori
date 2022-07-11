@@ -359,16 +359,16 @@ struct CValueRef {
 		return _m->GetTruth();
 	}
 
-	aya::int_t	  GetValueInt(void) const {
+	yaya::int_t	  GetValueInt(void) const {
 		return _m->GetValueInt();
 	}
 	double		  GetValueDouble(void) const {
 		return _m->GetValueDouble();
 	}
-	aya::string_t GetValueString(void) const {
+	yaya::string_t GetValueString(void) const {
 		return _m->GetValueString();
 	}
-	aya::string_t GetValueStringForLogging(void) const {
+	yaya::string_t GetValueStringForLogging(void) const {
 		return _m->GetValueStringForLogging();
 	}
 

@@ -292,8 +292,7 @@ void	CBasis::Termination(void)
  *  len=0で応答します）
  * -----------------------------------------------------------------------
  */
-char	CBasis::IsSuppress(void)
-{
+bool CBasis::IsSuppress(void) {
 	return suppress;
 }
 

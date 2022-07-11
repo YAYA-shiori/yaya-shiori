@@ -198,18 +198,18 @@ protected:
 	
 	void	SolveEmbedCell(CCell &cell, CStatement &st, CLocalVariable &lvar);
 
-	char	Comma(CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
-	char	CommaAdd(CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
-	char	Subst(int type, CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
-	char	SubstToArray(CCell &vcell, CCell &ocell, CValueRef answer, CStatement &st, CLocalVariable &lvar);
-	char	Array(CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	bool	Comma(CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	bool	CommaAdd(CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	bool	Subst(int type, CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	bool	SubstToArray(CCell &vcell, CCell &ocell, CValueRef answer, CStatement &st, CLocalVariable &lvar);
+	bool	Array(CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	bool	_in_(const CValue &src, const CValue &dst);
 	bool	not_in_(const CValue &src, const CValue &dst);
-	char	ExecFunctionWithArgs(CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
-	char	ExecSystemFunctionWithArgs(CCell& cell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	bool	ExecFunctionWithArgs(CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	bool	ExecSystemFunctionWithArgs(CCell &cell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	void	ExecHistoryP1(size_t start_index, CCell& cell, const CValue &arg, CStatement &st);
 	void	ExecHistoryP2(CCell &cell, CStatement &st);
-	char	Feedback(CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	bool	Feedback(CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	void	EncodeArrayOrder(CCell &vcell, const CValue &order, CLocalVariable &lvar, CValue &result);
 	void	FeedLineToTail(size_t&line);
 };

@@ -113,9 +113,8 @@ static std::string posix_search_fallback_dll(const std::string& dllfile) {
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
-int	CLib1::LoadLib(void)
-{
-	if (hDLL != NULL)
+bool CLib1::LoadLib(void) {
+	if(hDLL != NULL)
 		return 1;
 
 	char	*dllpathname = Ccct::Ucs2ToMbcs(name, CHARSET_DEFAULT);
@@ -131,8 +130,8 @@ int	CLib1::LoadLib(void)
 	return (hDLL != NULL) ? 1 : 0;
 }
 #elif defined(POSIX)
-int CLib1::LoadLib() {
-    if (hDLL != NULL) {
+bool CLib1::LoadLib() {
+	if(hDLL != NULL) {
 	return 1;
     }
 
@@ -203,9 +202,8 @@ int CLib1::LoadLib() {
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
-int	CLib1::Load(void)
-{
-	if (hDLL == NULL)
+bool CLib1::Load(void) {
+	if(hDLL == NULL)
 		return 0;
 
 	// アドレス取得
@@ -249,8 +247,8 @@ int	CLib1::Load(void)
 	return 1;
 }
 #elif defined(POSIX)
-int CLib1::Load(void) {
-    if (hDLL == NULL) {
+bool CLib1::Load(void) {
+	if(hDLL == NULL) {
 	return 0;
     }
     

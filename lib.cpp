@@ -161,8 +161,7 @@ int	CLib::GetCharsetDynamic(const yaya::string_t &name)
  *  返値　　：　0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-int	CLib::Request(const yaya::string_t &name, const yaya::string_t &istr, yaya::string_t &ostr)
-{
+bool CLib::Request(const yaya::string_t &name, const yaya::string_t &istr, yaya::string_t &ostr) {
 	for(std::list<CLib1>::iterator it = liblist.begin(); it != liblist.end(); it++) {
 		if (name == it->GetName()) {
 			vm.logger().IoLib(0, istr, name);

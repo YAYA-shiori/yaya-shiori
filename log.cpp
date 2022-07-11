@@ -321,9 +321,8 @@ void	CLog::Error(int mode, int id)
  *  引数　　：  io 0/1=開始時/終了時
  * -----------------------------------------------------------------------
  */
-void	CLog::Io(char io, const yaya::char_t *str)
-{
-	if (!enable || !iolog)
+void CLog::Io(bool io, const yaya::char_t *str) {
+	if(!enable || !iolog)
 		return;
 
 	if(!io) {
@@ -390,8 +389,7 @@ void	CLog::Io(char io, const yaya::char_t *str)
 	}
 }
 
-void	CLog::Io(char io, const yaya::string_t &str)
-{
+void CLog::Io(bool io, const yaya::string_t &str) {
 	Io(io,str.c_str());
 }
 
@@ -401,9 +399,8 @@ void	CLog::Io(char io, const yaya::string_t &str)
  *  引数　　：  io 0/1=開始時/終了時
  * -----------------------------------------------------------------------
  */
-void	CLog::IoLib(char io, const yaya::string_t &str, const yaya::string_t &name)
-{
-	if (!enable || !iolog)
+void CLog::IoLib(bool io, const yaya::string_t &str, const yaya::string_t &name) {
+	if(!enable || !iolog)
 		return;
 
 	static	yaya::timer		timer;

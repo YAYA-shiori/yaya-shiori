@@ -198,7 +198,7 @@ public:
 	{
 	}
 
-	int		Make(const yaya::string_t &name, char erased);
+	int Make(const yaya::string_t &name, bool erased);
 
 	size_t	GetMacthedLongestNameLength(const yaya::string_t &name);
 

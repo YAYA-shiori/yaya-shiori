@@ -38,10 +38,10 @@ protected:
 
 	size_t logmaxnum;
 
-	char		enable;		// ロギング有効フラグ
-	char		open;		// ロギング開始フラグ
-	char		fileen;		// ファイルへのロギング有効フラグ
-	char		iolog;		// 入出力ロギング有効フラグ
+	bool		enable;		  // ロギング有効フラグ
+	bool		open;		  // ロギング開始フラグ
+	bool		fileen;		  // ファイルへのロギング有効フラグ
+	bool		iolog;		  // 入出力ロギング有効フラグ
 	bool		locking;
 
 	//入力でこの文字列があったらログ出力しないリスト
@@ -92,10 +92,10 @@ public:
 	void	Error(int mode, int id, const yaya::string_t &dicfilename, ptrdiff_t linecount);
 	void	Error(int mode, int id);
 
-	void	Io(char io, const yaya::char_t *str);
-	void	Io(char io, const yaya::string_t &str);
+	void Io(bool io, const yaya::char_t *str);
+	void Io(bool io, const yaya::string_t &str);
 
-	void	IoLib(char io, const yaya::string_t &str, const yaya::string_t &name);
+	void IoLib(bool io, const yaya::string_t &str, const yaya::string_t &name);
 
 	void	Call_loghandler(const yaya::string_t& str, int mode, int id=0);
 	void	Call_loghandler(const yaya::char_t* str, int mode, int id=0);

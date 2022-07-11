@@ -39,10 +39,9 @@
  *  返値　　：  0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-char	Split(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::char_t *sepstr)
-{
+bool Split(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::char_t *sepstr) {
 	yaya::string_t::size_type seppoint = str.find(sepstr);
-	if (seppoint == yaya::string_t::npos) {
+	if(seppoint == yaya::string_t::npos) {
 		dstr0 = str;
 		dstr1.erase();
 		return 0;
@@ -60,10 +59,9 @@ char	Split(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dst
 
 //----
 
-char	Split(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::string_t &sepstr)
-{
+bool Split(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::string_t &sepstr) {
 	yaya::string_t::size_type seppoint = str.find(sepstr);
-	if (seppoint == yaya::string_t::npos) {
+	if(seppoint == yaya::string_t::npos) {
 		dstr0 = str;
 		dstr1.erase();
 		return 0;
@@ -86,10 +84,9 @@ char	Split(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dst
  *  返値　　：  0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-char	SplitOnly(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::char_t *sepstr)
-{
+bool SplitOnly(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::char_t *sepstr) {
 	yaya::string_t::size_type seppoint = str.find(sepstr);
-	if (seppoint == yaya::string_t::npos) {
+	if(seppoint == yaya::string_t::npos) {
 		dstr0 = str;
 		dstr1.erase();
 		return 0;
@@ -172,10 +169,9 @@ yaya::string_t::size_type find_last_str(const yaya::string_t &str, const yaya::s
  * -----------------------------------------------------------------------
  */
 
-char	Split_IgnoreDQ(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::char_t *sepstr)
-{
+bool Split_IgnoreDQ(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::char_t *sepstr) {
 	yaya::string_t::size_type seppoint = Find_IgnoreDQ(str,sepstr);
-	if ( seppoint == yaya::string_t::npos ) {
+	if( seppoint == yaya::string_t::npos ) {
 		dstr0 = str;
 		dstr1.erase();
 		return 0;
@@ -488,8 +484,7 @@ yaya::string_t::size_type IsInDQ(const yaya::string_t &str, yaya::string_t::size
  *  返値　　：  0/1=×/○
  * -----------------------------------------------------------------------
  */
-char	IsDoubleButNotIntString(const yaya::string_t &str)
-{
+bool IsDoubleButNotIntString(const yaya::string_t &str) {
 	int	len = str.size();
 	if (!len)
 		return 0;
@@ -520,8 +515,7 @@ char	IsDoubleButNotIntString(const yaya::string_t &str)
  *  返値　　：  0/1=×/○
  * -----------------------------------------------------------------------
  */
-char	IsIntString(const yaya::string_t &str)
-{
+bool IsIntString(const yaya::string_t &str) {
 	int	len = str.size();
 	if (!len)
 		return 0;
@@ -557,8 +551,7 @@ char	IsIntString(const yaya::string_t &str)
  *  返値　　：  0/1=×/○
  * -----------------------------------------------------------------------
  */
-char	IsIntBinString(const yaya::string_t &str, char header)
-{
+bool IsIntBinString(const yaya::string_t &str, bool header) {
 	int	len = str.size();
 	if (!len)
 		return 0;
@@ -591,8 +584,7 @@ char	IsIntBinString(const yaya::string_t &str, char header)
  *  返値　　：  0/1=×/○
  * -----------------------------------------------------------------------
  */
-char	IsIntHexString(const yaya::string_t &str, char header)
-{
+bool IsIntHexString(const yaya::string_t &str, bool header) {
 	int	len = str.size();
 	if (!len)
 		return 0;

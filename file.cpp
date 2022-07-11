@@ -151,8 +151,7 @@ void	CFile::DeleteAll(void)
  *  返値　　：　0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-int	CFile::Write(const yaya::string_t &name, const yaya::string_t &istr)
-{
+bool CFile::Write(const yaya::string_t &name, const yaya::string_t &istr) {
 	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
 	if ( it != filelist.end() ) {
 		return it->Write(istr);
@@ -168,8 +167,7 @@ int	CFile::Write(const yaya::string_t &name, const yaya::string_t &istr)
  *  返値　　：　0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-int	CFile::WriteBin(const yaya::string_t &name, const yaya::string_t &istr, const yaya::char_t alt)
-{
+bool CFile::WriteBin(const yaya::string_t &name, const yaya::string_t &istr, const yaya::char_t alt) {
 	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
 	if ( it != filelist.end() ) {
 		return it->WriteBin(istr,alt);
@@ -193,8 +191,7 @@ int	CFile::WriteBin(const yaya::string_t &name, const yaya::string_t &istr, cons
  *  返値　　：　0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-int CFile::WriteDecode(const yaya::string_t &name, const yaya::string_t &istr, const yaya::string_t &type)
-{
+bool CFile::WriteDecode(const yaya::string_t &name, const yaya::string_t &istr, const yaya::string_t &type) {
 	std::list<CFile1>::iterator it = std::find(filelist.begin(),filelist.end(),name);
 	if ( it != filelist.end() ) {
 		return it->WriteDecode(istr,type);
@@ -297,8 +294,7 @@ yaya::int_t CFile::Size(const yaya::string_t &name)
  *  返値　　：　0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-yaya::int_t CFile::FSeek(const yaya::string_t &name, yaya::int_t offset,const yaya::string_t &s_mode)
-{
+bool CFile::FSeek(const yaya::string_t &name, yaya::int_t offset, const yaya::string_t &s_mode) {
 	int mode;
 
 	if (s_mode == L"SEEK_CUR" || s_mode == L"current"){
