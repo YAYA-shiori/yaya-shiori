@@ -209,9 +209,9 @@ yaya::string_t	CValue::GetValueStringForLogging(void) const
 void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 {
 	// 序数とデリミタの取得
-	size_t	order, order1;
+	size_t		  order{}, order1{};
 	yaya::string_t	delimiter;
-	int			  aoflg;
+	int			  aoflg{};
 	if(type != F_TAG_HASH)
 		aoflg = oval.DecodeArrayOrder(order, order1, delimiter);
 

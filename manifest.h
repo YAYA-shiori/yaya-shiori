@@ -88,6 +88,7 @@ extern const yaya::char_t *aya_author;
 												/* AYA5ではcase-when-others構文は内部でif-elseif-else構文に変換されます */
 #define	ST_PARALLEL				45				/* parallel */
 #define	ST_VOID					46				/* void */
+#define ST_RETURN_WITH_VALUE	48				/* void */
 
 // 数式の項の種別
 #define	F_TAG_UNKNOWN			-2

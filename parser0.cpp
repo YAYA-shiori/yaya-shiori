@@ -955,11 +955,6 @@ bool CParser0::StoreInternalStatement(size_t targetfunc, yaya::string_t& str, si
 		targetfunction.statement.emplace_back(CStatement(ST_CONTINUE, linecount));
 		return 1;
 	}
-	// return
-	else if (str == L"return") {
-		targetfunction.statement.emplace_back(CStatement(ST_RETURN, linecount));
-		return 1;
-	}
 	// --
 	else if (str == L"--") {
 		targetfunction.statement[m_BlockhHeaderOfProcessingIndexStack.back()].ismutiarea = true;
@@ -1030,6 +1025,17 @@ bool CParser0::StoreInternalStatement(size_t targetfunc, yaya::string_t& str, si
 	else if (st == L"void") {
 		str = par;
 		return MakeStatement(ST_VOID, targetfunc, str, dicfilename, linecount);
+	}
+	// return
+	else if(st == L"return") {
+		if(par.empty()) {
+			targetfunction.statement.emplace_back(ST_RETURN, linecount);
+			return 1;
+		}
+		else {
+			str = par;
+			return MakeStatement(ST_RETURN_WITH_VALUE, targetfunc, str, dicfilename, linecount);
+		}
 	}
 
 	// これまでのすべてにマッチしない文字列は数式と認識される

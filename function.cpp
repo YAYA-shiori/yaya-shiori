@@ -270,15 +270,19 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 					if (!GetFormulaAnswer(lvar, st).GetTruth())
 						break;
 					CValue t_value = ExecuteInBrace(i + 2, lvar, BRACE_LOOP, exitcode, UpperLvCandidatePool, inpool_to_next);
+					if(exitcode == ST_RETURN_WITH_VALUE)
+						output.clear();
 					output.Append(t_value);
 
-					if (exitcode == ST_BREAK) {
+					if(exitcode == ST_BREAK) {
 						exitcode = ST_NOP;
 						break;
 					}
-					else if (exitcode == ST_RETURN)
+					else if(exitcode == ST_RETURN)
 						break;
-					else if (exitcode == ST_CONTINUE)
+					else if(exitcode == ST_RETURN_WITH_VALUE)
+						break;
+					else if(exitcode == ST_CONTINUE)
 						exitcode = ST_NOP;
 				}
 
@@ -313,6 +317,8 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 					if (!GetFormulaAnswer(lvar, statement[i + 1]).GetTruth()) //for第二パラメータ
 						break;
 					CValue t_value = ExecuteInBrace(i + 4, lvar, BRACE_LOOP, exitcode, UpperLvCandidatePool, inpool_to_next);
+					if(exitcode == ST_RETURN_WITH_VALUE)
+						output.clear();
 					output.Append(t_value);
 
 					if (exitcode == ST_BREAK) {
@@ -320,6 +326,8 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 						break;
 					}
 					else if (exitcode == ST_RETURN)
+						break;
+					else if (exitcode == ST_RETURN_WITH_VALUE)
 						break;
 					else if (exitcode == ST_CONTINUE)
 						exitcode = ST_NOP;
@@ -369,6 +377,11 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 		case ST_RETURN:					// return
 			exitcode = ST_RETURN;
 			break;
+		case ST_RETURN_WITH_VALUE:
+			output.clear();
+			output.Append(GetFormulaAnswer(lvar, st));
+			exitcode = ST_RETURN_WITH_VALUE;
+			break;
 		default:						// 未知のステートメント
 			pvm->logger().Error(E_E, 82, dicfilename, st.linecount);
 			break;
@@ -379,7 +392,6 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 		if (exitcode != ST_NOP)
 			FeedLineToTail(i);
 	}
-	#undef POOL_TO_NEXT
 
 	// 候補から出力を選び出す　入れ子の深さが0なら重複回避が働く
 	if (inpool&&!ispoolbegin) {
@@ -508,6 +520,8 @@ void	CFunction::Foreach(CLocalVariable &lvar, CSelecter &output,size_t line,int 
 		}
 
 		t_value = ExecuteInBrace(line + 3, lvar, BRACE_LOOP, exitcode, UpperLvCandidatePool, inpool);
+		if(exitcode == ST_RETURN_WITH_VALUE)
+			output.clear();
 		output.Append(t_value);
 
 		if (exitcode == ST_BREAK) {
@@ -515,6 +529,8 @@ void	CFunction::Foreach(CLocalVariable &lvar, CSelecter &output,size_t line,int 
 			break;
 		}
 		else if (exitcode == ST_RETURN)
+			break;
+		else if(exitcode == ST_RETURN_WITH_VALUE)
 			break;
 		else if (exitcode == ST_CONTINUE)
 			exitcode = ST_NOP;
