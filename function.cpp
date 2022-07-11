@@ -484,16 +484,14 @@ void	CFunction::Foreach(CLocalVariable &lvar, CSelecter &output,size_t line,int 
 		if (isPseudoarray) {
 			t_value = s_array[foreachcount];
 		}
-		else {// F_TAG_ARRAY
-			if ( fromtype == F_TAG_ARRAY ) {
-				t_value = value.array()[foreachcount];
-			}
-			else if ( fromtype == F_TAG_HASH ) {
-				t_value.SetType(F_TAG_ARRAY);
-				//t_value.array().push_back(hash_iterator->first); //second(value)だけで良い
-				t_value.array().push_back(hash_iterator->second);
-				hash_iterator++;
-			}
+		else if ( fromtype == F_TAG_ARRAY ) {
+			t_value = value.array()[foreachcount];
+		}
+		else if ( fromtype == F_TAG_HASH ) {
+			t_value.SetType(F_TAG_ARRAY);
+			//t_value.array().push_back(hash_iterator->first); //second(value)だけで良い
+			t_value.array().push_back(hash_iterator->second);
+			hash_iterator++;
 		}
 
 		// 代入
@@ -1045,12 +1043,7 @@ bool CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValueRef answer, CStat
 	CValue	value = GetValueRefForCalc(vcell, st, lvar);
 
 	// 更新
-    if (value.GetType() == F_TAG_HASH) {
-        value.hash()[t_order.array()[0]] = CValue(answer);
-    }
-    else {
-	    value.SetArrayValue(t_order, answer);
-    }
+    value.SetArrayValue(t_order, answer);
 
 	// 代入
 	switch(vcell.value_GetType()) {

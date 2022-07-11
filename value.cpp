@@ -211,7 +211,9 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 	// 序数とデリミタの取得
 	size_t	order, order1;
 	yaya::string_t	delimiter;
-	int	aoflg = oval.DecodeArrayOrder(order, order1, delimiter);
+	int			  aoflg;
+	if(type != F_TAG_HASH)
+		aoflg = oval.DecodeArrayOrder(order, order1, delimiter);
 
 	// 値を更新する
 	if ( type == F_TAG_STRING ) {
@@ -312,6 +314,9 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 				s_value += delimiter + s_array[i];
 			}
 		}
+	}
+	else if(type == F_TAG_HASH) {
+		hash()[CValueRef(oval)] = value;
 	}
 	else {
 		// 汎用配列（もしくは未初期化）
