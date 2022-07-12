@@ -784,7 +784,7 @@ static void CBasis_ConvertStringArray(const std::vector<yaya::string_t> &array,C
 	std::vector<yaya::string_t>::const_iterator itr = array.begin();
 
 	while ( itr != array.end() ) {
-		var.array().emplace_back(CValueSub(*itr));
+		var.array().emplace_back(CValueRef(*itr));
 		++itr;
 	}
 }
@@ -1360,18 +1360,18 @@ void	CBasis::RestoreArrayVariable(CValue &var, yaya::string_t &value)
 
 		if (par != ESC_IARRAY) {
 			if (par == ESC_IVOID) {
-				var.array().emplace_back(CValueSub());
+				var.array().emplace_back(CValueRef());
 			}
 			else if(IsIntString(par)) {
-				var.array().emplace_back(CValueSub(yaya::ws_atoll(par, 10)));
+				var.array().emplace_back(CValueRef(yaya::ws_atoll(par, 10)));
 			}
 			else if (IsDoubleButNotIntString(par)) {
-				var.array().emplace_back(CValueSub( yaya::ws_atof(par) ));
+				var.array().emplace_back(CValueRef( yaya::ws_atof(par) ));
 			}
 			else {
 				CutDoubleQuote(par);
 				UnescapeString(par);
-				var.array().emplace_back(CValueSub(par));
+				var.array().emplace_back(CValueRef(par));
 			}
 		}
 
@@ -1464,7 +1464,7 @@ void	CBasis::ExecuteLoad(void)
 
 	// 第一引数（dllのパス）を作成
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
-	arg.array().emplace_back(CValueSub(base_path));
+	arg.array().emplace_back(CValueRef(base_path));
 
 	// 実行　結果は使用しないのでそのまま捨てる
 	vm.call_limit().InitCall();
@@ -1509,7 +1509,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 	wchar_t	*wistr = Ccct::MbcsToUcs2(istr, output_charset);
 	if (wistr != NULL) {
 		vm.logger().Io(0, wistr);
-		arg.array().emplace_back(CValueSub(wistr));
+		arg.array().emplace_back(CValueRef(wistr));
 		free(wistr);
 		wistr = NULL;
 	}
@@ -1626,7 +1626,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 
 	if (wistr != NULL) {
 		vm.logger().Io(0, wistr);
-		arg.array().emplace_back(CValueSub(wistr));
+		arg.array().emplace_back(CValueRef(wistr));
 		free(wistr);
 		wistr = NULL;
 	}

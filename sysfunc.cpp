@@ -853,7 +853,7 @@ CValue	CSystemFunction::GETERRORLOG(CSF_FUNCPARAM &p)
 	std::deque<yaya::string_t> &log = vm.logger().GetErrorLogHistory();
 
 	for(std::deque<yaya::string_t>::iterator it = log.begin(); it != log.end(); it++) {
-		result.array().emplace_back(CValueSub(*it));
+		result.array().emplace_back(CValueRef(*it));
 	}
 
 	return result;
@@ -3430,9 +3430,9 @@ CValue CSystemFunction::GETFUNCINFO(CSF_FUNCPARAM &p)
 	CValue result(F_TAG_ARRAY, 0/*dmy*/);
 	const CFunction *it = &vm.function_exec().func[size_t(index)];
 
-	result.array().emplace_back(CValueSub(it->GetFileName()));
-	result.array().emplace_back(CValueSub((yaya::int_t)it->GetLineNumBegin()));
-	result.array().emplace_back(CValueSub((yaya::int_t)it->GetLineNumEnd()));
+	result.array().emplace_back(CValueRef(it->GetFileName()));
+	result.array().emplace_back(CValueRef((yaya::int_t)it->GetLineNumBegin()));
+	result.array().emplace_back(CValueRef((yaya::int_t)it->GetLineNumEnd()));
 
 	return result;
 }
@@ -4213,15 +4213,15 @@ CValue	CSystemFunction::GETTIME(CSF_FUNCPARAM &p)
 
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 
-	result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today.tm_year) + 1900));
-	result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today.tm_mon) + 1));
-	result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today.tm_mday)));
-	result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today.tm_wday)));
-	result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today.tm_hour)));
-	result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today.tm_min)));
-	result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today.tm_sec)));
-	result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today.tm_yday)));
-	result.array().emplace_back(CValueSub(static_cast<yaya::int_t>(today.tm_isdst)));
+	result.array().emplace_back(CValueRef(static_cast<yaya::int_t>(today.tm_year) + 1900));
+	result.array().emplace_back(CValueRef(static_cast<yaya::int_t>(today.tm_mon) + 1));
+	result.array().emplace_back(CValueRef(static_cast<yaya::int_t>(today.tm_mday)));
+	result.array().emplace_back(CValueRef(static_cast<yaya::int_t>(today.tm_wday)));
+	result.array().emplace_back(CValueRef(static_cast<yaya::int_t>(today.tm_hour)));
+	result.array().emplace_back(CValueRef(static_cast<yaya::int_t>(today.tm_min)));
+	result.array().emplace_back(CValueRef(static_cast<yaya::int_t>(today.tm_sec)));
+	result.array().emplace_back(CValueRef(static_cast<yaya::int_t>(today.tm_yday)));
+	result.array().emplace_back(CValueRef(static_cast<yaya::int_t>(today.tm_isdst)));
 
 	return result;
 }
@@ -4510,22 +4510,22 @@ CValue	CSystemFunction::GETMEMINFO(CSF_FUNCPARAM &p)
 		meminfo.dwLength = sizeof(meminfo);
 		pGlobalMemoryStatusEx(&meminfo);
 
-		result.array().emplace_back(CValueSub((yaya::int_t)meminfo.dwMemoryLoad)   );
-		result.array().emplace_back(CValueSub((yaya::int_t)meminfo.ullTotalPhys)   );
-		result.array().emplace_back(CValueSub((yaya::int_t)meminfo.ullAvailPhys)   );
-		result.array().emplace_back(CValueSub((yaya::int_t)meminfo.ullTotalVirtual));
-		result.array().emplace_back(CValueSub((yaya::int_t)meminfo.ullAvailVirtual));
+		result.array().emplace_back(CValueRef((yaya::int_t)meminfo.dwMemoryLoad)   );
+		result.array().emplace_back(CValueRef((yaya::int_t)meminfo.ullTotalPhys)   );
+		result.array().emplace_back(CValueRef((yaya::int_t)meminfo.ullAvailPhys)   );
+		result.array().emplace_back(CValueRef((yaya::int_t)meminfo.ullTotalVirtual));
+		result.array().emplace_back(CValueRef((yaya::int_t)meminfo.ullAvailVirtual));
 	}
 	else {
 		MEMORYSTATUS meminfo = {0};
 		meminfo.dwLength = sizeof(meminfo);
 		::GlobalMemoryStatus(&meminfo);
 
-		result.array().emplace_back(CValueSub((yaya::int_t)meminfo.dwMemoryLoad)   );
-		result.array().emplace_back(CValueSub((yaya::int_t)meminfo.dwTotalPhys)    );
-		result.array().emplace_back(CValueSub((yaya::int_t)meminfo.dwAvailPhys)    );
-		result.array().emplace_back(CValueSub((yaya::int_t)meminfo.dwTotalVirtual) );
-		result.array().emplace_back(CValueSub((yaya::int_t)meminfo.dwAvailVirtual) );
+		result.array().emplace_back(CValueRef((yaya::int_t)meminfo.dwMemoryLoad)   );
+		result.array().emplace_back(CValueRef((yaya::int_t)meminfo.dwTotalPhys)    );
+		result.array().emplace_back(CValueRef((yaya::int_t)meminfo.dwAvailPhys)    );
+		result.array().emplace_back(CValueRef((yaya::int_t)meminfo.dwTotalVirtual) );
+		result.array().emplace_back(CValueRef((yaya::int_t)meminfo.dwAvailVirtual) );
 	}
 
 	return result;
@@ -4534,11 +4534,11 @@ CValue	CSystemFunction::GETMEMINFO(CSF_FUNCPARAM &p)
 CValue CSystemFunction::GETMEMINFO(CSF_FUNCPARAM &p) {
 	// メモリの状態を取得するポータブルな方法は無いので…
 	CValue result(F_TAG_ARRAY, 0/*dmy*/);
-	result.array().emplace_back(CValueSub(0)); // dwMemoryLoad
-	result.array().emplace_back(CValueSub(0)); // dwTotalPhys
-	result.array().emplace_back(CValueSub(0)); // dwAvailPhys
-	result.array().emplace_back(CValueSub(0)); // dwTotalVirtual
-	result.array().emplace_back(CValueSub(0)); // dwAvailVirtual
+	result.array().emplace_back(CValueRef(0)); // dwMemoryLoad
+	result.array().emplace_back(CValueRef(0)); // dwTotalPhys
+	result.array().emplace_back(CValueRef(0)); // dwAvailPhys
+	result.array().emplace_back(CValueRef(0)); // dwTotalVirtual
+	result.array().emplace_back(CValueRef(0)); // dwAvailVirtual
 	return result;
 }
 #endif
@@ -4663,7 +4663,7 @@ CValue	CSystemFunction::RE_ASEARCHEX(CSF_FUNCPARAM &p)
 			try {
 				MatchResult t_result = regex.Match(p.arg.array()[i].GetValueString().c_str());
 				if (t_result.IsMatched()) {
-					res.array().emplace_back(CValueSub(i-1));
+					res.array().emplace_back(CValueRef(i-1));
 				}
 			}
 			catch(const std::runtime_error &) {
@@ -6006,7 +6006,7 @@ CValue	CSystemFunction::ASEARCHEX(CSF_FUNCPARAM &p)
 	const CValue &key = p.arg.array()[0];
 	for(int i = 1; i < sz; i++) {
 		if (key.Compare(p.arg.array()[i])) {
-			result.array().emplace_back(CValueSub(i - 1));
+			result.array().emplace_back(CValueRef(i - 1));
 		}
 	}
 
@@ -6188,7 +6188,7 @@ CValue	CSystemFunction::ASORT(CSF_FUNCPARAM &p)
 	if (sz <= 2) {
 		CValue rval(F_TAG_ARRAY, 0/*dmy*/);
 		if ( option.find(L"index") != yaya::string_t::npos ) {
-			rval.array().emplace_back(CValueSub(0));
+			rval.array().emplace_back(CValueRef(0));
 		}
 		else {
 			rval.array().emplace_back(p.arg.array()[1]);
@@ -6252,7 +6252,7 @@ CValue	CSystemFunction::ASORT(CSF_FUNCPARAM &p)
 	if ( option.find(L"index") != yaya::string_t::npos ) {
 		unsigned int n = sort_vector.size();
 		for ( unsigned int i = 0 ; i < n ; ++i ) {
-			rval.array().emplace_back(CValueSub((yaya::int_t)sort_vector[i]-1));
+			rval.array().emplace_back(CValueRef((yaya::int_t)sort_vector[i]-1));
 		}
 	}
 	else {
@@ -6430,7 +6430,7 @@ CValue	CSystemFunction::SPLIT(CSF_FUNCPARAM &p)
 	const yaya::string_t &sep_str = p.arg.array()[1].GetValueString();
 
 	if (nums == 1 || sep_str.length() == 0) {
-		result.array().emplace_back(CValueSub(p.arg.array()[0].GetValueString()));
+		result.array().emplace_back(CValueRef(p.arg.array()[0].GetValueString()));
 		return result;
 	}
 
@@ -6442,10 +6442,10 @@ CValue	CSystemFunction::SPLIT(CSF_FUNCPARAM &p)
 	for(yaya::string_t::size_type i = 1; ; i++) {
 		spoint = tgt_str.find(sep_str,seppoint);
 		if (spoint == yaya::string_t::npos || i == nums) {
-			result.array().emplace_back(CValueSub(tgt_str.substr(seppoint,tgt_strlen - seppoint)));
+			result.array().emplace_back(CValueRef(tgt_str.substr(seppoint,tgt_strlen - seppoint)));
 			break;
 		}
-		result.array().emplace_back(CValueSub(tgt_str.substr(seppoint, spoint-seppoint)));
+		result.array().emplace_back(CValueRef(tgt_str.substr(seppoint, spoint-seppoint)));
 		seppoint = spoint + sep_strlen;
 	}
 
@@ -6600,18 +6600,18 @@ CValue	CSystemFunction::FATTRIB(CSF_FUNCPARAM &p)
 	if ( IsUnicodeAware() ) {
 		WIN32_FIND_DATAW ffdata;
 		if ( ::GetFileAttributesExW(fullpath.c_str(),GetFileExInfoStandard,&ffdata) ) {
-			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE   ) ? 1 : 0));
-			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) ? 1 : 0));
-			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) ? 1 : 0));
-			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN    ) ? 1 : 0));
-			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes == FILE_ATTRIBUTE_NORMAL   ) ? 1 : 0));
-			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_OFFLINE   ) ? 1 : 0));
-			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_READONLY  ) ? 1 : 0));
-			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM    ) ? 1 : 0));
-			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_TEMPORARY ) ? 1 : 0));
+			result.array().emplace_back(CValueRef((ffdata.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE   ) ? 1 : 0));
+			result.array().emplace_back(CValueRef((ffdata.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) ? 1 : 0));
+			result.array().emplace_back(CValueRef((ffdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) ? 1 : 0));
+			result.array().emplace_back(CValueRef((ffdata.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN    ) ? 1 : 0));
+			result.array().emplace_back(CValueRef((ffdata.dwFileAttributes == FILE_ATTRIBUTE_NORMAL   ) ? 1 : 0));
+			result.array().emplace_back(CValueRef((ffdata.dwFileAttributes & FILE_ATTRIBUTE_OFFLINE   ) ? 1 : 0));
+			result.array().emplace_back(CValueRef((ffdata.dwFileAttributes & FILE_ATTRIBUTE_READONLY  ) ? 1 : 0));
+			result.array().emplace_back(CValueRef((ffdata.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM    ) ? 1 : 0));
+			result.array().emplace_back(CValueRef((ffdata.dwFileAttributes & FILE_ATTRIBUTE_TEMPORARY ) ? 1 : 0));
 
-			result.array().emplace_back(CValueSub((yaya::int_t)FileTimeToUnixTime(ffdata.ftCreationTime)));
-			result.array().emplace_back(CValueSub((yaya::int_t)FileTimeToUnixTime(ffdata.ftLastWriteTime)));
+			result.array().emplace_back(CValueRef((yaya::int_t)FileTimeToUnixTime(ffdata.ftCreationTime)));
+			result.array().emplace_back(CValueRef((yaya::int_t)FileTimeToUnixTime(ffdata.ftLastWriteTime)));
 		}
 		else {
 			result = CValue(-1);
@@ -6627,18 +6627,18 @@ CValue	CSystemFunction::FATTRIB(CSF_FUNCPARAM &p)
 
 		WIN32_FIND_DATAA ffdata;
 		if ( ::GetFileAttributesExA(s_filestr,GetFileExInfoStandard,&ffdata) ) {
-			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE   ) ? 1 : 0));
-			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) ? 1 : 0));
-			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) ? 1 : 0));
-			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN    ) ? 1 : 0));
-			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes == FILE_ATTRIBUTE_NORMAL   ) ? 1 : 0));
-			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_OFFLINE   ) ? 1 : 0));
-			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_READONLY  ) ? 1 : 0));
-			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM    ) ? 1 : 0));
-			result.array().emplace_back(CValueSub((ffdata.dwFileAttributes & FILE_ATTRIBUTE_TEMPORARY ) ? 1 : 0));
+			result.array().emplace_back(CValueRef((ffdata.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE   ) ? 1 : 0));
+			result.array().emplace_back(CValueRef((ffdata.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) ? 1 : 0));
+			result.array().emplace_back(CValueRef((ffdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) ? 1 : 0));
+			result.array().emplace_back(CValueRef((ffdata.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN    ) ? 1 : 0));
+			result.array().emplace_back(CValueRef((ffdata.dwFileAttributes == FILE_ATTRIBUTE_NORMAL   ) ? 1 : 0));
+			result.array().emplace_back(CValueRef((ffdata.dwFileAttributes & FILE_ATTRIBUTE_OFFLINE   ) ? 1 : 0));
+			result.array().emplace_back(CValueRef((ffdata.dwFileAttributes & FILE_ATTRIBUTE_READONLY  ) ? 1 : 0));
+			result.array().emplace_back(CValueRef((ffdata.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM    ) ? 1 : 0));
+			result.array().emplace_back(CValueRef((ffdata.dwFileAttributes & FILE_ATTRIBUTE_TEMPORARY ) ? 1 : 0));
 
-			result.array().emplace_back(CValueSub((yaya::int_t)FileTimeToUnixTime(ffdata.ftCreationTime)));
-			result.array().emplace_back(CValueSub((yaya::int_t)FileTimeToUnixTime(ffdata.ftLastWriteTime)));
+			result.array().emplace_back(CValueRef((yaya::int_t)FileTimeToUnixTime(ffdata.ftCreationTime)));
+			result.array().emplace_back(CValueRef((yaya::int_t)FileTimeToUnixTime(ffdata.ftLastWriteTime)));
 		}
 		else {
 			result = CValue(-1);
@@ -6657,17 +6657,17 @@ CValue	CSystemFunction::FATTRIB(CSF_FUNCPARAM &p)
 	}
 
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
-	result.array().emplace_back(CValueSub(0));
-	result.array().emplace_back(CValueSub(0));
-	result.array().emplace_back(CValueSub(S_ISDIR(sb.st_mode) ? 1 : 0));
-	result.array().emplace_back(CValueSub(0));
-	result.array().emplace_back(CValueSub(S_ISREG(sb.st_mode) ? 1 : 0));
-	result.array().emplace_back(CValueSub(0));
-	result.array().emplace_back(CValueSub(0));
-	result.array().emplace_back(CValueSub(0));
-	result.array().emplace_back(CValueSub(0));
-	result.array().emplace_back(CValueSub((yaya::int_t)sb.st_ctime));
-	result.array().emplace_back(CValueSub((yaya::int_t)sb.st_mtime));
+	result.array().emplace_back(CValueRef(0));
+	result.array().emplace_back(CValueRef(0));
+	result.array().emplace_back(CValueRef(S_ISDIR(sb.st_mode) ? 1 : 0));
+	result.array().emplace_back(CValueRef(0));
+	result.array().emplace_back(CValueRef(S_ISREG(sb.st_mode) ? 1 : 0));
+	result.array().emplace_back(CValueRef(0));
+	result.array().emplace_back(CValueRef(0));
+	result.array().emplace_back(CValueRef(0));
+	result.array().emplace_back(CValueRef(0));
+	result.array().emplace_back(CValueRef((yaya::int_t)sb.st_ctime));
+	result.array().emplace_back(CValueRef((yaya::int_t)sb.st_mtime));
 #endif
 
 	return result;
@@ -6695,7 +6695,7 @@ CValue	CSystemFunction::GETFUNCLIST(CSF_FUNCPARAM &p)
 	//絞りこみ文字列がない場合
 	if ( name.empty() ) {
 		for(std::vector<CFunction>::iterator it = vm.function_exec().func.begin(); it != vm.function_exec().func.end(); it++) {
-			result.array().emplace_back(CValueSub(it->name));
+			result.array().emplace_back(CValueRef(it->name));
 		}
 	}
 	//ある場合
@@ -6704,7 +6704,7 @@ CValue	CSystemFunction::GETFUNCLIST(CSF_FUNCPARAM &p)
 
 		for(std::vector<CFunction>::iterator it = vm.function_exec().func.begin(); it != vm.function_exec().func.end(); it++) {
 			if(name.compare(0,len,it->name,0,len) == 0) {
-				result.array().emplace_back(CValueSub(it->name));
+				result.array().emplace_back(CValueRef(it->name));
 			}
 		}
 	}
@@ -6733,7 +6733,7 @@ CValue	CSystemFunction::GETSYSTEMFUNCLIST(CSF_FUNCPARAM &p)
 	//絞りこみ文字列がない場合
 	if ( name.empty() ) {
 		for ( int i = 0 ; i < sizeof(sysfunc) / sizeof(sysfunc[0]) ; ++i ) {
-			result.array().emplace_back(CValueSub(sysfunc[i].name));
+			result.array().emplace_back(CValueRef(sysfunc[i].name));
 		}
 	}
 	//ある場合
@@ -6742,7 +6742,7 @@ CValue	CSystemFunction::GETSYSTEMFUNCLIST(CSF_FUNCPARAM &p)
 
 		for ( int i = 0 ; i < sizeof(sysfunc) / sizeof(sysfunc[0]) ; ++i ) {
 			if ( name.compare(0,len,sysfunc[i].name,0,len) == 0 && sysfunc[i].name[0] ) {
-				result.array().emplace_back(CValueSub(sysfunc[i].name));
+				result.array().emplace_back(CValueRef(sysfunc[i].name));
 			}
 		}
 	}
@@ -6776,7 +6776,7 @@ CValue	CSystemFunction::GETVARLIST(CSF_FUNCPARAM &p)
 		for(size_t i = 0; i < n; ++i) {
 			CVariable *pVal = vm.variable().GetPtr(i);
 			if (pVal && !pVal->IsErased()) {
-				result.array().emplace_back(CValueSub(pVal->name));
+				result.array().emplace_back(CValueRef(pVal->name));
 			}
 		}
 
@@ -6788,7 +6788,7 @@ CValue	CSystemFunction::GETVARLIST(CSF_FUNCPARAM &p)
 			for(size_t i = 0; i < n; ++i) {
 				CVariable *pVal = p.lvar.GetPtr(depth,i);
 				if (pVal && !pVal->IsErased()) {
-					result.array().emplace_back(CValueSub(pVal->name));
+					result.array().emplace_back(CValueRef(pVal->name));
 				}
 			}
 		}
@@ -6805,7 +6805,7 @@ CValue	CSystemFunction::GETVARLIST(CSF_FUNCPARAM &p)
 				CVariable *pVal = vm.variable().GetPtr(i);
 				if (pVal && !pVal->IsErased()) {
 					if(name.compare(0,len,pVal->name,0,len) == 0) {
-						result.array().emplace_back(CValueSub(pVal->name));
+						result.array().emplace_back(CValueRef(pVal->name));
 					}
 				}
 			}
@@ -6820,7 +6820,7 @@ CValue	CSystemFunction::GETVARLIST(CSF_FUNCPARAM &p)
 					CVariable *pVal = p.lvar.GetPtr(depth,i);
 					if (pVal && !pVal->IsErased()) {
 						if(name.compare(0,len,pVal->name,0,len) == 0) {
-							result.array().emplace_back(CValueSub(pVal->name));
+							result.array().emplace_back(CValueRef(pVal->name));
 						}
 					}
 				}
@@ -6844,7 +6844,7 @@ CValue	CSystemFunction::GETCALLSTACK(CSF_FUNCPARAM &p)
 	size_t n = stack.size();
 
 	for(size_t i = 0; i < n; ++i) {
-		result.array().emplace_back(CValueSub(stack[i]));
+		result.array().emplace_back(CValueRef(stack[i]));
 	}
 
 	return result;
@@ -7723,7 +7723,7 @@ CValue	CSystemFunction::LINT_GetLocalVarLetted(CSF_FUNCPARAM &p)
 
 	CValue result(F_TAG_ARRAY, 0/*dmy*/);
 	const CFunction *it = &vm.function_exec().func[size_t(index)];
-	std::vector<CValueSub>& array = result.array();
+	std::vector<CValueRef>& array = result.array();
 	const CCell* sid_0_cell = 0;
 	size_t o_index;
 	size_t value_count = 0;

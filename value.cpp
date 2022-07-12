@@ -323,7 +323,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 		if ( type != F_TAG_ARRAY ) {
 			type = F_TAG_ARRAY;
 			array().clear();
-			array().emplace_back(CValueSub(*this));
+			array().emplace_back(CValueRef(*this));
 		}
 
 		if(aoflg) {
@@ -351,7 +351,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 				// 後端への追加
 				int	addsize = order - array().size();
 				for(int i = 1; i <= addsize; i++) {
-					array().emplace_back(CValueSub());
+					array().emplace_back(CValueRef());
 				}
 				
 				if (value.GetType() == F_TAG_ARRAY) {
@@ -360,7 +360,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 					}
 				}
 				else {
-					array().emplace_back(CValueSub(value));
+					array().emplace_back(CValueRef(value));
 				}
 			}
 		}
@@ -384,7 +384,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 				// 後端への追加
 				int	addsize = order - array().size();
 				for(int i = 1; i <= addsize; i++) {
-					array().emplace_back(CValueSub());
+					array().emplace_back(CValueRef());
 				}
 				
 				if (value.GetType() == F_TAG_ARRAY) {
@@ -393,7 +393,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 					}
 				}
 				else {
-					array().emplace_back(CValueSub(value));
+					array().emplace_back(CValueRef(value));
 				}
 			}
 		}

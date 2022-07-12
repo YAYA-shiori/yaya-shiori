@@ -99,8 +99,8 @@ CFunction::ExecutionResult	CFunction::Execute(const CValue &arg, CLocalVariable 
 		if(funcpos >= 0) {
 			//_argv[0] = dicname _argv[1] = linenum
 			CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
-			arg.array().emplace_back(CValueSub(dicfilename));
-			arg.array().emplace_back(CValueSub((yaya::int_t)linecount));
+			arg.array().emplace_back(CValueRef(dicfilename));
+			arg.array().emplace_back(CValueRef((yaya::int_t)linecount));
 
 			pvm->function_exec().func[funcpos].Execute(arg);
 		}
@@ -293,8 +293,8 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 					if (funcpos >= 0) {
 						//_argv[0] = dicname _argv[1] = linenum
 						CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
-						arg.array().emplace_back(CValueSub(dicfilename));
-						arg.array().emplace_back(CValueSub(st.linecount));
+						arg.array().emplace_back(CValueRef(dicfilename));
+						arg.array().emplace_back(CValueRef(st.linecount));
 
 						pvm->function_exec().func[funcpos].Execute(arg);
 					}
@@ -342,8 +342,8 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 					if (funcpos >= 0) {
 						//_argv[0] = dicname _argv[1] = linenum
 						CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
-						arg.array().emplace_back(CValueSub(dicfilename));
-						arg.array().emplace_back(CValueSub(st.linecount));
+						arg.array().emplace_back(CValueRef(dicfilename));
+						arg.array().emplace_back(CValueRef(st.linecount));
 
 						pvm->function_exec().func[funcpos].Execute(arg);
 					}
@@ -486,7 +486,7 @@ void	CFunction::Foreach(CLocalVariable &lvar, CSelecter &output,size_t line,int 
 	int type;
 	int fromtype = value.GetType();
 
-	CValueHash::const_iterator hash_iterator(NULL);
+	CValueHash::const_iterator hash_iterator;
 	if ( fromtype == F_TAG_HASH ) {
 		hash_iterator = value.hash().begin();
 	}
@@ -875,7 +875,7 @@ bool CFunction::Comma(CValueRef answer, std::vector<size_t> &sid, CStatement &st
 			t_array.insert(t_array.end(), addv.array().begin(), addv.array().end());
 		}
 		else {
-			t_array.emplace_back(CValueSub(addv));
+			t_array.emplace_back(CValueRef(addv));
 		}
 	}
 
@@ -908,7 +908,7 @@ bool CFunction::CommaAdd(CValueRef answer, std::vector<size_t> &sid, CStatement 
 			t_array.insert(t_array.end(), addv.array().begin(), addv.array().end());
 		}
 		else {
-			t_array.emplace_back(CValueSub(addv));
+			t_array.emplace_back(CValueRef(addv));
 		}
 	}
 
@@ -1179,7 +1179,7 @@ bool CFunction::ExecFunctionWithArgs(CValueRef answer, std::vector<size_t> &sid,
 			}
 		}
 		else {
-			arg.array().emplace_back(CValueSub(addv));
+			arg.array().emplace_back(CValueRef(addv));
 		}
 	}
 
@@ -1249,7 +1249,7 @@ bool CFunction::ExecSystemFunctionWithArgs(CCell &cell, std::vector<size_t> &sid
 			}
 		}
 		else {
-			arg.array().emplace_back(CValueSub(addv));
+			arg.array().emplace_back(CValueRef(addv));
 		}
 
 		valuearg.emplace_back(addv);
@@ -1358,7 +1358,7 @@ void CFunction::EncodeArrayOrder(CCell &vcell, const CValue &order, CLocalVariab
 		result = order;
 		break;
 	default:
-		result.array().emplace_back(CValueSub(order));
+		result.array().emplace_back(CValueRef(order));
 		break;
 	};
 

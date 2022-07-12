@@ -302,7 +302,7 @@ CValue CSelecter::StructArray1(size_t index)
 			result.array().insert(result.array().end(), target.array().begin(), target.array().end());
 		}
 		else {
-			result.array().emplace_back(CValueSub(target));
+			result.array().emplace_back(CValueRef(target));
 		}
 	}
 
