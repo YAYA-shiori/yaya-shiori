@@ -1030,11 +1030,12 @@ bool CFunction::Subst(int type, CValueRef answer, std::vector<size_t> &sid, CSta
 		lvar.SetValue(sid_0_cell->name, answer);
 		return 0;
 	case F_TAG_ARRAYORDER: {
-			if (sid[0] > 0)
-				return SubstToArray(st.cell()[sid[0] - 1], *sid_0_cell, answer, st, lvar);
-			else
-				return 1;
-		}
+		size_t sid_0 = sid[0];
+		if(sid_0 > 0)
+			return SubstToArray(st.cell()[sid_0 - 1], *sid_0_cell, answer, st, lvar, sid_0);
+		else
+			return 1;
+	}
 	default:
  		return 1;
 	};
@@ -1047,7 +1048,7 @@ bool CFunction::Subst(int type, CValueRef answer, std::vector<size_t> &sid, CSta
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-bool CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValueRef answer, CStatement &st, CLocalVariable &lvar) {
+bool CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValueRef answer, CStatement &st, CLocalVariable &lvar, size_t sid_begin) {
 	// 序数を取得
 	CValue	t_order;
 	EncodeArrayOrder(vcell, ocell.order(), lvar, t_order);
@@ -1056,7 +1057,7 @@ bool CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValueRef answer, CStat
 		return 1;
 
 	// 値を取得
-	CValue	value = GetValueRefForCalc(vcell, st, lvar);
+	CValueRef value = CValueRef(GetValueRefForCalc(vcell, st, lvar));
 
 	// 更新
     value.SetArrayValue(t_order, answer);
@@ -1069,6 +1070,30 @@ bool CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValueRef answer, CStat
 	case F_TAG_LOCALVARIABLE:
 		lvar.SetValue(vcell.name, value);
 		return 0;
+	case F_TAG_HOOKBRACKETOUT: {
+		auto	 &cells	 = st.cell();
+		size_t	sid_index	= sid_begin;
+		size_t hookbracket_num = 0;
+		while(sid_index > 0) {
+			sid_index--;
+			auto type=cells[sid_index].value_GetType();
+			if(type == F_TAG_HOOKBRACKETOUT) {
+				hookbracket_num++;
+			}
+			else if(type == F_TAG_HOOKBRACKETIN) {
+				hookbracket_num--;
+			}
+			if(hookbracket_num == 0)
+				break;
+		}
+		if(hookbracket_num != 0)
+			return 1;
+		if(sid_index < 2)
+			return 1;
+	end:
+		sid_index--;
+		return SubstToArray(cells[sid_index - 1], cells[sid_index], value, st, lvar, sid_index);
+	}
 	default:
 		return 1;
 	};

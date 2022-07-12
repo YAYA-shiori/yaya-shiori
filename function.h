@@ -201,7 +201,7 @@ protected:
 	bool	Comma(CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	bool	CommaAdd(CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	bool	Subst(int type, CValueRef answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
-	bool	SubstToArray(CCell &vcell, CCell &ocell, CValueRef answer, CStatement &st, CLocalVariable &lvar);
+	bool	SubstToArray(CCell &vcell, CCell &ocell, CValueRef answer, CStatement &st, CLocalVariable &lvar, size_t sid_begin=0);
 	bool	Array(CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	bool	_in_(const CValue &src, const CValue &dst);
 	bool	not_in_(const CValue &src, const CValue &dst);
