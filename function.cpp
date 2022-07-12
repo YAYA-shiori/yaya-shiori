@@ -1073,24 +1073,23 @@ bool CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValueRef answer, CStat
 	case F_TAG_HOOKBRACKETOUT: {
 		auto	 &cells	 = st.cell();
 		size_t	sid_index	= sid_begin;
-		size_t hookbracket_num = 0;
+		size_t bracket_num = 0;
 		while(sid_index > 0) {
 			sid_index--;
 			auto type=cells[sid_index].value_GetType();
-			if(type == F_TAG_HOOKBRACKETOUT) {
-				hookbracket_num++;
+			if(F_TAG_ISOUT(type)) {
+				bracket_num++;
 			}
-			else if(type == F_TAG_HOOKBRACKETIN) {
-				hookbracket_num--;
+			else if(F_TAG_ISIN(type)) {
+				bracket_num--;
 			}
-			if(hookbracket_num == 0)
+			if(bracket_num == 0)
 				break;
 		}
-		if(hookbracket_num != 0)
+		if(bracket_num != 0)
 			return 1;
 		if(sid_index < 2)
 			return 1;
-	end:
 		sid_index--;
 		return SubstToArray(cells[sid_index - 1], cells[sid_index], value, st, lvar, sid_index);
 	}
