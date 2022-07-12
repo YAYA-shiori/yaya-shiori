@@ -6390,7 +6390,7 @@ CValue	CSystemFunction::ARRAYDEDUP(CSF_FUNCPARAM &p)
 		tmpset.insert(*itr);
 	}
 
-	std::copy(tmpset.begin(), tmpset.end(), std::back_inserter(result.array()));
+	result.array() = {tmpset.begin(), tmpset.end()};
 	return result;
 }
 
@@ -7506,7 +7506,7 @@ CValue	CSystemFunction::LINT_GetFuncUsedBy(CSF_FUNCPARAM &p)
 		}
 	}
 
-	std::copy(name_set.begin(), name_set.end(), std::back_inserter(result.array()));
+	result.array() = {name_set.begin(), name_set.end()};
 	return result;
 }
 
@@ -7547,7 +7547,7 @@ CValue	CSystemFunction::LINT_GetUserDefFuncUsedBy(CSF_FUNCPARAM &p)
 		}
 	}
 
-	std::copy(name_set.begin(), name_set.end(), std::back_inserter(result.array()));
+	result.array() = {name_set.begin(), name_set.end()};
 	return result;
 }
 
@@ -7588,7 +7588,7 @@ CValue	CSystemFunction::LINT_GetGlobalVarUsedBy(CSF_FUNCPARAM &p)
 		}
 	}
 
-	std::copy(name_set.begin(), name_set.end(), std::back_inserter(result.array()));
+	result.array() = {name_set.begin(), name_set.end()};
 	return result;
 }
 
@@ -7692,7 +7692,7 @@ CValue	CSystemFunction::LINT_GetGlobalVarLetted(CSF_FUNCPARAM &p)
 		}
 	}
 
-	std::copy(name_set.begin(), name_set.end(), std::back_inserter(result.array()));
+	result.array() = {name_set.begin(), name_set.end()};
 	return result;
 }
 

@@ -69,7 +69,7 @@ public:
 		i_value = rhs.i_value;
 		d_value = rhs.d_value;
 
-		if ( type == F_TAG_ARRAY ) {
+		if( type == F_TAG_ARRAY ) {
 			m_array = rhs.m_array;
 		}
         else if (type == F_TAG_HASH) {
@@ -86,7 +86,7 @@ public:
 		i_value = rhs.i_value;
 		d_value = rhs.d_value;
 
-		if ( type == F_TAG_ARRAY ) {
+		if( type == F_TAG_ARRAY ) {
 			m_array = rhs.m_array;
 		}
         else if (type == F_TAG_HASH) {
@@ -94,7 +94,7 @@ public:
         }
 		else {
 			m_array.reset();
-            m_hash.reset();
+            m_hash.reset((CValueHash*)NULL);
 			if ( type == F_TAG_STRING ) {
 				s_value = rhs.s_value;
 			}
@@ -139,16 +139,16 @@ public:
 	bool	GetTruth(void) const
 	{
 		switch(type) {
-		case F_TAG_VOID:   return false;
-		case F_TAG_INT:	   return i_value != 0;
-		case F_TAG_DOUBLE: return d_value != 0.0;
-		case F_TAG_STRING: return s_value.size() != 0;
+		case F_TAG_VOID:   return 0;
+		case F_TAG_INT:	   return i_value;
+		case F_TAG_DOUBLE: return d_value;
+		case F_TAG_STRING: return s_value.size();
 		case F_TAG_ARRAY:
 			if( m_array.get() ) {
-				return m_array->size() != 0;
+				return m_array->size();
 			}
 			else {
-				return false;
+				return 0;
 			}
         case F_TAG_HASH:
             if ( m_hash.get() ) {
@@ -160,7 +160,7 @@ public:
 		default:
 			break;
 		};
-		return false;
+		return 0;
 	}
 
 	yaya::int_t		GetValueInt(void) const;
@@ -227,7 +227,7 @@ public:
 
 	//////////////////////////////////////////////
 	CValueArray::size_type array_size(void) const {
-		if ( ! m_array.get() ) {
+		if( ! m_array.get() ) {
 			return 0;
 		}
 		else {
@@ -247,7 +247,7 @@ public:
 		if( ! m_array.get() ) {
 			m_array=std_make_shared<CValueArray>();
 		}
-		else if ( m_array.use_count() >= 2 ) {
+		else if( m_array.use_count() >= 2 ) {
 			CValueArray *pV = m_array.get();
 			m_array=std_make_shared<CValueArray>(*pV);
 		}
@@ -290,6 +290,20 @@ struct CValueRef {
 		_m(std::make_shared<CValue>()) {}
 	CValueRef(const std::shared_ptr<CValue> &v):
 		_m(v) {}
+
+	explicit CValueRef(int value):
+		_m(std::make_shared<CValue>(value)) {}
+	explicit CValueRef(yaya::int_t value):
+		_m(std::make_shared<CValue>(value)) {}
+	explicit CValueRef(double value):
+		_m(std::make_shared<CValue>(value)) {}
+	explicit CValueRef(const yaya::string_t &value):
+		_m(std::make_shared<CValue>(value)) {}
+	explicit CValueRef(const yaya::char_t *value):
+		_m(std::make_shared<CValue>(value)) {}
+	explicit CValueRef(int tp, int):
+		_m(std::make_shared<CValue>(tp)) {}
+
 	CValueRef &operator=(const CValueRef &v) {
 		*_m = *v._m;
 		return *this;
