@@ -302,7 +302,7 @@ struct CValueRef {
 	explicit CValueRef(const yaya::char_t *value):
 		_m(std::make_shared<CValue>(value)) {}
 	explicit CValueRef(int tp, int):
-		_m(std::make_shared<CValue>(tp)) {}
+		_m(std::make_shared<CValue>(tp,0)) {}
 
 	CValueRef &operator=(const CValueRef &v) {
 		*_m = *v._m;
