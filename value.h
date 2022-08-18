@@ -183,7 +183,8 @@ public:
 	CValue	&operator =(const CValueArray &value) LVALUE_MODIFIER;
     CValue  &operator =(const CValueHash &value) LVALUE_MODIFIER;
 
-	void SubstToArray(CValueArray &value) LVALUE_MODIFIER;
+	void SubstToArray(const CValueArray &value) LVALUE_MODIFIER;
+	void SubstToArray(CValueArray &&value) LVALUE_MODIFIER;
 
 	CValue	operator +(const CValue &value) const;
 	CValue	operator -(const CValue &value) const;
@@ -386,8 +387,11 @@ struct CValueRef {
 		return _m->GetValueStringForLogging();
 	}
 
-	void SubstToArray(CValueArray &value) & {
+	void SubstToArray(const CValueArray &value) & {
 		_m->SubstToArray(value);
+	}
+	void SubstToArray(CValueArray&&value) & {
+		_m->SubstToArray(move(value));
 	}
 
 	CValue operator+(const CValue &value) const {

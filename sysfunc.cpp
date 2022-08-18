@@ -3992,7 +3992,7 @@ CValue	CSystemFunction::HASH_KEYS(CSF_FUNCPARAM &p)
 	CValueHash::const_iterator ite = map.end();
 
 	for ( ; itr != ite ; ++itr ) {
-		result.array().push_back(itr->first);
+		result.array().emplace_back(itr->first);
 	}
 
 	return result;
@@ -4028,7 +4028,7 @@ CValue	CSystemFunction::HASH_VALUES(CSF_FUNCPARAM &p)
 	CValueHash::const_iterator ite = map.end();
 
 	for ( ; itr != ite ; ++itr ) {
-		result.array().push_back(itr->second);
+		result.array().emplace_back(itr->second);
 	}
 
 	return result;
