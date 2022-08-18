@@ -304,8 +304,13 @@ void CBufferT<ELT>::Append(const ELT *pcsz, int length, int eol) {
 
 	// Realloc
 	if(nNewLength > m_nMaxLength) {
-		CBufferRefT<ELT>::m_pBuffer = (ELT *)realloc(CBufferRefT<ELT>::m_pBuffer, sizeof(ELT) * nNewLength);
-		m_nMaxLength				= nNewLength;
+		auto tmp = (ELT *)realloc(CBufferRefT<ELT>::m_pBuffer, sizeof(ELT) * nNewLength);
+		if(tmp) {
+			CBufferRefT<ELT>::m_pBuffer = tmp;
+			m_nMaxLength = nNewLength;
+		}
+		else
+			return;
 	}
 
 	// Append

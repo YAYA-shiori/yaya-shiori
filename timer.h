@@ -29,13 +29,20 @@ namespace yaya {
 			void restart() { start_time_ = get_now_time(); }
 			int  elapsed() { return get_now_time() - start_time_; }
 			static int  get_now_time() {
-#if defined(WIN32) || defined(_WIN32_WCE)
+			#if defined(WIN32) || defined(_WIN32_WCE)
+				#if _MSC_VER
+					#pragma warning(push)
+					#pragma warning(disable: 28159)
+				#endif
 				return ::GetTickCount();
-#elif defined(POSIX)
+				#if _MSC_VER
+					#pragma warning(pop)
+				#endif
+			#elif defined(POSIX)
 				struct timeval tv;
 				gettimeofday(&tv, NULL);
 				return tv.tv_sec * 1000 + tv.tv_usec / 1000;
-#endif
+			#endif
 			}
 
 		private:
