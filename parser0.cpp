@@ -571,9 +571,9 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 			continue;
 		}
 		// プリプロセッサ#define、#globaldefine処理
-		ExecInternalPreProcess(linebuffer,file,i);
 		ExecDefinePreProcess(linebuffer, defines);	// #define
 		ExecDefinePreProcess(linebuffer, gdefines);	// #globaldefine
+		ExecInternalPreProcess(linebuffer,file,i);
 		// コメント処理(2)
 		comment.Process_Tail(linebuffer);
 		// {、}、;で分割
