@@ -676,9 +676,7 @@ char	CParser0::GetPreProcess(yaya::string_t &str, std::vector<CDefine>& defines,
 void	CParser0::ExecDefinePreProcess(yaya::string_t &str, const std::vector<CDefine>& defines)
 {
 	for(std::vector<CDefine>::const_iterator it = defines.begin(); it != defines.end(); it++) {
-		if (str.size() >= it->before.size()) {
-			yaya::ws_replace(str, it->before.c_str(), it->after.c_str());
-		}
+		it->Exec(str);
 	}
 }
 
@@ -2492,7 +2490,20 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 	return 0;
 }
 
-inline CDefine::CDefine(CAyaVM& vm, const yaya::string_t& bef, const yaya::string_t& aft, const yaya::string_t& df) :
-	before(bef), after(aft), dicfilename(df), dicfilename_fullpath(vm.basis().ToFullPath(df))
-{
+inline CDefine::CDefine(CAyaVM& vm, const yaya::string_t& bef, const yaya::string_t& aft, const yaya::string_t& df):
+	before(bef), after(aft), dicfilename(df), dicfilename_fullpath(vm.basis().ToFullPath(df)) {
+	/*
+	is_macro_function = IsMarcoFunction();
+	if(is_macro_function){
+		CRegexpT<yaya::char_t> regex(L"^[^!\"#$%&'()*+,\\-/:;<=>?@\\[\\\\\\]`{|}\\s]+\\(([^!\"#$%&'()*+\\-/:;<=>?@\\[\\\\\\]`{|}\\s]+)\\)$", SINGLELINE);
+		regex.Match(before.c_str(), before.size());
+		macro_function_name = regex.GetMatch(before.c_str(), 1);
+		yaya::string_t args = regex.GetMatch(before.c_str(), 2);
+		CRegexpT<yaya::char_t> regex2(L"([^!\"#$%&'()*+\\-/:;<=>?@\\[\\\\\\]`{|}\\s]+)", SINGLELINE);
+		int n = regex2.Match(args.c_str(), args.size());
+		for(int i=0; i<n; i++){
+			macro_function_args.push_back(regex2.GetMatch(args.c_str(), i+1));
+		}
+	}
+	*/
 }

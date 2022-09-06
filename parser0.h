@@ -20,6 +20,7 @@
 #include <vector>
 #include "globaldef.h"
 #include "selecter.h"
+#include "wsex.h"
 
 class	CDefine
 {
@@ -28,11 +29,66 @@ public:
 	yaya::string_t	after;
 	yaya::string_t	dicfilename;
 	yaya::string_t	dicfilename_fullpath;
+	/*
+	bool is_macro_function;
+	yaya::string_t macro_function_name;
+	std::vector<yaya::string_t> macro_function_args;
+private:
+	//IsMarcoFunction
+	bool IsMarcoFunction()const {
+		CRegexpT<yaya::char_t> regex(L"^[^!\"#$%&'()*+,\\-/:;<=>?@\\[\\\\\\]`{|}\\s]+\\([^!\"#$%&'()*+\\-/:;<=>?@\\[\\\\\\]`{|}\\s]+\\)$", SINGLELINE);
+		return regex.Match(before.c_str(), before.size());
+	}
+	*/
 public:
 	CDefine(CAyaVM& vm, const yaya::string_t& bef, const yaya::string_t& aft, const yaya::string_t& df);
 
 	CDefine(void) {}
 	~CDefine(void) {}
+
+	/*
+	void ExecuteMarcoFunctionReplace(yaya::string_t& str)const {
+		//if(!is_macro_function) return;
+		CRegexpT<yaya::char_t> regex((macro_function_name+L"\\(([^!\"#$%&'()*+\\-/:;<=>?@\\[\\\\\\]`{|}\\s]+)\\)$").c_str(), SINGLELINE);
+		int n = regex.Match(str.c_str(), str.size());
+		if(n==0) return;
+		//赋值函数参数，并对函数体进行替换
+		//对于参数...,将其替换为剩余所有参数
+		//对于函数体内的__AYA_SYSTEM_MACRO_FUNCTION_VA_ARGS__，将其替换为...对应的参数表
+		std::map<yaya::string_t, yaya::string_t> args;
+		for(int i=0; i<n; i++){
+			yaya::string_t arg = regex.GetMatch(str.c_str(), i+1);
+			if(macro_function_args[i]==L"..."){
+				yaya::string_t va_args;
+				for(int j=i; j<n; j++){
+					va_args += regex.GetMatch(str.c_str(), j+1);
+					if(j!=n-1) va_args += L",";
+				}
+				args[L"..."] = va_args;
+			}else{
+				args[macro_function_args[i]] = arg;
+			}
+		}
+		yaya::string_t func_body = after;
+		for(int i=0; i<macro_function_args.size(); i++){
+			yaya::string_t arg = macro_function_args[i];
+			yaya::string_t arg_value = args[arg];
+			//替换函数体内的参数
+			CRegexpT<yaya::char_t> regex2((L"\\b"+arg+L"\\b").c_str(), SINGLELINE);
+			func_body = regex2.Replace(func_body.c_str(), arg_value.c_str());
+		}
+		return;
+	}
+	*/
+	void Exec(yaya::string_t& str)const{
+		/*
+		if(IsMarcoFunction())
+			ExecuteMarcoFunctionReplace(str);
+		else
+		*/
+			yaya::ws_replace(str, before.c_str(), after.c_str());
+		return;
+	}
 };
 
 //----
