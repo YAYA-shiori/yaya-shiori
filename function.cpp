@@ -563,65 +563,101 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 				}
 				break;
 			case F_TAG_PLUS:
-				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) +
-					GetValueRefForCalc(*d_cell, st, lvar);
-				break;
+				{
+					// ââéZèáèòÇïKÇ∏éÁÇÈÇΩÇﬂÅAàÍíUç∂ï”ÇÃåãâ ÇéÊÇ¡ÇƒÇ©ÇÁâEï”Ç∆ââéZÇ∑ÇÈ
+					// Ç±ÇÍÇë”ÇÈÇ∆âEï”Ç©ÇÁêÊÇ…åvéZÇ∑ÇÈ
+					// à»ç~ìØÇ∂
+
+					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					o_cell.ansv() = lv + GetValueRefForCalc(*d_cell, st, lvar);
+					break;
+				}
 			case F_TAG_MINUS:
-				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) -
-					GetValueRefForCalc(*d_cell, st, lvar);
-				break;
+				{
+					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					o_cell.ansv() = lv - GetValueRefForCalc(*d_cell, st, lvar);
+					break;
+				}
 			case F_TAG_MUL:
-				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) *
-					GetValueRefForCalc(*d_cell, st, lvar);
-				break;
+				{
+					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					o_cell.ansv() = lv * GetValueRefForCalc(*d_cell, st, lvar);
+					break;
+				}
 			case F_TAG_DIV:
-				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) /
-					GetValueRefForCalc(*d_cell, st, lvar);
-				break;
+				{
+					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					o_cell.ansv() = lv / GetValueRefForCalc(*d_cell, st, lvar);
+					break;
+				}
 			case F_TAG_SURP:
-				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) %
-					GetValueRefForCalc(*d_cell, st, lvar);
-				break;
+				{
+					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					o_cell.ansv() = lv % GetValueRefForCalc(*d_cell, st, lvar);
+					break;
+				}
 			case F_TAG_IFEQUAL:
-				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) ==
-					GetValueRefForCalc(*d_cell, st, lvar);
-				break;
+				{
+					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					o_cell.ansv() = lv == GetValueRefForCalc(*d_cell, st, lvar);
+					break;
+				}
 			case F_TAG_IFDIFFER:
-				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) !=
-					GetValueRefForCalc(*d_cell, st, lvar);
-				break;
+				{
+					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					o_cell.ansv() = lv != GetValueRefForCalc(*d_cell, st, lvar);
+					break;
+				}
 			case F_TAG_IFGTEQUAL:
-				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) >=
-					GetValueRefForCalc(*d_cell, st, lvar);
-				break;
+				{
+					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					o_cell.ansv() = lv >= GetValueRefForCalc(*d_cell, st, lvar);
+					break;
+				}
 			case F_TAG_IFLTEQUAL:
-				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) <=
-					GetValueRefForCalc(*d_cell, st, lvar);
-				break;
+				{
+					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					o_cell.ansv() = lv <= GetValueRefForCalc(*d_cell, st, lvar);
+					break;
+				}
 			case F_TAG_IFGT:
-				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) >
-					GetValueRefForCalc(*d_cell, st, lvar);
-				break;
+				{
+					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					o_cell.ansv() = lv > GetValueRefForCalc(*d_cell, st, lvar);
+					break;
+				}
 			case F_TAG_IFLT:
-				o_cell.ansv() = GetValueRefForCalc(*s_cell, st, lvar) <
-					GetValueRefForCalc(*d_cell, st, lvar);
-				break;
+				{
+					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					o_cell.ansv() = lv < GetValueRefForCalc(*d_cell, st, lvar);
+					break;
+				}
 			case F_TAG_IFIN:
-				o_cell.ansv().SetType(F_TAG_INT);
-				o_cell.ansv().i_value = _in_(GetValueRefForCalc(*s_cell, st, lvar),
-					GetValueRefForCalc(*d_cell, st, lvar));
-				break;
+				{
+					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					o_cell.ansv().SetType(F_TAG_INT);
+					o_cell.ansv().i_value = _in_(lv,GetValueRefForCalc(*d_cell, st, lvar));
+					break;
+				}
 			case F_TAG_IFNOTIN:
-				o_cell.ansv().SetType(F_TAG_INT);
-				o_cell.ansv().i_value = not_in_(GetValueRefForCalc(*s_cell, st, lvar),
-					GetValueRefForCalc(*d_cell, st, lvar));
-				break;
+				{
+					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					o_cell.ansv().SetType(F_TAG_INT);
+					o_cell.ansv().i_value = not_in_(lv,GetValueRefForCalc(*d_cell, st, lvar));
+					break;
+				}
 			case F_TAG_OR:
-				o_cell.ansv() = CValue(GetValueRefForCalc(*s_cell, st, lvar).GetTruth() || GetValueRefForCalc(*d_cell, st, lvar).GetTruth());
-				break;
+				{
+					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					o_cell.ansv() = CValue(lv.GetTruth() || GetValueRefForCalc(*d_cell, st, lvar).GetTruth());
+					break;
+				}
 			case F_TAG_AND:
-				o_cell.ansv() = CValue(GetValueRefForCalc(*s_cell, st, lvar).GetTruth() && GetValueRefForCalc(*d_cell, st, lvar).GetTruth());
-				break;
+				{
+					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					o_cell.ansv() = CValue(lv.GetTruth() && GetValueRefForCalc(*d_cell, st, lvar).GetTruth());
+					break;
+				}
 			case F_TAG_FUNCPARAM:
 				{
 					std_shared_ptr<CValue> tmp_ansv = o_cell.ansv_shared_create();
@@ -985,24 +1021,42 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CState
 		break;
 	case F_TAG_PLUSEQUAL:
 	case F_TAG_PLUSEQUAL_D:
-		answer = GetValueRefForCalc(*sid_0_cell, st, lvar) + GetValueRefForCalc(*sid_1_cell, st, lvar);
-		break;
+		{
+			// ââéZèáèòÇïKÇ∏éÁÇÈÇΩÇﬂÅAàÍíUç∂ï”ÇÃåãâ ÇéÊÇ¡ÇƒÇ©ÇÁâEï”Ç∆ââéZÇ∑ÇÈ
+			// Ç±ÇÍÇë”ÇÈÇ∆âEï”Ç©ÇÁêÊÇ…åvéZÇ∑ÇÈ
+			// à»ç~ìØÇ∂
+			const CValue &lv = GetValueRefForCalc(*sid_0_cell, st, lvar);
+			answer = lv + GetValueRefForCalc(*sid_1_cell, st, lvar);
+			break;
+		}
 	case F_TAG_MINUSEQUAL:
 	case F_TAG_MINUSEQUAL_D:
-		answer = GetValueRefForCalc(*sid_0_cell, st, lvar) - GetValueRefForCalc(*sid_1_cell, st, lvar);
-		break;
+		{
+			const CValue &lv = GetValueRefForCalc(*sid_0_cell, st, lvar);
+			answer = lv - GetValueRefForCalc(*sid_1_cell, st, lvar);
+			break;
+		}
 	case F_TAG_MULEQUAL:
 	case F_TAG_MULEQUAL_D:
-		answer = GetValueRefForCalc(*sid_0_cell, st, lvar) * GetValueRefForCalc(*sid_1_cell, st, lvar);
-		break;
+		{
+			const CValue &lv = GetValueRefForCalc(*sid_0_cell, st, lvar);
+			answer = lv * GetValueRefForCalc(*sid_1_cell, st, lvar);
+			break;
+		}
 	case F_TAG_DIVEQUAL:
 	case F_TAG_DIVEQUAL_D:
-		answer = GetValueRefForCalc(*sid_0_cell, st, lvar) / GetValueRefForCalc(*sid_1_cell, st, lvar);
-		break;
+		{
+			const CValue &lv = GetValueRefForCalc(*sid_0_cell, st, lvar);
+			answer = lv / GetValueRefForCalc(*sid_1_cell, st, lvar);
+			break;
+		}
 	case F_TAG_SURPEQUAL:
 	case F_TAG_SURPEQUAL_D:
-		answer = GetValueRefForCalc(*sid_0_cell, st, lvar) % GetValueRefForCalc(*sid_1_cell, st, lvar);
-		break;
+		{
+			const CValue &lv = GetValueRefForCalc(*sid_0_cell, st, lvar);
+			answer = lv % GetValueRefForCalc(*sid_1_cell, st, lvar);
+			break;
+		}
 	case F_TAG_COMMAEQUAL:
 		if (Comma(answer, sid, st, lvar))
 			return 1;
