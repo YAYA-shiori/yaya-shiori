@@ -622,61 +622,25 @@ CValue CValue_ArrayCalc(const CValue &param1_left,const CValue &param2_right,Fn 
 }
 
 template<class Fn>
-void CValue_ArrayCalc_Subst(CValue &param1_subst,const CValue &param2_right,Fn calc_fn_subst)
+bool CValue_ArrayCalc_Subst(CValue &param1_subst,const CValue &param2_right,Fn calc_fn_subst)
 {
 	CValue result;
 
-	if (param1_subst.GetType() == F_TAG_ARRAY && param2_right.GetType() == F_TAG_ARRAY) {
-		if ( param1_subst.array_size() == 0 ) { //演算対象がない
-			param1_subst = param2_right;
-			return;
-		}
-		else {
-			if ( param2_right.array_size() == 0 ) { //演算相手がない
-				return;
-			}
-			else {
-				param1_subst.SetType(F_TAG_ARRAY);
-				CValueArray::iterator it;
-				CValueArray::const_iterator it2;
-				for(it = param1_subst.array().begin() ; it != param1_subst.array().end() ; ++it) {
-					for(it2 = param2_right.array().begin() ; it2 != param2_right.array().end() ; ++it2) {
-						calc_fn_subst((*it),(*it2));
-					}
-				}
-			}
-		}
+	if ( param2_right.GetType() == F_TAG_ARRAY) {
+		return false;
 	}
-	else if (param1_subst.GetType() == F_TAG_ARRAY) {
-		if ( param1_subst.array_size() == 0 ) { //演算対象がない
-			param1_subst = param2_right;
-			return;
-		}
-		else {
-			param1_subst.SetType(F_TAG_ARRAY);
-			const CValueSub t_vs(param2_right);
-			for(CValueArray::iterator it = param1_subst.array().begin(); it != param1_subst.array().end(); it++) {
-				calc_fn_subst(*it,t_vs);
-			}
-		}
-	}
-	else if (param2_right.GetType() == F_TAG_ARRAY) {
-		if ( param2_right.array_size() == 0 ) { //演算対象がない
-			return;
-		}
-		else {
-			param1_subst.SetType(F_TAG_ARRAY);
-			param1_subst.array_clear();
 
-			CValueSub t_vs(param1_subst);
-
-			for(CValueArray::const_iterator it = param2_right.array().begin(); it != param2_right.array().end(); it++) {
-				CValueSub t_result = t_vs;
-				calc_fn_subst(t_result,*it);
-				param1_subst.array().emplace_back(t_result);
-			}
-		}
+	if ( param1_subst.array_size() == 0 ) { //演算対象がない
+		param1_subst = param2_right;
+		return true;
 	}
+
+	param1_subst.SetType(F_TAG_ARRAY);
+	const CValueSub t_vs(param2_right);
+	for(CValueArray::iterator it = param1_subst.array().begin(); it != param1_subst.array().end(); it++) {
+		calc_fn_subst(*it,t_vs);
+	}
+	return true;
 }
 
 //for normal
@@ -783,10 +747,7 @@ void CValue::operator +=(const CValue &value) LVALUE_MODIFIER
 			return;
 		}
 		if ( t == F_TAG_ARRAY ) { //配列時用パフォーマンス向上コード
-			if ( type == F_TAG_ARRAY ) {
-				CValue_ArrayCalc_Subst(*this,value,CValueSub_Add_Subst());
-				return;
-			}
+			if ( CValue_ArrayCalc_Subst(*this,value,CValueSub_Add_Subst()) ) { return; }
 		}
 	}
 	*this = operator+(value);
@@ -825,8 +786,7 @@ void CValue::operator -=(const CValue &value) LVALUE_MODIFIER
 			return;
 		}
 		if ( t == F_TAG_ARRAY ) { //配列時用パフォーマンス向上コード
-			CValue_ArrayCalc_Subst(*this,value,CValueSub_Sub_Subst());
-			return;
+			if ( CValue_ArrayCalc_Subst(*this,value,CValueSub_Sub_Subst()) ) { return; }
 		}
 	}
 	*this = operator-(value);
@@ -857,8 +817,7 @@ void CValue::operator *=(const CValue &value) LVALUE_MODIFIER
 	int t = CalcEscalationTypeStr(value.type);
 	if ( t == type ) { //左辺(自身)の型と同じ場合に限り
 		if ( t == F_TAG_ARRAY ) { //配列時用パフォーマンス向上コード
-			CValue_ArrayCalc_Subst(*this,value,CValueSub_Mul_Subst());
-			return;
+			if ( CValue_ArrayCalc_Subst(*this,value,CValueSub_Mul_Subst()) ) { return; }
 		}
 	}
 	*this = operator*(value);
@@ -905,8 +864,7 @@ void CValue::operator /=(const CValue &value) LVALUE_MODIFIER
 	int t = CalcEscalationTypeStr(value.type);
 	if ( t == type ) { //左辺(自身)の型と同じ場合に限り
 		if ( t == F_TAG_ARRAY ) { //配列時用パフォーマンス向上コード
-			CValue_ArrayCalc_Subst(*this,value,CValueSub_Div_Subst());
-			return;
+			if ( CValue_ArrayCalc_Subst(*this,value,CValueSub_Div_Subst()) ) { return; }
 		}
 	}
 	*this = operator/(value);
@@ -944,8 +902,7 @@ void CValue::operator %=(const CValue &value) LVALUE_MODIFIER
 	int t = CalcEscalationTypeStr(value.type);
 	if ( t == type ) { //左辺(自身)の型と同じ場合に限り
 		if ( t == F_TAG_ARRAY ) { //配列時用パフォーマンス向上コード
-			CValue_ArrayCalc_Subst(*this,value,CValueSub_Mod_Subst());
-			return;
+			if ( CValue_ArrayCalc_Subst(*this,value,CValueSub_Mod_Subst()) ) { return; }
 		}
 	}
 	*this = operator%(value);
