@@ -1295,7 +1295,7 @@ CValue	CSystemFunction::CHARSETLIBEX(CSF_FUNCPARAM &p)
 	if ( p.arg.array_size() >= 2 ) {
 		int	charset = GetCharset(p.arg.array()[1],L"CHARSETLIBEX", p.dicname, p.line);
 		if ( charset < 0 ) {
-			return CValue();
+			return CValue(F_TAG_NOP, 0/*dmy*/);
 		}
 		int result = vm.libs().SetCharsetDynamic(vm.basis().ToFullPath(p.arg.array()[0].s_value),charset);
 
@@ -1304,7 +1304,7 @@ CValue	CSystemFunction::CHARSETLIBEX(CSF_FUNCPARAM &p)
 			SetError(13);
 		}
 
-		return CValue();
+		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 	else {
 		int result = vm.libs().GetCharsetDynamic(vm.basis().ToFullPath(p.arg.array()[0].s_value));
