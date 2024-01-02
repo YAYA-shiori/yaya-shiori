@@ -1904,10 +1904,13 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 			size_t bdepth = 1;
 			size_t len = str.size();
 			size_t spos = 0;
+			size_t validlen = 0;
 			for(spos = 2; spos < len; spos++) {
 				bdepth += ((str[spos] == L'(') - (str[spos] == L')'));
 				if (!bdepth)
 					break;
+				if (str[spos] != L' ' && str[spos] != L'\t')
+					validlen++;
 			}
 			if (spos < len) {
 				spos++;
@@ -1917,11 +1920,11 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 				vm.logger().Error(E_E, 60, dicfilename, linecount);
 				return 1;
 			}
-			if (spos == 2) {
+			if (validlen == 0) {
 				vm.logger().Error(E_E, 61, dicfilename, linecount);
 				return 1;
 			}
-			else if (spos < 2) {
+			if (spos < 2) {
 				vm.logger().Error(E_E, 62, dicfilename, linecount);
 				return 1;
 			}
@@ -1957,10 +1960,13 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 			size_t bdepth = 1;
 			size_t len = str.size();
 			size_t spos = 0;
+			size_t validlen = 0;
 			for(spos = 2; spos < len; spos++) {
 				bdepth += ((str[spos] == L'[') - (str[spos] == L']'));
 				if (!bdepth)
 					break;
+				if (str[spos] != L' ' && str[spos] != L'\t')
+					validlen++;
 			}
 			if (spos < len) {
 				spos++;
@@ -1970,11 +1976,11 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 				vm.logger().Error(E_E, 78, dicfilename, linecount);
 				return 1;
 			}
-			if (spos == 2) {
+			if (validlen == 0) {
 				vm.logger().Error(E_E, 79, dicfilename, linecount);
 				return 1;
 			}
-			else if (spos < 2) {
+			if (spos < 2) {
 				vm.logger().Error(E_E, 80, dicfilename, linecount);
 				return 1;
 			}
