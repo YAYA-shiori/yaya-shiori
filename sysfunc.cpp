@@ -8,6 +8,9 @@
 #if defined(WIN32) || defined(_WIN32_WCE)
 # include "stdafx.h"
 # include <shellapi.h>
+#else
+#define TRUE 1
+#define FALSE 0
 #endif
 
 #include <algorithm>
@@ -1733,8 +1736,8 @@ CValue	CSystemFunction::STRSTR(CSF_FUNCPARAM &p)
 		SetError(9);
 	}
 
-	yaya::string_t &str = p.arg.array()[0].GetValueString();
-	yaya::string_t &target = p.arg.array()[1].GetValueString();
+	yaya::string_t str = p.arg.array()[0].GetValueString();
+	yaya::string_t target = p.arg.array()[1].GetValueString();
 	yaya::int_t start_tmp = p.arg.array()[2].GetValueInt();
 	yaya::string_t::size_type start = start_tmp < 0 ? 0 : static_cast<yaya::string_t::size_type>(start_tmp);
 
@@ -6302,7 +6305,9 @@ CValue	CSystemFunction::SETTAMAHWND(CSF_FUNCPARAM &p)
 
 	if(p.arg.array()[0].IsNum()) {
 		size_t hwnd = static_cast<size_t>( p.arg.array()[0].GetValueInt() );
+#ifdef _WINDOWS
 		vm.basis().SetLogRcvWnd((long)hwnd);
+#endif
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
@@ -6933,7 +6938,7 @@ CValue	CSystemFunction::SLEEP(CSF_FUNCPARAM &p)
 	while ( true ) {
 		int r = nanosleep(&req,&rem);
 		if ( r == 0 ) { break; }
-		if ( (r != 0) && (errno != EINTL) ) { break; }
+		if ( (r != 0) && (errno != EINTR) ) { break; }
 		req = rem;
 	}
 #endif

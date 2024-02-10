@@ -141,21 +141,21 @@ void	CBasis::SetPath(yaya::global_t h, int len)
 void	CBasis::SetPath(yaya::global_t h, int len)
 {
 	// 取得と領域開放
-	path = widen(std::string(h, static_cast<std::string::size_type>(len)));
+	base_path = widen(std::string(h, static_cast<std::string::size_type>(len)));
 	//free(h); //load側で開放
 	h = NULL;
 	// スラッシュで終わってなければ付ける。
-	if (path.length() == 0 || path[path.length() - 1] != L'/') {
-		path += L'/';
+	if (base_path.length() == 0 || base_path[base_path.length() - 1] != L'/') {
+		base_path += L'/';
 	}
 	// モジュールハンドルの取得は出来ないので、力技で位置を知る。
 	// このディレクトリにある全ての*.dll(case insensitive)を探し、
 	// 中身にyaya.dllという文字列を含んでいたら、それを選ぶ。
 	// ただし対応する*.txtが無ければdllの中身は見ずに次へ行く。
 	modulename = L"yaya";
-	DIR* dh = opendir(narrow(path).c_str());
+	DIR* dh = opendir(narrow(base_path).c_str());
 	if (dh == NULL) {
-		std::cerr << narrow(path) << "is not a directory!" << std::endl;
+		std::cerr << narrow(base_path) << "is not a directory!" << std::endl;
 	exit(1);
 	}
 	while (true) {
@@ -165,11 +165,11 @@ void	CBasis::SetPath(yaya::global_t h, int len)
 	}
 	std::string fname(ent->d_name, strlen(ent->d_name)/*ent->d_namlen*/);	// by umeici. 2005/1/16 5.6.0.232
 	if (lc(get_extension(fname)) == "dll") {
-		std::string txt_file = narrow(path) + change_extension(fname, "txt");
+		std::string txt_file = narrow(base_path) + change_extension(fname, "txt");
 	    struct stat sb;
 	    if (::stat(txt_file.c_str(), &sb) == 0) {
 		// txtファイルがあるので、中身を見てみる。
-		if (file_content_search(narrow(path) + fname, "yaya.dll") != std::string::npos) {
+		if (file_content_search(narrow(base_path) + fname, "yaya.dll") != std::string::npos) {
 		    // これはYAYAのDLLである。
 		    modulename = widen(drop_extension(fname));
 		    break;
@@ -324,7 +324,7 @@ yaya::string_t CBasis::ToFullPath(const yaya::string_t& str)
 {
 	yaya::string_t aret = str;
 	if (!(str.length() > 0 && str[0] == L'/')) {
-		aret = vm.basis().path + str;
+		aret = vm.basis().base_path + str;
 	}
 
 	yaya::ws_replace(aret, L"/", L"\\");
@@ -486,8 +486,13 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 			}
 		}
 
+		//posixではnposはunsignedな-1でバカでかい数になるのでその対策
 		yaya::string_t load_path_bak = load_path;
-		load_path = filename.substr(0,std::max(filename.rfind('/'),filename.rfind('\\')))+L'/';
+		auto s_pos = filename.rfind('/');
+		s_pos = (s_pos == yaya::string_t::npos) ? (0) : (s_pos);
+		auto bs_pos = filename.rfind('\\');
+		bs_pos = (bs_pos == yaya::string_t::npos) ? (0) : (bs_pos);
+		load_path = filename.substr(0,std::max(s_pos,bs_pos))+L'/';
 
 		yaya::string_t base_path_bak = base_path;
 		base_path = load_path;
@@ -505,6 +510,9 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		Split(param, param1, param2, L",");
 
 		yaya::string_t	filename = base_path + param1;
+#ifdef POSIX
+		fix_filepath(filename);
+#endif
 
 		char cset = dic_charset;
 		if ( param2.size() ) {
@@ -1200,12 +1208,13 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 		}
 		//
 		parseline = delimiter;
-		Split_IgnoreDQ(parseline, delimiter, yaya::string_t(), L",");
+		yaya::string_t unused;
+		Split_IgnoreDQ(parseline, delimiter, unused, L",");
 		if (!IsLegalStrLiteral(delimiter)){
 			delimiter = parseline;
 			if (Split_IgnoreDQ(parseline, delimiter, watcher, L",")) {
 				parseline = watcher;
-				if (Split_IgnoreDQ(parseline, watcher, yaya::string_t(), L","))//将来のバージョンで得られる可能性のある追加情報の破棄
+				if (Split_IgnoreDQ(parseline, watcher, unused, L","))//将来のバージョンで得られる可能性のある追加情報の破棄
 					vm.logger().Error(E_W,23);
 				parseline = watcher;
 				Split_IgnoreDQ(parseline, watcher, setter, L"|");
@@ -1515,10 +1524,20 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 
 	// 実行
 	vm.call_limit().InitCall();
-	CLocalVariable	lvar;
-
 	CValue	result;
-	vm.function()[funcpos].Execute(result, arg, lvar);
+	try{
+		CLocalVariable	lvar(vm);
+		result = vm.function_exec().func[funcpos].Execute(arg, lvar);
+	}
+	catch (const yaya::memory_error&) {
+		if(vm.call_limit().StackCall().size()>512)
+			CallOnMemoryLimit();
+		else
+			CallOnMemoryError();
+	}
+	catch (const std::bad_alloc&) {
+		CallOnMemoryLimit();
+	}
 
 	// 結果を文字列として取得し、文字コードをMBCSに変換
 	yaya::string_t	res = result.GetValueString();
@@ -1538,6 +1557,36 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 	free(mostr);
 	mostr = NULL;
 	return r_h;
+}
+void CBasis::CallOnMemoryLimit()
+{
+	CBasisFuncPos shiori_OnMemoryLimit;
+	ptrdiff_t funcpos = shiori_OnMemoryLimit.Find(vm, L"shiori.OnMemoryLimit");
+	size_t lock = vm.call_limit().temp_unlock();
+
+	if (funcpos >= 0) {
+		vm.function_exec().func[funcpos].Execute();//get info from GETCALLSTACK
+	}
+	else {
+		vm.logger().Error(E_E,99);
+	}
+
+	vm.call_limit().reset_lock(lock);
+}
+void CBasis::CallOnMemoryError()
+{
+	CBasisFuncPos shiori_OnMemoryError;
+	ptrdiff_t funcpos = shiori_OnMemoryError.Find(vm, L"shiori.OnMemoryError");
+	size_t lock = vm.call_limit().temp_unlock();
+
+	if (funcpos >= 0) {
+		vm.function_exec().func[funcpos].Execute();//get info from GETCALLSTACK
+	}
+	else {
+		vm.logger().Error(E_E,100);
+	}
+
+	vm.call_limit().reset_lock(lock);
 }
 #endif
 
