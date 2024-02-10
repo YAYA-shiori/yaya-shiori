@@ -162,7 +162,7 @@ typedef unsigned long long uint64_t;
 
 namespace yaya {
 	struct memory_error:std::exception{
-		virtual const char*what()const noexcept override{
+		virtual const char*what()const noexcept{
 			return "memory error";
 		}
 	};
