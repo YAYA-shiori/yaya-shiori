@@ -3175,6 +3175,9 @@ CValue	CSystemFunction::DICLOAD(CSF_FUNCPARAM &p)
 	}
 
 	yaya::string_t fullpath = vm.basis().ToFullPath(p.arg.array()[0].s_value);
+#ifdef POSIX
+	fix_filepath(fullpath);
+#endif
 	char cset = vm.basis().GetDicCharset();
 
 	if ( p.arg.array_size() >= 2 && p.arg.array()[1].s_value.size() ) {
