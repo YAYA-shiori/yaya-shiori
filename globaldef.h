@@ -41,17 +41,17 @@
 
 
 #ifdef _MSVC_LANG
-#define CPP_STD_VER (_MSVC_LANG/100)
+# define CPP_STD_VER (_MSVC_LANG/100)
 #else
-#ifdef _MSC_VER
-#if _MSC_VER > 1600
-#define CPP_STD_VER 2011
-#else
-#define CPP_STD_VER 1998
-#endif
-#else
-#define CPP_STD_VER 2020
-#endif
+# ifdef _MSC_VER
+#  if _MSC_VER > 1600
+#   define CPP_STD_VER 2011
+#  else
+#   define CPP_STD_VER 1998
+#  endif
+# else
+#  define CPP_STD_VER 2020
+# endif
 #endif
 
 
