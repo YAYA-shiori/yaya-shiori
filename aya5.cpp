@@ -130,7 +130,9 @@ public:
 	void SetLogRcvWnd(long hwnd)
 	{
 		if ( ! vm ) { return; }
+#if defined(WIN32)
 		vm->basis().SetLogRcvWnd(hwnd);
+#endif
 	}
 
 };

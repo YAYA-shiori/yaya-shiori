@@ -26,6 +26,7 @@
 #include "ccct.h"
 #if defined(POSIX)
 # include "posix_utils.h"
+#define wcsnicmp(s1, s2, n) wcsncasecmp(s1, s2, n)
 #endif
 #include "globaldef.h"
 #include "manifest.h"
@@ -407,7 +408,10 @@ int yaya::ws_fputs(const yaya::char_t *str, FILE *stream, int charset, int ayc)
 * -----------------------------------------------------------------------
 */
 #if defined(__GNUC__)
-int yaya::snprintf(yaya::char_t* buf, size_t count, const yaya::char_t* format, ...)__attribute__((format(printf, 3, 4)))
+// in g++ 12.2.0 (Debian 12.2.0-14)
+//wsex.h:46:131: error: ÅeformatÅf attribute argument 2 value Åe3Åf refers to parameter type Åeconst yaya::char_t*Åf {aka Åeconst wchar_t*Åf}
+//int yaya::snprintf(yaya::char_t* buf, size_t count, const yaya::char_t* format, ...)__attribute__((format(printf, 3, 4)))
+int yaya::snprintf(yaya::char_t* buf, size_t count, const yaya::char_t* format, ...)
 #elif defined(_MSC_VER)
 int yaya::snprintf(_Pre_notnull_ yaya::char_t *buf,size_t count, _Printf_format_string_ const yaya::char_t *format,...)
 #else

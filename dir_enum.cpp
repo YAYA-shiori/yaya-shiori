@@ -6,6 +6,8 @@
 
 #if defined(WIN32) || defined(_WIN32_WCE)
 # include "stdafx.h"
+#elif defined(POSIX)
+# include "posix_utils.h"
 #endif
 
 #include <list>

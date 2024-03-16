@@ -207,7 +207,8 @@ int CParser0::DynamicAppendRuntimeDictionary(const yaya::string_t& codes)
 		size_t depth = 0;
 		ptrdiff_t targetfunction = -1;
 		// {、}、;で分割
-		SeparateFactor(factors, yaya::string_t(codes));
+		yaya::string_t line(codes);
+		SeparateFactor(factors, line);
 		// 分割された文字列を解析して関数を作成し、内部のステートメントを蓄積していく
 		if(DefineFunctions(factors, L"_RUNTIME_DIC_", 0, depth, targetfunction)) {
 			isnoterror = 0;

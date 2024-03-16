@@ -30,8 +30,8 @@
 #include <crtdbg.h>
 #define new new( _NORMAL_BLOCK, __FILE__, __LINE__)
 #endif
-#include "basis.h"
 #endif
+#include "basis.h"
 ////////////////////////////////////////
 
 CFunction::CFunction(CAyaVM& vmr, const yaya::string_t& n, const yaya::string_t& df, int lc) : pvm(&vmr), name(n), dicfilename(df), linecount(lc), dicfilename_fullpath(vmr.basis().ToFullPath(df))
@@ -131,11 +131,19 @@ void CFunction::Execute_SEHhelper(CFunction::ExecutionResult& aret, CLocalVariab
 
 void CFunction::Execute_SEHbody(ExecutionResult& retas, CLocalVariable& lvar, int& exitcode)
 {
+#ifdef _WINDOWS
 	__try
+#else
+	try
+#endif
 	{
 		Execute_SEHhelper(retas, lvar, exitcode);
 	}
+#ifdef _WINDOWS
 	__except (EXCEPTION_EXECUTE_HANDLER)
+#else
+	catch(...)
+#endif
 	{
 		throw yaya::memory_error();
 	}
