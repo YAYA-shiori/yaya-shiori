@@ -161,11 +161,19 @@ typedef unsigned long long uint64_t;
 #ifdef __cplusplus
 
 namespace yaya {
+#if CPP_STD_VER >= 2011
 	struct memory_error:std::exception{
 		virtual const char*what()const noexcept{
 			return "memory error";
 		}
 	};
+#else
+	struct memory_error:std::exception{
+		virtual const char*what()const{
+			return "memory error";
+		}
+	};
+#endif
 	typedef wchar_t char_t;
 	typedef std::basic_string<char_t> string_t;
 	typedef std::int64_t int_t;
