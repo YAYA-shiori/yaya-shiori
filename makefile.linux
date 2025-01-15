@@ -29,10 +29,10 @@ LIBAYA5_OBJ = \
 	aya5.o \
 	ayavm.o \
 	basis.o \
-	babel/babel.o \
 	ccct.o \
 	comment.o \
 	crc32.o \
+	dir_enum.o \
 	duplevinfo.o \
 	file.o \
 	file1.o \
@@ -45,6 +45,7 @@ LIBAYA5_OBJ = \
 	logexcode.o \
 	manifest.o \
 	md5c.o \
+	messages.o \
 	misc.o \
 	mt19937ar.o \
 	parser0.o \
@@ -54,6 +55,7 @@ LIBAYA5_OBJ = \
 	sysfunc.o \
 	value.o \
 	valuesub.o \
+	variable.o \
 	wsex.o \
 	posix_utils.o
 

@@ -26,6 +26,7 @@
 #include <limits.h>
 #include <string.h>
 #include <stdlib.h>
+#include <cstddef>
 
 extern "C" {
 typedef int (*POSIX_FUNC)(int);
@@ -251,7 +252,7 @@ CBufferT<ELT>::CBufferT(const ELT *pcsz, int length):
 	m_nMaxLength = CBufferRefT<ELT>::m_nSize + 1;
 
 	CBufferRefT<ELT>::m_pBuffer = (ELT *)malloc(sizeof(ELT) * m_nMaxLength);
-	if(m_pBuffer) {
+	if(CBufferRefT<ELT>::m_pBuffer) {
 		memcpy(CBufferRefT<ELT>::m_pBuffer, pcsz, sizeof(ELT) * CBufferRefT<ELT>::m_nSize);
 		CBufferRefT<ELT>::m_pBuffer[CBufferRefT<ELT>::m_nSize] = 0;
 	}
@@ -3814,7 +3815,7 @@ CHART *CRegexpT<CHART>::Replace(const CHART *tstring, int string_length, const C
 			int distance = lastIndex - result->GetEnd();
 			if(distance) {
 				buffer.Push(tstring + result->GetEnd());
-				buffer.Push((const CHART *)(ptrdiff_t)distance);
+				buffer.Push((const CHART *)(std::ptrdiff_t)distance);
 
 				toIndex1 -= distance;
 			}
@@ -3824,7 +3825,7 @@ CHART *CRegexpT<CHART>::Replace(const CHART *tstring, int string_length, const C
 			int distance = result->GetStart() - lastIndex;
 			if(distance) {
 				buffer.Push(tstring + lastIndex);
-				buffer.Push((const CHART *)(ptrdiff_t)distance);
+				buffer.Push((const CHART *)(std::ptrdiff_t)distance);
 
 				toIndex1 += distance;
 			}
@@ -3878,7 +3879,7 @@ CHART *CRegexpT<CHART>::Replace(const CHART *tstring, int string_length, const C
 			}
 
 			buffer.Push(sub);
-			buffer.Push((const CHART *)(ptrdiff_t)len);
+			buffer.Push((const CHART *)(std::ptrdiff_t)len);
 
 			toIndex1 += rightleft ? (-len) : len;
 		}
@@ -3888,13 +3889,13 @@ CHART *CRegexpT<CHART>::Replace(const CHART *tstring, int string_length, const C
 	if(rightleft) {
 		if(endpos < lastIndex) {
 			buffer.Push(tstring + endpos);
-			buffer.Push((const CHART *)(ptrdiff_t)(lastIndex - endpos));
+			buffer.Push((const CHART *)(std::ptrdiff_t)(lastIndex - endpos));
 		}
 	}
 	else {
 		if(lastIndex < endpos) {
 			buffer.Push(tstring + lastIndex);
-			buffer.Push((const CHART *)(ptrdiff_t)(endpos - lastIndex));
+			buffer.Push((const CHART *)(std::ptrdiff_t)(endpos - lastIndex));
 		}
 	}
 

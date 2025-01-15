@@ -51,7 +51,7 @@ private:
 	CAyaVM *vm;
 
 public:
-	CAyaVMWrapper(const yaya::string_t &path, yaya::global_t h, long len) {
+	CAyaVMWrapper(const yaya::string_t &path, yaya::global_t h, long len, bool is_utf8) {
 		vm = new CAyaVM();
 
 		if (logsend_hwnd != 0) {
@@ -65,7 +65,7 @@ public:
 
 		vm->load();
 
-		vm->basis().SetPath(h, len);
+		vm->basis().SetPath(h, len, is_utf8);
 		vm->basis().Configure();
 
 		if ( vm->basis().IsSuppress() ) {
@@ -79,7 +79,7 @@ public:
 
 			vme->load();
 
-			vme->basis().SetPath(h, len);
+			vme->basis().SetPath(h, len, is_utf8);
 			vme->basis().Configure();
 
 			vme->logger().Message(11,E_E);
@@ -130,7 +130,9 @@ public:
 	void SetLogRcvWnd(long hwnd)
 	{
 		if ( ! vm ) { return; }
+#if defined(WIN32)
 		vm->basis().SetLogRcvWnd(hwnd);
+#endif
 	}
 
 };
@@ -223,13 +225,13 @@ inline void enlarge_loghandler_list(size_t size){
  *  load
  * -----------------------------------------------------------------------
  */
-extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB load(yaya::global_t h, long len)
+extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB loadu(yaya::global_t h, long len)
 {
 	if ( vm[0] ) { delete vm[0]; }
 
 	id_now=0;
 	enlarge_loghandler_list(1);
-	vm[0] = new CAyaVMWrapper(modulename,h,len);
+	vm[0] = new CAyaVMWrapper(modulename,h,len,true);
 
 #if defined(WIN32) || defined(_WIN32_WCE)
 	::GlobalFree(h);
@@ -238,6 +240,52 @@ extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB load(yaya::global_t h, long len)
 #endif
 
     return 1;
+}
+
+extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB load(yaya::global_t h, long len)
+{
+	if ( vm[0] ) { return 1; } //loaduで読み込まれた後再度呼び出されたと仮定
+
+	id_now=0;
+	enlarge_loghandler_list(1);
+	vm[0] = new CAyaVMWrapper(modulename,h,len,false);
+
+#if defined(WIN32) || defined(_WIN32_WCE)
+	::GlobalFree(h);
+#elif defined(POSIX)
+    free(h);
+#endif
+
+    return 1;
+}
+
+extern "C" DLLEXPORT long FUNCATTRIB multi_loadu(yaya::global_t h, long len)
+{
+	long id = 0;
+	
+	long n = (long)vm.size();
+	for ( long i = 1 ; i < n ; ++i ) { //1から 0番は従来用
+		if ( vm[i] == NULL ) {
+			id = i;
+		}
+	}
+
+	if ( id <= 0 ) {
+		vm.emplace_back(nullptr);
+		id = (long)vm.size() - 1;
+	}
+
+	enlarge_loghandler_list(id+1);
+	id_now=id;
+	vm[id] = new CAyaVMWrapper(modulename,h,len,true);
+
+#if defined(WIN32) || defined(_WIN32_WCE)
+	::GlobalFree(h);
+#elif defined(POSIX)
+    free(h);
+#endif
+
+	return id;
 }
 
 extern "C" DLLEXPORT long FUNCATTRIB multi_load(yaya::global_t h, long len)
@@ -258,7 +306,7 @@ extern "C" DLLEXPORT long FUNCATTRIB multi_load(yaya::global_t h, long len)
 
 	enlarge_loghandler_list(id+1);
 	id_now=id;
-	vm[id] = new CAyaVMWrapper(modulename,h,len);
+	vm[id] = new CAyaVMWrapper(modulename,h,len,false);
 
 #if defined(WIN32) || defined(_WIN32_WCE)
 	::GlobalFree(h);
@@ -333,7 +381,7 @@ extern "C" DLLEXPORT yaya::global_t FUNCATTRIB multi_request(long id, yaya::glob
 		return vm[0]->IsSuppress()||vm[0]->IsEmergency();
 	}
 	else {
-		return NULL;
+		return 0;
 	}
 }
 
@@ -347,7 +395,7 @@ extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB multi_CI_check_failed(long id)//?
 		return vm[id]->IsSuppress()||vm[id]->IsEmergency();
 	}
 	else {
-		return NULL;
+		return 0;
 	}
 }
 

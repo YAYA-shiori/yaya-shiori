@@ -25,6 +25,10 @@
 
 #ifdef POSIX
 #  include <ctype.h>
+//https://learn.microsoft.com/ja-jp/windows/win32/winprog/windows-data-types
+typedef unsigned long DWORD;
+typedef unsigned short WORD;
+typedef unsigned char BYTE;
 #endif
 
 /*

@@ -105,7 +105,7 @@ public:
 #if defined(WIN32) || defined(_WIN32_WCE)
 	void	SetLogRcvWnd(long hwnd);
 #endif
-	void	SetPath(yaya::global_t h, int len);
+	void	SetPath(yaya::global_t h, int len, bool is_utf8);
 
 	void	Configure(void);
 	void	Termination(void);

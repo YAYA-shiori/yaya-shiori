@@ -4,8 +4,6 @@
 #include "ayavm.h"
 
 const CValue& CVariable::call_watcher(CAyaVM&vm,CValue& save) {
-	if (!this)
-		return emptyvalue;
 	if (watcher.size()) {
 		ptrdiff_t index = vm.function_exec().GetFunctionIndexFromName(watcher);
 

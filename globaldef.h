@@ -18,6 +18,18 @@
 #ifndef _MSVC_LANG
 //C++11 or older
 
+#if __cplusplus >= 201103L
+
+#include <memory>
+
+#define std_shared_ptr  std::shared_ptr
+#define std_make_shared std::make_shared
+
+// freebsdでdefine nullptr 0を行うと
+// aya5.cpp:L507のloghandler_list.emplace_back(nullptr)で
+// 型不一致のエラーが出るのでdefineしない。
+
+#else
 
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
@@ -26,6 +38,8 @@
 #define std_make_shared  boost::make_shared
 
 #define nullptr 0
+
+#endif // C++11
 
 #else
 
@@ -41,17 +55,17 @@
 
 
 #ifdef _MSVC_LANG
-#define CPP_STD_VER (_MSVC_LANG/100)
+# define CPP_STD_VER (_MSVC_LANG/100)
 #else
-#ifdef _MSC_VER
-#if _MSC_VER > 1600
-#define CPP_STD_VER 2011
-#else
-#define CPP_STD_VER 1998
-#endif
-#else
-#define CPP_STD_VER 2020
-#endif
+# ifdef _MSC_VER
+#  if _MSC_VER > 1600
+#   define CPP_STD_VER 2011
+#  else
+#   define CPP_STD_VER 1998
+#  endif
+# else
+#  define CPP_STD_VER 2020
+# endif
 #endif
 
 
@@ -123,7 +137,12 @@ typedef unsigned long long uint64_t;
 
 #endif //MSC_VER
 
+#ifndef _WINDOWS
 
+#define ULL_DEF(p) p
+#define LL_DEF(p) p
+
+#endif // _WINDOWS
 
 #if CPP_STD_VER < 2011
 
@@ -156,11 +175,19 @@ typedef unsigned long long uint64_t;
 #ifdef __cplusplus
 
 namespace yaya {
+#if CPP_STD_VER >= 2011
+	struct memory_error:std::exception{
+		virtual const char*what()const noexcept{
+			return "memory error";
+		}
+	};
+#else
 	struct memory_error:std::exception{
 		virtual const char*what()const{
 			return "memory error";
 		}
 	};
+#endif
 	typedef wchar_t char_t;
 	typedef std::basic_string<char_t> string_t;
 	typedef std::int64_t int_t;

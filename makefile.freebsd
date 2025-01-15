@@ -1,8 +1,8 @@
 # -*- makefile -*-
 
 # 使用するツール類の設定
-CXX = g++
-LD = g++
+CXX = clang++
+LD = clang++
 STRIP = strip
 MKDEP = mkdep
 
@@ -13,6 +13,8 @@ MKDEP = mkdep
 # DYLIB_NAME_POSTFIX = .bundle
 DYLIB_NAME_PREFIX = lib
 DYLIB_NAME_POSTFIX = .so
+
+# C++11に対応していない場合はboostの指定をしてください。
 
 # boostの場所を指定。
 BOOST_INCLUDES = /usr/local/include
@@ -26,13 +28,18 @@ BOOST_LINK = /usr/local/lib
 # 追加するフラグ。
 # CXXFLAGSは必要無ければ空でも良いが、LDFLAGSはdlopen可能なライブラリを
 # 作れる設定にしなければならない。darwinなら-bundle、LinuxやBSDなら-shared。
-CXXFLAGS = -O3 -Wall
+CXXFLAGS = -O3 -Wall -fPIC
 LDFLAGS = -shared
 
-################## これより下は弄らなくてもコンパイル出来ます ##################
+# C++11に対応していない場合は下をコメントアウトしてください。
 
 CXXFLAGS_ADD = -DPOSIX -I. -I$(BOOST_INCLUDES)
+CXXFLAGS_ADD = -DPOSIX -I.
+
 LD_ADD = -lboost_regex -L$(BOOST_LINK)
+LD_ADD =
+
+################## これより下は弄らなくてもコンパイル出来ます ##################
 
 LIBAYA5_OBJ = \
 	aya5.o \
@@ -54,6 +61,7 @@ LIBAYA5_OBJ = \
 	logexcode.o \
 	manifest.o \
 	md5c.o \
+	messages.o \
 	misc.o \
 	mt19937ar.o \
 	parser0.o \
@@ -63,6 +71,7 @@ LIBAYA5_OBJ = \
 	sysfunc.o \
 	value.o \
 	valuesub.o \
+	variable.o \
 	wsex.o \
 	posix_utils.o
 
@@ -82,6 +91,11 @@ install:
 $(LIBAYA5): $(LIBAYA5_OBJ)
 	$(LD) -o $@ $(LIBAYA5_OBJ) $(LDFLAGS) $(LD_ADD)
 #	$(STRIP) -x $@
+
+.c.o:
+	@iconv --from-code=CP932 --to-code=UTF-8 -c $< > $*.tmp.cpp
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $*.tmp.cpp
+	@rm $*.tmp.cpp
 
 .cpp.o:
 	@iconv --from-code=CP932 --to-code=UTF-8 -c $< > $*.tmp.cpp
