@@ -47,6 +47,9 @@ private:
 
 	CAyaVM &vm;
 
+	int		LoadLib(void);
+	void	UnloadLib(void);
+
 public:
 	CLib1(CAyaVM &vmr, const yaya::string_t &n, int cs) : vm(vmr)
 	{
@@ -57,14 +60,12 @@ public:
 		isAlreadyLoaded = false;
 	}
 
-	~CLib1(void) { Unload(); Release(); }
+	~CLib1(void) { Unload(); }
 
 	yaya::string_t	GetName(void) { return name; }
 
-	int		LoadLib(void);
 	int		Load(void);
 	int		Unload(void);
-	void	Release(void);
 
 	void	SetCharset(int cs) { charset = cs; }
 	int		GetCharset(void) { return charset; }

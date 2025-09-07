@@ -50,10 +50,6 @@ int	CLib::Add(const yaya::string_t &name)
 	liblist.emplace_back(CLib1(vm, name, charset));
 	it = liblist.end();
 	it--;
-	if (!it->LoadLib()) {
-		liblist.erase(it);
-		return 0;
-	}
 
 	if (!it->Load()) {
 		liblist.erase(it);
@@ -82,7 +78,6 @@ int	CLib::Delete(const yaya::string_t &name)
 	for(std::list<CLib1>::iterator it = liblist.begin(); it != liblist.end(); it++) {
 		if (name == it->GetName()) {
 			int	result = it->Unload();
-			it->Release();
 			it = liblist.erase(it);
 			return result;
 		}
