@@ -18,3 +18,6 @@ ReleaseLangSep
 tmp
 _UpgradeReport_Files
 /*.opensdf
+CLAUDE.md
+.mcp.json
+/.claude

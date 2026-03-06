@@ -387,12 +387,12 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 	// ファイルを開く
 	yaya::string_t	filename = load_path + modulename + config_file_name_trailer + L".txt";
 
+	// 先に互換用にエラーメッセージテーブルを読んでおく。
+	// messagetxt指定が出てきたら yayamsg::LoadMessageFromTxt 内でちゃんとリセットされる。
+	SetParameter(L"messagetxt",msglang_for_compat == MSGLANG_JAPANESE ? L"messagetxt/japanese.txt" : L"messagetxt/english.txt");
+	
 	// 読み込み当初は文字コードが定義されていないので、CHARSET_UNDEFにする
 	LoadBaseConfigureFile_Base(filename,dics,CHARSET_UNDEF);
-
-	if ( yayamsg::IsEmpty() ) { //エラーメッセージテーブルが読めていない
-		SetParameter(L"messagetxt",msglang_for_compat == MSGLANG_JAPANESE ? L"messagetxt/japanese.txt" : L"messagetxt/english.txt");
-	}
 }
 
 void	CBasis::LoadBaseConfigureFile_Base(yaya::string_t filename,std::vector<CDic1> &dics,char cset)

@@ -1394,7 +1394,7 @@ CValue	CSystemFunction::SRAND(CSF_FUNCPARAM &p)
 				wstr.append(charsToAdd, L'0');
 			}
 
-			vm.genrand_sysfunc_srand_array(reinterpret_cast<const std::uint64_t*>(wstr.c_str()),wstr.size()/targetByteAlignment);
+			vm.genrand_sysfunc_srand_array(reinterpret_cast<const std::uint64_t*>(wstr.c_str()),wstr.size()/(targetByteAlignment/wcharSize));
 
 			return CValue(1);
 		}

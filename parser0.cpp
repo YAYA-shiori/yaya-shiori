@@ -1207,8 +1207,17 @@ char	CParser0::StructFormula(yaya::string_t& str, std::vector<CCell>& cells, con
 					if (it != cells.begin()) {
 						itm = it;
 						itm--;
-						if (itm->value_GetType() == F_TAG_FUNCPARAM)
+						if (itm->value_GetType() == F_TAG_FUNCPARAM) {
+							// 直前の識別子に「引数なし関数呼び出し記法だった」フラグを立てる
+							// SetCellType1で関数でないと判明した場合にE0071を出力するため
+							if (itm != cells.begin()) {
+								std::vector<CCell>::iterator id_it = itm;
+								--id_it;
+								if (id_it->value_GetType() == F_TAG_NOP)
+									id_it->depth = 0;
+							}
 							it = cells.erase(itm);
+						}
 					}
 					continue;
 				}
@@ -1386,6 +1395,20 @@ void	CParser0::StructFormulaCell(yaya::string_t &str, std::vector<CCell> &cells)
 			}
 
 			if ( result >= 0 ) {
+				// _in_ 演算子は識別子名に埋め込まれている場合は演算子として認識しない
+				// 例: _total_in_answer は演算子 _in_ を含む式ではなく識別子として扱う
+				if ( result == F_TAG_IFIN && i > 0 ) {
+					yaya::char_t prev = str[i - 1];
+					bool preceded_by_ident = (prev >= L'A' && prev <= L'Z') ||
+					                         (prev >= L'a' && prev <= L'z') ||
+					                         (prev >= L'0' && prev <= L'9') ||
+					                         prev == L'_' ||
+					                         prev > 127;
+					if ( preceded_by_ident ) {
+						continue;
+					}
+				}
+
 				tagtype = result;
 				taglen  = formulatag_len[tagtype];
 				
@@ -1656,6 +1679,13 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 		vm.logger().Error(E_E, 93, scell.value_const().s_value, dicfilename, linecount);
 		return 1;
 	}
+	// 引数なしの関数呼び出し記法（identifier()）だったが、関数として認識されなかった場合はE0071
+	if (scell.depth == 0) {
+		vm.logger().Error(E_E, 71, dicfilename, linecount);
+		scell.value_Delete();
+		return 1;
+	}
+
 	// ここまで残ったものは変数の候補
 	CVariable	addvariable;
 	std::string	errstr;
