@@ -24,21 +24,17 @@
 
 class CAyaVM;
 
+#if defined(WIN32)
+	typedef HMODULE	module_t;
+#elif defined(POSIX)
+	typedef void*	module_t;
+#endif
+
+
 class	CLib1
 {
 protected:
 	yaya::string_t	name;
-#if defined(WIN32)
-	typedef HMODULE	module_t;
-
-	bool (*loadlib)(yaya::global_t h, long len);
-	bool (*unloadlib)(void);
-#elif defined(POSIX)
-	typedef void*	module_t;
-
-	int (*loadlib)(char* h, long len);
-	int (*unloadlib)(void);
-#endif
 	yaya::global_t (*requestlib)(yaya::global_t h, long *len);
 
 	module_t hDLL;
@@ -50,26 +46,25 @@ private:
 
 	CAyaVM &vm;
 
+	bool	LoadLib(void);
+	void	UnloadLib(void);
+
 public:
 	CLib1(CAyaVM &vmr, const yaya::string_t &n, int cs) : vm(vmr)
 	{
 		name    = n;
 		charset = cs;
 		hDLL    = NULL;
-		loadlib = NULL;
-		unloadlib = NULL;
 		requestlib = NULL;
 		isAlreadyLoaded = false;
 	}
 
-	~CLib1(void) { Unload(); Release(); }
+	~CLib1(void) { Unload(); }
 
 	yaya::string_t	GetName(void) { return name; }
 
-	bool	LoadLib(void);
 	bool	Load(void);
 	int		Unload(void);
-	void	Release(void);
 
 	void	SetCharset(int cs) { charset = cs; }
 	int		GetCharset(void) { return charset; }

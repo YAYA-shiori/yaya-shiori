@@ -121,9 +121,14 @@ bool CLib1::LoadLib(void) {
 	if (dllpathname == NULL)
 		return 0;
 
-	isAlreadyLoaded = ::GetModuleHandleA(dllpathname) != NULL;
-
-	hDLL = ::LoadLibraryA(dllpathname);
+	module_t hDLLFromGet = ::GetModuleHandleA(dllpathname);
+	isAlreadyLoaded = hDLLFromGet != NULL;
+	if ( hDLLFromGet ) {
+		hDLL = hDLLFromGet;
+	}
+	else {
+		hDLL = ::LoadLibraryA(dllpathname);
+	}
 	free(dllpathname);
 	dllpathname= NULL;
 	
@@ -203,17 +208,32 @@ bool CLib1::LoadLib() {
  */
 #if defined(WIN32)
 bool CLib1::Load(void) {
-	if(hDLL == NULL)
+	if (!LoadLib())
 		return 0;
 
 	// アドレス取得
 	if ( ! isAlreadyLoaded ) {
-		if (loadlib == NULL)
+		bool (*loadlib)(yaya::global_t h, long len) = NULL;
+		int charset = CHARSET_UTF8;
+
+		if (loadlib == NULL) {
+			loadlib = (bool (*)(HGLOBAL h, long len))GetProcAddress(hDLL, "loadu");
+		}
+		if (loadlib == NULL) {
+			loadlib = (bool (*)(HGLOBAL h, long len))GetProcAddress(hDLL, "_loadu");
+		}
+
+		if (loadlib == NULL) {
 			loadlib = (bool (*)(HGLOBAL h, long len))GetProcAddress(hDLL, "load");
-		if (loadlib == NULL)
+			charset = CHARSET_DEFAULT;
+		}
+		if (loadlib == NULL) {
 			loadlib = (bool (*)(HGLOBAL h, long len))GetProcAddress(hDLL, "_load");
-		if (loadlib == NULL)
+			charset = CHARSET_DEFAULT;
+		}
+		if (loadlib == NULL) {
 			return 0;
+		}
 
 		// DLLパス文字列作成
 		wchar_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
@@ -222,7 +242,7 @@ bool CLib1::Load(void) {
 		dllpath += dir;
 
 		// パス文字列をMBCSに変換
-		char	*t_dllpath = Ccct::Ucs2ToMbcs(dllpath, CHARSET_DEFAULT);
+		char	*t_dllpath = Ccct::Ucs2ToMbcs(dllpath, charset);
 		if (t_dllpath == NULL)
 			return 0;
 
@@ -248,11 +268,13 @@ bool CLib1::Load(void) {
 }
 #elif defined(POSIX)
 bool CLib1::Load(void) {
-	if(hDLL == NULL) {
-	return 0;
+    if (!LoadLib()) {
+		return 0;
     }
-    
+
     // アドレス取得
+	int (*loadlib)(char* h, long len) = NULL;
+
 	if (loadlib == NULL)
 	 loadlib = (int(*)(char*,long))dlsym(hDLL, "load");
     if (loadlib == NULL) {
@@ -297,6 +319,8 @@ int	CLib1::Unload(void)
 
 	// アドレス取得
 	if ( ! isAlreadyLoaded ) {
+		bool (*unloadlib)(void) = NULL;
+
 		if (unloadlib == NULL)
 			unloadlib = (bool (*)(void))GetProcAddress(hDLL, "unload");
 		if (unloadlib == NULL)
@@ -307,6 +331,7 @@ int	CLib1::Unload(void)
 		// 実行
 		(*unloadlib)();
 	}
+	UnloadLib();
 
 	return 1;
 }
@@ -317,6 +342,8 @@ int CLib1::Unload(void) {
     }
 
     // アドレス取得
+	int (*unloadlib)(void) = NULL;
+
 	if (unloadlib == NULL)
      unloadlib = (int(*)(void))dlsym(hDLL, "unload");
     if (unloadlib == NULL) {
@@ -325,31 +352,32 @@ int CLib1::Unload(void) {
 
     // 実行
     (*unloadlib)();
-    
+	UnloadLib();
+
     return 1;
 }
 #endif
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CLib1::Release
+ *  関数名  ：  CLib1::UnloadLib
  *  機能概要：  DLLをリリースします
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
-void	CLib1::Release(void)
+void	CLib1::UnloadLib(void)
 {
 	if (hDLL == NULL)
 		return;
 
-	loadlib = NULL;
-	unloadlib = NULL;
 	requestlib = NULL;
 
-	FreeLibrary(hDLL);
+	if ( ! isAlreadyLoaded ) {
+		FreeLibrary(hDLL);
+	}
 	hDLL = NULL;
 }
 #elif defined(POSIX)
-void CLib1::Release(void) {
+void CLib1::UnloadLib(void) {
     if (hDLL == NULL) {
 	return;
     }

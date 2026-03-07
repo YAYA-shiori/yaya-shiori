@@ -1364,45 +1364,61 @@ CValue	CSystemFunction::RAND(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::SRAND(CSF_FUNCPARAM &p)
 {
-	if (!p.arg.array_size()) {
-		vm.logger().Error(E_W, 19, L"SRAND", p.dicname, p.line);
-		SetError(19);
-		return CValue(0);
-	}
+	if (p.arg.array_size()) {
+		if (p.arg.array()[0].IsInt()) {
+			yaya::int_t num = p.arg.array()[0].GetValueInt();
+			vm.genrand_sysfunc_srand_ll(num);
 
-	if (p.arg.array()[0].IsInt()) {
-		yaya::int_t num = p.arg.array()[0].GetValueInt();
-		vm.genrand_sysfunc_srand_ll(num);
-	}
-	else if (p.arg.array()[0].IsDouble()) {
-		union {
-			double d;
-			std::uint64_t i[1];
-		} num;
-
-		num.d = p.arg.array()[0].GetValueDouble();
-
-		vm.genrand_sysfunc_srand_array(num.i,1);
-	}
-	else if (p.arg.array()[0].IsString()) {
-		std::vector<std::uint64_t> num;
-
-		yaya::string_t str = p.arg.array()[0].GetValueString();
-
-		int nlen = str.length();
-		int n = nlen / 2;
-
-		for ( int i = 0 ; i < n ; ++i ) {
-			num.emplace_back( str[i]);
+			return CValue(1);
 		}
+		else if (p.arg.array()[0].IsDouble()) {
+			union {
+				double d;
+				std::uint64_t i[1];
+			} num;
 
-		vm.genrand_sysfunc_srand_array(&(num[0]),num.size());
+			num.d = p.arg.array()[0].GetValueDouble();
+
+			vm.genrand_sysfunc_srand_array(num.i,1);
+
+			return CValue(1);
+		}
+		else if (p.arg.array()[0].IsString()) {
+			yaya::string_t wstr = p.arg.array()[0].GetValueString();
+			if ( wstr.length() == 0 ) { wstr = L"0"; }
+
+			const size_t targetByteAlignment = 8;
+			
+			const size_t wcharSize = sizeof(yaya::char_t);
+			
+			size_t currentByteSize = wstr.length() * wcharSize;
+			
+			size_t remainder = currentByteSize % targetByteAlignment;
+			
+			if (remainder != 0) {
+				size_t bytesToAdd = targetByteAlignment - remainder;
+				size_t charsToAdd = bytesToAdd / wcharSize;
+				
+				wstr.append(charsToAdd, L'0');
+			}
+
+			vm.genrand_sysfunc_srand_array(reinterpret_cast<const std::uint64_t*>(wstr.c_str()),wstr.size()/(targetByteAlignment/wcharSize));
+
+			return CValue(1);
+		}
 	}
-	else {
-		vm.logger().Error(E_W, 9, L"SRAND", p.dicname, p.line);
-		SetError(9);
-		return CValue(0);
-	}
+
+	unsigned int dwSeed;
+
+#ifdef POSIX
+	struct timeval tv;
+	gettimeofday(&tv,NULL);
+	dwSeed = tv.tv_usec;
+#else
+	dwSeed = ::GetTickCount();
+#endif
+
+	vm.genrand_sysfunc_srand_ll(dwSeed);
 
 	return CValue(1);
 }

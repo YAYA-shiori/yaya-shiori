@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // フェータルエラー文字列（英語）
 !!!msgf
 *
@@ -7,9 +7,9 @@
 !!!msge
 *error E0000 : Unknown error.
 *error E0001 : Function name is required.
-*error E0002 : Too much '}' exist.
+*error E0002 : Too many '}' present.
 *error E0003 : Invalid name is used for the function.
-*error E0004 : Unanalyzable. Probably, '{' is required here.
+*error E0004 : Unanalyzable. '{' is probably required here.
 *error E0005 : Failed to open the file.
 *error E0006 : Missing name of the array.
 *error E0007 : Incomplete string exists.
@@ -35,7 +35,7 @@
 *error E0027 : No significant elements exist.
 *error E0028 : Internal error (23).
 *error E0029 : Invalid substitution exists.
-*error E0030 : Undefined function flag (anti-duplication) is specified.
+*error E0030 : Undefined function modifier is specified.
 *error E0031 : Internal error (6).
 // not using
 *error E0032 : Indispensable functions are not found.
@@ -48,7 +48,7 @@
 *error E0038 : Missing '{' after 'switch'.
 *error E0039 : Missing '{' after 'while'.
 *error E0040 : Invalid expression is used for termination condition of the syntax 'for'.
-*error E0041 : Invalid expression is used for continual condition of the syntax 'for'.
+*error E0041 : Invalid expression is used for continuation condition of the syntax 'for'.
 *error E0042 : Missing '{' after 'for'.
 *error E0043 : The container variable of 'foreach' is incorrectly placed.
 *error E0044 : Missing '{' after 'foreach'.
@@ -64,19 +64,19 @@
 *error E0054 : Syntax error.
 *error E0055 : Internal error (11).
 *error E0056 : Internal error (12).
-*error E0057 : The value of variable has not been saved.
+*error E0057 : Unable to save variable value to file.
 *error E0058 : Internal error (13).
 *error E0059 : Invalid expression.
-*error E0060 : The parenthesis '%()' has not been closed in embedded string.
-*error E0061 : The parenthesis '%()' is empty in embedded string.
+*error E0060 : The parenthesis have not been closed in embedded element '%()'.
+*error E0061 : The embedded element '%()' in this string is empty.
 *error E0062 : Internal error (14).
 *error E0063 : There was no 'case' corresponding to 'when'.
 *error E0064 : There was no 'case' corresponding to 'when'.
 *error E0065 : Syntax error.
 *error E0066 : Syntax error.
 *error E0067 : Internal error (15).
-*error E0068 : This 'elseif'(or 'when') was not able to processed.
-*error E0069 : This 'else'(or 'others') was not able to processed.
+*error E0068 : This 'elseif' (or 'when') was not able to be processed.
+*error E0069 : This 'else' (or 'others') was not able to be processed.
 *error E0070 : Internal error (16).
 *error E0071 : Undefined function is being called.
 *error E0072 : Missing name of variable.
@@ -85,10 +85,10 @@
 *error E0075 : Syntax error of preprocessor.
 *error E0076 : Invalid preprocess directive.
 *error E0077 : Internal error (17).
-*error E0078 : The parenthesis '%[]' has not been closed in embedded string.
-*error E0079 : The parenthesis '%[]' is empty in embedded string.
+*error E0078 : The parenthesis have not been closed in embedded element '%[]'.
+*error E0079 : The embedded element '%[]' in this string is empty.
 *error E0080 : Internal error (18).
-*error E0081 : This '%[]' is unusual.
+*error E0081 : There is no function or variable call preceding '%[]'.
 *error E0082 : Internal error (19).
 *error E0083 : Internal error (20).
 // not using
@@ -101,15 +101,15 @@
 *error E0089 : Internal error (25).
 *error E0090 : Internal error (26).
 *error E0091 : Internal error (27).
-*error E0092 : There was no operator which should follow () or [].
+*error E0092 : There should not be an operator after () or [].
 *error E0093 : Invalid single quote exists.
 *error E0094 : The parenthesis {} is invalid or has not been closed correctly.
 *error E0095 : Tried to load a duplicate dictionary.
 *error E0096 : Attempted to unload a dictionary that was not loaded.
-*error E0097 : Depth of the function call has reached its limit. Following execution has been aborted.
-*error E0098 : Loop count has reached its limit. Following execution has been aborted.
-*error E0099 : The occupied memory limit has been reached. Following execution has been aborted.
-*error E0100 : Wrong memory address accessed. Following execution has been aborted.
+*error E0097 : Depth of the function call has reached its limit. Further processing has been aborted.
+*error E0098 : Loop count has reached its limit. Further processing has been aborted.
+*error E0099 : The memory limit has been reached. Further processing has been aborted.
+*error E0100 : Wrong memory address accessed. Further processing has been aborted.
 //
 // ワーニング文字列（英語）
 !!!msgw
@@ -119,10 +119,10 @@
 *warning W0003 : Restoration failed for the variable of this line: invalid value or delimiter
 *warning W0004 : Restoration failed for the variable of this line: invalid value
 *warning W0005 : Restoration failed for the variable of this line: invalid delimiter
-*warning W0006 : While processing this line, the internal error occurred. This line is unanalyzable.
-*warning W0007 : The value of this variable has not been saved.
-*warning W0008 : Missing arguments.
-*warning W0009 : Mismatched type of argument(s).
+*warning W0006 : While processing this line, an internal error occurred. This line is unanalyzable.
+*warning W0007 : Could not save the value of this variable.
+*warning W0008 : Missing one or more arguments.
+*warning W0009 : Argument type is invalid.
 *warning W0010 : Null string is invalid.
 *warning W0011 : The result can't be set to the variable.
 *warning W0012 : The specified value is out of range or invalid.
@@ -130,8 +130,8 @@
 *warning W0014 : Requested library isn't loaded.
 *warning W0015 : Requested file isn't opened.
 *warning W0016 : Syntax error in regular expression.
-*warning W0017 : Unknown error occurred at regular expression.
-*warning W0018 : It is necessary to specify the variable.
+*warning W0017 : Unknown error occurred in regular expression.
+*warning W0018 : It is necessary to specify a variable.
 *warning W0019 : Integer/Double divided by zero.
 *warning W0020 : Requires even number of elements to create hash.
 *warning W0021 : Empty here document found.
@@ -140,7 +140,7 @@
 //
 // 注記文字列（英語）
 !!!msgn
-*note N0000 : Restoration of a variable value was not performed.
+*note N0000 : The variable values from the previous session were not restored.
 *note N0001 : Invalid character code set was specified. Using the default setting of OS instead.
 //
 // その他のログ文字列（英語）
