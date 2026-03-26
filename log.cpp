@@ -105,7 +105,6 @@ void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 	str += GetDateString();
 	str += L"\n\n";
 
-#ifdef _WINDOWS
 	// ファイルへ書き込み
 	if (fileen) {
 		char	*tmpstr = Ccct::Ucs2ToMbcs(str, charset);
@@ -120,7 +119,6 @@ void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 			free(tmpstr);
 		}
 	}
-#endif
 	open = 1;
 
 	// チェックツールへ送出　最初に文字コードを設定してから文字列を送出
@@ -182,7 +180,6 @@ void	CLog::Write(const yaya::char_t *str, int mode, int id)
 		i++;
 	}
 
-#ifdef _WINDOWS
 	// ファイルへ書き込み
 	if (fileen) {
 		if (! path.empty()) {
@@ -197,7 +194,6 @@ void	CLog::Write(const yaya::char_t *str, int mode, int id)
 			}
 		}
 	}
-#endif
 
 	// チェックツールへ送出
 	Call_loghandler(cstr, mode, id);

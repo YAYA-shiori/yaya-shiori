@@ -37,6 +37,9 @@ class	CLib1
 protected:
 	yaya::string_t	name;
 	yaya::global_t (*requestlib)(yaya::global_t h, long *len);
+#if defined(POSIX)
+	std::string filename;
+#endif // POSIX
 
 	module_t hDLL;
 	bool    isAlreadyLoaded;

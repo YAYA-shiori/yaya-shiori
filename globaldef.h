@@ -135,6 +135,10 @@ typedef unsigned long long uint64_t;
 
 #endif //1200
 
+#else
+
+#include <cstdint>
+
 #endif //MSC_VER
 
 #ifndef _WINDOWS

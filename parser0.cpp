@@ -12,6 +12,12 @@
 #include <string>
 #include <vector>
 
+#if defined(POSIX)
+
+#include <sstream>
+
+#endif // POSIX
+
 #include "parser0.h"
 
 #include "ayavm.h"
@@ -821,6 +827,18 @@ char	CParser0::DefineFunctions(std::vector<yaya::string_t>& s, const yaya::strin
 				yaya::string_t	d0, d1;
 				if (!Split(*it, d0, d1, L":"))
 					d0 = *it;
+#if defined(POSIX)
+				// NOTE: TC571以前は`TOAUTOEX`が辞書に存在する一方で、
+				// それ以降はシステム関数になっている。
+				// 両方の辞書をエラー無く読み込むため、
+				// 辞書内に存在する方を`Conflict.TOAUTOEX`として
+				// 読み込むようにする
+				if (IsLegalFunctionName(d0) == 5) {
+					std::wostringstream woss;
+					woss << "Conflict." << d0;
+					d0 = woss.str();
+				}
+#endif // POSIX
 				// 関数名の正当性検査
 				if (IsLegalFunctionName(d0)) {
 					if (!it->compare(L"{"))

@@ -327,6 +327,8 @@ constexpr CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	// 型取得/変換(5)
 	{ &CSystemFunction::CVAUTOEX , L"CVAUTOEX" } ,
 	{ &CSystemFunction::TOAUTOEX , L"TOAUTOEX" } ,
+	// 特殊(9)
+	{ &CSystemFunction::DIRECTSSTP , L"DIRECTSSTP" } ,
 };
 
 #define SYSFUNC_NUM (sizeof(CSystemFunction::sysfunc)/sizeof(CSystemFunction::sysfunc[0]))
@@ -7173,6 +7175,123 @@ CValue	CSystemFunction::DUMPVAR(CSF_FUNCPARAM &p)
 	CLogExCode logex(vm);
 	logex.OutVariableInfoForCheck();
 	return CValue(F_TAG_NOP, 0/*dmy*/);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::DIRECTSSTP
+ * -----------------------------------------------------------------------
+ */
+
+#ifndef POSIX
+
+static LRESULT CALLBACK DirectSSTPClientProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	if (msg == WM_COPYDATA) {
+		COPYDATASTRUCT* cds = (COPYDATASTRUCT*)lParam;
+		std::string* response = (std::string*)::GetWindowLongPtr(hwnd, GWLP_USERDATA);
+		if (response) {
+			response->assign(static_cast<const char*>(cds->lpData), cds->cbData);
+		}
+		return TRUE;
+	}
+	return ::DefWindowProc(hwnd, msg, wParam, lParam);
+}
+
+#endif
+
+CValue	CSystemFunction::DIRECTSSTP(CSF_FUNCPARAM &p)
+{
+#ifdef POSIX
+	vm.logger().Error(E_W, 13, L"DIRECTSSTP", p.dicname, p.line);
+	SetError(13);
+	return CValue(-1);
+#else
+	if (p.arg.array_size() < 2) {
+		vm.logger().Error(E_W, 8, L"DIRECTSSTP", p.dicname, p.line);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!p.arg.array()[0].IsIntReal()) {
+		vm.logger().Error(E_W, 9, L"DIRECTSSTP", p.dicname, p.line);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	HWND hwnd = (HWND)p.arg.array()[0].GetValueInt();
+
+	if ( ! hwnd ) {
+		vm.logger().Error(E_W, 12, L"DIRECTSSTP", p.dicname, p.line);
+		SetError(12);
+		return CValue(-1);
+	}
+
+	int	charset = CHARSET_UTF8;
+	if (p.arg.array_size() > 2) {
+		int cs = GetCharset(p.arg.array()[2],L"DIRECTSSTP", p.dicname, p.line);
+		if ( cs >= 0 ) {
+			charset = cs;
+		}
+	}
+
+	char *req = Ccct::Ucs2ToMbcs(p.arg.array()[1].GetValueString(),charset);
+	if ( ! req ) {
+		vm.logger().Error(E_W, 13, L"DIRECTSSTP", p.dicname, p.line);
+		SetError(13);
+		return CValue(-1);
+	}
+
+	const char* windowname = "yaya_sysfunc_DIRECTSSTP";
+	
+	WNDCLASSEX windowClass;
+	ZeroMemory(&windowClass,sizeof(windowClass));
+
+	windowClass.cbSize = sizeof(windowClass);
+	windowClass.hInstance = ::GetModuleHandle(NULL);
+	windowClass.lpszClassName = windowname;
+	windowClass.lpfnWndProc = DirectSSTPClientProc;
+	
+	::RegisterClassEx(&windowClass);
+
+	HWND propertyWindow = ::CreateWindow(windowname, windowname, 0, 0, 0, 100, 100, NULL, NULL, windowClass.hInstance, NULL);
+
+	if ( ! propertyWindow ) {
+		free(req);
+		::UnregisterClass(windowClass.lpszClassName, windowClass.hInstance);
+		vm.logger().Error(E_W, 13, L"DIRECTSSTP", p.dicname, p.line);
+		SetError(13);
+		return CValue(-1);
+	}
+
+	//メッセージ転送
+	std::string res_str;
+	::SetWindowLongPtr(propertyWindow, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&res_str));
+
+	COPYDATASTRUCT cds;
+	cds.dwData = 9801;
+	cds.cbData = strlen(req);
+	cds.lpData = req;
+
+	DWORD_PTR res_dword = 0;
+	::SendMessageTimeout((HWND)hwnd, WM_COPYDATA, (WPARAM)propertyWindow, (LPARAM)&cds, SMTO_ABORTIFHUNG | SMTO_BLOCK, 5000, &res_dword);
+	
+	//リソースの開放
+	free(req);
+	
+	::DestroyWindow(propertyWindow);
+	::UnregisterClass(windowClass.lpszClassName, windowClass.hInstance);
+
+	wchar_t *res = Ccct::MbcsToUcs2(res_str,charset);
+
+	if ( ! res ) {
+		return CValue(L"");
+	}
+
+	CValue val(res);
+
+	free(res);
+	
+	return val;
+#endif
 }
 
 /* -----------------------------------------------------------------------
