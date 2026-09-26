@@ -502,10 +502,7 @@ void	CFunction::Foreach(CLocalVariable &lvar, CSelecter &output,size_t line,int 
 	int type;
 	int fromtype = value.GetType();
 
-	CValueHash::const_iterator hash_iterator;
-	if ( fromtype == F_TAG_HASH ) {
-		hash_iterator = value.hash().begin();
-	}
+	CValueHash::const_iterator hash_iterator = (fromtype == F_TAG_HASH) ? value.hash().begin() : CValueHash::const_iterator();
 	
 	for(int foreachcount = 0; foreachcount < sz; ++foreachcount ) {
 		// ‘ã“ü‚·‚é—v‘f’l‚ðŽæ“¾
@@ -517,7 +514,7 @@ void	CFunction::Foreach(CLocalVariable &lvar, CSelecter &output,size_t line,int 
 				t_value = value.array()[foreachcount];
 			}
 			else if ( fromtype == F_TAG_HASH ) {
-				t_value.SetType(F_TAG_ARRAY);
+				t_value = CValue(F_TAG_ARRAY, 0/*dmy*/);
 				//t_value.array().push_back(hash_iterator->first); //second(value)‚¾‚¯‚Å—Ç‚¢
 				t_value.array().push_back(hash_iterator->second);
 				hash_iterator++;

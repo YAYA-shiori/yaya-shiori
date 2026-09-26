@@ -1563,7 +1563,7 @@ void	CBasis::RestoreHashVariable(CValue &var, yaya::string_t &value)
 				if (key_value.compare(ESC_IVOID) == 0) {
 					kv.second = CValueSub();
 				}
-				if (IsIntString(key_value)) {
+				else if (IsIntString(key_value)) {
 					kv.second = CValueSub( yaya::ws_atoi(key_value, 10) );
 				}
 				else if (IsDoubleButNotIntString(key_value)) {
