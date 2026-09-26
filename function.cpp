@@ -99,8 +99,8 @@ CFunction::ExecutionResult	CFunction::Execute(const CValue &arg, CLocalVariable 
 		if(funcpos >= 0) {
 			//_argv[0] = dicname _argv[1] = linenum
 			CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
-			arg.array().emplace_back(CValueSub(dicfilename));
-			arg.array().emplace_back(CValueSub((yaya::int_t)linecount));
+			arg.array().emplace_back(CValue(dicfilename));
+			arg.array().emplace_back(CValue((yaya::int_t)linecount));
 
 			pvm->function_exec().func[funcpos].Execute(arg);
 		}
@@ -300,8 +300,8 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 					if (funcpos >= 0) {
 						//_argv[0] = dicname _argv[1] = linenum
 						CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
-						arg.array().emplace_back(CValueSub(dicfilename));
-						arg.array().emplace_back(CValueSub(st.linecount));
+						arg.array().emplace_back(CValue(dicfilename));
+						arg.array().emplace_back(CValue(st.linecount));
 
 						pvm->function_exec().func[funcpos].Execute(arg);
 					}
@@ -347,8 +347,8 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 					if (funcpos >= 0) {
 						//_argv[0] = dicname _argv[1] = linenum
 						CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
-						arg.array().emplace_back(CValueSub(dicfilename));
-						arg.array().emplace_back(CValueSub(st.linecount));
+						arg.array().emplace_back(CValue(dicfilename));
+						arg.array().emplace_back(CValue(st.linecount));
 
 						pvm->function_exec().func[funcpos].Execute(arg);
 					}
@@ -941,7 +941,7 @@ char	CFunction::Comma(CValue &answer, std::vector<size_t> &sid, CStatement &st, 
 			t_array.insert(t_array.end(), addv.array().begin(), addv.array().end());
 		}
 		else {
-			t_array.emplace_back(CValueSub(addv));
+			t_array.emplace_back(CValue(addv));
 		}
 	}
 
@@ -959,7 +959,7 @@ char	CFunction::Comma(CValue &answer, std::vector<size_t> &sid, CStatement &st, 
 char	CFunction::CommaAdd(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar)
 {
 	if ( answer.GetType() != F_TAG_ARRAY ) {
-		CValueSub st(answer);
+		CValue st(answer);
 		answer.SetType(F_TAG_ARRAY);
 		answer.array().emplace_back(st);
 	}
@@ -975,7 +975,7 @@ char	CFunction::CommaAdd(CValue &answer, std::vector<size_t> &sid, CStatement &s
 			t_array.insert(t_array.end(), addv.array().begin(), addv.array().end());
 		}
 		else {
-			t_array.emplace_back(CValueSub(addv));
+			t_array.emplace_back(CValue(addv));
 		}
 	}
 
@@ -1129,7 +1129,7 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CState
 		return 0;
 	case F_TAG_ARRAYORDER: {
 			if (sid[0] > 0)
-				return SubstToArray(st.cell()[sid[0] - 1], *sid_0_cell, answer, st, lvar);
+				return SubstToArray(st.cell()[sid[0] - 1], *sid_0_cell, answer, st, lvar, sid[0]);
 			else
 				return 1;
 		}
@@ -1142,10 +1142,14 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CState
  *  関数名  ：  CFunction::SubstToArray
  *  機能概要：  配列要素への代入を処理します
  *
+ *  oindexはocell（配列序数演算子）のセル位置です。
+ *  多次元配列（a[x][y] = ...）の場合、vcellは手前の次元の"]"になるので、
+ *  手前の次元の配列序数演算子が持っている値を更新し、さらに手前の次元へ代入し直します。
+ *
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char	CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatement &st, CLocalVariable &lvar)
+char	CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatement &st, CLocalVariable &lvar, size_t oindex)
 {
 	// 序数を取得
 	CValue	t_order;
@@ -1154,17 +1158,19 @@ char	CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatem
 	if (t_order.GetType() == F_TAG_UNKNOWN)
 		return 1;
 
+	// 多次元配列なら手前の次元の配列序数演算子を探す
+	ptrdiff_t upper = -1;
+	if (vcell.value_GetType() == F_TAG_HOOKBRACKETOUT) {
+		upper = FindUpperArrayOrder(st, oindex);
+		if (upper < 1)
+			return 1;
+	}
+
 	// 値を取得
-	CValue	value = GetValueRefForCalc(vcell, st, lvar);
+	CValue	value = (upper >= 0) ? st.cell()[upper].ansv() : GetValueRefForCalc(vcell, st, lvar);
 
 	// 更新
-	if (value.GetType() == F_TAG_HASH && answer.GetType() == F_TAG_HASH) {
-		//hashの要素にhashを代入できるとおかしなことになるので駄目
-		pvm->logger().Error(E_W, 8, dicfilename, linecount);
-	}
-	else {
-		value.SetArrayValue(t_order, answer);
-	}
+	value.SetArrayValue(t_order, answer);
 
 	// 代入
 	switch(vcell.value_GetType()) {
@@ -1174,9 +1180,45 @@ char	CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatem
 	case F_TAG_LOCALVARIABLE:
 		lvar.SetValue(vcell.name, value);
 		return 0;
+	case F_TAG_HOOKBRACKETOUT:
+		return SubstToArray(st.cell()[upper - 1], st.cell()[upper], value, st, lvar, upper);
 	default:
 		return 1;
 	};
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFunction::FindUpperArrayOrder
+ *  機能概要：  多次元配列（a[x][y]）で、oindexの配列序数演算子の手前の次元の
+ *  　　　　　  配列序数演算子のセル位置を返します
+ *
+ *  返値　　：  セル位置/-1=見つからない
+ * -----------------------------------------------------------------------
+ */
+ptrdiff_t	CFunction::FindUpperArrayOrder(CStatement &st, size_t oindex)
+{
+	if (oindex < 1 || st.cell()[oindex - 1].value_GetType() != F_TAG_HOOKBRACKETOUT)
+		return -1;
+
+	// 手前の"]"に対応する"["を探す
+	ptrdiff_t depth = 0;
+	ptrdiff_t i = static_cast<ptrdiff_t>(oindex) - 1;
+	for( ; i >= 0; i--) {
+		int type = st.cell()[i].value_GetType();
+		if (F_TAG_ISOUT(type))
+			depth++;
+		else if (F_TAG_ISIN(type))
+			depth--;
+		if (!depth)
+			break;
+	}
+
+	// "["の直前が配列序数演算子であるはず
+	if (i < 1 || st.cell()[i].value_GetType() != F_TAG_HOOKBRACKETIN ||
+		st.cell()[i - 1].value_GetType() != F_TAG_ARRAYORDER)
+		return -1;
+
+	return i - 1;
 }
 
 /* -----------------------------------------------------------------------
@@ -1261,7 +1303,7 @@ char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, C
 			}
 		}
 		else {
-			arg.array().emplace_back(CValueSub(addv));
+			arg.array().emplace_back(CValue(addv));
 		}
 	}
 
@@ -1280,7 +1322,7 @@ char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, C
 			v_value = v_argv->array()[i];
 
 			if (st.cell()[*it].order_const().GetType() != F_TAG_NOP)
-				errcount += SubstToArray(st.cell()[(*it) + 1], st.cell()[*it], v_value, st, lvar);
+				errcount += SubstToArray(st.cell()[(*it) + 1], st.cell()[*it], v_value, st, lvar, *it);
 			else {
 				switch(st.cell()[(*it) + 1].value_GetType()) {
 				case F_TAG_VARIABLE:
@@ -1333,7 +1375,7 @@ char	CFunction::ExecSystemFunctionWithArgs(CCell& cell, std::vector<size_t> &sid
 			}
 		}
 		else {
-			arg.array().emplace_back(CValueSub(addv));
+			arg.array().emplace_back(CValue(addv));
 		}
 
 		valuearg.emplace_back(addv);
@@ -1443,13 +1485,13 @@ void CFunction::EncodeArrayOrder(CCell &vcell, const CValue &order, CLocalVariab
 		result = order;
 		break;
 	default:
-		result.array().emplace_back(CValueSub(order));
+		result.array().emplace_back(CValue(order));
 		break;
 	};
 
 	// デリミタ
 	if (result.array_size() < 2) {
-		CValueSub	adddlm(VAR_DELIMITER);
+		CValue	adddlm(VAR_DELIMITER);
 		if (vcell.value_GetType() == F_TAG_VARIABLE)
 			adddlm = pvm->variable().GetDelimiter(vcell.index);
 		else if (vcell.value_GetType() == F_TAG_LOCALVARIABLE)

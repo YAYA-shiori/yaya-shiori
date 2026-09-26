@@ -1,12 +1,13 @@
 // 
 // AYA version 5
 //
-// 値を扱うクラス　CValue/CValueSub
+// 値を扱うクラス　CValue
 // written by umeici. 2004
 // 
-// CValueは型フラグと型別の情報を持っています。その中にvector<CValueSub>という可変長配列があり、
-// これが汎用配列となります。CValueSubクラスは配列を持たないほかはCValueと類似しています（汎用
-// 配列を多次元化出来ない、というAYA5の制限はこの構造に由来しています）。
+// CValueは型フラグと型別の情報を持っています。その中にvector<CValue>という可変長配列と
+// map<CValue,CValue>というハッシュがあり、要素にも配列やハッシュを持たせることができます。
+// （かつては要素をCValueSubという配列を持たないクラスで保持しており、汎用配列を多次元化出来ない
+// というAYA5の制限はこの構造に由来していました）
 // 
 
 #ifndef	VALUEH
@@ -28,106 +29,18 @@
 #include "globaldef.h"
 
 class CValue;
-class CValueSub;
 
-typedef std::vector<CValueSub> CValueArray;
-typedef std::map<CValueSub, CValueSub> CValueHash;
-
-class	CValueSub
+// ハッシュのキーや集合の要素の順序（定義はvalue.cpp）
+struct CValueLess
 {
-	friend class CValue;
-
-protected:
-	int	type;						// 型
-public:
-	yaya::string_t	s_value;				// 文字列値
-	double	d_value;				// 実数値
-	yaya::int_t		i_value;				// 整数値
-
-private:
-	int CalcEscalationTypeNum(const int rhs) const;
-	int CalcEscalationTypeStr(const int rhs) const;
-
-public:
-	CValueSub(void) :
-		type(F_TAG_VOID) , s_value(), d_value(0.0), i_value(0) { }
-
-	CValueSub(int value) :
-		type(F_TAG_INT) , d_value(0.0) , i_value(value) { }
-
-	CValueSub(yaya::int_t value) :
-		type(F_TAG_INT) , d_value(0.0) , i_value(value) { }
-
-	CValueSub(double value) :
-		type(F_TAG_DOUBLE) , d_value(value), i_value(0) { }
-
-	CValueSub(const yaya::string_t &value) :
-		type(F_TAG_STRING) , s_value(value), d_value(0.0), i_value(0) { }
-
-	CValueSub(const yaya::char_t *value) :
-		type(F_TAG_STRING) , s_value(value), d_value(0.0), i_value(0) { }
-
-	CValueSub(const CValue &v);
-
-	~CValueSub(void) {}
-
-	inline int		GetType(void) const { return type; }
-	inline void		SetType(int tp) { type = tp; }
-
-	inline bool		IsVoid(void) const { return type == F_TAG_VOID; }
-	inline bool		IsString(void) const { return type == F_TAG_STRING || type == F_TAG_VOID; }
-	inline bool		IsStringReal(void) const { return type == F_TAG_STRING; }
-	inline bool		IsInt(void) const { return type == F_TAG_INT || type == F_TAG_VOID; }
-	inline bool		IsIntReal(void) const { return type == F_TAG_INT; }
-	inline bool		IsDouble(void) const { return type == F_TAG_DOUBLE || type == F_TAG_VOID; }
-	inline bool		IsDoubleReal(void) const { return type == F_TAG_DOUBLE; }
-
-	inline bool		IsNum(void) const { return type == F_TAG_INT || type == F_TAG_DOUBLE || type == F_TAG_VOID; }
-
-	yaya::int_t		GetValueInt(void) const;
-	double			GetValueDouble(void) const;
-	yaya::string_t	GetValueString(void) const;
-
-	CValueSub	&operator =(yaya::int_t value) LVALUE_MODIFIER;
-	CValueSub	&operator =(double value) LVALUE_MODIFIER;
-	CValueSub	&operator =(const yaya::string_t &value) LVALUE_MODIFIER;
-	#if CPP_STD_VER > 2011
-	CValueSub	&operator =(yaya::string_t&& value) LVALUE_MODIFIER;
-	#endif
-	CValueSub	&operator =(const yaya::char_t *value) LVALUE_MODIFIER;
-	CValueSub	&operator =(const CValue &v) LVALUE_MODIFIER;
-
-	CValueSub	operator +(const CValueSub &value) const;
-	CValueSub	operator -(const CValueSub &value) const;
-	CValueSub	operator *(const CValueSub &value) const;
-	CValueSub	operator /(const CValueSub &value) const;
-	CValueSub	operator %(const CValueSub &value) const;
-
-	void	operator +=(const CValueSub &value) LVALUE_MODIFIER;
-	void	operator -=(const CValueSub &value) LVALUE_MODIFIER;
-	void	operator *=(const CValueSub &value) LVALUE_MODIFIER;
-	void	operator /=(const CValueSub &value) LVALUE_MODIFIER;
-	void	operator %=(const CValueSub &value) LVALUE_MODIFIER;
-
-	inline bool operator ==(const CValueSub &value) const {
-		return Compare(value);
-	}
-	inline bool operator !=(const CValueSub &value) const {
-		return !operator==(value);
-	}
-	inline bool operator <(const CValueSub &value) const {
-		return Less(value);
-	}
-
-	bool Less(const CValueSub &value) const;
-	bool Compare(const CValueSub &value) const;
+	bool operator()(const CValue &lhs, const CValue &rhs) const;
 };
 
+typedef std::vector<CValue> CValueArray;
+typedef std::map<CValue, CValue, CValueLess> CValueHash;
 
 class	CValue
 {
-	friend class CValueSub;
-
 protected:
 	int	type;						// 型
 public:
@@ -143,18 +56,15 @@ private:
 	int CalcEscalationTypeNum(const int rhs) const;
 	int CalcEscalationTypeStr(const int rhs) const;
 
+public:
 	int Compare(const CValue &value) const;
 	int Great(const CValue &value) const;
 	int Less(const CValue &value) const;
 
-public:
-	CValue(const CValue &rhs)
-	{
-		type = rhs.type;
+	CValue(const CValue &rhs) :
 		//i,dはサイズが小さいのでコピーしたほうが手っ取り早い
-		i_value = rhs.i_value;
-		d_value = rhs.d_value;
-
+		type(rhs.type), d_value(rhs.d_value), i_value(rhs.i_value)
+	{
 		if ( type == F_TAG_ARRAY ) {
 			m_array = rhs.m_array;
 		}
@@ -203,27 +113,6 @@ public:
 	CValue(const yaya::char_t *value) :
 		type(F_TAG_STRING) , s_value(value), d_value(0.0), i_value(0) { }
 	
-	CValue(const CValueSub &value) : d_value(0.0), i_value(0)
-	{
-		switch(value.GetType()) {
-		case F_TAG_INT:
-			type      = F_TAG_INT;
-			i_value   = value.i_value;
-			break;
-		case F_TAG_DOUBLE:
-			type      = F_TAG_DOUBLE;
-			d_value   = value.d_value;
-			break;
-		case F_TAG_STRING:
-			type     = F_TAG_STRING;
-			s_value  = value.s_value;
-			break;
-		default:
-			type     = F_TAG_VOID;
-			break;
-		};
-	}
-
 	CValue(int tp, int) : type(tp), d_value(0.0), i_value(0) { }	// 型指定して初期化
 	CValue(void) : type(F_TAG_VOID), d_value(0.0), i_value(0) { }
 	~CValue(void) {}
@@ -258,12 +147,7 @@ public:
 				return false;
 			}
         case F_TAG_HASH:
-            if ( m_hash.get() ) {
-                return m_hash->size() != 0;
-            }
-            else {
-                return 0;
-            }
+            return hash_size() != 0;
 		default:
 			break;
 		};
@@ -288,7 +172,6 @@ public:
 	CValue	&operator =(const yaya::char_t *value) LVALUE_MODIFIER;
 	CValue	&operator =(const CValueArray &value) LVALUE_MODIFIER;
     CValue  &operator =(const CValueHash &value) LVALUE_MODIFIER;
-	CValue	&operator =(const CValueSub &value) LVALUE_MODIFIER;
 
 	void SubstToArray(CValueArray &value) LVALUE_MODIFIER;
 
@@ -362,33 +245,13 @@ public:
 	}
 
 	//////////////////////////////////////////////
-	CValueHash::size_type hash_size(void) const {
-		if ( ! m_hash.get() ) {
-			return 0;
-		}
-		else {
-			return m_hash->size();
-		}
-	}
+	// ハッシュ操作（VC6ではCValueが不完全型の間にstd::mapを実体化できないため、定義はクラスの外）
+	size_t hash_size(void) const;
 	std_shared_ptr<CValueHash> &hash_shared(void) const {
 		return m_hash;
 	}
-	const CValueHash& hash(void) const {
-		if ( ! m_hash.get() ) {
-			m_hash.reset(new CValueHash);
-		}
-		return *m_hash;
-	}
-	CValueHash& hash(void) {
-		if ( ! m_hash.get() ) {
-			m_hash.reset(new CValueHash);
-		}
-		else if ( m_hash.use_count() >= 2 ) {
-			CValueHash *pV = m_hash.get();
-			m_hash.reset(new CValueHash(*pV));
-		}
-		return *m_hash;
-	}
+	const CValueHash& hash(void) const;
+	CValueHash& hash(void);
 	inline void array_clear(void) {
 		m_array.reset();
 	}
@@ -398,6 +261,34 @@ public:
 };
 
 //----
+
+inline size_t CValue::hash_size(void) const
+{
+	if ( ! m_hash.get() ) {
+		return 0;
+	}
+	else {
+		return m_hash->size();
+	}
+}
+inline const CValueHash& CValue::hash(void) const
+{
+	if ( ! m_hash.get() ) {
+		m_hash.reset(new CValueHash);
+	}
+	return *m_hash;
+}
+inline CValueHash& CValue::hash(void)
+{
+	if ( ! m_hash.get() ) {
+		m_hash.reset(new CValueHash);
+	}
+	else if ( m_hash.use_count() >= 2 ) {
+		CValueHash *pV = m_hash.get();
+		m_hash.reset(new CValueHash(*pV));
+	}
+	return *m_hash;
+}
 
 //からっぽ変数（ダミー用）
 extern const CValue emptyvalue;

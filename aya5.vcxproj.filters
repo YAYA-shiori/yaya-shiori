@@ -96,9 +96,6 @@
     <ClCompile Include="value.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="valuesub.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="wsex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

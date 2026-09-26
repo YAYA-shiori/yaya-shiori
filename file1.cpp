@@ -139,6 +139,8 @@ int	CFile1::WriteBin(const yaya::string_t &istr, const yaya::char_t alt)
 	size_t len = istr.size();
 
 	unsigned char *t_istr = reinterpret_cast<unsigned char*>(malloc(len+1));
+	if (t_istr == NULL)
+		return 0;
 	t_istr[len] = 0; //念のためゼロ終端（いらない）
 	
 	//altを0に置き換えつつデータ構築

@@ -317,14 +317,14 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 	}
 	else if (type == F_TAG_HASH) {
 		// ハッシュ　序数の第一要素をキーとする
-		hash()[oval.array()[0]] = CValueSub(value);
+		hash()[oval.array()[0]] = value;
 	}
 	else {
 		// 汎用配列（もしくは未初期化）
 		if ( type != F_TAG_ARRAY ) {
 			type = F_TAG_ARRAY;
 			array().clear();
-			array().emplace_back(CValueSub(*this));
+			array().emplace_back(CValue()); //従来(CValueSub)どおり：型変換済みの*thisはVOIDとして格納される
 		}
 
 		if(aoflg) {
@@ -352,7 +352,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 				// 後端への追加
 				int	addsize = order - array().size();
 				for(int i = 1; i <= addsize; i++) {
-					array().emplace_back(CValueSub());
+					array().emplace_back(CValue());
 				}
 				
 				if (value.GetType() == F_TAG_ARRAY) {
@@ -361,7 +361,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 					}
 				}
 				else {
-					array().emplace_back(CValueSub(value));
+					array().emplace_back(value);
 				}
 			}
 		}
@@ -385,7 +385,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 				// 後端への追加
 				int	addsize = order - array().size();
 				for(int i = 1; i <= addsize; i++) {
-					array().emplace_back(CValueSub());
+					array().emplace_back(CValue());
 				}
 				
 				if (value.GetType() == F_TAG_ARRAY) {
@@ -394,7 +394,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 					}
 				}
 				else {
-					array().emplace_back(CValueSub(value));
+					array().emplace_back(value);
 				}
 			}
 		}
@@ -556,37 +556,6 @@ void CValue::SubstToArray(CValueArray &value) LVALUE_MODIFIER
 }
 
 /* -----------------------------------------------------------------------
- *  operator = (CValueSub)
- * -----------------------------------------------------------------------
- */
-CValue &CValue::operator =(const CValueSub &value) LVALUE_MODIFIER
-{
-	switch(value.GetType()) {
-	case F_TAG_INT:
-		*this = value.i_value;
-		break;
-	case F_TAG_DOUBLE:
-		*this = value.d_value;
-		break;
-	case F_TAG_STRING:
-		*this = value.s_value;
-		break;
-	case F_TAG_VOID:
-		type = F_TAG_VOID;
-		i_value = 0;
-		d_value = 0;
-		m_array.reset();
-		s_value.erase();
-		break;
-	default:
-		*this = yaya::string_t();
-		break;
-	};
-
-	return *this;
-}
-
-/* -----------------------------------------------------------------------
  *  CalcEscalationTypeNum
  *
  *  型の昇格ルールを扱います（数値優先）
@@ -659,7 +628,7 @@ CValue CValue_ArrayCalc(const CValue &param1_left,const CValue &param2_right,Fn 
 		}
 		else {
 			result.SetType(F_TAG_ARRAY);
-			const CValueSub t_vs(param2_right);
+			const CValue t_vs(param2_right);
 			for(CValueArray::const_iterator it = param1_left.array().begin(); it != param1_left.array().end(); it++) {
 				result.array().emplace_back(calc_fn(*it,t_vs));
 			}
@@ -671,7 +640,7 @@ CValue CValue_ArrayCalc(const CValue &param1_left,const CValue &param2_right,Fn 
 		}
 		else {
 			result.SetType(F_TAG_ARRAY);
-			const CValueSub t_vs(param1_left);
+			const CValue t_vs(param1_left);
 			for(CValueArray::const_iterator it = param2_right.array().begin(); it != param2_right.array().end(); it++) {
 				result.array().emplace_back(calc_fn(t_vs,*it));
 			}
@@ -695,7 +664,7 @@ bool CValue_ArrayCalc_Subst(CValue &param1_subst,const CValue &param2_right,Fn c
 	}
 
 	param1_subst.SetType(F_TAG_ARRAY);
-	const CValueSub t_vs(param2_right);
+	const CValue t_vs(param2_right);
 	for(CValueArray::iterator it = param1_subst.array().begin(); it != param1_subst.array().end(); it++) {
 		calc_fn_subst(*it,t_vs);
 	}
@@ -703,65 +672,65 @@ bool CValue_ArrayCalc_Subst(CValue &param1_subst,const CValue &param2_right,Fn c
 }
 
 //for normal
-class CValueSub_Add {
+class CValue_Add {
 public:
-	CValueSub operator()(const CValueSub &v1,const CValueSub &v2) const {
+	CValue operator()(const CValue &v1,const CValue &v2) const {
 		return v1 + v2;
 	}
 };
-class CValueSub_Sub {
+class CValue_Sub {
 public:
-	CValueSub operator()(const CValueSub &v1,const CValueSub &v2) const {
+	CValue operator()(const CValue &v1,const CValue &v2) const {
 		return v1 - v2;
 	}
 };
-class CValueSub_Mul {
+class CValue_Mul {
 public:
-	CValueSub operator()(const CValueSub &v1,const CValueSub &v2) const {
+	CValue operator()(const CValue &v1,const CValue &v2) const {
 		return v1 * v2;
 	}
 };
-class CValueSub_Div {
+class CValue_Div {
 public:
-	CValueSub operator()(const CValueSub &v1,const CValueSub &v2) const {
+	CValue operator()(const CValue &v1,const CValue &v2) const {
 		return v1 / v2;
 	}
 };
-class CValueSub_Mod {
+class CValue_Mod {
 public:
-	CValueSub operator()(const CValueSub &v1,const CValueSub &v2) const {
+	CValue operator()(const CValue &v1,const CValue &v2) const {
 		return v1 % v2;
 	}
 };
 
 //for subst
-class CValueSub_Add_Subst {
+class CValue_Add_Subst {
 public:
-	void operator()(CValueSub &v1,const CValueSub &v2) const {
+	void operator()(CValue &v1,const CValue &v2) const {
 		v1 += v2;
 	}
 };
-class CValueSub_Sub_Subst {
+class CValue_Sub_Subst {
 public:
-	void operator()(CValueSub &v1,const CValueSub &v2) const {
+	void operator()(CValue &v1,const CValue &v2) const {
 		v1 -= v2;
 	}
 };
-class CValueSub_Mul_Subst {
+class CValue_Mul_Subst {
 public:
-	void operator()(CValueSub &v1,const CValueSub &v2) const {
+	void operator()(CValue &v1,const CValue &v2) const {
 		v1 *= v2;
 	}
 };
-class CValueSub_Div_Subst {
+class CValue_Div_Subst {
 public:
-	void operator()(CValueSub &v1,const CValueSub &v2) const {
+	void operator()(CValue &v1,const CValue &v2) const {
 		v1 /= v2;
 	}
 };
-class CValueSub_Mod_Subst {
+class CValue_Mod_Subst {
 public:
-	void operator()(CValueSub &v1,const CValueSub &v2) const {
+	void operator()(CValue &v1,const CValue &v2) const {
 		v1 %= v2;
 	}
 };
@@ -783,7 +752,7 @@ CValue CValue::operator +(const CValue &value) const
 	case F_TAG_STRING:
 		return CValue(GetValueString() + value.GetValueString());
 	case F_TAG_ARRAY:
-		return CValue_ArrayCalc(*this,value,CValueSub_Add());
+		return CValue_ArrayCalc(*this,value,CValue_Add());
 	};
 	
 	return CValue(value);
@@ -806,7 +775,7 @@ void CValue::operator +=(const CValue &value) LVALUE_MODIFIER
 			return;
 		}
 		if ( t == F_TAG_ARRAY ) { //配列時用パフォーマンス向上コード
-			if ( CValue_ArrayCalc_Subst(*this,value,CValueSub_Add_Subst()) ) { return; }
+			if ( CValue_ArrayCalc_Subst(*this,value,CValue_Add_Subst()) ) { return; }
 		}
 	}
 	*this = operator+(value);
@@ -826,7 +795,7 @@ CValue CValue::operator -(const CValue &value) const
 	case F_TAG_DOUBLE:
 		return CValue(GetValueDouble() - value.GetValueDouble());
 	case F_TAG_ARRAY:
-		return CValue_ArrayCalc(*this,value,CValueSub_Sub());
+		return CValue_ArrayCalc(*this,value,CValue_Sub());
 	};
 	
 	return CValue(value);
@@ -845,7 +814,7 @@ void CValue::operator -=(const CValue &value) LVALUE_MODIFIER
 			return;
 		}
 		if ( t == F_TAG_ARRAY ) { //配列時用パフォーマンス向上コード
-			if ( CValue_ArrayCalc_Subst(*this,value,CValueSub_Sub_Subst()) ) { return; }
+			if ( CValue_ArrayCalc_Subst(*this,value,CValue_Sub_Subst()) ) { return; }
 		}
 	}
 	*this = operator-(value);
@@ -865,7 +834,7 @@ CValue CValue::operator *(const CValue &value) const
 	case F_TAG_DOUBLE:
 		return CValue(GetValueDouble() * value.GetValueDouble());
 	case F_TAG_ARRAY:
-		return CValue_ArrayCalc(*this,value,CValueSub_Mul());
+		return CValue_ArrayCalc(*this,value,CValue_Mul());
 	};
 	
 	return CValue(value);
@@ -876,7 +845,7 @@ void CValue::operator *=(const CValue &value) LVALUE_MODIFIER
 	int t = CalcEscalationTypeStr(value.type);
 	if ( t == type ) { //左辺(自身)の型と同じ場合に限り
 		if ( t == F_TAG_ARRAY ) { //配列時用パフォーマンス向上コード
-			if ( CValue_ArrayCalc_Subst(*this,value,CValueSub_Mul_Subst()) ) { return; }
+			if ( CValue_ArrayCalc_Subst(*this,value,CValue_Mul_Subst()) ) { return; }
 		}
 	}
 	*this = operator*(value);
@@ -912,7 +881,7 @@ CValue CValue::operator /(const CValue &value) const
 			}
 		}
 	case F_TAG_ARRAY:
-		return CValue_ArrayCalc(*this,value,CValueSub_Div());
+		return CValue_ArrayCalc(*this,value,CValue_Div());
 	};
 	
 	return CValue(value);
@@ -923,7 +892,7 @@ void CValue::operator /=(const CValue &value) LVALUE_MODIFIER
 	int t = CalcEscalationTypeStr(value.type);
 	if ( t == type ) { //左辺(自身)の型と同じ場合に限り
 		if ( t == F_TAG_ARRAY ) { //配列時用パフォーマンス向上コード
-			if ( CValue_ArrayCalc_Subst(*this,value,CValueSub_Div_Subst()) ) { return; }
+			if ( CValue_ArrayCalc_Subst(*this,value,CValue_Div_Subst()) ) { return; }
 		}
 	}
 	*this = operator/(value);
@@ -950,7 +919,7 @@ CValue CValue::operator %(const CValue &value) const
 			}
 		}
 	case F_TAG_ARRAY:
-		return CValue_ArrayCalc(*this,value,CValueSub_Mod());
+		return CValue_ArrayCalc(*this,value,CValue_Mod());
 	};
 	
 	return CValue(value);
@@ -961,7 +930,7 @@ void CValue::operator %=(const CValue &value) LVALUE_MODIFIER
 	int t = CalcEscalationTypeStr(value.type);
 	if ( t == type ) { //左辺(自身)の型と同じ場合に限り
 		if ( t == F_TAG_ARRAY ) { //配列時用パフォーマンス向上コード
-			if ( CValue_ArrayCalc_Subst(*this,value,CValueSub_Mod_Subst()) ) { return; }
+			if ( CValue_ArrayCalc_Subst(*this,value,CValue_Mod_Subst()) ) { return; }
 		}
 	}
 	*this = operator%(value);
@@ -1119,7 +1088,15 @@ int CValue::Compare(const CValue &value) const
 		}
 	case F_TAG_HASH:
 		if (type == F_TAG_HASH && value.type == F_TAG_HASH) {
-			return hash() == value.hash();
+			if (hash_size() != value.hash_size())
+				return 0;
+			CValueHash::const_iterator it, it2;
+			for(it = hash().begin(), it2 = value.hash().begin();
+				it != hash().end() && it2 != value.hash().end(); it++, it2++) {
+				if (!it->first.Compare(it2->first) || !it->second.Compare(it2->second))
+					return 0;
+			}
+			return 1;
 		}
 		else {
 			return 0;
@@ -1127,6 +1104,62 @@ int CValue::Compare(const CValue &value) const
 	}
 
 	return 0;
+}
+
+/* -----------------------------------------------------------------------
+ *  CValueLess
+ *
+ *  ハッシュのキーや集合の要素の順序（std::map/std::set用）です。
+ * -----------------------------------------------------------------------
+ */
+static int CValueLess_Class(const CValue &v)
+{
+	switch(v.GetType()) {
+	case F_TAG_ARRAY: return 1;
+	case F_TAG_HASH:  return 2;
+	default:          return 0;
+	}
+}
+
+bool CValueLess::operator()(const CValue &lhs, const CValue &rhs) const
+{
+	// スカラー < 配列 < ハッシュ
+	// （CValue::Lessは配列/ハッシュを扱えないため、それらをキーや集合の要素にした際に
+	// 　全て同一視されないよう、ここで順序を決める）
+	int lc = CValueLess_Class(lhs);
+	int rc = CValueLess_Class(rhs);
+	if (lc != rc) {
+		return lc < rc;
+	}
+
+	if (lc == 1) {
+		// 配列：要素を先頭から比較
+		CValueArray::const_iterator it = lhs.array().begin(), it2 = rhs.array().begin();
+		for( ; it != lhs.array().end() && it2 != rhs.array().end(); ++it, ++it2) {
+			if ((*this)(*it, *it2))
+				return true;
+			if ((*this)(*it2, *it))
+				return false;
+		}
+		return it == lhs.array().end() && it2 != rhs.array().end();
+	}
+	else if (lc == 2) {
+		// ハッシュ：キー、値の順で先頭から比較
+		CValueHash::const_iterator it = lhs.hash().begin(), it2 = rhs.hash().begin();
+		for( ; it != lhs.hash().end() && it2 != rhs.hash().end(); ++it, ++it2) {
+			if ((*this)(it->first, it2->first))
+				return true;
+			if ((*this)(it2->first, it->first))
+				return false;
+			if ((*this)(it->second, it2->second))
+				return true;
+			if ((*this)(it2->second, it->second))
+				return false;
+		}
+		return it == lhs.hash().end() && it2 != rhs.hash().end();
+	}
+
+	return lhs.Less(rhs) != 0;
 }
 
 /* -----------------------------------------------------------------------

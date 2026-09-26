@@ -51,7 +51,6 @@ LIBAYA5_OBJ = \
 	selecter.o \
 	sysfunc.o \
 	value.o \
-	valuesub.o \
 	wsex.o \
 	posix_utils.o \
 	posix_charconv.o \

@@ -66,7 +66,6 @@ LIBAYA5_SRC = \
 	sha1.cpp \
 	sysfunc.cpp \
 	value.cpp \
-	valuesub.cpp \
 	wordmatch.cpp \
 	wsex.cpp
 

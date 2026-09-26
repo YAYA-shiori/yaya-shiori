@@ -138,10 +138,12 @@ char	CParser1::CheckSubstSyntax(CStatement& st, const yaya::string_t& dicfilenam
 					errcount++;
 				}
 				// 手前が閉じスクウェアブラケット("]")だった場合はブラケット手前の変数を確認
-				if(st.cell()[before].value_GetType() == F_TAG_HOOKBRACKETOUT) {
+				// 多次元配列（a[x][y] = ...）の場合は"]"を遡って根元の変数まで確認する
+				ptrdiff_t bracketout = before;
+				while(st.cell()[bracketout].value_GetType() == F_TAG_HOOKBRACKETOUT) {
 					ptrdiff_t depth = 1;
 					ptrdiff_t j = 0;
-					for(j = before - 1; j >= 0; j--) {
+					for(j = bracketout - 1; j >= 0; j--) {
 						if (st.cell()[j].value_GetType() == F_TAG_HOOKBRACKETOUT)
 							depth++;
 						else if (st.cell()[j].value_GetType() == F_TAG_HOOKBRACKETIN)
@@ -154,13 +156,17 @@ char	CParser1::CheckSubstSyntax(CStatement& st, const yaya::string_t& dicfilenam
 					if (j < 1) {
 						vm.logger().Error(E_E, 29, dicfilename, st.linecount);
 						errcount++;
+						break;
 					}
 					else if (st.cell()[j].value_GetType() != F_TAG_ARRAYORDER ||
 						(st.cell()[j - 1].value_GetType() != F_TAG_VARIABLE &&
-						st.cell()[j - 1].value_GetType() != F_TAG_LOCALVARIABLE)) {
+						st.cell()[j - 1].value_GetType() != F_TAG_LOCALVARIABLE &&
+						st.cell()[j - 1].value_GetType() != F_TAG_HOOKBRACKETOUT)) {
 						vm.logger().Error(E_E, 29, dicfilename, st.linecount);
 						errcount++;
+						break;
 					}
+					bracketout = j - 1;
 				}
 			}
 		}

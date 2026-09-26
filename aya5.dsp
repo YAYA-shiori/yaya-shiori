@@ -330,10 +330,6 @@ SOURCE=.\value.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\valuesub.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\variable.cpp
 # End Source File
 # Begin Source File

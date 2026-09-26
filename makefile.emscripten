@@ -53,7 +53,6 @@ LIBAYA5_OBJ = \
 	sha1.o \
 	sysfunc.o \
 	value.o \
-	valuesub.o \
 	wsex.o \
 	posix_utils.o
 

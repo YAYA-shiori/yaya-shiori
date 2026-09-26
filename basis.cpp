@@ -916,7 +916,7 @@ static void CBasis_ConvertStringArray(const std::vector<yaya::string_t> &array,C
 	std::vector<yaya::string_t>::const_iterator itr = array.begin();
 
 	while ( itr != array.end() ) {
-		var.array().emplace_back(CValueSub(*itr));
+		var.array().emplace_back(CValue(*itr));
 		++itr;
 	}
 }
@@ -1024,6 +1024,225 @@ CValue CBasis::GetParameter(const yaya::string_t &cmd)
 		return vm.logger().GetIologFilterMode() ? L"allowlist" : L"denylist";
 	}
 	return yaya::string_t();
+}
+
+/* -----------------------------------------------------------------------
+ *  セーブファイルの値の書式
+ *
+ *  配列　　：要素を":"で区切る。要素が1つなら末尾に":IARRAY"、空なら"IARRAY:IARRAY"
+ *  ハッシュ：キー=値を":"で区切る。要素が1つなら末尾に":IHASH=IHASH"、空なら"IHASH=IHASH:IHASH=IHASH"
+ *  要素　　：文字列は"～"（EscapeString済み）、VOIDはIVOID、数値はそのまま
+ *  　　　　　要素が配列/ハッシュの場合は、上の書式をIARRAY{～}/IHASH{～}で囲む（入れ子）
+ *
+ *  分割の際はダブルクォートの内側と{}の内側を無視する
+ * -----------------------------------------------------------------------
+ */
+static yaya::string_t::size_type FindSaveSep(const yaya::string_t &str, yaya::char_t sep)
+{
+	bool indq = false;
+	int depth = 0;
+
+	for(yaya::string_t::size_type i = 0; i < str.size(); ++i) {
+		yaya::char_t c = str[i];
+		if (c == L'\"') {
+			indq = !indq;
+		}
+		else if (!indq) {
+			if (c == L'{') {
+				++depth;
+			}
+			else if (c == L'}') {
+				--depth;
+			}
+			else if (c == sep && depth == 0) {
+				return i;
+			}
+		}
+	}
+	return yaya::string_t::npos;
+}
+
+static bool SplitSaveSep(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, yaya::char_t sep)
+{
+	yaya::string_t::size_type seppoint = FindSaveSep(str, sep);
+	if (seppoint == yaya::string_t::npos) {
+		dstr0 = str;
+		dstr1.erase();
+		return false;
+	}
+
+	dstr0.assign(str, 0, seppoint);
+	dstr1.assign(str, seppoint + 1, str.size() - seppoint - 1);
+
+	CutSpace(dstr0);
+	CutSpace(dstr1);
+
+	return true;
+}
+
+static void AppendSaveArrayBody(yaya::string_t &str, const CValue &value);
+static void AppendSaveHashBody(yaya::string_t &str, const CValue &value);
+static void RestoreSaveArrayBody(CValue &var, yaya::string_t value);
+static void RestoreSaveHashBody(CValue &var, yaya::string_t value);
+
+static void AppendSaveElement(yaya::string_t &str, const CValue &value)
+{
+	yaya::string_t wstr;
+
+	switch(value.GetType()) {
+	case F_TAG_STRING:
+		wstr = value.s_value;
+		EscapeString(wstr);
+		str += L"\"";
+		str += wstr;
+		str += L"\"";
+		break;
+	case F_TAG_VOID:
+		str += ESC_IVOID;
+		break;
+	case F_TAG_ARRAY:
+		str += ESC_IARRAY L"{";
+		AppendSaveArrayBody(str, value);
+		str += L"}";
+		break;
+	case F_TAG_HASH:
+		str += ESC_IHASH L"{";
+		AppendSaveHashBody(str, value);
+		str += L"}";
+		break;
+	default:
+		wstr = value.GetValueString();
+		EscapeString(wstr);
+		str += wstr;
+		break;
+	}
+}
+
+static void AppendSaveArrayBody(yaya::string_t &str, const CValue &value)
+{
+	if (!value.array_size()) {
+		str += ESC_IARRAY L":" ESC_IARRAY;
+		return;
+	}
+
+	CValueArray::const_iterator	itv;
+	CValueArray::const_iterator	itvbegin = value.array().begin();
+
+	for(itv = itvbegin; itv != value.array().end(); itv++) {
+		if (itv != itvbegin)
+			str += L':';
+		AppendSaveElement(str, *itv);
+	}
+	if (value.array_size() == 1) {
+		str += L":" ESC_IARRAY;
+	}
+}
+
+static void AppendSaveHashBody(yaya::string_t &str, const CValue &value)
+{
+	if (!value.hash_size()) {
+		str += ESC_IHASH L"=" ESC_IHASH L":" ESC_IHASH L"=" ESC_IHASH;
+		return;
+	}
+
+	CValueHash::const_iterator	itv;
+	CValueHash::const_iterator	itvbegin = value.hash().begin();
+
+	for(itv = itvbegin; itv != value.hash().end(); itv++) {
+		if (itv != itvbegin)
+			str += L":";
+		AppendSaveElement(str, itv->first);
+		str += L"=";
+		AppendSaveElement(str, itv->second);
+	}
+	if (value.hash_size() == 1) {
+		str += L":" ESC_IHASH L"=" ESC_IHASH;
+	}
+}
+
+static bool IsNestedSaveElement(const yaya::string_t &par, const yaya::char_t *prefix)
+{
+	size_t len = ::wcslen(prefix);
+	return par.size() >= len + 2 &&
+		par.compare(0, len, prefix) == 0 &&
+		par[len] == L'{' &&
+		par[par.size() - 1] == L'}';
+}
+
+static CValue RestoreSaveElement(yaya::string_t par)
+{
+	if (par == ESC_IVOID) {
+		return CValue();
+	}
+	else if (IsNestedSaveElement(par, ESC_IARRAY)) {
+		size_t len = ::wcslen(ESC_IARRAY);
+		CValue result(F_TAG_ARRAY, 0/*dmy*/);
+		RestoreSaveArrayBody(result, par.substr(len + 1, par.size() - len - 2));
+		return result;
+	}
+	else if (IsNestedSaveElement(par, ESC_IHASH)) {
+		size_t len = ::wcslen(ESC_IHASH);
+		CValue result(F_TAG_HASH, 0/*dmy*/);
+		RestoreSaveHashBody(result, par.substr(len + 1, par.size() - len - 2));
+		return result;
+	}
+	else if (IsIntString(par)) {
+		return CValue(yaya::ws_atoll(par, 10));
+	}
+	else if (IsDoubleButNotIntString(par)) {
+		return CValue(yaya::ws_atof(par));
+	}
+	else {
+		CutDoubleQuote(par);
+		UnescapeString(par);
+		return CValue(par);
+	}
+}
+
+static void RestoreSaveArrayBody(CValue &var, yaya::string_t value)
+{
+	var.SetType(F_TAG_ARRAY);
+	var.array().clear();
+
+	yaya::string_t	par, remain;
+	bool splitResult;
+
+	for( ; ; ) {
+		splitResult = SplitSaveSep(value, par, remain, L':');
+
+		if (par != ESC_IARRAY) {
+			var.array().emplace_back(RestoreSaveElement(par));
+		}
+
+		if (!splitResult) {
+			break;
+		}
+		value = remain;
+	}
+}
+
+static void RestoreSaveHashBody(CValue &var, yaya::string_t value)
+{
+	var.SetType(F_TAG_HASH);
+	var.hash().clear();
+
+	yaya::string_t	par, remain, key, key_value;
+	bool splitResult;
+
+	for( ; ; ) {
+		splitResult = SplitSaveSep(value, par, remain, L':');
+
+		if ( SplitSaveSep(par, key, key_value, L'=') ) {
+			if (key.compare(ESC_IHASH) != 0) {
+				var.hash().insert(std::pair<CValue,CValue>(RestoreSaveElement(key), RestoreSaveElement(key_value)));
+			}
+		}
+
+		if (!splitResult) {
+			break;
+		}
+		value = remain;
+	}
 }
 
 /* -----------------------------------------------------------------------
@@ -1163,85 +1382,11 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 			str += L"\",";
 			break;
 		case F_TAG_ARRAY:
-			if (!var->value_const().array_size()) {
-				str += ESC_IARRAY L":" ESC_IARRAY;
-			}
-			else {
-				CValueArray::const_iterator	itv;
-				CValueArray::const_iterator	itvbegin = var->value_const().array().begin();
-
-				for(itv = itvbegin; itv != var->value_const().array().end(); itv++) {
-					if(itv != itvbegin)
-						str += L':';
-					wstr = itv->GetValueString();
-					EscapeString(wstr);
-
-					if (itv->GetType() == F_TAG_STRING) {
-						str += L"\"";
-						str += wstr;
-						str += L"\"";
-					}
-					else if (itv->GetType() == F_TAG_VOID) {
-						str += ESC_IVOID;
-					}
-					else {
-						str += wstr;
-					}
-				}
-				if (var->value_const().array_size() == 1) {
-					str += L":" ESC_IARRAY;
-				}
-			}
+			AppendSaveArrayBody(str, var->value_const());
 			str += L',';
 			break;
 		case F_TAG_HASH:
-			if (!var->value_const().hash_size()) {
-				str += ESC_IHASH L"=" ESC_IHASH L":" ESC_IHASH L"=" ESC_IHASH;
-			}
-			else {
-				CValueHash::const_iterator	itv;
-				CValueHash::const_iterator	itvbegin = var->value_const().hash().begin();
-
-				for(itv = itvbegin; itv != var->value_const().hash().end(); itv++) {
-					if (itv != itvbegin)
-						str += L":";
-
-					wstr = itv->first.GetValueString();
-					EscapeString(wstr);
-
-					if (itv->first.GetType() == F_TAG_STRING) {
-						str += L"\"";
-						str += wstr;
-						str += L"\"";
-					}
-					else if (itv->first.GetType() == F_TAG_VOID) {
-						str += ESC_IVOID;
-					}
-					else {
-						str += wstr;
-					}
-
-					str += L"=";
-
-					wstr = itv->second.GetValueString();
-					EscapeString(wstr);
-
-					if (itv->second.GetType() == F_TAG_STRING) {
-						str += L"\"";
-						str += wstr;
-						str += L"\"";
-					}
-					else if (itv->second.GetType() == F_TAG_VOID) {
-						str += ESC_IVOID;
-					}
-					else {
-						str += wstr;
-					}
-				}
-				if (var->value_const().hash_size() == 1) {
-					str += L":" ESC_IHASH L"=" ESC_IHASH;
-				}
-			}
+			AppendSaveHashBody(str, var->value_const());
 			str += L",";
 			break;
 		default:
@@ -1419,13 +1564,13 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 			type = F_TAG_STRING;
 		}
 		else {
-			if (Find_IgnoreDQ(value,L":") == yaya::string_t::npos) {
+			if (FindSaveSep(value,L':') == yaya::string_t::npos) {
 				vm.logger().Error(E_W, 4, filename, i);
 				continue;
 			}
 			else {
 				type = F_TAG_ARRAY;
-				if (Find_IgnoreDQ(value,L"=") != yaya::string_t::npos) {
+				if (FindSaveSep(value,L'=') != yaya::string_t::npos) {
 					type = F_TAG_HASH;
 				}
 			}
@@ -1487,103 +1632,18 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
  */
 void	CBasis::RestoreArrayVariable(CValue &var, yaya::string_t &value)
 {
-	var.array().clear();
-
-	yaya::string_t	par, remain;
-	char splitResult;
-
-	for( ; ; ) {
-		splitResult = Split_IgnoreDQ(value, par, remain, L":");
-		if (!splitResult) {
-			par = value;
-		}
-
-		if (par != ESC_IARRAY) {
-			if (par == ESC_IVOID) {
-				var.array().emplace_back(CValueSub());
-			}
-			else if(IsIntString(par)) {
-				var.array().emplace_back(CValueSub(yaya::ws_atoll(par, 10)));
-			}
-			else if (IsDoubleButNotIntString(par)) {
-				var.array().emplace_back(CValueSub( yaya::ws_atof(par) ));
-			}
-			else {
-				CutDoubleQuote(par);
-				UnescapeString(par);
-				var.array().emplace_back(CValueSub(par));
-			}
-		}
-
-		if (!splitResult) {
-			break;
-		}
-		value = remain;
-	}
+	RestoreSaveArrayBody(var, value);
 }
 
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CBasis::RestoreHashVariable
- *  機能概要：  RestoreVariableから呼ばれます。配列変数の内容を復元します
+ *  機能概要：  RestoreVariableから呼ばれます。ハッシュ変数の内容を復元します
  * -----------------------------------------------------------------------
  */
 void	CBasis::RestoreHashVariable(CValue &var, yaya::string_t &value)
 {
-	var.hash().clear();
-
-	yaya::string_t	par, remain, key, key_value;
-	char splitResult;
-
-	for( ; ; ) {
-		splitResult = Split_IgnoreDQ(value, par, remain, L":");
-		if (!splitResult) {
-			par = value;
-		}
-
-		if ( Split_IgnoreDQ(par, key, key_value, L"=") ) {
-			if (key.compare(ESC_IHASH) != 0) {
-				std::pair<CValueSub,CValueSub> kv;
-
-				if (key.compare(ESC_IVOID) == 0) {
-					kv.first = CValueSub();
-				}
-				else if (IsIntString(key)) {
-					kv.first = CValueSub( yaya::ws_atoi(key, 10) );
-				}
-				else if (IsDoubleButNotIntString(key)) {
-					kv.first = CValueSub( yaya::ws_atof(key) );
-				}
-				else {
-					CutDoubleQuote(key);
-					UnescapeString(key);
-					kv.first = CValueSub(key);
-				}
-
-				if (key_value.compare(ESC_IVOID) == 0) {
-					kv.second = CValueSub();
-				}
-				else if (IsIntString(key_value)) {
-					kv.second = CValueSub( yaya::ws_atoi(key_value, 10) );
-				}
-				else if (IsDoubleButNotIntString(key_value)) {
-					kv.second = CValueSub( yaya::ws_atof(key_value) );
-				}
-				else {
-					CutDoubleQuote(key_value);
-					UnescapeString(key_value);
-					kv.second = CValueSub(key_value);
-				}
-
-				var.hash().insert(kv);
-			}
-		}
-
-		if (!splitResult) {
-			break;
-		}
-		value = remain;
-	}
+	RestoreSaveHashBody(var, value);
 }
 
 /* -----------------------------------------------------------------------
@@ -1604,7 +1664,7 @@ void	CBasis::ExecuteLoad(void)
 
 	// 第一引数（dllのパス）を作成
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
-	arg.array().emplace_back(CValueSub(base_path));
+	arg.array().emplace_back(CValue(base_path));
 
 	// 実行　結果は使用しないのでそのまま捨てる
 	vm.call_limit().InitCall();
@@ -1649,7 +1709,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 	wchar_t	*wistr = Ccct::MbcsToUcs2(istr, output_charset);
 	if (wistr != NULL) {
 		vm.logger().Io(0, wistr);
-		arg.array().emplace_back(CValueSub(wistr));
+		arg.array().emplace_back(CValue(wistr));
 		free(wistr);
 		wistr = NULL;
 	}
@@ -1766,7 +1826,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 
 	if (wistr != NULL) {
 		vm.logger().Io(0, wistr);
-		arg.array().emplace_back(CValueSub(wistr));
+		arg.array().emplace_back(CValue(wistr));
 		free(wistr);
 		wistr = NULL;
 	}

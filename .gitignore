@@ -1,4 +1,3 @@
-
 .vs/
 *.aps
 *.ncb
@@ -18,7 +17,6 @@ ReleaseLangSep
 tmp
 _UpgradeReport_Files
 /*.opensdf
-CLAUDE.md
 .mcp.json
 /.claude
-current_problem.md
+temp-doc-*.md
