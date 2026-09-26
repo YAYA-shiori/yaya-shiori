@@ -7802,10 +7802,14 @@ static ptrdiff_t LintGetLetTargetCellIndex(const CStatement &st, const CSerial &
 	return ptrdiff_t(idx);
 }
 
-// foreach _list ; _v の _v 側ステートメント（代入先変数のみ）か
+// foreach _list ; _v（または _k, _v）の変数側ステートメント（代入先変数のみ）か
+// 代入先の変数は偶数番目のセル（0, 2）にある
 static bool LintIsForeachVarStatement(const std::vector<CStatement> &statement, std::vector<CStatement>::const_iterator s)
 {
-	return s != statement.begin() && (s - 1)->type == ST_FOREACH && s->cell_size() == 1;
+	if ( s == statement.begin() || (s - 1)->type != ST_FOREACH ) {
+		return false;
+	}
+	return s->cell_size() == 1 || (s->cell_size() == 3 && s->cell()[1].value_GetType() == F_TAG_COMMA);
 }
 
 // case構文が内部で生成するローカル変数か
@@ -7985,7 +7989,9 @@ CValue	CSystemFunction::LINT_GetLocalVarUsedBy(CSF_FUNCPARAM &p)
 				}
 			}
 			if ( LintIsForeachVarStatement(it->statement, s) ) {
-				is_let_target[0] = true;
+				for ( size_t c = 0 ; c < cells.size() ; c += 2 ) {
+					is_let_target[c] = true;
+				}
 			}
 
 			for ( int pass = 0 ; pass < 2 ; ++pass ) {
@@ -8041,9 +8047,11 @@ CValue	CSystemFunction::LINT_GetGlobalVarLetted(CSF_FUNCPARAM &p)
 
 	for ( std::vector<CStatement>::const_iterator s = it->statement.begin() ; s != it->statement.end() ; ++s ) {
 		if ( LintIsForeachVarStatement(it->statement, s) ) {
-			const CCell &v_cell = s->cell()[0];
-			if ( v_cell.value_GetType() == F_TAG_VARIABLE ) {
-				name_set.insert(vm.variable().GetName(v_cell.index));
+			for ( size_t c = 0 ; c < s->cell_size() ; c += 2 ) {
+				const CCell &v_cell = s->cell()[c];
+				if ( v_cell.value_GetType() == F_TAG_VARIABLE ) {
+					name_set.insert(vm.variable().GetName(v_cell.index));
+				}
 			}
 			continue;
 		}
@@ -8101,10 +8109,12 @@ CValue	CSystemFunction::LINT_GetLocalVarLetted(CSF_FUNCPARAM &p)
 			array.emplace_back(L"}");
 		}
 		else if ( LintIsForeachVarStatement(it->statement, s) ) {
-			const CCell &v_cell = s->cell()[0];
-			if ( v_cell.value_GetType() == F_TAG_LOCALVARIABLE ) {
-				array.emplace_back(v_cell.name);
-				++value_count;
+			for ( size_t c = 0 ; c < s->cell_size() ; c += 2 ) {
+				const CCell &v_cell = s->cell()[c];
+				if ( v_cell.value_GetType() == F_TAG_LOCALVARIABLE ) {
+					array.emplace_back(v_cell.name);
+					++value_count;
+				}
 			}
 		}
 		else {
@@ -8322,7 +8332,9 @@ CValue	CSystemFunction::LINT_GetVarRefs(CSF_FUNCPARAM &p)
 			}
 		}
 		if ( LintIsForeachVarStatement(statement, statement.begin() + i) ) {
-			access[0] = L"w";
+			for ( size_t c = 0 ; c < cells.size() ; c += 2 ) {
+				access[c] = L"w";
+			}
 		}
 
 		// 代入は右辺の評価後に行われるので、代入先は同一ステートメント内の最後に並べる

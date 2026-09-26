@@ -10,6 +10,7 @@
 #endif
 
 #include <math.h>
+#include <float.h>
 #include <vector>
 #include <iterator>
 
@@ -753,6 +754,12 @@ CValue CValue::operator +(const CValue &value) const
 		return CValue(GetValueString() + value.GetValueString());
 	case F_TAG_ARRAY:
 		return CValue_ArrayCalc(*this,value,CValue_Add());
+	case F_TAG_HASH:
+		// ハッシュは文字列として連結する（配列とは要素ごとに演算）
+		if ( type == F_TAG_ARRAY || value.type == F_TAG_ARRAY ) {
+			return CValue_ArrayCalc(*this,value,CValue_Add());
+		}
+		return CValue(GetValueString() + value.GetValueString());
 	};
 	
 	return CValue(value);
@@ -796,6 +803,11 @@ CValue CValue::operator -(const CValue &value) const
 		return CValue(GetValueDouble() - value.GetValueDouble());
 	case F_TAG_ARRAY:
 		return CValue_ArrayCalc(*this,value,CValue_Sub());
+	case F_TAG_HASH:
+		if ( type == F_TAG_ARRAY || value.type == F_TAG_ARRAY ) {
+			return CValue_ArrayCalc(*this,value,CValue_Sub());
+		}
+		break;
 	};
 	
 	return CValue(value);
@@ -835,6 +847,11 @@ CValue CValue::operator *(const CValue &value) const
 		return CValue(GetValueDouble() * value.GetValueDouble());
 	case F_TAG_ARRAY:
 		return CValue_ArrayCalc(*this,value,CValue_Mul());
+	case F_TAG_HASH:
+		if ( type == F_TAG_ARRAY || value.type == F_TAG_ARRAY ) {
+			return CValue_ArrayCalc(*this,value,CValue_Mul());
+		}
+		break;
 	};
 	
 	return CValue(value);
@@ -882,6 +899,11 @@ CValue CValue::operator /(const CValue &value) const
 		}
 	case F_TAG_ARRAY:
 		return CValue_ArrayCalc(*this,value,CValue_Div());
+	case F_TAG_HASH:
+		if ( type == F_TAG_ARRAY || value.type == F_TAG_ARRAY ) {
+			return CValue_ArrayCalc(*this,value,CValue_Div());
+		}
+		break;
 	};
 	
 	return CValue(value);
@@ -920,6 +942,11 @@ CValue CValue::operator %(const CValue &value) const
 		}
 	case F_TAG_ARRAY:
 		return CValue_ArrayCalc(*this,value,CValue_Mod());
+	case F_TAG_HASH:
+		if ( type == F_TAG_ARRAY || value.type == F_TAG_ARRAY ) {
+			return CValue_ArrayCalc(*this,value,CValue_Mod());
+		}
+		break;
 	};
 	
 	return CValue(value);
@@ -1090,10 +1117,12 @@ int CValue::Compare(const CValue &value) const
 		if (type == F_TAG_HASH && value.type == F_TAG_HASH) {
 			if (hash_size() != value.hash_size())
 				return 0;
+			// キーの一致はハッシュの順序（CValueLess）と揃える
+			CValueLess less;
 			CValueHash::const_iterator it, it2;
 			for(it = hash().begin(), it2 = value.hash().begin();
 				it != hash().end() && it2 != value.hash().end(); it++, it2++) {
-				if (!it->first.Compare(it2->first) || !it->second.Compare(it2->second))
+				if (less(it->first, it2->first) || less(it2->first, it->first) || !it->second.Compare(it2->second))
 					return 0;
 			}
 			return 1;
@@ -1112,6 +1141,151 @@ int CValue::Compare(const CValue &value) const
  *  ハッシュのキーや集合の要素の順序（std::map/std::set用）です。
  * -----------------------------------------------------------------------
  */
+static bool CValueLess_IsNaN(double d)
+{
+#if defined(_MSC_VER)
+	return _isnan(d) != 0;
+#else
+	return d != d;
+#endif
+}
+
+// 文字列が正規形の整数（先頭の0や"-0"、"+"、空白を含まず、64bitに収まる）なら値を返す
+static bool CValueLess_ParseCanonicalInt(const yaya::string_t &s, yaya::int_t &out)
+{
+	size_t n = s.size();
+	size_t p = 0;
+	bool neg = false;
+
+	if (n == 0) {
+		return false;
+	}
+	if (s[0] == L'-') {
+		neg = true;
+		p = 1;
+		if (n == 1) {
+			return false;
+		}
+	}
+	if (s[p] == L'0') {
+		if (n == 1) {
+			out = 0;
+			return true;
+		}
+		return false;
+	}
+	if (n - p > 19) {
+		return false;
+	}
+
+	const std::uint64_t limit = neg ? ULL_DEF(9223372036854775808) : ULL_DEF(9223372036854775807);
+	std::uint64_t acc = 0;
+	for ( ; p < n; ++p) {
+		if (s[p] < L'0' || s[p] > L'9') {
+			return false;
+		}
+		std::uint64_t digit = s[p] - L'0';
+		if (acc > (limit - digit) / 10) {
+			return false;
+		}
+		acc = acc * 10 + digit;
+	}
+
+	if (neg) {
+		out = -static_cast<yaya::int_t>(acc - 1) - 1; // -2^63でも溢れない
+	}
+	else {
+		out = static_cast<yaya::int_t>(acc);
+	}
+	return true;
+}
+
+// 整数と実数を誤差なく比較する（dはNaNでないこと）
+static int CValueLess_CompareIntDouble(yaya::int_t i, double d)
+{
+	if (d >= 9223372036854775808.0) {
+		return -1;
+	}
+	if (d < -9223372036854775808.0) {
+		return 1;
+	}
+	yaya::int_t di = static_cast<yaya::int_t>(d);
+	if (i < di) {
+		return -1;
+	}
+	if (i > di) {
+		return 1;
+	}
+	double dd = static_cast<double>(di);
+	if (d > dd) {
+		return -1;
+	}
+	if (d < dd) {
+		return 1;
+	}
+	return 0;
+}
+
+// スカラーのキーを 0=整数 1=実数 2=文字列 に分類する
+// 整数の正規形の文字列は整数として扱う（h[1]とh["1"]を同じキーにするため）
+enum { CVALUELESS_INT = 0, CVALUELESS_DOUBLE, CVALUELESS_STRING };
+
+static int CValueLess_ScalarKind(const CValue &v, yaya::int_t &i)
+{
+	switch(v.GetType()) {
+	case F_TAG_INT:
+		i = v.i_value;
+		return CVALUELESS_INT;
+	case F_TAG_DOUBLE:
+		return CVALUELESS_DOUBLE;
+	case F_TAG_STRING:
+		if (CValueLess_ParseCanonicalInt(v.s_value, i)) {
+			return CVALUELESS_INT;
+		}
+		return CVALUELESS_STRING;
+	default:
+		return CVALUELESS_STRING;
+	}
+}
+
+static bool CValueLess_Scalar(const CValue &lhs, const CValue &rhs)
+{
+	// 数値（整数・実数）< 文字列
+	// 数値同士は数値として比較し、NaNは数値の最後に置く。文字列同士は文字列として比較する
+	yaya::int_t li = 0, ri = 0;
+	int lk = CValueLess_ScalarKind(lhs, li);
+	int rk = CValueLess_ScalarKind(rhs, ri);
+
+	bool lnum = lk != CVALUELESS_STRING;
+	bool rnum = rk != CVALUELESS_STRING;
+	if (lnum != rnum) {
+		return lnum;
+	}
+
+	if (lnum) {
+		if (lk == CVALUELESS_INT && rk == CVALUELESS_INT) {
+			return li < ri;
+		}
+		bool lnan = lk == CVALUELESS_DOUBLE && CValueLess_IsNaN(lhs.d_value);
+		bool rnan = rk == CVALUELESS_DOUBLE && CValueLess_IsNaN(rhs.d_value);
+		if (lnan || rnan) {
+			return !lnan && rnan;
+		}
+		if (lk == CVALUELESS_DOUBLE && rk == CVALUELESS_DOUBLE) {
+			return lhs.d_value < rhs.d_value;
+		}
+		if (lk == CVALUELESS_INT) {
+			return CValueLess_CompareIntDouble(li, rhs.d_value) < 0;
+		}
+		return CValueLess_CompareIntDouble(ri, lhs.d_value) > 0;
+	}
+
+	static const yaya::string_t empty;
+	const yaya::string_t &ls = (lhs.GetType() == F_TAG_STRING) ? lhs.s_value : empty;
+	const yaya::string_t &rs = (rhs.GetType() == F_TAG_STRING) ? rhs.s_value : empty;
+	return ls < rs;
+}
+
 static int CValueLess_Class(const CValue &v)
 {
 	switch(v.GetType()) {
@@ -1159,7 +1333,7 @@ bool CValueLess::operator()(const CValue &lhs, const CValue &rhs) const
 		return it == lhs.hash().end() && it2 != rhs.hash().end();
 	}
 
-	return lhs.Less(rhs) != 0;
+	return CValueLess_Scalar(lhs, rhs);
 }
 
 /* -----------------------------------------------------------------------

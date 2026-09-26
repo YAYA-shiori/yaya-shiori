@@ -499,8 +499,17 @@ void	CFunction::Foreach(CLocalVariable &lvar, CSelecter &output,size_t line,int 
 	}
 
 	CValue	t_value;
-	int type;
+	CValue	t_key;
 	int fromtype = value.GetType();
+
+	// foreach 配列; _v または foreach 配列; _k, _v
+	// _k にはハッシュならキー、配列/簡易配列なら0からのインデックスが入る
+	CCell	*v_cell = &(st1.cell()[0]);
+	CCell	*k_cell = NULL;
+	if (st1.cell_size() == 3) {
+		k_cell = &(st1.cell()[0]);
+		v_cell = &(st1.cell()[2]);
+	}
 
 	CValueHash::const_iterator hash_iterator = (fromtype == F_TAG_HASH) ? value.hash().begin() : CValueHash::const_iterator();
 	
@@ -508,28 +517,41 @@ void	CFunction::Foreach(CLocalVariable &lvar, CSelecter &output,size_t line,int 
 		// 代入する要素値を取得
 		if (isPseudoarray) {
 			t_value = s_array[foreachcount];
+			t_key = CValue(static_cast<yaya::int_t>(foreachcount));
 		}
 		else {// F_TAG_ARRAY
 			if ( fromtype == F_TAG_ARRAY ) {
 				t_value = value.array()[foreachcount];
+				t_key = CValue(static_cast<yaya::int_t>(foreachcount));
 			}
 			else if ( fromtype == F_TAG_HASH ) {
-				t_value = CValue(F_TAG_ARRAY, 0/*dmy*/);
-				//t_value.array().push_back(hash_iterator->first); //second(value)だけで良い
-				t_value.array().push_back(hash_iterator->second);
+				t_value = hash_iterator->second;
+				t_key = hash_iterator->first;
 				hash_iterator++;
 			}
 		}
 
 		// 代入
-		type = st1.cell()[0].value_GetType();
-		if ( type == F_TAG_VARIABLE ) {
-			pvm->variable().SetValue(st1.cell()[0].index, t_value);
+		bool substerr = false;
+		for(int n = 0; n < 2; ++n) {
+			CCell *s_cell = n ? v_cell : k_cell;
+			if ( s_cell == NULL ) {
+				continue;
+			}
+			const CValue &subst_value = n ? t_value : t_key;
+			int type = s_cell->value_GetType();
+			if ( type == F_TAG_VARIABLE ) {
+				pvm->variable().SetValue(s_cell->index, subst_value);
+			}
+			else if ( type == F_TAG_LOCALVARIABLE ) {
+				lvar.SetValue(s_cell->name, subst_value);
+			}
+			else {
+				substerr = true;
+				break;
+			}
 		}
-		else if ( type == F_TAG_LOCALVARIABLE ) {
-			lvar.SetValue(st1.cell()[0].name, t_value);
-		}
-		else {
+		if ( substerr ) {
 			pvm->logger().Error(E_E, 28, dicfilename, st1.linecount);
 			break;
 		}
@@ -618,25 +640,33 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 			case F_TAG_MINUS:
 				{
 					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
-					o_cell.ansv() = lv - GetValueRefForCalc(*d_cell, st, lvar);
+					const CValue& rv = GetValueRefForCalc(*d_cell, st, lvar);
+					WarnHashCalc(lv, rv, L"-", st);
+					o_cell.ansv() = lv - rv;
 					break;
 				}
 			case F_TAG_MUL:
 				{
 					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
-					o_cell.ansv() = lv * GetValueRefForCalc(*d_cell, st, lvar);
+					const CValue& rv = GetValueRefForCalc(*d_cell, st, lvar);
+					WarnHashCalc(lv, rv, L"*", st);
+					o_cell.ansv() = lv * rv;
 					break;
 				}
 			case F_TAG_DIV:
 				{
 					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
-					o_cell.ansv() = lv / GetValueRefForCalc(*d_cell, st, lvar);
+					const CValue& rv = GetValueRefForCalc(*d_cell, st, lvar);
+					WarnHashCalc(lv, rv, L"/", st);
+					o_cell.ansv() = lv / rv;
 					break;
 				}
 			case F_TAG_SURP:
 				{
 					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
-					o_cell.ansv() = lv % GetValueRefForCalc(*d_cell, st, lvar);
+					const CValue& rv = GetValueRefForCalc(*d_cell, st, lvar);
+					WarnHashCalc(lv, rv, L"%", st);
+					o_cell.ansv() = lv % rv;
 					break;
 				}
 			case F_TAG_IFEQUAL:
@@ -1026,19 +1056,35 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CState
 				break;
 			case F_TAG_MINUSEQUAL:
 			case F_TAG_MINUSEQUAL_D:
-				substTo -= GetValueRefForCalc(*sid_1_cell, st, lvar);
+				{
+					const CValue &rv = GetValueRefForCalc(*sid_1_cell, st, lvar);
+					WarnHashCalc(substTo, rv, L"-=", st);
+					substTo -= rv;
+				}
 				break;
 			case F_TAG_MULEQUAL:
 			case F_TAG_MULEQUAL_D:
-				substTo *= GetValueRefForCalc(*sid_1_cell, st, lvar);
+				{
+					const CValue &rv = GetValueRefForCalc(*sid_1_cell, st, lvar);
+					WarnHashCalc(substTo, rv, L"*=", st);
+					substTo *= rv;
+				}
 				break;
 			case F_TAG_DIVEQUAL:
 			case F_TAG_DIVEQUAL_D:
-				substTo /= GetValueRefForCalc(*sid_1_cell, st, lvar);
+				{
+					const CValue &rv = GetValueRefForCalc(*sid_1_cell, st, lvar);
+					WarnHashCalc(substTo, rv, L"/=", st);
+					substTo /= rv;
+				}
 				break;
 			case F_TAG_SURPEQUAL:
 			case F_TAG_SURPEQUAL_D:
-				substTo %= GetValueRefForCalc(*sid_1_cell, st, lvar);
+				{
+					const CValue &rv = GetValueRefForCalc(*sid_1_cell, st, lvar);
+					WarnHashCalc(substTo, rv, L"%=", st);
+					substTo %= rv;
+				}
 				break;
 
 				//カンマ特殊処理
@@ -1086,28 +1132,36 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CState
 	case F_TAG_MINUSEQUAL_D:
 		{
 			const CValue &lv = GetValueRefForCalc(*sid_0_cell, st, lvar);
-			answer = lv - GetValueRefForCalc(*sid_1_cell, st, lvar);
+			const CValue &rv = GetValueRefForCalc(*sid_1_cell, st, lvar);
+			WarnHashCalc(lv, rv, L"-=", st);
+			answer = lv - rv;
 			break;
 		}
 	case F_TAG_MULEQUAL:
 	case F_TAG_MULEQUAL_D:
 		{
 			const CValue &lv = GetValueRefForCalc(*sid_0_cell, st, lvar);
-			answer = lv * GetValueRefForCalc(*sid_1_cell, st, lvar);
+			const CValue &rv = GetValueRefForCalc(*sid_1_cell, st, lvar);
+			WarnHashCalc(lv, rv, L"*=", st);
+			answer = lv * rv;
 			break;
 		}
 	case F_TAG_DIVEQUAL:
 	case F_TAG_DIVEQUAL_D:
 		{
 			const CValue &lv = GetValueRefForCalc(*sid_0_cell, st, lvar);
-			answer = lv / GetValueRefForCalc(*sid_1_cell, st, lvar);
+			const CValue &rv = GetValueRefForCalc(*sid_1_cell, st, lvar);
+			WarnHashCalc(lv, rv, L"/=", st);
+			answer = lv / rv;
 			break;
 		}
 	case F_TAG_SURPEQUAL:
 	case F_TAG_SURPEQUAL_D:
 		{
 			const CValue &lv = GetValueRefForCalc(*sid_0_cell, st, lvar);
-			answer = lv % GetValueRefForCalc(*sid_1_cell, st, lvar);
+			const CValue &rv = GetValueRefForCalc(*sid_1_cell, st, lvar);
+			WarnHashCalc(lv, rv, L"%=", st);
+			answer = lv % rv;
 			break;
 		}
 	case F_TAG_COMMAEQUAL:
@@ -1185,6 +1239,18 @@ char	CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatem
 	default:
 		return 1;
 	};
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFunction::WarnHashCalc
+ *  機能概要：  ハッシュを - * / % の演算に使った場合に警告を出します
+ * -----------------------------------------------------------------------
+ */
+void	CFunction::WarnHashCalc(const CValue &lv, const CValue &rv, const yaya::char_t *op, const CStatement &st)
+{
+	if (lv.IsHash() || rv.IsHash()) {
+		pvm->logger().Error(E_W, 24, op, dicfilename, st.linecount);
+	}
 }
 
 /* -----------------------------------------------------------------------

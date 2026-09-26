@@ -137,6 +137,7 @@
 *Warnung W0021 : Leeres Here-Dokument gefunden.
 *Warnung W0022 : Here-Dokument-Startsequenz gefunden.
 *Warnung W0023 : Während der Wiederherstellung von Variablen gingen einige Informationen verloren.
+*Warnung W0024 : Hashes können nicht mit den Operatoren - * / % verwendet werden.
 //
 // Hinweiszeichenketten (Deutsch)
 !!!msgn

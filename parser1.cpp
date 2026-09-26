@@ -464,10 +464,30 @@ char	CParser1::CheckForSyntax(const yaya::string_t& dicfilename)
 /* -----------------------------------------------------------------------
  *  関数名  ：  CParser1::CheckForeachSyntax
  *  機能概要：  for文が foreach formula; vm.variable(); { という形式となっているかを確認します
+ *  　　　　　  変数は foreach formula; _k, _v のように2つ書くこともできます（キー/インデックスと値）
  *
  *  返値　　：  1/0=エラー/正常
  * -----------------------------------------------------------------------
  */
+static bool IsForeachVarCell(const CCell &cell)
+{
+	int type = cell.value_GetType();
+	return type == F_TAG_VARIABLE || type == F_TAG_LOCALVARIABLE;
+}
+
+static bool IsForeachVarCells(const CStatement &st)
+{
+	if (st.cell_size() == 1) {
+		return IsForeachVarCell(st.cell()[0]);
+	}
+	if (st.cell_size() == 3) {
+		return IsForeachVarCell(st.cell()[0]) &&
+			st.cell()[1].value_GetType() == F_TAG_COMMA &&
+			IsForeachVarCell(st.cell()[2]);
+	}
+	return false;
+}
+
 char	CParser1::CheckForeachSyntax(const yaya::string_t& dicfilename)
 {
 	size_t errcount = 0;
@@ -476,11 +496,10 @@ char	CParser1::CheckForeachSyntax(const yaya::string_t& dicfilename)
 		if ( it->dicfilename != dicfilename ) { continue; }
 
 		int	beftype[2]  = { ST_UNKNOWN, ST_UNKNOWN };
-		int	befcelltype = F_TAG_UNKNOWN;
+		bool	befisvar = false;
 		for(std::vector<CStatement>::iterator it2 = it->statement.begin(); it2 != it->statement.end(); it2++) {
 			if (beftype[1] == ST_FOREACH) {
-				if (beftype[0] == ST_FORMULA_OUT_FORMULA &&
-					(befcelltype == F_TAG_VARIABLE || befcelltype == F_TAG_LOCALVARIABLE)) {
+				if (beftype[0] == ST_FORMULA_OUT_FORMULA && befisvar) {
 					// これで正しい
 				}
 				else {
@@ -494,7 +513,7 @@ char	CParser1::CheckForeachSyntax(const yaya::string_t& dicfilename)
 			}
 			beftype[1]  = beftype[0];
 			beftype[0]  = it2->type;
-			befcelltype = (it2->cell_size() == 1) ? it2->cell()[0].value_GetType() : F_TAG_UNKNOWN;
+			befisvar    = IsForeachVarCells(*it2);
 		}
 	}
 
