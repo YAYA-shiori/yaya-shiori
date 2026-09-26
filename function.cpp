@@ -220,6 +220,14 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 			break;
 		case ST_FORMULA_SUBST:			// 代入
 			GetFormulaAnswer(lvar, st);
+			// 結果は使わないので、代入先の変数と共有している配列・ハッシュを手放す
+			// 持ったままだと、次にその変数を書き換えるときに配列が丸ごと複製される
+			if ( st.serial_size() ) {
+				std_shared_ptr<CValue> &t_ansv = st.cell()[st.serial().back().tindex].ansv_shared();
+				if ( t_ansv.get() && (t_ansv->IsArray() || t_ansv->IsHash()) ) {
+					t_ansv.reset();
+				}
+			}
 			break;
 		case ST_IF:						// if
 			ifflg = 0;
@@ -1001,7 +1009,12 @@ char	CFunction::CommaAdd(CValue &answer, std::vector<size_t> &sid, CStatement &s
 	for( ; it != sid.end(); it++) {
 		const CValue &addv = GetValueRefForCalc(st.cell()[*it], st, lvar);
 		
-		if (addv.GetType() == F_TAG_ARRAY) {
+		if (&addv == &answer) {
+			// _a ,= _a　自分自身を追加する場合は、先に複製しておく
+			CValueArray t_self(t_array);
+			t_array.insert(t_array.end(), t_self.begin(), t_self.end());
+		}
+		else if (addv.GetType() == F_TAG_ARRAY) {
 			t_array.insert(t_array.end(), addv.array().begin(), addv.array().end());
 		}
 		else {
@@ -1040,10 +1053,15 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CState
 		CValue varback;
 
 		if ( pSubstTo ) {
-			varback = pSubstTo->value();
+			// 変更前の値はsetterにしか使わない
+			// 常に取っておくと配列を共有するため、書き換えのたびに配列が丸ごと複製される
+			if ( pSubstTo->setter.size() ) {
+				varback = pSubstTo->value();
+			}
 			CValue &substTo = pSubstTo->value();
 
 			answer.array_clear();
+			answer.hash_clear();
 
 			switch(type) {
 			case F_TAG_EQUAL:
@@ -1218,6 +1236,24 @@ char	CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatem
 		upper = FindUpperArrayOrder(st, oindex);
 		if (upper < 1)
 			return 1;
+	}
+	else {
+		// 1次元で変数が存在しwatcherも無いなら、変数の値を直接書き換える
+		// 値をコピーしてから書き換えると配列を共有するため、そのたびに配列が丸ごと複製される
+		CVariable *pvar = NULL;
+		if (vcell.value_GetType() == F_TAG_VARIABLE) {
+			pvar = pvm->variable().GetPtr(vcell.index);
+		}
+		else if (vcell.value_GetType() == F_TAG_LOCALVARIABLE) {
+			pvar = lvar.GetPtr(vcell.name);
+		}
+		if (pvar != NULL && pvar->watcher.empty()) {
+			pvar->value().SetArrayValue(t_order, answer);
+			if (vcell.value_GetType() == F_TAG_VARIABLE) {
+				pvm->variable().EnableValue(vcell.index);
+			}
+			return 0;
+		}
 	}
 
 	// 値を取得

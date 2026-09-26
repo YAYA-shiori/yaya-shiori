@@ -90,7 +90,7 @@ public:
         }
 		else {
 			m_array.reset();
-            m_hash.reset((CValueHash*)NULL);
+            m_hash.reset(); // reset((CValueHash*)NULL)だとNULLでも参照カウンタが確保される
 			if ( type == F_TAG_STRING ) {
 				s_value = rhs.s_value;
 			}
