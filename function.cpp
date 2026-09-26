@@ -502,7 +502,7 @@ void	CFunction::Foreach(CLocalVariable &lvar, CSelecter &output,size_t line,int 
 	int type;
 	int fromtype = value.GetType();
 
-	CValueHash::const_iterator hash_iterator(NULL);
+	CValueHash::const_iterator hash_iterator;
 	if ( fromtype == F_TAG_HASH ) {
 		hash_iterator = value.hash().begin();
 	}
@@ -1161,17 +1161,13 @@ char	CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatem
 	CValue	value = GetValueRefForCalc(vcell, st, lvar);
 
 	// XV
-    if (value.GetType() == F_TAG_HASH) {
-        if (answer.GetType() != F_TAG_HASH) { //hash‚Ì—v‘f‚Éhash‚ð‘ã“ü‚Å‚«‚é‚Æ‚¨‚©‚µ‚È‚±‚Æ‚É‚È‚é‚Ì‚Å‘Ê–Ú
-            value.hash()[CValueSub(t_order.array()[0])] = CValueSub(answer);
-        }
-		else {
-			pvm->logger().Error(E_W, 8, dicfilename, linecount);
-		}
-    }
-    else {
-	    value.SetArrayValue(t_order, answer);
-    }
+	if (value.GetType() == F_TAG_HASH && answer.GetType() == F_TAG_HASH) {
+		//hash‚Ì—v‘f‚Éhash‚ð‘ã“ü‚Å‚«‚é‚Æ‚¨‚©‚µ‚È‚±‚Æ‚É‚È‚é‚Ì‚Å‘Ê–Ú
+		pvm->logger().Error(E_W, 8, dicfilename, linecount);
+	}
+	else {
+		value.SetArrayValue(t_order, answer);
+	}
 
 	// ‘ã“ü
 	switch(vcell.value_GetType()) {

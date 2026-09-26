@@ -209,9 +209,11 @@ yaya::string_t	CValue::GetValueStringForLogging(void) const
 void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 {
 	// 序数とデリミタの取得
-	size_t	order, order1;
+	size_t	order = 0, order1 = 0;
 	yaya::string_t	delimiter;
-	int	aoflg = oval.DecodeArrayOrder(order, order1, delimiter);
+	int	aoflg = 0;
+	if (type != F_TAG_HASH)
+		aoflg = oval.DecodeArrayOrder(order, order1, delimiter);
 
 	// 値を更新する
 	if ( type == F_TAG_STRING ) {
@@ -312,6 +314,10 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 				s_value += delimiter + s_array[i];
 			}
 		}
+	}
+	else if (type == F_TAG_HASH) {
+		// ハッシュ　序数の第一要素をキーとする
+		hash()[oval.array()[0]] = CValueSub(value);
 	}
 	else {
 		// 汎用配列（もしくは未初期化）
@@ -1110,6 +1116,13 @@ int CValue::Compare(const CValue &value) const
 			else {
 				return 0;
 			}
+		}
+	case F_TAG_HASH:
+		if (type == F_TAG_HASH && value.type == F_TAG_HASH) {
+			return hash() == value.hash();
+		}
+		else {
+			return 0;
 		}
 	}
 

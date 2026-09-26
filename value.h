@@ -392,6 +392,9 @@ public:
 	inline void array_clear(void) {
 		m_array.reset();
 	}
+	inline void hash_clear(void) {
+		m_hash.reset();
+	}
 };
 
 //----
