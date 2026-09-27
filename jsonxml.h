@@ -1,8 +1,9 @@
 // 
 // AYA version 5
 //
-// JSON/XMLの解析　（FREADJSON/FREADXML/PARSEJSON/PARSEXML）
-// JSONの解析にはparson、XMLの解析にはtinyxml2を使用しています。
+// JSON/XMLの解析と出力　（FREADJSON/FREADXML/PARSEJSON/PARSEXML/FWRITEJSON/FWRITEXML/DUMPJSON/DUMPXML）
+// JSONの解析にはparson、XMLの解析と出力にはtinyxml2を使用しています。
+// JSONの出力はYAYAの64bit整数を誤差なく書くため自前で行っています。
 // 
 
 #ifndef	JSONXML_H
@@ -32,6 +33,15 @@ int		XmlDetectCharset(const std::string &bytes);
 
 // 先頭のUTF-8 BOMを除去する
 void	CutUtf8Bom(std::string &str);
+
+// CValueをJSONの文字列にする（prettyなら改行とインデントを入れる）
+void	ValueToJson(const CValue &value, bool pretty, yaya::string_t &out);
+
+// 要素のハッシュをXMLの文字列にする。encodingはXML宣言に書く文字コード名。失敗時はerrstrに詳細
+bool	ValueToXml(const CValue &value, const char *encoding, bool pretty, yaya::string_t &out, yaya::string_t &errstr);
+
+// 文字コードからXML宣言のencodingに書く名前を得る
+const char	*XmlCharsetName(int charset);
 
 //----
 

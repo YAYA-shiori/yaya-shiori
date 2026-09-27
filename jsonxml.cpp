@@ -1,8 +1,9 @@
 // 
 // AYA version 5
 //
-// JSON/XMLの解析　（FREADJSON/FREADXML/PARSEJSON/PARSEXML）
-// JSONの解析にはparson、XMLの解析にはtinyxml2を使用しています。
+// JSON/XMLの解析と出力　（FREADJSON/FREADXML/PARSEJSON/PARSEXML/FWRITEJSON/FWRITEXML/DUMPJSON/DUMPXML）
+// JSONの解析にはparson、XMLの解析と出力にはtinyxml2を使用しています。
+// JSONの出力はYAYAの64bit整数を誤差なく書くため自前で行っています。
 // 
 
 #if defined(WIN32) || defined(_WIN32_WCE)
@@ -15,12 +16,22 @@
 
 #include <string>
 #include <math.h>
+#include <locale.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#if defined(_MSC_VER)
+# include <float.h>
+#else
+# include <cmath>
+#endif
 
 #include "jsonxml.h"
 #include "ccct.h"
 #include "globaldef.h"
 #include "manifest.h"
 #include "value.h"
+#include "wsex.h"
 
 //////////DEBUG/////////////////////////
 #ifdef _WINDOWS
@@ -30,6 +41,36 @@
 #endif
 #endif
 ////////////////////////////////////////
+
+/* -----------------------------------------------------------------------
+ *  クラス名：  CNumericLocaleGuard
+ *  機能概要：  生存中だけLC_NUMERICを"C"にします
+ *
+ *  YAYAは起動時にOSのロケールを設定するため、小数点が","のロケールでは
+ *  parson(strtod)が"1.5"を読めず、sprintfは"1,5"を書いてしまう
+ * -----------------------------------------------------------------------
+ */
+class CNumericLocaleGuard
+{
+private:
+	std::string old_locale;
+
+public:
+	CNumericLocaleGuard(void)
+	{
+		const char *p = setlocale(LC_NUMERIC, NULL);
+		if ( p ) {
+			old_locale = p;
+		}
+		setlocale(LC_NUMERIC, "C");
+	}
+	~CNumericLocaleGuard(void)
+	{
+		if ( ! old_locale.empty() ) {
+			setlocale(LC_NUMERIC, old_locale.c_str());
+		}
+	}
+};
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  Utf8ToWide
@@ -137,6 +178,8 @@ static void JsonValueToValue(const JSON_Value *jv, CValue &out)
  */
 bool JsonToValue(const std::string &utf8, CValue &out)
 {
+	CNumericLocaleGuard locale_guard;
+
 	JSON_Value *root = json_parse_string_with_comments(utf8.c_str());
 	if ( ! root ) {
 		return false;
@@ -275,4 +318,402 @@ int XmlDetectCharset(const std::string &bytes)
 		return CHARSET_UTF8;
 	}
 	return charset;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  WideToUtf8
+ *  機能概要：  内部文字列をUTF-8文字列に変換します
+ * -----------------------------------------------------------------------
+ */
+static std::string WideToUtf8(const yaya::string_t &str)
+{
+	std::string result;
+	char *p = Ccct::Ucs2ToMbcs(str, CHARSET_UTF8);
+	if ( p ) {
+		result = p;
+		free(p);
+	}
+	return result;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  IsFiniteDouble
+ *  機能概要：  NaNでも無限大でもなければtrue
+ * -----------------------------------------------------------------------
+ */
+static bool IsFiniteDouble(double d)
+{
+#if defined(_MSC_VER)
+	return _finite(d) != 0;
+#else
+	return std::isfinite(d);
+#endif
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  JsonAppendIndent
+ *  機能概要：  改行とdepth段のインデントを追加します
+ * -----------------------------------------------------------------------
+ */
+static void JsonAppendIndent(yaya::string_t &out, int depth)
+{
+	out += L'\n';
+	for ( int i = 0; i < depth; ++i ) {
+		out += L"    ";
+	}
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  JsonAppendString
+ *  機能概要：  JSONの文字列リテラルを追加します
+ *
+ *  " \ と制御文字だけをエスケープし、それ以外（非ASCIIを含む）はそのまま書きます
+ * -----------------------------------------------------------------------
+ */
+static void JsonAppendString(yaya::string_t &out, const yaya::string_t &str)
+{
+	static const yaya::char_t hex[] = L"0123456789abcdef";
+
+	out += L'"';
+	for ( yaya::string_t::size_type i = 0; i < str.size(); ++i ) {
+		yaya::char_t c = str[i];
+		switch ( c ) {
+		case L'"':  out += L"\\\""; break;
+		case L'\\': out += L"\\\\"; break;
+		case L'\b': out += L"\\b"; break;
+		case L'\f': out += L"\\f"; break;
+		case L'\n': out += L"\\n"; break;
+		case L'\r': out += L"\\r"; break;
+		case L'\t': out += L"\\t"; break;
+		default:
+			if ( c >= 0 && c < 0x20 ) {
+				out += L"\\u00";
+				out += hex[(c >> 4) & 0xF];
+				out += hex[c & 0xF];
+			}
+			else {
+				out += c;
+			}
+			break;
+		}
+	}
+	out += L'"';
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  JsonAppendDouble
+ *  機能概要：  JSONの数値（実数）を追加します
+ *
+ *  読み戻して同じ値になる最短に近い表記にし、実数だとわかるよう小数点か指数を必ず付けます
+ *  NaNと無限大はJSONで表せないのでnullにします
+ * -----------------------------------------------------------------------
+ */
+static void JsonAppendDouble(yaya::string_t &out, double d)
+{
+	if ( ! IsFiniteDouble(d) ) {
+		out += L"null";
+		return;
+	}
+
+	char buf[64];
+	sprintf(buf, "%.15g", d);
+	if ( strtod(buf, NULL) != d ) {
+		sprintf(buf, "%.17g", d);
+	}
+
+	// 指数の桁数はCRTによって違う（VC6は"e-008"、gccは"e-08"）ので先頭の0を除いて揃える
+	char *e = strpbrk(buf, "eE");
+	if ( e ) {
+		char *digits = e + 1;
+		if ( *digits == '+' || *digits == '-' ) {
+			++digits;
+		}
+		char *nz = digits;
+		while ( *nz == '0' && *(nz + 1) ) {
+			++nz;
+		}
+		if ( nz != digits ) {
+			memmove(digits, nz, strlen(nz) + 1);
+		}
+	}
+
+	for ( const char *p = buf; *p; ++p ) {
+		out += static_cast<yaya::char_t>(*p);
+	}
+	if ( ! strpbrk(buf, ".eE") ) {
+		out += L".0";
+	}
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  JsonAppendValue
+ *  機能概要：  CValueをJSONにして追加します
+ *
+ *  ハッシュ→オブジェクト（キーは文字列にする）、配列→配列、整数・実数→数値
+ *  文字列→文字列、空（VOID）→null
+ * -----------------------------------------------------------------------
+ */
+static void JsonAppendValue(yaya::string_t &out, const CValue &value, bool pretty, int depth)
+{
+	switch ( value.GetType() ) {
+	case F_TAG_INT:
+		out += yaya::ws_lltoa(value.i_value);
+		break;
+	case F_TAG_DOUBLE:
+		JsonAppendDouble(out, value.d_value);
+		break;
+	case F_TAG_STRING:
+		JsonAppendString(out, value.s_value);
+		break;
+	case F_TAG_ARRAY:
+		{
+			const CValueArray &arr = value.array();
+			if ( arr.empty() ) {
+				out += L"[]";
+				break;
+			}
+			out += L'[';
+			for ( CValueArray::const_iterator it = arr.begin(); it != arr.end(); ++it ) {
+				if ( it != arr.begin() ) {
+					out += L',';
+				}
+				if ( pretty ) {
+					JsonAppendIndent(out, depth + 1);
+				}
+				JsonAppendValue(out, *it, pretty, depth + 1);
+			}
+			if ( pretty ) {
+				JsonAppendIndent(out, depth);
+			}
+			out += L']';
+		}
+		break;
+	case F_TAG_HASH:
+		{
+			const CValueHash &hash = value.hash();
+			if ( hash.empty() ) {
+				out += L"{}";
+				break;
+			}
+			out += L'{';
+			for ( CValueHash::const_iterator it = hash.begin(); it != hash.end(); ++it ) {
+				if ( it != hash.begin() ) {
+					out += L',';
+				}
+				if ( pretty ) {
+					JsonAppendIndent(out, depth + 1);
+				}
+				JsonAppendString(out, it->first.GetValueString());
+				out += pretty ? L": " : L":";
+				JsonAppendValue(out, it->second, pretty, depth + 1);
+			}
+			if ( pretty ) {
+				JsonAppendIndent(out, depth);
+			}
+			out += L'}';
+		}
+		break;
+	default: // F_TAG_VOID
+		out += L"null";
+		break;
+	}
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  ValueToJson
+ *  機能概要：  CValueをJSONの文字列にします
+ * -----------------------------------------------------------------------
+ */
+void ValueToJson(const CValue &value, bool pretty, yaya::string_t &out)
+{
+	CNumericLocaleGuard locale_guard;
+
+	out.erase();
+	JsonAppendValue(out, value, pretty, 0);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  IsXmlName
+ *  機能概要：  XMLの要素名・属性名として使えればtrue
+ *
+ *  ASCIIの範囲だけ規則どおりに調べ、非ASCIIの文字はすべて許します
+ * -----------------------------------------------------------------------
+ */
+static bool IsXmlName(const yaya::string_t &name)
+{
+	if ( name.empty() ) {
+		return false;
+	}
+	for ( yaya::string_t::size_type i = 0; i < name.size(); ++i ) {
+		yaya::char_t c = name[i];
+		if ( c >= 0x80 ) {
+			continue;
+		}
+		if ( (c >= L'A' && c <= L'Z') || (c >= L'a' && c <= L'z') || c == L'_' || c == L':' ) {
+			continue;
+		}
+		if ( i > 0 && ((c >= L'0' && c <= L'9') || c == L'-' || c == L'.') ) {
+			continue;
+		}
+		return false;
+	}
+	return true;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  HashFind
+ *  機能概要：  ハッシュからキーの値を探します　無ければNULL
+ * -----------------------------------------------------------------------
+ */
+static const CValue *HashFind(const CValue &hash, const yaya::char_t *key)
+{
+	CValueHash::const_iterator it = hash.hash().find(CValue(key));
+	if ( it == hash.hash().end() ) {
+		return NULL;
+	}
+	return &(it->second);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  ValueToXmlElement
+ *  機能概要：  要素のハッシュ（name/attr/children/text）からXMLの要素を作ります
+ *
+ *  nameだけ必須で、ほかのキーは無くてもよい。textは子要素より前に置きます
+ *  返値　　：　作った要素　失敗時はNULLでerrstrに詳細（作りかけの要素はdocが解放する）
+ * -----------------------------------------------------------------------
+ */
+static tinyxml2::XMLElement *ValueToXmlElement(const CValue &value, tinyxml2::XMLDocument &doc, yaya::string_t &errstr)
+{
+	if ( ! value.IsHash() ) {
+		errstr = L"element is not a hash";
+		return NULL;
+	}
+
+	const CValue *name = HashFind(value, L"name");
+	if ( ! name || ! name->IsStringReal() || ! IsXmlName(name->s_value) ) {
+		errstr = L"invalid element name";
+		if ( name && name->IsStringReal() ) {
+			errstr += L" : " + name->s_value;
+		}
+		return NULL;
+	}
+
+	tinyxml2::XMLElement *elem = doc.NewElement(WideToUtf8(name->s_value).c_str());
+
+	const CValue *attr = HashFind(value, L"attr");
+	if ( attr && ! attr->IsVoid() ) {
+		if ( ! attr->IsHash() ) {
+			errstr = L"attr is not a hash : " + name->s_value;
+			return NULL;
+		}
+		const CValueHash &attrs = attr->hash();
+		for ( CValueHash::const_iterator it = attrs.begin(); it != attrs.end(); ++it ) {
+			yaya::string_t attr_name = it->first.GetValueString();
+			if ( ! IsXmlName(attr_name) ) {
+				errstr = L"invalid attribute name : " + name->s_value + L" " + attr_name;
+				return NULL;
+			}
+			if ( it->second.IsArray() || it->second.IsHash() ) {
+				errstr = L"attribute value is not a scalar : " + name->s_value + L" " + attr_name;
+				return NULL;
+			}
+			elem->SetAttribute(WideToUtf8(attr_name).c_str(), WideToUtf8(it->second.GetValueString()).c_str());
+		}
+	}
+
+	const CValue *text = HashFind(value, L"text");
+	if ( text && ! text->IsVoid() ) {
+		if ( text->IsArray() || text->IsHash() ) {
+			errstr = L"text is not a scalar : " + name->s_value;
+			return NULL;
+		}
+		yaya::string_t str = text->GetValueString();
+		if ( ! str.empty() ) {
+			elem->InsertEndChild(doc.NewText(WideToUtf8(str).c_str()));
+		}
+	}
+
+	const CValue *children = HashFind(value, L"children");
+	if ( children && ! children->IsVoid() ) {
+		if ( ! children->IsArray() ) {
+			errstr = L"children is not an array : " + name->s_value;
+			return NULL;
+		}
+		const CValueArray &arr = children->array();
+		for ( CValueArray::const_iterator it = arr.begin(); it != arr.end(); ++it ) {
+			tinyxml2::XMLElement *child = ValueToXmlElement(*it, doc, errstr);
+			if ( ! child ) {
+				return NULL;
+			}
+			elem->InsertEndChild(child);
+		}
+	}
+
+	return elem;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  ValueToXml
+ *  機能概要：  要素のハッシュをXML宣言付きのXMLの文字列にします
+ *
+ *  返値　　：　成功時true　失敗時はerrstrに詳細
+ * -----------------------------------------------------------------------
+ */
+bool ValueToXml(const CValue &value, const char *encoding, bool pretty, yaya::string_t &out, yaya::string_t &errstr)
+{
+	tinyxml2::XMLDocument doc;
+
+	tinyxml2::XMLElement *root = ValueToXmlElement(value, doc, errstr);
+	if ( ! root ) {
+		return false;
+	}
+
+	std::string decl = std::string("xml version=\"1.0\" encoding=\"") + encoding + "\"";
+	doc.InsertEndChild(doc.NewDeclaration(decl.c_str()));
+	doc.InsertEndChild(root);
+
+	tinyxml2::XMLPrinter printer(0, ! pretty);
+	doc.Print(&printer);
+
+	out = Utf8ToWide(printer.CStr());
+	return true;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  XmlCharsetName
+ *  機能概要：  文字コードからXML宣言のencodingに書く名前を返します
+ *
+ *  OSデフォルトの場合はコードページから決めます
+ * -----------------------------------------------------------------------
+ */
+const char *XmlCharsetName(int charset)
+{
+	switch ( charset ) {
+	case CHARSET_SJIS:   return "Shift_JIS";
+	case CHARSET_EUCJP:  return "EUC-JP";
+	case CHARSET_JIS:    return "ISO-2022-JP";
+	case CHARSET_BIG5:   return "Big5";
+	case CHARSET_GB2312: return "GB2312";
+	case CHARSET_EUCKR:  return "EUC-KR";
+	case CHARSET_DEFAULT:
+		{
+			unsigned int cp = Ccct::ccct_getcodepage(CHARSET_DEFAULT);
+			switch ( cp ) {
+			case 0:     return "UTF-8"; // POSIX
+			case 65001: return "UTF-8";
+			case 932:   return "Shift_JIS";
+			case 936:   return "GB2312";
+			case 949:   return "EUC-KR";
+			case 950:   return "Big5";
+			default:
+				{
+					static char name[32];
+					sprintf(name, "windows-%u", cp);
+					return name;
+				}
+			}
+		}
+	default:
+		return "UTF-8";
+	}
 }

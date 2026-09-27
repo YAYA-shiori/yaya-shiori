@@ -321,6 +321,15 @@ protected:
 	CValue	ParseJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool isXml);
 	CValue	ParseUtf8JsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, const std::string &utf8, bool isXml);
 
+	CValue	FWRITEJSON(CSF_FUNCPARAM &p);
+	CValue	FWRITEXML(CSF_FUNCPARAM &p);
+	CValue	DUMPJSON(CSF_FUNCPARAM &p);
+	CValue	DUMPXML(CSF_FUNCPARAM &p);
+
+	CValue	FWriteJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool isXml);
+	CValue	DumpJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool isXml);
+	bool	ValueToJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, const CValue &value, int charset, bool pretty, bool isXml, yaya::string_t &out);
+
 	void	StoreReResultDetails(const yaya::string_t &str,MatchResult &result);
 	void	ClearReResultDetails(void);
 	void	AppendReResultDetail(const yaya::string_t &str, int pos, int len);

@@ -140,6 +140,7 @@
 *Warnung W0024 : Hashes können nicht mit den Operatoren - * / % verwendet werden.
 *Warnung W0025 : Die Datei konnte nicht geöffnet werden.
 *Warnung W0026 : Die Daten konnten nicht analysiert werden.
+*Warnung W0027 : Der Wert kann nicht in JSON/XML umgewandelt werden.
 //
 // Hinweiszeichenketten (Deutsch)
 !!!msgn

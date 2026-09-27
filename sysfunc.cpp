@@ -364,6 +364,11 @@ constexpr CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::FREADXML , L"FREADXML" } ,
 	{ &CSystemFunction::PARSEJSON , L"PARSEJSON" } ,
 	{ &CSystemFunction::PARSEXML , L"PARSEXML" } ,
+	// JSON/XML(2)
+	{ &CSystemFunction::FWRITEJSON , L"FWRITEJSON" } ,
+	{ &CSystemFunction::FWRITEXML , L"FWRITEXML" } ,
+	{ &CSystemFunction::DUMPJSON , L"DUMPJSON" } ,
+	{ &CSystemFunction::DUMPXML , L"DUMPXML" } ,
 };
 
 #define SYSFUNC_NUM (sizeof(CSystemFunction::sysfunc)/sizeof(CSystemFunction::sysfunc[0]))
@@ -7890,6 +7895,182 @@ CValue	CSystemFunction::ParseUtf8JsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t 
 	}
 
 	return result;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FWRITEJSON
+ *  機能概要：  値をJSONにしてファイルに書き込みます（上書き）
+ *
+ *  FWRITEJSON(path,value[,charset[,pretty]])　charset省略時はUTF-8、pretty省略時は1（整形する）
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FWRITEJSON(CSF_FUNCPARAM &p)
+{
+	return FWriteJsonOrXml(p, L"FWRITEJSON", false);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FWRITEXML
+ *  機能概要：  要素のハッシュをXMLにしてファイルに書き込みます（上書き）
+ *
+ *  FWRITEXML(path,value[,charset[,pretty]])　charset省略時はUTF-8、pretty省略時は1（整形する）
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FWRITEXML(CSF_FUNCPARAM &p)
+{
+	return FWriteJsonOrXml(p, L"FWRITEXML", true);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::DUMPJSON
+ *  機能概要：  値をJSONの文字列にします
+ *
+ *  DUMPJSON(value[,pretty])　pretty省略時は0（1行にする）
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::DUMPJSON(CSF_FUNCPARAM &p)
+{
+	return DumpJsonOrXml(p, L"DUMPJSON", false);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::DUMPXML
+ *  機能概要：  要素のハッシュをXMLの文字列にします（XML宣言付き）
+ *
+ *  DUMPXML(value[,pretty])　pretty省略時は0（1行にする）
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::DUMPXML(CSF_FUNCPARAM &p)
+{
+	return DumpJsonOrXml(p, L"DUMPXML", true);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FWriteJsonOrXml
+ *  機能概要：  FWRITEJSON/FWRITEXMLの本体
+ *
+ *  返値　　：　成功時1　失敗時0
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FWriteJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool isXml)
+{
+	if (p.valuearg.size() < 2) {
+		vm.logger().Error(E_W, 8, fname, p.dicname, p.line);
+		SetError(8);
+		return CValue(0);
+	}
+
+	if (!p.valuearg[0].IsString()) {
+		vm.logger().Error(E_W, 9, fname, p.dicname, p.line);
+		SetError(9);
+		return CValue(0);
+	}
+
+	// charsetは空文字・空値なら省略扱い
+	int charset = CHARSET_UTF8;
+	if (p.valuearg.size() >= 3 && !p.valuearg[2].IsVoid() && !(p.valuearg[2].IsStringReal() && p.valuearg[2].s_value.empty())) {
+		charset = GetCharset(p.valuearg[2], fname, p.dicname, p.line);
+		if (charset < 0) {
+			return CValue(0);
+		}
+	}
+	if (charset == CHARSET_BINARY) {
+		charset = CHARSET_UTF8;
+	}
+
+	bool pretty = true;
+	if (p.valuearg.size() >= 4) {
+		pretty = p.valuearg[3].GetValueInt() != 0;
+	}
+
+	yaya::string_t out;
+	if (!ValueToJsonOrXml(p, fname, p.valuearg[1], charset, pretty, isXml, out)) {
+		return CValue(0);
+	}
+	if (pretty && (out.empty() || out[out.size() - 1] != L'\n')) {
+		out += L'\n';
+	}
+
+	char *bytes = Ccct::Ucs2ToMbcs(out, charset);
+	if (!bytes) {
+		vm.logger().Error(E_W, 27, fname, p.dicname, p.line);
+		SetError(27);
+		return CValue(0);
+	}
+
+	yaya::string_t full_path = vm.basis().ToFullPath(p.valuearg[0].s_value);
+
+	FILE *pF = yaya::w_fopen(full_path.c_str(), L"wb");
+	if (!pF) {
+		free(bytes);
+		vm.logger().Error(E_W, 25, yaya::string_t(fname) + L" : " + p.valuearg[0].s_value, p.dicname, p.line);
+		SetError(25);
+		return CValue(0);
+	}
+
+	size_t len = strlen(bytes);
+	size_t written = fwrite(bytes, 1, len, pF);
+	fclose(pF);
+	free(bytes);
+
+	if (written != len) {
+		vm.logger().Error(E_W, 13, fname, p.dicname, p.line);
+		SetError(13);
+		return CValue(0);
+	}
+
+	return CValue(1);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::DumpJsonOrXml
+ *  機能概要：  DUMPJSON/DUMPXMLの本体
+ *
+ *  返値　　：　成功時は文字列　失敗時は空文字列
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::DumpJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool isXml)
+{
+	if (p.valuearg.empty()) {
+		vm.logger().Error(E_W, 8, fname, p.dicname, p.line);
+		SetError(8);
+		return CValue(L"");
+	}
+
+	bool pretty = false;
+	if (p.valuearg.size() >= 2) {
+		pretty = p.valuearg[1].GetValueInt() != 0;
+	}
+
+	yaya::string_t out;
+	if (!ValueToJsonOrXml(p, fname, p.valuearg[0], CHARSET_UTF8, pretty, isXml, out)) {
+		return CValue(L"");
+	}
+
+	return CValue(out);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::ValueToJsonOrXml
+ *  機能概要：  値をJSON/XMLの文字列にします　XMLの宣言にはcharsetの名前を書きます
+ *
+ *  返値　　：　成功時true　失敗時は警告を出してfalse
+ * -----------------------------------------------------------------------
+ */
+bool	CSystemFunction::ValueToJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, const CValue &value, int charset, bool pretty, bool isXml, yaya::string_t &out)
+{
+	if (isXml) {
+		yaya::string_t errstr;
+		if (!ValueToXml(value, XmlCharsetName(charset), pretty, out, errstr)) {
+			vm.logger().Error(E_W, 27, yaya::string_t(fname) + L" : " + errstr, p.dicname, p.line);
+			SetError(27);
+			return false;
+		}
+	}
+	else {
+		ValueToJson(value, pretty, out);
+	}
+	return true;
 }
 
 /* -----------------------------------------------------------------------
