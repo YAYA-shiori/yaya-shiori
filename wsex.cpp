@@ -95,7 +95,7 @@ yaya::int_t yaya::ws_atoll(const yaya::string_t &str, int rdx_arg)
 			add = *ptr - L'a' + 10;
 		}
 
-		if ( add < 0 || add > rdx ) {
+		if ( add < 0 || add >= rdx ) {
 			break;
 		}
 		num *= rdx;
@@ -216,6 +216,11 @@ void	yaya::ws_replace(yaya::string_t &str, const wchar_t *before, const wchar_t 
 
 	size_t sz_bef = wcslen(before);
 	size_t sz_aft = wcslen(after);
+
+	// ‹ó•¶š—ñ‚Í‚Ç‚±‚É‚Å‚àŒ©‚Â‚©‚é‚Ì‚ÅA’uŠ·‚·‚é‚ÆI‚í‚ç‚È‚­‚È‚é
+	if ( sz_bef == 0 ) {
+		return;
+	}
 
 	for(size_t rp_pos = 0; ; rp_pos += sz_aft) {
 		rp_pos = str.find(before, rp_pos);
