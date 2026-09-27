@@ -7350,8 +7350,9 @@ CValue	CSystemFunction::EXECUTE(CSF_FUNCPARAM &p)
 		}
 	}
 
-	result = (int)::ShellExecuteA(NULL,"open",s_filestr,s_parameter,NULL,SW_SHOWNORMAL);
-	if ( result <= 32 ) { result = -1; }
+	// 返値はHINSTANCE型だが中身は32以下ならエラーを表す整数（64bitではポインタの幅なのでINT_PTRで受ける）
+	INT_PTR shellresult = (INT_PTR)::ShellExecuteA(NULL,"open",s_filestr,s_parameter,NULL,SW_SHOWNORMAL);
+	result = ( shellresult <= 32 ) ? -1 : (int)shellresult;
 
 	free(s_filestr);
 	s_filestr = NULL;
