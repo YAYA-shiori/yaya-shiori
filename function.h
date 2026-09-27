@@ -112,6 +112,17 @@ public:
 		return *m_serial;
 	}
 	//////////////////////////////////////////////
+	// 各セルの一時値をpからの領域（1セルにつき3つ）と交換し、次の領域を返します
+	std_shared_ptr<CValue> *cell_swap_tmpdata(std_shared_ptr<CValue> *p) const {
+		if ( ! m_cell.get() ) {
+			return p;
+		}
+		for ( size_t i = 0 ; i < m_cell->size() ; ++i ) {
+			(*m_cell)[i].tmpdata_swap(p);
+			p += 3;
+		}
+		return p;
+	}
 	void cell_cleanup(void) const {
 		const std::vector<CCell>& c = cell();
 
@@ -138,6 +149,9 @@ public:
 protected:
 	size_t					statelenm1;		// statementの長さ-1（1を減じているのは終端の"}"を処理しないためです）
 	size_t					linecount;		// 定義された行
+	size_t					execdepth;		// 実行中の呼び出しの数（再帰の検出用）
+
+	friend class CFunctionReentryGuard;
 
 private:
 	CFunction(void);
