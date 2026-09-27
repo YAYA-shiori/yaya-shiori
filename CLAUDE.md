@@ -124,3 +124,11 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 - `CValue::Less` は配列/ハッシュを扱えない。map のキーや集合要素の比較には `CValueLess` を使う（使わないと配列/ハッシュが全て同一視される）
 - 多次元代入 `a[x][y] = v` はパース側（`parser1.cpp:CheckSubstSyntax`）と実行側（`CFunction::SubstToArray` → `FindUpperArrayOrder`）の両方で `]` を遡って処理している。配列序数まわりを変更する際は両方を揃える
   - 参照渡し `F(&a[x][y])` の書き戻し（`ExecFunctionWithArgs`）も同じ `SubstToArray` を使う。`FindFeedbackArrayOrder` で `&` が指す配列序数セルを求め、`RefreshUpperArrayOrder` で手前の次元を関数実行後の値に読み直してから渡す
+
+## JSON/XML/YAML/TOML の入出力
+
+- `FREAD*` / `PARSE*` / `FWRITE*` / `DUMP*` は `sysfunc.cpp` の共通処理（`FReadDataFile` / `ParseDataString` / `ParseUtf8Data` / `FWriteDataFile` / `DumpData` / `ValueToData`）に形式 `DATAFMT_*`（`jsonxml.h`）を渡して振り分ける。解析側はいったん UTF-8 の `std::string` にしてから各形式の関数に渡す
+- JSON は parson、XML は tinyxml2（`jsonxml.cpp`）。YAML と TOML は自前（`yamltoml.cpp`）。YAML は1文書だけのサブセット（複数文書・複合キー・字下げのタブは非対応）
+- 実数の書式（`AppendFiniteDouble`）、UTF-8 変換、`CNumericLocaleGuard`（解析・出力の間だけ `LC_NUMERIC` を C にする）は `jsonxml.h` で共有している
+- VC6 の最適化は `inf - inf` を 0 に畳むので、NaN はビット列から作る（`yamltoml.cpp:MakeNan`）。NaN の判定も `d != d` ではなく `_isnan` を使う
+- `yamltoml.cpp` のようにソース中に `\uXXXX` を書くファイルは `sjis_write` / `sjis_edit` で書くとエスケープが文字に展開される。UTF-8 で書いてから CP932・CRLF に変換する

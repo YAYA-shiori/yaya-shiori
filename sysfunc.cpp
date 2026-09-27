@@ -88,6 +88,7 @@ const int BUFFER_SIZE = 1024;
 #include "wsex.h"
 #include "dir_enum.h"
 #include "jsonxml.h"
+#include "yamltoml.h"
 
 extern "C" {
 #define PROTOTYPES 1
@@ -371,6 +372,15 @@ constexpr CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::DUMPXML , L"DUMPXML" } ,
 	// ヘッダ解析
 	{ &CSystemFunction::PARSEHEADER , L"PARSEHEADER" } ,
+	// YAML/TOML
+	{ &CSystemFunction::FREADYAML , L"FREADYAML" } ,
+	{ &CSystemFunction::FREADTOML , L"FREADTOML" } ,
+	{ &CSystemFunction::PARSEYAML , L"PARSEYAML" } ,
+	{ &CSystemFunction::PARSETOML , L"PARSETOML" } ,
+	{ &CSystemFunction::FWRITEYAML , L"FWRITEYAML" } ,
+	{ &CSystemFunction::FWRITETOML , L"FWRITETOML" } ,
+	{ &CSystemFunction::DUMPYAML , L"DUMPYAML" } ,
+	{ &CSystemFunction::DUMPTOML , L"DUMPTOML" } ,
 };
 
 #define SYSFUNC_NUM (sizeof(CSystemFunction::sysfunc)/sizeof(CSystemFunction::sysfunc[0]))
@@ -7749,7 +7759,7 @@ CValue	CSystemFunction::DIRECTSSTP(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::FREADJSON(CSF_FUNCPARAM &p)
 {
-	return FReadJsonOrXml(p, L"FREADJSON", false);
+	return FReadDataFile(p, L"FREADJSON", DATAFMT_JSON);
 }
 
 /* -----------------------------------------------------------------------
@@ -7761,7 +7771,7 @@ CValue	CSystemFunction::FREADJSON(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::FREADXML(CSF_FUNCPARAM &p)
 {
-	return FReadJsonOrXml(p, L"FREADXML", true);
+	return FReadDataFile(p, L"FREADXML", DATAFMT_XML);
 }
 
 /* -----------------------------------------------------------------------
@@ -7771,7 +7781,7 @@ CValue	CSystemFunction::FREADXML(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::PARSEJSON(CSF_FUNCPARAM &p)
 {
-	return ParseJsonOrXml(p, L"PARSEJSON", false);
+	return ParseDataString(p, L"PARSEJSON", DATAFMT_JSON);
 }
 
 /* -----------------------------------------------------------------------
@@ -7781,7 +7791,7 @@ CValue	CSystemFunction::PARSEJSON(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::PARSEXML(CSF_FUNCPARAM &p)
 {
-	return ParseJsonOrXml(p, L"PARSEXML", true);
+	return ParseDataString(p, L"PARSEXML", DATAFMT_XML);
 }
 
 /* -----------------------------------------------------------------------
@@ -7911,11 +7921,11 @@ CValue	CSystemFunction::PARSEHEADER(CSF_FUNCPARAM &p)
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::FReadJsonOrXml
- *  機能概要：  FREADJSON/FREADXMLの本体
+ *  関数名  ：  CSystemFunction::FReadDataFile
+ *  機能概要：  FREADJSON/FREADXML/FREADYAML/FREADTOMLの本体
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::FReadJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool isXml)
+CValue	CSystemFunction::FReadDataFile(CSF_FUNCPARAM &p, const yaya::char_t *fname, int fmt)
 {
 	if (!p.arg.array_size()) {
 		vm.logger().Error(E_W, 8, fname, p.dicname, p.line);
@@ -7960,12 +7970,12 @@ CValue	CSystemFunction::FReadJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fna
 	fclose(pF);
 
 	if (charset < 0) {
-		charset = isXml ? XmlDetectCharset(bytes) : CHARSET_UTF8;
+		charset = (fmt == DATAFMT_XML) ? XmlDetectCharset(bytes) : CHARSET_UTF8;
 	}
 
 	if (charset == CHARSET_UTF8 || charset == CHARSET_BINARY) {
 		CutUtf8Bom(bytes);
-		return ParseUtf8JsonOrXml(p, fname, bytes, isXml);
+		return ParseUtf8Data(p, fname, bytes, fmt);
 	}
 
 	// UTF-8以外はいったん内部文字列にしてからUTF-8にする
@@ -7981,15 +7991,15 @@ CValue	CSystemFunction::FReadJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fna
 	std::string utf8str(utf8);
 	free(utf8);
 
-	return ParseUtf8JsonOrXml(p, fname, utf8str, isXml);
+	return ParseUtf8Data(p, fname, utf8str, fmt);
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::ParseJsonOrXml
- *  機能概要：  PARSEJSON/PARSEXMLの本体
+ *  関数名  ：  CSystemFunction::ParseDataString
+ *  機能概要：  PARSEJSON/PARSEXML/PARSEYAML/PARSETOMLの本体
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::ParseJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool isXml)
+CValue	CSystemFunction::ParseDataString(CSF_FUNCPARAM &p, const yaya::char_t *fname, int fmt)
 {
 	if (!p.arg.array_size()) {
 		vm.logger().Error(E_W, 8, fname, p.dicname, p.line);
@@ -8015,32 +8025,44 @@ CValue	CSystemFunction::ParseJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fna
 	std::string utf8str(utf8);
 	free(utf8);
 
-	return ParseUtf8JsonOrXml(p, fname, utf8str, isXml);
+	return ParseUtf8Data(p, fname, utf8str, fmt);
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::ParseUtf8JsonOrXml
- *  機能概要：  UTF-8のJSON/XMLを解析します　失敗時は警告を出して空値を返します
+ *  関数名  ：  CSystemFunction::ParseUtf8Data
+ *  機能概要：  UTF-8のJSON/XML/YAML/TOMLを解析します　失敗時は警告を出して空値を返します
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::ParseUtf8JsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, const std::string &utf8, bool isXml)
+CValue	CSystemFunction::ParseUtf8Data(CSF_FUNCPARAM &p, const yaya::char_t *fname, const std::string &utf8, int fmt)
 {
 	CValue result;
+	yaya::string_t errstr;
+	bool ok;
 
-	if (isXml) {
-		yaya::string_t errstr;
-		if (!XmlToValue(utf8, result, errstr)) {
-			vm.logger().Error(E_W, 26, yaya::string_t(fname) + L" : " + errstr, p.dicname, p.line);
-			SetError(26);
-			return CValue();
-		}
+	switch (fmt) {
+	case DATAFMT_XML:
+		ok = XmlToValue(utf8, result, errstr);
+		break;
+	case DATAFMT_YAML:
+		ok = YamlToValue(utf8, result, errstr);
+		break;
+	case DATAFMT_TOML:
+		ok = TomlToValue(utf8, result, errstr);
+		break;
+	default:
+		ok = JsonToValue(utf8, result);
+		break;
 	}
-	else {
-		if (!JsonToValue(utf8, result)) {
+
+	if (!ok) {
+		if (errstr.empty()) {
 			vm.logger().Error(E_W, 26, fname, p.dicname, p.line);
-			SetError(26);
-			return CValue();
 		}
+		else {
+			vm.logger().Error(E_W, 26, yaya::string_t(fname) + L" : " + errstr, p.dicname, p.line);
+		}
+		SetError(26);
+		return CValue();
 	}
 
 	return result;
@@ -8055,7 +8077,7 @@ CValue	CSystemFunction::ParseUtf8JsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t 
  */
 CValue	CSystemFunction::FWRITEJSON(CSF_FUNCPARAM &p)
 {
-	return FWriteJsonOrXml(p, L"FWRITEJSON", false);
+	return FWriteDataFile(p, L"FWRITEJSON", DATAFMT_JSON);
 }
 
 /* -----------------------------------------------------------------------
@@ -8067,7 +8089,7 @@ CValue	CSystemFunction::FWRITEJSON(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::FWRITEXML(CSF_FUNCPARAM &p)
 {
-	return FWriteJsonOrXml(p, L"FWRITEXML", true);
+	return FWriteDataFile(p, L"FWRITEXML", DATAFMT_XML);
 }
 
 /* -----------------------------------------------------------------------
@@ -8079,7 +8101,7 @@ CValue	CSystemFunction::FWRITEXML(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::DUMPJSON(CSF_FUNCPARAM &p)
 {
-	return DumpJsonOrXml(p, L"DUMPJSON", false);
+	return DumpData(p, L"DUMPJSON", DATAFMT_JSON);
 }
 
 /* -----------------------------------------------------------------------
@@ -8091,17 +8113,109 @@ CValue	CSystemFunction::DUMPJSON(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::DUMPXML(CSF_FUNCPARAM &p)
 {
-	return DumpJsonOrXml(p, L"DUMPXML", true);
+	return DumpData(p, L"DUMPXML", DATAFMT_XML);
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::FWriteJsonOrXml
- *  機能概要：  FWRITEJSON/FWRITEXMLの本体
+ *  関数名  ：  CSystemFunction::FREADYAML
+ *  機能概要：  YAMLファイルを丸ごと読み込み、ハッシュ・配列等の値にします
+ *
+ *  FREADYAML(path[,charset])　charset省略時はUTF-8
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FREADYAML(CSF_FUNCPARAM &p)
+{
+	return FReadDataFile(p, L"FREADYAML", DATAFMT_YAML);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FREADTOML
+ *  機能概要：  TOMLファイルを丸ごと読み込み、ハッシュにします
+ *
+ *  FREADTOML(path[,charset])　charset省略時はUTF-8
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FREADTOML(CSF_FUNCPARAM &p)
+{
+	return FReadDataFile(p, L"FREADTOML", DATAFMT_TOML);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::PARSEYAML
+ *  機能概要：  YAML文字列を解析し、ハッシュ・配列等の値にします
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::PARSEYAML(CSF_FUNCPARAM &p)
+{
+	return ParseDataString(p, L"PARSEYAML", DATAFMT_YAML);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::PARSETOML
+ *  機能概要：  TOML文字列を解析し、ハッシュにします
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::PARSETOML(CSF_FUNCPARAM &p)
+{
+	return ParseDataString(p, L"PARSETOML", DATAFMT_TOML);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FWRITEYAML
+ *  機能概要：  値をYAMLにしてファイルに書き込みます（上書き）
+ *
+ *  FWRITEYAML(path,value[,charset[,pretty]])　charset省略時はUTF-8、pretty省略時は1（ブロック形式）
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FWRITEYAML(CSF_FUNCPARAM &p)
+{
+	return FWriteDataFile(p, L"FWRITEYAML", DATAFMT_YAML);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FWRITETOML
+ *  機能概要：  ハッシュをTOMLにしてファイルに書き込みます（上書き）
+ *
+ *  FWRITETOML(path,value[,charset[,pretty]])　charset省略時はUTF-8、pretty省略時は1（[表]の見出しを使う）
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FWRITETOML(CSF_FUNCPARAM &p)
+{
+	return FWriteDataFile(p, L"FWRITETOML", DATAFMT_TOML);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::DUMPYAML
+ *  機能概要：  値をYAMLの文字列にします
+ *
+ *  DUMPYAML(value[,pretty])　pretty省略時は1（ブロック形式）、0なら1行のフロー形式
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::DUMPYAML(CSF_FUNCPARAM &p)
+{
+	return DumpData(p, L"DUMPYAML", DATAFMT_YAML);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::DUMPTOML
+ *  機能概要：  ハッシュをTOMLの文字列にします
+ *
+ *  DUMPTOML(value[,pretty])　pretty省略時は1（[表]の見出しを使う）、0なら最上位のキー1つにつき1行
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::DUMPTOML(CSF_FUNCPARAM &p)
+{
+	return DumpData(p, L"DUMPTOML", DATAFMT_TOML);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FWriteDataFile
+ *  機能概要：  FWRITEJSON/FWRITEXML/FWRITEYAML/FWRITETOMLの本体
  *
  *  返値　　：　成功時1　失敗時0
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::FWriteJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool isXml)
+CValue	CSystemFunction::FWriteDataFile(CSF_FUNCPARAM &p, const yaya::char_t *fname, int fmt)
 {
 	if (p.valuearg.size() < 2) {
 		vm.logger().Error(E_W, 8, fname, p.dicname, p.line);
@@ -8133,7 +8247,7 @@ CValue	CSystemFunction::FWriteJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fn
 	}
 
 	yaya::string_t out;
-	if (!ValueToJsonOrXml(p, fname, p.valuearg[1], charset, pretty, isXml, out)) {
+	if (!ValueToData(p, fname, p.valuearg[1], charset, pretty, fmt, out)) {
 		return CValue(0);
 	}
 	if (pretty && (out.empty() || out[out.size() - 1] != L'\n')) {
@@ -8172,13 +8286,14 @@ CValue	CSystemFunction::FWriteJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fn
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::DumpJsonOrXml
- *  機能概要：  DUMPJSON/DUMPXMLの本体
+ *  関数名  ：  CSystemFunction::DumpData
+ *  機能概要：  DUMPJSON/DUMPXML/DUMPYAML/DUMPTOMLの本体
  *
+ *  prettyの既定はJSON/XMLが0（1行）、YAML/TOMLが1（整形）
  *  返値　　：　成功時は文字列　失敗時は空文字列
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::DumpJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool isXml)
+CValue	CSystemFunction::DumpData(CSF_FUNCPARAM &p, const yaya::char_t *fname, int fmt)
 {
 	if (p.valuearg.empty()) {
 		vm.logger().Error(E_W, 8, fname, p.dicname, p.line);
@@ -8186,13 +8301,13 @@ CValue	CSystemFunction::DumpJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fnam
 		return CValue(L"");
 	}
 
-	bool pretty = false;
+	bool pretty = (fmt == DATAFMT_YAML || fmt == DATAFMT_TOML);
 	if (p.valuearg.size() >= 2) {
 		pretty = p.valuearg[1].GetValueInt() != 0;
 	}
 
 	yaya::string_t out;
-	if (!ValueToJsonOrXml(p, fname, p.valuearg[0], CHARSET_UTF8, pretty, isXml, out)) {
+	if (!ValueToData(p, fname, p.valuearg[0], CHARSET_UTF8, pretty, fmt, out)) {
 		return CValue(L"");
 	}
 
@@ -8200,24 +8315,36 @@ CValue	CSystemFunction::DumpJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fnam
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  CSystemFunction::ValueToJsonOrXml
- *  機能概要：  値をJSON/XMLの文字列にします　XMLの宣言にはcharsetの名前を書きます
+ *  関数名  ：  CSystemFunction::ValueToData
+ *  機能概要：  値をJSON/XML/YAML/TOMLの文字列にします　XMLの宣言にはcharsetの名前を書きます
  *
  *  返値　　：　成功時true　失敗時は警告を出してfalse
  * -----------------------------------------------------------------------
  */
-bool	CSystemFunction::ValueToJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, const CValue &value, int charset, bool pretty, bool isXml, yaya::string_t &out)
+bool	CSystemFunction::ValueToData(CSF_FUNCPARAM &p, const yaya::char_t *fname, const CValue &value, int charset, bool pretty, int fmt, yaya::string_t &out)
 {
-	if (isXml) {
-		yaya::string_t errstr;
-		if (!ValueToXml(value, XmlCharsetName(charset), pretty, out, errstr)) {
-			vm.logger().Error(E_W, 27, yaya::string_t(fname) + L" : " + errstr, p.dicname, p.line);
-			SetError(27);
-			return false;
-		}
-	}
-	else {
+	yaya::string_t errstr;
+	bool ok = true;
+
+	switch (fmt) {
+	case DATAFMT_XML:
+		ok = ValueToXml(value, XmlCharsetName(charset), pretty, out, errstr);
+		break;
+	case DATAFMT_YAML:
+		ValueToYaml(value, pretty, out);
+		break;
+	case DATAFMT_TOML:
+		ok = ValueToToml(value, pretty, out, errstr);
+		break;
+	default:
 		ValueToJson(value, pretty, out);
+		break;
+	}
+
+	if (!ok) {
+		vm.logger().Error(E_W, 27, yaya::string_t(fname) + L" : " + errstr, p.dicname, p.line);
+		SetError(27);
+		return false;
 	}
 	return true;
 }

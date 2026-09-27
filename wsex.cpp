@@ -148,22 +148,23 @@ yaya::string_t yaya::ws_lltoa(yaya::int_t num, int rdx)
 	if ( rdx < 2 ) { rdx = 2; }
 	if ( rdx > 36 ) { rdx = 36; }
 	
+	// Å¬’l(-2^63)‚Í•„†‚ğ”½“]‚Å‚«‚È‚¢‚Ì‚ÅA•„†‚È‚µ‚ÅŒ…‚ğ‹‚ß‚é
 	bool minus = false;
+	std::uint64_t unum = static_cast<std::uint64_t>(num);
 	if ( num < 0 ) {
 		minus = true;
-		num = -num;
+		unum = 0 - unum;
 	}
 	
-	if ( num == 0 ) {
+	if ( unum == 0 ) {
 		buf[offset] = L'0';
 		--offset;
 	}
 	else {
-		while ( num ) {
-			idx = num % rdx;
+		while ( unum ) {
+			idx = static_cast<int>(unum % static_cast<std::uint64_t>(rdx));
 			buf[offset] = convchars[idx];
-			num -= idx;
-			num /= rdx;
+			unum /= static_cast<std::uint64_t>(rdx);
 			--offset;
 		}
 	}

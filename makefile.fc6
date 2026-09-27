@@ -55,6 +55,7 @@ LIBAYA5_OBJ = \
 	tinyxml2/tinyxml2.o \
 	value.o \
 	wsex.o \
+	yamltoml.o \
 	posix_utils.o \
 	posix_charconv.o \
 	strconv.o \

@@ -317,6 +317,9 @@
 				RelativePath="..\jsonxml.cpp">
 			</File>
 			<File
+				RelativePath="..\yamltoml.cpp">
+			</File>
+			<File
 				RelativePath="..\lib.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -626,6 +629,9 @@
 			</File>
 			<File
 				RelativePath="..\jsonxml.h">
+			</File>
+			<File
+				RelativePath="..\yamltoml.h">
 			</File>
 			<File
 				RelativePath="..\lib.h">

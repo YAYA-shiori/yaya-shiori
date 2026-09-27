@@ -144,7 +144,7 @@
 *warning W0024 : Hash cannot be used with - * / % operators.
 *warning W0025 : Failed to open the file.
 *warning W0026 : Failed to parse the data.
-*warning W0027 : The value cannot be converted to JSON/XML.
+*warning W0027 : The value cannot be converted to JSON/XML/YAML/TOML.
 *warning W0028 : Warning by #warning.
 //
 // 注記文字列（英語）

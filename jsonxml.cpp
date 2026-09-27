@@ -16,7 +16,6 @@
 
 #include <string>
 #include <math.h>
-#include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -43,41 +42,11 @@
 ////////////////////////////////////////
 
 /* -----------------------------------------------------------------------
- *  クラス名：  CNumericLocaleGuard
- *  機能概要：  生存中だけLC_NUMERICを"C"にします
- *
- *  YAYAは起動時にOSのロケールを設定するため、小数点が","のロケールでは
- *  parson(strtod)が"1.5"を読めず、sprintfは"1,5"を書いてしまう
- * -----------------------------------------------------------------------
- */
-class CNumericLocaleGuard
-{
-private:
-	std::string old_locale;
-
-public:
-	CNumericLocaleGuard(void)
-	{
-		const char *p = setlocale(LC_NUMERIC, NULL);
-		if ( p ) {
-			old_locale = p;
-		}
-		setlocale(LC_NUMERIC, "C");
-	}
-	~CNumericLocaleGuard(void)
-	{
-		if ( ! old_locale.empty() ) {
-			setlocale(LC_NUMERIC, old_locale.c_str());
-		}
-	}
-};
-
-/* -----------------------------------------------------------------------
  *  関数名  ：  Utf8ToWide
  *  機能概要：  UTF-8文字列を内部文字列に変換します
  * -----------------------------------------------------------------------
  */
-static yaya::string_t Utf8ToWide(const char *str)
+yaya::string_t Utf8ToWide(const char *str)
 {
 	yaya::string_t result;
 	if ( str ) {
@@ -325,7 +294,7 @@ int XmlDetectCharset(const std::string &bytes)
  *  機能概要：  内部文字列をUTF-8文字列に変換します
  * -----------------------------------------------------------------------
  */
-static std::string WideToUtf8(const yaya::string_t &str)
+std::string WideToUtf8(const yaya::string_t &str)
 {
 	std::string result;
 	char *p = Ccct::Ucs2ToMbcs(str, CHARSET_UTF8);
@@ -341,7 +310,7 @@ static std::string WideToUtf8(const yaya::string_t &str)
  *  機能概要：  NaNでも無限大でもなければtrue
  * -----------------------------------------------------------------------
  */
-static bool IsFiniteDouble(double d)
+bool IsFiniteDouble(double d)
 {
 #if defined(_MSC_VER)
 	return _finite(d) != 0;
@@ -401,20 +370,15 @@ static void JsonAppendString(yaya::string_t &out, const yaya::string_t &str)
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  JsonAppendDouble
- *  機能概要：  JSONの数値（実数）を追加します
+ *  関数名  ：  AppendFiniteDouble
+ *  機能概要：  有限の実数を追加します
  *
  *  読み戻して同じ値になる最短に近い表記にし、実数だとわかるよう小数点か指数を必ず付けます
- *  NaNと無限大はJSONで表せないのでnullにします
+ *  JSON/YAML/TOMLの実数の表記として共通に使えます
  * -----------------------------------------------------------------------
  */
-static void JsonAppendDouble(yaya::string_t &out, double d)
+void AppendFiniteDouble(yaya::string_t &out, double d)
 {
-	if ( ! IsFiniteDouble(d) ) {
-		out += L"null";
-		return;
-	}
-
 	char buf[64];
 	sprintf(buf, "%.15g", d);
 	if ( strtod(buf, NULL) != d ) {
@@ -443,6 +407,22 @@ static void JsonAppendDouble(yaya::string_t &out, double d)
 	if ( ! strpbrk(buf, ".eE") ) {
 		out += L".0";
 	}
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  JsonAppendDouble
+ *  機能概要：  JSONの数値（実数）を追加します
+ *
+ *  NaNと無限大はJSONで表せないのでnullにします
+ * -----------------------------------------------------------------------
+ */
+static void JsonAppendDouble(yaya::string_t &out, double d)
+{
+	if ( ! IsFiniteDouble(d) ) {
+		out += L"null";
+		return;
+	}
+	AppendFiniteDouble(out, d);
 }
 
 /* -----------------------------------------------------------------------

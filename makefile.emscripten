@@ -57,6 +57,7 @@ LIBAYA5_OBJ = \
 	tinyxml2/tinyxml2.o \
 	value.o \
 	wsex.o \
+	yamltoml.o \
 	posix_utils.o
 
 LIBAYA5 = $(DYLIB_NAME_PREFIX)yaya$(DYLIB_NAME_POSTFIX)

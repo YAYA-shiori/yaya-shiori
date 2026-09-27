@@ -16,11 +16,61 @@
 #endif
 
 #include <string>
+#include <locale.h>
 
 #include "globaldef.h"
 #include "value.h"
 
 //----
+
+// 形式の種類（FREAD系/PARSE系/FWRITE系/DUMP系の共通処理で使う）
+enum {
+	DATAFMT_JSON,
+	DATAFMT_XML,
+	DATAFMT_YAML,
+	DATAFMT_TOML
+};
+
+/* -----------------------------------------------------------------------
+ *  クラス名：  CNumericLocaleGuard
+ *  機能概要：  生存中だけLC_NUMERICを"C"にします
+ *
+ *  YAYAは起動時にOSのロケールを設定するため、小数点が","のロケールでは
+ *  strtodが"1.5"を読めず、sprintfは"1,5"を書いてしまう
+ * -----------------------------------------------------------------------
+ */
+class CNumericLocaleGuard
+{
+private:
+	std::string old_locale;
+
+public:
+	CNumericLocaleGuard(void)
+	{
+		const char *p = setlocale(LC_NUMERIC, NULL);
+		if ( p ) {
+			old_locale = p;
+		}
+		setlocale(LC_NUMERIC, "C");
+	}
+	~CNumericLocaleGuard(void)
+	{
+		if ( ! old_locale.empty() ) {
+			setlocale(LC_NUMERIC, old_locale.c_str());
+		}
+	}
+};
+
+// UTF-8文字列と内部文字列の相互変換
+yaya::string_t	Utf8ToWide(const char *str);
+std::string		WideToUtf8(const yaya::string_t &str);
+
+// NaNでも無限大でもなければtrue
+bool	IsFiniteDouble(double d);
+
+// 有限の実数を、読み戻して同じ値になる短い表記で追加する（小数点か指数を必ず付ける）
+// CNumericLocaleGuardの生存中に呼ぶこと
+void	AppendFiniteDouble(yaya::string_t &out, double d);
 
 // UTF-8のJSONを解析してCValueにする。成功時true
 bool	JsonToValue(const std::string &utf8, CValue &out);

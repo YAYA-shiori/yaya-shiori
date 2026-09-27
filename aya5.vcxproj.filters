@@ -108,6 +108,9 @@
     <ClCompile Include="wsex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="yamltoml.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="dir_enum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -210,6 +213,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="wsex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="yamltoml.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dir_enum.h">

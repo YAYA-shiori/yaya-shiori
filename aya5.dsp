@@ -348,6 +348,10 @@ SOURCE=.\variable.cpp
 
 SOURCE=.\wsex.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\yamltoml.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -479,6 +483,10 @@ SOURCE=.\variable.h
 # Begin Source File
 
 SOURCE=.\wsex.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\yamltoml.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

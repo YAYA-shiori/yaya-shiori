@@ -318,18 +318,27 @@ protected:
 	CValue	PARSEXML(CSF_FUNCPARAM &p);
 	CValue	PARSEHEADER(CSF_FUNCPARAM &p);
 
-	CValue	FReadJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool isXml);
-	CValue	ParseJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool isXml);
-	CValue	ParseUtf8JsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, const std::string &utf8, bool isXml);
-
 	CValue	FWRITEJSON(CSF_FUNCPARAM &p);
 	CValue	FWRITEXML(CSF_FUNCPARAM &p);
 	CValue	DUMPJSON(CSF_FUNCPARAM &p);
 	CValue	DUMPXML(CSF_FUNCPARAM &p);
 
-	CValue	FWriteJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool isXml);
-	CValue	DumpJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool isXml);
-	bool	ValueToJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, const CValue &value, int charset, bool pretty, bool isXml, yaya::string_t &out);
+	CValue	FREADYAML(CSF_FUNCPARAM &p);
+	CValue	FREADTOML(CSF_FUNCPARAM &p);
+	CValue	PARSEYAML(CSF_FUNCPARAM &p);
+	CValue	PARSETOML(CSF_FUNCPARAM &p);
+	CValue	FWRITEYAML(CSF_FUNCPARAM &p);
+	CValue	FWRITETOML(CSF_FUNCPARAM &p);
+	CValue	DUMPYAML(CSF_FUNCPARAM &p);
+	CValue	DUMPTOML(CSF_FUNCPARAM &p);
+
+	// JSON/XML/YAML/TOMLÇÃã§í èàóùÅifmtÇÕDATAFMT_*Åj
+	CValue	FReadDataFile(CSF_FUNCPARAM &p, const yaya::char_t *fname, int fmt);
+	CValue	ParseDataString(CSF_FUNCPARAM &p, const yaya::char_t *fname, int fmt);
+	CValue	ParseUtf8Data(CSF_FUNCPARAM &p, const yaya::char_t *fname, const std::string &utf8, int fmt);
+	CValue	FWriteDataFile(CSF_FUNCPARAM &p, const yaya::char_t *fname, int fmt);
+	CValue	DumpData(CSF_FUNCPARAM &p, const yaya::char_t *fname, int fmt);
+	bool	ValueToData(CSF_FUNCPARAM &p, const yaya::char_t *fname, const CValue &value, int charset, bool pretty, int fmt, yaya::string_t &out);
 
 	void	StoreReResultDetails(const yaya::string_t &str,MatchResult &result);
 	void	ClearReResultDetails(void);
