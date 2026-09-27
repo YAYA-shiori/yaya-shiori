@@ -316,6 +316,7 @@ protected:
 	CValue	FREADXML(CSF_FUNCPARAM &p);
 	CValue	PARSEJSON(CSF_FUNCPARAM &p);
 	CValue	PARSEXML(CSF_FUNCPARAM &p);
+	CValue	PARSEHEADER(CSF_FUNCPARAM &p);
 
 	CValue	FReadJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool isXml);
 	CValue	ParseJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool isXml);

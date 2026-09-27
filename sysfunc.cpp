@@ -369,6 +369,8 @@ constexpr CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::FWRITEXML , L"FWRITEXML" } ,
 	{ &CSystemFunction::DUMPJSON , L"DUMPJSON" } ,
 	{ &CSystemFunction::DUMPXML , L"DUMPXML" } ,
+	// ヘッダ解析
+	{ &CSystemFunction::PARSEHEADER , L"PARSEHEADER" } ,
 };
 
 #define SYSFUNC_NUM (sizeof(CSystemFunction::sysfunc)/sizeof(CSystemFunction::sysfunc[0]))
@@ -654,6 +656,37 @@ CValue	CSystemFunction::TOAUTO(CSF_FUNCPARAM &p)
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  AutoConvertEx
+ *  機能概要：  TOAUTOEXの本体　文字列を整数・実数に変換します
+ *  　　　　　  変換した値を文字列に戻して元と一致しない場合は文字列のままにします
+ * -----------------------------------------------------------------------
+ */
+static CValue AutoConvertEx(const yaya::string_t &str)
+{
+	CValue src(str);
+	CValue val;
+
+	if ( IsIntString(str) ) {
+		val = src.GetValueInt();
+	}
+	else if ( IsDoubleButNotIntString(str) ) {
+		val = src.GetValueDouble();
+	}
+	else {
+		return src;
+	}
+
+	yaya::string_t str_result = val.GetValueString();
+
+	if ( str == str_result ) {
+		return val;
+	}
+	else {
+		return src;
+	}
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::TOAUTOEX
  * -----------------------------------------------------------------------
  */
@@ -669,28 +702,7 @@ CValue	CSystemFunction::TOAUTOEX(CSF_FUNCPARAM &p)
 		return CValue(p.arg.array()[0]);
 	}
 
-	yaya::string_t str = p.arg.array()[0].GetValueString();
-
-	CValue val;
-
-	if ( IsIntString(str) ) {
-		val = p.arg.array()[0].GetValueInt();
-	}
-	else if ( IsDoubleButNotIntString(str) ) {
-		val = p.arg.array()[0].GetValueDouble();
-	}
-	else {
-		return CValue(str);
-	}
-
-	yaya::string_t str_result = val.GetValueString();
-
-	if ( str == str_result ) {
-		return val;
-	}
-	else {
-		return CValue(str);
-	}
+	return AutoConvertEx(p.arg.array()[0].GetValueString());
 }
 
 /* -----------------------------------------------------------------------
@@ -7759,6 +7771,132 @@ CValue	CSystemFunction::PARSEJSON(CSF_FUNCPARAM &p)
 CValue	CSystemFunction::PARSEXML(CSF_FUNCPARAM &p)
 {
 	return ParseJsonOrXml(p, L"PARSEXML", true);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::PARSEHEADER
+ *  機能概要：  HTTPやSHIORIのようなヘッダ形式の文字列を解析します
+ *
+ *  以下のキーを持つハッシュを返します
+ *    start    : 開始行（GET SHIORI/3.0 など）　なければ空文字列
+ *    header   : キー→値のハッシュ　同じキーは後勝ち
+ *    key      : キーの配列（出現順）
+ *    value    : 値の配列（出現順）　第2引数が0以外ならTOAUTOEXと同じ規則で変換
+ *    rawvalue : 変換前の値の配列（出現順）
+ *    body     : 空行より後ろ　なければ空文字列
+ *
+ *  改行はCRLFとLFのどちらでもよい
+ *  最初の:より前が空、もしくは空白を含む行はヘッダ行ではない（1行目なら開始行とする）
+ *  値は:の直後の空白を1つだけ飛ばしたもの
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::PARSEHEADER(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"PARSEHEADER", p.dicname, p.line);
+		SetError(8);
+		return CValue();
+	}
+
+	if (!p.arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"PARSEHEADER", p.dicname, p.line);
+		SetError(9);
+		return CValue();
+	}
+
+	bool conv = false;
+	if (p.arg.array_size() >= 2) {
+		conv = p.arg.array()[1].GetValueInt() != 0;
+	}
+
+	const yaya::string_t &str = p.arg.array()[0].s_value;
+	const yaya::string_t::size_type len = str.size();
+
+	CValue start(L"");
+	CValue body(L"");
+	CValue header(F_TAG_HASH, 0/*dmy*/);
+	CValue keys(F_TAG_ARRAY, 0/*dmy*/);
+	CValue values(F_TAG_ARRAY, 0/*dmy*/);
+	CValue rawvalues(F_TAG_ARRAY, 0/*dmy*/);
+
+	CValueHash &hash = header.hash();
+	CValueArray &karr = keys.array();
+	CValueArray &varr = values.array();
+	CValueArray &rarr = rawvalues.array();
+
+	yaya::string_t::size_type pos = 0;
+	bool first = true;
+
+	while (pos < len) {
+		yaya::string_t::size_type end = str.find(L'\n', pos);
+		yaya::string_t::size_type next;
+		if (end == yaya::string_t::npos) {
+			end = len;
+			next = len;
+		}
+		else {
+			next = end + 1;
+		}
+		if (end > pos && str[end - 1] == L'\r') {
+			--end;
+		}
+
+		// 空行でヘッダ終わり
+		if (end == pos) {
+			body.s_value.assign(str, next, len - next);
+			break;
+		}
+
+		yaya::string_t::size_type colon = yaya::string_t::npos;
+		for (yaya::string_t::size_type i = pos; i < end; ++i) {
+			if (str[i] == L':') {
+				colon = i;
+				break;
+			}
+			if (str[i] == L' ' || str[i] == L'\t') {
+				break;
+			}
+		}
+
+		if (colon == yaya::string_t::npos || colon == pos) {
+			if (first) {
+				start.s_value.assign(str, pos, end - pos);
+			}
+		}
+		else {
+			yaya::string_t::size_type vpos = colon + 1;
+			if (vpos < end && (str[vpos] == L' ' || str[vpos] == L'\t')) {
+				++vpos;
+			}
+
+			CValue key(str.substr(pos, colon - pos));
+			CValue raw(str.substr(vpos, end - vpos));
+
+			karr.push_back(key);
+			rarr.push_back(raw);
+			if (conv) {
+				varr.push_back(AutoConvertEx(raw.s_value));
+			}
+			else {
+				varr.push_back(raw);
+			}
+			hash[key] = varr.back();
+		}
+
+		first = false;
+		pos = next;
+	}
+
+	CValue result(F_TAG_HASH, 0/*dmy*/);
+	CValueHash &rhash = result.hash();
+	rhash[CValue(L"start")] = start;
+	rhash[CValue(L"header")] = header;
+	rhash[CValue(L"key")] = keys;
+	rhash[CValue(L"value")] = values;
+	rhash[CValue(L"rawvalue")] = rawvalues;
+	rhash[CValue(L"body")] = body;
+
+	return result;
 }
 
 /* -----------------------------------------------------------------------
