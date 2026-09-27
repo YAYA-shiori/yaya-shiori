@@ -463,6 +463,33 @@ bool CValue::DecodeArrayOrder(size_t&order, size_t&order1, yaya::string_t &delim
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CValue::IsMissingElement
+ *  機能概要：  既定の書式の配列序数ovalが指す要素がthisに無いかを返します
+ *
+ *  汎用配列の範囲外の序数、ハッシュの無いキー、thisがVOIDの場合に無いとみなします。
+ *  これらはoperator []で空文字列が返る場合です。範囲指定の序数は対象外です。
+ * -----------------------------------------------------------------------
+ */
+bool CValue::IsMissingElement(const CValue &oval) const
+{
+	if (type == F_TAG_VOID)
+		return true;
+
+	if (type != F_TAG_ARRAY && type != F_TAG_HASH)
+		return false;
+
+	size_t	order, order1;
+	yaya::string_t	delimiter;
+	if (oval.DecodeArrayOrder(order, order1, delimiter))
+		return false;
+
+	if (type == F_TAG_ARRAY)
+		return order >= array_size();
+	else
+		return hash().count(oval.array()[0]) == 0;
+}
+
+/* -----------------------------------------------------------------------
  *  operator = (int)
  * -----------------------------------------------------------------------
  */

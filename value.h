@@ -162,6 +162,7 @@ public:
 	void	SetArrayValue(const CValue &oval, const CValue &value, bool spread = true);
 
 	bool	DecodeArrayOrder(size_t& order, size_t& order1, yaya::string_t& delimiter) const;
+	bool	IsMissingElement(const CValue &oval) const;
 
 	CValue	&operator =(yaya::int_t value) LVALUE_MODIFIER;
 	CValue	&operator =(double value) LVALUE_MODIFIER;

@@ -1216,14 +1216,14 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CState
 			// 演算順序を必ず守るため、一旦左辺の結果を取ってから右辺と演算する
 			// これを怠ると右辺から先に計算する
 			// 以降同じ
-			const CValue &lv = GetValueRefForCalc(*sid_0_cell, st, lvar);
+			const CValue &lv = GetCompoundSubstLeftValue(sid, st, lvar);
 			answer = lv + GetValueRefForCalc(*sid_1_cell, st, lvar);
 			break;
 		}
 	case F_TAG_MINUSEQUAL:
 	case F_TAG_MINUSEQUAL_D:
 		{
-			const CValue &lv = GetValueRefForCalc(*sid_0_cell, st, lvar);
+			const CValue &lv = GetCompoundSubstLeftValue(sid, st, lvar);
 			const CValue &rv = GetValueRefForCalc(*sid_1_cell, st, lvar);
 			WarnHashCalc(lv, rv, L"-=", st);
 			answer = lv - rv;
@@ -1232,7 +1232,7 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CState
 	case F_TAG_MULEQUAL:
 	case F_TAG_MULEQUAL_D:
 		{
-			const CValue &lv = GetValueRefForCalc(*sid_0_cell, st, lvar);
+			const CValue &lv = GetCompoundSubstLeftValue(sid, st, lvar);
 			const CValue &rv = GetValueRefForCalc(*sid_1_cell, st, lvar);
 			WarnHashCalc(lv, rv, L"*=", st);
 			answer = lv * rv;
@@ -1241,7 +1241,7 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CState
 	case F_TAG_DIVEQUAL:
 	case F_TAG_DIVEQUAL_D:
 		{
-			const CValue &lv = GetValueRefForCalc(*sid_0_cell, st, lvar);
+			const CValue &lv = GetCompoundSubstLeftValue(sid, st, lvar);
 			const CValue &rv = GetValueRefForCalc(*sid_1_cell, st, lvar);
 			WarnHashCalc(lv, rv, L"/=", st);
 			answer = lv / rv;
@@ -1250,7 +1250,7 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CState
 	case F_TAG_SURPEQUAL:
 	case F_TAG_SURPEQUAL_D:
 		{
-			const CValue &lv = GetValueRefForCalc(*sid_0_cell, st, lvar);
+			const CValue &lv = GetCompoundSubstLeftValue(sid, st, lvar);
 			const CValue &rv = GetValueRefForCalc(*sid_1_cell, st, lvar);
 			WarnHashCalc(lv, rv, L"%=", st);
 			answer = lv % rv;
@@ -1282,6 +1282,49 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CState
 	default:
  		return 1;
 	};
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFunction::GetCompoundSubstLeftValue
+ *  機能概要：  複合代入（+= -= *= /= %=）の左辺の値を取得します
+ *
+ *  左辺が汎用配列の範囲外の要素やハッシュの無いキーの場合は、未定義の変数と同じくVOIDを返します。
+ *  そのまま読むと空文字列になり、_h[k] += 1 が文字列の連結になるためです。
+ *  要素があるかどうかは、SubstToArrayが書き込む先と同じ値で調べます。
+ * -----------------------------------------------------------------------
+ */
+const CValue& CFunction::GetCompoundSubstLeftValue(std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar)
+{
+	CCell	&ocell = st.cell()[sid[0]];
+
+	if (ocell.value_GetType() == F_TAG_ARRAYORDER && sid[0] > 0) {
+		CCell	&vcell = st.cell()[sid[0] - 1];
+
+		// 変数はwatcherを呼ばずに値を直接見る
+		const CValue	*pcontainer = NULL;
+		if (vcell.value_GetType() == F_TAG_HOOKBRACKETOUT) {
+			ptrdiff_t upper = FindUpperArrayOrder(st, sid[0]);
+			if (upper >= 1)
+				pcontainer = &(st.cell()[upper].ansv());
+		}
+		else if (vcell.value_GetType() == F_TAG_VARIABLE) {
+			CVariable *pvar = pvm->variable().GetPtr(vcell.index);
+			pcontainer = pvar ? &(pvar->value_const()) : &emptyvalue;
+		}
+		else if (vcell.value_GetType() == F_TAG_LOCALVARIABLE) {
+			CVariable *pvar = lvar.GetPtr(vcell.name);
+			pcontainer = pvar ? &(pvar->value_const()) : &emptyvalue;
+		}
+
+		if (pcontainer) {
+			CValue	t_order;
+			EncodeArrayOrder(vcell, ocell.order(), lvar, t_order);
+			if (pcontainer->IsMissingElement(t_order))
+				return emptyvalue;
+		}
+	}
+
+	return GetValueRefForCalc(ocell, st, lvar);
 }
 
 /* -----------------------------------------------------------------------

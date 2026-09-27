@@ -222,6 +222,7 @@ protected:
 	char	Comma(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	char	CommaAdd(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	char	Subst(int type, CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	const	CValue& GetCompoundSubstLeftValue(std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	char	SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatement &st, CLocalVariable &lvar, size_t oindex = 0, bool spread = true);
 	ptrdiff_t	FindUpperArrayOrder(CStatement &st, size_t oindex);
 	ptrdiff_t	FindFeedbackArrayOrder(CStatement &st, size_t findex);

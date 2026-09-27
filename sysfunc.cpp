@@ -750,6 +750,12 @@ CValue	CSystemFunction::GETTYPE(CSF_FUNCPARAM &p)
 				else if ( t == F_TAG_STRING ) {
 					return CValue(3);
 				}
+				else if ( t == F_TAG_ARRAY ) {
+					return CValue(4);
+				}
+				else if ( t == F_TAG_HASH ) {
+					return CValue(5);
+				}
 				else {
 					return CValue(0);
 				}
