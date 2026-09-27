@@ -312,6 +312,15 @@ protected:
 	CValue	HASH_EXIST(CSF_FUNCPARAM &p);
 	CValue	HASH_SIZE(CSF_FUNCPARAM &p);
 
+	CValue	FREADJSON(CSF_FUNCPARAM &p);
+	CValue	FREADXML(CSF_FUNCPARAM &p);
+	CValue	PARSEJSON(CSF_FUNCPARAM &p);
+	CValue	PARSEXML(CSF_FUNCPARAM &p);
+
+	CValue	FReadJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool isXml);
+	CValue	ParseJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool isXml);
+	CValue	ParseUtf8JsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, const std::string &utf8, bool isXml);
+
 	void	StoreReResultDetails(const yaya::string_t &str,MatchResult &result);
 	void	ClearReResultDetails(void);
 	void	AppendReResultDetail(const yaya::string_t &str, int pos, int len);

@@ -138,6 +138,8 @@
 *warning W0022 : Here document start sequence found.
 *warning W0023 : Some information was lost during the process of restoring variables.
 *warning W0024 : Hash cannot be used with - * / % operators.
+*warning W0025 : Failed to open the file.
+*warning W0026 : Failed to parse the data.
 //
 // 注記文字列（英語）
 !!!msgn

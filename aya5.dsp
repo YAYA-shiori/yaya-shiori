@@ -244,6 +244,10 @@ SOURCE=.\globalvariable.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\jsonxml.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\lib.cpp
 # End Source File
 # Begin Source File
@@ -281,6 +285,10 @@ SOURCE=.\misc.cpp
 # Begin Source File
 
 SOURCE=.\mt19937ar.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\parson\parson.c
 # End Source File
 # Begin Source File
 
@@ -323,6 +331,10 @@ SOURCE=.\StdAfx.cpp
 # Begin Source File
 
 SOURCE=.\sysfunc.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxml2\tinyxml2.cpp
 # End Source File
 # Begin Source File
 
@@ -390,6 +402,10 @@ SOURCE=.\globaldef.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\jsonxml.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\lib.h
 # End Source File
 # Begin Source File
@@ -422,6 +438,10 @@ SOURCE=.\mt19937ar.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\parson\parson.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\parser0.h
 # End Source File
 # Begin Source File
@@ -443,6 +463,10 @@ SOURCE=.\StdAfx.h
 # Begin Source File
 
 SOURCE=.\sysfunc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxml2\tinyxml2.h
 # End Source File
 # Begin Source File
 

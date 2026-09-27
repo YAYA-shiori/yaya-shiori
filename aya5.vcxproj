@@ -274,6 +274,7 @@
     <ClCompile Include="file1.cpp" />
     <ClCompile Include="function.cpp" />
     <ClCompile Include="globalvariable.cpp" />
+    <ClCompile Include="jsonxml.cpp" />
     <ClCompile Include="lib.cpp" />
     <ClCompile Include="lib1.cpp" />
     <ClCompile Include="localvariable.cpp" />
@@ -284,6 +285,7 @@
     <ClCompile Include="messages.cpp" />
     <ClCompile Include="misc.cpp" />
     <ClCompile Include="mt19937ar.cpp" />
+    <ClCompile Include="parson\parson.c" />
     <ClCompile Include="parser0.cpp" />
     <ClCompile Include="parser1.cpp" />
     <ClCompile Include="selecter.cpp" />
@@ -295,6 +297,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="sysfunc.cpp" />
+    <ClCompile Include="tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="value.cpp" />
     <ClCompile Include="variable.cpp" />
     <ClCompile Include="wsex.cpp" />
@@ -315,6 +318,7 @@
     <ClInclude Include="function.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="globaldef.h" />
+    <ClInclude Include="jsonxml.h" />
     <ClInclude Include="lib.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="logexcode.h" />
@@ -323,6 +327,7 @@
     <ClInclude Include="messages.h" />
     <ClInclude Include="misc.h" />
     <ClInclude Include="mt19937ar.h" />
+    <ClInclude Include="parson\parson.h" />
     <ClInclude Include="parser0.h" />
     <ClInclude Include="parser1.h" />
     <ClInclude Include="resource.h" />
@@ -330,6 +335,7 @@
     <ClInclude Include="sha1.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="sysfunc.h" />
+    <ClInclude Include="tinyxml2\tinyxml2.h" />
     <ClInclude Include="value.h" />
     <ClInclude Include="variable.h" />
     <ClInclude Include="wsex.h" />

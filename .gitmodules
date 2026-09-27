@@ -1,0 +1,6 @@
+[submodule "parson"]
+	path = parson
+	url = https://github.com/kgabis/parson.git
+[submodule "tinyxml2"]
+	path = tinyxml2
+	url = https://github.com/ponapalt/tinyxml2.git

@@ -183,8 +183,10 @@ yaya::string_t yaya::ws_lltoa(yaya::int_t num, int rdx)
 */
 yaya::string_t	yaya::ws_ftoa(double num)
 {
-	yaya::char_t numtxt[128];
-	yaya::snprintf(numtxt,64,L"%f",num);
+	// %fはDBL_MAXで300文字を超えるので余裕を持たせる（VC6の_vsnwprintfは溢れると終端しない）
+	yaya::char_t numtxt[1024];
+	yaya::snprintf(numtxt,512,L"%f",num);
+	numtxt[511] = 0;
 	return numtxt;
 }
 

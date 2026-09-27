@@ -40,16 +40,19 @@ LIBAYA5_OBJ = \
 	file1.o \
 	function.o \
 	globalvariable.o \
+	jsonxml.o \
 	lib.o \
 	lib1.o \
 	localvariable.o \
 	log.o \
 	logexcode.o \
 	misc.o \
+	parson/parson.o \
 	parser0.o \
 	parser1.o \
 	selecter.o \
 	sysfunc.o \
+	tinyxml2/tinyxml2.o \
 	value.o \
 	wsex.o \
 	posix_utils.o \

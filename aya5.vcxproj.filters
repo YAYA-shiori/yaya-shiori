@@ -48,6 +48,9 @@
     <ClCompile Include="globalvariable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="jsonxml.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="lib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -75,6 +78,9 @@
     <ClCompile Include="mt19937ar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="parson\parson.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="parser0.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -91,6 +97,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sysfunc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml2\tinyxml2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="value.cpp">
@@ -143,6 +152,9 @@
     <ClInclude Include="globaldef.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="jsonxml.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="lib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -167,6 +179,9 @@
     <ClInclude Include="mt19937ar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="parson\parson.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="parser0.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -183,6 +198,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sysfunc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml2\tinyxml2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="value.h">

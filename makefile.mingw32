@@ -50,6 +50,7 @@ LIBAYA5_SRC = \
 	file1.cpp \
 	function.cpp \
 	globalvariable.cpp \
+	jsonxml.cpp \
 	lib.cpp \
 	lib1.cpp \
 	localvariable.cpp \
@@ -59,17 +60,19 @@ LIBAYA5_SRC = \
 	md5c.cpp \
 	misc.cpp \
 	mt19937ar.cpp \
+	parson/parson.c \
 	parser0.cpp \
 	parser1.cpp \
 	posix_utils.cpp \
 	selecter.cpp \
 	sha1.cpp \
 	sysfunc.cpp \
+	tinyxml2/tinyxml2.cpp \
 	value.cpp \
 	wordmatch.cpp \
 	wsex.cpp
 
-LIBAYA5_OBJ = $(LIBAYA5_SRC:.cpp=.o)
+LIBAYA5_OBJ = $(patsubst %.c,%.o,$(LIBAYA5_SRC:.cpp=.o))
 
 LIBAYA5 = $(DYLIB_NAME_PREFIX)yaya$(DYLIB_NAME_POSTFIX)
 

@@ -19,6 +19,7 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 - 成功時はログ末尾が `yaya.dll - ｴﾗｰ 0、警告 N`。VC6 の STL 由来の警告 C4786 は無視してよい
 - Git Bash から実行する場合は `/MAKE` がパス変換されるため `MSYS_NO_PATHCONV=1` を前置する
 - 配布用zipの作成は `make_aya.bat`（Release / ReleaseLangSep のビルド後に実行）
+- JSON/XML の解析に使う parson（`parson/`）と tinyxml2（`tinyxml2/`、ponapalt のフォーク）は git サブモジュール。クローン直後は `git submodule update --init` が必要。いずれも UTF-8 のソースなので Sjis_ 系ツールで編集しない（そもそも本体側では編集せず、tinyxml2 の修正はフォーク側（`../tinyxml2` にクローンあり）で行ってから参照を更新する）
 - `messagetxt/*.txt` は `aya5.rc` からリソースとして埋め込まれるが、`/MAKE` はその変更を検知しない。messagetxt を変えたら `/REBUILD` するか、`Release/aya5.res` などを消してからビルドする
 
 ## リリース手順
@@ -26,16 +27,23 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 1. バージョンを上げる（例: `Tc600-2`）。どちらも Shift JIS かつ CRLF なので Sjis_ 系ツールで編集する（Git Bash の `sed -i` は CRLF を LF に変えてしまう）
    - `manifest.cpp` の `aya_version`
    - `aya5.rc` の `FILEVERSION 6,00,2,0` と `VALUE "FileVersion", "6, 00, 2, 0\0"`（`TcXYY-N` → `X,YY,N,0`）
-2. Release と ReleaseLangSep をリビルドし、ログ末尾が `ｴﾗｰ 0` であることを確認する
+2. サブモジュール（`parson` / `tinyxml2`）の参照を最新に更新する
+   ```powershell
+   git submodule update --init --remote parson tinyxml2
+   git submodule status
+   ```
+   - 参照が変わったら `git diff --submodule` で取り込まれるコミットを確認し、リリースのコミットに含める
+   - ライセンス文の年や著作権者が変わっていたら `sysfunc.cpp` の `LICENSE` 関数の parson / TinyXML-2 の部分も合わせる
+3. Release と ReleaseLangSep をリビルドし、ログ末尾が `ｴﾗｰ 0` であることを確認する
    ```powershell
    msdev aya5.dsw /MAKE "aya5 - Win32 Release" /REBUILD /OUT "$env:TEMP\claude\yaya_build_Release.log"
    msdev aya5.dsw /MAKE "aya5 - Win32 ReleaseLangSep" /REBUILD /OUT "$env:TEMP\claude\yaya_build_ReleaseLangSep.log"
    ```
-3. `make_aya.bat` を実行して `tmp/yaya.zip` と `tmp/yaya_lang_sep.zip` を作る
+4. `make_aya.bat` を実行して `tmp/yaya.zip` と `tmp/yaya_lang_sep.zip` を作る
    - PowerShell から `cmd /c .\make_aya.bat` で実行する（Git Bash の `cmd //c make_aya.bat` はバッチが見つからず失敗する）
    - zip の更新日時が新しくなったこと、中の `yaya.dll` が `Release/` `ReleaseLangSep/` のものと一致することを確認する
-4. コミットして push する。コミットメッセージの1行目は `変更内容 / TcXYY-N`、本文に変更点の箇条書き
-5. GitHub のリリースを作る。タグ名とタイトルはバージョン、対象は現在のブランチ、2つの zip を添付、本文は変更点の日本語の箇条書き
+5. コミットして push する。コミットメッセージの1行目は `変更内容 / TcXYY-N`、本文に変更点の箇条書き
+6. GitHub のリリースを作る。タグ名とタイトルはバージョン、対象は現在のブランチ、2つの zip を添付、本文は変更点の日本語の箇条書き
    ```powershell
    gh release create Tc600-2 tmp/yaya.zip tmp/yaya_lang_sep.zip --target 600 --title Tc600-2 --notes-file <本文ファイル>
    ```

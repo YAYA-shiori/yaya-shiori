@@ -314,6 +314,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\jsonxml.cpp">
+			</File>
+			<File
 				RelativePath="..\lib.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -439,6 +442,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\parson\parson.c">
+			</File>
+			<File
 				RelativePath="..\parser0.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -531,6 +537,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\tinyxml2\tinyxml2.cpp">
+			</File>
+			<File
 				RelativePath="..\value.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -616,6 +625,9 @@
 				RelativePath="..\globaldef.h">
 			</File>
 			<File
+				RelativePath="..\jsonxml.h">
+			</File>
+			<File
 				RelativePath="..\lib.h">
 			</File>
 			<File
@@ -640,6 +652,9 @@
 				RelativePath="..\mt19937ar.h">
 			</File>
 			<File
+				RelativePath="..\parson\parson.h">
+			</File>
+			<File
 				RelativePath="..\parser0.h">
 			</File>
 			<File
@@ -659,6 +674,9 @@
 			</File>
 			<File
 				RelativePath="..\sysfunc.h">
+			</File>
+			<File
+				RelativePath="..\tinyxml2\tinyxml2.h">
 			</File>
 			<File
 				RelativePath="..\value.h">

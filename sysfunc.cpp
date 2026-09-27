@@ -87,6 +87,7 @@ const int BUFFER_SIZE = 1024;
 #include "variable.h"
 #include "wsex.h"
 #include "dir_enum.h"
+#include "jsonxml.h"
 
 extern "C" {
 #define PROTOTYPES 1
@@ -358,6 +359,11 @@ constexpr CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::FSTATUS , L"FSTATUS" } ,
 	//LINT(2)
 	{ &CSystemFunction::LINT_GetVarRefs , L"LINT.GetVarRefs" } ,
+	// JSON/XML
+	{ &CSystemFunction::FREADJSON , L"FREADJSON" } ,
+	{ &CSystemFunction::FREADXML , L"FREADXML" } ,
+	{ &CSystemFunction::PARSEJSON , L"PARSEJSON" } ,
+	{ &CSystemFunction::PARSEXML , L"PARSEXML" } ,
 };
 
 #define SYSFUNC_NUM (sizeof(CSystemFunction::sysfunc)/sizeof(CSystemFunction::sysfunc[0]))
@@ -7707,6 +7713,186 @@ CValue	CSystemFunction::DIRECTSSTP(CSF_FUNCPARAM &p)
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FREADJSON
+ *  機能概要：  JSONファイルを丸ごと読み込み、ハッシュ・配列等の値にします
+ *
+ *  FREADJSON(path[,charset])　charset省略時はUTF-8
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FREADJSON(CSF_FUNCPARAM &p)
+{
+	return FReadJsonOrXml(p, L"FREADJSON", false);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FREADXML
+ *  機能概要：  XMLファイルを丸ごと読み込み、ルート要素をハッシュにします
+ *
+ *  FREADXML(path[,charset])　charset省略時はXML宣言のencoding（無ければUTF-8）
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FREADXML(CSF_FUNCPARAM &p)
+{
+	return FReadJsonOrXml(p, L"FREADXML", true);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::PARSEJSON
+ *  機能概要：  JSON文字列を解析し、ハッシュ・配列等の値にします
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::PARSEJSON(CSF_FUNCPARAM &p)
+{
+	return ParseJsonOrXml(p, L"PARSEJSON", false);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::PARSEXML
+ *  機能概要：  XML文字列を解析し、ルート要素をハッシュにします
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::PARSEXML(CSF_FUNCPARAM &p)
+{
+	return ParseJsonOrXml(p, L"PARSEXML", true);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FReadJsonOrXml
+ *  機能概要：  FREADJSON/FREADXMLの本体
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FReadJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool isXml)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, fname, p.dicname, p.line);
+		SetError(8);
+		return CValue();
+	}
+
+	if (!p.arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, fname, p.dicname, p.line);
+		SetError(9);
+		return CValue();
+	}
+
+	int charset = -1;
+	if (p.arg.array_size() >= 2) {
+		charset = GetCharset(p.arg.array()[1], fname, p.dicname, p.line);
+		if (charset < 0) {
+			return CValue();
+		}
+	}
+
+	yaya::string_t full_path = vm.basis().ToFullPath(p.arg.array()[0].s_value);
+
+	FILE *pF = yaya::w_fopen(full_path.c_str(), L"rb");
+	if (!pF) {
+		vm.logger().Error(E_W, 25, yaya::string_t(fname) + L" : " + p.arg.array()[0].s_value, p.dicname, p.line);
+		SetError(25);
+		return CValue();
+	}
+
+	std::string bytes;
+	char buf[32768];
+	for (;;) {
+		size_t readsize = fread(buf, 1, sizeof(buf), pF);
+		if (readsize > 0) {
+			bytes.append(buf, readsize);
+		}
+		if (readsize < sizeof(buf)) {
+			break;
+		}
+	}
+	fclose(pF);
+
+	if (charset < 0) {
+		charset = isXml ? XmlDetectCharset(bytes) : CHARSET_UTF8;
+	}
+
+	if (charset == CHARSET_UTF8 || charset == CHARSET_BINARY) {
+		CutUtf8Bom(bytes);
+		return ParseUtf8JsonOrXml(p, fname, bytes, isXml);
+	}
+
+	// UTF-8以外はいったん内部文字列にしてからUTF-8にする
+	yaya::string_t wstr;
+	Ccct::MbcsToUcs2Buf(wstr, bytes, charset);
+
+	char *utf8 = Ccct::Ucs2ToMbcs(wstr, CHARSET_UTF8);
+	if (!utf8) {
+		vm.logger().Error(E_W, 26, fname, p.dicname, p.line);
+		SetError(26);
+		return CValue();
+	}
+	std::string utf8str(utf8);
+	free(utf8);
+
+	return ParseUtf8JsonOrXml(p, fname, utf8str, isXml);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::ParseJsonOrXml
+ *  機能概要：  PARSEJSON/PARSEXMLの本体
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::ParseJsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool isXml)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, fname, p.dicname, p.line);
+		SetError(8);
+		return CValue();
+	}
+
+	if (!p.arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, fname, p.dicname, p.line);
+		SetError(9);
+		return CValue();
+	}
+
+	const yaya::string_t &str = p.arg.array()[0].s_value;
+	yaya::string_t::size_type start = (!str.empty() && str[0] == 0xFEFF) ? 1 : 0; // BOM
+
+	char *utf8 = Ccct::Ucs2ToMbcs(str.substr(start), CHARSET_UTF8);
+	if (!utf8) {
+		vm.logger().Error(E_W, 26, fname, p.dicname, p.line);
+		SetError(26);
+		return CValue();
+	}
+	std::string utf8str(utf8);
+	free(utf8);
+
+	return ParseUtf8JsonOrXml(p, fname, utf8str, isXml);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::ParseUtf8JsonOrXml
+ *  機能概要：  UTF-8のJSON/XMLを解析します　失敗時は警告を出して空値を返します
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::ParseUtf8JsonOrXml(CSF_FUNCPARAM &p, const yaya::char_t *fname, const std::string &utf8, bool isXml)
+{
+	CValue result;
+
+	if (isXml) {
+		yaya::string_t errstr;
+		if (!XmlToValue(utf8, result, errstr)) {
+			vm.logger().Error(E_W, 26, yaya::string_t(fname) + L" : " + errstr, p.dicname, p.line);
+			SetError(26);
+			return CValue();
+		}
+	}
+	else {
+		if (!JsonToValue(utf8, result)) {
+			vm.logger().Error(E_W, 26, fname, p.dicname, p.line);
+			SetError(26);
+			return CValue();
+		}
+	}
+
+	return result;
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::LICENSE
  * -----------------------------------------------------------------------
  */
@@ -7776,6 +7962,53 @@ CValue	CSystemFunction::LICENSE(CSF_FUNCPARAM &p)
 	v.array().emplace_back(L"LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING");
 	v.array().emplace_back(L"NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS");
 	v.array().emplace_back(L"SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.");
+	v.array().emplace_back(L"");
+
+	v.array().emplace_back(L"---parson---");
+	v.array().emplace_back(L"MIT License");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"Copyright (c) 2012 - 2026 Krzysztof Gabis");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"Permission is hereby granted, free of charge, to any person obtaining a copy");
+	v.array().emplace_back(L"of this software and associated documentation files (the \"Software\"), to deal");
+	v.array().emplace_back(L"in the Software without restriction, including without limitation the rights");
+	v.array().emplace_back(L"to use, copy, modify, merge, publish, distribute, sublicense, and/or sell");
+	v.array().emplace_back(L"copies of the Software, and to permit persons to whom the Software is");
+	v.array().emplace_back(L"furnished to do so, subject to the following conditions:");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"The above copyright notice and this permission notice shall be included in");
+	v.array().emplace_back(L"all copies or substantial portions of the Software.");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR");
+	v.array().emplace_back(L"IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,");
+	v.array().emplace_back(L"FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE");
+	v.array().emplace_back(L"AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER");
+	v.array().emplace_back(L"LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,");
+	v.array().emplace_back(L"OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN");
+	v.array().emplace_back(L"THE SOFTWARE.");
+	v.array().emplace_back(L"");
+
+	v.array().emplace_back(L"---TinyXML-2---");
+	v.array().emplace_back(L"Original code by Lee Thomason (www.grinninglizard.com)");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"This software is provided 'as-is', without any express or implied");
+	v.array().emplace_back(L"warranty. In no event will the authors be held liable for any");
+	v.array().emplace_back(L"damages arising from the use of this software.");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"Permission is granted to anyone to use this software for any");
+	v.array().emplace_back(L"purpose, including commercial applications, and to alter it and");
+	v.array().emplace_back(L"redistribute it freely, subject to the following restrictions:");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"1. The origin of this software must not be misrepresented; you must");
+	v.array().emplace_back(L"not claim that you wrote the original software. If you use this");
+	v.array().emplace_back(L"software in a product, an acknowledgment in the product documentation");
+	v.array().emplace_back(L"would be appreciated but is not required.");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"2. Altered source versions must be plainly marked as such, and");
+	v.array().emplace_back(L"must not be misrepresented as being the original software.");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"3. This notice may not be removed or altered from any source");
+	v.array().emplace_back(L"distribution.");
 	v.array().emplace_back(L"");
 
 	return v;
