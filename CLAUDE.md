@@ -76,6 +76,11 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 - `()` 空カッコ → `(` `)` を消去し、直前の `F_TAG_FUNCPARAM` も消去
 - `identifier[` → `F_TAG_ARRAYORDER` を挿入
 
+### 関数1個版のパース処理と EVAL の文の並び
+- ParseAfterLoad の各段階（`AddSimpleIfBrace` / `SetCellType` / `MakeCompleteFormula` 配下）と parser1 の構文検査（`SetBreakJumpNo` 〜 `SetIfJumpNo`、`CheckExecutionCode`）には、辞書ファイル名で関数表を回す版と `CFunction&` を受け取る関数1個版のオーバーロードがある。辞書ファイル名版は関数1個版をループで呼ぶだけなので、処理を変えるときは関数1個版を直す
+- `EVAL` / `ISEVALUABLE` は `CParser0::IsEvalBlock`（クォート外の `;` `{` `}` 改行、または先頭が制御文のキーワード）で文の並びかを判定する。文の並びなら `ParseEvalBlock` で関数表に登録しない一時 `CFunction` を作り、`CFunction::ExecuteEval` で呼び出し元の `lvar` のもとで実行する（`_argv` などは上書きしない）。関数表の deep copy や差し替え（`func_parse_new` / `func_parse_to_exec`）は起こさない
+- `StoreInternalStatement` / `MakeStatement` は関数表の番号ではなく `CFunction&` を受け取る
+
 ### CCell の主要フィールド
 - `m_type` / `value_GetType()` – セルの種別（F_TAG_*）
 - `value` – リテラル値（識別子名は `value.s_value` に格納）

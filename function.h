@@ -182,6 +182,7 @@ public:
 	ExecutionResult	Execute();
 	ExecutionResult	Execute(const CValue& arg);
 	ExecutionResult	Execute(const CValue &arg, CLocalVariable &lvar);
+	ExecutionResult	ExecuteEval(CLocalVariable &lvar);
 private:
 	void Execute_SEHhelper(ExecutionResult& aret, CLocalVariable& lvar, int& exitcode);
 	void Execute_SEHbody(ExecutionResult& retas, CLocalVariable& lvar, int& exitcode);

@@ -173,6 +173,31 @@ CFunction::ExecutionResult	CFunction::Execute(const CValue &arg, CLocalVariable 
 	return result;
 }
 
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFunction::ExecuteEval
+ *  機能概要：  EVALの一時関数を、呼び出し元のローカル変数のもとで実行します
+ *
+ *  呼び出し元の{}の中にこの関数の本体を書いたのと同じように振る舞います。
+ *  呼び出し元のローカル変数は読み書きでき、中で作ったローカル変数は終了時に消えます。
+ *  _argv/_argc/_FUNC_NAME_ は呼び出し元のものをそのまま使います
+ * -----------------------------------------------------------------------
+ */
+CFunction::ExecutionResult	CFunction::ExecuteEval(CLocalVariable &lvar)
+{
+	int exitcode = ST_NOP;
+
+	CFunctionReentryGuard reentry(*this);
+
+	ExecutionResult result(NULL);
+	Execute_SEHbody(result,lvar, exitcode);
+
+	for ( size_t i = 0 ; i < statement.size() ; ++i ) {
+		statement[i].cell_cleanup();
+	}
+
+	return result;
+}
+
 void CFunction::Execute_SEHhelper(CFunction::ExecutionResult& aret, CLocalVariable& lvar, int& exitcode)
 {
 	SReturnWithParamExpr returnExpr;

@@ -4204,7 +4204,14 @@ CValue	CSystemFunction::ISEVALUABLE(CSF_FUNCPARAM &p)
 	bool result;
 	vm.logger().lock();
 	try {
-		result = !vm.parser0().ParseEmbedString(str, t_state, p.dicname, p.line);
+		// EVALと同じく、文の並びなら一時関数として解析する
+		if (vm.parser0().IsEvalBlock(str)) {
+			CFunction	t_func(vm, p.thisfunc->name + L".EVAL", p.dicname, (int)p.line);
+			result = !vm.parser0().ParseEvalBlock(str, t_func, p.dicname, p.line);
+		}
+		else {
+			result = !vm.parser0().ParseEmbedString(str, t_state, p.dicname, p.line);
+		}
 	}
 	catch (...) {
 		vm.logger().unlock();
@@ -4231,8 +4238,18 @@ CValue	CSystemFunction::EVAL(CSF_FUNCPARAM &p)
 		SetError(9);
 	}
 
-	// 数式へ展開
 	yaya::string_t	str = p.arg.array()[0].GetValueString();
+
+	// 文の並びなら一時関数にして、呼び出し元のローカル変数のもとで実行する
+	if (vm.parser0().IsEvalBlock(str)) {
+		CFunction	t_func(vm, p.thisfunc->name + L".EVAL", p.dicname, (int)p.line);
+		if (vm.parser0().ParseEvalBlock(str, t_func, p.dicname, p.line))
+			return CValue(p.arg.array()[0].GetValueString());
+
+		return t_func.ExecuteEval(p.lvar).Output();
+	}
+
+	// 数式へ展開
 	CStatement	t_state(ST_FORMULA, p.line);
 	if (vm.parser0().ParseEmbedString(str, t_state, p.dicname, p.line))
 		return CValue(p.arg.array()[0].GetValueString());
