@@ -55,7 +55,7 @@ public:
 	int		Close(const yaya::string_t &name);
 	void	CloseAll(void);
 	int		Execute(const yaya::string_t &name, const yaya::string_t &sql, const CValueArray &args, size_t argstart,
-				CValue *rows, yaya::int_t &changes, yaya::string_t &errstr);
+				CValue *rows, yaya::int_t &changes, size_t &nparam, size_t &nvalue, yaya::string_t &errstr);
 };
 
 //----

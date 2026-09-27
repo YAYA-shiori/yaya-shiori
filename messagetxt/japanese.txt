@@ -147,6 +147,7 @@
 *warning W0027 : JSON/XML/YAML/TOMLに変換できない値があります.
 *warning W0028 : #warningによる警告です.
 *warning W0029 : SQLiteの処理に失敗しました.
+*warning W0030 : パラメータより多くの値が渡されました. 余った値は使われません.
 //
 // 注記文字列（日本語）
 !!!msgn

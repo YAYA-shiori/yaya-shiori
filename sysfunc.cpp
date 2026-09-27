@@ -9253,13 +9253,23 @@ CValue	CSystemFunction::SqlExecute(CSF_FUNCPARAM &p, const yaya::char_t *fname, 
 
 	CValue	rows(F_TAG_ARRAY, 0/*dmy*/);
 	yaya::int_t	changes = 0;
+	size_t	nparam = 0;
+	size_t	nvalue = 0;
 	yaya::string_t	errstr;
 
 	int	result = vm.sqlite().Execute(SqlDbName(p.arg.array()[0].s_value), p.arg.array()[1].s_value,
-		p.arg.array(), 2, query ? &rows : NULL, changes, errstr);
+		p.arg.array(), 2, query ? &rows : NULL, changes, nparam, nvalue, errstr);
 
 	switch ( result ) {
 	case SQLDB_OK:
+		// 値がパラメータより多い（配列の展開による書き間違いが多い）。実行はするが知らせる
+		if ( nvalue > nparam ) {
+			yaya::char_t	buf[64] = L"";
+			yaya::snprintf(buf, 63, L" : parameters %u, values %u",
+				static_cast<unsigned int>(nparam), static_cast<unsigned int>(nvalue));
+			vm.logger().Error(E_W, 30, yaya::string_t(fname) + buf, p.dicname, p.line);
+			SetError(30);
+		}
 		if ( query ) {
 			return rows;
 		}

@@ -367,13 +367,18 @@ void	CSqliteDB::CloseAll(void)
  *    - すべて配列/ハッシュなら、1つを1組として組の数だけ実行する
  *  rowsがNULLでなければ、結果の行を列名→値のハッシュにしてrows（配列）に追加する
  *  changesにはINSERT/UPDATE/DELETEで変更された行数の合計が入る
+ *  成功したとき、nparamには各文のパラメータの数（?の最大の番号）の最大、
+ *  nvalueには ? の順に設定する値の数（スカラーなら値の数、配列の組なら要素数の最大。ハッシュの組は0）が入る
+ *  （nvalue > nparam なら使われなかった値がある）
  *  返値　　：　SQLDB_OK / SQLDB_NOT_OPEN / SQLDB_BAD_PARAM / SQLDB_ERROR（errstrに詳細）
  * -----------------------------------------------------------------------
  */
 int	CSqliteDB::Execute(const yaya::string_t &name, const yaya::string_t &sql, const CValueArray &args, size_t argstart,
-			CValue *rows, yaya::int_t &changes, yaya::string_t &errstr)
+			CValue *rows, yaya::int_t &changes, size_t &nparam, size_t &nvalue, yaya::string_t &errstr)
 {
 	changes = 0;
+	nparam = 0;
+	nvalue = 0;
 
 	CSqliteConn	*conn = Find(name);
 	if ( ! conn ) {
@@ -436,6 +441,27 @@ int	CSqliteDB::Execute(const yaya::string_t &name, const yaya::string_t &sql, co
 			for ( size_t k = 0; k < list.size() && result == SQLDB_OK; ++k ) {
 				result = SqliteRunStatement(list[k], set, args, argstart, conn->db, rows, errstr);
 			}
+		}
+	}
+
+	if ( result == SQLDB_OK ) {
+		const SqliteStmtList	&list = cached ? *cached : fresh;
+		for ( size_t k = 0; k < list.size(); ++k ) {
+			size_t	n = static_cast<size_t>(sqlite3_bind_parameter_count(list[k]));
+			if ( nparam < n ) {
+				nparam = n;
+			}
+		}
+		if ( byset ) {
+			for ( size_t i = 0; i < nargs; ++i ) {
+				const CValue	&a = args[argstart + i];
+				if ( a.IsArray() && nvalue < a.array().size() ) {
+					nvalue = a.array().size();
+				}
+			}
+		}
+		else {
+			nvalue = nargs;
 		}
 	}
 

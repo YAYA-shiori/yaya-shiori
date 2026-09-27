@@ -147,6 +147,7 @@
 *Warnung W0027 : Der Wert kann nicht in JSON/XML/YAML/TOML umgewandelt werden.
 *Warnung W0028 : Warnung durch #warning.
 *Warnung W0029 : Der SQLite-Vorgang ist fehlgeschlagen.
+*Warnung W0030 : Es wurden mehr Werte als Parameter übergeben. Die überzähligen Werte werden nicht verwendet.
 //
 // Hinweiszeichenketten (Deutsch)
 !!!msgn
