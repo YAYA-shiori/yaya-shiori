@@ -28,6 +28,7 @@ public:
 
 class CAyaVM;
 class CStatement;
+class CFunction;
 
 //----
 
@@ -44,6 +45,7 @@ public:
 	}
 
 	char	CheckExecutionCode(const yaya::string_t& dicfilename);
+	char	CheckExecutionCode(CFunction& func);
 	char	CheckExecutionCode1(CStatement& st, const yaya::string_t& dicfilename);
 
 protected:
@@ -52,12 +54,19 @@ protected:
 	char	CheckFeedbackOperatorPos(CStatement& st, const yaya::string_t& dicfilename);
 	char	SetFormulaType(CStatement& st, const yaya::string_t& dicfilename);
 	char	SetBreakJumpNo(const yaya::string_t& dicfilename);
+	char	SetBreakJumpNo(CFunction& func);
 	char	CheckCaseSyntax(const yaya::string_t& dicfilename);
+	char	CheckCaseSyntax(CFunction& func);
 	char	CheckIfSyntax(const yaya::string_t& dicfilename);
+	char	CheckIfSyntax(CFunction& func);
 	char	CheckElseSyntax(const yaya::string_t& dicfilename);
+	char	CheckElseSyntax(CFunction& func);
 	char	CheckForSyntax(const yaya::string_t& dicfilename);
+	char	CheckForSyntax(CFunction& func);
 	char	CheckForeachSyntax(const yaya::string_t& dicfilename);
+	char	CheckForeachSyntax(CFunction& func);
 	char	SetIfJumpNo(const yaya::string_t& dicfilename);
+	char	SetIfJumpNo(CFunction& func);
 	char	CheckFunctionArgument(CStatement& st, const yaya::string_t& dicfilename);
 
 	void	CompleteSetting(void);
