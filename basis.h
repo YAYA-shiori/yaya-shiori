@@ -141,7 +141,7 @@ protected:
 	void	SetSuppress(void);
 	void	ResetSuppress(void);
 
-	void LoadBaseConfigureFile(std::vector<CDic1> &dics);
+	bool LoadBaseConfigureFile(std::vector<CDic1> &dics);
 
 	void LoadBaseConfigureFile_Base(yaya::string_t filename, std::vector<CDic1> &dics,char cset);
 

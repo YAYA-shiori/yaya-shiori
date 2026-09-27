@@ -316,16 +316,26 @@ void	CBasis::Configure(void)
 {
 	// 基礎設定ファイル（例えばaya.txt）を読み取り
 	std::vector<CDic1>	dics;
-	LoadBaseConfigureFile(dics);
+	bool	config_found = LoadBaseConfigureFile(dics);
 	// 基礎設定ファイル読み取りで重篤なエラーが発生した場合はここで終了
 	if (suppress)
 		return;
+
+	// 基礎設定ファイルが無い場合は変数の自動保存・復元を行わない
+	if (!config_found)
+		auto_save = false;
 
 	// ロギングを開始
 	SetLogger();
 
 	// 辞書読み込みと構文解析
-	if (vm.parser0().Parse(dic_charset, dics))
+	// 通常モードで読む辞書が1つも無い場合は、requestの入力をEVALして返すだけの組み込み辞書で動作する（シェルモード）
+	if (dics.empty() && modename == L"normal") {
+		vm.logger().Error(E_N, 2);
+		if (vm.parser0().ParseShellDictionary())
+			SetSuppress();
+	}
+	else if (vm.parser0().Parse(dic_charset, dics))
 		SetSuppress();
 
 	{
@@ -335,7 +345,8 @@ void	CBasis::Configure(void)
 			logex.OutExecutionCodeForCheck();
 
 		// 前回終了時に保存した変数を復元
-		RestoreVariable();
+		if (config_found)
+			RestoreVariable();
 
 		if (checkparser)
 			logex.OutVariableInfoForCheck();
@@ -468,9 +479,13 @@ void	CBasis::ResetSuppress(void)
  *  この基礎設定ファイルはOSデフォルトのコードで読み取られることに注意してください。
  *  国際化に関して考慮する場合は、このファイル内の記述にマルチバイト文字を使用するべきでは
  *  ありません（文字コード0x7F以下のASCII文字のみで記述すべきです）。
+ *
+ *  返値　　：  true/false=設定ファイルを読んだ/通常モードで設定ファイルが無かった
+ *
+ *  通常モードで設定ファイルが無い場合はエラーにせず、辞書なし（シェルモード）として扱います。
  * -----------------------------------------------------------------------
  */
-void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
+bool	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 {
 	// 設定ファイル("name".txt)読み取り
 
@@ -479,6 +494,15 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 
 	// 先に互換用にエラーメッセージテーブルを読んでおく。
 	SetParameter(L"messagetxt",MsgLangToMessageTxt(msglang_for_compat));
+
+	// 通常モードで設定ファイルが無ければシェルモードにする（緊急モードでは従来どおりエラー）
+	if ( modename == L"normal" ) {
+		FILE	*fp = yaya::w_fopen(filename.c_str(), L"r");
+		if ( fp == NULL ) {
+			return false;
+		}
+		fclose(fp);
+	}
 
 	// いったん退避（messagetxt_path は設定ファイルでの明示指定を検出するために控える）
 	char old_msglang = msglang_for_compat;
@@ -492,6 +516,8 @@ void	CBasis::LoadBaseConfigureFile(std::vector<CDic1> &dics)
 	if ( old_msglang != msglang_for_compat && old_messagetxt_path == messagetxt_path ) {
 		SetParameter(L"messagetxt",MsgLangToMessageTxt(msglang_for_compat));
 	}
+
+	return true;
 }
 
 void	CBasis::LoadBaseConfigureFile_Base(yaya::string_t filename,std::vector<CDic1> &dics,char cset)

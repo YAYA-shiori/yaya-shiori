@@ -95,6 +95,42 @@ char	CParser0::Parse(int charset, const std::vector<CDic1>& dics)
 	return bool(errcount != 0);
 }
 
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CParser0::ParseShellDictionary
+ *  機能概要：  読む辞書が無い場合に使う組み込み辞書（シェルモード）を作成します
+ *
+ *  requestの入力をEVALし、その結果を返すだけの関数requestと、空のload/unloadを定義します。
+ *
+ *  返値　　：  0/1=正常/エラー
+ * -----------------------------------------------------------------------
+ */
+char	CParser0::ParseShellDictionary(void)
+{
+	const yaya::string_t dicname = L"_SHELL_DIC_";
+
+	vm.logger().Message(3);
+
+	std::vector<yaya::string_t>	factors;
+	size_t depth = 0;
+	ptrdiff_t targetfunction = -1;
+	yaya::string_t line(L"load{}unload{}request{EVAL(_argv[0])}");
+	SeparateFactor(factors, line);
+
+	size_t errcount = 0;
+	if (DefineFunctions(factors, dicname, 0, depth, targetfunction)) {
+		errcount += 1;
+	}
+
+	vm.logger().Message(8);
+	vm.logger().Message(9);
+
+	errcount += ParseAfterLoad(dicname);
+
+	vm.logger().Message(8);
+
+	return bool(errcount != 0);
+}
+
 bool	CParser0::ParseAfterLoad(const yaya::string_t &dicfilename)
 {
 	int aret=0;
