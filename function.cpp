@@ -1324,6 +1324,61 @@ ptrdiff_t	CFunction::FindUpperArrayOrder(CStatement &st, size_t oindex)
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CFunction::FindFeedbackArrayOrder
+ *  機能概要：  &演算子（findexのセル位置）の対象である配列序数演算子のセル位置を返します
+ *  　　　　　  多次元配列（&a[x][y]）の場合は最後の次元の配列序数演算子になります
+ *
+ *  返値　　：  セル位置/-1=見つからない
+ * -----------------------------------------------------------------------
+ */
+ptrdiff_t	CFunction::FindFeedbackArrayOrder(CStatement &st, size_t findex)
+{
+	for(std::vector<CSerial>::const_iterator it = st.serial().begin(); it != st.serial().end(); ++it) {
+		if (it->tindex == findex) {
+			if (it->index.size() < 2)
+				return -1;
+			size_t oindex = it->index[1];
+			if (oindex < 1 || st.cell()[oindex].value_GetType() != F_TAG_ARRAYORDER)
+				return -1;
+			return static_cast<ptrdiff_t>(oindex);
+		}
+	}
+	return -1;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFunction::RefreshUpperArrayOrder
+ *  機能概要：  多次元配列（a[x][y]）で、oindexの配列序数演算子より手前の次元の
+ *  　　　　　  配列序数演算子を根元から順に評価し直し、値を最新にします
+ *
+ *  &演算子の書き戻しは関数の実行後に行うため、実行前に取得した手前の次元の値を
+ *  そのまま使うと、関数内で変更された内容が失われます
+ *
+ *  返値　　：  0/1=成功/エラー
+ * -----------------------------------------------------------------------
+ */
+char	CFunction::RefreshUpperArrayOrder(CStatement &st, size_t oindex, CLocalVariable &lvar)
+{
+	std::vector<size_t> uppers;
+	for(ptrdiff_t upper = FindUpperArrayOrder(st, oindex); upper >= 1; upper = FindUpperArrayOrder(st, upper)) {
+		uppers.push_back(static_cast<size_t>(upper));
+	}
+
+	for(std::vector<size_t>::reverse_iterator itu = uppers.rbegin(); itu != uppers.rend(); ++itu) {
+		std::vector<CSerial>::iterator its = st.serial().begin();
+		for( ; its != st.serial().end(); ++its) {
+			if (its->tindex == *itu)
+				break;
+		}
+		if (its == st.serial().end())
+			return 1;
+		if (Array(st.cell()[*itu], its->index, st, lvar))
+			return 1;
+	}
+	return 0;
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CFunction::Array
  *  機能概要：  配列[]演算子を処理します
  *
@@ -1423,8 +1478,15 @@ char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, C
 			CValue	v_value;
 			v_value = v_argv->array()[i];
 
-			if (st.cell()[*it].order_const().GetType() != F_TAG_NOP)
-				errcount += SubstToArray(st.cell()[(*it) + 1], st.cell()[*it], v_value, st, lvar, *it);
+			if (st.cell()[*it].order_const().GetType() != F_TAG_NOP) {
+				// 配列要素へは通常の代入と同じく配列序数演算子の位置から書き戻す
+				// （多次元配列 &a[x][y] でも手前の次元をたどれるように）
+				ptrdiff_t oindex = FindFeedbackArrayOrder(st, *it);
+				if (oindex < 1 || RefreshUpperArrayOrder(st, static_cast<size_t>(oindex), lvar))
+					errcount++;
+				else
+					errcount += SubstToArray(st.cell()[oindex - 1], st.cell()[oindex], v_value, st, lvar, static_cast<size_t>(oindex));
+			}
 			else {
 				switch(st.cell()[(*it) + 1].value_GetType()) {
 				case F_TAG_VARIABLE:

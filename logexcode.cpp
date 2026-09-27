@@ -436,6 +436,12 @@ void	CLogExCode::OutVariableInfoForCheck(void)
 			vm.logger().Write(t_str);
 			vm.logger().Write(L"\n");
 			break;
+		case F_TAG_HASH:
+			vm.logger().Write(L"(hash) : ");
+			StructHashString(var->value_const().hash(), t_str);
+			vm.logger().Write(t_str);
+			vm.logger().Write(L"\n");
+			break;
 		case F_TAG_VOID:
 			vm.logger().Write(L"(nop/void)\n");
 			break;
@@ -456,28 +462,67 @@ void	CLogExCode::OutVariableInfoForCheck(void)
 void	CLogExCode::StructArrayString(const CValueArray &vs, yaya::string_t &enlist)
 {
 	enlist.erase();
-	yaya::string_t	tmpstr;
 	for(CValueArray::const_iterator it = vs.begin(); it != vs.end(); it++) {
-		switch(it->GetType()) {
-		case F_TAG_INT:
-			tmpstr = L"(int)" + yaya::ws_lltoa(it->i_value) + L' ';
-			enlist += tmpstr;
-			break;
-		case F_TAG_DOUBLE:
-			tmpstr = L"(double)" + yaya::ws_ftoa(it->d_value) + L' ';
-			enlist += tmpstr;
-			break;
-		case F_TAG_STRING:
-			enlist += L"(string)";
-			enlist += it->s_value;
-			enlist += L' ';
-			break;
-		case F_TAG_VOID:
-			enlist += L"(nop/void) ";
-			break;
-		default:
-			enlist += L"(?UNKNOWN) ";
-			break;
-		};
+		StructElementString(*it, enlist);
+		enlist += L' ';
 	}
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CLogExCode::StructHashString
+ *  機能概要：  OutVariableInfoForCheckから呼ばれます。ハッシュ変数の内容を文字列化します
+ * -----------------------------------------------------------------------
+ */
+void	CLogExCode::StructHashString(const CValueHash &vs, yaya::string_t &enlist)
+{
+	enlist.erase();
+	for(CValueHash::const_iterator it = vs.begin(); it != vs.end(); it++) {
+		StructElementString(it->first, enlist);
+		enlist += L'=';
+		StructElementString(it->second, enlist);
+		enlist += L' ';
+	}
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CLogExCode::StructElementString
+ *  機能概要：  配列/ハッシュの要素1つを型つきで文字列化し、enlistに追加します
+ *
+ *  要素が配列/ハッシュ（入れ子）の場合は、中身を(array)[ ～ ]/(hash){ ～ }で囲みます
+ * -----------------------------------------------------------------------
+ */
+void	CLogExCode::StructElementString(const CValue &v, yaya::string_t &enlist)
+{
+	yaya::string_t	tmpstr;
+
+	switch(v.GetType()) {
+	case F_TAG_INT:
+		enlist += L"(int)" + yaya::ws_lltoa(v.i_value);
+		break;
+	case F_TAG_DOUBLE:
+		enlist += L"(double)" + yaya::ws_ftoa(v.d_value);
+		break;
+	case F_TAG_STRING:
+		enlist += L"(string)";
+		enlist += v.s_value;
+		break;
+	case F_TAG_VOID:
+		enlist += L"(nop/void)";
+		break;
+	case F_TAG_ARRAY:
+		StructArrayString(v.array(), tmpstr);
+		enlist += L"(array)[ ";
+		enlist += tmpstr;
+		enlist += L']';
+		break;
+	case F_TAG_HASH:
+		StructHashString(v.hash(), tmpstr);
+		enlist += L"(hash){ ";
+		enlist += tmpstr;
+		enlist += L'}';
+		break;
+	default:
+		enlist += L"(?UNKNOWN)";
+		break;
+	};
 }

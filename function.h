@@ -209,6 +209,8 @@ protected:
 	char	Subst(int type, CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	char	SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatement &st, CLocalVariable &lvar, size_t oindex = 0);
 	ptrdiff_t	FindUpperArrayOrder(CStatement &st, size_t oindex);
+	ptrdiff_t	FindFeedbackArrayOrder(CStatement &st, size_t findex);
+	char	RefreshUpperArrayOrder(CStatement &st, size_t oindex, CLocalVariable &lvar);
 	void	WarnHashCalc(const CValue &lv, const CValue &rv, const yaya::char_t *op, const CStatement &st);
 	char	Array(CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	bool	_in_(const CValue &src, const CValue &dst);

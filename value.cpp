@@ -1178,7 +1178,9 @@ static bool CValueLess_ParseCanonicalInt(const yaya::string_t &s, yaya::int_t &o
 		return false;
 	}
 
-	const std::uint64_t limit = neg ? ULL_DEF(9223372036854775808) : ULL_DEF(9223372036854775807);
+	// 2^63（POSIXではULL_DEFに接尾辞が付かず、2^63のリテラルが警告になるためシフトで作る）
+	const std::uint64_t int_min_abs = static_cast<std::uint64_t>(1) << 63;
+	const std::uint64_t limit = neg ? int_min_abs : int_min_abs - 1;
 	std::uint64_t acc = 0;
 	for ( ; p < n; ++p) {
 		if (s[p] < L'0' || s[p] > L'9') {

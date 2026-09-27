@@ -40,6 +40,8 @@ protected:
 	void	StructCellString(std::vector<CCell> *cellvector, yaya::string_t &formula);
 	void	StructSerialString(CStatement *st, yaya::string_t &formula);
 	void	StructArrayString(const CValueArray &vs, yaya::string_t &enlist);
+	void	StructHashString(const CValueHash &vs, yaya::string_t &enlist);
+	void	StructElementString(const CValue &v, yaya::string_t &enlist);
 };
 
 //----

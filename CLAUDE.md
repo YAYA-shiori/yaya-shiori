@@ -115,3 +115,4 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 - VC6 は `CValue` が不完全型の間に `std::map<CValue,...>` を実体化できないため、ハッシュ関連のメンバ関数はクラス内に書かず、クラス外で inline 定義する
 - `CValue::Less` は配列/ハッシュを扱えない。map のキーや集合要素の比較には `CValueLess` を使う（使わないと配列/ハッシュが全て同一視される）
 - 多次元代入 `a[x][y] = v` はパース側（`parser1.cpp:CheckSubstSyntax`）と実行側（`CFunction::SubstToArray` → `FindUpperArrayOrder`）の両方で `]` を遡って処理している。配列序数まわりを変更する際は両方を揃える
+  - 参照渡し `F(&a[x][y])` の書き戻し（`ExecFunctionWithArgs`）も同じ `SubstToArray` を使う。`FindFeedbackArrayOrder` で `&` が指す配列序数セルを求め、`RefreshUpperArrayOrder` で手前の次元を関数実行後の値に読み直してから渡す
