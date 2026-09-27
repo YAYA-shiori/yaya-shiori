@@ -110,6 +110,10 @@
 *Fehler E0098 : Die Schleifenanzahl hat ihr Limit erreicht. Die weitere Verarbeitung wurde abgebrochen.
 *Fehler E0099 : Das Speicherlimit wurde erreicht. Die weitere Verarbeitung wurde abgebrochen.
 *Fehler E0100 : Falsche Speicheradresse aufgerufen. Die weitere Verarbeitung wurde abgebrochen.
+*Fehler E0101 : Kein passendes #ifdef/#ifndef vorhanden.
+*Fehler E0102 : #else/#elifdef/#elifndef nach #else gefunden.
+*Fehler E0103 : #ifdef/#ifndef wurde nicht mit #endif geschlossen.
+*Fehler E0104 : Durch #error abgebrochen.
 //
 // Warnungszeichenketten (Deutsch)
 !!!msgw
@@ -137,6 +141,13 @@
 *Warnung W0021 : Leeres Here-Dokument gefunden.
 *Warnung W0022 : Here-Dokument-Startsequenz gefunden.
 *Warnung W0023 : Während der Wiederherstellung von Variablen gingen einige Informationen verloren.
+// not used in 500
+*Warnung W0024 : (nicht verwendet)
+*Warnung W0025 : (nicht verwendet)
+*Warnung W0026 : (nicht verwendet)
+*Warnung W0027 : (nicht verwendet)
+//
+*Warnung W0028 : Warnung durch #warning.
 //
 // Hinweiszeichenketten (Deutsch)
 !!!msgn

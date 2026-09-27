@@ -110,6 +110,10 @@
 *error E0098 : Loop count has reached its limit. Further processing has been aborted.
 *error E0099 : The memory limit has been reached. Further processing has been aborted.
 *error E0100 : Wrong memory address accessed. Further processing has been aborted.
+*error E0101 : There is no matching #ifdef/#ifndef.
+*error E0102 : #else/#elifdef/#elifndef found after #else.
+*error E0103 : #ifdef/#ifndef is not closed with #endif.
+*error E0104 : Stopped by #error.
 //
 // ワーニング文字列（英語）
 !!!msgw
@@ -137,6 +141,13 @@
 *warning W0021 : Empty here document found.
 *warning W0022 : Here document start sequence found.
 *warning W0023 : Some information was lost during the process of restoring variables.
+// not used in 500
+*warning W0024 : (not used)
+*warning W0025 : (not used)
+*warning W0026 : (not used)
+*warning W0027 : (not used)
+//
+*warning W0028 : Warning by #warning.
 //
 // 注記文字列（英語）
 !!!msgn
