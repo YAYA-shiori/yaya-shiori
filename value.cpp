@@ -140,9 +140,19 @@ yaya::string_t	CValue::GetValueString(void) const
  *  関数名  ：  CValue::GetValueStringForLogging
  *  機能概要：  値をyaya::string_tで返します（ロガー用）
  *
- *  GetValueStringとの違いは、文字列をダブルクォートするか否かです。
+ *  GetValueStringとの違いは、文字列をダブルクォートするか否かと、
+ *  入れ子の配列を(...)、ハッシュを{...}で囲むか否かです。
  * -----------------------------------------------------------------------
  */
+static yaya::string_t	GetElementStringForLogging(const CValue &v)
+{
+	if (v.IsArray())
+		return L"(" + v.GetValueStringForLogging() + L")";
+	if (v.IsHash())
+		return L"{" + v.GetValueStringForLogging() + L"}";
+	return v.GetValueStringForLogging();
+}
+
 yaya::string_t	CValue::GetValueStringForLogging(void) const
 {
 	switch(type) {
@@ -159,39 +169,25 @@ yaya::string_t	CValue::GetValueStringForLogging(void) const
 		}
 	case F_TAG_ARRAY: {
 			yaya::string_t	result;
-			yaya::string_t	tmpstr;
 
 			for(CValueArray::const_iterator it = array().begin();
 				it != array().end(); it++) {
 				if (it != array().begin())
 					result += VAR_DELIMITER;
-				tmpstr = it->GetValueString();
-				if (it->GetType() == F_TAG_STRING)
-					AddDoubleQuote(tmpstr);
-				result += tmpstr;
+				result += GetElementStringForLogging(*it);
 			}
 			return result;
 		}
 	case F_TAG_HASH: {
 			yaya::string_t	result;
-			yaya::string_t	tmpstr;
 
 			for(CValueHash::const_iterator it = hash().begin();
 				it != hash().end(); it++) {
 				if (it != hash().begin())
 					result += VAR_DELIMITER;
-
-				tmpstr = it->first.GetValueString();
-				if (it->first.GetType() == F_TAG_STRING)
-					AddDoubleQuote(tmpstr);
-				result += tmpstr;
-
+				result += GetElementStringForLogging(it->first);
 				result += L"=";
-
-				tmpstr = it->second.GetValueString();
-				if (it->second.GetType() == F_TAG_STRING)
-					AddDoubleQuote(tmpstr);
-				result += tmpstr;
+				result += GetElementStringForLogging(it->second);
 			}
 			return result;
 		}
