@@ -1,29 +1,26 @@
 # -*- makefile -*-
 
-# Žg—p‚·‚éƒc[ƒ‹—Þ‚ÌÝ’è
+# ä½¿ç”¨ã™ã‚‹ãƒ„ãƒ¼ãƒ«é¡žã®è¨­å®š
 CC = emcc
 CXX = em++
 LD = em++
 MKDEP = mkdep
 
-# ì‚éƒ‰ƒCƒuƒ‰ƒŠ–¼‚ÌÝ’è
-# ‚±‚ê‚Ídarwin—p‚ÌÝ’è‚ÅAlibaya5.bundle‚ð¶¬‚·‚éB
-# Linux‚âBSD‚È‚çpostfix‚ð.so‚É‚·‚é•K—v‚ª‚ ‚é”¤B
-DYLIB_NAME_PREFIX = 
+# ä½œã‚‹ãƒ©ã‚¤ãƒ–ãƒ©ãƒªåã®è¨­å®š
+DYLIB_NAME_PREFIX =
 DYLIB_NAME_POSTFIX = .js
 
-# ’ˆÓ:
-# ‚±‚ÌƒvƒƒOƒ‰ƒ€‚Í wstring ‚ðŽg—p‚µ‚Ä‚¢‚Ü‚·B
-# ‚¨Žg‚¢‚ÌƒRƒ“ƒpƒCƒ‰‚ª wstring ‚ð—‰ð‚µ‚È‚¢ê‡‚Ícc‚Ç‚¤‚É‚©‚µ‚Ä‘Îˆ‚µ‚Ä‰º‚³‚¢B
+# æ³¨æ„:
+# ã“ã®ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã¯ wstring ã‚’ä½¿ç”¨ã—ã¦ã„ã¾ã™ã€‚
+# ãŠä½¿ã„ã®ã‚³ãƒ³ãƒ‘ã‚¤ãƒ©ãŒ wstring ã‚’ç†è§£ã—ãªã„å ´åˆã¯â€¦â€¦ã©ã†ã«ã‹ã—ã¦å¯¾å‡¦ã—ã¦ä¸‹ã•ã„ã€‚
 
-# ’Ç‰Á‚·‚éƒtƒ‰ƒOB
-# CXXFLAGS‚Í•K—v–³‚¯‚ê‚Î‹ó‚Å‚à—Ç‚¢‚ªALDFLAGS‚Ídlopen‰Â”\‚Èƒ‰ƒCƒuƒ‰ƒŠ‚ð
-# ì‚ê‚éÝ’è‚É‚µ‚È‚¯‚ê‚Î‚È‚ç‚È‚¢Bdarwin‚È‚ç-bundleALinux‚âBSD‚È‚ç-sharedB
+# è¿½åŠ ã™ã‚‹ãƒ•ãƒ©ã‚°ã€‚
 CXXFLAGS = -O3 -Wall -std=c++11 -s ALLOW_MEMORY_GROWTH=1
 CFLAGS = -O3 -Wall
 EXPORTED_FUNCTIONS = "['_load','_unload','_request']"
 LDFLAGS = -shared -O3 --memory-init-file 0 --pre-js em-pre.js --post-js em-post.js -s EXPORTED_FUNCTIONS=$(EXPORTED_FUNCTIONS) -s ALLOW_MEMORY_GROWTH=1
-################## ‚±‚ê‚æ‚è‰º‚Í˜M‚ç‚È‚­‚Ä‚àƒRƒ“ƒpƒCƒ‹o—ˆ‚Ü‚· ##################
+
+################## ã“ã‚Œã‚ˆã‚Šä¸‹ã¯å¼„ã‚‰ãªãã¦ã‚‚ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«å‡ºæ¥ã¾ã™ ##################
 
 CXXFLAGS_ADD = -DPOSIX -I.
 
@@ -31,10 +28,10 @@ LIBAYA5_OBJ = \
 	aya5.o \
 	ayavm.o \
 	basis.o \
-	babel/babel.o \
 	ccct.o \
 	comment.o \
 	crc32.o \
+	dir_enum.o \
 	duplevinfo.o \
 	file.o \
 	file1.o \
@@ -48,6 +45,7 @@ LIBAYA5_OBJ = \
 	logexcode.o \
 	manifest.o \
 	md5c.o \
+	messages.o \
 	misc.o \
 	mt19937ar.o \
 	parson/parson.o \
@@ -60,6 +58,7 @@ LIBAYA5_OBJ = \
 	sysfunc.o \
 	tinyxml2/tinyxml2.o \
 	value.o \
+	variable.o \
 	wsex.o \
 	yamltoml.o \
 	posix_utils.o
@@ -77,7 +76,7 @@ clean:
 $(LIBAYA5): $(LIBAYA5_OBJ)
 	$(LD) -o $@ $(LIBAYA5_OBJ) $(LDFLAGS)
 
-# SQLite‚ÍC‚Æ‚µ‚ÄƒRƒ“ƒpƒCƒ‹‚·‚éiC++‚Å‚Í’Ê‚ç‚È‚¢j
+# SQLiteã¯Cã¨ã—ã¦ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã™ã‚‹ï¼ˆC++ã§ã¯é€šã‚‰ãªã„ï¼‰
 sqlite3_yaya.o: sqlite3_yaya.c sqlite/sqlite3.c
 	$(CC) $(CFLAGS) -o $@ -c sqlite3_yaya.c
 

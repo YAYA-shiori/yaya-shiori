@@ -206,7 +206,7 @@ void CFunction::Execute_SEHhelper(CFunction::ExecutionResult& aret, CLocalVariab
 
 void CFunction::Execute_SEHbody(ExecutionResult& retas, CLocalVariable& lvar, int& exitcode)
 {
-#ifdef _WINDOWS
+#ifdef _MSC_VER
 	__try
 #else
 	try
@@ -214,7 +214,7 @@ void CFunction::Execute_SEHbody(ExecutionResult& retas, CLocalVariable& lvar, in
 	{
 		Execute_SEHhelper(retas, lvar, exitcode);
 	}
-#ifdef _WINDOWS
+#ifdef _MSC_VER
 	__except (EXCEPTION_EXECUTE_HANDLER)
 #else
 	catch(...)

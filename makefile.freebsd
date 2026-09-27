@@ -1,57 +1,38 @@
 # -*- makefile -*-
 
-# Žg—p‚·‚éƒc[ƒ‹—Þ‚ÌÝ’è
+# ä½¿ç”¨ã™ã‚‹ãƒ„ãƒ¼ãƒ«é¡žã®è¨­å®š
 CC = clang
 CXX = clang++
 LD = clang++
-STRIP = strip
 MKDEP = mkdep
 
-# ì‚éƒ‰ƒCƒuƒ‰ƒŠ–¼‚ÌÝ’è
-# ‚±‚ê‚Ídarwin—p‚ÌÝ’è‚ÅAlibaya5.bundle‚ð¶¬‚·‚éB
-# Linux‚âBSD‚È‚çpostfix‚ð.so‚É‚·‚é•K—v‚ª‚ ‚é”¤B
-# DYLIB_NAME_PREFIX = so
-# DYLIB_NAME_POSTFIX = .bundle
+# ä½œã‚‹ãƒ©ã‚¤ãƒ–ãƒ©ãƒªåã®è¨­å®š
 DYLIB_NAME_PREFIX = lib
 DYLIB_NAME_POSTFIX = .so
 
-# C++11‚É‘Î‰ž‚µ‚Ä‚¢‚È‚¢ê‡‚Íboost‚ÌŽw’è‚ð‚µ‚Ä‚­‚¾‚³‚¢B
+# æ³¨æ„:
+# ã“ã®ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã¯ wstring ã‚’ä½¿ç”¨ã—ã¦ã„ã¾ã™ã€‚
+# ãŠä½¿ã„ã®ã‚³ãƒ³ãƒ‘ã‚¤ãƒ©ãŒ wstring ã‚’ç†è§£ã—ãªã„å ´åˆã¯â€¦â€¦ã©ã†ã«ã‹ã—ã¦å¯¾å‡¦ã—ã¦ä¸‹ã•ã„ã€‚
 
-# boost‚ÌêŠ‚ðŽw’èB
-BOOST_INCLUDES = /usr/local/include
-
-# libboost_regex.a‚ÌêŠ‚ðÝ’èB
-BOOST_LINK = /usr/local/lib
-
-# ’ˆÓ:
-# ‚±‚ÌƒvƒƒOƒ‰ƒ€‚Í wstring ‚ðŽg—p‚µ‚Ä‚¢‚Ü‚·B
-# ‚¨Žg‚¢‚ÌƒRƒ“ƒpƒCƒ‰‚ª wstring ‚ð—‰ð‚µ‚È‚¢ê‡‚Ícc‚Ç‚¤‚É‚©‚µ‚Ä‘Îˆ‚µ‚Ä‰º‚³‚¢B
-
-# ’Ç‰Á‚·‚éƒtƒ‰ƒOB
-# CXXFLAGS‚Í•K—v–³‚¯‚ê‚Î‹ó‚Å‚à—Ç‚¢‚ªALDFLAGS‚Ídlopen‰Â”\‚Èƒ‰ƒCƒuƒ‰ƒŠ‚ð
-# ì‚ê‚éÝ’è‚É‚µ‚È‚¯‚ê‚Î‚È‚ç‚È‚¢Bdarwin‚È‚ç-bundleALinux‚âBSD‚È‚ç-sharedB
-CXXFLAGS = -O3 -Wall -fPIC
+# è¿½åŠ ã™ã‚‹ãƒ•ãƒ©ã‚°ã€‚
+# CXXFLAGSã¯å¿…è¦ç„¡ã‘ã‚Œã°ç©ºã§ã‚‚è‰¯ã„ãŒã€LDFLAGSã¯dlopenå¯èƒ½ãªãƒ©ã‚¤ãƒ–ãƒ©ãƒªã‚’
+# ä½œã‚Œã‚‹è¨­å®šã«ã—ãªã‘ã‚Œã°ãªã‚‰ãªã„ã€‚
+CXXFLAGS = -O3 -Wall -fPIC -std=c++11
 CFLAGS = -O3 -Wall -fPIC
 LDFLAGS = -shared -lpthread
 
-# C++11‚É‘Î‰ž‚µ‚Ä‚¢‚È‚¢ê‡‚Í‰º‚ðƒRƒƒ“ƒgƒAƒEƒg‚µ‚Ä‚­‚¾‚³‚¢B
+################## ã“ã‚Œã‚ˆã‚Šä¸‹ã¯å¼„ã‚‰ãªãã¦ã‚‚ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«å‡ºæ¥ã¾ã™ ##################
 
-CXXFLAGS_ADD = -DPOSIX -I. -I$(BOOST_INCLUDES)
 CXXFLAGS_ADD = -DPOSIX -I.
-
-LD_ADD = -lboost_regex -L$(BOOST_LINK)
-LD_ADD =
-
-################## ‚±‚ê‚æ‚è‰º‚Í˜M‚ç‚È‚­‚Ä‚àƒRƒ“ƒpƒCƒ‹o—ˆ‚Ü‚· ##################
 
 LIBAYA5_OBJ = \
 	aya5.o \
 	ayavm.o \
 	basis.o \
-	babel/babel.o \
 	ccct.o \
 	comment.o \
 	crc32.o \
+	dir_enum.o \
 	duplevinfo.o \
 	file.o \
 	file1.o \
@@ -97,20 +78,17 @@ install:
 	cp $(LIBAYA5) /usr/local/lib/
 
 $(LIBAYA5): $(LIBAYA5_OBJ)
-	$(LD) -o $@ $(LIBAYA5_OBJ) $(LDFLAGS) $(LD_ADD)
-#	$(STRIP) -x $@
+	$(LD) -o $@ $(LIBAYA5_OBJ) $(LDFLAGS)
 
-# SQLite‚ÍC‚Æ‚µ‚ÄƒRƒ“ƒpƒCƒ‹‚·‚éiC++‚Å‚Í’Ê‚ç‚È‚¢j
+# SQLiteã¯Cã¨ã—ã¦ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã™ã‚‹ï¼ˆC++ã§ã¯é€šã‚‰ãªã„ï¼‰
 sqlite3_yaya.o: sqlite3_yaya.c sqlite/sqlite3.c
 	$(CC) $(CFLAGS) -o $@ -c sqlite3_yaya.c
 
 .c.o:
-	@iconv --from-code=CP932 --to-code=UTF-8 -c $< > $*.tmp.cpp
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $*.tmp.cpp
-	@rm $*.tmp.cpp
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $<
 
 .cpp.o:
-	@iconv --from-code=CP932 --to-code=UTF-8 -c $< > $*.tmp.cpp
+	@iconv -f CP932 -t UTF-8 -c $< > $*.tmp.cpp
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $*.tmp.cpp
 	@rm $*.tmp.cpp
 

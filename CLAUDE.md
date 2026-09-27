@@ -22,6 +22,10 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 - JSON/XML の解析に使う parson（`parson/`）と tinyxml2（`tinyxml2/`、ponapalt のフォーク）、SQL* 関数に使う SQLite（`sqlite/`、ponapalt のフォーク sqlite-amalgamation-new）は git サブモジュール。クローン直後は `git submodule update --init` が必要。いずれも UTF-8 のソースなので Sjis_ 系ツールで編集しない（そもそも本体側では編集せず、tinyxml2 / SQLite の修正はフォーク側（`../tinyxml2` / `../sqlite-amalgamation-new` にクローンあり）で行ってから参照を更新する）
 - サブモジュールを使う処理（JSON/XML、SQL* 関数）に手を入れる前に、`git submodule update --init --remote parson tinyxml2 sqlite` で参照を最新にしてから作業する
 - SQLite のフォークは upstream の amalgamation に VC6 / 古い SDK 向けの修正を1コミット載せたもの。64bit のリテラルは `INT64_C()` / `UINT64_C()` で書く（`LL` は VC6 が、`i64` は gcc が読めない）。修正したら VC6 と gcc（Strawberry Perl 同梱の `gcc`）の両方で `sqlite3.c` 単体がコンパイルできることを確かめる
+- VC6 以外のビルドは makefile。`makefile.linux` が基準で、`freebsd`（clang）/ `posix`（macOS、`.bundle`）/ `emscripten` はオブジェクト一覧と規則を linux と同じにしてある。ソースを増やしたら全部の一覧に足す（`makefile.mingw32` は `posix_utils.o` に加えて `aya5_res.o` も持つ）。POSIX 系の makefile は `.cpp` を iconv で UTF-8 にしてからコンパイルする
+- `makefile.mingw32` は Windows 用の yaya.dll を MinGW-w64 で作る（`-finput-charset=CP932 -fexec-charset=CP932` で VC++ と同じく文字列を CP932 のまま扱う）。Strawberry Perl 同梱の gcc（x86_64、64bit の DLL になる）で確かめられる。リポジトリを汚さないよう、`git ls-files --recurse-submodules` のファイルを作業用ディレクトリに写してから `mingw32-make -f makefile.mingw32`（動作確認用の EXE は `exe` ターゲット）
+  - MinGW は `_WINDOWS` だが `_MSC_VER` ではない。SEH（`__try`）や `i64` リテラルなど MSVC 専用の書き方は `_MSC_VER` で分け、64bit の整数リテラルは `LL_DEF()` / `ULL_DEF()` で書く
+- ソースは Shift JIS（CP932）で統一する。UTF-8 のファイルが混ざると `-finput-charset=CP932` の MinGW ビルドが通らない
 - `messagetxt/*.txt` は `aya5.rc` からリソースとして埋め込まれるが、`/MAKE` はその変更を検知しない。messagetxt を変えたら `/REBUILD` するか、`Release/aya5.res` などを消してからビルドする
 
 ## リリース手順

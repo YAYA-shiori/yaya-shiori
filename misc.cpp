@@ -1028,7 +1028,7 @@ yaya::time_t LocalTimeToEpochTime(struct tm &tm)
 		t2 += 1;
 	}
 
-	__int64 t3 = (t1 - 70) * 365i64 + ((t1 - 1i64) >> 2) - 17i64;
+	__int64 t3 = (t1 - 70) * LL_DEF(365) + ((t1 - LL_DEF(1)) >> 2) - LL_DEF(17);
 
 	t3 += t2;
 	t2 = tm.tm_mday;
@@ -1036,19 +1036,19 @@ yaya::time_t LocalTimeToEpochTime(struct tm &tm)
 	t1 = t3 + t2;
 
 	//t1 = “ú
-	t2 = t1 * 24i64;
+	t2 = t1 * LL_DEF(24);
 	t3 = tm.tm_hour;
 
 	t1 = t2 + t3;
 
 	//t1 = Žž
-	t2 = t1 * 60i64;
+	t2 = t1 * LL_DEF(60);
 	t3 = tm.tm_min;
 
 	t1 = t2 + t3;
 
 	//t1 = •ª
-	t2 = t1 * 60i64;
+	t2 = t1 * LL_DEF(60);
 	t3 = tm.tm_sec;
 
 	t1 = t2 + t3;

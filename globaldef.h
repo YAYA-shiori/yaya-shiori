@@ -25,9 +25,9 @@
 #define std_shared_ptr  std::shared_ptr
 #define std_make_shared std::make_shared
 
-// freebsdã§define nullptr 0ã‚’è¡Œã†ã¨
-// aya5.cpp:L507ã®loghandler_list.emplace_back(nullptr)ã§
-// åž‹ä¸ä¸€è‡´ã®ã‚¨ãƒ©ãƒ¼ãŒå‡ºã‚‹ã®ã§defineã—ãªã„ã€‚
+// freebsd‚Ådefine nullptr 0‚ðs‚¤‚Æ
+// aya5.cpp:L507‚Ìloghandler_list.emplace_back(nullptr)‚Å
+// Œ^•sˆê’v‚ÌƒGƒ‰[‚ªo‚é‚Ì‚Ådefine‚µ‚È‚¢B
 
 #else
 
@@ -141,12 +141,12 @@ typedef unsigned long long uint64_t;
 
 #endif //MSC_VER
 
-#ifndef _WINDOWS
+#ifndef LL_DEF
 
 #define ULL_DEF(p) p
 #define LL_DEF(p) p
 
-#endif // _WINDOWS
+#endif // LL_DEF
 
 #if CPP_STD_VER < 2011
 

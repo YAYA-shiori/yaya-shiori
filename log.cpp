@@ -465,7 +465,7 @@ void	CLog::SendLogToWnd(const yaya::char_t *str, int mode)
 	cds.cbData = (wcslen(str) + 1)*sizeof(yaya::char_t);
 	cds.lpData = (LPVOID)str;
 
-	DWORD res_dword = 0;
+	DWORD_PTR res_dword = 0;
 	::SendMessageTimeout(hWnd, WM_COPYDATA, (WPARAM)NULL, (LPARAM)&cds, SMTO_ABORTIFHUNG|SMTO_BLOCK, 5000, &res_dword);
 }
 #endif

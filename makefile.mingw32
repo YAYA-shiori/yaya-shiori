@@ -1,105 +1,107 @@
 # -*- makefile -*-
+#
+# MinGW-w64 ã§ Windows ç”¨ã® yaya.dll ã‚’ä½œã‚‹
+#   mingw32-make -f makefile.mingw32
+#
+# 32bit ã® SSP ã§ä½¿ã†ã«ã¯ i686 ã® MinGW-w64 ã§ãƒ“ãƒ«ãƒ‰ã™ã‚‹ã“ã¨
+# ï¼ˆx86_64 ã® MinGW-w64 ã§ã¯ 64bit ã® DLL ã«ãªã‚‹ï¼‰
 
-# g—p‚·‚éƒc[ƒ‹—Ş‚Ìİ’è
+# ä½¿ç”¨ã™ã‚‹ãƒ„ãƒ¼ãƒ«é¡ã®è¨­å®š
 CC = gcc
 CXX = g++
 LD = g++
-STRIP = strip
-MKDEP = mkdep
+WINDRES = windres
 
-# ì‚éƒ‰ƒCƒuƒ‰ƒŠ–¼‚Ìİ’è
-# ‚±‚ê‚Ídarwin—p‚Ìİ’è‚ÅAlibaya5.bundle‚ğ¶¬‚·‚éB
-# Linux‚âBSD‚È‚çpostfix‚ğ.so‚É‚·‚é•K—v‚ª‚ ‚é”¤B
-DYLIB_NAME_PREFIX = 
+# ä½œã‚‹ãƒ©ã‚¤ãƒ–ãƒ©ãƒªåã®è¨­å®š
+DYLIB_NAME_PREFIX =
 DYLIB_NAME_POSTFIX = .dll
 
-# STLPort
-STLPORT_INCLUDES = /usr/local/include/stlport
-LIBSTLPORT_A = 
-#LIBSTLPORT_A = /usr/local/lib/libstlport_mingw32_static.a
+# è¿½åŠ ã™ã‚‹ãƒ•ãƒ©ã‚°ã€‚
+# ã‚½ãƒ¼ã‚¹ã¯ Shift_JISï¼ˆCP932ï¼‰ãªã®ã§ã€æ–‡å­—åˆ—ãƒªãƒ†ãƒ©ãƒ«ã‚’ VC++ ã¨åŒã˜ã CP932 ã®ã¾ã¾æ‰±ã‚ã›ã‚‹ã€‚
+# MinGW ã®å®Ÿè¡Œæ™‚ãƒ©ã‚¤ãƒ–ãƒ©ãƒªï¼ˆlibstdc++ ãªã©ã® DLLï¼‰ã‚’è¦æ±‚ã—ãªã„ã‚ˆã†é™çš„ã«ãƒªãƒ³ã‚¯ã™ã‚‹ã€‚
+CXXFLAGS = -O3 -Wall -std=c++11 -fpermissive -finput-charset=CP932 -fexec-charset=CP932
+CFLAGS = -O3 -Wall
+LDFLAGS = -shared -static -s
 
-# boost‚ÌêŠ‚ğw’èB
-BOOST_INCLUDES = /usr/local/include
-# libboost_regex.a‚ÌêŠ‚ğİ’èB
-LIBBOOST_REGEX_A = -lboost_regex-sp
+################## ã“ã‚Œã‚ˆã‚Šä¸‹ã¯å¼„ã‚‰ãªãã¦ã‚‚ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«å‡ºæ¥ã¾ã™ ##################
 
-# ’ˆÓ:
-# ‚±‚ÌƒvƒƒOƒ‰ƒ€‚Í wstring ‚ğg—p‚µ‚Ä‚¢‚Ü‚·B
-# ‚¨g‚¢‚ÌƒRƒ“ƒpƒCƒ‰‚ª wstring ‚ğ—‰ğ‚µ‚È‚¢ê‡‚Ícc‚Ç‚¤‚É‚©‚µ‚Ä‘Îˆ‚µ‚Ä‰º‚³‚¢B
+CXXFLAGS_ADD = -DWIN32 -D_WINDOWS -DAYA5_EXPORTS -I.
+LD_ADD = -lws2_32
 
-# ’Ç‰Á‚·‚éƒtƒ‰ƒOB
-# CXXFLAGS‚Í•K—v–³‚¯‚ê‚Î‹ó‚Å‚à—Ç‚¢‚ªALDFLAGS‚Ídlopen‰Â”\‚Èƒ‰ƒCƒuƒ‰ƒŠ‚ğ
-# ì‚ê‚éİ’è‚É‚µ‚È‚¯‚ê‚Î‚È‚ç‚È‚¢Bdarwin‚È‚ç-bundleALinux‚âBSD‚È‚ç-sharedB
-CXXFLAGS = -O3 -Wall
-LDFLAGS = -shared
-
-################## ‚±‚ê‚æ‚è‰º‚Í˜M‚ç‚È‚­‚Ä‚àƒRƒ“ƒpƒCƒ‹o—ˆ‚Ü‚· ##################
-CXXFLAGS_ADD = -I$(STLPORT_INCLUDES) -I$(BOOST_INCLUDES) -I.
-LD_ADD = $(LIBBOOST_REGEX_A) $(LIBSTLPORT_A) -lsupc++ -lmingw32 -lmingwex
-LIBAYA5_SRC = \
-	stdafx.cpp \
-	aya5.cpp \
-	ayavm.cpp \
-	babel/babel.cpp \
-	basis.cpp \
-	ccct.cpp \
-	comment.cpp \
-	crc32.cpp \
-	duplevinfo.cpp \
-	file.cpp \
-	file1.cpp \
-	function.cpp \
-	globalvariable.cpp \
-	jsonxml.cpp \
-	lib.cpp \
-	lib1.cpp \
-	localvariable.cpp \
-	log.cpp \
-	logexcode.cpp \
-	manifest.cpp \
-	md5c.cpp \
-	misc.cpp \
-	mt19937ar.cpp \
-	parson/parson.c \
-	parser0.cpp \
-	parser1.cpp \
-	posix_utils.cpp \
-	selecter.cpp \
-	sha1.cpp \
-	sqlite3_yaya.c \
-	sqlitedb.cpp \
-	sysfunc.cpp \
-	tinyxml2/tinyxml2.cpp \
-	value.cpp \
-	wordmatch.cpp \
-	wsex.cpp \
-	yamltoml.cpp
-
-LIBAYA5_OBJ = $(patsubst %.c,%.o,$(LIBAYA5_SRC:.cpp=.o))
+LIBAYA5_OBJ = \
+	aya5.o \
+	ayavm.o \
+	basis.o \
+	ccct.o \
+	comment.o \
+	crc32.o \
+	dir_enum.o \
+	duplevinfo.o \
+	file.o \
+	file1.o \
+	function.o \
+	globalvariable.o \
+	jsonxml.o \
+	lib.o \
+	lib1.o \
+	localvariable.o \
+	log.o \
+	logexcode.o \
+	manifest.o \
+	md5c.o \
+	messages.o \
+	misc.o \
+	mt19937ar.o \
+	parson/parson.o \
+	parser0.o \
+	parser1.o \
+	selecter.o \
+	sha1.o \
+	sqlite3_yaya.o \
+	sqlitedb.o \
+	sysfunc.o \
+	tinyxml2/tinyxml2.o \
+	value.o \
+	variable.o \
+	wsex.o \
+	yamltoml.o \
+	posix_utils.o \
+	aya5_res.o
 
 LIBAYA5 = $(DYLIB_NAME_PREFIX)yaya$(DYLIB_NAME_POSTFIX)
 
-.SUFFIXES: .cpp
+# å‹•ä½œç¢ºèªç”¨ã® yaya.exeï¼ˆæ¨™æº–å…¥å‡ºåŠ›ã§ load/request/unload ã‚’å—ã‘ä»˜ã‘ã‚‹ï¼‰
+AYA5EXE = yaya.exe
+AYA5EXE_OBJ = $(filter-out aya5.o,$(LIBAYA5_OBJ)) aya5_exe.o
 
 all: $(LIBAYA5)
 
-depend:
-	mkdep $(CXXFLAGS) $(CXXFLAGS_ADD) $(LIBAYA5_OBJ)
+exe: $(AYA5EXE)
 
 clean:
-	rm -f $(LIBAYA5) $(LIBAYA5_OBJ)
+	rm -f $(LIBAYA5) $(LIBAYA5_OBJ) $(AYA5EXE) aya5_exe.o
 
 $(LIBAYA5): $(LIBAYA5_OBJ)
 	$(LD) -o $@ $(LIBAYA5_OBJ) $(LDFLAGS) $(LD_ADD)
-	$(STRIP) -s $@
+
+$(AYA5EXE): $(AYA5EXE_OBJ)
+	$(LD) -o $@ $(AYA5EXE_OBJ) -static -s $(LD_ADD)
+
+aya5_exe.o: aya5.cpp
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -DAYA_MAKE_EXE -o $@ -c aya5.cpp
+
+# SQLiteã¯Cã¨ã—ã¦ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã™ã‚‹ï¼ˆC++ã§ã¯é€šã‚‰ãªã„ï¼‰
+sqlite3_yaya.o: sqlite3_yaya.c sqlite/sqlite3.c
+	$(CC) $(CFLAGS) -o $@ -c sqlite3_yaya.c
+
+# ã‚¨ãƒ©ãƒ¼ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ï¼ˆmessagetxt/*.txtï¼‰ã‚’åŸ‹ã‚è¾¼ã‚€ãƒªã‚½ãƒ¼ã‚¹
+aya5_res.o: aya5.rc resource.h $(wildcard messagetxt/*.txt)
+	$(WINDRES) -c 932 -I. -o $@ aya5.rc
 
 .c.o:
-	$(CC) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $<
+	$(CC) $(CFLAGS) $(CXXFLAGS_ADD) -o $@ -c $<
 
 .cpp.o:
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $<
 
--include .depend
-
-.PHONY: all clean depend
-
+.PHONY: all exe clean

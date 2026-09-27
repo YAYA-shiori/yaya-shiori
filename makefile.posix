@@ -1,45 +1,46 @@
 # -*- makefile -*-
+#
+# macOS ç”¨ã€‚dlopen ã§ãã‚‹ libyaya.bundle ã‚’ä½œã‚‹
 
-# g—p‚·‚éƒc[ƒ‹—Ş‚Ìİ’è
-CC = gcc
-CXX = g++
-LD = g++
+# ä½¿ç”¨ã™ã‚‹ãƒ„ãƒ¼ãƒ«é¡ã®è¨­å®š
+CC = clang
+CXX = clang++
+LD = clang++
 STRIP = strip
 MKDEP = mkdep
 
-# ì‚éƒ‰ƒCƒuƒ‰ƒŠ–¼‚Ìİ’è
-# ‚±‚ê‚Ídarwin—p‚Ìİ’è‚ÅAlibyaya.bundle‚ğ¶¬‚·‚éB
-# Linux‚âBSD‚È‚çpostfix‚ğ.so‚É‚·‚é•K—v‚ª‚ ‚é”¤B
+# ä½œã‚‹ãƒ©ã‚¤ãƒ–ãƒ©ãƒªåã®è¨­å®š
 DYLIB_NAME_PREFIX = lib
 DYLIB_NAME_POSTFIX = .bundle
 
-# boost‚ÌêŠ‚ğw’èB
-BOOST_INCLUDES = /sw/include
-# libboost_regex.a‚ÌêŠ‚ğİ’èB
-#LIBBOOST_REGEX_A = /sw/lib/libboost_regex-1_32.a
-LIBBOOST_REGEX_A = ./libboost_regex.a
+# æ³¨æ„:
+# ã“ã®ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã¯ wstring ã‚’ä½¿ç”¨ã—ã¦ã„ã¾ã™ã€‚
+# ãŠä½¿ã„ã®ã‚³ãƒ³ãƒ‘ã‚¤ãƒ©ãŒ wstring ã‚’ç†è§£ã—ãªã„å ´åˆã¯â€¦â€¦ã©ã†ã«ã‹ã—ã¦å¯¾å‡¦ã—ã¦ä¸‹ã•ã„ã€‚
 
-# ’ˆÓ:
-# ‚±‚ÌƒvƒƒOƒ‰ƒ€‚Í wstring ‚ğg—p‚µ‚Ä‚¢‚Ü‚·B
-# ‚¨g‚¢‚ÌƒRƒ“ƒpƒCƒ‰‚ª wstring ‚ğ—‰ğ‚µ‚È‚¢ê‡‚Ícc‚Ç‚¤‚É‚©‚µ‚Ä‘Îˆ‚µ‚Ä‰º‚³‚¢B
+# ã‚¢ãƒ¼ã‚­ãƒ†ã‚¯ãƒãƒ£ã®æŒ‡å®šã€‚ç©ºãªã‚‰ãƒ“ãƒ«ãƒ‰ã™ã‚‹ãƒã‚·ãƒ³ã®ã‚‚ã®ã€‚
+# Intel ã¨ Apple Silicon ã®ä¸¡æ–¹ã§å‹•ããƒ¦ãƒ‹ãƒãƒ¼ã‚µãƒ«ãƒã‚¤ãƒŠãƒªã«ã™ã‚‹ãªã‚‰æ¬¡ã®ã‚ˆã†ã«ã™ã‚‹ã€‚
+# ARCH_FLAGS = -arch x86_64 -arch arm64
+ARCH_FLAGS =
 
-# ’Ç‰Á‚·‚éƒtƒ‰ƒOB
-# CXXFLAGS‚Í•K—v–³‚¯‚ê‚Î‹ó‚Å‚à—Ç‚¢‚ªALDFLAGS‚Ídlopen‰Â”\‚Èƒ‰ƒCƒuƒ‰ƒŠ‚ğ
-# ì‚ê‚éİ’è‚É‚µ‚È‚¯‚ê‚Î‚È‚ç‚È‚¢Bdarwin‚È‚ç-bundleALinux‚âBSD‚È‚ç-sharedB
-ARCH_FLAGS = -arch i386 -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk
-CXXFLAGS = -O3 -Wno-long-double $(ARCH_FLAGS)
-CFLAGS = -O3 $(ARCH_FLAGS)
+# è¿½åŠ ã™ã‚‹ãƒ•ãƒ©ã‚°ã€‚
+# CXXFLAGSã¯å¿…è¦ç„¡ã‘ã‚Œã°ç©ºã§ã‚‚è‰¯ã„ãŒã€LDFLAGSã¯dlopenå¯èƒ½ãªãƒ©ã‚¤ãƒ–ãƒ©ãƒªã‚’
+# ä½œã‚Œã‚‹è¨­å®šã«ã—ãªã‘ã‚Œã°ãªã‚‰ãªã„ï¼ˆmacOSãªã‚‰-bundleï¼‰ã€‚
+CXXFLAGS = -O3 -Wall -std=c++11 $(ARCH_FLAGS)
+CFLAGS = -O3 -Wall $(ARCH_FLAGS)
 LDFLAGS = -bundle $(ARCH_FLAGS)
 
-################## ‚±‚ê‚æ‚è‰º‚Í˜M‚ç‚È‚­‚Ä‚àƒRƒ“ƒpƒCƒ‹o—ˆ‚Ü‚· ##################
-CXXFLAGS_ADD = -DPOSIX -I. -Itinyxpath -I$(BOOST_INCLUDES)
-LD_ADD = $(LIBBOOST_REGEX_A)
+################## ã“ã‚Œã‚ˆã‚Šä¸‹ã¯å¼„ã‚‰ãªãã¦ã‚‚ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«å‡ºæ¥ã¾ã™ ##################
+
+CXXFLAGS_ADD = -DPOSIX -I.
+
 LIBAYA5_OBJ = \
 	aya5.o \
 	ayavm.o \
 	basis.o \
 	ccct.o \
 	comment.o \
+	crc32.o \
+	dir_enum.o \
 	duplevinfo.o \
 	file.o \
 	file1.o \
@@ -52,41 +53,24 @@ LIBAYA5_OBJ = \
 	log.o \
 	logexcode.o \
 	manifest.o \
+	md5c.o \
+	messages.o \
 	misc.o \
 	mt19937ar.o \
 	parson/parson.o \
 	parser0.o \
 	parser1.o \
 	selecter.o \
+	sha1.o \
 	sqlite3_yaya.o \
 	sqlitedb.o \
 	sysfunc.o \
 	tinyxml2/tinyxml2.o \
 	value.o \
+	variable.o \
 	wsex.o \
 	yamltoml.o \
-	posix_utils.o \
-	posix_charconv.o \
-	strconv.o \
-	strconv_cp932.o \
-	wordmatch.o \
-	tinyxpath/action_store.o \
-	tinyxpath/htmlutil.o \
-	tinyxpath/lex_util.o \
-	tinyxpath/node_set.o \
-	tinyxpath/tinystr.o \
-	tinyxpath/tinyxml.o \
-	tinyxpath/tinyxmlerror.o \
-	tinyxpath/tinyxmlparser.o \
-	tinyxpath/tokenlist.o \
-	tinyxpath/xml_util.o \
-	tinyxpath/xpath_expression.o \
-	tinyxpath/xpath_processor.o \
-	tinyxpath/xpath_stack.o \
-	tinyxpath/xpath_static.o \
-	tinyxpath/xpath_stream.o \
-	tinyxpath/xpath_syntax.o \
-	$(NULL)
+	posix_utils.o
 
 LIBAYA5 = $(DYLIB_NAME_PREFIX)yaya$(DYLIB_NAME_POSTFIX)
 
@@ -99,24 +83,22 @@ clean:
 	rm -f $(LIBAYA5) $(LIBAYA5_OBJ)
 
 $(LIBAYA5): $(LIBAYA5_OBJ)
-	$(LD) -o $@ $(LIBAYA5_OBJ) $(LDFLAGS) $(LD_ADD)
+	$(LD) -o $@ $(LIBAYA5_OBJ) $(LDFLAGS)
 	$(STRIP) -x $@
 
-DISTDIR = yaya-src
-dist:
-	rm -rf $(DISTDIR)
-	mkdir -p $(DISTDIR)
-	cp *.cpp *.h *.dsp *.dsw *.rc *.txt makefile.* $(DISTDIR)
-	zip -r $(DISTDIR).zip $(DISTDIR)
-	rm -rf $(DISTDIR)
-
-# SQLite‚ÍC‚Æ‚µ‚ÄƒRƒ“ƒpƒCƒ‹‚·‚éiC++‚Å‚Í’Ê‚ç‚È‚¢j
+# SQLiteã¯Cã¨ã—ã¦ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã™ã‚‹ï¼ˆC++ã§ã¯é€šã‚‰ãªã„ï¼‰
 sqlite3_yaya.o: sqlite3_yaya.c sqlite/sqlite3.c
 	$(CC) $(CFLAGS) -o $@ -c sqlite3_yaya.c
 
-.cpp.o:
+.c.o:
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $<
+
+.cpp.o:
+	@iconv -f CP932 -t UTF-8 -c $< > $*.tmp.cpp
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $*.tmp.cpp
+	@rm $*.tmp.cpp
 
 #-include .depend
 
 .PHONY: all clean depend
+

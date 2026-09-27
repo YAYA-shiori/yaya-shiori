@@ -20,3 +20,10 @@ _UpgradeReport_Files
 .mcp.json
 /.claude
 temp-doc-*.md
+*.o
+*.tmp.cpp
+/libaya5.so
+/libyaya.bundle
+/yaya.js
+/yaya.dll
+/yaya.exe

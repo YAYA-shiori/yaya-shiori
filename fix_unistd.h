@@ -81,6 +81,8 @@ _getpid
 extern "C" {
 #endif
 
+// MinGWは pid_t / ssize_t / getpid / stat64 を自前のヘッダで定義している
+#ifndef __MINGW32__
 typedef int	pid_t;			/* process id type	*/
 
 #ifndef _SSIZE_T_DEFINED
@@ -95,6 +97,7 @@ _ACRTIMP
 #endif
 extern pid_t __cdecl _getpid(void);
 #endif
+#endif // __MINGW32__
 
 #define nice(incr) (SetPriorityClass(GetCurrentProcess(),incr))//TODO
 #define sleep(seconds) (Sleep(seconds*1000))
@@ -112,8 +115,10 @@ __forceinline int UNISTD_stime(const time_t *tp ){
 }
 
 //<sys/stat.h>
+#ifndef __MINGW32__
 #define fstat64(fildes, stat) (_fstati64(fildes, stat))
 #define stat64(path, buffer) (_stati64(path,buffer))
+#endif
 
 #ifdef	__cplusplus
 }
