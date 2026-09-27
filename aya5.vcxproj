@@ -290,6 +290,8 @@
     <ClCompile Include="parser1.cpp" />
     <ClCompile Include="selecter.cpp" />
     <ClCompile Include="sha1.c" />
+    <ClCompile Include="sqlite3_yaya.c" />
+    <ClCompile Include="sqlitedb.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug EXE|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug EXE|Win32'">stdafx.h</PrecompiledHeaderFile>
@@ -334,6 +336,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="selecter.h" />
     <ClInclude Include="sha1.h" />
+    <ClInclude Include="sqlitedb.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="sysfunc.h" />
     <ClInclude Include="tinyxml2\tinyxml2.h" />

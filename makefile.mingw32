@@ -66,6 +66,8 @@ LIBAYA5_SRC = \
 	posix_utils.cpp \
 	selecter.cpp \
 	sha1.cpp \
+	sqlite3_yaya.c \
+	sqlitedb.cpp \
 	sysfunc.cpp \
 	tinyxml2/tinyxml2.cpp \
 	value.cpp \

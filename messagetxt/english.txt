@@ -146,6 +146,7 @@
 *warning W0026 : Failed to parse the data.
 *warning W0027 : The value cannot be converted to JSON/XML/YAML/TOML.
 *warning W0028 : Warning by #warning.
+*warning W0029 : SQLite operation failed.
 //
 // 注記文字列（英語）
 !!!msgn

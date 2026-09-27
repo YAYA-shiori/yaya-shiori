@@ -14,6 +14,7 @@
 
 #include "basis.h"
 #include "file.h"
+#include "sqlitedb.h"
 #include "function.h"
 #include "lib.h"
 #include "misc.h"
@@ -65,6 +66,7 @@ CAyaVM::CAyaVM(CAyaVM &ovm)
 	copy_new(m_sysfunction);
 	copy_new(m_variable);
 	copy_new(m_files);
+	copy_new(m_sqlite);
 	copy_new(m_libs);
 	copy_new(m_parser0);
 	copy_new(m_parser1);
@@ -209,6 +211,7 @@ FACTORY_DEFINE_THIS(CSystemFunction,sysfunction)
 FACTORY_DEFINE_THIS(CGlobalVariable,variable)
 
 FACTORY_DEFINE_PLAIN(CFile,files)
+FACTORY_DEFINE_PLAIN(CSqliteDB,sqlite)
 FACTORY_DEFINE_THIS(CLib,libs)
 
 FACTORY_DEFINE_THIS(CParser0,parser0)

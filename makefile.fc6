@@ -1,6 +1,7 @@
 # -*- makefile -*-
 
 # 使用するツール類の設定
+CC = gcc
 CXX = g++
 LD = g++
 STRIP = strip
@@ -25,8 +26,9 @@ LIBBOOST_REGEX_A = /usr/lib/libboost_regex.a
 # CXXFLAGSは必要無ければ空でも良いが、LDFLAGSはdlopen可能なライブラリを
 # 作れる設定にしなければならない。darwinなら-bundle、LinuxやBSDなら-shared。
 CXXFLAGS = -O3 -Wall
+CFLAGS = -O3 -Wall
 #CXXFLAGS = 
-LDFLAGS = -shared
+LDFLAGS = -shared -lpthread
 
 ################## これより下は弄らなくてもコンパイル出来ます ##################
 CXXFLAGS_ADD = -DPOSIX -I. -I$(BOOST_INCLUDES)
@@ -51,6 +53,8 @@ LIBAYA5_OBJ = \
 	parser0.o \
 	parser1.o \
 	selecter.o \
+	sqlite3_yaya.o \
+	sqlitedb.o \
 	sysfunc.o \
 	tinyxml2/tinyxml2.o \
 	value.o \
@@ -75,6 +79,10 @@ clean:
 $(LIBAYA5): $(LIBAYA5_OBJ)
 	$(LD) -o $@ $(LIBAYA5_OBJ) $(LDFLAGS) $(LD_ADD)
 	$(STRIP) -x $@
+
+# SQLiteはCとしてコンパイルする（C++では通らない）
+sqlite3_yaya.o: sqlite3_yaya.c sqlite/sqlite3.c
+	$(CC) $(CFLAGS) -o $@ -c sqlite3_yaya.c
 
 .cpp.o:
 	@iconv -f WINDOWS-31J $< -o $*.tmp.cpp

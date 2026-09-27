@@ -19,7 +19,9 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 - 成功時はログ末尾が `yaya.dll - ｴﾗｰ 0、警告 N`。VC6 の STL 由来の警告 C4786 は無視してよい
 - Git Bash から実行する場合は `/MAKE` がパス変換されるため `MSYS_NO_PATHCONV=1` を前置する
 - 配布用zipの作成は `make_aya.bat`（Release / ReleaseLangSep のビルド後に実行）
-- JSON/XML の解析に使う parson（`parson/`）と tinyxml2（`tinyxml2/`、ponapalt のフォーク）は git サブモジュール。クローン直後は `git submodule update --init` が必要。いずれも UTF-8 のソースなので Sjis_ 系ツールで編集しない（そもそも本体側では編集せず、tinyxml2 の修正はフォーク側（`../tinyxml2` にクローンあり）で行ってから参照を更新する）
+- JSON/XML の解析に使う parson（`parson/`）と tinyxml2（`tinyxml2/`、ponapalt のフォーク）、SQL* 関数に使う SQLite（`sqlite/`、ponapalt のフォーク sqlite-amalgamation-new）は git サブモジュール。クローン直後は `git submodule update --init` が必要。いずれも UTF-8 のソースなので Sjis_ 系ツールで編集しない（そもそも本体側では編集せず、tinyxml2 / SQLite の修正はフォーク側（`../tinyxml2` / `../sqlite-amalgamation-new` にクローンあり）で行ってから参照を更新する）
+- サブモジュールを使う処理（JSON/XML、SQL* 関数）に手を入れる前に、`git submodule update --init --remote parson tinyxml2 sqlite` で参照を最新にしてから作業する
+- SQLite のフォークは upstream の amalgamation に VC6 / 古い SDK 向けの修正を1コミット載せたもの。64bit のリテラルは `INT64_C()` / `UINT64_C()` で書く（`LL` は VC6 が、`i64` は gcc が読めない）。修正したら VC6 と gcc（Strawberry Perl 同梱の `gcc`）の両方で `sqlite3.c` 単体がコンパイルできることを確かめる
 - `messagetxt/*.txt` は `aya5.rc` からリソースとして埋め込まれるが、`/MAKE` はその変更を検知しない。messagetxt を変えたら `/REBUILD` するか、`Release/aya5.res` などを消してからビルドする
 
 ## リリース手順
@@ -27,13 +29,13 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 1. バージョンを上げる（例: `Tc600-2`）。どちらも Shift JIS かつ CRLF なので Sjis_ 系ツールで編集する（Git Bash の `sed -i` は CRLF を LF に変えてしまう）
    - `manifest.cpp` の `aya_version`
    - `aya5.rc` の `FILEVERSION 6,00,2,0` と `VALUE "FileVersion", "6, 00, 2, 0\0"`（`TcXYY-N` → `X,YY,N,0`）
-2. サブモジュール（`parson` / `tinyxml2`）の参照を最新に更新する
+2. サブモジュール（`parson` / `tinyxml2` / `sqlite`）の参照を最新に更新する
    ```powershell
-   git submodule update --init --remote parson tinyxml2
+   git submodule update --init --remote parson tinyxml2 sqlite
    git submodule status
    ```
    - 参照が変わったら `git diff --submodule` で取り込まれるコミットを確認し、リリースのコミットに含める
-   - ライセンス文の年や著作権者が変わっていたら `sysfunc.cpp` の `LICENSE` 関数の parson / TinyXML-2 の部分も合わせる
+   - ライセンス文の年や著作権者が変わっていたら `sysfunc.cpp` の `LICENSE` 関数の parson / TinyXML-2 の部分も合わせる（SQLite はパブリックドメイン）
 3. Release と ReleaseLangSep をリビルドし、ログ末尾が `ｴﾗｰ 0` であることを確認する
    ```powershell
    msdev aya5.dsw /MAKE "aya5 - Win32 Release" /REBUILD /OUT "$env:TEMP\claude\yaya_build_Release.log"
@@ -137,3 +139,12 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 - 実数の書式（`AppendFiniteDouble`）、UTF-8 変換、`CNumericLocaleGuard`（解析・出力の間だけ `LC_NUMERIC` を C にする）は `jsonxml.h` で共有している
 - VC6 の最適化は `inf - inf` を 0 に畳むので、NaN はビット列から作る（`yamltoml.cpp:MakeNan`）。NaN の判定も `d != d` ではなく `_isnan` を使う
 - `yamltoml.cpp` のようにソース中に `\uXXXX` を書くファイルは `sjis_write` / `sjis_edit` で書くとエスケープが文字に展開される。UTF-8 で書いてから CP932・CRLF に変換する
+
+## SQLite（SQLOPEN / SQLCLOSE / SQLEXEC / SQLQUERY）
+
+- SQLite 本体は `sqlite3_yaya.c` がコンパイルオプション（`SQLITE_OMIT_LOAD_EXTENSION` など）を定義してから `sqlite/sqlite3.c` を `#include` する。オプションはここだけで決め、`.dsp` や makefile には書かない。C としてコンパイルすること（makefile では `$(CC)` の専用ルール。g++ に `.c` を渡すと C++ 扱いで通らない）
+- 接続の管理と実行は `sqlitedb.cpp` の `CSqliteDB`（`vm.sqlite()`）、引数の検査とログは `sysfunc.cpp`（`SqlExecute` など）。`CFile` と同じくデータベースはパスの文字列（`ToFullPath` の結果、`":memory:"` はそのまま）で識別する。`./` などは正規化しないので、書き方が違えば別の接続になる
+- `CSqliteDB` のコピーコンストラクタは接続を引き継がない（`CAyaVM` のディープコピーで同じ `sqlite3*` を二重に閉じないため）。unload では `CBasis::Termination` が `CloseAll` する
+- 準備済みステートメントは接続ごとに SQL 文字列をキーにしてキャッシュする。初回は1文ずつ prepare → 実行する（`CREATE TABLE t...; CREATE INDEX ... ON t` のように前の文が作った表を次の文が参照すると、まとめて prepare できないため）
+- パラメータは `args[2]` 以降。すべてスカラーなら1回実行、すべて配列/ハッシュなら1つを1回分として繰り返す（関数呼び出しで外側の配列が展開されるのを利用している）。値の対応は 整数/実数/文字列/VOID ↔ INTEGER/REAL/TEXT/NULL、BLOB は16進数の文字列
+- 動作確認は EXE 構成の `yaya.exe` を標準入出力で動かす（`load:長さ\r\n<パス>` → `request:長さ\r\n<要求>` → `unload:0`）。辞書で戻り値を捨てる呼び出しは `_d = SQLEXEC(...)` のように代入しないと、関数の返り値の候補に混ざる

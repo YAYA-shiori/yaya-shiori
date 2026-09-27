@@ -502,6 +502,12 @@
 				RelativePath="..\sha1.c">
 			</File>
 			<File
+				RelativePath="..\sqlite3_yaya.c">
+			</File>
+			<File
+				RelativePath="..\sqlitedb.cpp">
+			</File>
+			<File
 				RelativePath="..\StdAfx.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -671,6 +677,9 @@
 			</File>
 			<File
 				RelativePath="..\sha1.h">
+			</File>
+			<File
+				RelativePath="..\sqlitedb.h">
 			</File>
 			<File
 				RelativePath="..\StdAfx.h">

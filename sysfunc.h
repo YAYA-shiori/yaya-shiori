@@ -332,6 +332,11 @@ protected:
 	CValue	DUMPYAML(CSF_FUNCPARAM &p);
 	CValue	DUMPTOML(CSF_FUNCPARAM &p);
 
+	CValue	SQLOPEN(CSF_FUNCPARAM &p);
+	CValue	SQLCLOSE(CSF_FUNCPARAM &p);
+	CValue	SQLEXEC(CSF_FUNCPARAM &p);
+	CValue	SQLQUERY(CSF_FUNCPARAM &p);
+
 	// JSON/XML/YAML/TOMLの共通処理（fmtはDATAFMT_*）
 	CValue	FReadDataFile(CSF_FUNCPARAM &p, const yaya::char_t *fname, int fmt);
 	CValue	ParseDataString(CSF_FUNCPARAM &p, const yaya::char_t *fname, int fmt);
@@ -339,6 +344,10 @@ protected:
 	CValue	FWriteDataFile(CSF_FUNCPARAM &p, const yaya::char_t *fname, int fmt);
 	CValue	DumpData(CSF_FUNCPARAM &p, const yaya::char_t *fname, int fmt);
 	bool	ValueToData(CSF_FUNCPARAM &p, const yaya::char_t *fname, const CValue &value, int charset, bool pretty, int fmt, yaya::string_t &out);
+
+	// SQLEXEC/SQLQUERYの共通処理（queryなら結果の行を返す）
+	CValue	SqlExecute(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool query);
+	yaya::string_t	SqlDbName(const yaya::string_t &path);
 
 	void	StoreReResultDetails(const yaya::string_t &str,MatchResult &result);
 	void	ClearReResultDetails(void);

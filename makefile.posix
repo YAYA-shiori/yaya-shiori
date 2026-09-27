@@ -1,6 +1,7 @@
 # -*- makefile -*-
 
 # 使用するツール類の設定
+CC = gcc
 CXX = g++
 LD = g++
 STRIP = strip
@@ -27,6 +28,7 @@ LIBBOOST_REGEX_A = ./libboost_regex.a
 # 作れる設定にしなければならない。darwinなら-bundle、LinuxやBSDなら-shared。
 ARCH_FLAGS = -arch i386 -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk
 CXXFLAGS = -O3 -Wno-long-double $(ARCH_FLAGS)
+CFLAGS = -O3 $(ARCH_FLAGS)
 LDFLAGS = -bundle $(ARCH_FLAGS)
 
 ################## これより下は弄らなくてもコンパイル出来ます ##################
@@ -56,6 +58,8 @@ LIBAYA5_OBJ = \
 	parser0.o \
 	parser1.o \
 	selecter.o \
+	sqlite3_yaya.o \
+	sqlitedb.o \
 	sysfunc.o \
 	tinyxml2/tinyxml2.o \
 	value.o \
@@ -105,6 +109,10 @@ dist:
 	cp *.cpp *.h *.dsp *.dsw *.rc *.txt makefile.* $(DISTDIR)
 	zip -r $(DISTDIR).zip $(DISTDIR)
 	rm -rf $(DISTDIR)
+
+# SQLiteはCとしてコンパイルする（C++では通らない）
+sqlite3_yaya.o: sqlite3_yaya.c sqlite/sqlite3.c
+	$(CC) $(CFLAGS) -o $@ -c sqlite3_yaya.c
 
 .cpp.o:
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $<

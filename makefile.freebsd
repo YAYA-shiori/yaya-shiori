@@ -1,6 +1,7 @@
 # -*- makefile -*-
 
 # 使用するツール類の設定
+CC = clang
 CXX = clang++
 LD = clang++
 STRIP = strip
@@ -30,7 +31,8 @@ BOOST_LINK = /usr/local/lib
 # CXXFLAGSは必要無ければ空でも良いが、LDFLAGSはdlopen可能なライブラリを
 # 作れる設定にしなければならない。darwinなら-bundle、LinuxやBSDなら-shared。
 CXXFLAGS = -O3 -Wall -fPIC
-LDFLAGS = -shared
+CFLAGS = -O3 -Wall -fPIC
+LDFLAGS = -shared -lpthread
 
 # C++11に対応していない場合は下をコメントアウトしてください。
 
@@ -71,6 +73,8 @@ LIBAYA5_OBJ = \
 	parser1.o \
 	selecter.o \
 	sha1.o \
+	sqlite3_yaya.o \
+	sqlitedb.o \
 	sysfunc.o \
 	tinyxml2/tinyxml2.o \
 	value.o \
@@ -95,6 +99,10 @@ install:
 $(LIBAYA5): $(LIBAYA5_OBJ)
 	$(LD) -o $@ $(LIBAYA5_OBJ) $(LDFLAGS) $(LD_ADD)
 #	$(STRIP) -x $@
+
+# SQLiteはCとしてコンパイルする（C++では通らない）
+sqlite3_yaya.o: sqlite3_yaya.c sqlite/sqlite3.c
+	$(CC) $(CFLAGS) -o $@ -c sqlite3_yaya.c
 
 .c.o:
 	@iconv --from-code=CP932 --to-code=UTF-8 -c $< > $*.tmp.cpp

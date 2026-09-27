@@ -1,6 +1,7 @@
 # -*- makefile -*-
 
 # 使用するツール類の設定
+CC = emcc
 CXX = em++
 LD = em++
 MKDEP = mkdep
@@ -19,6 +20,7 @@ DYLIB_NAME_POSTFIX = .js
 # CXXFLAGSは必要無ければ空でも良いが、LDFLAGSはdlopen可能なライブラリを
 # 作れる設定にしなければならない。darwinなら-bundle、LinuxやBSDなら-shared。
 CXXFLAGS = -O3 -Wall -std=c++11 -s ALLOW_MEMORY_GROWTH=1
+CFLAGS = -O3 -Wall
 EXPORTED_FUNCTIONS = "['_load','_unload','_request']"
 LDFLAGS = -shared -O3 --memory-init-file 0 --pre-js em-pre.js --post-js em-post.js -s EXPORTED_FUNCTIONS=$(EXPORTED_FUNCTIONS) -s ALLOW_MEMORY_GROWTH=1
 ################## これより下は弄らなくてもコンパイル出来ます ##################
@@ -53,6 +55,8 @@ LIBAYA5_OBJ = \
 	parser1.o \
 	selecter.o \
 	sha1.o \
+	sqlite3_yaya.o \
+	sqlitedb.o \
 	sysfunc.o \
 	tinyxml2/tinyxml2.o \
 	value.o \
@@ -72,6 +76,10 @@ clean:
 
 $(LIBAYA5): $(LIBAYA5_OBJ)
 	$(LD) -o $@ $(LIBAYA5_OBJ) $(LDFLAGS)
+
+# SQLiteはCとしてコンパイルする（C++では通らない）
+sqlite3_yaya.o: sqlite3_yaya.c sqlite/sqlite3.c
+	$(CC) $(CFLAGS) -o $@ -c sqlite3_yaya.c
 
 .c.o:
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $<

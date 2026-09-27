@@ -308,6 +308,14 @@ SOURCE=.\sha1.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\sqlite3_yaya.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\sqlitedb.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdAfx.cpp
 
 !IF  "$(CFG)" == "aya5 - Win32 Release"
@@ -459,6 +467,10 @@ SOURCE=.\selecter.h
 # Begin Source File
 
 SOURCE=.\sha1.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\sqlitedb.h
 # End Source File
 # Begin Source File
 

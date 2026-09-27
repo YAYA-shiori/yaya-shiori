@@ -36,6 +36,7 @@
 #include "ccct.h"
 #include "comment.h"
 #include "file.h"
+#include "sqlitedb.h"
 #include "function.h"
 #include "lib.h"
 #include "log.h"
@@ -365,8 +366,9 @@ void	CBasis::Termination(void)
 		ExecuteUnload();
 		// ロードしているすべてのライブラリをunload
 		vm.libs().DeleteAll();
-		// 開いているすべてのファイルを閉じる
+		// 開いているすべてのファイルとデータベースを閉じる
 		vm.files().DeleteAll();
+		vm.sqlite().CloseAll();
 		// 変数の保存
 		if ( auto_save ) {
 			SaveVariable();

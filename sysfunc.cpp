@@ -72,6 +72,7 @@ const int BUFFER_SIZE = 1024;
 #include "ccct.h"
 #include "cell.h"
 #include "file.h"
+#include "sqlitedb.h"
 #include "function.h"
 #include "lib.h"
 #include "log.h"
@@ -381,6 +382,11 @@ constexpr CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::FWRITETOML , L"FWRITETOML" } ,
 	{ &CSystemFunction::DUMPYAML , L"DUMPYAML" } ,
 	{ &CSystemFunction::DUMPTOML , L"DUMPTOML" } ,
+	// SQLite
+	{ &CSystemFunction::SQLOPEN , L"SQLOPEN" } ,
+	{ &CSystemFunction::SQLCLOSE , L"SQLCLOSE" } ,
+	{ &CSystemFunction::SQLEXEC , L"SQLEXEC" } ,
+	{ &CSystemFunction::SQLQUERY , L"SQLQUERY" } ,
 };
 
 #define SYSFUNC_NUM (sizeof(CSystemFunction::sysfunc)/sizeof(CSystemFunction::sysfunc[0]))
@@ -8491,6 +8497,18 @@ CValue	CSystemFunction::LICENSE(CSF_FUNCPARAM &p)
 	v.array().emplace_back(L"distribution.");
 	v.array().emplace_back(L"");
 
+	v.array().emplace_back(L"---SQLite---");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"SQLite is in the public domain.");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"The author disclaims copyright to this source code.  In place of");
+	v.array().emplace_back(L"a legal notice, here is a blessing:");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"   May you do good and not evil.");
+	v.array().emplace_back(L"   May you find forgiveness for yourself and forgive others.");
+	v.array().emplace_back(L"   May you share freely, never taking more than you give.");
+	v.array().emplace_back(L"");
+
 	return v;
 }
 
@@ -9084,4 +9102,178 @@ CValue	CSystemFunction::LINT_GetVarRefs(CSF_FUNCPARAM &p)
 	}
 
 	return result;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::SqlDbName
+ *  機能概要：  SQL*関数に渡されたパスから、データベースを識別する名前を得ます
+ *
+ *  ":memory:"（メモリ上のデータベース）はそのまま、それ以外はフルパスにする
+ * -----------------------------------------------------------------------
+ */
+yaya::string_t	CSystemFunction::SqlDbName(const yaya::string_t &path)
+{
+	if ( path == L":memory:" ) {
+		return path;
+	}
+	return vm.basis().ToFullPath(path);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::SQLOPEN
+ *  機能概要：  SQLiteのデータベースを開きます
+ *
+ *  SQLOPEN(path[,mode])　modeは "rwc"（省略時）/ "rw" / "r"
+ *  返値　　：　成功時1　失敗時0　既に開いていれば2
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::SQLOPEN(CSF_FUNCPARAM &p)
+{
+	if (p.arg.array_size() < 1) {
+		vm.logger().Error(E_W, 8, L"SQLOPEN", p.dicname, p.line);
+		SetError(8);
+		return CValue(0);
+	}
+
+	if (!p.arg.array()[0].IsString() ||
+		(p.arg.array_size() >= 2 && !p.arg.array()[1].IsString())) {
+		vm.logger().Error(E_W, 9, L"SQLOPEN", p.dicname, p.line);
+		SetError(9);
+		return CValue(0);
+	}
+
+	if (p.arg.array()[0].s_value.empty()) {
+		vm.logger().Error(E_W, 10, L"SQLOPEN", p.dicname, p.line);
+		SetError(10);
+		return CValue(0);
+	}
+
+	yaya::string_t	mode;
+	if (p.arg.array_size() >= 2) {
+		mode = p.arg.array()[1].s_value;
+	}
+
+	yaya::string_t	errstr;
+	int	result = vm.sqlite().Open(SqlDbName(p.arg.array()[0].s_value), mode, errstr);
+
+	switch ( result ) {
+	case SQLDB_OK:
+		return CValue(1);
+	case SQLDB_ALREADY_OPEN:
+		return CValue(2);
+	case SQLDB_BAD_MODE:
+		vm.logger().Error(E_W, 12, L"SQLOPEN", p.dicname, p.line);
+		SetError(12);
+		return CValue(0);
+	default:
+		vm.logger().Error(E_W, 29, yaya::string_t(L"SQLOPEN : ") + errstr, p.dicname, p.line);
+		SetError(29);
+		return CValue(0);
+	}
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::SQLCLOSE
+ *  機能概要：  SQLiteのデータベースを閉じます
+ *
+ *  SQLCLOSE(path)
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::SQLCLOSE(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"SQLCLOSE", p.dicname, p.line);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	if (!p.arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"SQLCLOSE", p.dicname, p.line);
+		SetError(9);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	if (vm.sqlite().Close(SqlDbName(p.arg.array()[0].s_value)) != SQLDB_OK) {
+		vm.logger().Error(E_W, 15, L"SQLCLOSE", p.dicname, p.line);
+		SetError(15);
+	}
+
+	return CValue(F_TAG_NOP, 0/*dmy*/);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::SQLEXEC
+ *  機能概要：  SQLを実行します
+ *
+ *  SQLEXEC(path,sql[,param...])
+ *  返値　　：　INSERT/UPDATE/DELETEで変更された行数　失敗時-1
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::SQLEXEC(CSF_FUNCPARAM &p)
+{
+	return SqlExecute(p, L"SQLEXEC", false);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::SQLQUERY
+ *  機能概要：  SQLを実行して結果の行を返します
+ *
+ *  SQLQUERY(path,sql[,param...])
+ *  返値　　：　列名→値のハッシュの配列　失敗時は空（VOID）
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::SQLQUERY(CSF_FUNCPARAM &p)
+{
+	return SqlExecute(p, L"SQLQUERY", true);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::SqlExecute
+ *  機能概要：  SQLEXEC/SQLQUERYの本体
+ *
+ *  3番目以降の引数がパラメータ（CSqliteDB::Executeを参照）
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::SqlExecute(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool query)
+{
+	CValue	fail = query ? CValue() : CValue(-1);
+
+	if (p.arg.array_size() < 2) {
+		vm.logger().Error(E_W, 8, fname, p.dicname, p.line);
+		SetError(8);
+		return fail;
+	}
+
+	if (!p.arg.array()[0].IsString() || !p.arg.array()[1].IsString()) {
+		vm.logger().Error(E_W, 9, fname, p.dicname, p.line);
+		SetError(9);
+		return fail;
+	}
+
+	CValue	rows(F_TAG_ARRAY, 0/*dmy*/);
+	yaya::int_t	changes = 0;
+	yaya::string_t	errstr;
+
+	int	result = vm.sqlite().Execute(SqlDbName(p.arg.array()[0].s_value), p.arg.array()[1].s_value,
+		p.arg.array(), 2, query ? &rows : NULL, changes, errstr);
+
+	switch ( result ) {
+	case SQLDB_OK:
+		if ( query ) {
+			return rows;
+		}
+		return CValue(changes);
+	case SQLDB_NOT_OPEN:
+		vm.logger().Error(E_W, 15, fname, p.dicname, p.line);
+		SetError(15);
+		return fail;
+	case SQLDB_BAD_PARAM:
+		vm.logger().Error(E_W, 9, fname, p.dicname, p.line);
+		SetError(9);
+		return fail;
+	default:
+		vm.logger().Error(E_W, 29, yaya::string_t(fname) + L" : " + errstr, p.dicname, p.line);
+		SetError(29);
+		return fail;
+	}
 }

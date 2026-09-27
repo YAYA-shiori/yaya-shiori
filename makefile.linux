@@ -1,6 +1,7 @@
 # -*- makefile -*-
 
 # 使用するツール類の設定
+CC = gcc
 CXX = g++
 LD = g++
 MKDEP = mkdep
@@ -19,7 +20,8 @@ DYLIB_NAME_POSTFIX = .so
 # CXXFLAGSは必要無ければ空でも良いが、LDFLAGSはdlopen可能なライブラリを
 # 作れる設定にしなければならない。darwinなら-bundle、LinuxやBSDなら-shared。
 CXXFLAGS = -O3 -Wall -fPIC -std=c++11 -fpermissive
-LDFLAGS = -shared
+CFLAGS = -O3 -Wall -fPIC
+LDFLAGS = -shared -lpthread
 
 ################## これより下は弄らなくてもコンパイル出来ます ##################
 
@@ -54,6 +56,8 @@ LIBAYA5_OBJ = \
 	parser1.o \
 	selecter.o \
 	sha1.o \
+	sqlite3_yaya.o \
+	sqlitedb.o \
 	sysfunc.o \
 	tinyxml2/tinyxml2.o \
 	value.o \
@@ -77,6 +81,10 @@ install:
 
 $(LIBAYA5): $(LIBAYA5_OBJ)
 	$(LD) -o $@ $(LIBAYA5_OBJ) $(LDFLAGS)
+
+# SQLiteはCとしてコンパイルする（C++では通らない）
+sqlite3_yaya.o: sqlite3_yaya.c sqlite/sqlite3.c
+	$(CC) $(CFLAGS) -o $@ -c sqlite3_yaya.c
 
 .c.o:
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $<

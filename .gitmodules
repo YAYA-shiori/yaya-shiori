@@ -4,3 +4,6 @@
 [submodule "tinyxml2"]
 	path = tinyxml2
 	url = https://github.com/ponapalt/tinyxml2.git
+[submodule "sqlite"]
+	path = sqlite
+	url = https://github.com/ponapalt/sqlite-amalgamation-new.git

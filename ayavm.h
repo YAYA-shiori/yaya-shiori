@@ -24,6 +24,7 @@ class CCallLimit;
 class CSystemFunction;
 class CGlobalVariable;
 class CFile;
+class CSqliteDB;
 class CLib;
 class CParser0;
 class CParser1;
@@ -46,6 +47,7 @@ private:
 	std_shared_ptr<CGlobalVariable>			m_variable;
 
 	std_shared_ptr<CFile>					m_files;
+	std_shared_ptr<CSqliteDB>				m_sqlite;
 	std_shared_ptr<CLib>						m_libs;
 
 	std_shared_ptr<CParser0>					m_parser0;
@@ -93,8 +95,9 @@ public:
 	CSystemFunction&		sysfunction();
 	CGlobalVariable&		variable();
 
-	// ファイルと外部ライブラリ
+	// ファイルとデータベースと外部ライブラリ
 	CFile&					files();
+	CSqliteDB&				sqlite();
 	CLib&					libs();
 
 	// ロガー
