@@ -8,7 +8,7 @@
 #include "manifest.h"
 
 const yaya::char_t *aya_name    = L"YAYA";
-const yaya::char_t *aya_version = L"Tc574-2";
+const yaya::char_t *aya_version = L"Tc574-3";
 const yaya::char_t *aya_author  = L"umeici/The Maintenance Shop";
 
 

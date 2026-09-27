@@ -7387,7 +7387,7 @@ CValue	CSystemFunction::DIRECTSSTP(CSF_FUNCPARAM &p)
 
 	HWND hwnd = (HWND)p.arg.array()[0].GetValueInt();
 
-	if ( ! hwnd ) {
+	if ( ! hwnd || ! ::IsWindow(hwnd) ) {
 		vm.logger().Error(E_W, 12, L"DIRECTSSTP", p.dicname, p.line);
 		SetError(12);
 		return CValue(-1);
@@ -7439,14 +7439,25 @@ CValue	CSystemFunction::DIRECTSSTP(CSF_FUNCPARAM &p)
 	cds.cbData = strlen(req);
 	cds.lpData = req;
 
+	//相手はWM_COPYDATAの処理中に、こちらのウインドウへWM_COPYDATAで返信してくるので、
+	//待っている間も送られてきたメッセージを処理できるよう、SMTO_BLOCKは付けないこと
 	DWORD_PTR res_dword = 0;
-	::SendMessageTimeout((HWND)hwnd, WM_COPYDATA, (WPARAM)propertyWindow, (LPARAM)&cds, SMTO_ABORTIFHUNG | SMTO_BLOCK, 5000, &res_dword);
+	LRESULT sent = ::SendMessageTimeout((HWND)hwnd, WM_COPYDATA, (WPARAM)propertyWindow, (LPARAM)&cds, SMTO_ABORTIFHUNG, 5000, &res_dword);
+	DWORD sent_error = sent ? 0 : ::GetLastError();
 	
 	//リソースの開放
 	free(req);
 	
 	::DestroyWindow(propertyWindow);
 	::UnregisterClass(windowClass.lpszClassName, windowClass.hInstance);
+
+	//送れなかった、もしくは相手が応答しなかった
+	if ( ! sent ) {
+		yaya::string_t reason = (sent_error == ERROR_TIMEOUT) ? L"DIRECTSSTP : timeout" : L"DIRECTSSTP : send failed";
+		vm.logger().Error(E_W, 13, reason, p.dicname, p.line);
+		SetError(13);
+		return CValue(-1);
+	}
 
 	wchar_t *res = Ccct::MbcsToUcs2(res_str,charset);
 
