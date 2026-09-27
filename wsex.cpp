@@ -95,7 +95,7 @@ yaya::int_t yaya::ws_atoll(const yaya::string_t &str, int rdx_arg)
 			add = *ptr - L'a' + 10;
 		}
 
-		if ( add < 0 || add > rdx ) {
+		if ( add < 0 || add >= rdx ) {
 			break;
 		}
 		num *= rdx;
@@ -148,22 +148,23 @@ yaya::string_t yaya::ws_lltoa(yaya::int_t num, int rdx)
 	if ( rdx < 2 ) { rdx = 2; }
 	if ( rdx > 36 ) { rdx = 36; }
 	
+	// 最小値(-2^63)は符号を反転できないので、符号なしで桁を求める
 	bool minus = false;
+	std::uint64_t unum = static_cast<std::uint64_t>(num);
 	if ( num < 0 ) {
 		minus = true;
-		num = -num;
+		unum = 0 - unum;
 	}
 	
-	if ( num == 0 ) {
+	if ( unum == 0 ) {
 		buf[offset] = L'0';
 		--offset;
 	}
 	else {
-		while ( num ) {
-			idx = num % rdx;
+		while ( unum ) {
+			idx = static_cast<int>(unum % static_cast<std::uint64_t>(rdx));
 			buf[offset] = convchars[idx];
-			num -= idx;
-			num /= rdx;
+			unum /= static_cast<std::uint64_t>(rdx);
 			--offset;
 		}
 	}
@@ -183,8 +184,10 @@ yaya::string_t yaya::ws_lltoa(yaya::int_t num, int rdx)
 */
 yaya::string_t	yaya::ws_ftoa(double num)
 {
-	yaya::char_t numtxt[128];
-	yaya::snprintf(numtxt,64,L"%f",num);
+	// %fはDBL_MAXで300文字を超えるので余裕を持たせる（VC6の_vsnwprintfは溢れると終端しない）
+	yaya::char_t numtxt[1024];
+	yaya::snprintf(numtxt,512,L"%f",num);
+	numtxt[511] = 0;
 	return numtxt;
 }
 
@@ -213,6 +216,11 @@ void	yaya::ws_replace(yaya::string_t &str, const wchar_t *before, const wchar_t 
 
 	size_t sz_bef = wcslen(before);
 	size_t sz_aft = wcslen(after);
+
+	// 空文字列はどこにでも見つかるので、置換すると終わらなくなる
+	if ( sz_bef == 0 ) {
+		return;
+	}
 
 	for(size_t rp_pos = 0; ; rp_pos += sz_aft) {
 		rp_pos = str.find(before, rp_pos);
