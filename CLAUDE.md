@@ -55,6 +55,12 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
    ```
    - beta（`--prerelease`）を付けるかどうかは毎回ユーザーに確認する
 
+## シェルモード
+
+- 通常モードで読む辞書が1つも無い（設定ファイルが無い、dic/dicif/dicdir の結果が0個）と、`CParser0::ParseShellDictionary` が `load{}unload{}request{EVAL(_argv[0])}` だけの組み込み辞書（辞書名 `_SHELL_DIC_`）を作り、request の入力を EVAL した結果を返す。ログには注記 N0002 が出る
+- 設定ファイルが無いときは変数の自動保存・復元をしない。緊急モード（`yaya_emerg.txt`）はシェルモードにならず、従来どおり設定ファイルが無ければ抑止する
+- 辞書を用意しなくても、空のディレクトリを load して `request:長さ\r\n<式や文>` を送れば EXE 構成の `yaya.exe` で動作確認できる
+
 ## パーサの構造
 
 辞書の読み込みと解析は2フェーズに分かれている。

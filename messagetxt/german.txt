@@ -152,6 +152,7 @@
 !!!msgn
 *Hinweis N0000 : Die Variablenwerte der vorherigen Sitzung wurden nicht wiederhergestellt.
 *Hinweis N0001 : Ungültiger Zeichensatz wurde angegeben. Stattdessen wird die Standardeinstellung des Betriebssystems verwendet.
+*Hinweis N0002 : Kein Wörterbuch zum Laden vorhanden. Läuft im Shell-Modus, der das Ergebnis von EVAL auf die request-Eingabe zurückgibt.
 //
 // Sonstige Protokollzeichenketten (Deutsch)
 !!!msgj

@@ -152,6 +152,7 @@
 !!!msgn
 *note N0000 : The variable values from the previous session were not restored.
 *note N0001 : Invalid character code set was specified. Using the default setting of OS instead.
+*note N0002 : No dictionary to load. Running in shell mode, which returns the result of EVAL on the request input.
 //
 // その他のログ文字列（英語）
 !!!msgj

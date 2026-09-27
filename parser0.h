@@ -77,6 +77,7 @@ public:
 		; //NOOP
 	}
 	char	Parse(int charset, const std::vector<CDic1>& dics);
+	char	ParseShellDictionary(void);
 	char	ParseEmbedString(yaya::string_t& str, CStatement &st, const yaya::string_t &dicfilename, ptrdiff_t linecount);
 	bool	IsEvalBlock(const yaya::string_t& str);
 	char	ParseEvalBlock(const yaya::string_t& str, CFunction& func, const yaya::string_t& dicfilename, ptrdiff_t linecount);
