@@ -110,6 +110,10 @@
 *error E0098 : ループ回数が限界に達しました.以降の処理を強制中断しました.
 *error E0099 : 搭載メモリの制限に達しました.以降の処理を強制中断しました.
 *error E0100 : 不正なメモリアドレスへのアクセスがありました.以降の処理を強制中断しました.
+*error E0101 : 対応する#ifdef/#ifndefがありません.
+*error E0102 : #elseの後に#else/#elifdef/#elifndefがあります.
+*error E0103 : #ifdef/#ifndefが#endifで閉じられていません.
+*error E0104 : #errorによるエラーです.
 //
 // ワーニング文字列（日本語）
 !!!msgw
@@ -141,6 +145,7 @@
 *warning W0025 : ファイルを開けませんでした.
 *warning W0026 : データの解析に失敗しました.
 *warning W0027 : JSON/XMLに変換できない値があります.
+*warning W0028 : #warningによる警告です.
 //
 // 注記文字列（日本語）
 !!!msgn

@@ -412,6 +412,7 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 	size_t depth = 0;
 	ptrdiff_t targetfunction = -1;
 	std::vector<CDefine>	defines;
+	std::vector<CPreProcessCondition>	conds;
 	char	errcount = 0;
 
 	int	 isInHereDocument = 0; //2 = ダブルクオート 1 = シングルクオート
@@ -567,6 +568,14 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 			}
 		}
 
+		// #ifdef系プリプロセッサの処理　無効な区間の行はここで読み捨てる
+		int	cpp = GetConditionalPreProcess(linebuffer, conds, defines, gdefines, file, i);
+		if (cpp == 1)
+			continue;
+		else if (cpp == 2) {
+			errcount = 1;
+			continue;
+		}
 		// プリプロセッサの場合は取得
 		int	pp = GetPreProcess(linebuffer, defines, gdefines, file, i);
 		// プリプロセッサであったらこの行の処理は終わり、次へ
@@ -597,6 +606,12 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 
 	if ( depth != 0 ) {
 		vm.logger().Error(E_E, 94, filename, -1);
+		errcount = 1;
+	}
+
+	// 閉じていない#ifdef/#ifndef
+	if ( conds.size() ) {
+		vm.logger().Error(E_E, 103, filename, conds.back().linecount);
 		errcount = 1;
 	}
 
@@ -679,6 +694,191 @@ char	CParser0::GetPreProcess(yaya::string_t &str, std::vector<CDefine>& defines,
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CParser0::GetConditionalPreProcess
+ *  機能概要：  #ifdef/#ifndef/#elifdef/#elifndef/#else/#endif/#error/#warningを処理します
+ *  　　　　　  #ifdef等で無効になっている区間の行は読み捨てます
+ *
+ *  返値　　：  0/1/2=通常の行/処理済（読み捨てを含む）/エラー
+ * -----------------------------------------------------------------------
+ */
+char	CParser0::GetConditionalPreProcess(yaya::string_t& str, std::vector<CPreProcessCondition>& conds,
+		const std::vector<CDefine>& defines, const std::vector<CDefine>& gdefines, const yaya::string_t& dicfilename, ptrdiff_t linecount)
+{
+#if !defined(POSIX) && !defined(__MINGW32__)
+	static const yaya::string_t space_delim(L" \t　");
+#else
+	static const yaya::string_t space_delim(L" \t\u3000");
+#endif
+
+	bool	skipping = conds.size() && conds.back().state != PP_COND_ACTIVE;
+
+	// （この関数に来るまでに空文字列は除外されているので、いきなり[0]を参照しても問題ない）
+	if (str[0] != L'#') {
+		if (skipping) {
+			str.erase();
+			return 1;
+		}
+		return 0;
+	}
+
+	// ディレクティブ名と引数に分ける　行末の//コメントは除く
+	yaya::string_t	line(str);
+	CComment	comment;
+	comment.Process_Tail(line);
+
+	yaya::string_t	pname, arg;
+	yaya::string_t::size_type	sep_pos = line.find_first_of(space_delim);
+	if (sep_pos == yaya::string_t::npos) {
+		pname = line;
+	}
+	else {
+		pname.assign(line, 0, sep_pos);
+		arg.assign(line, sep_pos, line.size() - sep_pos);
+		CutSpace(arg);
+	}
+
+	bool	is_if    = (pname == L"#ifdef" || pname == L"#ifndef");
+	bool	is_elif  = (pname == L"#elifdef" || pname == L"#elifndef");
+	bool	is_else  = (pname == L"#else");
+	bool	is_endif = (pname == L"#endif");
+
+	if (!is_if && !is_elif && !is_else && !is_endif) {
+		// 無効な区間では#error/#warningやそれ以外のプリプロセッサも無視する
+		if (skipping) {
+			str.erase();
+			return 1;
+		}
+		if (pname == L"#error") {
+			str.erase();
+			if (arg.size())
+				vm.logger().Error(E_E, 104, arg, dicfilename, linecount);
+			else
+				vm.logger().Error(E_E, 104, dicfilename, linecount);
+			return 2;
+		}
+		if (pname == L"#warning") {
+			str.erase();
+			if (arg.size())
+				vm.logger().Error(E_W, 28, arg, dicfilename, linecount);
+			else
+				vm.logger().Error(E_W, 28, dicfilename, linecount);
+			return 1;
+		}
+		return 0; // #define/#globaldefineなど
+	}
+
+	str.erase(); //行全体が前処理対象だったので消す
+
+	// 引数の検査と条件の判定　#ifdef系は名前1つ、#else/#endifは引数なし
+	char	ret = 1;
+	bool	cond = false;
+	if (is_if || is_elif) {
+		if (!arg.size() || arg.find_first_of(space_delim) != yaya::string_t::npos) {
+			vm.logger().Error(E_E, 74, dicfilename, linecount);
+			ret = 2;
+		}
+		else {
+			cond = IsPreProcessDefined(arg, defines, gdefines);
+			if (pname == L"#ifndef" || pname == L"#elifndef")
+				cond = !cond;
+		}
+	}
+	else if (arg.size()) {
+		vm.logger().Error(E_E, 74, dicfilename, linecount);
+		ret = 2;
+	}
+
+	// #ifdef/#ifndef
+	if (is_if) {
+		if (skipping)
+			conds.emplace_back(CPreProcessCondition(PP_COND_DONE, linecount));
+		else
+			conds.emplace_back(CPreProcessCondition(cond ? PP_COND_ACTIVE : PP_COND_WAITING, linecount));
+		return ret;
+	}
+
+	// 以降は対応する#ifdef/#ifndefが必要
+	if (conds.empty()) {
+		vm.logger().Error(E_E, 101, pname, dicfilename, linecount);
+		return 2;
+	}
+
+	CPreProcessCondition&	top = conds.back();
+
+	// #endif
+	if (is_endif) {
+		conds.pop_back();
+		return ret;
+	}
+
+	// #elifdef/#elifndef/#else
+	if (top.else_found) {
+		vm.logger().Error(E_E, 102, pname, dicfilename, linecount);
+		return 2;
+	}
+	if (is_else) {
+		top.else_found = true;
+		cond = true;
+	}
+
+	if (top.state == PP_COND_WAITING) {
+		if (cond)
+			top.state = PP_COND_ACTIVE;
+	}
+	else {
+		top.state = PP_COND_DONE;
+	}
+
+	return ret;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CParser0::IsPreProcessDefined
+ *  機能概要：  #ifdef/#ifndefで指定された名前が定義されているかを判定します
+ *  　　　　　  #define/#globaldefine（読み込み済の辞書のもの）、組み込み定義名、
+ *  　　　　　  __AYA_SYSTEM_SYSFUNC_関数名__（システム関数の有無）が対象です
+ * -----------------------------------------------------------------------
+ */
+static const yaya::char_t* const pp_system_defines[] = {
+	L"__AYA_SYSTEM_YAYA6__",
+	L"__AYA_SYSTEM_FILE__",
+	L"__AYA_SYSTEM_LINE__",
+	L"__AYA_SYSTEM_FUNC__",
+};
+
+bool	CParser0::IsPreProcessDefined(const yaya::string_t& name, const std::vector<CDefine>& defines, const std::vector<CDefine>& gdefines)
+{
+	size_t	i;
+	for(i = 0; i < sizeof(pp_system_defines) / sizeof(pp_system_defines[0]); i++) {
+		if (name == pp_system_defines[i])
+			return true;
+	}
+
+	static const yaya::string_t	sysfunc_prefix(L"__AYA_SYSTEM_SYSFUNC_");
+	static const yaya::string_t	sysfunc_suffix(L"__");
+	size_t	fix_len = sysfunc_prefix.size() + sysfunc_suffix.size();
+
+	if (name.size() > fix_len &&
+		name.compare(0, sysfunc_prefix.size(), sysfunc_prefix) == 0 &&
+		name.compare(name.size() - sysfunc_suffix.size(), sysfunc_suffix.size(), sysfunc_suffix) == 0) {
+		yaya::string_t	fname(name, sysfunc_prefix.size(), name.size() - fix_len);
+		return CSystemFunction::FindIndex(fname) >= 0;
+	}
+
+	std::vector<CDefine>::const_iterator	it;
+	for(it = defines.begin(); it != defines.end(); it++) {
+		if (it->before == name)
+			return true;
+	}
+	for(it = gdefines.begin(); it != gdefines.end(); it++) {
+		if (it->before == name)
+			return true;
+	}
+
+	return false;
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CParser0::ExecDefinePreProcess
  *  機能概要：  #define/#globaldefine処理。文字列を置換します
  * -----------------------------------------------------------------------
@@ -699,7 +899,7 @@ void	CParser0::ExecDefinePreProcess(yaya::string_t &str, const std::vector<CDefi
  */
 void	CParser0::ExecInternalPreProcess(yaya::string_t &str,const yaya::string_t &file, ptrdiff_t line)
 {
-	if ( str.find_first_of(L"__AYA_SYSTEM_FILE__") != yaya::string_t::npos ) {
+	if ( str.find(L"__AYA_SYSTEM_FILE__") != yaya::string_t::npos ) {
 
 		yaya::string_t file_str = file;
 		yaya::ws_replace(file_str,vm.basis().GetRootPath().c_str(),L"");
@@ -708,7 +908,7 @@ void	CParser0::ExecInternalPreProcess(yaya::string_t &str,const yaya::string_t &
 		yaya::ws_replace(str, L"__AYA_SYSTEM_FILE__", file_str.c_str());
 	}
 
-	if ( str.find_first_of(L"__AYA_SYSTEM_LINE__") != yaya::string_t::npos ) {
+	if ( str.find(L"__AYA_SYSTEM_LINE__") != yaya::string_t::npos ) {
 		yaya::char_t line_str[32];
 
 		yaya::snprintf(line_str,31,L"%d",line);
@@ -874,6 +1074,10 @@ char	CParser0::DefineFunctions(std::vector<yaya::string_t>& s, const yaya::strin
 			if ((*it)[it->size()-1]==L':' && *(it+1)==L"{"){
 				*(it+1)=L"";
 				*it+=L"{";
+			}
+			// 組み込み定義名__AYA_SYSTEM_FUNC__を関数名に置換
+			if (it->find(L"__AYA_SYSTEM_FUNC__") != yaya::string_t::npos) {
+				yaya::ws_replace(*it, L"__AYA_SYSTEM_FUNC__", vm.function_parse().func[targetfunction].name.c_str());
 			}
 			// 関数内のステートメントの定義　{}入れ子の計算もここで行う
 			if (!StoreInternalStatement(targetfunction, *it, depth, dicfilename, linecount))

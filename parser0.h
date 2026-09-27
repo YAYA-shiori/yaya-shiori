@@ -37,6 +37,25 @@ public:
 
 //----
 
+// #ifdef/#ifndef～#endif の入れ子1段分の状態
+#define	PP_COND_ACTIVE			0	/* この区間は有効 */
+#define	PP_COND_WAITING			1	/* まだどの区間も有効になっていない */
+#define	PP_COND_DONE			2	/* 有効な区間を通過済、もしくは外側が無効 */
+
+class	CPreProcessCondition
+{
+public:
+	char		state;
+	bool		else_found;
+	ptrdiff_t	linecount;
+public:
+	CPreProcessCondition(char st, ptrdiff_t line) : state(st), else_found(false), linecount(line) {}
+	CPreProcessCondition(void) : state(PP_COND_ACTIVE), else_found(false), linecount(0) {}
+	~CPreProcessCondition(void) {}
+};
+
+//----
+
 class CAyaVM;
 class CStatement;
 class CCell;
@@ -72,6 +91,9 @@ protected:
 	char	LoadDictionary1(const yaya::string_t& filename, std::vector<CDefine>& gdefines, int charset);
 	char	GetPreProcess(yaya::string_t& str, std::vector<CDefine>& defines, std::vector<CDefine>& gdefines, const yaya::string_t& dicfilename,
 			ptrdiff_t linecount);
+	char	GetConditionalPreProcess(yaya::string_t& str, std::vector<CPreProcessCondition>& conds,
+			const std::vector<CDefine>& defines, const std::vector<CDefine>& gdefines, const yaya::string_t& dicfilename, ptrdiff_t linecount);
+	bool	IsPreProcessDefined(const yaya::string_t& name, const std::vector<CDefine>& defines, const std::vector<CDefine>& gdefines);
 
 	void	ExecInternalPreProcess(yaya::string_t &str,const yaya::string_t &file, ptrdiff_t line);
 

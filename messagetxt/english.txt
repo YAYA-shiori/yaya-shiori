@@ -110,6 +110,10 @@
 *error E0098 : Loop count has reached its limit. Further processing has been aborted.
 *error E0099 : The memory limit has been reached. Further processing has been aborted.
 *error E0100 : Wrong memory address accessed. Further processing has been aborted.
+*error E0101 : There is no matching #ifdef/#ifndef.
+*error E0102 : #else/#elifdef/#elifndef found after #else.
+*error E0103 : #ifdef/#ifndef is not closed with #endif.
+*error E0104 : Stopped by #error.
 //
 // ワーニング文字列（英語）
 !!!msgw
@@ -141,6 +145,7 @@
 *warning W0025 : Failed to open the file.
 *warning W0026 : Failed to parse the data.
 *warning W0027 : The value cannot be converted to JSON/XML.
+*warning W0028 : Warning by #warning.
 //
 // 注記文字列（英語）
 !!!msgn

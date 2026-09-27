@@ -110,6 +110,10 @@
 *Fehler E0098 : Die Schleifenanzahl hat ihr Limit erreicht. Die weitere Verarbeitung wurde abgebrochen.
 *Fehler E0099 : Das Speicherlimit wurde erreicht. Die weitere Verarbeitung wurde abgebrochen.
 *Fehler E0100 : Falsche Speicheradresse aufgerufen. Die weitere Verarbeitung wurde abgebrochen.
+*Fehler E0101 : Kein passendes #ifdef/#ifndef vorhanden.
+*Fehler E0102 : #else/#elifdef/#elifndef nach #else gefunden.
+*Fehler E0103 : #ifdef/#ifndef wurde nicht mit #endif geschlossen.
+*Fehler E0104 : Durch #error abgebrochen.
 //
 // Warnungszeichenketten (Deutsch)
 !!!msgw
@@ -141,6 +145,7 @@
 *Warnung W0025 : Die Datei konnte nicht geöffnet werden.
 *Warnung W0026 : Die Daten konnten nicht analysiert werden.
 *Warnung W0027 : Der Wert kann nicht in JSON/XML umgewandelt werden.
+*Warnung W0028 : Warnung durch #warning.
 //
 // Hinweiszeichenketten (Deutsch)
 !!!msgn
