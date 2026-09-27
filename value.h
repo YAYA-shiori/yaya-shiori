@@ -159,7 +159,7 @@ public:
 	yaya::string_t	GetValueString(void) const;
 	yaya::string_t	GetValueStringForLogging(void) const;
 
-	void	SetArrayValue(const CValue &oval, const CValue &value);
+	void	SetArrayValue(const CValue &oval, const CValue &value, bool spread = true);
 
 	bool	DecodeArrayOrder(size_t& order, size_t& order1, yaya::string_t& delimiter) const;
 

@@ -205,9 +205,13 @@ yaya::string_t	CValue::GetValueStringForLogging(void) const
  *
  *  元の型が簡易配列と汎用配列の場合はそのまま処理しますが、整数/実数だった場合は
  *  汎用配列に型変換され、元の値は[0]に格納されます。
+ *
+ *  汎用配列へ配列の値を設定する場合、spreadがtrueならその要素を展開して差し込み
+ *  （_a[1] = (8,9) の動作）、falseなら配列を1つの要素として設定します。
+ *  ただし序数が範囲指定の場合は、spreadにかかわらず展開します。
  * -----------------------------------------------------------------------
  */
-void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
+void	CValue::SetArrayValue(const CValue &oval, const CValue &value, bool spread)
 {
 	// 序数とデリミタの取得
 	size_t	order = 0, order1 = 0;
@@ -328,6 +332,9 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 			array().emplace_back(CValue()); //従来(CValueSub)どおり：型変換済みの*thisはVOIDとして格納される
 		}
 
+		// 配列の値を展開して差し込むか
+		bool	isspread = value.GetType() == F_TAG_ARRAY && (spread || aoflg);
+
 		if(aoflg) {
 			size_t	sz = array_size();
 			// 範囲つき
@@ -338,7 +345,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 				size_t	s_index = (size_t)std::max<yaya::int_t>(static_cast<yaya::int_t>(order), 0);
 				size_t	e_index = (size_t)std::min<yaya::int_t>(static_cast<yaya::int_t>(order1) + 1, sz);
 				
-				if ( value.GetType() == F_TAG_ARRAY ) {
+				if (isspread) {
 					CValueArray::iterator it = array().erase(array().begin() + s_index,array().begin() + e_index);
 					if ( ! value.array().empty() ) {
 						array().insert(it, value.array().begin(), value.array().end());
@@ -356,7 +363,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 					array().emplace_back(CValue());
 				}
 				
-				if (value.GetType() == F_TAG_ARRAY) {
+				if (isspread) {
 					if ( ! value.array().empty() ) {
 						array().insert(array().end(),value.array().begin(), value.array().end());
 					}
@@ -372,7 +379,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 				return;
 			if(order < array_size() ) {
 				// 配列中途の書き換え				
-				if (value.GetType() == F_TAG_ARRAY ) {
+				if (isspread) {
 					CValueArray::iterator it = array().erase(array().begin() + order);
 					if ( ! value.array().empty() ) {
 						array().insert(it, value.array().begin(), value.array().end());
@@ -389,7 +396,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 					array().emplace_back(CValue());
 				}
 				
-				if (value.GetType() == F_TAG_ARRAY) {
+				if (isspread) {
 					if ( ! value.array().empty() ) {
 						array().insert(array().end(),value.array().begin(), value.array().end());
 					}

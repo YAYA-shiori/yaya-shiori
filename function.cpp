@@ -34,7 +34,7 @@
 #include "basis.h"
 ////////////////////////////////////////
 
-CFunction::CFunction(CAyaVM& vmr, const yaya::string_t& n, const yaya::string_t& df, int lc) : pvm(&vmr), name(n), dicfilename(df), linecount(lc), dicfilename_fullpath(vmr.basis().ToFullPath(df))
+CFunction::CFunction(CAyaVM& vmr, const yaya::string_t& n, const yaya::string_t& df, int lc) : pvm(&vmr), name(n), dicfilename(df), linecount(lc), dicfilename_fullpath(vmr.basis().ToFullPath(df)), execdepth(0)
 {
 	statelenm1 = 0;
 	namelen = name.size();
@@ -62,6 +62,50 @@ void	CFunction::CompleteSetting(void)
 {
 	statelenm1 = statement.size() - 1;
 }
+
+/* -----------------------------------------------------------------------
+ *  クラス名：  CFunctionReentryGuard
+ *  機能概要：  関数が再帰で呼ばれている間、呼び出し元のセルの一時値を退避します
+ *
+ *  セルは関数ごとに1組しかないため、そのまま再帰すると、呼び出し元が演算の途中で
+ *  セルに持っている部分式の結果（ansv）が上書きされたり、終了時のcell_cleanupで
+ *  解放されたりします。再帰中はセルの一時値を空にして、戻ったら元に戻します
+ * -----------------------------------------------------------------------
+ */
+class CFunctionReentryGuard
+{
+private:
+	CFunction &func;
+	std::vector< std_shared_ptr<CValue> > saved;
+
+	void Swap(void) {
+		std_shared_ptr<CValue> *p = &saved[0];
+		for ( size_t i = 0 ; i < func.statement.size() ; ++i ) {
+			p = func.statement[i].cell_swap_tmpdata(p);
+		}
+	}
+
+public:
+	CFunctionReentryGuard(CFunction &f) : func(f) {
+		if (func.execdepth) {
+			size_t n = 0;
+			for ( size_t i = 0 ; i < func.statement.size() ; ++i ) {
+				n += func.statement[i].cell_size();
+			}
+			if (n) {
+				saved.resize(n * 3);
+				Swap();
+			}
+		}
+		func.execdepth++;
+	}
+	~CFunctionReentryGuard() {
+		func.execdepth--;
+		if (saved.size()) {
+			Swap();
+		}
+	}
+};
 
 CFunction::ExecutionResult	CFunction::Execute() {
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
@@ -112,6 +156,11 @@ CFunction::ExecutionResult	CFunction::Execute(const CValue &arg, CLocalVariable 
 		pvm->call_limit().DeleteCall();
 		return ExecutionResult(pvm);
 	}
+
+	// 再帰呼び出しなら呼び出し元のセルの一時値を退避し、この関数を抜けるときに戻す
+	// （下のcell_cleanupは再帰呼び出し側の一時値に対して行われる）
+	CFunctionReentryGuard reentry(*this);
+
 	ExecutionResult result(NULL);
 	Execute_SEHbody(result,lvar, exitcode);
 	
@@ -1217,11 +1266,13 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CState
  *  oindexはocell（配列序数演算子）のセル位置です。
  *  多次元配列（a[x][y] = ...）の場合、vcellは手前の次元の"]"になるので、
  *  手前の次元の配列序数演算子が持っている値を更新し、さらに手前の次元へ代入し直します。
+ *  spreadは代入する値が配列のときに展開して差し込むかどうかです（CValue::SetArrayValue）。
+ *  手前の次元へ代入し直すときは、展開すると入れ子が崩れるのでfalseにします。
  *
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char	CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatement &st, CLocalVariable &lvar, size_t oindex)
+char	CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatement &st, CLocalVariable &lvar, size_t oindex, bool spread)
 {
 	// 序数を取得
 	CValue	t_order;
@@ -1248,7 +1299,7 @@ char	CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatem
 			pvar = lvar.GetPtr(vcell.name);
 		}
 		if (pvar != NULL && pvar->watcher.empty()) {
-			pvar->value().SetArrayValue(t_order, answer);
+			pvar->value().SetArrayValue(t_order, answer, spread);
 			if (vcell.value_GetType() == F_TAG_VARIABLE) {
 				pvm->variable().EnableValue(vcell.index);
 			}
@@ -1260,7 +1311,7 @@ char	CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatem
 	CValue	value = (upper >= 0) ? st.cell()[upper].ansv() : GetValueRefForCalc(vcell, st, lvar);
 
 	// 更新
-	value.SetArrayValue(t_order, answer);
+	value.SetArrayValue(t_order, answer, spread);
 
 	// 代入
 	switch(vcell.value_GetType()) {
@@ -1271,7 +1322,7 @@ char	CFunction::SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatem
 		lvar.SetValue(vcell.name, value);
 		return 0;
 	case F_TAG_HOOKBRACKETOUT:
-		return SubstToArray(st.cell()[upper - 1], st.cell()[upper], value, st, lvar, upper);
+		return SubstToArray(st.cell()[upper - 1], st.cell()[upper], value, st, lvar, upper, false);
 	default:
 		return 1;
 	};
