@@ -164,7 +164,7 @@ yaya::string_t	CValue::GetValueStringForLogging(void) const
  *  機能概要：  配列の指定した位置へ値を設定します。必要に応じて型変換を行います
  *
  *  元の型が簡易配列と汎用配列の場合はそのまま処理しますが、整数/実数だった場合は
- *  汎用配列に型変換され、元の値は[0]に格納されます。
+ *  汎用配列に型変換されます。このとき元の値は失われ、[0]はVOIDになります。
  * -----------------------------------------------------------------------
  */
 void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
