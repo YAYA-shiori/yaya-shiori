@@ -4382,8 +4382,8 @@ CValue	CSystemFunction::GETSECCOUNT(CSF_FUNCPARAM &p)
 			input_time.tm_min = static_cast<int>(p.arg.array()[5].GetValueInt());
 		case 5:
 			input_time.tm_hour = static_cast<int>(p.arg.array()[4].GetValueInt());
-		/*case 4:
-			input_time.tm_wday = static_cast<int>( p.arg.array()[3].GetValueInt());*/ //‘ã“ü‹ÖŽ~
+		case 4:
+			//input_time.tm_wday = static_cast<int>( p.arg.array()[3].GetValueInt()); //‘ã“ü‹ÖŽ~
 		case 3:
 			input_time.tm_mday = static_cast<int>(p.arg.array()[2].GetValueInt());
 		case 2:
