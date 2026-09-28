@@ -3540,6 +3540,38 @@ CValue CSystemFunction::PROCESSGLOBALDEFINE(CSF_FUNCPARAM &p)
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  FuncDeclGetVariable
+ *  機能概要：  FUNCDECL_READ/WRITE/ERASEでフックを登録する変数を取得します
+ *
+ *  createがtrueなら、変数がまだ無いときは空の変数を作ります（あとで代入したときにもフックが働くように）
+ *  名前が空ならNULLを返します
+ * -----------------------------------------------------------------------
+ */
+static CVariable* FuncDeclGetVariable(CAyaVM &vm, CLocalVariable &lvar, const yaya::string_t &var_name, bool create)
+{
+	if ( var_name.empty() ) {
+		return NULL;
+	}
+
+	if ( var_name[0] == L'_' ) {
+		CVariable *pv = lvar.GetPtr(var_name);
+		if ( ! pv && create ) {
+			lvar.Make(var_name);
+			pv = lvar.GetPtr(var_name);
+		}
+		return pv;
+	}
+
+	CVariable *pv = vm.variable().GetPtr(var_name);
+	if ( ! pv && create ) {
+		int index = vm.variable().Make(var_name, 0);
+		vm.variable().EnableValue(index);
+		pv = vm.variable().GetPtr(index);
+	}
+	return pv;
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::FUNCDECL_READ
  *  変数読み込みフック　FUNCDECL_READ(変数名,関数名)
  * -----------------------------------------------------------------------
@@ -3569,33 +3601,29 @@ CValue CSystemFunction::FUNCDECL_READ(CSF_FUNCPARAM& p)
 	const yaya::string_t &var_name = p.arg.array()[0].GetValueString();
 	const yaya::string_t &func_name = p.arg.array()[1].GetValueString();
 
-	CVariable* pv;
-	if (var_name[0] == L'_') {
-		pv=p.lvar.GetPtr(var_name);
-	}
-	else {
-		pv=vm.variable().GetPtr(var_name);
-	}
-
-	if (pv) {
-		if ( func_name.empty() ) {
-			pv->set_watcher(yaya::string_t());
-			return CValue(1);
+	if ( func_name.empty() ) {
+		CVariable* pv = FuncDeclGetVariable(vm, p.lvar, var_name, false);
+		if ( ! pv ) {
+			return CValue(0);
 		}
-		else {
-			ptrdiff_t i = vm.function_exec().GetFunctionIndexFromName(func_name);
-
-			if(i != -1) {
-				pv->set_watcher(func_name);
-				return CValue(1);
-			}
-			else {
-				vm.logger().Error(E_W, 9, L"FUNCDECL_READ", p.dicname, p.line);
-			}
-		}
+		pv->set_watcher(yaya::string_t());
+		return CValue(1);
 	}
 
-	return CValue(0);
+	if ( vm.function_exec().GetFunctionIndexFromName(func_name) == -1 ) {
+		vm.logger().Error(E_W, 9, L"FUNCDECL_READ", p.dicname, p.line);
+		SetError(9);
+		return CValue(0);
+	}
+
+	CVariable* pv = FuncDeclGetVariable(vm, p.lvar, var_name, true);
+	if ( ! pv ) {
+		vm.logger().Error(E_W, 9, L"FUNCDECL_READ", p.dicname, p.line);
+		SetError(9);
+		return CValue(0);
+	}
+	pv->set_watcher(func_name);
+	return CValue(1);
 }
 
 /* -----------------------------------------------------------------------
@@ -3628,33 +3656,29 @@ CValue CSystemFunction::FUNCDECL_WRITE(CSF_FUNCPARAM& p)
 	const yaya::string_t &var_name = p.arg.array()[0].GetValueString();
 	const yaya::string_t &func_name = p.arg.array()[1].GetValueString();
 
-	CVariable* pv;
-	if (var_name[0] == L'_') {
-		pv=p.lvar.GetPtr(var_name);
-	}
-	else {
-		pv=vm.variable().GetPtr(var_name);
-	}
-
-	if (pv) {
-		if ( func_name.empty() ) {
-			pv->set_setter(yaya::string_t());
-			return CValue(1);
+	if ( func_name.empty() ) {
+		CVariable* pv = FuncDeclGetVariable(vm, p.lvar, var_name, false);
+		if ( ! pv ) {
+			return CValue(0);
 		}
-		else {
-			ptrdiff_t i = vm.function_exec().GetFunctionIndexFromName(func_name);
-
-			if(i != -1) {
-				pv->set_setter(func_name);
-				return CValue(1);
-			}
-			else {
-				vm.logger().Error(E_W, 9, L"FUNCDECL_WRITE", p.dicname, p.line);
-			}
-		}
+		pv->set_setter(yaya::string_t());
+		return CValue(1);
 	}
 
-	return CValue(0);
+	if ( vm.function_exec().GetFunctionIndexFromName(func_name) == -1 ) {
+		vm.logger().Error(E_W, 9, L"FUNCDECL_WRITE", p.dicname, p.line);
+		SetError(9);
+		return CValue(0);
+	}
+
+	CVariable* pv = FuncDeclGetVariable(vm, p.lvar, var_name, true);
+	if ( ! pv ) {
+		vm.logger().Error(E_W, 9, L"FUNCDECL_WRITE", p.dicname, p.line);
+		SetError(9);
+		return CValue(0);
+	}
+	pv->set_setter(func_name);
+	return CValue(1);
 }
 
 /* -----------------------------------------------------------------------
@@ -3687,33 +3711,29 @@ CValue CSystemFunction::FUNCDECL_ERASE(CSF_FUNCPARAM& p)
 	const yaya::string_t &var_name = p.arg.array()[0].GetValueString();
 	const yaya::string_t &func_name = p.arg.array()[1].GetValueString();
 
-	CVariable* pv;
-	if (var_name[0] == L'_') {
-		pv=p.lvar.GetPtr(var_name);
-	}
-	else {
-		pv=vm.variable().GetPtr(var_name);
-	}
-
-	if (pv) {
-		if ( func_name.empty() ) {
-			pv->set_destorier(yaya::string_t());
-			return CValue(1);
+	if ( func_name.empty() ) {
+		CVariable* pv = FuncDeclGetVariable(vm, p.lvar, var_name, false);
+		if ( ! pv ) {
+			return CValue(0);
 		}
-		else {
-			ptrdiff_t i = vm.function_exec().GetFunctionIndexFromName(func_name);
-
-			if(i != -1) {
-				pv->set_destorier(func_name);
-				return CValue(1);
-			}
-			else {
-				vm.logger().Error(E_W, 9, L"FUNCDECL_ERASE", p.dicname, p.line);
-			}
-		}
+		pv->set_destorier(yaya::string_t());
+		return CValue(1);
 	}
 
-	return CValue(0);
+	if ( vm.function_exec().GetFunctionIndexFromName(func_name) == -1 ) {
+		vm.logger().Error(E_W, 9, L"FUNCDECL_ERASE", p.dicname, p.line);
+		SetError(9);
+		return CValue(0);
+	}
+
+	CVariable* pv = FuncDeclGetVariable(vm, p.lvar, var_name, true);
+	if ( ! pv ) {
+		vm.logger().Error(E_W, 9, L"FUNCDECL_ERASE", p.dicname, p.line);
+		SetError(9);
+		return CValue(0);
+	}
+	pv->set_destorier(func_name);
+	return CValue(1);
 }
 
 /* -----------------------------------------------------------------------
