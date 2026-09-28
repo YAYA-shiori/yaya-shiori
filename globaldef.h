@@ -143,8 +143,8 @@ typedef unsigned long long uint64_t;
 
 #ifndef LL_DEF
 
-#define ULL_DEF(p) p
-#define LL_DEF(p) p
+#define ULL_DEF(p) p ## ULL
+#define LL_DEF(p) p ## LL
 
 #endif // LL_DEF
 
