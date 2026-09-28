@@ -639,6 +639,8 @@ size_t Ccct_ConvUTF8ToUnicode(yaya::string_t &buf,const char* pStrIn)
 	unsigned char c;
 	unsigned long tmp;
 
+	buf.reserve(buf.length() + (pStrLast - pStr)); //UTF-16‚Ì•¶š”‚ÍUTF-8‚ÌƒoƒCƒg”‚ğ’´‚¦‚È‚¢
+
 	while( pStr < pStrLast ){
 		c = *(pStr++);
 		if( (c & 0x80) == 0 ){ //1Byte - 0???????

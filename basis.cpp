@@ -1063,6 +1063,16 @@ CValue CBasis::GetParameter(const yaya::string_t &cmd)
 	return yaya::string_t();
 }
 
+// VC6のbasic_stringは容量を32文字ずつしか増やさず、要素ごとに足すと2乗の時間がかかるので倍々に確保する
+// 区切りの":"などの分も見込んで少し多めに確保する
+static void ReserveSaveString(yaya::string_t &str, yaya::string_t::size_type add)
+{
+	yaya::string_t::size_type need = str.size() + add + 16;
+	if (need > str.capacity()) {
+		str.reserve(need * 2);
+	}
+}
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CBasis::SaveVariable
  *  機能概要：  変数値をファイルに保存します
@@ -1212,6 +1222,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 						str += L':';
 					wstr = itv->GetValueString();
 					EscapeString(wstr);
+					ReserveSaveString(str, wstr.size() + 2);
 
 					if (itv->GetType() == F_TAG_STRING) {
 						str += L"\"";
@@ -1458,6 +1469,32 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 	vm.logger().Message(8);
 }
 
+// Split_IgnoreDQと同じくダブル/シングルクォートの内側を無視して":"を探す
+// 要素ごとに残りの文字列をコピーすると要素数の2乗の時間がかかるので、位置を進めながら探す
+static yaya::string_t::size_type FindSaveArraySep(const yaya::string_t &str, yaya::string_t::size_type begin)
+{
+	bool dq = false;
+	bool quote = false;
+
+	for(yaya::string_t::size_type i = begin; i < str.size(); ++i) {
+		yaya::char_t c = str[i];
+		if (c == L'\"') {
+			if (!quote) {
+				dq = !dq;
+			}
+		}
+		else if (c == L'\'') {
+			if (!dq) {
+				quote = !quote;
+			}
+		}
+		else if (c == L':' && !dq && !quote) {
+			return i;
+		}
+	}
+	return yaya::string_t::npos;
+}
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CBasis::RestoreArrayVariable
  *  機能概要：  RestoreVariableから呼ばれます。配列変数の内容を復元します
@@ -1467,14 +1504,20 @@ void	CBasis::RestoreArrayVariable(CValue &var, yaya::string_t &value)
 {
 	var.array().clear();
 
-	yaya::string_t	par, remain;
-	char splitResult;
+	yaya::string_t	par;
+	yaya::string_t::size_type begin = 0;
 
 	for( ; ; ) {
-		splitResult = Split_IgnoreDQ(value, par, remain, L":");
-		if (!splitResult) {
-			par = value;
+		yaya::string_t::size_type seppoint = FindSaveArraySep(value, begin);
+		yaya::string_t::size_type end = (seppoint == yaya::string_t::npos) ? value.size() : seppoint;
+
+		while (begin < end && IsSpace(value[begin])) {
+			++begin;
 		}
+		while (begin < end && IsSpace(value[end - 1])) {
+			--end;
+		}
+		par.assign(value, begin, end - begin);
 
 		if (par != ESC_IARRAY) {
 			if (par == ESC_IVOID) {
@@ -1493,10 +1536,10 @@ void	CBasis::RestoreArrayVariable(CValue &var, yaya::string_t &value)
 			}
 		}
 
-		if (!splitResult) {
+		if (seppoint == yaya::string_t::npos) {
 			break;
 		}
-		value = remain;
+		begin = seppoint + 1;
 	}
 }
 
