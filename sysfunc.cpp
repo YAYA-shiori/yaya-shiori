@@ -2011,7 +2011,20 @@ CValue	CSystemFunction::INSERT(CSF_FUNCPARAM &p)
 	}
 
 	yaya::string_t str = p.arg.array()[0].GetValueString();
-	return CValue(str.insert(static_cast<size_t>( p.arg.array()[1].GetValueInt() ), p.arg.array()[2].s_value));
+	yaya::int_t pos = p.arg.array()[1].GetValueInt();
+
+	// •‰‚ÌˆÊ’u‚Í––”ö‚©‚ç”‚¦‚é@”ÍˆÍŠO‚Íæ“ª‚©––”ö‚ÉŠñ‚¹‚é
+	if ( pos < 0 ) {
+		pos += str.length();
+		if ( pos < 0 ) {
+			pos = 0;
+		}
+	}
+	if ( pos > static_cast<yaya::int_t>(str.length()) ) {
+		pos = str.length();
+	}
+
+	return CValue(str.insert(static_cast<size_t>(pos), p.arg.array()[2].GetValueString()));
 }
 
 /* -----------------------------------------------------------------------
@@ -4311,7 +4324,15 @@ CValue	CSystemFunction::ERASEVAR(CSF_FUNCPARAM &p)
 			pv=vm.variable().GetPtr(arg0);
 		if (pv) {
 			pv->call_destorier(vm);
-			pv->Erase();
+
+			// destorier‚Ì’†‚Å•Ï”‚ª‘‚¦‚é‚Æpv‚Í–³Œø‚É‚È‚é‚Ì‚Åˆø‚«’¼‚·
+			if (arg0[0] == L'_')
+				pv=p.lvar.GetPtr(arg0);
+			else
+				pv=vm.variable().GetPtr(arg0);
+			if (pv) {
+				pv->Erase();
+			}
 		}
 	}
 

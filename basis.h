@@ -119,6 +119,8 @@ public:
 	yaya::string_t GetSavefilePath(void) const { return load_path + modulename + L"_variable.cfg"; }
 	const yaya::char_t* GetModeName(void) const { return modename.c_str(); }
 
+	void	ResetFuncPos(void);
+
 	void	ExecuteLoad(void);
 	yaya::global_t	ExecuteRequest(yaya::global_t h, long *len, bool is_debug);
 	void	CallOnMemoryLimit();

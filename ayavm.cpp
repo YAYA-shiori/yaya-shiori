@@ -121,7 +121,7 @@ void CAyaVM::request_before(void)
 
 void CAyaVM::request_after(void)
 {
-	m_function_destruct.reset();
+	func_destruct_clear();
 }
 
 /*-----------------------------------------------
@@ -142,8 +142,17 @@ CFunctionDef& CAyaVM::function_parse()
 -----------------------------------------------*/
 void CAyaVM::func_parse_to_exec(void)
 {
-	m_function_destruct = m_function_exec;
+	// 1回のrequestで何度差し替えても、実行中の関数がいる古い表を解放しないよう全部取っておく
+	m_function_destruct.emplace_back(m_function_exec);
 	m_function_exec = m_function_parse;
+
+	// 関数の位置が変わるので、load/unload/requestの位置のキャッシュを捨てる
+	basis().ResetFuncPos();
+}
+
+void CAyaVM::func_destruct_clear(void)
+{
+	m_function_destruct.clear();
 }
 
 void CAyaVM::func_parse_destruct(void)

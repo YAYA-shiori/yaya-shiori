@@ -390,6 +390,17 @@ void	CBasis::Termination(void)
 	vm.logger().Termination();
 
 	//
+	ResetFuncPos();
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CBasis::ResetFuncPos
+ *  機能概要：  load/unload/request関数の位置のキャッシュを捨てます
+ *  　　　　　  関数表を差し替えると位置が変わるため、その都度呼びます
+ * -----------------------------------------------------------------------
+ */
+void	CBasis::ResetFuncPos(void)
+{
 	loadindex.Init();
 	unloadindex.Init();
 	requestindex.Init();
