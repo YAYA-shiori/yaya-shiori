@@ -311,6 +311,15 @@ static int encodecipher(const int c)
 	return (((c^ 0x5a) << 3) & 0xF8) | (((c^ 0x5a) >> 5) & 0x7);
 }
 
+// VC6のbasic_stringは容量を32文字ずつしか増やさず、1文字ずつ足すと長い行で2乗の時間がかかるので倍々に確保する
+static void ws_fgets_append(std::string &buf, char c)
+{
+	if (buf.size() >= buf.capacity()) {
+		buf.reserve(buf.capacity() * 2 + 32);
+	}
+	buf += c;
+}
+
 /* -----------------------------------------------------------------------
 *  関数名  ：  ws_fgets
 *  機能概要：  yaya::string_tに取り出せる簡易版fgets、暗号復号とUCS-2 BOM削除も行なう
@@ -333,7 +342,7 @@ int yaya::ws_fgets(std::string &buf, yaya::string_t &str, FILE *stream, int char
 				break;
 			}
 			c = decodecipher(c);
-			buf += static_cast<char>(c);
+			ws_fgets_append(buf, static_cast<char>(c));
 			if (c == '\x0a') {
 				// 行の終わり
 				break;
@@ -346,7 +355,7 @@ int yaya::ws_fgets(std::string &buf, yaya::string_t &str, FILE *stream, int char
 			if (c == EOF) {
 				break;
 			}
-			buf += static_cast<char>(c);
+			ws_fgets_append(buf, static_cast<char>(c));
 			if (c == '\x0a') {
 				// 行の終わり
 				break;

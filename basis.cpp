@@ -1074,14 +1074,22 @@ CValue CBasis::GetParameter(const yaya::string_t &cmd)
  *  　　　　　要素が配列/ハッシュの場合は、上の書式をIARRAY{～}/IHASH{～}で囲む（入れ子）
  *
  *  分割の際はダブルクォートの内側と{}の内側を無視する
+ *
+ *  復元は部分文字列を作らず、元の文字列の範囲[begin,end)を進めながら行う
+ *  （要素ごとに残りをコピーすると要素数の2乗の時間がかかるため）
  * -----------------------------------------------------------------------
  */
-static yaya::string_t::size_type FindSaveSep(const yaya::string_t &str, yaya::char_t sep)
+static yaya::string_t::size_type FindSaveSep(const yaya::string_t &str, yaya::char_t sep,
+	yaya::string_t::size_type begin = 0, yaya::string_t::size_type end = yaya::string_t::npos)
 {
 	bool indq = false;
 	int depth = 0;
 
-	for(yaya::string_t::size_type i = 0; i < str.size(); ++i) {
+	if (end > str.size()) {
+		end = str.size();
+	}
+
+	for(yaya::string_t::size_type i = begin; i < end; ++i) {
 		yaya::char_t c = str[i];
 		if (c == L'\"') {
 			indq = !indq;
@@ -1101,28 +1109,35 @@ static yaya::string_t::size_type FindSaveSep(const yaya::string_t &str, yaya::ch
 	return yaya::string_t::npos;
 }
 
-static bool SplitSaveSep(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, yaya::char_t sep)
+static void CutSaveSpace(const yaya::string_t &str, yaya::string_t::size_type &begin, yaya::string_t::size_type &end)
 {
-	yaya::string_t::size_type seppoint = FindSaveSep(str, sep);
-	if (seppoint == yaya::string_t::npos) {
-		dstr0 = str;
-		dstr1.erase();
-		return false;
+	while (begin < end && IsSpace(str[begin])) {
+		++begin;
 	}
+	while (begin < end && IsSpace(str[end - 1])) {
+		--end;
+	}
+}
 
-	dstr0.assign(str, 0, seppoint);
-	dstr1.assign(str, seppoint + 1, str.size() - seppoint - 1);
+static bool IsSaveToken(const yaya::string_t &str, yaya::string_t::size_type begin, yaya::string_t::size_type end, const yaya::char_t *token)
+{
+	return str.compare(begin, end - begin, token) == 0;
+}
 
-	CutSpace(dstr0);
-	CutSpace(dstr1);
-
-	return true;
+// VC6のbasic_stringは容量を32文字ずつしか増やさず、要素ごとに足すと2乗の時間がかかるので倍々に確保する
+// 区切りの":"や"="、閉じ括弧の分も見込んで少し多めに確保する
+static void ReserveSaveString(yaya::string_t &str, yaya::string_t::size_type add)
+{
+	yaya::string_t::size_type need = str.size() + add + 16;
+	if (need > str.capacity()) {
+		str.reserve(need * 2);
+	}
 }
 
 static void AppendSaveArrayBody(yaya::string_t &str, const CValue &value);
 static void AppendSaveHashBody(yaya::string_t &str, const CValue &value);
-static void RestoreSaveArrayBody(CValue &var, yaya::string_t value);
-static void RestoreSaveHashBody(CValue &var, yaya::string_t value);
+static void RestoreSaveArrayBody(CValue &var, const yaya::string_t &str, yaya::string_t::size_type begin, yaya::string_t::size_type end);
+static void RestoreSaveHashBody(CValue &var, const yaya::string_t &str, yaya::string_t::size_type begin, yaya::string_t::size_type end);
 
 static void AppendSaveElement(yaya::string_t &str, const CValue &value)
 {
@@ -1132,19 +1147,23 @@ static void AppendSaveElement(yaya::string_t &str, const CValue &value)
 	case F_TAG_STRING:
 		wstr = value.s_value;
 		EscapeString(wstr);
+		ReserveSaveString(str, wstr.size() + 2);
 		str += L"\"";
 		str += wstr;
 		str += L"\"";
 		break;
 	case F_TAG_VOID:
+		ReserveSaveString(str, ::wcslen(ESC_IVOID));
 		str += ESC_IVOID;
 		break;
 	case F_TAG_ARRAY:
+		ReserveSaveString(str, ::wcslen(ESC_IARRAY) + 1);
 		str += ESC_IARRAY L"{";
 		AppendSaveArrayBody(str, value);
 		str += L"}";
 		break;
 	case F_TAG_HASH:
+		ReserveSaveString(str, ::wcslen(ESC_IHASH) + 1);
 		str += ESC_IHASH L"{";
 		AppendSaveHashBody(str, value);
 		str += L"}";
@@ -1152,6 +1171,7 @@ static void AppendSaveElement(yaya::string_t &str, const CValue &value)
 	default:
 		wstr = value.GetValueString();
 		EscapeString(wstr);
+		ReserveSaveString(str, wstr.size());
 		str += wstr;
 		break;
 	}
@@ -1199,33 +1219,36 @@ static void AppendSaveHashBody(yaya::string_t &str, const CValue &value)
 	}
 }
 
-static bool IsNestedSaveElement(const yaya::string_t &par, const yaya::char_t *prefix)
+static bool IsNestedSaveElement(const yaya::string_t &str, yaya::string_t::size_type begin, yaya::string_t::size_type end, const yaya::char_t *prefix)
 {
 	size_t len = ::wcslen(prefix);
-	return par.size() >= len + 2 &&
-		par.compare(0, len, prefix) == 0 &&
-		par[len] == L'{' &&
-		par[par.size() - 1] == L'}';
+	return end - begin >= len + 2 &&
+		str.compare(begin, len, prefix) == 0 &&
+		str[begin + len] == L'{' &&
+		str[end - 1] == L'}';
 }
 
-static CValue RestoreSaveElement(yaya::string_t par)
+static CValue RestoreSaveElement(const yaya::string_t &str, yaya::string_t::size_type begin, yaya::string_t::size_type end)
 {
-	if (par == ESC_IVOID) {
+	if (IsSaveToken(str, begin, end, ESC_IVOID)) {
 		return CValue();
 	}
-	else if (IsNestedSaveElement(par, ESC_IARRAY)) {
+	else if (IsNestedSaveElement(str, begin, end, ESC_IARRAY)) {
 		size_t len = ::wcslen(ESC_IARRAY);
 		CValue result(F_TAG_ARRAY, 0/*dmy*/);
-		RestoreSaveArrayBody(result, par.substr(len + 1, par.size() - len - 2));
+		RestoreSaveArrayBody(result, str, begin + len + 1, end - 1);
 		return result;
 	}
-	else if (IsNestedSaveElement(par, ESC_IHASH)) {
+	else if (IsNestedSaveElement(str, begin, end, ESC_IHASH)) {
 		size_t len = ::wcslen(ESC_IHASH);
 		CValue result(F_TAG_HASH, 0/*dmy*/);
-		RestoreSaveHashBody(result, par.substr(len + 1, par.size() - len - 2));
+		RestoreSaveHashBody(result, str, begin + len + 1, end - 1);
 		return result;
 	}
-	else if (IsIntString(par)) {
+
+	yaya::string_t par(str, begin, end - begin);
+
+	if (IsIntString(par)) {
 		return CValue(yaya::ws_atoll(par, 10));
 	}
 	else if (IsDoubleButNotIntString(par)) {
@@ -1238,49 +1261,57 @@ static CValue RestoreSaveElement(yaya::string_t par)
 	}
 }
 
-static void RestoreSaveArrayBody(CValue &var, yaya::string_t value)
+static void RestoreSaveArrayBody(CValue &var, const yaya::string_t &str, yaya::string_t::size_type begin, yaya::string_t::size_type end)
 {
 	var.SetType(F_TAG_ARRAY);
 	var.array().clear();
 
-	yaya::string_t	par, remain;
-	bool splitResult;
-
 	for( ; ; ) {
-		splitResult = SplitSaveSep(value, par, remain, L':');
+		yaya::string_t::size_type seppoint = FindSaveSep(str, L':', begin, end);
+		yaya::string_t::size_type par_begin = begin;
+		yaya::string_t::size_type par_end = (seppoint == yaya::string_t::npos) ? end : seppoint;
 
-		if (par != ESC_IARRAY) {
-			var.array().emplace_back(RestoreSaveElement(par));
+		CutSaveSpace(str, par_begin, par_end);
+
+		if (!IsSaveToken(str, par_begin, par_end, ESC_IARRAY)) {
+			var.array().emplace_back(RestoreSaveElement(str, par_begin, par_end));
 		}
 
-		if (!splitResult) {
+		if (seppoint == yaya::string_t::npos) {
 			break;
 		}
-		value = remain;
+		begin = seppoint + 1;
 	}
 }
 
-static void RestoreSaveHashBody(CValue &var, yaya::string_t value)
+static void RestoreSaveHashBody(CValue &var, const yaya::string_t &str, yaya::string_t::size_type begin, yaya::string_t::size_type end)
 {
 	var.SetType(F_TAG_HASH);
 	var.hash().clear();
 
-	yaya::string_t	par, remain, key, key_value;
-	bool splitResult;
-
 	for( ; ; ) {
-		splitResult = SplitSaveSep(value, par, remain, L':');
+		yaya::string_t::size_type seppoint = FindSaveSep(str, L':', begin, end);
+		yaya::string_t::size_type par_end = (seppoint == yaya::string_t::npos) ? end : seppoint;
+		yaya::string_t::size_type eqpoint = FindSaveSep(str, L'=', begin, par_end);
 
-		if ( SplitSaveSep(par, key, key_value, L'=') ) {
-			if (key.compare(ESC_IHASH) != 0) {
-				var.hash().insert(std::pair<CValue,CValue>(RestoreSaveElement(key), RestoreSaveElement(key_value)));
+		if (eqpoint != yaya::string_t::npos) {
+			yaya::string_t::size_type key_begin = begin;
+			yaya::string_t::size_type key_end = eqpoint;
+			yaya::string_t::size_type value_begin = eqpoint + 1;
+			yaya::string_t::size_type value_end = par_end;
+
+			CutSaveSpace(str, key_begin, key_end);
+			CutSaveSpace(str, value_begin, value_end);
+
+			if (!IsSaveToken(str, key_begin, key_end, ESC_IHASH)) {
+				var.hash().insert(std::pair<CValue,CValue>(RestoreSaveElement(str, key_begin, key_end), RestoreSaveElement(str, value_begin, value_end)));
 			}
 		}
 
-		if (!splitResult) {
+		if (seppoint == yaya::string_t::npos) {
 			break;
 		}
-		value = remain;
+		begin = seppoint + 1;
 	}
 }
 
@@ -1671,7 +1702,7 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
  */
 void	CBasis::RestoreArrayVariable(CValue &var, yaya::string_t &value)
 {
-	RestoreSaveArrayBody(var, value);
+	RestoreSaveArrayBody(var, value, 0, value.size());
 }
 
 
@@ -1682,7 +1713,7 @@ void	CBasis::RestoreArrayVariable(CValue &var, yaya::string_t &value)
  */
 void	CBasis::RestoreHashVariable(CValue &var, yaya::string_t &value)
 {
-	RestoreSaveHashBody(var, value);
+	RestoreSaveHashBody(var, value, 0, value.size());
 }
 
 /* -----------------------------------------------------------------------
