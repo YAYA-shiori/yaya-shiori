@@ -3156,9 +3156,11 @@ static bool YamlCanBePlain(const yaya::string_t &str, bool flow)
 /* -----------------------------------------------------------------------
  *  関数名  ：  YamlAppendDoubleQuoted
  *  機能概要：  "..."の形で文字列を追加します
+ *
+ *  encがあれば、出力先の文字コードで表せない文字をエスケープします
  * -----------------------------------------------------------------------
  */
-static void YamlAppendDoubleQuoted(yaya::string_t &out, const yaya::string_t &str)
+static void YamlAppendDoubleQuoted(yaya::string_t &out, const yaya::string_t &str, const CCharsetEncodable *enc)
 {
 	static const yaya::char_t hex[] = L"0123456789ABCDEF";
 
@@ -3182,6 +3184,17 @@ static void YamlAppendDoubleQuoted(yaya::string_t &out, const yaya::string_t &st
 				out += hex[(c >> 4) & 0xF];
 				out += hex[c & 0xF];
 			}
+			else if ( enc ) {
+				size_t len;
+				unsigned long cp = CCharsetEncodable::CodePointAt(str, i, len);
+				if ( enc->CanEncode(str, i, len) ) {
+					out.append(str, i, len);
+				}
+				else {
+					AppendUnicodeEscape(out, cp, false);
+				}
+				i += len - 1;
+			}
 			else {
 				out += c;
 			}
@@ -3194,15 +3207,17 @@ static void YamlAppendDoubleQuoted(yaya::string_t &out, const yaya::string_t &st
 /* -----------------------------------------------------------------------
  *  関数名  ：  YamlAppendString
  *  機能概要：  文字列を、クォートせずに書けるならそのまま、そうでなければ"..."で追加します
+ *
+ *  出力先の文字コードで表せない文字を含むものは、エスケープするために"..."にします
  * -----------------------------------------------------------------------
  */
-static void YamlAppendString(yaya::string_t &out, const yaya::string_t &str, bool flow)
+static void YamlAppendString(yaya::string_t &out, const yaya::string_t &str, bool flow, const CCharsetEncodable *enc)
 {
-	if ( YamlCanBePlain(str, flow) ) {
+	if ( YamlCanBePlain(str, flow) && CanEncodeAll(enc, str) ) {
 		out += str;
 	}
 	else {
-		YamlAppendDoubleQuoted(out, str);
+		YamlAppendDoubleQuoted(out, str, enc);
 	}
 }
 
@@ -3238,7 +3253,7 @@ static void YamlAppendDouble(yaya::string_t &out, double d)
  *  機能概要：  配列・ハッシュ以外の値を追加します（空値はnull）
  * -----------------------------------------------------------------------
  */
-static void YamlAppendScalar(yaya::string_t &out, const CValue &v, bool flow)
+static void YamlAppendScalar(yaya::string_t &out, const CValue &v, bool flow, const CCharsetEncodable *enc)
 {
 	switch ( v.GetType() ) {
 	case F_TAG_INT:
@@ -3248,7 +3263,7 @@ static void YamlAppendScalar(yaya::string_t &out, const CValue &v, bool flow)
 		YamlAppendDouble(out, v.d_value);
 		break;
 	case F_TAG_STRING:
-		YamlAppendString(out, v.s_value, flow);
+		YamlAppendString(out, v.s_value, flow, enc);
 		break;
 	default: // F_TAG_VOID
 		out += L"null";
@@ -3261,7 +3276,7 @@ static void YamlAppendScalar(yaya::string_t &out, const CValue &v, bool flow)
  *  機能概要：  値をフロー形式（1行）で追加します
  * -----------------------------------------------------------------------
  */
-static void YamlAppendFlow(yaya::string_t &out, const CValue &v)
+static void YamlAppendFlow(yaya::string_t &out, const CValue &v, const CCharsetEncodable *enc)
 {
 	if ( v.IsArray() ) {
 		const CValueArray &arr = v.array();
@@ -3270,7 +3285,7 @@ static void YamlAppendFlow(yaya::string_t &out, const CValue &v)
 			if ( it != arr.begin() ) {
 				out += L", ";
 			}
-			YamlAppendFlow(out, *it);
+			YamlAppendFlow(out, *it, enc);
 		}
 		out += L']';
 	}
@@ -3281,14 +3296,14 @@ static void YamlAppendFlow(yaya::string_t &out, const CValue &v)
 			if ( it != hash.begin() ) {
 				out += L", ";
 			}
-			YamlAppendString(out, it->first.GetValueString(), true);
+			YamlAppendString(out, it->first.GetValueString(), true, enc);
 			out += L": ";
-			YamlAppendFlow(out, it->second);
+			YamlAppendFlow(out, it->second, enc);
 		}
 		out += L'}';
 	}
 	else {
-		YamlAppendScalar(out, v, true);
+		YamlAppendScalar(out, v, true, enc);
 	}
 }
 
@@ -3387,25 +3402,27 @@ static void YamlAppendLiteral(yaya::string_t &out, const yaya::string_t &str, in
 	}
 }
 
-static void YamlAppendBlockMap(yaya::string_t &out, const CValue &v, int indent, bool inline_first);
-static void YamlAppendBlockSeq(yaya::string_t &out, const CValue &v, int indent, bool inline_first);
+static void YamlAppendBlockMap(yaya::string_t &out, const CValue &v, int indent, bool inline_first, const CCharsetEncodable *enc);
+static void YamlAppendBlockSeq(yaya::string_t &out, const CValue &v, int indent, bool inline_first, const CCharsetEncodable *enc);
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  YamlAppendBlockValue
  *  機能概要：  "key:"や"-"の直後に続けて値を追加します（行末の改行まで）
+ *
+ *  ブロックスカラーはエスケープできないので、出力先の文字コードで表せない文字を含むものは"..."にします
  * -----------------------------------------------------------------------
  */
-static void YamlAppendBlockValue(yaya::string_t &out, const CValue &v, int indent)
+static void YamlAppendBlockValue(yaya::string_t &out, const CValue &v, int indent, const CCharsetEncodable *enc)
 {
 	if ( v.IsHash() && v.hash_size() > 0 ) {
 		out += L'\n';
-		YamlAppendBlockMap(out, v, indent + 2, false);
+		YamlAppendBlockMap(out, v, indent + 2, false, enc);
 	}
 	else if ( v.IsArray() && ! v.array().empty() ) {
 		out += L'\n';
-		YamlAppendBlockSeq(out, v, indent + 2, false);
+		YamlAppendBlockSeq(out, v, indent + 2, false, enc);
 	}
-	else if ( v.IsStringReal() && YamlCanBeLiteral(v.s_value) ) {
+	else if ( v.IsStringReal() && YamlCanBeLiteral(v.s_value) && CanEncodeAll(enc, v.s_value) ) {
 		out += L' ';
 		YamlAppendLiteral(out, v.s_value, indent + 2);
 	}
@@ -3417,7 +3434,7 @@ static void YamlAppendBlockValue(yaya::string_t &out, const CValue &v, int inden
 	}
 	else {
 		out += L' ';
-		YamlAppendScalar(out, v, false);
+		YamlAppendScalar(out, v, false, enc);
 		out += L'\n';
 	}
 }
@@ -3429,16 +3446,16 @@ static void YamlAppendBlockValue(yaya::string_t &out, const CValue &v, int inden
  *  inline_firstなら最初のキーは字下げせずに書きます（"- "の直後）
  * -----------------------------------------------------------------------
  */
-static void YamlAppendBlockMap(yaya::string_t &out, const CValue &v, int indent, bool inline_first)
+static void YamlAppendBlockMap(yaya::string_t &out, const CValue &v, int indent, bool inline_first, const CCharsetEncodable *enc)
 {
 	const CValueHash &hash = v.hash();
 	for ( CValueHash::const_iterator it = hash.begin(); it != hash.end(); ++it ) {
 		if ( ! (inline_first && it == hash.begin()) ) {
 			out.append(indent, L' ');
 		}
-		YamlAppendString(out, it->first.GetValueString(), false);
+		YamlAppendString(out, it->first.GetValueString(), false, enc);
 		out += L':';
-		YamlAppendBlockValue(out, it->second, indent);
+		YamlAppendBlockValue(out, it->second, indent, enc);
 	}
 }
 
@@ -3447,7 +3464,7 @@ static void YamlAppendBlockMap(yaya::string_t &out, const CValue &v, int indent,
  *  機能概要：  配列をブロック形式のシーケンスで追加します
  * -----------------------------------------------------------------------
  */
-static void YamlAppendBlockSeq(yaya::string_t &out, const CValue &v, int indent, bool inline_first)
+static void YamlAppendBlockSeq(yaya::string_t &out, const CValue &v, int indent, bool inline_first, const CCharsetEncodable *enc)
 {
 	const CValueArray &arr = v.array();
 	for ( CValueArray::const_iterator it = arr.begin(); it != arr.end(); ++it ) {
@@ -3457,14 +3474,14 @@ static void YamlAppendBlockSeq(yaya::string_t &out, const CValue &v, int indent,
 		out += L'-';
 		if ( it->IsHash() && it->hash_size() > 0 ) {
 			out += L' ';
-			YamlAppendBlockMap(out, *it, indent + 2, true);
+			YamlAppendBlockMap(out, *it, indent + 2, true, enc);
 		}
 		else if ( it->IsArray() && ! it->array().empty() ) {
 			out += L' ';
-			YamlAppendBlockSeq(out, *it, indent + 2, true);
+			YamlAppendBlockSeq(out, *it, indent + 2, true, enc);
 		}
 		else {
-			YamlAppendBlockValue(out, *it, indent);
+			YamlAppendBlockValue(out, *it, indent, enc);
 		}
 	}
 }
@@ -3476,27 +3493,27 @@ static void YamlAppendBlockSeq(yaya::string_t &out, const CValue &v, int indent,
  *  prettyならブロック形式（2桁の字下げ、行末は改行）、そうでなければ1行のフロー形式にします
  * -----------------------------------------------------------------------
  */
-void ValueToYaml(const CValue &value, bool pretty, yaya::string_t &out)
+void ValueToYaml(const CValue &value, bool pretty, yaya::string_t &out, const CCharsetEncodable *enc)
 {
 	CNumericLocaleGuard locale_guard;
 
 	out.erase();
 	if ( ! pretty ) {
-		YamlAppendFlow(out, value);
+		YamlAppendFlow(out, value, enc);
 		return;
 	}
 
 	if ( value.IsHash() && value.hash_size() > 0 ) {
-		YamlAppendBlockMap(out, value, 0, false);
+		YamlAppendBlockMap(out, value, 0, false, enc);
 	}
 	else if ( value.IsArray() && ! value.array().empty() ) {
-		YamlAppendBlockSeq(out, value, 0, false);
+		YamlAppendBlockSeq(out, value, 0, false, enc);
 	}
-	else if ( value.IsStringReal() && YamlCanBeLiteral(value.s_value) ) {
+	else if ( value.IsStringReal() && YamlCanBeLiteral(value.s_value) && CanEncodeAll(enc, value.s_value) ) {
 		YamlAppendLiteral(out, value.s_value, 2);
 	}
 	else {
-		YamlAppendFlow(out, value);
+		YamlAppendFlow(out, value, enc);
 		out += L'\n';
 	}
 }
@@ -3508,9 +3525,11 @@ void ValueToYaml(const CValue &value, bool pretty, yaya::string_t &out)
 /* -----------------------------------------------------------------------
  *  関数名  ：  TomlAppendBasicString
  *  機能概要：  "..."（multilineなら"""..."""）の形で文字列を追加します
+ *
+ *  encがあれば、出力先の文字コードで表せない文字をエスケープします
  * -----------------------------------------------------------------------
  */
-static void TomlAppendBasicString(yaya::string_t &out, const yaya::string_t &str, bool multiline)
+static void TomlAppendBasicString(yaya::string_t &out, const yaya::string_t &str, bool multiline, const CCharsetEncodable *enc)
 {
 	static const yaya::char_t hex[] = L"0123456789ABCDEF";
 
@@ -3531,6 +3550,17 @@ static void TomlAppendBasicString(yaya::string_t &out, const yaya::string_t &str
 				out += hex[(c >> 4) & 0xF];
 				out += hex[c & 0xF];
 			}
+			else if ( enc ) {
+				size_t len;
+				unsigned long cp = CCharsetEncodable::CodePointAt(str, i, len);
+				if ( enc->CanEncode(str, i, len) ) {
+					out.append(str, i, len);
+				}
+				else {
+					AppendUnicodeEscape(out, cp, false);
+				}
+				i += len - 1;
+			}
 			else {
 				out += c;
 			}
@@ -3546,9 +3576,10 @@ static void TomlAppendBasicString(yaya::string_t &out, const yaya::string_t &str
  *
  *  改行を含むもの（allow_multilineのとき）は"""..."""、
  *  \を含み'や改行を含まないもの（Windowsのパスなど）は'...'、それ以外は"..."にします
+ *  '...'はエスケープできないので、出力先の文字コードで表せない文字を含むものは"..."にします
  * -----------------------------------------------------------------------
  */
-static void TomlAppendString(yaya::string_t &out, const yaya::string_t &str, bool allow_multiline)
+static void TomlAppendString(yaya::string_t &out, const yaya::string_t &str, bool allow_multiline, const CCharsetEncodable *enc)
 {
 	bool has_ctrl = false;
 	bool has_newline = false;
@@ -3572,15 +3603,15 @@ static void TomlAppendString(yaya::string_t &out, const yaya::string_t &str, boo
 	}
 
 	if ( allow_multiline && has_newline && ! has_ctrl ) {
-		TomlAppendBasicString(out, str, true);
+		TomlAppendBasicString(out, str, true, enc);
 	}
-	else if ( has_backslash && ! has_quote && ! has_newline && ! has_ctrl ) {
+	else if ( has_backslash && ! has_quote && ! has_newline && ! has_ctrl && CanEncodeAll(enc, str) ) {
 		out += L'\'';
 		out += str;
 		out += L'\'';
 	}
 	else {
-		TomlAppendBasicString(out, str, false);
+		TomlAppendBasicString(out, str, false, enc);
 	}
 }
 
@@ -3589,7 +3620,7 @@ static void TomlAppendString(yaya::string_t &out, const yaya::string_t &str, boo
  *  機能概要：  キーを追加します（使える文字だけなら裸のまま、そうでなければ"..."）
  * -----------------------------------------------------------------------
  */
-static void TomlAppendKey(yaya::string_t &out, const yaya::string_t &key)
+static void TomlAppendKey(yaya::string_t &out, const yaya::string_t &key, const CCharsetEncodable *enc)
 {
 	bool bare = ! key.empty();
 	for ( spos_t i = 0; i < key.size(); ++i ) {
@@ -3602,17 +3633,17 @@ static void TomlAppendKey(yaya::string_t &out, const yaya::string_t &key)
 		out += key;
 	}
 	else {
-		TomlAppendBasicString(out, key, false);
+		TomlAppendBasicString(out, key, false, enc);
 	}
 }
 
-static yaya::string_t TomlJoinPath(const yaya::string_t &path, const yaya::string_t &key)
+static yaya::string_t TomlJoinPath(const yaya::string_t &path, const yaya::string_t &key, const CCharsetEncodable *enc)
 {
 	yaya::string_t result = path;
 	if ( ! result.empty() ) {
 		result += L'.';
 	}
-	TomlAppendKey(result, key);
+	TomlAppendKey(result, key, enc);
 	return result;
 }
 
@@ -3641,7 +3672,7 @@ static void TomlAppendDouble(yaya::string_t &out, double d)
  *  ハッシュの中の空値のキーは書きません。配列の中の空値はTOMLで表せないのでエラーにします
  * -----------------------------------------------------------------------
  */
-static bool TomlAppendInline(yaya::string_t &out, const CValue &v, yaya::string_t &errstr)
+static bool TomlAppendInline(yaya::string_t &out, const CValue &v, yaya::string_t &errstr, const CCharsetEncodable *enc)
 {
 	switch ( v.GetType() ) {
 	case F_TAG_INT:
@@ -3651,7 +3682,7 @@ static bool TomlAppendInline(yaya::string_t &out, const CValue &v, yaya::string_
 		TomlAppendDouble(out, v.d_value);
 		return true;
 	case F_TAG_STRING:
-		TomlAppendString(out, v.s_value, false);
+		TomlAppendString(out, v.s_value, false, enc);
 		return true;
 	case F_TAG_ARRAY:
 		{
@@ -3661,7 +3692,7 @@ static bool TomlAppendInline(yaya::string_t &out, const CValue &v, yaya::string_
 				if ( it != arr.begin() ) {
 					out += L", ";
 				}
-				if ( ! TomlAppendInline(out, *it, errstr) ) {
+				if ( ! TomlAppendInline(out, *it, errstr, enc) ) {
 					return false;
 				}
 			}
@@ -3679,9 +3710,9 @@ static bool TomlAppendInline(yaya::string_t &out, const CValue &v, yaya::string_
 				}
 				out += first ? L" " : L", ";
 				first = false;
-				TomlAppendKey(out, it->first.GetValueString());
+				TomlAppendKey(out, it->first.GetValueString(), enc);
 				out += L" = ";
-				if ( ! TomlAppendInline(out, it->second, errstr) ) {
+				if ( ! TomlAppendInline(out, it->second, errstr, enc) ) {
 					return false;
 				}
 			}
@@ -3754,18 +3785,18 @@ static bool TomlNeedsHeader(const CValue &table)
  *  改行を含む文字列は"""..."""、長い配列や配列・表を含む配列は1要素1行にします
  * -----------------------------------------------------------------------
  */
-static bool TomlAppendPrettyValue(yaya::string_t &out, const CValue &v, yaya::string_t &errstr)
+static bool TomlAppendPrettyValue(yaya::string_t &out, const CValue &v, yaya::string_t &errstr, const CCharsetEncodable *enc)
 {
 	if ( v.IsStringReal() ) {
-		TomlAppendString(out, v.s_value, true);
+		TomlAppendString(out, v.s_value, true, enc);
 		return true;
 	}
 	if ( ! v.IsArray() ) {
-		return TomlAppendInline(out, v, errstr);
+		return TomlAppendInline(out, v, errstr, enc);
 	}
 
 	yaya::string_t one_line;
-	if ( ! TomlAppendInline(one_line, v, errstr) ) {
+	if ( ! TomlAppendInline(one_line, v, errstr, enc) ) {
 		return false;
 	}
 
@@ -3786,7 +3817,7 @@ static bool TomlAppendPrettyValue(yaya::string_t &out, const CValue &v, yaya::st
 	out += L"[\n";
 	for ( it = arr.begin(); it != arr.end(); ++it ) {
 		out += L"    ";
-		if ( ! TomlAppendInline(out, *it, errstr) ) {
+		if ( ! TomlAppendInline(out, *it, errstr, enc) ) {
 			return false;
 		}
 		out += L",\n";
@@ -3802,7 +3833,7 @@ static bool TomlAppendPrettyValue(yaya::string_t &out, const CValue &v, yaya::st
  *  key = value → 下の階層の[表] → [[表の配列]] の順に書きます（TOMLの規則上この順が必要）
  * -----------------------------------------------------------------------
  */
-static bool TomlAppendTable(yaya::string_t &out, const CValue &table, const yaya::string_t &path, yaya::string_t &errstr)
+static bool TomlAppendTable(yaya::string_t &out, const CValue &table, const yaya::string_t &path, yaya::string_t &errstr, const CCharsetEncodable *enc)
 {
 	const CValueHash &hash = table.hash();
 	CValueHash::const_iterator it;
@@ -3811,9 +3842,9 @@ static bool TomlAppendTable(yaya::string_t &out, const CValue &table, const yaya
 		if ( ! TomlIsSimpleEntry(it->second) ) {
 			continue;
 		}
-		TomlAppendKey(out, it->first.GetValueString());
+		TomlAppendKey(out, it->first.GetValueString(), enc);
 		out += L" = ";
-		if ( ! TomlAppendPrettyValue(out, it->second, errstr) ) {
+		if ( ! TomlAppendPrettyValue(out, it->second, errstr, enc) ) {
 			return false;
 		}
 		out += L'\n';
@@ -3823,14 +3854,14 @@ static bool TomlAppendTable(yaya::string_t &out, const CValue &table, const yaya
 		if ( ! TomlIsSection(it->second) ) {
 			continue;
 		}
-		yaya::string_t sub = TomlJoinPath(path, it->first.GetValueString());
+		yaya::string_t sub = TomlJoinPath(path, it->first.GetValueString(), enc);
 		if ( TomlNeedsHeader(it->second) ) {
 			if ( ! out.empty() ) {
 				out += L'\n';
 			}
 			out += L"[" + sub + L"]\n";
 		}
-		if ( ! TomlAppendTable(out, it->second, sub, errstr) ) {
+		if ( ! TomlAppendTable(out, it->second, sub, errstr, enc) ) {
 			return false;
 		}
 	}
@@ -3839,14 +3870,14 @@ static bool TomlAppendTable(yaya::string_t &out, const CValue &table, const yaya
 		if ( ! TomlIsTableArray(it->second) ) {
 			continue;
 		}
-		yaya::string_t sub = TomlJoinPath(path, it->first.GetValueString());
+		yaya::string_t sub = TomlJoinPath(path, it->first.GetValueString(), enc);
 		const CValueArray &arr = it->second.array();
 		for ( CValueArray::const_iterator elem = arr.begin(); elem != arr.end(); ++elem ) {
 			if ( ! out.empty() ) {
 				out += L'\n';
 			}
 			out += L"[[" + sub + L"]]\n";
-			if ( ! TomlAppendTable(out, *elem, sub, errstr) ) {
+			if ( ! TomlAppendTable(out, *elem, sub, errstr, enc) ) {
 				return false;
 			}
 		}
@@ -3863,7 +3894,7 @@ static bool TomlAppendTable(yaya::string_t &out, const CValue &table, const yaya
  *  返値　　：　成功時true　最上位がハッシュでない、配列に空値があるときはfalseでerrstrに詳細
  * -----------------------------------------------------------------------
  */
-bool ValueToToml(const CValue &value, bool pretty, yaya::string_t &out, yaya::string_t &errstr)
+bool ValueToToml(const CValue &value, bool pretty, yaya::string_t &out, yaya::string_t &errstr, const CCharsetEncodable *enc)
 {
 	CNumericLocaleGuard locale_guard;
 
@@ -3874,7 +3905,7 @@ bool ValueToToml(const CValue &value, bool pretty, yaya::string_t &out, yaya::st
 	}
 
 	if ( pretty ) {
-		return TomlAppendTable(out, value, yaya::string_t(), errstr);
+		return TomlAppendTable(out, value, yaya::string_t(), errstr, enc);
 	}
 
 	const CValueHash &hash = value.hash();
@@ -3882,9 +3913,9 @@ bool ValueToToml(const CValue &value, bool pretty, yaya::string_t &out, yaya::st
 		if ( it->second.IsVoid() ) {
 			continue;
 		}
-		TomlAppendKey(out, it->first.GetValueString());
+		TomlAppendKey(out, it->first.GetValueString(), enc);
 		out += L" = ";
-		if ( ! TomlAppendInline(out, it->second, errstr) ) {
+		if ( ! TomlAppendInline(out, it->second, errstr, enc) ) {
 			return false;
 		}
 		out += L'\n';

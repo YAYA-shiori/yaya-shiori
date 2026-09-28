@@ -1327,8 +1327,7 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CState
  *  機能概要：  複合代入（+= -= *= /= %=）の左辺の値を取得します
  *
  *  左辺が汎用配列の範囲外の要素やハッシュの無いキーの場合は、未定義の変数と同じくVOIDを返します。
- *  そのまま読むと空文字列になり、_h[k] += 1 が文字列の連結になるためです。
- *  要素があるかどうかは、SubstToArrayが書き込む先と同じ値で調べます。
+ *  要素があるかどうかは、SubstToArrayが書き込む先と同じ値で調べます（watcherは呼びません）。
  * -----------------------------------------------------------------------
  */
 const CValue& CFunction::GetCompoundSubstLeftValue(std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar)

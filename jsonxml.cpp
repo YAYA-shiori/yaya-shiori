@@ -271,16 +271,8 @@ int XmlDetectCharset(const std::string &bytes)
 		return CHARSET_UTF8;
 	}
 
+	// 名前の表記ゆれ（大文字小文字、Windows-31J/CP932などの別名）はCharsetTextToIDが吸収する
 	std::string name = decl.substr(q + 1, qe - q - 1);
-	for ( std::string::size_type i = 0; i < name.size(); ++i ) {
-		if ( name[i] >= 'a' && name[i] <= 'z' ) {
-			name[i] = static_cast<char>(name[i] - 'a' + 'A');
-		}
-	}
-
-	if ( name == "WINDOWS-31J" || name == "CP932" || name == "MS932" || name == "SHIFT-JIS" || name == "X-SJIS" ) {
-		return CHARSET_SJIS;
-	}
 
 	int charset = Ccct::CharsetTextToID(name.c_str());
 	if ( charset == CHARSET_DEFAULT || charset == CHARSET_BINARY ) {
@@ -303,6 +295,97 @@ std::string WideToUtf8(const yaya::string_t &str)
 		free(p);
 	}
 	return result;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CCharsetEncodable::CodePointAt
+ *  機能概要：  str[i]から始まる1文字のコードポイントを返します
+ * -----------------------------------------------------------------------
+ */
+unsigned long CCharsetEncodable::CodePointAt(const yaya::string_t &str, size_t i, size_t &len)
+{
+	unsigned long c = static_cast<unsigned long>(str[i]);
+	len = 1;
+	if ( c >= 0xD800 && c <= 0xDBFF && i + 1 < str.size() ) {
+		unsigned long c2 = static_cast<unsigned long>(str[i + 1]);
+		if ( c2 >= 0xDC00 && c2 <= 0xDFFF ) {
+			len = 2;
+			return 0x10000 + ((c - 0xD800) << 10) + (c2 - 0xDC00);
+		}
+	}
+	return c;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CCharsetEncodable::CanEncode
+ *  機能概要：  str[i]から始まる長さlenの1文字を出力先の文字コードで表せるならtrue
+ * -----------------------------------------------------------------------
+ */
+bool CCharsetEncodable::CanEncode(const yaya::string_t &str, size_t i, size_t len) const
+{
+	size_t dummy;
+	unsigned long cp = CodePointAt(str, i, dummy);
+	if ( cp < 0x80 ) {
+		return true;
+	}
+
+	std::map<unsigned long, bool>::const_iterator it = cache.find(cp);
+	if ( it != cache.end() ) {
+		return it->second;
+	}
+
+	yaya::string_t ch = str.substr(i, len);
+	bool ok = false;
+	char *mb = Ccct::Ucs2ToMbcs(ch, charset);
+	if ( mb ) {
+		yaya::string_t back;
+		ok = Ccct::MbcsToUcs2Buf(back, mb, charset) && back == ch;
+		free(mb);
+	}
+	cache[cp] = ok;
+	return ok;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CCharsetEncodable::CanEncodeAll
+ *  機能概要：  strのすべての文字を出力先の文字コードで表せるならtrue
+ * -----------------------------------------------------------------------
+ */
+bool CCharsetEncodable::CanEncodeAll(const yaya::string_t &str) const
+{
+	size_t len;
+	for ( size_t i = 0; i < str.size(); i += len ) {
+		CodePointAt(str, i, len);
+		if ( ! CanEncode(str, i, len) ) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  AppendUnicodeEscape
+ *  機能概要：  コードポイントを\uXXXXの形で追加します
+ *
+ *  BMPの外の文字は、utf16pairなら\uXXXX\uXXXX（JSON）、そうでなければ\UXXXXXXXX（YAML/TOML）にします
+ * -----------------------------------------------------------------------
+ */
+void AppendUnicodeEscape(yaya::string_t &out, unsigned long cp, bool utf16pair)
+{
+	static const yaya::char_t hex[] = L"0123456789ABCDEF";
+
+	if ( cp > 0xFFFF && utf16pair ) {
+		unsigned long v = cp - 0x10000;
+		AppendUnicodeEscape(out, 0xD800 + (v >> 10), true);
+		AppendUnicodeEscape(out, 0xDC00 + (v & 0x3FF), true);
+		return;
+	}
+
+	int digits = (cp > 0xFFFF) ? 8 : 4;
+	out += (digits == 8) ? L"\\U" : L"\\u";
+	for ( int d = digits - 1; d >= 0; --d ) {
+		out += hex[(cp >> (d * 4)) & 0xF];
+	}
 }
 
 /* -----------------------------------------------------------------------
@@ -504,12 +587,29 @@ static void JsonAppendValue(yaya::string_t &out, const CValue &value, bool prett
  *  機能概要：  CValueをJSONの文字列にします
  * -----------------------------------------------------------------------
  */
-void ValueToJson(const CValue &value, bool pretty, yaya::string_t &out)
+void ValueToJson(const CValue &value, bool pretty, yaya::string_t &out, const CCharsetEncodable *enc)
 {
 	CNumericLocaleGuard locale_guard;
 
 	out.erase();
 	JsonAppendValue(out, value, pretty, 0);
+
+	// JSONの文字列の外はASCIIだけなので、表せない文字はどこにあっても文字列の中にある
+	if ( CanEncodeAll(enc, out) ) {
+		return;
+	}
+	yaya::string_t escaped;
+	size_t len;
+	for ( size_t i = 0; i < out.size(); i += len ) {
+		unsigned long cp = CCharsetEncodable::CodePointAt(out, i, len);
+		if ( enc->CanEncode(out, i, len) ) {
+			escaped.append(out, i, len);
+		}
+		else {
+			AppendUnicodeEscape(escaped, cp, true);
+		}
+	}
+	out.swap(escaped);
 }
 
 /* -----------------------------------------------------------------------
@@ -639,7 +739,9 @@ static tinyxml2::XMLElement *ValueToXmlElement(const CValue &value, tinyxml2::XM
  *  返値　　：　成功時true　失敗時はerrstrに詳細
  * -----------------------------------------------------------------------
  */
-bool ValueToXml(const CValue &value, const char *encoding, bool pretty, yaya::string_t &out, yaya::string_t &errstr)
+static bool XmlEscapeUnencodable(yaya::string_t &out, const CCharsetEncodable &enc, yaya::string_t &errstr);
+
+bool ValueToXml(const CValue &value, const char *encoding, bool pretty, yaya::string_t &out, yaya::string_t &errstr, const CCharsetEncodable *enc)
 {
 	tinyxml2::XMLDocument doc;
 
@@ -656,6 +758,73 @@ bool ValueToXml(const CValue &value, const char *encoding, bool pretty, yaya::st
 	doc.Print(&printer);
 
 	out = Utf8ToWide(printer.CStr());
+
+	if ( CanEncodeAll(enc, out) ) {
+		return true;
+	}
+	return XmlEscapeUnencodable(out, *enc, errstr);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  XmlEscapeUnencodable
+ *  機能概要：  出力先の文字コードで表せない文字を文字参照（&#xXXXX;）にします
+ *
+ *  tinyxml2が書き出したXMLを前から読み、タグの外（テキスト）と属性値の中の文字だけを置き換えます。
+ *  要素名・属性名の中は文字参照にできないので失敗にします
+ *  返値　　：　成功時true　失敗時はerrstrに詳細
+ * -----------------------------------------------------------------------
+ */
+static bool XmlEscapeUnencodable(yaya::string_t &out, const CCharsetEncodable &enc, yaya::string_t &errstr)
+{
+	static const yaya::char_t hex[] = L"0123456789ABCDEF";
+
+	yaya::string_t escaped;
+	bool in_tag = false;
+	yaya::char_t quote = 0;
+	size_t len;
+
+	for ( size_t i = 0; i < out.size(); i += len ) {
+		unsigned long cp = CCharsetEncodable::CodePointAt(out, i, len);
+
+		if ( quote ) {
+			if ( cp == quote ) {
+				quote = 0;
+			}
+		}
+		else if ( in_tag ) {
+			if ( cp == L'"' || cp == L'\'' ) {
+				quote = static_cast<yaya::char_t>(cp);
+			}
+			else if ( cp == L'>' ) {
+				in_tag = false;
+			}
+		}
+		else if ( cp == L'<' ) {
+			in_tag = true;
+		}
+
+		if ( enc.CanEncode(out, i, len) ) {
+			escaped.append(out, i, len);
+			continue;
+		}
+		if ( in_tag && ! quote ) {
+			errstr = L"an element or attribute name contains a character that the charset cannot represent";
+			return false;
+		}
+
+		escaped += L"&#x";
+		bool started = false;
+		for ( int d = 7; d >= 0; --d ) {
+			unsigned long digit = (cp >> (d * 4)) & 0xF;
+			if ( digit || started || d == 0 ) {
+				escaped += hex[digit];
+				started = true;
+			}
+		}
+		escaped += L';';
+	}
+
+	out.swap(escaped);
 	return true;
 }
 

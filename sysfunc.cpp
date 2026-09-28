@@ -1053,7 +1053,13 @@ CValue	CSystemFunction::CHARSETTEXTTOID(CSF_FUNCPARAM &p)
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	return CValue(Ccct::CharsetTextToID(p.arg.array()[0].s_value.c_str()));
+	int charset = Ccct::CharsetTextToIDStrict(p.arg.array()[0].s_value.c_str());
+	if (charset < 0) {
+		vm.logger().Error(E_W, 12, L"CHARSETTEXTTOID : " + p.arg.array()[0].s_value, p.dicname, p.line);
+		SetError(12);
+		return CValue(-1);
+	}
+	return CValue(charset);
 }
 
 /* -----------------------------------------------------------------------
@@ -3309,10 +3315,14 @@ CValue	CSystemFunction::DICLOAD(CSF_FUNCPARAM &p)
 #endif
 	char cset = vm.basis().GetDicCharset();
 
-	if ( p.arg.array_size() >= 2 && p.arg.array()[1].s_value.size() ) {
-		char cx = Ccct::CharsetTextToID(p.arg.array()[1].s_value.c_str());
+	// 文字コードは空文字列・空値なら省略扱い。defaultなら設定ファイルの辞書の文字コードのまま
+	if ( p.arg.array_size() >= 2 && ! p.arg.array()[1].IsVoid() && ! (p.arg.array()[1].IsString() && p.arg.array()[1].s_value.empty()) ) {
+		int cx = GetCharset(p.arg.array()[1], L"DICLOAD", p.dicname, p.line);
+		if ( cx < 0 ) {
+			return CValue(1);
+		}
 		if ( cx != CHARSET_DEFAULT ) {
-			cset = cx;
+			cset = static_cast<char>(cx);
 		}
 	}
 
@@ -7068,7 +7078,12 @@ int CSystemFunction::GetCharset(const CValue &var,const wchar_t *fname, const ya
 
 	if (var.IsString()) {
 		yaya::string_t cset = var.GetValueString();
-		int	charset = Ccct::CharsetTextToID(cset.c_str());
+		int	charset = Ccct::CharsetTextToIDStrict(cset.c_str());
+		if (charset < 0) {
+			vm.logger().Error(E_W, 12, yaya::string_t(fname) + L" : " + cset, d, l);
+			SetError(12);
+			return -1;
+		}
 		return charset;
 	}
 
@@ -7096,7 +7111,7 @@ CValue CSystemFunction::READFMO(CSF_FUNCPARAM &p)
 	if (p.arg.array_size() >= 2) {
 		charset = GetCharset(p.arg.array()[1],L"READFMO", p.dicname, p.line);
 		if ( charset < 0 ) {
-			charset = CHARSET_DEFAULT;
+			return CValue(F_TAG_NOP, 0/*dmy*/);
 		}
 	}
 
@@ -7723,9 +7738,9 @@ CValue	CSystemFunction::DIRECTSSTP(CSF_FUNCPARAM &p)
 
 	int	charset = CHARSET_UTF8;
 	if (p.arg.array_size() > 2) {
-		int cs = GetCharset(p.arg.array()[2],L"DIRECTSSTP", p.dicname, p.line);
-		if ( cs >= 0 ) {
-			charset = cs;
+		charset = GetCharset(p.arg.array()[2],L"DIRECTSSTP", p.dicname, p.line);
+		if ( charset < 0 ) {
+			return CValue(-1);
 		}
 	}
 
@@ -8312,6 +8327,17 @@ CValue	CSystemFunction::FWriteDataFile(CSF_FUNCPARAM &p, const yaya::char_t *fna
 		return CValue(0);
 	}
 
+	// 表せない文字はValueToDataでエスケープしてあるので、読み戻して元に戻らなければ変換の失敗とする
+	if (charset != CHARSET_UTF8) {
+		yaya::string_t back;
+		if (!Ccct::MbcsToUcs2Buf(back, bytes, charset) || back != out) {
+			free(bytes);
+			vm.logger().Error(E_W, 27, fname, p.dicname, p.line);
+			SetError(27);
+			return CValue(0);
+		}
+	}
+
 	yaya::string_t full_path = vm.basis().ToFullPath(p.valuearg[0].s_value);
 
 	FILE *pF = yaya::w_fopen(full_path.c_str(), L"wb");
@@ -8369,6 +8395,8 @@ CValue	CSystemFunction::DumpData(CSF_FUNCPARAM &p, const yaya::char_t *fname, in
  *  関数名  ：  CSystemFunction::ValueToData
  *  機能概要：  値をJSON/XML/YAML/TOMLの文字列にします　XMLの宣言にはcharsetの名前を書きます
  *
+ *  charsetで表せない文字は、それぞれの形式のエスケープ（JSONは\uXXXX、XMLは&#xXXXX;、
+ *  YAML/TOMLは"..."の中の\uXXXX）で書きます
  *  返値　　：　成功時true　失敗時は警告を出してfalse
  * -----------------------------------------------------------------------
  */
@@ -8377,18 +8405,21 @@ bool	CSystemFunction::ValueToData(CSF_FUNCPARAM &p, const yaya::char_t *fname, c
 	yaya::string_t errstr;
 	bool ok = true;
 
+	CCharsetEncodable encodable(charset);
+	const CCharsetEncodable *enc = (charset == CHARSET_UTF8) ? NULL : &encodable;
+
 	switch (fmt) {
 	case DATAFMT_XML:
-		ok = ValueToXml(value, XmlCharsetName(charset), pretty, out, errstr);
+		ok = ValueToXml(value, XmlCharsetName(charset), pretty, out, errstr, enc);
 		break;
 	case DATAFMT_YAML:
-		ValueToYaml(value, pretty, out);
+		ValueToYaml(value, pretty, out, enc);
 		break;
 	case DATAFMT_TOML:
-		ok = ValueToToml(value, pretty, out, errstr);
+		ok = ValueToToml(value, pretty, out, errstr, enc);
 		break;
 	default:
-		ValueToJson(value, pretty, out);
+		ValueToJson(value, pretty, out, enc);
 		break;
 	}
 

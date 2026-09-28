@@ -45,51 +45,6 @@ typedef unsigned char BYTE;
 ////////////////////////////////////////
 
 
-#ifdef POSIX
-namespace {
-    int wcsicmp(const wchar_t* a, const wchar_t* b) {
-        size_t lenA = wcslen(a);
-        size_t lenB = wcslen(b);
-
-        if (lenA != lenB) {
-            return lenA - lenB;
-        }
-        else {
-            for (size_t i = 0; i < lenA; i++) {
-                wchar_t A = tolower(a[i]);
-                wchar_t B = tolower(b[i]);
-
-                if (A != B) {
-                    return A - B;
-                }
-            }
-
-            return 0;
-        }
-    }
-
-    int stricmp(const char* a, const char* b) {
-        size_t lenA = strlen(a);
-        size_t lenB = strlen(b);
-
-        if (lenA != lenB) {
-            return lenA - lenB;
-        }
-        else {
-            for (size_t i = 0; i < lenA; i++) {
-                wchar_t A = tolower(a[i]);
-                wchar_t B = tolower(b[i]);
-
-                if (A != B) {
-                    return A - B;
-                }
-            }
-
-            return 0;
-        }
-    }
-}
-#endif
 
 
 /* -----------------------------------------------------------------------
@@ -114,56 +69,137 @@ bool     Ccct::CheckInvalidCharset(int charset)
 }
 
 /* -----------------------------------------------------------------------
+ *  文字コードの名前の対照表
+ *
+ *  名前は英小文字にし、'-' '_' '.' 空白を除いてから比べます（"Shift-JIS" と "shift_jis" は同じ）。
+ *  表の名前もその形で書きます。空の名前は従来どおりOSデフォルトとします。
+ * -----------------------------------------------------------------------
+ */
+namespace {
+	struct CharsetNameEntry {
+		const char *name;
+		int charset;
+	};
+
+	const CharsetNameEntry charset_name_table[] = {
+		{ "utf8",           CHARSET_UTF8 },
+		{ "utf8n",          CHARSET_UTF8 },
+		{ "cp65001",        CHARSET_UTF8 },
+		{ "csutf8",         CHARSET_UTF8 },
+
+		{ "",               CHARSET_DEFAULT },
+		{ "default",        CHARSET_DEFAULT },
+		{ "osnative",       CHARSET_DEFAULT },
+		{ "ansi",           CHARSET_DEFAULT },
+
+		{ "shiftjis",       CHARSET_SJIS },
+		{ "sjis",           CHARSET_SJIS },
+		{ "xsjis",          CHARSET_SJIS },
+		{ "mskanji",        CHARSET_SJIS },
+		{ "csshiftjis",     CHARSET_SJIS },
+		{ "cp932",          CHARSET_SJIS },
+		{ "ms932",          CHARSET_SJIS },
+		{ "windows932",     CHARSET_SJIS },
+		{ "windows31j",     CHARSET_SJIS },
+		{ "cswindows31j",   CHARSET_SJIS },
+		{ "xmscp932",       CHARSET_SJIS },
+
+		{ "eucjp",          CHARSET_EUCJP },
+		{ "xeucjp",         CHARSET_EUCJP },
+		{ "ujis",           CHARSET_EUCJP },
+		{ "cseucpkdfmtjapanese", CHARSET_EUCJP },
+		{ "cp20932",        CHARSET_EUCJP },
+		{ "cp51932",        CHARSET_EUCJP },
+		{ "eucjpms",        CHARSET_EUCJP },
+
+		{ "iso2022jp",      CHARSET_JIS },
+		{ "jis",            CHARSET_JIS },
+		{ "csiso2022jp",    CHARSET_JIS },
+		{ "cp50220",        CHARSET_JIS },
+		{ "cp50221",        CHARSET_JIS },
+		{ "cp50222",        CHARSET_JIS },
+
+		{ "big5",           CHARSET_BIG5 },
+		{ "csbig5",         CHARSET_BIG5 },
+		{ "cp950",          CHARSET_BIG5 },
+		{ "ms950",          CHARSET_BIG5 },
+		{ "windows950",     CHARSET_BIG5 },
+
+		{ "gb2312",         CHARSET_GB2312 },
+		{ "csgb2312",       CHARSET_GB2312 },
+		{ "euccn",          CHARSET_GB2312 },
+		{ "xeuccn",         CHARSET_GB2312 },
+		{ "gbk",            CHARSET_GB2312 },
+		{ "cp936",          CHARSET_GB2312 },
+		{ "ms936",          CHARSET_GB2312 },
+		{ "windows936",     CHARSET_GB2312 },
+
+		{ "euckr",          CHARSET_EUCKR },
+		{ "cseuckr",        CHARSET_EUCKR },
+		{ "ksc5601",        CHARSET_EUCKR },
+		{ "ksc56011987",    CHARSET_EUCKR },
+		{ "uhc",            CHARSET_EUCKR },
+		{ "cp949",          CHARSET_EUCKR },
+		{ "ms949",          CHARSET_EUCKR },
+		{ "windows949",     CHARSET_EUCKR },
+
+		{ "binary",         CHARSET_BINARY },
+	};
+
+	template<class C>
+	int CharsetNameToID(const C *ctxt)
+	{
+		std::string name;
+		for ( ; *ctxt; ++ctxt) {
+			unsigned long c = static_cast<unsigned long>(*ctxt);
+			if (c >= 0x80) {
+				return -1;
+			}
+			if (c == '-' || c == '_' || c == '.' || c == ' ' || c == '\t') {
+				continue;
+			}
+			if (c >= 'A' && c <= 'Z') {
+				c = c - 'A' + 'a';
+			}
+			name += static_cast<char>(c);
+		}
+
+		for (size_t i = 0; i < sizeof(charset_name_table) / sizeof(charset_name_table[0]); ++i) {
+			if (name == charset_name_table[i].name) {
+				return charset_name_table[i].charset;
+			}
+		}
+		return -1;
+	}
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  Ccct::CharsetTextToID
  *  機能概要：  Charset 文字列->Charset ID
+ *
+ *  不明な名前はCHARSET_DEFAULTになります（設定ファイルなど、エラーにできない所で使います）
  * -----------------------------------------------------------------------
  */
 int      Ccct::CharsetTextToID(const wchar_t *ctxt)
 {
-	if (!wcsicmp(L"UTF-8",ctxt) || !wcsicmp(L"UTF8",ctxt))
-		return CHARSET_UTF8;
-	else if (!wcsicmp(L"default",ctxt) || !wcsicmp(L"OSNative",ctxt))
-		return CHARSET_DEFAULT;
-	else if (!wcsicmp(L"Shift_JIS",ctxt) || !wcsicmp(L"ShiftJIS",ctxt) || !wcsicmp(L"SJIS",ctxt))
-		return CHARSET_SJIS;
-	else if (!wcsicmp(L"EUC_JP",ctxt) || !wcsicmp(L"EUC-JP",ctxt) || !wcsicmp(L"EUCJP",ctxt))
-		return CHARSET_EUCJP;
-	else if (!wcsicmp(L"ISO-2022-JP",ctxt) || !wcsicmp(L"JIS",ctxt))
-		return CHARSET_JIS;
-	else if (!wcsicmp(L"BIG5",ctxt) || !wcsicmp(L"BIG-5",ctxt))
-		return CHARSET_BIG5;
-	else if (!wcsicmp(L"GB2312",ctxt) || !wcsicmp(L"GB-2312",ctxt))
-		return CHARSET_GB2312;
-	else if (!wcsicmp(L"EUC_KR",ctxt) || !wcsicmp(L"EUC-KR",ctxt) || !wcsicmp(L"EUCKR",ctxt))
-		return CHARSET_EUCKR;
-	else if (!wcsicmp(L"binary",ctxt))
-		return CHARSET_BINARY;
-
-	return CHARSET_DEFAULT;
+	int charset = CharsetNameToID(ctxt);
+	return (charset < 0) ? CHARSET_DEFAULT : charset;
 }
 
 int      Ccct::CharsetTextToID(const char *ctxt)
 {
-	if (!stricmp("UTF-8",ctxt) || !stricmp("UTF8",ctxt))
-		return CHARSET_UTF8;
-	else if (!stricmp("default",ctxt) || !stricmp("OSNative",ctxt))
-		return CHARSET_DEFAULT;
-	else if (!stricmp("Shift_JIS",ctxt) || !stricmp("ShiftJIS",ctxt) || !stricmp("SJIS",ctxt))
-		return CHARSET_SJIS;
-	else if (!stricmp("EUC_JP",ctxt) || !stricmp("EUC-JP",ctxt) || !stricmp("EUCJP",ctxt))
-		return CHARSET_EUCJP;
-	else if (!stricmp("ISO-2022-JP",ctxt) || !stricmp("JIS",ctxt))
-		return CHARSET_JIS;
-	else if (!stricmp("BIG5",ctxt) || !stricmp("BIG-5",ctxt))
-		return CHARSET_BIG5;
-	else if (!stricmp("GB2312",ctxt) || !stricmp("GB-2312",ctxt))
-		return CHARSET_GB2312;
-	else if (!stricmp("EUC_KR",ctxt) || !stricmp("EUC-KR",ctxt) || !stricmp("EUCKR",ctxt))
-		return CHARSET_EUCKR;
-	else if (!stricmp("binary",ctxt))
-		return CHARSET_BINARY;
+	int charset = CharsetNameToID(ctxt);
+	return (charset < 0) ? CHARSET_DEFAULT : charset;
+}
 
-	return CHARSET_DEFAULT;
+/* -----------------------------------------------------------------------
+ *  関数名  ：  Ccct::CharsetTextToIDStrict
+ *  機能概要：  Charset 文字列->Charset ID　不明な名前は-1を返します
+ * -----------------------------------------------------------------------
+ */
+int      Ccct::CharsetTextToIDStrict(const wchar_t *ctxt)
+{
+	return CharsetNameToID(ctxt);
 }
 
 /* -----------------------------------------------------------------------
