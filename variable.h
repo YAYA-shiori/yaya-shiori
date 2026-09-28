@@ -109,7 +109,7 @@ public:
 	}
 	const CValue& call_watcher(CAyaVM& vm, CValue& save);
 	void call_destorier(CAyaVM& vm);
-	void call_setter(CAyaVM& vm, const CValue& var_before);
+	bool call_setter(CAyaVM& vm, const CValue& var_before, CValue& result);
 	void set_watcher(const yaya::string_t& _watcher){watcher=_watcher;}
 	void set_destorier(const yaya::string_t& _destorier){ destorier = _destorier;}
 	void set_setter(const yaya::string_t& _setter){ setter = _setter;}

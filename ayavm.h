@@ -37,7 +37,7 @@ private:
 
 	std_shared_ptr<CFunctionDef>	m_function_parse;
 	std_shared_ptr<CFunctionDef>	m_function_exec;
-	std_shared_ptr<CFunctionDef>	m_function_destruct;
+	std::vector< std_shared_ptr<CFunctionDef> >	m_function_destruct;	// 差し替えた古い関数表（実行中の関数がいるのでrequestの終わりまで残す）
 	
 	std_shared_ptr< std::vector<CDefine> >	m_gdefines;
 
@@ -72,6 +72,8 @@ public:
 	void func_parse_to_exec(void);
 	void func_parse_destruct(void);
 	void func_parse_new(void);
+	void func_destruct_clear(void);
+	bool func_swapped(void) const { return ! m_function_destruct.empty(); }
 
 	size_t genrand_uint(size_t n);
 

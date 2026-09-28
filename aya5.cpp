@@ -92,6 +92,9 @@ public:
 			delete vme;
 		}
 		vm->basis().ExecuteLoad();
+
+		// loadŠÖ”‚Ì’†‚Å·‚µ‘Ö‚¦‚½ŒÃ‚¢ŠÖ”•\‚ğ‰ğ•ú
+		vm->func_destruct_clear();
 	}
 	virtual ~CAyaVMWrapper() {
 		vm->basis().Termination();

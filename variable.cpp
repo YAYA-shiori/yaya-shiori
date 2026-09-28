@@ -47,7 +47,13 @@ void CVariable::call_destorier(CAyaVM& vm)
 	}
 }
 
-void CVariable::call_setter(CAyaVM& vm, const CValue& var_before)
+/*
+ * setterを実行し、変数に入れる値をresultに返します
+ * setterの中でグローバル変数が増えるとthisが無効になるので、実行後はthisに触れません
+ * 呼び出し元が変数を引き直してresultを代入してください
+ * 返値　　：  true=setterを実行した false=setterなし
+ */
+bool CVariable::call_setter(CAyaVM& vm, const CValue& var_before, CValue& result)
 {
 	if(setter.size()){
 		ptrdiff_t index = vm.function_exec().GetFunctionIndexFromName(setter);
@@ -55,7 +61,7 @@ void CVariable::call_setter(CAyaVM& vm, const CValue& var_before)
 		if (index < 0) {
 			vm.logger().Error(E_W, 12, setter);
 			//SetError(12);
-			return;
+			return false;
 		}
 
 		CFunction* it = &vm.function_exec().func[size_t(index)];
@@ -64,6 +70,8 @@ void CVariable::call_setter(CAyaVM& vm, const CValue& var_before)
 		arg.array().emplace_back(this->name);
 		arg.array().emplace_back(value_const());
 		arg.array().emplace_back(var_before);
-		value()=it->Execute(arg);
+		result = it->Execute(arg);
+		return true;
 	}
+	return false;
 }

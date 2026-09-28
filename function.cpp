@@ -765,7 +765,7 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 				{
 					std_shared_ptr<CValue> tmp_ansv = o_cell.ansv_shared_create();
 					if (ExecFunctionWithArgs(*tmp_ansv.get(), it->index, st, lvar)) {
-						pvm->logger().Error(E_E, 33, pvm->function_exec().func[st.cell()[it->index[0]].index].name, dicfilename, st.linecount);
+						pvm->logger().Error(E_E, 33, st.cell()[it->index[0]].name, dicfilename, st.linecount);
 					}
 					o_cell.ansv_shared() = tmp_ansv;
 				}
@@ -833,9 +833,14 @@ const CValue& CFunction::GetValueRefForCalc(CCell &cell, CStatement &st, CLocalV
 			return cell.ansv();
 		}
 	case F_TAG_USERFUNC: {
+		CFunction	*pfunc = GetUserFunction(cell);
+		if (pfunc == NULL) {
+			pvm->logger().Error(E_E, 71, cell.name, dicfilename, st.linecount);
+			return emptyvalue;
+		}
 		CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
 		CLocalVariable	t_lvar(*pvm);
-		cell.ansv() = pvm->function_exec().func[cell.index].Execute(arg, t_lvar);
+		cell.ansv() = pfunc->Execute(arg, t_lvar);
 		return cell.ansv();
 	}
 	case F_TAG_VARIABLE:
@@ -1043,6 +1048,24 @@ char	CFunction::CommaAdd(CValue &answer, std::vector<size_t> &sid, CStatement &s
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CFunction::GetSubstVariable
+ *  機能概要：  代入先の変数（グローバル変数/ローカル変数の項）を取得します
+ *
+ *  変数はvectorに入っているので、関数を実行して変数が増えると得られたポインタは無効になります。
+ *  関数を実行したあとは引き直してください。
+ * -----------------------------------------------------------------------
+ */
+CVariable*	CFunction::GetSubstVariable(const CCell &vcell, CLocalVariable &lvar)
+{
+	if ( vcell.value_GetType() == F_TAG_VARIABLE ) {
+		return pvm->variable().GetPtr(vcell.index);
+	}
+	else {
+		return lvar.GetPtr(vcell.name);
+	}
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CFunction::Subst
  *  機能概要：  代入演算子を処理します
  *
@@ -1058,20 +1081,19 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CState
 
 	//既存変数への代入の場合だけは特殊扱いする
 	if ( sid_0_cell_type == F_TAG_VARIABLE || sid_0_cell_type == F_TAG_LOCALVARIABLE ) {
-		CVariable* pSubstTo;
-
-		if ( sid_0_cell_type == F_TAG_VARIABLE ) {
-			pSubstTo = pvm->variable().GetPtr(sid_0_cell->index);
-		}
-		else {
-			pSubstTo = lvar.GetPtr(sid_0_cell->name);
-		}
+		CVariable* pSubstTo = GetSubstVariable(*sid_0_cell, lvar);
 
 		CValue varback;
 
 		if ( pSubstTo ) {
 			varback = pSubstTo->value();
-			CValue &substTo = pSubstTo->value();
+
+			// 右辺の関数やEVALの中で変数が増えるとpSubstToは無効になるので、値だけを持っておき、
+			// 代入が終わったら変数を引き直す
+			pSubstTo->value();
+			std_shared_ptr<CValue> substToHolder = pSubstTo->value_shared();
+			pSubstTo = NULL;
+			CValue &substTo = *substToHolder;
 
 			answer.array_clear();
 
@@ -1120,7 +1142,23 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CState
 				pvm->variable().EnableValue(sid_0_cell->index);
 			}
 
-			pSubstTo->call_setter(*pvm,varback);
+			pSubstTo = GetSubstVariable(*sid_0_cell, lvar);
+			if ( ! pSubstTo ) {
+				return 0;
+			}
+			// 右辺の中でERASEVARされていても、代入した値を変数に戻す
+			if ( pSubstTo->value_shared() != substToHolder ) {
+				pSubstTo->value_shared() = substToHolder;
+			}
+
+			CValue setter_result;
+			if ( pSubstTo->call_setter(*pvm, varback, setter_result) ) {
+				// setterの中で変数が増えることがあるので、もう一度引き直す
+				pSubstTo = GetSubstVariable(*sid_0_cell, lvar);
+				if ( pSubstTo ) {
+					pSubstTo->value() = setter_result;
+				}
+			}
 
 			return 0;
 		}
@@ -1286,6 +1324,36 @@ bool CFunction::not_in_(const CValue &src, const CValue &dst)
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CFunction::GetUserFunction
+ *  機能概要：  F_TAG_USERFUNCの項が指す関数を、現在の関数表から取得します
+ *
+ *  項のindexは解析したときの関数表での位置です。実行中にDICUNLOAD/UNDEFFUNCなどで
+ *  関数表が差し替えられると位置がずれるため、名前が一致しなければ名前で引き直します。
+ *  位置がずれるのは差し替えたrequestの中（古い関数表を取っておいている間）だけです。
+ *
+ *  返値　　：  関数　見つからなければNULL
+ * -----------------------------------------------------------------------
+ */
+CFunction*	CFunction::GetUserFunction(const CCell &cell)
+{
+	CFunctionDef	&def = pvm->function_exec();
+
+	if (!pvm->func_swapped()) {
+		return &def.func[size_t(cell.index)];
+	}
+
+	if (cell.index >= 0 && size_t(cell.index) < def.func.size() && def.func[size_t(cell.index)].name == cell.name) {
+		return &def.func[size_t(cell.index)];
+	}
+
+	ptrdiff_t	index = def.GetFunctionIndexFromName(cell.name);
+	if (index < 0) {
+		return NULL;
+	}
+	return &def.func[size_t(index)];
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CFunction::ExecFunctionWithArgs
  *  機能概要：  引数付きの関数を実行します
  *
@@ -1294,9 +1362,8 @@ bool CFunction::not_in_(const CValue &src, const CValue &dst)
  */
 char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar)
 {
-	// 関数の格納位置を取得
 	std::vector<size_t>::iterator it = sid.begin();
-	size_t index = st.cell()[*it].index;
+	CCell	&fcell = st.cell()[*it];
 	it++;
 
 	// 引数作成
@@ -1319,9 +1386,17 @@ char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, C
 		}
 	}
 
+	// 関数を取得　引数の中で関数表が差し替えられることがあるので、引数を作ってから引く
+	CFunction	*pfunc = GetUserFunction(fcell);
+	if (pfunc == NULL) {
+		pvm->logger().Error(E_E, 71, fcell.name, dicfilename, st.linecount);
+		answer = CValue();
+		return 0;
+	}
+
 	// 実行
 	CLocalVariable	t_lvar(*pvm);
-	answer = pvm->function_exec().func[index].Execute(arg, t_lvar);
+	answer = pfunc->Execute(arg, t_lvar);
 
 	// フィードバック
 	const CValue *v_argv = &(t_lvar.GetArgvPtr()->value_const());
