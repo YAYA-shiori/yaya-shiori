@@ -51,7 +51,8 @@ public:
 	CSqliteDB(const CSqliteDB &) {}
 	~CSqliteDB(void) { CloseAll(); }
 
-	int		Open(const yaya::string_t &name, const yaya::string_t &mode, yaya::string_t &errstr);
+	int		Open(const yaya::string_t &name, const yaya::string_t &mode, const yaya::string_t &basepath,
+				yaya::string_t &errstr);
 	int		Close(const yaya::string_t &name);
 	void	CloseAll(void);
 	int		Execute(const yaya::string_t &name, const yaya::string_t &sql, const CValueArray &args, size_t argstart,

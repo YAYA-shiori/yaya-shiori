@@ -12,11 +12,16 @@
 # include "stdafx.h"
 #endif
 
+#include <stdio.h>
 #include <string>
 #include <vector>
 #include <map>
 
 #include "sqlite/sqlite3.h"
+
+#if defined(POSIX)
+#include "posix_utils.h"
+#endif
 
 #include "sqlitedb.h"
 #include "jsonxml.h"
@@ -43,6 +48,129 @@ typedef std::vector<sqlite3_stmt *> SqliteStmtList;
 typedef std::map<std::string, SqliteStmtList> SqliteStmtCache;
 
 /* -----------------------------------------------------------------------
+ *  構造体名：  SqliteBaseVfs
+ *  機能概要：  相対パスをbase_path（yaya.dllのフォルダなど）から解決するVFS
+ *
+ *  SQLの中に書いたパス（ATTACH DATABASE 'x.db'、VACUUM INTO 'x.db' など）は
+ *  そのままSQLiteに渡るため、既定のVFSではプロセスのカレントディレクトリが基準になる。
+ *  既定のVFSを写してxFullPathnameだけ差し替えたものを接続ごとに登録し、その接続で使う。
+ *  （ATTACHは接続のVFSで開くので、SQLの中のパスもこれを通る）
+ * -----------------------------------------------------------------------
+ */
+struct	SqliteBaseVfs
+{
+	sqlite3_vfs	vfs;		// 先頭に置く（sqlite3_vfs * から戻すため）
+	sqlite3_vfs	*orig;		// 包んでいる既定のVFS
+	std::string	name;		// 登録名（vfs.zName）
+	std::string	basepath;	// UTF-8。末尾は区切り文字
+};
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  SqliteIsRelativePath
+ *  機能概要：  パス（UTF-8）が相対パスならtrueを返します
+ *
+ *  Windowsでは ToFullPath と同じく、\ や / 1つで始まるものも相対パスとして扱う
+ * -----------------------------------------------------------------------
+ */
+#if defined(WIN32) || defined(_WIN32_WCE)
+static bool	SqliteIsDirSep(char c)
+{
+	return c == '\\' || c == '/';
+}
+
+static bool	SqliteIsDriveLetter(const char *z)
+{
+	return ((z[0] >= 'A' && z[0] <= 'Z') || (z[0] >= 'a' && z[0] <= 'z')) && z[1] == ':';
+}
+
+static bool	SqliteIsRelativePath(const char *z)
+{
+	if ( SqliteIsDriveLetter(z) ) {
+		return false;	// C:\...
+	}
+	if ( SqliteIsDirSep(z[0]) && SqliteIsDirSep(z[1]) ) {
+		return false;	// \\server\share、\\?\...
+	}
+	if ( z[0] == '/' && SqliteIsDriveLetter(z + 1) ) {
+		return false;	// /C:/...（SQLiteはURIのためにこの形も受け付ける）
+	}
+	return true;
+}
+#else
+static bool	SqliteIsRelativePath(const char *z)
+{
+	return z[0] != '/';
+}
+#endif
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  SqliteBaseFullPathname
+ *  機能概要：  SqliteBaseVfsのxFullPathname。相対パスをbasepathにつなげてから既定のVFSに渡します
+ * -----------------------------------------------------------------------
+ */
+static int	SqliteBaseFullPathname(sqlite3_vfs *pVfs, const char *zName, int nOut, char *zOut)
+{
+	SqliteBaseVfs	*p = reinterpret_cast<SqliteBaseVfs *>(pVfs);
+
+	std::string	path(zName);
+#if defined(POSIX)
+	// ほかのファイル関数と同じく \ を / にする（ToFullPathの結果は \ 区切りになっている）
+	fix_filepath(path);
+#endif
+	if ( SqliteIsRelativePath(path.c_str()) ) {
+		size_t	pos = path.find_first_not_of("\\/");
+		path = p->basepath + (pos == std::string::npos ? std::string() : path.substr(pos));
+	}
+
+	return p->orig->xFullPathname(p->orig, path.c_str(), nOut, zOut);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  SqliteBaseVfsCreate
+ *  機能概要：  SqliteBaseVfsを作って登録します。失敗したらNULL
+ * -----------------------------------------------------------------------
+ */
+static SqliteBaseVfs	*SqliteBaseVfsCreate(const yaya::string_t &basepath)
+{
+	sqlite3_vfs	*orig = sqlite3_vfs_find(NULL);
+	if ( orig == NULL ) {
+		return NULL;
+	}
+
+	SqliteBaseVfs	*p = new SqliteBaseVfs;
+	p->vfs = *orig;
+	p->orig = orig;
+
+	char	buf[64];
+	sprintf(buf, "yaya-%p", static_cast<void *>(p));
+	p->name = buf;
+	p->basepath = WideToUtf8(basepath);
+
+	p->vfs.pNext = NULL;
+	p->vfs.zName = p->name.c_str();
+	p->vfs.xFullPathname = SqliteBaseFullPathname;
+
+	if ( sqlite3_vfs_register(&p->vfs, 0) != SQLITE_OK ) {
+		delete p;
+		return NULL;
+	}
+	return p;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  SqliteBaseVfsDestroy
+ *  機能概要：  SqliteBaseVfsの登録を解除して破棄します。使っている接続を閉じてから呼ぶこと
+ * -----------------------------------------------------------------------
+ */
+static void	SqliteBaseVfsDestroy(SqliteBaseVfs *p)
+{
+	if ( p ) {
+		sqlite3_vfs_unregister(&p->vfs);
+		delete p;
+	}
+}
+
+/* -----------------------------------------------------------------------
  *  クラス名：  CSqliteConn
  *  機能概要：  開いている1つのデータベースと、その準備済みステートメントを保持します
  *
@@ -54,13 +182,15 @@ class	CSqliteConn
 public:
 	yaya::string_t	name;
 	sqlite3			*db;
+	SqliteBaseVfs	*vfs;
 	SqliteStmtCache	cache;
 
-	CSqliteConn(const yaya::string_t &n, sqlite3 *d) : name(n), db(d) {}
+	CSqliteConn(const yaya::string_t &n, sqlite3 *d, SqliteBaseVfs *v) : name(n), db(d), vfs(v) {}
 	~CSqliteConn(void)
 	{
 		ClearCache();
 		sqlite3_close_v2(db);
+		SqliteBaseVfsDestroy(vfs);
 	}
 
 	void	ClearCache(void);
@@ -290,10 +420,12 @@ CSqliteConn	*CSqliteDB::Find(const yaya::string_t &name) const
  *  機能概要：  データベースを開きます
  *
  *  modeは "rwc"（読み書き、無ければ作る。省略時）/ "rw"（読み書き）/ "r"（読み取り専用）
+ *  SQLの中に書いた相対パスはbasepathから解決する
  *  返値　　：　SQLDB_OK / SQLDB_ALREADY_OPEN / SQLDB_BAD_MODE / SQLDB_ERROR（errstrに詳細）
  * -----------------------------------------------------------------------
  */
-int	CSqliteDB::Open(const yaya::string_t &name, const yaya::string_t &mode, yaya::string_t &errstr)
+int	CSqliteDB::Open(const yaya::string_t &name, const yaya::string_t &mode, const yaya::string_t &basepath,
+			yaya::string_t &errstr)
 {
 	if ( Find(name) ) {
 		return SQLDB_ALREADY_OPEN;
@@ -313,16 +445,23 @@ int	CSqliteDB::Open(const yaya::string_t &name, const yaya::string_t &mode, yaya
 		return SQLDB_BAD_MODE;
 	}
 
+	SqliteBaseVfs	*vfs = SqliteBaseVfsCreate(basepath);
+	if ( ! vfs ) {
+		errstr = Utf8ToWide(sqlite3_errstr(SQLITE_ERROR));
+		return SQLDB_ERROR;
+	}
+
 	sqlite3	*db = NULL;
-	int	rc = sqlite3_open_v2(WideToUtf8(name).c_str(), &db, flags, NULL);
+	int	rc = sqlite3_open_v2(WideToUtf8(name).c_str(), &db, flags, vfs->name.c_str());
 	if ( rc != SQLITE_OK ) {
 		errstr = Utf8ToWide(db ? sqlite3_errmsg(db) : sqlite3_errstr(rc));
 		sqlite3_close_v2(db);
+		SqliteBaseVfsDestroy(vfs);
 		return SQLDB_ERROR;
 	}
 	sqlite3_busy_timeout(db, SQLDB_BUSY_TIMEOUT);
 
-	connlist.push_back(new CSqliteConn(name, db));
+	connlist.push_back(new CSqliteConn(name, db, vfs));
 	return SQLDB_OK;
 }
 

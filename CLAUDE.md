@@ -155,6 +155,7 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 - SQLite 本体は `sqlite3_yaya.c` がコンパイルオプション（`SQLITE_OMIT_LOAD_EXTENSION` など）を定義してから `sqlite/sqlite3.c` を `#include` する。オプションはここだけで決め、`.dsp` や makefile には書かない。C としてコンパイルすること（makefile では `$(CC)` の専用ルール。g++ に `.c` を渡すと C++ 扱いで通らない）
 - 接続の管理と実行は `sqlitedb.cpp` の `CSqliteDB`（`vm.sqlite()`）、引数の検査とログは `sysfunc.cpp`（`SqlExecute` など）。`CFile` と同じくデータベースはパスの文字列（`ToFullPath` の結果、`":memory:"` はそのまま）で識別する。`./` などは正規化しないので、書き方が違えば別の接続になる
 - `CSqliteDB` のコピーコンストラクタは接続を引き継がない（`CAyaVM` のディープコピーで同じ `sqlite3*` を二重に閉じないため）。unload では `CBasis::Termination` が `CloseAll` する
+- SQL の中に書いたパス（`ATTACH DATABASE`、`VACUUM INTO` など）は SQLite にそのまま渡る。相対パスを `base_path` から解決するため、`CSqliteDB::Open` は既定の VFS を写して `xFullPathname` だけ差し替えた VFS（`SqliteBaseVfs`）を接続ごとに登録し、その接続で使う。POSIX ではここで `fix_filepath` も通す（`ToFullPath` の結果は `\` 区切りのため）
 - 準備済みステートメントは接続ごとに SQL 文字列をキーにしてキャッシュする。初回は1文ずつ prepare → 実行する（`CREATE TABLE t...; CREATE INDEX ... ON t` のように前の文が作った表を次の文が参照すると、まとめて prepare できないため）
 - パラメータは `args[2]` 以降。すべてスカラーなら1回実行、すべて配列/ハッシュなら1つを1回分として繰り返す（関数呼び出しで外側の配列が展開されるのを利用している）。値の対応は 整数/実数/文字列/VOID ↔ INTEGER/REAL/TEXT/NULL、BLOB は16進数の文字列
 - 動作確認は EXE 構成の `yaya.exe` を標準入出力で動かす（`load:長さ\r\n<パス>` → `request:長さ\r\n<要求>` → `unload:0`）。辞書で戻り値を捨てる呼び出しは `_d = SQLEXEC(...)` のように代入しないと、関数の返り値の候補に混ざる

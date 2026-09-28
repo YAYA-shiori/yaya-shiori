@@ -9176,7 +9176,7 @@ CValue	CSystemFunction::SQLOPEN(CSF_FUNCPARAM &p)
 	}
 
 	yaya::string_t	errstr;
-	int	result = vm.sqlite().Open(SqlDbName(p.arg.array()[0].s_value), mode, errstr);
+	int	result = vm.sqlite().Open(SqlDbName(p.arg.array()[0].s_value), mode, vm.basis().GetRootPath(), errstr);
 
 	switch ( result ) {
 	case SQLDB_OK:
