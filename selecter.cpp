@@ -73,6 +73,40 @@ void	CSelecter::Append(const CValue &value)
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CSelecter::MeltArray
+ *  機能概要：  配列の候補を、要素ひとつひとつの候補にばらします
+ *
+ *  meltを指定した関数の一番外側の{}で使います。溶かし先の{}が無いので、自分の候補の中でばらします。
+ * -----------------------------------------------------------------------
+ */
+void	CSelecter::MeltArray(void)
+{
+	for(size_t i = 0; i < values.size(); ++i) {
+		std::vector<CValue>	&target = values[i].array;
+		std::vector<CValue>	melted;
+
+		for(size_t j = 0; j < target.size(); ++j) {
+			if (target[j].IsArray()) {
+				const CValueArray &elems = target[j].array();
+				for(size_t k = 0; k < elems.size(); ++k) {
+					CValue elem(elems[k]);
+					if (elem.GetType() != F_TAG_VOID)
+						melted.emplace_back(elem);
+				}
+			}
+			else
+				melted.emplace_back(target[j]);
+		}
+
+		// 空の配列しか無くて途中の領域が空になった場合は、AddAreaと同じくダミーの空文字列を置く
+		if (!melted.size() && target.size() && i < areanum)
+			melted.emplace_back(CValue());
+
+		target.swap(melted);
+	}
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CSelecter::Output
  *  機能概要：  各領域から値を抽出して出力を作成し返します
  *  引数　　：  duplctl 重複回避情報へのポインタ

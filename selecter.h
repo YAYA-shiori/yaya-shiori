@@ -131,6 +131,7 @@ public:
 
 	void	AddArea(void);
 	void	Append(const CValue &value);
+	void	MeltArray(void);
 	CValue	Output(void);
 	size_t	OutputNum();
 

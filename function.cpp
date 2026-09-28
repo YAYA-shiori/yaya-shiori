@@ -201,7 +201,7 @@ CFunction::ExecutionResult	CFunction::ExecuteEval(CLocalVariable &lvar)
 void CFunction::Execute_SEHhelper(CFunction::ExecutionResult& aret, CLocalVariable& lvar, int& exitcode)
 {
 	SReturnWithParamExpr returnExpr;
-	aret = ExecuteInBrace(1, lvar, BRACE_DEFAULT, exitcode, NULL, 0, &returnExpr);
+	aret = ExecuteInBrace(1, lvar, BRACE_DEFAULT, exitcode, NULL, NULL, 0, &returnExpr);
 }
 
 void CFunction::Execute_SEHbody(ExecutionResult& retas, CLocalVariable& lvar, int& exitcode)
@@ -229,13 +229,14 @@ void CFunction::Execute_SEHbody(ExecutionResult& retas, CLocalVariable& lvar, in
  *  機能概要：  {}を実行し、結果をひとつ返します
  *  引数　　　  type     この{}の種別。ただし0～の場合はswitch構文の際の候補抽出位置
  *  　　　　　  exitcode 終了コード。ST_NOP/ST_BREAK/ST_RETURN/ST_CONTINUE=通常/break/return/continue
+ *  　　　　　  pUpperOutput すぐ外側の{}の出力候補。meltの溶かし先。関数の一番外側の{}ではNULL
  *
  *  "{}"内の各ステートメントを実行します。引数lineで指定される位置から実行を開始し、"}"に突き当たるまで
  *  順次実行していきます。
  *  返値は実行を終了した"}"の位置です。
  * -----------------------------------------------------------------------
  */
-CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalVariable &lvar, yaya::int_t type, int &exitcode, std::vector<CVecValue>* UpperLvCandidatePool,bool inpool, SReturnWithParamExpr* pReturnExpr)
+CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalVariable &lvar, yaya::int_t type, int &exitcode, CSelecter* pUpperOutput, std::vector<CVecValue>* UpperLvCandidatePool,bool inpool, SReturnWithParamExpr* pReturnExpr)
 {
 	// 開始時の処理
 	lvar.AddDepth();
@@ -265,7 +266,6 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 	}
 	if(!UpperLvCandidatePool){
 		UpperLvCandidatePool = &output.values;
-		meltblock = 0;
 	}
 
 	const bool inpool_to_next = (!inmutiarea ? !notpoolblock : false);
@@ -278,7 +278,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 
 		switch(st.type) {
 		case ST_OPEN: {					// "{"
-			ExecutionInBraceResult info = ExecuteInBrace(i + 1, lvar, BRACE_DEFAULT, exitcode, UpperLvCandidatePool, inpool_to_next, pReturnExpr);
+			ExecutionInBraceResult info = ExecuteInBrace(i + 1, lvar, BRACE_DEFAULT, exitcode, &output, UpperLvCandidatePool, inpool_to_next, pReturnExpr);
 			i = info.linenum;
 			output.Append(info.Output());
 			break;
@@ -298,7 +298,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 		case ST_IF:						// if
 			ifflg = 0;
 			if (GetFormulaAnswer(lvar, st).GetTruth()) {
-				ExecutionInBraceResult info = ExecuteInBrace(i + 2, lvar, BRACE_DEFAULT, exitcode, UpperLvCandidatePool, inpool_to_next, pReturnExpr);
+				ExecutionInBraceResult info = ExecuteInBrace(i + 2, lvar, BRACE_DEFAULT, exitcode, &output, UpperLvCandidatePool, inpool_to_next, pReturnExpr);
 				i = info.linenum;
 				output.Append(info.Output());
 				ifflg = 1;
@@ -310,7 +310,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 			if (ifflg)
 				i = st.jumpto;
 			else if (GetFormulaAnswer(lvar, st).GetTruth()) {
-				ExecutionInBraceResult info = ExecuteInBrace(i + 2, lvar, BRACE_DEFAULT, exitcode, UpperLvCandidatePool, inpool_to_next, pReturnExpr);
+				ExecutionInBraceResult info = ExecuteInBrace(i + 2, lvar, BRACE_DEFAULT, exitcode, &output, UpperLvCandidatePool, inpool_to_next, pReturnExpr);
 				i = info.linenum;
 				output.Append(info.Output());
 				ifflg = 1;
@@ -322,7 +322,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 			if (ifflg)
 				i = st.jumpto;
 			else {
-				ExecutionInBraceResult info = ExecuteInBrace(i + 2, lvar, BRACE_DEFAULT, exitcode, UpperLvCandidatePool, inpool_to_next, pReturnExpr);
+				ExecutionInBraceResult info = ExecuteInBrace(i + 2, lvar, BRACE_DEFAULT, exitcode, &output, UpperLvCandidatePool, inpool_to_next, pReturnExpr);
 				i = info.linenum;
 				output.Append(info.Output());
 			}
@@ -352,7 +352,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 				while ( (loop_max == 0) || (loop_max > loop_cur++) ) {
 					if (!GetFormulaAnswer(lvar, st).GetTruth())
 						break;
-					CValue t_value = ExecuteInBrace(i + 2, lvar, BRACE_LOOP, exitcode, UpperLvCandidatePool, inpool_to_next, pReturnExpr);
+					CValue t_value = ExecuteInBrace(i + 2, lvar, BRACE_LOOP, exitcode, &output, UpperLvCandidatePool, inpool_to_next, pReturnExpr);
 					output.Append(t_value);
 
 					if (exitcode == ST_BREAK) {
@@ -397,7 +397,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 				while ( (loop_max == 0) || (loop_max > loop_cur++) ) {
 					if (!GetFormulaAnswer(lvar, statement[i + 1]).GetTruth()) //for第二パラメータ
 						break;
-					CValue t_value = ExecuteInBrace(i + 4, lvar, BRACE_LOOP, exitcode, UpperLvCandidatePool, inpool_to_next, pReturnExpr);
+					CValue t_value = ExecuteInBrace(i + 4, lvar, BRACE_LOOP, exitcode, &output, UpperLvCandidatePool, inpool_to_next, pReturnExpr);
 					output.Append(t_value);
 
 					if (exitcode == ST_BREAK) {
@@ -438,7 +438,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 				yaya::int_t sw_index = GetFormulaAnswer(lvar, st).GetValueInt();
 				if (sw_index < 0)
 					sw_index = BRACE_SWITCH_OUT_OF_RANGE;
-				ExecutionInBraceResult info = ExecuteInBrace(i + 2, lvar, sw_index, exitcode, NULL, 0, pReturnExpr);
+				ExecutionInBraceResult info = ExecuteInBrace(i + 2, lvar, sw_index, exitcode, &output, NULL, 0, pReturnExpr);
 				i = info.linenum;
 				output.Append(info.Output());
 			}
@@ -476,14 +476,34 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 	#undef POOL_TO_NEXT
 
 	// return式による候補の上書き
-	if (exitcode == ST_RETURN_PARAM && pReturnExpr && pReturnExpr->used) {
+	const bool returned_with_expr = (exitcode == ST_RETURN_PARAM && pReturnExpr && pReturnExpr->used);
+	if (returned_with_expr) {
 		output.clear();
 		if (pReturnExpr->value.GetType() != F_TAG_NOP)
 			output.Append(pReturnExpr->value);
 	}
 
+	if (meltblock) {
+		if (pUpperOutput) {
+			// 選んだ出力が配列ならばらして、すぐ外側の{}の候補に加える
+			CValue result = output.Output();
+
+			if (result.GetType() == F_TAG_ARRAY) {
+				for(size_t j = 0; j < result.array_size(); ++j) {
+					pUpperOutput->Append(CValue(result.array()[j]));
+				}
+			}
+			else
+				pUpperOutput->Append(result);
+			output.clear();
+		}
+		else if (!returned_with_expr) {
+			// 関数の一番外側の{}は溶かす先が無いので、配列の候補をばらしてから選ぶ
+			output.MeltArray();
+		}
+	}
 	// 候補から出力を選び出す　入れ子の深さが0なら重複回避が働く
-	if (inpool&&!ispoolbegin) {
+	else if (inpool&&!ispoolbegin) {
 		std::vector<CValue>& thepool = UpperLvCandidatePool->rbegin()->array;
 		std::vector<CValue>& thispool = output.values[0].array;
 
@@ -491,20 +511,6 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 			thepool.insert(thepool.end(), output.Output());
 		else
 			thepool.insert(thepool.end(), thispool.begin(), thispool.end());
-		output.clear();
-	}
-
-	if(meltblock){
-		std::vector<CValue>& pool_of_uplv = UpperLvCandidatePool->rbegin()->array;
-		CValue result = output.Output();
-
-		if (result.GetType() == F_TAG_ARRAY) {
-			for(size_t j = 0; j < result.array_size(); ++j) {
-				pool_of_uplv.emplace_back(CValue(result.array()[j]));
-			}
-		}
-		else
-			pool_of_uplv.emplace_back(result);
 		output.clear();
 	}
 	// 終了時の処理
@@ -594,7 +600,7 @@ void	CFunction::Foreach(CLocalVariable &lvar, CSelecter &output,size_t line,int 
 			break;
 		}
 
-		t_value = ExecuteInBrace(line + 3, lvar, BRACE_LOOP, exitcode, UpperLvCandidatePool, inpool, pReturnExpr);
+		t_value = ExecuteInBrace(line + 3, lvar, BRACE_LOOP, exitcode, &output, UpperLvCandidatePool, inpool, pReturnExpr);
 		output.Append(t_value);
 
 		if (exitcode == ST_BREAK) {
