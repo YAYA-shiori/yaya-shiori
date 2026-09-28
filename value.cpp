@@ -912,9 +912,10 @@ void CValue::operator %=(const CValue &value) LVALUE_MODIFIER
  *  operator [] (CValue)
  *
  *  thisの型がyaya::string_tの場合は簡易配列、array()の場合は配列扱いです。
- *  int/doubleでは序数によらずその値が返されます。
+ *  int/doubleは要素が1つの配列とみなし、序数が0ならその値が返されます。
  *
- *  序数が範囲外の場合は空文字列を返します。
+ *  序数が範囲外の場合は、未定義の変数と同じくVOIDを返します。
+ *  範囲指定が範囲外の場合は、空の範囲（文字列なら空文字列、配列なら空の配列）を返します。
  *
  *  引数の型は常にarray()であり、特定のフォーマットに準拠している必要があります。
  *  （呼び出し側でそのように成形する必要があります）
@@ -927,9 +928,11 @@ CValue CValue::operator [](const CValue &value) const
 	int	aoflg = value.DecodeArrayOrder(order, order1, delimiter);
 
 	if (type == F_TAG_INT || type == F_TAG_DOUBLE) {
-		// 数値　序数が0ならthis、1以外では空文字列を返す
+		// 数値　序数が0ならthis、それ以外は範囲外
 		if (!order)
 			return *this;
+		else if (aoflg)
+			return CValue(F_TAG_ARRAY, 0/*dmy*/);
 		else
 			return CValue();
 	}
@@ -943,7 +946,7 @@ CValue CValue::operator [](const CValue &value) const
 		if (aoflg) {
 			// 範囲あり
 			if (order1 < 0 || order >= sz)
-				return CValue();
+				return CValue(yaya::string_t());
 			else {
 				size_t	s_index = (size_t)std::max<yaya::int_t>(static_cast<yaya::int_t>(order), 0);
 				size_t	e_index = (size_t)std::min<yaya::int_t>(static_cast<yaya::int_t>(order1) + 1, sz);
@@ -1002,12 +1005,13 @@ CValue CValue::operator [](const CValue &value) const
 				return CValue(array()[order]);
 			}
 			else {
-				return yaya::string_t();
+				return CValue();
 			}
 		}
 	}
 
-	return yaya::string_t();
+	// VOIDは要素を持たない
+	return CValue();
 }
 
 /* -----------------------------------------------------------------------

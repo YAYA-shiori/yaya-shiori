@@ -50,6 +50,7 @@ public:
 	static bool     CheckInvalidCharset(int charset);
 	static int      CharsetTextToID(const wchar_t *ctxt);
 	static int      CharsetTextToID(const char *ctxt);
+	static int      CharsetTextToIDStrict(const wchar_t *ctxt);
 	static const wchar_t *CharsetIDToTextW(const int charset);
 	static const char    *CharsetIDToTextA(const int charset);
 

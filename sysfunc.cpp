@@ -997,7 +997,13 @@ CValue	CSystemFunction::CHARSETTEXTTOID(CSF_FUNCPARAM &p)
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	return CValue(Ccct::CharsetTextToID(p.arg.array()[0].s_value.c_str()));
+	int charset = Ccct::CharsetTextToIDStrict(p.arg.array()[0].s_value.c_str());
+	if (charset < 0) {
+		vm.logger().Error(E_W, 12, L"CHARSETTEXTTOID : " + p.arg.array()[0].s_value, p.dicname, p.line);
+		SetError(12);
+		return CValue(-1);
+	}
+	return CValue(charset);
 }
 
 /* -----------------------------------------------------------------------
@@ -3253,10 +3259,14 @@ CValue	CSystemFunction::DICLOAD(CSF_FUNCPARAM &p)
 #endif
 	char cset = vm.basis().GetDicCharset();
 
-	if ( p.arg.array_size() >= 2 && p.arg.array()[1].s_value.size() ) {
-		char cx = Ccct::CharsetTextToID(p.arg.array()[1].s_value.c_str());
+	// 文字コードは空文字列・空値なら省略扱い。defaultなら設定ファイルの辞書の文字コードのまま
+	if ( p.arg.array_size() >= 2 && ! p.arg.array()[1].IsVoid() && ! (p.arg.array()[1].IsString() && p.arg.array()[1].s_value.empty()) ) {
+		int cx = GetCharset(p.arg.array()[1], L"DICLOAD", p.dicname, p.line);
+		if ( cx < 0 ) {
+			return CValue(1);
+		}
 		if ( cx != CHARSET_DEFAULT ) {
-			cset = cx;
+			cset = static_cast<char>(cx);
 		}
 	}
 
@@ -6779,7 +6789,12 @@ int CSystemFunction::GetCharset(const CValueSub &var,const wchar_t *fname, const
 
 	if (var.IsString()) {
 		yaya::string_t cset = var.GetValueString();
-		int	charset = Ccct::CharsetTextToID(cset.c_str());
+		int	charset = Ccct::CharsetTextToIDStrict(cset.c_str());
+		if (charset < 0) {
+			vm.logger().Error(E_W, 12, yaya::string_t(fname) + L" : " + cset, d, l);
+			SetError(12);
+			return -1;
+		}
 		return charset;
 	}
 
@@ -6807,7 +6822,7 @@ CValue CSystemFunction::READFMO(CSF_FUNCPARAM &p)
 	if (p.arg.array_size() >= 2) {
 		charset = GetCharset(p.arg.array()[1],L"READFMO", p.dicname, p.line);
 		if ( charset < 0 ) {
-			charset = CHARSET_DEFAULT;
+			return CValue(F_TAG_NOP, 0/*dmy*/);
 		}
 	}
 
@@ -7433,9 +7448,9 @@ CValue	CSystemFunction::DIRECTSSTP(CSF_FUNCPARAM &p)
 
 	int	charset = CHARSET_UTF8;
 	if (p.arg.array_size() > 2) {
-		int cs = GetCharset(p.arg.array()[2],L"DIRECTSSTP", p.dicname, p.line);
-		if ( cs >= 0 ) {
-			charset = cs;
+		charset = GetCharset(p.arg.array()[2],L"DIRECTSSTP", p.dicname, p.line);
+		if ( charset < 0 ) {
+			return CValue(-1);
 		}
 	}
 
