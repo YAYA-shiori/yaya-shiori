@@ -702,8 +702,10 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 			case F_TAG_SURPEQUAL_D:
 			case F_TAG_COMMAEQUAL:
 				{
+					// 代入文の最後の代入は結果を使わないので、値を複製しない
+					bool need_answer = (st.type != ST_FORMULA_SUBST) || (it + 1 != st.serial().end());
 					std_shared_ptr<CValue> tmp_ansv = o_cell.ansv_shared_create();
-					if (Subst(o_cell.value_GetType(), *tmp_ansv.get(), it->index, st, lvar)) {
+					if (Subst(o_cell.value_GetType(), *tmp_ansv.get(), it->index, st, lvar, need_answer)) {
 						pvm->logger().Error(E_E, 33, L"=", dicfilename, st.linecount);
 					}
 					o_cell.ansv_shared() = tmp_ansv;
@@ -1126,10 +1128,13 @@ CVariable*	CFunction::GetSubstVariable(const CCell &vcell, CLocalVariable &lvar)
  *  関数名  ：  CFunction::Subst
  *  機能概要：  代入演算子を処理します
  *
+ *  need_answerがfalseなら、変数への代入ではanswerに結果を入れません
+ *  （入れると文字列や配列を変数と共有し、次の+=などで毎回全体が複製されて2乗の時間がかかる）
+ *
  *  返値　　：  0/1=成功/エラー
  * -----------------------------------------------------------------------
  */
-char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar)
+char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar, bool need_answer)
 {
 	CCell	*sid_0_cell = &(st.cell()[sid[0]]);
 	CCell	*sid_1_cell = &(st.cell()[sid[1]]);
@@ -1213,7 +1218,12 @@ char	CFunction::Subst(int type, CValue &answer, std::vector<size_t> &sid, CState
 
 			// **HACK** constにしてarrayの場合answerと強制共有
 			// 後で代入演算がもしあった時に配列の時の代入コストを省略できる
-			answer = const_cast<const CValue&>(substTo);
+			if ( need_answer ) {
+				answer = const_cast<const CValue&>(substTo);
+			}
+			else {
+				answer = CValue();
+			}
 
 			// グローバル変数の場合、削除済みの場合があるのでここで再Enable
 			if ( sid_0_cell_type == F_TAG_VARIABLE ) {

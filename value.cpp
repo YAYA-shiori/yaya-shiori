@@ -812,7 +812,13 @@ void CValue::operator +=(const CValue &value) LVALUE_MODIFIER
 			return;
 		}
 		if ( t == F_TAG_STRING ) { //文字列時用パフォーマンス向上コード 長い文字列結合時にだいぶマシに
-			s_value += value.GetValueString();
+			// VC6のbasic_stringは容量を32文字ずつしか増やさず、足すたびに全体を複製して2乗の時間がかかるので倍々に確保する
+			const yaya::string_t add = value.GetValueString();
+			yaya::string_t::size_type need = s_value.size() + add.size();
+			if ( need > s_value.capacity() ) {
+				s_value.reserve(need * 2);
+			}
+			s_value += add;
 			return;
 		}
 		if ( t == F_TAG_ARRAY ) { //配列時用パフォーマンス向上コード

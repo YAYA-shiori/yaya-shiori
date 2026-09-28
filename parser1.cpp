@@ -264,9 +264,10 @@ char	CParser1::SetFormulaType(CStatement& st, const yaya::string_t& dicfilename)
 	}
 
 	// 最後に計算する演算子が代入系か否かで種類を判定
+	// 項が2つ以上あって演算順序が無いのは、CheckDepthAndSerialize1が失敗した式だけ
+	// エラーはそこで出してあるので、ここでは重ねて出さない
 	size_t lastsr = st.serial_size();
 	if(!lastsr) {
-		vm.logger().Error(E_E, 83, dicfilename, st.linecount);
 		return 1;
 	}
 
