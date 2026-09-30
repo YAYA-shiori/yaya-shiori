@@ -412,35 +412,40 @@ char	CParser1::CheckIfSyntax(CFunction &func)
 {
 	size_t errcount = 0;
 
+	// 最後の文の後ろも調べる（その場合の行番号は最後の文のもの）
+	const size_t	n = func.statement.size();
 	int	beftype = ST_UNKNOWN;
-	for(std::vector<CStatement>::iterator it2 = func.statement.begin(); it2 != func.statement.end(); it2++) {
-		if (it2->type != ST_OPEN) {
+	for(size_t i = 0; i <= n; i++) {
+		const bool	isopen = (i < n) && func.statement[i].type == ST_OPEN;
+		if (!isopen) {
+			const ptrdiff_t	linecount = n ? func.statement[(i < n) ? i : n - 1].linecount : 0;
 			switch(beftype) {
 			case ST_IF:
-				vm.logger().Error(E_E, 35, func.dicfilename, it2->linecount);
+				vm.logger().Error(E_E, 35, func.dicfilename, linecount);
 				errcount++;
 				break;
 			case ST_ELSEIF:
-				vm.logger().Error(E_E, 36, func.dicfilename, it2->linecount);
+				vm.logger().Error(E_E, 36, func.dicfilename, linecount);
 				errcount++;
 				break;
 			case ST_ELSE:
-				vm.logger().Error(E_E, 37, func.dicfilename, it2->linecount);
+				vm.logger().Error(E_E, 37, func.dicfilename, linecount);
 				errcount++;
 				break;
 			case ST_SWITCH:
-				vm.logger().Error(E_E, 38, func.dicfilename, it2->linecount);
+				vm.logger().Error(E_E, 38, func.dicfilename, linecount);
 				errcount++;
 				break;
 			case ST_WHILE:
-				vm.logger().Error(E_E, 39, func.dicfilename, it2->linecount);
+				vm.logger().Error(E_E, 39, func.dicfilename, linecount);
 				errcount++;
 				break;
 			default:
 				break;
 			};
 		}
-		beftype = it2->type;
+		if (i < n)
+			beftype = func.statement[i].type;
 	}
 
 	return (errcount) ? 1 : 0;
@@ -510,27 +515,32 @@ char	CParser1::CheckForSyntax(CFunction &func)
 {
 	size_t errcount = 0;
 
-	int	beftype[3] = { ST_UNKNOWN, ST_UNKNOWN, ST_UNKNOWN };
-	for(std::vector<CStatement>::iterator it2 = func.statement.begin(); it2 != func.statement.end(); it2++) {
-		if (beftype[2] == ST_FOR) {
-			if (beftype[1] != ST_FORMULA_OUT_FORMULA &&
-				beftype[1] != ST_FORMULA_SUBST) {
-				vm.logger().Error(E_E, 40, func.dicfilename, it2->linecount);
-				errcount++;
-			}
-			if (beftype[0] != ST_FORMULA_OUT_FORMULA &&
-				beftype[0] != ST_FORMULA_SUBST) {
-				vm.logger().Error(E_E, 41, func.dicfilename, it2->linecount);
-				errcount++;
-			}
-			if (it2->type != ST_OPEN) {
-				vm.logger().Error(E_E, 42, func.dicfilename, it2->linecount);
-				errcount++;
-			}
+	// forの後ろに終了条件式・ループ式・{が揃っていない場合も調べる
+	// （足りない文はST_UNKNOWN扱い。行番号は{の位置、無ければ最後の文のもの）
+	const size_t	n = func.statement.size();
+	for(size_t i = 0; i < n; i++) {
+		if (func.statement[i].type != ST_FOR)
+			continue;
+
+		const int	type1 = (i + 1 < n) ? func.statement[i + 1].type : ST_UNKNOWN;
+		const int	type2 = (i + 2 < n) ? func.statement[i + 2].type : ST_UNKNOWN;
+		const int	type3 = (i + 3 < n) ? func.statement[i + 3].type : ST_UNKNOWN;
+		const ptrdiff_t	linecount = func.statement[(i + 3 < n) ? i + 3 : n - 1].linecount;
+
+		if (type1 != ST_FORMULA_OUT_FORMULA &&
+			type1 != ST_FORMULA_SUBST) {
+			vm.logger().Error(E_E, 40, func.dicfilename, linecount);
+			errcount++;
 		}
-		beftype[2] = beftype[1];
-		beftype[1] = beftype[0];
-		beftype[0] = it2->type;
+		if (type2 != ST_FORMULA_OUT_FORMULA &&
+			type2 != ST_FORMULA_SUBST) {
+			vm.logger().Error(E_E, 41, func.dicfilename, linecount);
+			errcount++;
+		}
+		if (type3 != ST_OPEN) {
+			vm.logger().Error(E_E, 42, func.dicfilename, linecount);
+			errcount++;
+		}
 	}
 
 	return (errcount) ? 1 : 0;
@@ -580,25 +590,28 @@ char	CParser1::CheckForeachSyntax(CFunction &func)
 {
 	size_t errcount = 0;
 
-	int	beftype[2]  = { ST_UNKNOWN, ST_UNKNOWN };
-	bool	befisvar = false;
-	for(std::vector<CStatement>::iterator it2 = func.statement.begin(); it2 != func.statement.end(); it2++) {
-		if (beftype[1] == ST_FOREACH) {
-			if (beftype[0] == ST_FORMULA_OUT_FORMULA && befisvar) {
-				// これで正しい
-			}
-			else {
-				vm.logger().Error(E_E, 43, func.dicfilename, it2->linecount);
-				errcount++;
-			}
-			if (it2->type != ST_OPEN) {
-				vm.logger().Error(E_E, 44, func.dicfilename, it2->linecount);
-				errcount++;
-			}
+	// foreachの後ろに変数と{が揃っていない場合も調べる
+	// （行番号は{の位置、無ければ最後の文のもの）
+	const size_t	n = func.statement.size();
+	for(size_t i = 0; i < n; i++) {
+		if (func.statement[i].type != ST_FOREACH)
+			continue;
+
+		const ptrdiff_t	linecount = func.statement[(i + 2 < n) ? i + 2 : n - 1].linecount;
+
+		if (i + 1 < n &&
+			func.statement[i + 1].type == ST_FORMULA_OUT_FORMULA &&
+			IsForeachVarCells(func.statement[i + 1])) {
+			// これで正しい
 		}
-		beftype[1]  = beftype[0];
-		beftype[0]  = it2->type;
-		befisvar    = IsForeachVarCells(*it2);
+		else {
+			vm.logger().Error(E_E, 43, func.dicfilename, linecount);
+			errcount++;
+		}
+		if (i + 2 >= n || func.statement[i + 2].type != ST_OPEN) {
+			vm.logger().Error(E_E, 44, func.dicfilename, linecount);
+			errcount++;
+		}
 	}
 
 	return (errcount) ? 1 : 0;

@@ -1345,7 +1345,7 @@ char	CParser0::DefineFunctions(std::vector<yaya::string_t>& s, const yaya::strin
 			}
 		}
 		else {
-			if ((*it)[it->size()-1]==L':' && *(it+1)==L"{"){
+			if ((*it)[it->size()-1]==L':' && (it+1) != s.end() && *(it+1)==L"{"){
 				*(it+1)=L"";
 				*it+=L"{";
 			}
@@ -2006,12 +2006,14 @@ char	CParser0::AddSimpleIfBrace(CFunction &func)
 			beftype == ST_ELSEIF ||
 			beftype == ST_ELSE ||
 			beftype == ST_WHEN) {
-			if (it2->type != ST_OPEN) {
+			// 次が}の場合は本体が無いので囲まない（CheckIfSyntaxがエラーにする）
+			if (it2->type != ST_OPEN && it2->type != ST_CLOSE) {
 				// { 追加
 				it2 = func.statement.insert(it2, CStatement(ST_OPEN, it2->linecount));
 				it2 += 2;
-				// } 追加
-				it2 = func.statement.insert(it2, CStatement(ST_CLOSE, it2->linecount));
+				// } 追加（本体が最後の文のときはその行番号を使う）
+				ptrdiff_t	closeline = (it2 != func.statement.end()) ? it2->linecount : (it2 - 1)->linecount;
+				it2 = func.statement.insert(it2, CStatement(ST_CLOSE, closeline));
 			}
 		}
 		beftype = it2->type;

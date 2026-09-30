@@ -1140,12 +1140,18 @@ CValue CSystemFunction::BITWISE_SHIFT(CSF_FUNCPARAM &p)
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
+	// シフト量が値の幅（64ビット）以上のときは、左シフトは0、右シフトは符号で埋めた値になる
+	yaya::int_t value = p.arg.array()[0].GetValueInt();
 	yaya::int_t shiftValue = p.arg.array()[1].GetValueInt();
 	if ( shiftValue > 0 ) {
-		return CValue(p.arg.array()[0].GetValueInt() << shiftValue );
+		if ( shiftValue >= 64 ) {
+			return CValue((yaya::int_t)0);
+		}
+		return CValue((yaya::int_t)((std::uint64_t)value << (int)shiftValue) );
 	}
 	else {
-		return CValue(p.arg.array()[0].GetValueInt() >> abs(shiftValue) );
+		int rshift = (shiftValue <= -64) ? 63 : (int)(-shiftValue);
+		return CValue(value >> rshift );
 	}
 }
 /* -----------------------------------------------------------------------
@@ -3500,7 +3506,7 @@ CValue	CSystemFunction::APPEND_RUNTIME_DIC(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::SETGLOBALDEFINE(CSF_FUNCPARAM &p)
 {
-	if(!p.arg.array_size()) {
+	if(p.arg.array_size() < 2) {
 		vm.logger().Error(E_W, 8, L"SETGLOBALDEFINE", p.dicname, p.line);
 		SetError(8);
 		return CValue(-1);
@@ -5119,7 +5125,7 @@ CValue	CSystemFunction::RE_REPLACE(CSF_FUNCPARAM &p)
 	if (p.arg.array_size() < 3) {
 		vm.logger().Error(E_W, 8, L"RE_REPLACE", p.dicname, p.line);
 		SetError(8);
-		return CValue(p.arg.array()[0].GetValueString());
+		return p.arg.array_size() ? CValue(p.arg.array()[0].GetValueString()) : CValue(yaya::string_t());
 	}
 
 	if (!p.arg.array()[0].IsString() ||
@@ -5178,7 +5184,7 @@ CValue	CSystemFunction::RE_REPLACEEX(CSF_FUNCPARAM &p)
 	if (p.arg.array_size() < 3) {
 		vm.logger().Error(E_W, 8, L"RE_REPLACEEX", p.dicname, p.line);
 		SetError(8);
-		return CValue(p.arg.array()[0].GetValueString());
+		return p.arg.array_size() ? CValue(p.arg.array()[0].GetValueString()) : CValue(yaya::string_t());
 	}
 
 	if (!p.arg.array()[0].IsString() ||
@@ -5734,7 +5740,7 @@ CValue	CSystemFunction::LETTONAME(CSF_FUNCPARAM &p)
 	int	sz = p.valuearg.size();
 
 	if (sz < 2) {
-		if ( p.valuearg[0].IsArray() && p.valuearg[0].array_size() >= 2 ) {
+		if ( sz && p.valuearg[0].IsArray() && p.valuearg[0].array_size() >= 2 ) {
 			yaya::string_t	vname = p.valuearg[0].array()[0].GetValueString();
 
 			if ( vname[0] == L'_' ) {
@@ -5811,7 +5817,8 @@ CValue	CSystemFunction::STRFORM(CSF_FUNCPARAM &p)
 	// 各要素ごとに_snwprintfで書式化して結合していく
 	yaya::string_t	left, right;
 	yaya::string_t	result = vargs[0];
-	yaya::char_t	t_str[128];
+	const size_t	t_str_size = 1024;	// 1つの書式指定で展開できる最大文字数（終端を含む）
+	yaya::char_t	t_str[t_str_size];
 	yaya::string_t	t_format;
 
 	for(int i = 1; i < vargs_sz; i++) {
@@ -5877,13 +5884,13 @@ CValue	CSystemFunction::STRFORM(CSF_FUNCPARAM &p)
 		if (i < sz) {
 			switch ( type ) {
 			case F_TAG_INT:
-				yaya::snprintf(t_str,128,t_format.c_str(),p.arg.array()[i].GetValueInt());
+				yaya::snprintf(t_str,t_str_size,t_format.c_str(),p.arg.array()[i].GetValueInt());
 				break;
 			case F_TAG_DOUBLE:
-				yaya::snprintf(t_str,128,t_format.c_str(),p.arg.array()[i].GetValueDouble());
+				yaya::snprintf(t_str,t_str_size,t_format.c_str(),p.arg.array()[i].GetValueDouble());
 				break;
 			case F_TAG_STRING:
-				yaya::snprintf(t_str,128,t_format.c_str(),p.arg.array()[i].GetValueString().c_str());
+				yaya::snprintf(t_str,t_str_size,t_format.c_str(),p.arg.array()[i].GetValueString().c_str());
 				break;
 			case F_TAG_VOID:
 				t_str[0] = 0;

@@ -445,12 +445,17 @@ int yaya::snprintf(yaya::char_t* buf, size_t count, const yaya::char_t* format, 
 	//標準非互換
 	result = _vsnwprintf(buf,count,format,list);
 #else
-	result = vswprintf(buf,count*2,format,list);
+	result = vswprintf(buf,count,format,list);
 #endif
 #else
-	result = vswprintf(buf,count*2,format,list);
+	result = vswprintf(buf,count,format,list);
 #endif
 
 	va_end (list);
+
+	// 入りきらなかったときも必ず終端する（入りきったときはvswprintfが終端済み）
+	if (count && (result < 0 || (size_t)result >= count)) {
+		buf[count - 1] = L'\0';
+	}
 	return result;
 }

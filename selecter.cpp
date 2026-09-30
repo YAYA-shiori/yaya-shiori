@@ -145,7 +145,12 @@ CValue	CSelecter::Output()
 		case CHOICETYPE_ALL:
 			return StructString();
 		case CHOICETYPE_LAST:
-			return *values.rbegin()->array.rbegin();
+			// ÅŒã‚Ì‹ó‚Å‚È‚¢—Ìˆæ‚ÌÅŒã‚ÌŒó•â@‘S‚Ä‚Ì—Ìˆæ‚ª‹ó‚È‚çVOID
+			for(size_t i = areanum + 1; i > 0; i--) {
+				if (values[i - 1].array.size())
+					return values[i - 1].array.back();
+			}
+			return CValue();
 		}
 
 	switch ( duplctl->GetType() & CHOICETYPE_SELECT_FILTER ) {
