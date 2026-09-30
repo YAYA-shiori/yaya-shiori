@@ -2981,8 +2981,10 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 		// 見つかった場合は引数つき関数扱いに書き換える。
 		// 関数が見つからない場合は通常の配列ということになる
 		if (t_type == F_TAG_COMMA) {
+			// 左の項が括弧の中にあるとき（F((1), &x) など）、その項の右にある")"を数え落とさないよう、
+			// 左の項の位置ではなく","の直前から括弧の対応を数える
 			f_depth = 1;
-			for( ; i >= 0; i--) {
+			for(i = t_index - 1; i >= 0; i--) {
 				// カッコ深さ検査
 				if (F_TAG_ISIN(st.cell()[i].value_GetType()))
 					f_depth--;
