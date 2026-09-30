@@ -24,6 +24,8 @@ yaya::string_t::size_type Find_IgnoreDQ(const yaya::string_t &str, const yaya::s
 yaya::string_t::size_type find_last_str(const yaya::string_t &str, const yaya::char_t *findstr);
 yaya::string_t::size_type find_last_str(const yaya::string_t &str, const yaya::string_t &findstr);
 
+void	SplitPathParts(const yaya::string_t &path, yaya::string_t &drive, yaya::string_t &dir, yaya::string_t &fname, yaya::string_t &ext);
+
 char	Split(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::char_t *sepstr);
 char	Split(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, const yaya::string_t &sepstr);
 char	SplitOnly(const yaya::string_t &str, yaya::string_t &dstr0, yaya::string_t &dstr1, yaya::char_t *sepstr);

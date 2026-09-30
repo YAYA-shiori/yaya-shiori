@@ -356,8 +356,14 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 			{
 				size_t loop_max = pvm->call_limit().GetMaxLoop();
 				size_t loop_cur = 0;
+				bool loop_limited = false; //上限に達して打ち切ったときだけ真（自然終了やbreakでは偽）
 
-				while ( (loop_max == 0) || (loop_max > loop_cur++) ) {
+				while ( true ) {
+					if ( loop_max != 0 && loop_max <= loop_cur ) {
+						loop_limited = true;
+						break;
+					}
+					++loop_cur;
 					if (!GetFormulaAnswer(lvar, st).GetTruth())
 						break;
 					CValue t_value = ExecuteInBrace(i + 2, lvar, BRACE_LOOP, exitcode, &output, UpperLvCandidatePool, inpool_to_next, pReturnExpr);
@@ -375,7 +381,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 						exitcode = ST_NOP;
 				}
 
-				if (loop_max && loop_max <= loop_cur ) {
+				if (loop_limited) {
 					CBasisFuncPos shiori_OnLoopLimit;
 					ptrdiff_t funcpos = shiori_OnLoopLimit.Find(*pvm, L"shiori.OnLoopLimit");
 
@@ -401,8 +407,14 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 
 				size_t loop_max = pvm->call_limit().GetMaxLoop();
 				size_t loop_cur = 0;
+				bool loop_limited = false; //上限に達して打ち切ったときだけ真（自然終了やbreakでは偽）
 
-				while ( (loop_max == 0) || (loop_max > loop_cur++) ) {
+				while ( true ) {
+					if ( loop_max != 0 && loop_max <= loop_cur ) {
+						loop_limited = true;
+						break;
+					}
+					++loop_cur;
 					if (!GetFormulaAnswer(lvar, statement[i + 1]).GetTruth()) //for第二パラメータ
 						break;
 					CValue t_value = ExecuteInBrace(i + 4, lvar, BRACE_LOOP, exitcode, &output, UpperLvCandidatePool, inpool_to_next, pReturnExpr);
@@ -422,7 +434,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 					GetFormulaAnswer(lvar, statement[i + 2]); //for第三パラメータ
 				}
 
-				if (loop_max && loop_max <= loop_cur ) {
+				if (loop_limited) {
 					CBasisFuncPos shiori_OnLoopLimit;
 					ptrdiff_t funcpos = shiori_OnLoopLimit.Find(*pvm, L"shiori.OnLoopLimit");
 
@@ -668,6 +680,7 @@ void	CFunction::Foreach(CLocalVariable &lvar, CSelecter &output,size_t line,int 
 const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 {
 	size_t	o_index = 0;
+	CValue	lv_hold;	// 右辺で変数が消されても左辺が残るように、必要なときだけ左辺を複製しておく
 
 	if ( st.serial_size() ) { //高速化用
 		for (std::vector<CSerial>::iterator it = st.serial().begin(); it != st.serial().end(); it++) {
@@ -723,13 +736,13 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 					// これを怠ると右辺から先に計算する
 					// 以降同じ
 
-					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					const CValue& lv = GetLeftValueRef(*s_cell, d_cell, lv_hold, st, lvar);
 					o_cell.ansv() = lv + GetValueRefForCalc(*d_cell, st, lvar);
 					break;
 				}
 			case F_TAG_MINUS:
 				{
-					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					const CValue& lv = GetLeftValueRef(*s_cell, d_cell, lv_hold, st, lvar);
 					const CValue& rv = GetValueRefForCalc(*d_cell, st, lvar);
 					WarnHashCalc(lv, rv, L"-", st);
 					o_cell.ansv() = lv - rv;
@@ -737,7 +750,7 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 				}
 			case F_TAG_MUL:
 				{
-					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					const CValue& lv = GetLeftValueRef(*s_cell, d_cell, lv_hold, st, lvar);
 					const CValue& rv = GetValueRefForCalc(*d_cell, st, lvar);
 					WarnHashCalc(lv, rv, L"*", st);
 					o_cell.ansv() = lv * rv;
@@ -745,7 +758,7 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 				}
 			case F_TAG_DIV:
 				{
-					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					const CValue& lv = GetLeftValueRef(*s_cell, d_cell, lv_hold, st, lvar);
 					const CValue& rv = GetValueRefForCalc(*d_cell, st, lvar);
 					WarnHashCalc(lv, rv, L"/", st);
 					o_cell.ansv() = lv / rv;
@@ -753,7 +766,7 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 				}
 			case F_TAG_SURP:
 				{
-					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					const CValue& lv = GetLeftValueRef(*s_cell, d_cell, lv_hold, st, lvar);
 					const CValue& rv = GetValueRefForCalc(*d_cell, st, lvar);
 					WarnHashCalc(lv, rv, L"%", st);
 					o_cell.ansv() = lv % rv;
@@ -761,50 +774,50 @@ const CValue& CFunction::GetFormulaAnswer(CLocalVariable &lvar, CStatement &st)
 				}
 			case F_TAG_IFEQUAL:
 				{
-					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					const CValue& lv = GetLeftValueRef(*s_cell, d_cell, lv_hold, st, lvar);
 					o_cell.ansv() = lv == GetValueRefForCalc(*d_cell, st, lvar);
 					break;
 				}
 			case F_TAG_IFDIFFER:
 				{
-					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					const CValue& lv = GetLeftValueRef(*s_cell, d_cell, lv_hold, st, lvar);
 					o_cell.ansv() = lv != GetValueRefForCalc(*d_cell, st, lvar);
 					break;
 				}
 			case F_TAG_IFGTEQUAL:
 				{
-					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					const CValue& lv = GetLeftValueRef(*s_cell, d_cell, lv_hold, st, lvar);
 					o_cell.ansv() = lv >= GetValueRefForCalc(*d_cell, st, lvar);
 					break;
 				}
 			case F_TAG_IFLTEQUAL:
 				{
-					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					const CValue& lv = GetLeftValueRef(*s_cell, d_cell, lv_hold, st, lvar);
 					o_cell.ansv() = lv <= GetValueRefForCalc(*d_cell, st, lvar);
 					break;
 				}
 			case F_TAG_IFGT:
 				{
-					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					const CValue& lv = GetLeftValueRef(*s_cell, d_cell, lv_hold, st, lvar);
 					o_cell.ansv() = lv > GetValueRefForCalc(*d_cell, st, lvar);
 					break;
 				}
 			case F_TAG_IFLT:
 				{
-					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					const CValue& lv = GetLeftValueRef(*s_cell, d_cell, lv_hold, st, lvar);
 					o_cell.ansv() = lv < GetValueRefForCalc(*d_cell, st, lvar);
 					break;
 				}
 			case F_TAG_IFIN:
 				{
-					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					const CValue& lv = GetLeftValueRef(*s_cell, d_cell, lv_hold, st, lvar);
 					o_cell.ansv().SetType(F_TAG_INT);
 					o_cell.ansv().i_value = _in_(lv,GetValueRefForCalc(*d_cell, st, lvar));
 					break;
 				}
 			case F_TAG_IFNOTIN:
 				{
-					const CValue& lv = GetValueRefForCalc(*s_cell, st, lvar);
+					const CValue& lv = GetLeftValueRef(*s_cell, d_cell, lv_hold, st, lvar);
 					o_cell.ansv().SetType(F_TAG_INT);
 					o_cell.ansv().i_value = not_in_(lv,GetValueRefForCalc(*d_cell, st, lvar));
 					break;
@@ -921,6 +934,31 @@ const CValue& CFunction::GetValueRefForCalc(CCell &cell, CStatement &st, CLocalV
 		pvm->logger().Error(E_E, 16, dicfilename, st.linecount);
 		return emptyvalue;
 	};
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFunction::GetLeftValueRef
+ *  機能概要：  二項演算の左辺の値を取得します
+ *
+ *  左辺が変数で、右辺がこれから実行される関数の項（引数なしの関数）のとき、
+ *  右辺の関数がERASEVARで左辺の変数を消すと、参照が解放済みの値を指してしまいます。
+ *  その場合だけ左辺の値をholdに複製して返します。
+ * -----------------------------------------------------------------------
+ */
+const CValue& CFunction::GetLeftValueRef(CCell &s_cell, const CCell *d_cell, CValue &hold, CStatement &st, CLocalVariable &lvar)
+{
+	const CValue &lv = GetValueRefForCalc(s_cell, st, lvar);
+
+	if (d_cell) {
+		int	stype = s_cell.value_GetType();
+		int	dtype = d_cell->value_GetType();
+		if ((stype == F_TAG_VARIABLE || stype == F_TAG_LOCALVARIABLE) && (dtype == F_TAG_USERFUNC || dtype == F_TAG_SYSFUNC)) {
+			hold = lv;
+			return hold;
+		}
+	}
+
+	return lv;
 }
 
 /* -----------------------------------------------------------------------
@@ -1088,14 +1126,21 @@ char	CFunction::CommaAdd(CValue &answer, std::vector<size_t> &sid, CStatement &s
 		answer.SetType(F_TAG_ARRAY);
 		answer.array().emplace_back(st);
 	}
-	CValueArray &t_array = answer.array();
 
 	std::vector<size_t>::iterator it = sid.begin();
 	it++; //最初＝左辺は代入先なので飛ばす
 
 	for( ; it != sid.end(); it++) {
 		const CValue &addv = GetValueRefForCalc(st.cell()[*it], st, lvar);
-		
+
+		// 右辺の関数が左辺の変数を代入し直すことがあるので、右辺を評価したあとに配列を取り直す
+		if ( answer.GetType() != F_TAG_ARRAY ) {
+			CValue t_first(answer);
+			answer.SetType(F_TAG_ARRAY);
+			answer.array().emplace_back(t_first);
+		}
+		CValueArray &t_array = answer.array();
+
 		if (&addv == &answer) {
 			// _a ,= _a　自分自身を追加する場合は、先に複製しておく
 			CValueArray t_self(t_array);
@@ -1649,9 +1694,15 @@ char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, C
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);	
 	std::vector<size_t>::size_type sidsize = sid.size();
 
+	// 各引数が _argv のどこから何個を占めるか（配列引数は展開されるので引数の位置とは一致しない）
+	std::vector<size_t>	argoffset;
+	std::vector<size_t>	argwidth;
+	std::vector<char>	argisarray;
+
 	for( ; it != sid.end(); it++) {
 		const CValue &addv = GetValueRefForCalc(st.cell()[*it], st, lvar);
 		
+		argoffset.push_back(arg.array_size());
 		if (addv.GetType() == F_TAG_ARRAY) {
 			if ( sidsize <= 2 ) { //配列1つのみが与えられている->最適化のためスマートポインタ代入のみで済ませる
 				arg.array_shared() = addv.array_shared();
@@ -1659,10 +1710,13 @@ char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, C
 			else {
 				arg.array().insert(arg.array().end(), addv.array().begin(), addv.array().end());
 			}
+			argisarray.push_back(1);
 		}
 		else {
 			arg.array().emplace_back(CValue(addv));
+			argisarray.push_back(0);
 		}
+		argwidth.push_back(arg.array_size() - argoffset.back());
 	}
 
 	// 関数を取得　引数の中で関数表が差し替えられることがあるので、引数を作ってから引く
@@ -1679,13 +1733,28 @@ char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, C
 
 	// フィードバック
 	const CValue *v_argv = &(t_lvar.GetArgvPtr()->value_const());
-	int	i = 0;
+	size_t	i = 0;
 	int	errcount = 0;
+	const size_t	argv_size = v_argv->array_size();
 
 	for(it = sid.begin() + 1; it != sid.end(); it++, i++) {
 		if (st.cell()[*it].value_GetType() == F_TAG_FEEDBACK) {
 			CValue	v_value;
-			v_value = v_argv->array()[i];
+			if (argisarray[i]) {
+				// 配列を渡していたときは、展開された範囲を配列に戻して書き戻す
+				// 呼ばれた関数が _argv を縮めていたら、残っている分だけを戻す
+				size_t	wbeg = std::min(argoffset[i], argv_size);
+				size_t	wend = std::min(argoffset[i] + argwidth[i], argv_size);
+				v_value = CValue(F_TAG_ARRAY, 0/*dmy*/);
+				v_value.array().assign(v_argv->array().begin() + wbeg, v_argv->array().begin() + wend);
+			}
+			else if (argoffset[i] < argv_size) {
+				v_value = v_argv->array()[argoffset[i]];
+			}
+			else {
+				// 呼ばれた関数が _argv を縮めていたら、その引数は書き戻さない
+				continue;
+			}
 
 			if (st.cell()[*it].order_const().GetType() != F_TAG_NOP) {
 				// 配列要素へは通常の代入と同じく配列序数演算子の位置から書き戻す
@@ -1711,7 +1780,6 @@ char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, C
 		}
 	}
 
-	assert((errcount == 0)||(errcount == 1));
 	return errcount ? 1 : 0;
 }
 

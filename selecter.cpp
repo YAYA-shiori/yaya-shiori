@@ -234,9 +234,11 @@ CValue	CSelecter::ChoiceRandom(void)
 size_t	CSelecter::ChoiceRandom_NumGet(void)
 {
 	if (areanum) {
-		size_t aret=0;
+		// —Ìˆæ‚²‚Æ‚ÌŒó•â”‚ÌÏi‹ó‚Ì—Ìˆæ‚Í”‚¦‚È‚¢@CDuplEvInfo::UpdateNums‚Æ“¯‚¶j
+		size_t aret=1;
 		for (size_t i = 0; i <= areanum; i++)
-			aret *= values[i].array.size();
+			if (values[i].array.size())
+				aret *= values[i].array.size();
 		return aret;
 	}
 	else

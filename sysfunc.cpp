@@ -2668,13 +2668,12 @@ CValue	CSystemFunction::FCOPY(CSF_FUNCPARAM &p)
 	}
 
 	// 絶対パス化
-	yaya::char_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
-	_wsplitpath(p.arg.array()[0].s_value.c_str(), drive, dir, fname, ext);
-	yaya::string_t	s_path = ((::wcslen(drive)) ? yaya::string_t() : vm.basis().base_path) + p.arg.array()[0].s_value;
+	yaya::string_t	drive, dir, fname, ext, fname2, ext2;
+	SplitPathParts(p.arg.array()[0].s_value, drive, dir, fname, ext);
+	yaya::string_t	s_path = (drive.size() ? yaya::string_t() : vm.basis().base_path) + p.arg.array()[0].s_value;
 
-	yaya::char_t	fname2[_MAX_FNAME], ext2[_MAX_EXT];
-	_wsplitpath(p.arg.array()[1].s_value.c_str(), drive, dir, fname2, ext2);
-	yaya::string_t	d_path = ((::wcslen(drive)) ?
+	SplitPathParts(p.arg.array()[1].s_value, drive, dir, fname2, ext2);
+	yaya::string_t	d_path = (drive.size() ?
 						yaya::string_t() : vm.basis().base_path) + p.arg.array()[1].s_value + L"\\" + fname + ext;
 
 	int result;
@@ -2783,13 +2782,12 @@ CValue	CSystemFunction::FMOVE(CSF_FUNCPARAM &p)
 	}
 
 	// 絶対パス化
-	yaya::char_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
-	_wsplitpath(p.arg.array()[0].s_value.c_str(), drive, dir, fname, ext);
-	yaya::string_t	s_path = ((::wcslen(drive)) ? yaya::string_t() : vm.basis().base_path) + p.arg.array()[0].s_value;
+	yaya::string_t	drive, dir, fname, ext, fname2, ext2;
+	SplitPathParts(p.arg.array()[0].s_value, drive, dir, fname, ext);
+	yaya::string_t	s_path = (drive.size() ? yaya::string_t() : vm.basis().base_path) + p.arg.array()[0].s_value;
 
-	yaya::char_t	fname2[_MAX_FNAME], ext2[_MAX_EXT];
-	_wsplitpath(p.arg.array()[1].s_value.c_str(), drive, dir, fname2, ext2);
-	yaya::string_t	d_path = ((::wcslen(drive)) ?
+	SplitPathParts(p.arg.array()[1].s_value, drive, dir, fname2, ext2);
+	yaya::string_t	d_path = (drive.size() ?
 						yaya::string_t() : vm.basis().base_path) + p.arg.array()[1].s_value + L"\\" + fname + ext;
 
 	int result;
@@ -2901,7 +2899,7 @@ CValue CSystemFunction::MKDIR(CSF_FUNCPARAM &p) {
 	fix_filepath(dirstr);
 
 	// 実行
-	int result = (mkdir(dirstr.c_str(), 0644) == 0 ? 1 : 0);
+	int result = (mkdir(dirstr.c_str(), 0755) == 0 ? 1 : 0);
 
 	return CValue(result);
 }
@@ -4555,7 +4553,15 @@ static bool Utils_HTTPToTM(const char *pText,struct tm &outTime)
 		outTime.tm_wday = static_cast<unsigned short>(i);
 	}
 
-	if ( isdigit(pTokArray[1][0]) ) { //RFC Format
+	// 曜日を省略した形式はトークンが1つ足りないので、日付と時刻の6要素が揃っているか確かめる
+	for ( int j = 1 ; j <= 6 ; ++j ) {
+		if ( ! pTokArray[j] ) {
+			free(pData);
+			return false;
+		}
+	}
+
+	if ( isdigit(static_cast<unsigned char>(pTokArray[1][0])) ) { //RFC Format
 		outTime.tm_mday = static_cast<unsigned short>(strtoul(pTokArray[1],NULL,10));
 		outTime.tm_mon = Utils_HTTPToSystemTime_MonthConv(pTokArray[2]) - 1;
 		outTime.tm_year = static_cast<unsigned short>(strtoul(pTokArray[3],NULL,10)) - 1900;
@@ -5214,40 +5220,41 @@ CValue	CSystemFunction::RE_REPLACEEX(CSF_FUNCPARAM &p)
 	yaya::string_t arg2 = arg2_orig;
 
 	//最後から1文字手前まで
+	// replaceでイテレータが無効になるので、位置で進める
 	if ( arg2.size() > 0 ) {
-		for ( yaya::string_t::iterator it = arg2.begin() ; it < (arg2.end()-1) ; ++it ) {
-			if ( *it == L'\\' ) {
-				yaya::char_t c = *(it+1);
+		for ( yaya::string_t::size_type i = 0 ; i + 1 < arg2.size() ; ++i ) {
+			if ( arg2[i] == L'\\' ) {
+				yaya::char_t c = arg2[i+1];
 				
 				if ( c == L'\\' ) {
-					arg2.replace(it,it+2,L"\\");
+					arg2.replace(i,2,L"\\");
 				}
 				else if ( c == L'a' ) {
-					arg2.replace(it,it+2,L"\a");
+					arg2.replace(i,2,L"\a");
 				}
 				else if ( c == L'e' ) {
-					arg2.replace(it,it+2,L"\x1B");
+					arg2.replace(i,2,L"\x1B");
 				}
 				else if ( c == L'f' ) {
-					arg2.replace(it,it+2,L"\f");
+					arg2.replace(i,2,L"\f");
 				}
 				else if ( c == L'n' ) {
-					arg2.replace(it,it+2,L"\n");
+					arg2.replace(i,2,L"\n");
 				}
 				else if ( c == L'r' ) {
-					arg2.replace(it,it+2,L"\r");
+					arg2.replace(i,2,L"\r");
 				}
 				else if ( c == L't' ) {
-					arg2.replace(it,it+2,L"\t");
+					arg2.replace(i,2,L"\t");
 				}
 				else if ( c == L'v' ) {
-					arg2.replace(it,it+2,L"\v");
+					arg2.replace(i,2,L"\v");
 				}
 				else if ( c >= L'0' && c <= L'9' ) {
 					yaya::char_t rep[3] = L"$0";
 					rep[1] = c;
-					arg2.replace(it,it+2,rep);
-					it += 1; //次の文字は読み飛ばして良い
+					arg2.replace(i,2,rep);
+					i += 1; //次の文字は読み飛ばして良い
 				}
 			}
 		}
@@ -5480,10 +5487,10 @@ CValue	CSystemFunction::SPLITPATH(CSF_FUNCPARAM &p)
 		SetError(9);
 	}
 
-	yaya::char_t drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
+	yaya::string_t drive, dir, fname, ext;
 	yaya::string_t path = p.arg.array()[0].GetValueString();
 
-	_wsplitpath(path.c_str(), drive, dir, fname, ext);
+	SplitPathParts(path, drive, dir, fname, ext);
 
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 	result.array().emplace_back(drive);
@@ -6033,7 +6040,8 @@ CValue	CSystemFunction::GETSTRBYTES(CSF_FUNCPARAM &p)
 
 //std::tolowerの定義がへちょい処理系対策
 struct ToLower {
-	yaya::char_t operator()(yaya::char_t c) { return ::tolower(c); }
+	// 変換タイプ名の比較にしか使わないのでASCIIだけ（::tolowerに255超の値を渡すと未定義）
+	yaya::char_t operator()(yaya::char_t c) { return (c >= L'A' && c <= L'Z') ? static_cast<yaya::char_t>(c - L'A' + L'a') : c; }
 };
 
 CValue	CSystemFunction::STRENCODE(CSF_FUNCPARAM &p)
@@ -7144,15 +7152,22 @@ CValue CSystemFunction::READFMO(CSF_FUNCPARAM &p)
 
 	char* tmpstr=Ccct::Ucs2ToMbcs(fmoname.c_str(),CHARSET_DEFAULT);
 
+	if (tmpstr == NULL) {
+		vm.logger().Error(E_E, 89, L"READFMO", p.dicname, p.line);
+		SetError(89);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
 	HANDLE hFMO = ::OpenFileMappingA(FILE_MAP_READ,false,tmpstr);
+
+	free(tmpstr);
+	tmpstr = NULL;
+
 	if(hFMO == NULL){
 		vm.logger().Error(E_W, 13, L"READFMO(" + fmoname + L").OpenFileMapping Failed", p.dicname, p.line);
 		SetError(13);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
-
-	free(tmpstr);
-	tmpstr = NULL;
 
 	void *pData = ::MapViewOfFile(hFMO,FILE_MAP_READ,0,0,0);
 	if(pData == NULL){
@@ -7179,8 +7194,9 @@ CValue CSystemFunction::READFMO(CSF_FUNCPARAM &p)
 	}
 
 	char* pBuf = new char[size+1];
+	memset( pBuf , 0 , size+1 );
 	strncpy( pBuf , (const char*) pData+4, size-4 );
-	pBuf[size] = 0;
+	pBuf[size-4] = 0;
 
 	::UnmapViewOfFile(pData);
 	::CloseHandle(hFMO);
@@ -7188,6 +7204,8 @@ CValue CSystemFunction::READFMO(CSF_FUNCPARAM &p)
 	yaya::char_t *t_str = Ccct::MbcsToUcs2(pBuf,charset);
 
 	if (t_str == NULL) {
+		delete[](pBuf);
+		pBuf = NULL;
 		vm.logger().Error(E_E, 13, L"READFMO(" + fmoname + L").MbcsToUcs2 Failed", p.dicname, p.line);
 		SetError(13);
 		return CValue(F_TAG_NOP, 0/*dmy*/);
@@ -7317,6 +7335,9 @@ CValue	CSystemFunction::GETENV(CSF_FUNCPARAM &p)
 
 	const char *s_env = getenv(s_name);
 
+	free(s_name);
+	s_name = NULL;
+
 	if (s_env == NULL) {
 		vm.logger().Error(E_W, 12, L"GETENV", p.dicname, p.line);
 		SetError(12);
@@ -7330,7 +7351,11 @@ CValue	CSystemFunction::GETENV(CSF_FUNCPARAM &p)
 		return yaya::string_t();
 	}
 
-	return CValue(t_env);
+	CValue	result(t_env);
+	free(t_env);
+	t_env = NULL;
+
+	return result;
 }
 
 /* -----------------------------------------------------------------------
@@ -7530,8 +7555,10 @@ bool CSystemFunction::ProcessTranslateSyntax(std::vector<yaya::char_t> &array,ya
 					end = start + 255;
 				}
 
-				for ( yaya::char_t cx = start ; cx <= end ; ++cx ) {
-					array.emplace_back(cx);
+				// 文字型で回すとendが型の最大値のときに終わらないので、個数で回す
+				size_t range_count = static_cast<size_t>(end - start) + 1;
+				for ( size_t k = 0 ; k < range_count ; ++k ) {
+					array.emplace_back(static_cast<yaya::char_t>(start + k));
 				}
 			}
 		}
@@ -7623,6 +7650,7 @@ static std::string SendDataUsingUnixSocket(const std::string &path, std::string 
 	// null-terminatedも書き込ませる
 	strncpy(addr.sun_path, path.c_str(), path.length() + 1);
 	if (connect(soc, reinterpret_cast<const sockaddr *>(&addr), sizeof(addr)) == -1) {
+		close(soc);
 		return "";
 	}
 	if (send(soc, request.data(), request.size(), 0) != request.size()) {
@@ -7638,8 +7666,10 @@ static std::string SendDataUsingUnixSocket(const std::string &path, std::string 
 			close(soc);
 			return "";
 		}
-		remain = *reinterpret_cast<uint32_t *>(buffer);
-		data.reserve(remain);
+		memcpy(&remain, buffer, sizeof(uint32_t));
+		if (remain <= 0x1000000) { //相手の申告した長さをそのまま確保しない
+			data.reserve(remain);
+		}
 	}
 	while (true) {
 		int ret = read(soc, buffer, BUFFER_SIZE);
@@ -7651,13 +7681,14 @@ static std::string SendDataUsingUnixSocket(const std::string &path, std::string 
 			close(soc);
 			break;
 		}
-		if (!has_header || remain > ret) {
+		if (!has_header) {
 			data.append(buffer, ret);
 		}
 		else {
-			data.append(buffer, remain);
+			uint32_t n = (remain < static_cast<uint32_t>(ret)) ? remain : static_cast<uint32_t>(ret);
+			data.append(buffer, n);
+			remain -= n;
 		}
-		remain -= ret;
 	}
 	return data;
 }
@@ -7681,6 +7712,11 @@ CValue	CSystemFunction::DIRECTSSTP(CSF_FUNCPARAM &p)
 
 	int target = p.arg.array()[0].GetValueInt();
 	char *req = Ccct::Ucs2ToMbcs(p.arg.array()[1].GetValueString(), CHARSET_UTF8);
+	if (req == NULL) {
+		vm.logger().Error(E_W, 13, L"DIRECTSSTP", p.dicname, p.line);
+		SetError(13);
+		return CValue(-1);
+	}
 	std::string request(req);
 	free(req);
 
@@ -7696,10 +7732,13 @@ CValue	CSystemFunction::DIRECTSSTP(CSF_FUNCPARAM &p)
 		return CValue(-1);
 	}
 	if (sem_wait(&shm->sem) == -1) {
+		munmap(shm, sizeof(shm_t));
 		return CValue(-1);
 	}
 	std::string path(shm->buf, shm->size);
-	if (sem_post(&shm->sem) == -1) {
+	int post_result = sem_post(&shm->sem);
+	munmap(shm, sizeof(shm_t));
+	if (post_result == -1) {
 		return CValue(-1);
 	}
 	std::string data = SendDataUsingUnixSocket(path + "ninix", "GetFMO\r\n", true);

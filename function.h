@@ -216,6 +216,7 @@ protected:
 	void	Foreach(CLocalVariable& lvar, CSelecter& output, size_t line, int& exitcode, std::vector<CVecValue>* UpperLvCandidatePool, bool inpool, SReturnWithParamExpr* pReturnExpr = NULL);
 
 	const	CValue& GetValueRefForCalc(CCell &cell, CStatement &st, CLocalVariable &lvar);
+	const	CValue& GetLeftValueRef(CCell &s_cell, const CCell *d_cell, CValue &hold, CStatement &st, CLocalVariable &lvar);
 	
 	void	SolveEmbedCell(CCell &cell, CStatement &st, CLocalVariable &lvar);
 

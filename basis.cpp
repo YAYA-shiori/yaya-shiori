@@ -220,7 +220,7 @@ void	CBasis::SetPath(yaya::global_t h, int len, bool is_utf8)
 {
 	// 取得と領域開放
 	std::string	mbpath;
-	mbpath.assign((char *)h, 0, len);
+	mbpath.assign((const char *)h, (size_t)len);
 	//GlobalFree(h); //load側で開放
 	h = NULL;
 
@@ -245,7 +245,7 @@ void	CBasis::SetPath(yaya::global_t h, int len, bool is_utf8)
 	// 取得と領域開放
 	if ( is_utf8 ) {
 		std::string	mbpath;
-		mbpath.assign((char *)h, 0, len);
+		mbpath.assign((const char *)h, (size_t)len);
 		Ccct::MbcsToUcs2Buf(base_path, mbpath, CHARSET_UTF8);
 	}
 	else {
@@ -437,11 +437,10 @@ char	CBasis::IsSuppress(void)
 #if defined(WIN32)
 yaya::string_t	CBasis::ToFullPath(const yaya::string_t& str)
 {
-	yaya::char_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
-	_wsplitpath(str.c_str(), drive, dir, fname, ext);
 	yaya::string_t aret = str;
 
-	if (!::wcslen(drive))
+	// ドライブ付き（2文字目が":"）でなければ相対パス
+	if (!(str.size() >= 2 && str[1] == L':'))
 		aret = vm.basis().base_path + str;
 
 	yaya::ws_replace(aret,L"/",L"\\");
@@ -1508,6 +1507,7 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 	FILE	*fp = yaya::w_fopen(filename.c_str(), L"w");
 	if (fp == NULL) {
 		vm.logger().Error(E_E, 57, filename);
+		setlocale(LC_NUMERIC,old_locale.c_str());
 		return;
 	}
 /*
@@ -1646,6 +1646,7 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 			fp = yaya::w_fopen(filename.c_str(), L"r");
 			if (!fp) {
 				vm.logger().Error(E_N, 0);
+				setlocale(LC_NUMERIC,old_locale.c_str());
 				return;
 			}
 			else {
@@ -1660,6 +1661,7 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 			fp = yaya::w_fopen(filename.c_str(), L"r");
 			if (!fp) {
 				vm.logger().Error(E_N, 0);
+				setlocale(LC_NUMERIC,old_locale.c_str());
 				return;
 			}
 			else {
@@ -1903,7 +1905,7 @@ yaya::global_t	CBasis::ExecuteRequest(yaya::global_t h, long *len, bool is_debug
 
 	// 入力文字列を取得
 	std::string	istr;
-	istr.assign((char *)h, 0, (size_t)*len);
+	istr.assign((const char *)h, (size_t)*len);
 
 	// 第一引数（入力文字列）を作成　ここで文字コードをUCS-2へ変換
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);

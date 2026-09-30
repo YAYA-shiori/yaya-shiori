@@ -686,11 +686,13 @@ size_t Ccct_ConvUTF8ToUnicode(yaya::string_t &buf,const char* pStrIn)
 			m_Str.Add() = (WORD)c;
 		}*/
 		else if( (c & 0xe0) == 0xc0 ){ //2Byte - 110????? 
+			if( pStrLast - pStr < 1 ){ break; } //––”ö‚Å“rØ‚ê‚Ä‚¢‚é
 			tmp  = static_cast<DWORD>(c & 0x1f) << 6; //‰º5bit - 10-6
 			tmp |= static_cast<DWORD>(*(pStr++) & 0x3f); //‰º6bit - 5-0
 			buf.append(1,static_cast<WORD>(tmp));
 		}
 		else if( (c & 0xf0) == 0xe0 ){ //3Byte - 1110????
+			if( pStrLast - pStr < 2 ){ break; } //––”ö‚Å“rØ‚ê‚Ä‚¢‚é
 			tmp  = static_cast<DWORD>(c & 0x0f) << 12; //‰º4bit - 15-12
 			tmp |= static_cast<DWORD>(*(pStr++) & 0x3f) << 6;  //‰º6bit - 11-6
 			tmp |= static_cast<DWORD>(*(pStr++) & 0x3f); //‰º6bit - 5-0
@@ -699,6 +701,7 @@ size_t Ccct_ConvUTF8ToUnicode(yaya::string_t &buf,const char* pStrIn)
 			}
 		}
 		else if( (c & 0xf8) == 0xf0 ){ //4Byte - 11110??? UTF-16 Surrogate
+			if( pStrLast - pStr < 3 ){ break; } //––”ö‚Å“rØ‚ê‚Ä‚¢‚é
 			tmp  = static_cast<DWORD>(c & 0x07) << 18; //‰º3bit -> 20-18
 			tmp |= static_cast<DWORD>(*(pStr++) & 0x3f) << 12; //‰º6bit - 17-12
 			tmp |= static_cast<DWORD>(*(pStr++) & 0x3f) << 6; //‰º6bit - 11-6
@@ -708,9 +711,11 @@ size_t Ccct_ConvUTF8ToUnicode(yaya::string_t &buf,const char* pStrIn)
 			buf.append(1,(WORD)(0xDC00U | (tmp & 0x3FF))); //‰ºˆÊƒTƒƒQ[ƒg
 		}
 		else if( (c & 0xfc) == 0xf8 ){ //5Byte - 111110?? -- UCS-4
+			if( pStrLast - pStr < 4 ){ break; } //––”ö‚Å“rØ‚ê‚Ä‚¢‚é
 			pStr += 4; //–³Ž‹
 		}
 		else if( (c & 0xfe) == 0xfc ){ //6Byte - 1111110? -- UCS-4
+			if( pStrLast - pStr < 5 ){ break; } //––”ö‚Å“rØ‚ê‚Ä‚¢‚é
 			pStr += 5; //–³Ž‹
 		}
 		/*else { // - 11111110 , 11111111 (0xfe,0xff) - ‚»‚ñ‚È•¶Žš‚ ‚é‚©‚¢I

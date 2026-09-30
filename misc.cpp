@@ -148,19 +148,52 @@ yaya::string_t::size_type Find_IgnoreDQ(const yaya::string_t &str, const yaya::s
  */
 yaya::string_t::size_type find_last_str(const yaya::string_t &str, const yaya::char_t *findstr)
 {
-	yaya::string_t::size_type it = yaya::string_t::npos;
-	yaya::string_t::size_type found;
-
-	while ( (found = str.find(findstr,it)) != yaya::string_t::npos ) {
-		it = found;
-	}
-
-	return it;
+	return str.rfind(findstr);
 }
 
 yaya::string_t::size_type find_last_str(const yaya::string_t &str, const yaya::string_t &findstr)
 {
 	return find_last_str(str,findstr.c_str());
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  SplitPathParts
+ *  機能概要：  パスをドライブ・ディレクトリ・ファイル名・拡張子に分割します
+ *  　　　　　  _wsplitpathと同じ規則ですが、長さに制限がありません
+ *  　　　　　  （ドライブは2文字目が":"のとき先頭2文字、ディレクトリは最後の"\"か"/"まで、
+ *  　　　　　  拡張子はファイル名の最後の"."から）
+ * -----------------------------------------------------------------------
+ */
+void	SplitPathParts(const yaya::string_t &path, yaya::string_t &drive, yaya::string_t &dir, yaya::string_t &fname, yaya::string_t &ext)
+{
+	yaya::string_t::size_type pos = 0;
+
+	if ( path.size() >= 2 && path[1] == L':' ) {
+		drive = path.substr(0, 2);
+		pos = 2;
+	}
+	else {
+		drive.erase();
+	}
+
+	yaya::string_t::size_type sep = path.find_last_of(L"\\/");
+	if ( sep != yaya::string_t::npos && sep >= pos ) {
+		dir = path.substr(pos, sep + 1 - pos);
+		pos = sep + 1;
+	}
+	else {
+		dir.erase();
+	}
+
+	yaya::string_t::size_type dot = path.rfind(L'.');
+	if ( dot != yaya::string_t::npos && dot >= pos ) {
+		fname = path.substr(pos, dot - pos);
+		ext = path.substr(dot);
+	}
+	else {
+		fname = path.substr(pos);
+		ext.erase();
+	}
 }
 
 /* -----------------------------------------------------------------------
@@ -541,7 +574,9 @@ char	IsIntString(const yaya::string_t &str)
 	}
 
 	if ( (len-advance) == 19 ) {
-		if ( wcscmp(str.c_str(),L"9223372036854775807") > 0 ) {
+		// 符号を除いた桁だけを比べる　負の数は-9223372036854775808まで許す
+		const yaya::char_t *limit = (str[0] == L'-') ? L"9223372036854775808" : L"9223372036854775807";
+		if ( wcscmp(str.c_str() + advance,limit) > 0 ) {
 			return 0; //Overflow
 		}
 	}
