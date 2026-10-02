@@ -135,6 +135,7 @@ bool	CParser0::ParseAfterLoad(const yaya::string_t &dicfilename)
 {
 	int aret=0;
 
+	aret += RemoveLoopHeaderBracket(dicfilename);
 	aret += AddSimpleIfBrace(dicfilename);
 
 	aret += SetCellType(dicfilename);
@@ -418,6 +419,7 @@ char	CParser0::ParseEvalBlock(const yaya::string_t& str, CFunction& func, const 
 		// 関数本体の }
 		func.statement.emplace_back(CStatement(ST_CLOSE, linecount));
 
+		errcount += RemoveLoopHeaderBracket(func);
 		errcount += AddSimpleIfBrace(func);
 		errcount += SetCellType(func);
 		errcount += MakeCompleteFormula(func);
@@ -1978,6 +1980,115 @@ void	CParser0::StructFormulaCell(yaya::string_t &str, std::vector<CCell> &cells)
 			str = bstr;
 		}
 	}
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CParser0::RemoveLoopHeaderBracket
+ *  機能概要：  for (初期化式; 終了条件式; ループ式) / foreach (配列; 変数) のように
+ *  　　　　　  ;で分かれた文をまたいで全体を囲む()を取り除きます
+ *  　　　　　  先頭の(に対応する)が最後の文の末尾にある場合だけ外すので、
+ *  　　　　　  文ごとに()が閉じている従来の書き方には影響しません
+ *
+ *  返値　　：  1/0=エラー/正常
+ * -----------------------------------------------------------------------
+ */
+char	CParser0::RemoveLoopHeaderBracket(const yaya::string_t &dicfilename)
+{
+	int	errcount = 0;
+
+	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
+		if ( it->dicfilename != dicfilename ) { continue; }
+
+		errcount += RemoveLoopHeaderBracket(*it);
+	}
+
+	return (errcount) ? 1 : 0;
+}
+
+char	CParser0::RemoveLoopHeaderBracket(CFunction &func)
+{
+	int	errcount = 0;
+
+	for(size_t i = 0; i < func.statement.size(); i++) {
+		// forは初期化式・終了条件式・ループ式の3文、foreachは配列・変数の2文
+		size_t	count;
+		if (func.statement[i].type == ST_FOR)
+			count = 3;
+		else if (func.statement[i].type == ST_FOREACH)
+			count = 2;
+		else
+			continue;
+
+		if (!func.statement[i].cell_size() || func.statement[i].cell()[0].value_GetType() != F_TAG_BRACKETIN)
+			continue;
+
+		// 先頭の(に対応する)を探す　(だけの行、)だけの行がある場合を含めて最大count+2文まで
+		// 間の文は数式に限る（そうでなければ構文の検査に任せる）
+		ptrdiff_t	depth = 0;
+		size_t	last = 0;
+		bool	found = false;
+		bool	atend = false;
+		for(size_t j = 0; j < count + 2 && i + j < func.statement.size() && !found; j++) {
+			if (j && func.statement[i + j].type != ST_FORMULA)
+				break;
+			std::vector<CCell>	&cells = func.statement[i + j].cell();
+			for(size_t k = 0; k < cells.size(); k++) {
+				int	type = cells[k].value_GetType();
+				if (type == F_TAG_BRACKETIN) {
+					depth++;
+				}
+				else if (type == F_TAG_BRACKETOUT) {
+					depth--;
+					if (!depth) {
+						last = j;
+						atend = (k == cells.size() - 1);
+						found = true;
+						break;
+					}
+				}
+			}
+		}
+		// 先頭の文の中で閉じている（文ごとに()を書く従来の形）か、文の途中で閉じているか、
+		// for (a; b); c のように最後の文より手前で閉じているなら対象外
+		if (!found || !last || !atend || last + 1 < count)
+			continue;
+
+		func.statement[i].cell().erase(func.statement[i].cell().begin());
+		func.statement[i + last].cell().pop_back();
+		size_t	headsize = last + 1;
+
+		// 改行は;と同じく文を区切るので、)だけの行と(だけの行はそれぞれ空の文になる
+		// 前の文と別の行にある)だけの文は取り除く
+		if (headsize > count && !func.statement[i + last].cell_size() &&
+			func.statement[i + last].linecount > func.statement[i + last - 1].linecount) {
+			func.statement.erase(func.statement.begin() + i + last);
+			headsize--;
+		}
+		// 次の文と別の行にある(だけの文は、次の文を中身とする
+		// （同じ行の for (; ...) は初期化式が空なのでエラーのまま）
+		if (headsize > count && !func.statement[i].cell_size() &&
+			func.statement[i + 1].linecount > func.statement[i].linecount) {
+			func.statement[i].cell().swap(func.statement[i + 1].cell());
+			func.statement.erase(func.statement.begin() + i + 1);
+			headsize--;
+		}
+
+		// for (; ...) のように、外した結果空になった文はエラー
+		// 以降の処理が空の数式を扱わないよう""を入れておく
+		for(size_t j = 0; j < headsize; j++) {
+			if (!func.statement[i + j].cell_size()) {
+				vm.logger().Error(E_E, 27, func.dicfilename, func.statement[i + j].linecount);
+				errcount++;
+				CCell	addcell(F_TAG_NOP);
+				addcell.value().s_value = L"\"\"";
+				func.statement[i + j].cell().emplace_back(addcell);
+			}
+		}
+
+		i += headsize - 1;
+	}
+
+	return (errcount) ? 1 : 0;
 }
 
 /* -----------------------------------------------------------------------

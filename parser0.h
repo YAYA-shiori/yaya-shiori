@@ -111,6 +111,9 @@ protected:
 	char	StructFormula(yaya::string_t &str, std::vector<CCell> &cells, const yaya::string_t& dicfilename, ptrdiff_t linecount);
 	void	StructFormulaCell(yaya::string_t &str, std::vector<CCell> &cells);
 
+	char	RemoveLoopHeaderBracket(const yaya::string_t &dicfilename);
+	char	RemoveLoopHeaderBracket(CFunction &func);
+
 	char	AddSimpleIfBrace(const yaya::string_t &dicfilename);
 	char	AddSimpleIfBrace(CFunction &func);
 
