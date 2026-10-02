@@ -7,3 +7,6 @@
 [submodule "sqlite"]
 	path = sqlite
 	url = https://github.com/ponapalt/sqlite-amalgamation-new.git
+[submodule "deelx"]
+	path = deelx
+	url = https://github.com/ponapalt/deelx.git
