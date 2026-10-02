@@ -350,12 +350,18 @@ void	CLog::Io(char io, const yaya::char_t *str)
 
 			if ( ! found ) {
 				for(it = iolog_filter_keyword_regex.begin(); it != iolog_filter_keyword_regex.end(); it++){
-					CRegexpT<yaya::char_t> regex(it->c_str(),MULTILINE | EXTENDED);
+					//deelxはメモリ確保に失敗するとstd::bad_allocを投げる。ログの絞り込みのために落とさず、そのパターンは不一致として扱う
+					try {
+						CRegexpT<yaya::char_t> regex(it->c_str(),MULTILINE | EXTENDED);
 
-					MatchResult result = regex.Match(cstr.c_str());
-					if ( result.IsMatched() ) {
-						found = true;
-						break;
+						MatchResult result = regex.Match(cstr.c_str());
+						if ( result.IsMatched() ) {
+							found = true;
+							break;
+						}
+					}
+					catch (const std::bad_alloc&) {
+						continue;
 					}
 				}
 			}
