@@ -21,7 +21,7 @@ DYLIB_NAME_POSTFIX = .so
 # 作れる設定にしなければならない。darwinなら-bundle、LinuxやBSDなら-shared。
 CXXFLAGS = -O3 -Wall -fPIC -std=c++11 -fpermissive
 CFLAGS = -O3 -Wall -fPIC
-LDFLAGS = -shared -lpthread
+LDFLAGS = -shared -lpthread -ldl
 
 ################## これより下は弄らなくてもコンパイル出来ます ##################
 
