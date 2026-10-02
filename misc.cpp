@@ -319,7 +319,7 @@ void	CutEndSpace(yaya::string_t &str)
 /* -----------------------------------------------------------------------
  *  関数名  ：  UnescapeSpecialString
  *  機能概要：  (ヒアドキュメント仕様用の)有害文字エスケープを戻します
- *              CParser0::LoadDictionary1 も参照してください
+ *              parser0.cpp の CHereDocument も参照してください
  * -----------------------------------------------------------------------
  */
 void	UnescapeSpecialString(yaya::string_t &str)

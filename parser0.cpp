@@ -49,6 +49,127 @@
 ////////////////////////////////////////
 
 /* -----------------------------------------------------------------------
+ *  クラス名：  CHereDocument
+ *  機能概要：  行を結合する際のヒアドキュメント（<<' ～ '>>、<<" ～ ">>）の状態を持ちます
+ *  　　　　　  LoadDictionary1とParseEvalBlockで共有します
+ *
+ *  ヒアドキュメントの中の改行とクォートは\xFFFFで始まる2文字に置き換え、
+ *  全体を開きと閉じのクォートで囲んだ1つの文字列リテラルにします
+ *  （UnescapeSpecialStringで元に戻ります）
+ *      \xFFFF\x0001 -> 改行
+ *      \xFFFF\x0002 -> "
+ *      \xFFFF\x0003 -> '
+ *  \xFFFFはUnicodeとして不適切、現れることはない…たぶん
+ * -----------------------------------------------------------------------
+ */
+class	CHereDocument
+{
+private:
+	yaya::char_t	quote;		// ヒアドキュメントのクォート　外なら0
+	bool			firstline;
+	ptrdiff_t		startline;
+
+public:
+	CHereDocument(void) : quote(0), firstline(true), startline(0) {}
+
+	bool		IsInside(void) const { return quote != 0; }
+	ptrdiff_t	StartLine(void) const { return startline; }
+
+	bool	Start(yaya::string_t& linebuffer, ptrdiff_t linecount);
+	bool	Append(CAyaVM& vm, yaya::string_t& linebuffer, const yaya::string_t& readline, const yaya::string_t& dicfilename, ptrdiff_t linecount);
+};
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CHereDocument::Start
+ *  機能概要：  linebufferの終端がクォートの外にある<<'か<<"なら、ヒアドキュメントを開始します
+ *  　　　　　  <<を消して開きのクォートだけを残します
+ *
+ *  返値　　：  true/false=開始した/しなかった
+ * -----------------------------------------------------------------------
+ */
+bool	CHereDocument::Start(yaya::string_t& linebuffer, ptrdiff_t linecount)
+{
+	yaya::string_t::size_type len = linebuffer.size();
+	if (len < 3 || linebuffer[len - 3] != L'<' || linebuffer[len - 2] != L'<') {
+		return false;
+	}
+	yaya::char_t q = linebuffer[len - 1];
+	if (q != L'\'' && q != L'\"') {
+		return false;
+	}
+
+	// <<がクォートの内側にあるなら、'abc<<'のような文字列リテラルの終わり
+	bool	dq = false;
+	bool	sq = false;
+	for(yaya::string_t::size_type i = 0; i < len - 3; ++i) {
+		if (linebuffer[i] == L'\"') {
+			if (!sq) {
+				dq = !dq;
+			}
+		}
+		else if (linebuffer[i] == L'\'') {
+			if (!dq) {
+				sq = !sq;
+			}
+		}
+	}
+	if (dq || sq) {
+		return false;
+	}
+
+	linebuffer.erase(len - 3, 2);
+	quote     = q;
+	firstline = true;
+	startline = linecount;
+	return true;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CHereDocument::Append
+ *  機能概要：  ヒアドキュメントの中の1行（行頭の空白は消しておくこと）をlinebufferへ結合します
+ *  　　　　　  終わりの'>>（">>）なら閉じのクォートとその後ろを結合し、ヒアドキュメントを終えます
+ *
+ *  返値　　：  true/false=終わった/続く
+ * -----------------------------------------------------------------------
+ */
+bool	CHereDocument::Append(CAyaVM& vm, yaya::string_t& linebuffer, const yaya::string_t& readline, const yaya::string_t& dicfilename, ptrdiff_t linecount)
+{
+	if (readline.size() >= 3 && readline[0] == quote && readline[1] == L'>' && readline[2] == L'>') {
+		if (firstline) {
+			vm.logger().Error(E_W, 21, dicfilename, linecount);
+		}
+		linebuffer.append(1, quote);
+		linebuffer.append(readline, 3, yaya::string_t::npos);
+		quote = 0;
+		return true;
+	}
+
+	if (firstline) {
+		firstline = false;
+	}
+	else {
+		linebuffer.append(L"\xFFFF\x0001");
+	}
+
+	yaya::string_t trimmed = readline;
+	CutEndSpace(trimmed);
+	if (trimmed.size() >= 3 &&
+		(trimmed.compare(trimmed.size() - 3, 3, L"<<'") == 0 || trimmed.compare(trimmed.size() - 3, 3, L"<<\"") == 0)) {
+		vm.logger().Error(E_W, 22, dicfilename, linecount);
+	}
+
+	yaya::string_t line = readline;
+	if (quote == L'\'') {
+		yaya::ws_replace(line, L"\'", L"\xFFFF\x0003");
+	}
+	else {
+		yaya::ws_replace(line, L"\"", L"\xFFFF\x0002");
+	}
+	linebuffer.append(line);
+	return false;
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CParser0::Parse
  *  機能概要：  指定された辞書ファイル群を読み取り、実行可能な関数群を作成します
  *
@@ -285,9 +406,7 @@ char	CParser0::ParseEvalBlock(const yaya::string_t& str, CFunction& func, const 
 	yaya::string_t	linebuffer;
 	std::vector<yaya::string_t>	factors;
 
-	// ヒアドキュメント　LoadDictionary1と同じく、中の改行とクォートを\xFFFFで始まる2文字に置き換える
-	int		isInHereDocument = 0; //2 = ダブルクオート 1 = シングルクオート
-	bool	isHereDocumentFirstLine = true;
+	CHereDocument	heredoc;
 
 	yaya::string_t::size_type pos = 0;
 	bool	last = false;
@@ -308,39 +427,11 @@ char	CParser0::ParseEvalBlock(const yaya::string_t& str, CFunction& func, const 
 			}
 		}
 
-		if (isInHereDocument) {
+		if (heredoc.IsInside()) {
 			// ヒアドキュメントの中は行頭の空白だけを消し、コメントも処理しない
+			// 終わりの'>>（">>）まで来たら、続きと合わせて文として処理する
 			CutStartSpace(readline);
-			yaya::char_t q = (isInHereDocument == 1) ? L'\'' : L'\"';
-			if (readline.size() >= 3 && readline[0] == q && readline[1] == L'>' && readline[2] == L'>') {
-				// 終わりの'>>（">>）はクォートだけを残し、続きと合わせて文として処理する
-				if (isHereDocumentFirstLine) {
-					vm.logger().Error(E_W, 21, dicfilename, linecount);
-				}
-				readline.erase(1, 2);
-				isInHereDocument = 0;
-				linebuffer.append(readline);
-			}
-			else {
-				if (isHereDocumentFirstLine) {
-					isHereDocumentFirstLine = false;
-				}
-				else {
-					linebuffer.append(L"\xFFFF\x0001");
-				}
-				yaya::string_t trimmed = readline;
-				CutEndSpace(trimmed);
-				if (trimmed.size() >= 3 &&
-					(trimmed.compare(trimmed.size() - 3, 3, L"<<'") == 0 || trimmed.compare(trimmed.size() - 3, 3, L"<<\"") == 0)) {
-					vm.logger().Error(E_W, 22, dicfilename, linecount);
-				}
-				if (isInHereDocument == 1) {
-					yaya::ws_replace(readline, L"\'", L"\xFFFF\x0003");
-				}
-				else {
-					yaya::ws_replace(readline, L"\"", L"\xFFFF\x0002");
-				}
-				linebuffer.append(readline);
+			if (!heredoc.Append(vm, linebuffer, readline, dicfilename, linecount)) {
 				continue;
 			}
 		}
@@ -356,19 +447,9 @@ char	CParser0::ParseEvalBlock(const yaya::string_t& str, CFunction& func, const 
 					linebuffer.erase(linebuffer.end() - 1);
 					continue;
 				}
-				// 終端が<<'か<<"ならヒアドキュメントの開始　開きのクォートだけを残す
-				if (!last && readline.size() >= 3) {
-					if (readline.compare(readline.size() - 3, 3, L"<<'") == 0) {
-						isInHereDocument = 1;
-					}
-					else if (readline.compare(readline.size() - 3, 3, L"<<\"") == 0) {
-						isInHereDocument = 2;
-					}
-					if (isInHereDocument) {
-						isHereDocumentFirstLine = true;
-						linebuffer.erase(linebuffer.size() - 3, 2);
-						continue;
-					}
+				// 終端が<<'か<<"ならヒアドキュメントの開始
+				if (heredoc.Start(linebuffer, linecount)) {
+					continue;
 				}
 			}
 			else if (!last) {
@@ -405,7 +486,7 @@ char	CParser0::ParseEvalBlock(const yaya::string_t& str, CFunction& func, const 
 	}
 
 	// 閉じていないヒアドキュメントは閉じていない文字列と同じ扱い
-	if (!errcount && isInHereDocument) {
+	if (!errcount && heredoc.IsInside()) {
 		vm.logger().Error(E_E, 7, dicfilename, linecount);
 		errcount++;
 	}
@@ -691,8 +772,7 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 	std::vector<CPreProcessCondition>	conds;
 	char	errcount = 0;
 
-	int	 isInHereDocument = 0; //2 = ダブルクオート 1 = シングルクオート
-	bool isHereDocumentFirstLine = true;
+	CHereDocument	heredoc;
 
 	yaya::string_t	readline;
 	readline.reserve(1000);
@@ -713,7 +793,15 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 
 		// 終端の改行を消す
 		CutCrLf(readline);
-		if ( ! isInHereDocument ) {
+		if ( heredoc.IsInside() ) {
+			// ヒアドキュメントの中は行頭の空白だけを消し、コメントも処理しない
+			// 終わりの'>>（">>）まで来たら、続きと合わせて文として処理する
+			CutStartSpace(readline);
+			if ( ! heredoc.Append(vm, linebuffer, readline, filename, i) ) {
+				continue;
+			}
+		}
+		else {
 			// 不要な空白（インデント等）を消す
 			CutSpace(readline);
 			// コメント処理
@@ -722,125 +810,17 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 			// 空行（もしくは全体がコメント行だった）なら次へ
 			if (readline.size() == 0)
 				continue;
-		}
-		else {
-			// 不要な空白（インデント等）を消す
-			CutStartSpace(readline);
-		}
 
-		/*--------------------------------------------------------
-			ヒアドキュメントのエスケープ
-			\xFFFF\x0001 -> 改行
-			\xFFFF\x0002 -> "
-			\xFFFF\x0003 -> '
-			\xFFFFはUnicodeとして不適切、現れることはない…たぶん
-		--------------------------------------------------------*/
-		
-		// 読み取り済バッファへ結合
-		if ( isInHereDocument ) {
-			//ヒアドキュメント解除部
-			if ( isInHereDocument == 1 ) {
-				if (readline.compare(0,3,L"'>>") == 0) {
-					readline.erase(1,2);
-					isInHereDocument = 0;
-					
-					if ( isHereDocumentFirstLine ) {
-						linebuffer.append(L"'' ");
-						vm.logger().Error(E_W, 21, filename, i);
-					}
-
-					linebuffer.append(readline);
-				}
-			}
-			else {
-				if (readline.compare(0,3,L"\">>") == 0) {
-					readline.erase(1,2);
-					isInHereDocument = 0;
-					
-					if ( isHereDocumentFirstLine ) {
-						linebuffer.append(L"'' ");
-						vm.logger().Error(E_W, 21, filename, i);
-					}
-
-					linebuffer.append(readline);
-				}
-			}
-
-			//解除されていない（ヒアドキュメント内＝テキストをそのまんま結合）
-			if ( isInHereDocument ) {
-				if ( isHereDocumentFirstLine ) {
-					isHereDocumentFirstLine = false;
-				}
-				else {
-					linebuffer.append(L"\xFFFF\x0001");
-				}
-
-				yaya::string_t::size_type it1 = find_last_str(readline,L"<<'");
-				yaya::string_t::size_type it2 = find_last_str(readline,L"<<\"");
-
-				if ( (it1 != yaya::string_t::npos) || (it2 != yaya::string_t::npos) ) {
-					yaya::string_t::size_type it = it1;
-					if ( it == yaya::string_t::npos ) {
-						it = it2;
-					}
-					else {
-						if ( (it2 != yaya::string_t::npos) && (it1 < it2) ) {
-							it = it2;
-						}
-					}
-
-					it += 3;
-
-					bool is_not_space = false;
-					yaya::string_t::size_type itend = readline.size();
-
-					while ( it < itend ) {
-						if ( ! IsSpace(readline[it]) ) {
-							is_not_space = true;
-							break;
-						}
-						it += 1;
-					}
-
-					if ( ! is_not_space ) {
-						vm.logger().Error(E_W, 22, filename, i);
-					}
-				}
-
-				if ( isInHereDocument == 1 ) {
-					yaya::ws_replace(readline, L"\'", L"\xFFFF\x0003");
-				}
-				else {
-					yaya::ws_replace(readline, L"\"", L"\xFFFF\x0002");
-				}
-				linebuffer.append(readline);
-
-				continue;
-			}
-		}
-		else {
+			// 読み取り済バッファへ結合
 			linebuffer.append(readline);
 			// 終端が"/"なら結合なので"/"を消して次を読む
 			if (readline[readline.size() - 1] == L'/') {
 				linebuffer.erase(linebuffer.end() - 1);
 				continue;
 			}
-			//ヒアドキュメント開始判定
-			else if ( readline.size() >= 3 ) {
-				if ( readline.compare(readline.size()-3,3,L"<<'") == 0 ) {
-					isInHereDocument = 1;
-					isHereDocumentFirstLine = true;
-					
-					linebuffer.erase(linebuffer.size() - 3,2);
-					continue;
-				}
-				else if ( readline.compare(readline.size()-3,3,L"<<\"") == 0 ) {
-					isInHereDocument = 2;
-					isHereDocumentFirstLine = true;
-
-					linebuffer.erase(linebuffer.size() - 3,2);
-					continue;
-				}
+			// 終端が<<'か<<"ならヒアドキュメントの開始
+			if ( heredoc.Start(linebuffer, i) ) {
+				continue;
 			}
 		}
 
@@ -880,7 +860,12 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 	// ファイルを閉じる
 	::fclose(fp);
 
-	if ( depth != 0 ) {
+	// 閉じていないヒアドキュメントは閉じていない文字列と同じ扱い
+	if ( heredoc.IsInside() ) {
+		vm.logger().Error(E_E, 7, filename, heredoc.StartLine());
+		errcount = 1;
+	}
+	else if ( depth != 0 ) {
 		vm.logger().Error(E_E, 94, filename, -1);
 		errcount = 1;
 	}
