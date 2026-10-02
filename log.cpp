@@ -11,7 +11,7 @@
 # include "stdafx.h"
 #endif
 
-#include "deelx.h"
+#include "deelx/deelx.h"
 
 #include "ccct.h"
 #include "log.h"

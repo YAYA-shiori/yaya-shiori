@@ -19,8 +19,8 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 - 成功時はログ末尾が `yaya.dll - ｴﾗｰ 0、警告 N`。VC6 の STL 由来の警告 C4786 は無視してよい
 - Git Bash から実行する場合は `/MAKE` がパス変換されるため `MSYS_NO_PATHCONV=1` を前置する
 - 配布用zipの作成は `make_aya.bat`（Release / ReleaseLangSep のビルド後に実行）
-- JSON/XML の解析に使う parson（`parson/`）と tinyxml2（`tinyxml2/`、ponapalt のフォーク）、SQL* 関数に使う SQLite（`sqlite/`、ponapalt のフォーク sqlite-amalgamation-new）は git サブモジュール。クローン直後は `git submodule update --init` が必要。いずれも UTF-8 のソースなので Sjis_ 系ツールで編集しない（そもそも本体側では編集せず、tinyxml2 / SQLite の修正はフォーク側（`../tinyxml2` / `../sqlite-amalgamation-new` にクローンあり）で行ってから参照を更新する）
-- サブモジュールを使う処理（JSON/XML、SQL* 関数）に手を入れる前に、`git submodule update --init --remote parson tinyxml2 sqlite` で参照を最新にしてから作業する
+- JSON/XML の解析に使う parson（`parson/`）と tinyxml2（`tinyxml2/`、ponapalt のフォーク）、正規表現に使う deelx（`deelx/`、ponapalt のフォーク。`#include "deelx/deelx.h"`）、SQL* 関数に使う SQLite（`sqlite/`、ponapalt のフォーク sqlite-amalgamation-new）は git サブモジュール。クローン直後は `git submodule update --init` が必要。いずれも UTF-8 のソースなので Sjis_ 系ツールで編集しない（そもそも本体側では編集せず、tinyxml2 / deelx / SQLite の修正はフォーク側（`../tinyxml2` / `../deelx` / `../sqlite-amalgamation-new` にクローンあり）で行ってから参照を更新する）
+- サブモジュールを使う処理（JSON/XML、SQL* 関数）に手を入れる前に、`git submodule update --init --remote parson tinyxml2 deelx sqlite` で参照を最新にしてから作業する
 - SQLite のフォークは upstream の amalgamation に VC6 / 古い SDK 向けの修正を1コミット載せたもの。64bit のリテラルは `INT64_C()` / `UINT64_C()` で書く（`LL` は VC6 が、`i64` は gcc が読めない）。修正したら VC6 と gcc（Strawberry Perl 同梱の `gcc`）の両方で `sqlite3.c` 単体がコンパイルできることを確かめる
 - VC6 以外のビルドは makefile。`makefile.linux` が基準で、`freebsd`（clang）/ `posix`（macOS、`.bundle`）/ `emscripten` はオブジェクト一覧と規則を linux と同じにしてある。ソースを増やしたら全部の一覧に足す（`makefile.mingw32` は `posix_utils.o` に加えて `aya5_res.o` も持つ）。POSIX 系の makefile は `.cpp` を iconv で UTF-8 にしてからコンパイルする
 - `makefile.mingw32` は Windows 用の yaya.dll を MinGW-w64 で作る（`-finput-charset=CP932 -fexec-charset=CP932` で VC++ と同じく文字列を CP932 のまま扱う）。Strawberry Perl 同梱の gcc（x86_64、64bit の DLL になる）で確かめられる。リポジトリを汚さないよう、`git ls-files --recurse-submodules` のファイルを作業用ディレクトリに写してから `mingw32-make -f makefile.mingw32`（動作確認用の EXE は `exe` ターゲット）
@@ -33,9 +33,9 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 1. バージョンを上げる（例: `Tc600-2`）。どちらも Shift JIS かつ CRLF なので Sjis_ 系ツールで編集する（Git Bash の `sed -i` は CRLF を LF に変えてしまう）
    - `manifest.cpp` の `aya_version`
    - `aya5.rc` の `FILEVERSION 6,00,2,0` と `VALUE "FileVersion", "6, 00, 2, 0\0"`（`TcXYY-N` → `X,YY,N,0`）
-2. サブモジュール（`parson` / `tinyxml2` / `sqlite`）の参照を最新に更新する
+2. サブモジュール（`parson` / `tinyxml2` / `deelx` / `sqlite`）の参照を最新に更新する
    ```powershell
-   git submodule update --init --remote parson tinyxml2 sqlite
+   git submodule update --init --remote parson tinyxml2 deelx sqlite
    git submodule status
    ```
    - 参照が変わったら `git diff --submodule` で取り込まれるコミットを確認し、リリースのコミットに含める

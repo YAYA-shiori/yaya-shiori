@@ -16,7 +16,7 @@
 
 #include <vector>
 
-#include "deelx.h"
+#include "deelx/deelx.h"
 
 #include "globaldef.h"
 #include "value.h"
