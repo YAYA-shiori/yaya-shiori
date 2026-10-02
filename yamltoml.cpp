@@ -2347,6 +2347,9 @@ bool CTomlParser::ParseTableHeader(bool is_array)
 		++pos;
 	}
 
+	// t / current は std::map の値や std::vector の要素を指す。
+	// 同じ配列に push_back すると無効になるので、push_back した後は t を取り直すこと
+	// （ここでは push_back の直後に &back() で取り直している）
 	CValue *t = &root;
 	yaya::string_t path;
 	for ( size_t i = 0; i < keys.size(); ++i ) {

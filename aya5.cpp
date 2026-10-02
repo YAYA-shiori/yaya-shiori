@@ -497,7 +497,11 @@ int main( int argc, char *argv[ ], char *envp[ ] )
 			long size = atoi(bufptr);
 			if ( size > 0 ) {
 				char *read_ptr = (char*)::GlobalAlloc(GMEM_FIXED,size+1);
-				fread(read_ptr,1,size,stdin);
+				if ( read_ptr == NULL || fread(read_ptr,1,size,stdin) != static_cast<size_t>(size) ) { //Šm•Û¸”s‚©A“ü—Í‚ª“r’†‚Å•Â‚¶‚½
+					if ( read_ptr ) { ::GlobalFree(read_ptr); }
+					unload();
+					return 0;
+				}
 				read_ptr[size] = 0;
 
 				char *p = strstr(read_ptr,"\r\n");
@@ -515,8 +519,10 @@ int main( int argc, char *argv[ ], char *envp[ ] )
 			long size = atoi(bufptr);
 			if ( size > 0 ) {
 				char *read_ptr = (char*)malloc(size);
-				fread(read_ptr,1,size,stdin);
-				free(read_ptr); //ƒf[ƒ^‚Ü‚Æ‚ß‚Ä”jŠü
+				if ( read_ptr ) {
+					fread(read_ptr,1,size,stdin);
+					free(read_ptr); //ƒf[ƒ^‚Ü‚Æ‚ß‚Ä”jŠü
+				}
 			}
 
 			unload();
@@ -532,13 +538,17 @@ int main( int argc, char *argv[ ], char *envp[ ] )
 			long size = atoi(bufptr);
 			if ( size > 0 ) {
 				char *read_ptr = (char*)::GlobalAlloc(GMEM_FIXED,size+1);
-				fread(read_ptr,1,size,stdin);
+				if ( read_ptr == NULL || fread(read_ptr,1,size,stdin) != static_cast<size_t>(size) ) { //Šm•Û¸”s‚©A“ü—Í‚ª“r’†‚Å•Â‚¶‚½
+					if ( read_ptr ) { ::GlobalFree(read_ptr); }
+					unload();
+					return 0;
+				}
 				read_ptr[size] = 0;
 				
 				yaya::global_t res = request(read_ptr,&size);
 
 				char write_header[64];
-				sprintf(write_header,"request:%d\r\n",size);
+				sprintf(write_header,"request:%ld\r\n",size);
 				fwrite(write_header,1,strlen(write_header),stdout);
 
 				fwrite(res,1,size,stdout);

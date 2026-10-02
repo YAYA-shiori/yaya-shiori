@@ -1781,6 +1781,11 @@ char	CParser0::StructWhen(yaya::string_t& str, std::vector<CCell>& cells, const 
 		if (it->value_GetType() == F_TAG_MINUS) {
 			if (it == cells.begin()) {
 				it = cells.erase(it);
+				// 末尾の-だった場合、付加先の項が無い
+				if (it == cells.end()) {
+					vm.logger().Error(E_E, 22, dicfilename, linecount);
+					return 0;
+				}
 				it->value().s_value.insert(0, L"-");
 				continue;
 			}
@@ -1788,6 +1793,11 @@ char	CParser0::StructWhen(yaya::string_t& str, std::vector<CCell>& cells, const 
 			itm--;
 			if (itm->value_GetType() != F_TAG_NOP && itm->value_GetType() != F_TAG_BRACKETOUT) {
 				it = cells.erase(it);
+				// 末尾の-だった場合、付加先の項が無い
+				if (it == cells.end()) {
+					vm.logger().Error(E_E, 22, dicfilename, linecount);
+					return 0;
+				}
 				it->value().s_value.insert(0, L"-");
 				continue;
 			}

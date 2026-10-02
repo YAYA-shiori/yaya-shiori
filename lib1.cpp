@@ -450,7 +450,14 @@ int	CLib1::Request(const yaya::string_t &istr, yaya::string_t &ostr)
 	// 実行
 	HGLOBAL	ogmem = (*requestlib)(igmem, &len);
 
-	// 結果取得
+	// 結果取得（DLLが応答を返さなかった場合は、従来どおり空の応答として扱う）
+	if (ogmem == NULL || len < 0) {
+		if (ogmem) {
+			GlobalFree(ogmem);
+		}
+		ostr.erase();
+		return 1;
+	}
 	char	*t_ostr = (char *)malloc((len + 1)*sizeof(char));
 	if (t_ostr == NULL) {
 		GlobalFree(ogmem);

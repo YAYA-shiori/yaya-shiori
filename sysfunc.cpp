@@ -1251,6 +1251,9 @@ CValue CSystemFunction::ZEN2HAN(CSF_FUNCPARAM &p)
 				*it = *it - char_zen_lower_a + L'a';
 			}
 		}
+		else if ( *it == 0 ) {
+			// 文字列中のNULは対象外（wcschrは終端のNULにも一致してしまう）
+		}
 		else {
 			if ( flag & ZH_FLAG_SYMBOL ) {
 				const yaya::char_t *found = wcschr(zen_support_symbol,*it);
@@ -1312,6 +1315,9 @@ CValue CSystemFunction::HAN2ZEN(CSF_FUNCPARAM &p)
 			if ( flag & ZH_FLAG_ALPHABET ) {
 				*it = *it - L'a' + char_zen_lower_a;
 			}
+		}
+		else if ( *it == 0 ) {
+			// 文字列中のNULは対象外（wcschrは終端のNULにも一致してしまう）
 		}
 		else {
 			if ( flag & ZH_FLAG_SYMBOL ) {
@@ -3252,7 +3258,8 @@ CValue	CSystemFunction::STRDIGEST(CSF_FUNCPARAM &p)
 	unsigned char digest_result[32];
 	size_t digest_len;
 
-	const size_t buf_len = buf.size();
+	// 内部表現(UTF-16/UTF-32)のバイト列を対象にするので、長さは文字数ではなくバイト数
+	const size_t buf_len = buf.size() * sizeof(yaya::char_t);
 	unsigned char* buf_ptr = (unsigned char*)buf.c_str();
 	
 	if ( wcsicmp(digest_type.c_str(),L"sha1") == 0 || wcsicmp(digest_type.c_str(),L"sha-1") == 0 ) {
