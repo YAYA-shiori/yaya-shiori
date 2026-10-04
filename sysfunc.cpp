@@ -6228,7 +6228,7 @@ CValue	CSystemFunction::ASEARCHEX(CSF_FUNCPARAM &p)
 
 //string,ascent
 template <class TTYPE>
-class CSFSORT_StringAscent : public std::binary_function<TTYPE, TTYPE, bool> {
+class CSFSORT_StringAscent {
 private:
 	const CValueArray &a;
 
@@ -6243,7 +6243,7 @@ public:
 
 //string,descent
 template <class TTYPE>
-class CSFSORT_StringDescent : public std::binary_function<TTYPE, TTYPE, bool> {
+class CSFSORT_StringDescent {
 private:
 	const CValueArray &a;
 
@@ -6258,7 +6258,7 @@ public:
 
 //string,ascent,case insensitive
 template <class TTYPE>
-class CSFSORT_StringAscentI : public std::binary_function<TTYPE, TTYPE, bool> {
+class CSFSORT_StringAscentI {
 private:
 	const CValueArray &a;
 
@@ -6273,7 +6273,7 @@ public:
 
 //string,descent,case insensitive
 template <class TTYPE>
-class CSFSORT_StringDescentI : public std::binary_function<TTYPE, TTYPE, bool> {
+class CSFSORT_StringDescentI {
 private:
 	const CValueArray &a;
 
@@ -6288,7 +6288,7 @@ public:
 
 //string,ascent,length
 template <class TTYPE>
-class CSFSORT_StringAscentL : public std::binary_function<TTYPE, TTYPE, bool> {
+class CSFSORT_StringAscentL {
 private:
 	const CValueArray &a;
 
@@ -6303,7 +6303,7 @@ public:
 
 //string,descent,length
 template <class TTYPE>
-class CSFSORT_StringDescentL : public std::binary_function<TTYPE, TTYPE, bool> {
+class CSFSORT_StringDescentL {
 private:
 	const CValueArray &a;
 
@@ -6318,7 +6318,7 @@ public:
 
 //int,ascent
 template <class TTYPE>
-class CSFSORT_IntAscent : public std::binary_function<TTYPE, TTYPE, bool> {
+class CSFSORT_IntAscent {
 private:
 	const CValueArray &a;
 
@@ -6333,7 +6333,7 @@ public:
 
 //int,descent
 template <class TTYPE>
-class CSFSORT_IntDescent : public std::binary_function<TTYPE, TTYPE, bool> {
+class CSFSORT_IntDescent {
 private:
 	const CValueArray &a;
 
@@ -6348,7 +6348,7 @@ public:
 
 //double,ascent
 template <class TTYPE>
-class CSFSORT_DoubleAscent : public std::binary_function<TTYPE, TTYPE, bool> {
+class CSFSORT_DoubleAscent {
 private:
 	const CValueArray &a;
 
@@ -6363,7 +6363,7 @@ public:
 
 //double,descent
 template <class TTYPE>
-class CSFSORT_DoubleDescent : public std::binary_function<TTYPE, TTYPE, bool> {
+class CSFSORT_DoubleDescent {
 private:
 	const CValueArray &a;
 
