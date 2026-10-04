@@ -603,7 +603,7 @@ yaya::char_t *Ccct::mbcs_to_utf16be(const char *pAnsiStr, int charset)
 		return NULL;
 	}
 	if (!*pAnsiStr) {
-		yaya::char_t* p = (yaya::char_t*)malloc(2);
+		yaya::char_t* p = (yaya::char_t*)malloc(sizeof(yaya::char_t));
 		p[0] = 0;
 		return p;
 	}
