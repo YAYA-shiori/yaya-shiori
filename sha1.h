@@ -17,7 +17,7 @@
 #ifndef _SHA1_H_
 #define _SHA1_H_
 
-#if (_MSC_VER >= 1400)
+#if (_MSC_VER >= 1400) || !defined(_MSC_VER)
 #include <stdint.h>
 #else
 #ifndef _STDINT_H

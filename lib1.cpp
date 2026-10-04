@@ -21,6 +21,7 @@
 # include <sys/wait.h>
 # include <unistd.h>
 # include <fcntl.h>
+# include <libgen.h>
 # include <poll.h>
 # include <signal.h>
 # include <errno.h>
