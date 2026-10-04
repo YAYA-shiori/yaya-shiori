@@ -23,6 +23,13 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 - サブモジュールを使う処理（JSON/XML、SQL* 関数）に手を入れる前に、`git submodule update --init --remote parson tinyxml2 deelx sqlite` で参照を最新にしてから作業する
 - SQLite のフォークは upstream の amalgamation に VC6 / 古い SDK 向けの修正を1コミット載せたもの。64bit のリテラルは `INT64_C()` / `UINT64_C()` で書く（`LL` は VC6 が、`i64` は gcc が読めない）。修正したら VC6 と gcc（Strawberry Perl 同梱の `gcc`）の両方で `sqlite3.c` 単体がコンパイルできることを確かめる
 - VC6 以外のビルドは makefile。`makefile.linux` が基準で、`freebsd`（clang）/ `posix`（macOS、`.bundle`）/ `emscripten` はオブジェクト一覧と規則を linux と同じにしてある。ソースを増やしたら全部の一覧に足す（`makefile.mingw32` は `posix_utils.o` に加えて `aya5_res.o` も持つ）。POSIX 系の makefile は `.cpp` を iconv で UTF-8 にしてからコンパイルする
+- POSIX 系のビルド検証は GitHub Actions の `.github/workflows/posix-build.yml`（手動実行のみ）で行う。ubuntu-latest で `makefile.linux`、macos-latest（arm64）で `makefile.posix` をビルドし、`tests/posix_smoke.c` で dlopen → load → request → unload → dlclose まで通す
+  - 実行は `gh workflow run posix-build.yml --ref 600`、待つのは `gh run watch <run-id>`。失敗時のログは `gh api --allow-escape-sequences repos/YAYA-shiori/yaya-shiori/actions/jobs/<job-id>/logs`（ANSI エスケープは sed で除く）。macOS のジョブはキューで待たされることがある
+  - makefile は `make -k` で回しているので、1回の実行で全ファイルのエラーが分かる
+  - スモークテストは空ディレクトリを load してシェルモードにし、`1+2*3` などの式を EVAL した結果を比べる。期待値を足すときは、EXE 構成の `yaya.exe` で先に確かめておく
+  - gcc（Linux）で通って clang（macOS）で落ちる典型: `yaya::int_t`（`std::int64_t`）が Linux は `long`、macOS は `long long` なので `ptrdiff_t` / `size_t` から `CValue(...)` を作ると曖昧になる（`static_cast<yaya::int_t>` を付ける）、他の翻訳単位から呼ぶ関数を1ファイルだけで `inline` 定義しない、macOS の `<fcntl.h>` は `FREAD` / `FWRITE` をマクロにする（`sysfunc.h` で `#undef`）、`basename` には `<libgen.h>` が要る
+  - POSIX 版の `CBasis::ExecuteRequest` は、成功時は入力バッファを `free` しない（エラー時は `free` する）。テスト側は成功時に入力を解放していない
+  - Emscripten は CI の対象外。最新の emsdk では `makefile.emscripten` の `-shared` が `-fPIC` 必須の SIDE_MODULE になりリンクが通らない（コンパイルまでは通る）。MinGW / VC6 のビルドも CI には載せていないので、手元で確かめる
 - `makefile.mingw32` は Windows 用の yaya.dll を MinGW-w64 で作る（`-finput-charset=CP932 -fexec-charset=CP932` で VC++ と同じく文字列を CP932 のまま扱う）。Strawberry Perl 同梱の gcc（x86_64、64bit の DLL になる）で確かめられる。リポジトリを汚さないよう、`git ls-files --recurse-submodules` のファイルを作業用ディレクトリに写してから `mingw32-make -f makefile.mingw32`（動作確認用の EXE は `exe` ターゲット）
   - MinGW は `_WINDOWS` だが `_MSC_VER` ではない。SEH（`__try`）や `i64` リテラルなど MSVC 専用の書き方は `_MSC_VER` で分け、64bit の整数リテラルは `LL_DEF()` / `ULL_DEF()` で書く
 - ソースは Shift JIS（CP932）で統一する。UTF-8 のファイルが混ざると `-finput-charset=CP932` の MinGW ビルドが通らない
