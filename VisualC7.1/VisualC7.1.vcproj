@@ -314,6 +314,45 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\gumbo\src\attribute.c">
+			</File>
+			<File
+				RelativePath="..\gumbo\src\char_ref.c">
+			</File>
+			<File
+				RelativePath="..\gumbo\src\char_ref_gperf.c">
+			</File>
+			<File
+				RelativePath="..\gumbo\src\error.c">
+			</File>
+			<File
+				RelativePath="..\gumbo\src\parser.c">
+			</File>
+			<File
+				RelativePath="..\gumbo\src\string_buffer.c">
+			</File>
+			<File
+				RelativePath="..\gumbo\src\string_piece.c">
+			</File>
+			<File
+				RelativePath="..\gumbo\src\tag.c">
+			</File>
+			<File
+				RelativePath="..\gumbo\src\tokenizer.c">
+			</File>
+			<File
+				RelativePath="..\gumbo\src\utf8.c">
+			</File>
+			<File
+				RelativePath="..\gumbo\src\util.c">
+			</File>
+			<File
+				RelativePath="..\gumbo\src\vector.c">
+			</File>
+			<File
+				RelativePath="..\html.cpp">
+			</File>
+			<File
 				RelativePath="..\jsonxml.cpp">
 			</File>
 			<File
@@ -632,6 +671,12 @@
 			</File>
 			<File
 				RelativePath="..\globaldef.h">
+			</File>
+			<File
+				RelativePath="..\gumbo\src\gumbo.h">
+			</File>
+			<File
+				RelativePath="..\html.h">
 			</File>
 			<File
 				RelativePath="..\jsonxml.h">

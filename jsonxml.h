@@ -29,7 +29,8 @@ enum {
 	DATAFMT_JSON,
 	DATAFMT_XML,
 	DATAFMT_YAML,
-	DATAFMT_TOML
+	DATAFMT_TOML,
+	DATAFMT_HTML // ì«Ç›çûÇ›ÇÃÇ›Åihtml.hÅj
 };
 
 /* -----------------------------------------------------------------------

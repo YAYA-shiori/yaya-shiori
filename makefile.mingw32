@@ -41,6 +41,19 @@ LIBAYA5_OBJ = \
 	file1.o \
 	function.o \
 	globalvariable.o \
+	gumbo/src/attribute.o \
+	gumbo/src/char_ref.o \
+	gumbo/src/char_ref_gperf.o \
+	gumbo/src/error.o \
+	gumbo/src/parser.o \
+	gumbo/src/string_buffer.o \
+	gumbo/src/string_piece.o \
+	gumbo/src/tag.o \
+	gumbo/src/tokenizer.o \
+	gumbo/src/utf8.o \
+	gumbo/src/util.o \
+	gumbo/src/vector.o \
+	html.o \
 	jsonxml.o \
 	lib.o \
 	lib1.o \

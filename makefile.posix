@@ -46,6 +46,19 @@ LIBAYA5_OBJ = \
 	file1.o \
 	function.o \
 	globalvariable.o \
+	gumbo/src/attribute.o \
+	gumbo/src/char_ref.o \
+	gumbo/src/char_ref_gperf.o \
+	gumbo/src/error.o \
+	gumbo/src/parser.o \
+	gumbo/src/string_buffer.o \
+	gumbo/src/string_piece.o \
+	gumbo/src/tag.o \
+	gumbo/src/tokenizer.o \
+	gumbo/src/utf8.o \
+	gumbo/src/util.o \
+	gumbo/src/vector.o \
+	html.o \
 	jsonxml.o \
 	lib.o \
 	lib1.o \
@@ -89,6 +102,32 @@ $(LIBAYA5): $(LIBAYA5_OBJ)
 # SQLiteはCとしてコンパイルする（C++では通らない）
 sqlite3_yaya.o: sqlite3_yaya.c sqlite/sqlite3.c
 	$(CC) $(CFLAGS) -o $@ -c sqlite3_yaya.c
+
+# GumboはCとしてコンパイルする（C++では通らない）
+gumbo/src/attribute.o: gumbo/src/attribute.c
+	$(CC) $(CFLAGS) -o $@ -c gumbo/src/attribute.c
+gumbo/src/char_ref.o: gumbo/src/char_ref.c
+	$(CC) $(CFLAGS) -o $@ -c gumbo/src/char_ref.c
+gumbo/src/char_ref_gperf.o: gumbo/src/char_ref_gperf.c
+	$(CC) $(CFLAGS) -o $@ -c gumbo/src/char_ref_gperf.c
+gumbo/src/error.o: gumbo/src/error.c
+	$(CC) $(CFLAGS) -o $@ -c gumbo/src/error.c
+gumbo/src/parser.o: gumbo/src/parser.c
+	$(CC) $(CFLAGS) -o $@ -c gumbo/src/parser.c
+gumbo/src/string_buffer.o: gumbo/src/string_buffer.c
+	$(CC) $(CFLAGS) -o $@ -c gumbo/src/string_buffer.c
+gumbo/src/string_piece.o: gumbo/src/string_piece.c
+	$(CC) $(CFLAGS) -o $@ -c gumbo/src/string_piece.c
+gumbo/src/tag.o: gumbo/src/tag.c
+	$(CC) $(CFLAGS) -o $@ -c gumbo/src/tag.c
+gumbo/src/tokenizer.o: gumbo/src/tokenizer.c
+	$(CC) $(CFLAGS) -o $@ -c gumbo/src/tokenizer.c
+gumbo/src/utf8.o: gumbo/src/utf8.c
+	$(CC) $(CFLAGS) -o $@ -c gumbo/src/utf8.c
+gumbo/src/util.o: gumbo/src/util.c
+	$(CC) $(CFLAGS) -o $@ -c gumbo/src/util.c
+gumbo/src/vector.o: gumbo/src/vector.c
+	$(CC) $(CFLAGS) -o $@ -c gumbo/src/vector.c
 
 .c.o:
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $<

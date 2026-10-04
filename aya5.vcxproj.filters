@@ -48,6 +48,45 @@
     <ClCompile Include="globalvariable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gumbo\src\attribute.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gumbo\src\char_ref.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gumbo\src\char_ref_gperf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gumbo\src\error.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gumbo\src\parser.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gumbo\src\string_buffer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gumbo\src\string_piece.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gumbo\src\tag.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gumbo\src\tokenizer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gumbo\src\utf8.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gumbo\src\util.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gumbo\src\vector.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="html.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="jsonxml.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -159,6 +198,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="globaldef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gumbo\src\gumbo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="html.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="jsonxml.h">

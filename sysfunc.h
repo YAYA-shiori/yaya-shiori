@@ -332,12 +332,15 @@ protected:
 	CValue	DUMPYAML(CSF_FUNCPARAM &p);
 	CValue	DUMPTOML(CSF_FUNCPARAM &p);
 
+	CValue	FREADHTML(CSF_FUNCPARAM &p);
+	CValue	PARSEHTML(CSF_FUNCPARAM &p);
+
 	CValue	SQLOPEN(CSF_FUNCPARAM &p);
 	CValue	SQLCLOSE(CSF_FUNCPARAM &p);
 	CValue	SQLEXEC(CSF_FUNCPARAM &p);
 	CValue	SQLQUERY(CSF_FUNCPARAM &p);
 
-	// JSON/XML/YAML/TOMLの共通処理（fmtはDATAFMT_*）
+	// JSON/XML/YAML/TOML/HTMLの共通処理（fmtはDATAFMT_*。HTMLは読み込みのみ）
 	CValue	FReadDataFile(CSF_FUNCPARAM &p, const yaya::char_t *fname, int fmt);
 	CValue	ParseDataString(CSF_FUNCPARAM &p, const yaya::char_t *fname, int fmt);
 	CValue	ParseUtf8Data(CSF_FUNCPARAM &p, const yaya::char_t *fname, const std::string &utf8, int fmt);

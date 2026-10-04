@@ -244,6 +244,75 @@ SOURCE=.\globalvariable.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\gumbo\src\attribute.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\gumbo\src\char_ref.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\gumbo\src\char_ref_gperf.c
+
+!IF  "$(CFG)" == "aya5 - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "aya5 - Win32 Debug"
+
+# ADD CPP /Zd
+
+!ELSEIF  "$(CFG)" == "aya5 - Win32 Release EXE"
+
+!ELSEIF  "$(CFG)" == "aya5 - Win32 Debug EXE"
+
+# ADD CPP /Zd
+
+!ELSEIF  "$(CFG)" == "aya5 - Win32 ReleaseLangSep"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\gumbo\src\error.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\gumbo\src\parser.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\gumbo\src\string_buffer.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\gumbo\src\string_piece.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\gumbo\src\tag.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\gumbo\src\tokenizer.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\gumbo\src\utf8.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\gumbo\src\util.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\gumbo\src\vector.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\html.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\jsonxml.cpp
 # End Source File
 # Begin Source File
@@ -411,6 +480,14 @@ SOURCE=.\global.h
 # Begin Source File
 
 SOURCE=.\globaldef.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\gumbo\src\gumbo.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\html.h
 # End Source File
 # Begin Source File
 

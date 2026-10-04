@@ -10,3 +10,6 @@
 [submodule "deelx"]
 	path = deelx
 	url = https://github.com/ponapalt/deelx.git
+[submodule "gumbo"]
+	path = gumbo
+	url = https://github.com/ponapalt/gumbo-parser-mirror.git

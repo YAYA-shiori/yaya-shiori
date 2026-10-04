@@ -91,6 +91,7 @@ const int BUFFER_SIZE = 1024;
 #include "dir_enum.h"
 #include "jsonxml.h"
 #include "yamltoml.h"
+#include "html.h"
 
 extern "C" {
 #define PROTOTYPES 1
@@ -383,6 +384,9 @@ constexpr CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::FWRITETOML , L"FWRITETOML" } ,
 	{ &CSystemFunction::DUMPYAML , L"DUMPYAML" } ,
 	{ &CSystemFunction::DUMPTOML , L"DUMPTOML" } ,
+	// HTML
+	{ &CSystemFunction::FREADHTML , L"FREADHTML" } ,
+	{ &CSystemFunction::PARSEHTML , L"PARSEHTML" } ,
 	// SQLite
 	{ &CSystemFunction::SQLOPEN , L"SQLOPEN" } ,
 	{ &CSystemFunction::SQLCLOSE , L"SQLCLOSE" } ,
@@ -8295,7 +8299,7 @@ CValue	CSystemFunction::PARSEHEADER(CSF_FUNCPARAM &p)
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::FReadDataFile
- *  機能概要：  FREADJSON/FREADXML/FREADYAML/FREADTOMLの本体
+ *  機能概要：  FREADJSON/FREADXML/FREADYAML/FREADTOML/FREADHTMLの本体
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::FReadDataFile(CSF_FUNCPARAM &p, const yaya::char_t *fname, int fmt)
@@ -8343,7 +8347,17 @@ CValue	CSystemFunction::FReadDataFile(CSF_FUNCPARAM &p, const yaya::char_t *fnam
 	fclose(pF);
 
 	if (charset < 0) {
-		charset = (fmt == DATAFMT_XML) ? XmlDetectCharset(bytes) : CHARSET_UTF8;
+		switch (fmt) {
+		case DATAFMT_XML:
+			charset = XmlDetectCharset(bytes);
+			break;
+		case DATAFMT_HTML:
+			charset = HtmlDetectCharset(bytes);
+			break;
+		default:
+			charset = CHARSET_UTF8;
+			break;
+		}
 	}
 
 	if (charset == CHARSET_UTF8 || charset == CHARSET_BINARY) {
@@ -8369,7 +8383,7 @@ CValue	CSystemFunction::FReadDataFile(CSF_FUNCPARAM &p, const yaya::char_t *fnam
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::ParseDataString
- *  機能概要：  PARSEJSON/PARSEXML/PARSEYAML/PARSETOMLの本体
+ *  機能概要：  PARSEJSON/PARSEXML/PARSEYAML/PARSETOML/PARSEHTMLの本体
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ParseDataString(CSF_FUNCPARAM &p, const yaya::char_t *fname, int fmt)
@@ -8403,7 +8417,7 @@ CValue	CSystemFunction::ParseDataString(CSF_FUNCPARAM &p, const yaya::char_t *fn
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::ParseUtf8Data
- *  機能概要：  UTF-8のJSON/XML/YAML/TOMLを解析します　失敗時は警告を出して空値を返します
+ *  機能概要：  UTF-8のJSON/XML/YAML/TOML/HTMLを解析します　失敗時は警告を出して空値を返します
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::ParseUtf8Data(CSF_FUNCPARAM &p, const yaya::char_t *fname, const std::string &utf8, int fmt)
@@ -8421,6 +8435,9 @@ CValue	CSystemFunction::ParseUtf8Data(CSF_FUNCPARAM &p, const yaya::char_t *fnam
 		break;
 	case DATAFMT_TOML:
 		ok = TomlToValue(utf8, result, errstr);
+		break;
+	case DATAFMT_HTML:
+		ok = HtmlToValue(utf8, result, errstr);
 		break;
 	default:
 		ok = JsonToValue(utf8, result);
@@ -8579,6 +8596,30 @@ CValue	CSystemFunction::DUMPYAML(CSF_FUNCPARAM &p)
 CValue	CSystemFunction::DUMPTOML(CSF_FUNCPARAM &p)
 {
 	return DumpData(p, L"DUMPTOML", DATAFMT_TOML);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FREADHTML
+ *  機能概要：  HTMLファイルを丸ごと読み込み、<html>要素をハッシュにします
+ *
+ *  FREADHTML(path[,charset])　charset省略時はBOMと<meta charset>から判定（無ければUTF-8）
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FREADHTML(CSF_FUNCPARAM &p)
+{
+	return FReadDataFile(p, L"FREADHTML", DATAFMT_HTML);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::PARSEHTML
+ *  機能概要：  HTML文字列を解析し、<html>要素をハッシュにします
+ *
+ *  PARSEHTML(str)
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::PARSEHTML(CSF_FUNCPARAM &p)
+{
+	return ParseDataString(p, L"PARSEHTML", DATAFMT_HTML);
 }
 
 /* -----------------------------------------------------------------------
@@ -8855,6 +8896,35 @@ CValue	CSystemFunction::LICENSE(CSF_FUNCPARAM &p)
 	v.array().emplace_back(L"");
 	v.array().emplace_back(L"3. This notice may not be removed or altered from any source");
 	v.array().emplace_back(L"distribution.");
+	v.array().emplace_back(L"");
+
+	v.array().emplace_back(L"---Gumbo---");
+	v.array().emplace_back(L"Copyright 2010 Google Inc. All Rights Reserved.");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"Licensed under the Apache License, Version 2.0 (the \"License\");");
+	v.array().emplace_back(L"you may not use this file except in compliance with the License.");
+	v.array().emplace_back(L"You may obtain a copy of the License at");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"    http://www.apache.org/licenses/LICENSE-2.0");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"Unless required by applicable law or agreed to in writing, software");
+	v.array().emplace_back(L"distributed under the License is distributed on an \"AS IS\" BASIS,");
+	v.array().emplace_back(L"WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.");
+	v.array().emplace_back(L"See the License for the specific language governing permissions and");
+	v.array().emplace_back(L"limitations under the License.");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"Gumbo contains the UTF-8 decoder below.");
+	v.array().emplace_back(L"Copyright (c) 2008-2009 Bjoern Hoehrmann <bjoern@hoehrmann.de>");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"Permission is hereby granted, free of charge, to any person obtaining a copy");
+	v.array().emplace_back(L"of this software and associated documentation files (the \"Software\"), to deal");
+	v.array().emplace_back(L"in the Software without restriction, including without limitation the rights");
+	v.array().emplace_back(L"to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies");
+	v.array().emplace_back(L"of the Software, and to permit persons to whom the Software is furnished to do");
+	v.array().emplace_back(L"so, subject to the following conditions:");
+	v.array().emplace_back(L"");
+	v.array().emplace_back(L"The above copyright notice and this permission notice shall be included in");
+	v.array().emplace_back(L"all copies or substantial portions of the Software.");
 	v.array().emplace_back(L"");
 
 	v.array().emplace_back(L"---SQLite---");
