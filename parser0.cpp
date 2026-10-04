@@ -3324,7 +3324,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 	return 0;
 }
 
-inline CDefine::CDefine(CAyaVM& vm, const yaya::string_t& bef, const yaya::string_t& aft, const yaya::string_t& df) :
+CDefine::CDefine(CAyaVM& vm, const yaya::string_t& bef, const yaya::string_t& aft, const yaya::string_t& df) :
 	before(bef), after(aft), dicfilename(df), dicfilename_fullpath(vm.basis().ToFullPath(df))
 {
 }
