@@ -7232,6 +7232,64 @@ CValue CSystemFunction::READFMO(CSF_FUNCPARAM &p)
 
 	return result;
 }
+#elif defined(POSIX)
+static bool GetNinixFMO(std::string &sockdir, std::string &fmo);
+
+/*
+ *  POSIX では ninix の FMO を読む。ninix の FMO は1つだけなので名前は使わない。
+ *  ninix の FMO は UTF-8 なので、文字コードの省略時は UTF-8 とする
+ */
+CValue CSystemFunction::READFMO(CSF_FUNCPARAM &p)
+{
+	yaya::string_t fmoname = L"Sakura";
+
+	if (p.arg.array_size() >= 1) {
+		fmoname=p.arg.array()[0].GetValueString();
+	}
+
+	int charset = CHARSET_UTF8;
+
+	if (p.arg.array_size() >= 2) {
+		charset = GetCharset(p.arg.array()[1],L"READFMO", p.dicname, p.line);
+		if ( charset < 0 ) {
+			return CValue(F_TAG_NOP, 0/*dmy*/);
+		}
+	}
+
+	std::string sockdir;
+	std::string data;
+
+	if ( ! GetNinixFMO(sockdir, data) ) {
+		vm.logger().Error(E_W, 13, L"READFMO(" + fmoname + L").ninix shared memory not found", p.dicname, p.line);
+		SetError(13);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	if ( data.empty() ) {
+		vm.logger().Error(E_W, 13, L"READFMO(" + fmoname + L").GetFMO Failed", p.dicname, p.line);
+		SetError(13);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+	else if ( data.size() > 1000000 ) {
+		vm.logger().Error(E_W, 13, L"READFMO(" + fmoname + L").FMO size too big" , p.dicname, p.line);
+		SetError(13);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	yaya::char_t *t_str = Ccct::MbcsToUcs2(data.c_str(),charset);
+
+	if (t_str == NULL) {
+		vm.logger().Error(E_E, 13, L"READFMO(" + fmoname + L").MbcsToUcs2 Failed", p.dicname, p.line);
+		SetError(13);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	CValue result = CValue(t_str);
+	free(t_str);
+	t_str= NULL;
+
+	return result;
+}
 #else
 CValue CSystemFunction::READFMO(CSF_FUNCPARAM &p)
 {
@@ -7861,6 +7919,40 @@ static std::string SendDataUsingUnixSocket(const std::string &path, std::string 
 	return data;
 }
 
+/* -----------------------------------------------------------------------
+ *  ninix の FMO を取得する
+ *
+ *  共有メモリ /ninix からソケットのディレクトリ（末尾 / 付き）を読み、
+ *  そこの ninix ソケットに GetFMO を送る。
+ *  sockdir にディレクトリ、fmo に FMO の内容を入れる。
+ *  共有メモリが開けないなど ninix が見つからなければ false
+ * -----------------------------------------------------------------------
+ */
+static bool GetNinixFMO(std::string &sockdir, std::string &fmo)
+{
+	int fd = shm_open("/ninix", O_RDWR, 0);
+	if (fd == -1) {
+		return false;
+	}
+	shm_t *shm = static_cast<shm_t *>(mmap(NULL, sizeof(shm_t), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
+	close(fd);
+	if (shm == MAP_FAILED) {
+		return false;
+	}
+	if (sem_wait(&shm->sem) == -1) {
+		munmap(shm, sizeof(shm_t));
+		return false;
+	}
+	sockdir.assign(shm->buf, (shm->size < sizeof(shm->buf)) ? shm->size : sizeof(shm->buf));
+	int post_result = sem_post(&shm->sem);
+	munmap(shm, sizeof(shm_t));
+	if (post_result == -1) {
+		return false;
+	}
+	fmo = SendDataUsingUnixSocket(sockdir + "ninix", "GetFMO\r\n", true);
+	return true;
+}
+
 #endif
 
 CValue	CSystemFunction::DIRECTSSTP(CSF_FUNCPARAM &p)
@@ -7889,28 +7981,9 @@ CValue	CSystemFunction::DIRECTSSTP(CSF_FUNCPARAM &p)
 	free(req);
 
 	// TODO: log error message
-	shm_t *shm;
-	int fd = shm_open("/ninix", O_RDWR, 0);
-	if (fd == -1) {
-		return CValue(-1);
-	}
-	shm = static_cast<shm_t *>(mmap(NULL, sizeof(shm_t), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
-	close(fd);
-	if (shm == MAP_FAILED) {
-		return CValue(-1);
-	}
-	if (sem_wait(&shm->sem) == -1) {
-		munmap(shm, sizeof(shm_t));
-		return CValue(-1);
-	}
-	std::string path(shm->buf, shm->size);
-	int post_result = sem_post(&shm->sem);
-	munmap(shm, sizeof(shm_t));
-	if (post_result == -1) {
-		return CValue(-1);
-	}
-	std::string data = SendDataUsingUnixSocket(path + "ninix", "GetFMO\r\n", true);
-	if (data.empty()) {
+	std::string path;
+	std::string data;
+	if (!GetNinixFMO(path, data) || data.empty()) {
 		return CValue(-1);
 	}
 	std::istringstream iss(data);
