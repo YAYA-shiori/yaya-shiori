@@ -389,7 +389,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 						//_argv[0] = dicname _argv[1] = linenum
 						CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
 						arg.array().emplace_back(CValue(dicfilename));
-						arg.array().emplace_back(CValue(st.linecount));
+						arg.array().emplace_back(CValue(static_cast<yaya::int_t>(st.linecount)));
 
 						pvm->function_exec().func[funcpos].Execute(arg);
 					}
@@ -442,7 +442,7 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 						//_argv[0] = dicname _argv[1] = linenum
 						CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
 						arg.array().emplace_back(CValue(dicfilename));
-						arg.array().emplace_back(CValue(st.linecount));
+						arg.array().emplace_back(CValue(static_cast<yaya::int_t>(st.linecount)));
 
 						pvm->function_exec().func[funcpos].Execute(arg);
 					}

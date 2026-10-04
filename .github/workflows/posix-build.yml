@@ -41,7 +41,7 @@ jobs:
           submodules: recursive
 
       - name: Build
-        run: make -f makefile.posix -j"$(sysctl -n hw.ncpu)"
+        run: make -k -f makefile.posix -j"$(sysctl -n hw.ncpu)"
 
       - name: Check output
         run: |
@@ -73,7 +73,7 @@ jobs:
         run: |
           source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
           emcc --version
-          make -f makefile.emscripten -j"$(nproc)"
+          make -k -f makefile.emscripten -j"$(nproc)"
 
       - name: Check output
         run: |
