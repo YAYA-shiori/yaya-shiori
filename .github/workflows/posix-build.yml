@@ -1,0 +1,80 @@
+name: posix-build
+
+# 手動実行のみ。Actions タブの "Run workflow" からブランチを選んで実行する
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    name: Linux (makefile.linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: make -f makefile.linux -j"$(nproc)"
+
+      - name: Check output
+        run: |
+          ls -l libaya5.so
+          file libaya5.so
+
+      - name: Smoke test (dlopen + SHIORI load/request/unload)
+        run: |
+          cc -o posix_smoke tests/posix_smoke.c -ldl
+          mkdir shell_dir
+          ./posix_smoke "$PWD/libaya5.so" "$PWD/shell_dir"
+
+  macos:
+    name: macOS (makefile.posix)
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: make -f makefile.posix -j"$(sysctl -n hw.ncpu)"
+
+      - name: Check output
+        run: |
+          ls -l libyaya.bundle
+          file libyaya.bundle
+
+      - name: Smoke test (dlopen + SHIORI load/request/unload)
+        run: |
+          cc -o posix_smoke tests/posix_smoke.c
+          mkdir shell_dir
+          ./posix_smoke "$PWD/libyaya.bundle" "$PWD/shell_dir"
+
+  emscripten:
+    name: Emscripten (makefile.emscripten)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up emsdk
+        run: |
+          git clone --depth 1 https://github.com/emscripten-core/emsdk.git "$RUNNER_TEMP/emsdk"
+          "$RUNNER_TEMP/emsdk/emsdk" install latest
+          "$RUNNER_TEMP/emsdk/emsdk" activate latest
+
+      - name: Build
+        run: |
+          source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
+          emcc --version
+          make -f makefile.emscripten -j"$(nproc)"
+
+      - name: Check output
+        run: |
+          ls -l yaya.js
