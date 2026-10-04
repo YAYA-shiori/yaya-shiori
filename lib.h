@@ -46,6 +46,7 @@ protected:
 
 	module_t hDLL;
 	bool    isAlreadyLoaded;
+	bool    isBasic;	// SAORI-basic（実行ファイル）なら true
 	int		charset;
 
 private:
@@ -56,6 +57,9 @@ private:
 	int		LoadLib(void);
 	void	UnloadLib(void);
 
+	int		LoadBasic(void);
+	int		RequestBasic(const yaya::string_t &istr, yaya::string_t &ostr);
+
 public:
 	CLib1(CAyaVM &vmr, const yaya::string_t &n, int cs) : vm(vmr)
 	{
@@ -64,7 +68,16 @@ public:
 		hDLL    = NULL;
 		requestlib = NULL;
 		isAlreadyLoaded = false;
+		isBasic = IsBasicName(n);
+#if defined(POSIX)
+		// POSIX の実行ファイルは UTF-8 で入出力するものが普通なので、SAORI-basic の既定は UTF-8 にする
+		if ( isBasic ) {
+			charset = CHARSET_UTF8;
+		}
+#endif
 	}
+
+	static bool	IsBasicName(const yaya::string_t &n);
 
 	~CLib1(void) { Unload(); }
 

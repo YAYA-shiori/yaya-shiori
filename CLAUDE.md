@@ -165,3 +165,10 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 - 準備済みステートメントは接続ごとに SQL 文字列をキーにしてキャッシュする。初回は1文ずつ prepare → 実行する（`CREATE TABLE t...; CREATE INDEX ... ON t` のように前の文が作った表を次の文が参照すると、まとめて prepare できないため）
 - パラメータは `args[2]` 以降。すべてスカラーなら1回実行、すべて配列/ハッシュなら1つを1回分として繰り返す（関数呼び出しで外側の配列が展開されるのを利用している）。値の対応は 整数/実数/文字列/VOID ↔ INTEGER/REAL/TEXT/NULL、BLOB は16進数の文字列
 - 動作確認は EXE 構成の `yaya.exe` を標準入出力で動かす（`load:長さ\r\n<パス>` → `request:長さ\r\n<要求>` → `unload:0`）。辞書で戻り値を捨てる呼び出しは `_d = SQLEXEC(...)` のように代入しないと、関数の返り値の候補に混ざる
+
+## SAORI-basic（LOADLIB / REQUESTLIB）
+
+- `CLib1` は拡張子で SAORI-basic（実行ファイル）かを判定する（`CLib1::IsBasicName`。Windows は `.dll` と拡張子なし以外、POSIX は `.dll` `.so` `.dylib` `.bundle` 以外）。SAORI-basic なら `Load` / `Unload` / `Request` は `LoadBasic` / 何もしない / `RequestBasic` に分かれ、DLL は扱わない
+- `RequestBasic` は SAORI/1.0 の要求を解析し、`GET Version` には本体が応答する。`EXECUTE` は ArgumentN を1つずつの引数にして `RunBasic`（Windows は `CreateProcessW`、POSIX は fork → execv。シェルは通さない）で起動し、標準出力を Result（行を文字の `\r\n` でつなぐ）と ValueN（1行ずつ）にする。10秒・16MB で打ち切って 500
+- システム辞書の `FUNCTIONEX` は `LOADLIB` / `REQUESTLIB` を呼ぶだけなので、辞書側は変えずに SAORI-basic を直接呼べる
+- 出力を読むときは容量を倍々で確保する（`AppendOutput`）。VC6 の `std::string` は足りない分しか確保し直さず、大きな出力で二乗の時間がかかる
