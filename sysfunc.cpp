@@ -54,6 +54,7 @@
 # include <sys/mman.h>
 # include <sys/socket.h>
 # include <sys/un.h>
+# include <sys/wait.h>
 # include <unistd.h>
 
 struct shm_t {
@@ -7241,39 +7242,178 @@ CValue CSystemFunction::READFMO(CSF_FUNCPARAM &p)
 
 
 /* -----------------------------------------------------------------------
+ *  EXECUTE / EXECUTE_WAIT の共通処理
+ *
+ *  引数は ( パス [, 引数 [, 作業ディレクトリ ]] )。作業ディレクトリは起動するプロセスにだけ
+ *  設定し、YAYA やホスト（SSP など）のカレントディレクトリは変えない。相対パスは他のファイル
+ *  関数と同じく base_path から解決する。
+ *  返値は 0（正常）または警告の番号（8/9）
+ * -----------------------------------------------------------------------
+ */
+static int GetExecuteArgs(CAyaVM &vm, CSF_FUNCPARAM &p, yaya::string_t &file, yaya::string_t &param, yaya::string_t &dir)
+{
+	if (!p.arg.array_size()) {
+		return 8;
+	}
+
+	if (!p.arg.array()[0].IsString()) {
+		return 9;
+	}
+
+	file = p.arg.array()[0].s_value;
+
+	param.erase();
+	if ( p.arg.array_size() >= 2 ) {
+		param = p.arg.array()[1].s_value;
+	}
+
+	dir.erase();
+	if ( p.arg.array_size() >= 3 ) {
+		if (!p.arg.array()[2].IsString()) {
+			return 9;
+		}
+		if ( p.arg.array()[2].s_value.size() ) {
+			dir = vm.basis().ToFullPath(p.arg.array()[2].s_value);
+		}
+	}
+
+	return 0;
+}
+
+#if defined(WIN32)
+/* -----------------------------------------------------------------------
+ *  EXECUTE / EXECUTE_WAIT の作業ディレクトリが存在するか
+ *  ShellExecute は存在しない作業ディレクトリを渡しても失敗にしないため、先に調べる
+ * -----------------------------------------------------------------------
+ */
+static bool IsExecuteDirWin32(const char *dir)
+{
+	DWORD attr = ::GetFileAttributesA(dir);
+	return attr != 0xFFFFFFFF && (attr & FILE_ATTRIBUTE_DIRECTORY) != 0;
+}
+#endif
+
+#if defined(POSIX)
+/* -----------------------------------------------------------------------
+ *  /bin/sh -c cmd を子プロセスで実行する
+ *
+ *  dir が空でなければ子プロセスの中だけで chdir する。
+ *  wait が true なら終了を待って終了コードを返す。false なら子からさらに fork した孫に
+ *  実行させ、子はすぐ終わらせて回収する（孫は init に引き取られるのでゾンビが残らない）。
+ *  ホストがマルチスレッドの場合に備え、fork から exec までの間は async-signal-safe な
+ *  関数しか呼ばない（文字列は fork の前に用意しておく）。
+ * -----------------------------------------------------------------------
+ */
+static yaya::int_t ExecutePosix(const std::string &cmd, const std::string &dir, bool wait)
+{
+	const char *s_dir = NULL;
+	if ( dir.size() ) {
+		struct stat sb;
+		if ( stat(dir.c_str(), &sb) != 0 || ! S_ISDIR(sb.st_mode) ) {
+			return -1;
+		}
+		s_dir = dir.c_str();
+	}
+
+	char *argv[4];
+	argv[0] = const_cast<char*>("sh");
+	argv[1] = const_cast<char*>("-c");
+	argv[2] = const_cast<char*>(cmd.c_str());
+	argv[3] = NULL;
+
+	pid_t pid = fork();
+	if ( pid < 0 ) {
+		return -1;
+	}
+
+	if ( pid == 0 ) {
+		if ( ! wait ) {
+			pid_t pid2 = fork();
+			if ( pid2 < 0 ) {
+				_exit(1);
+			}
+			if ( pid2 > 0 ) {
+				_exit(0);
+			}
+			setsid();
+		}
+		if ( s_dir && chdir(s_dir) != 0 ) {
+			_exit(127);
+		}
+		execv("/bin/sh", argv);
+		_exit(127);
+	}
+
+	int status = 0;
+	pid_t r;
+	do {
+		r = waitpid(pid, &status, 0);
+	} while ( r < 0 && errno == EINTR );
+
+	if ( ! wait ) {
+		if ( r < 0 ) {
+			// ホストが SIGCHLD を無視していると子は自動で回収され ECHILD になる。孫の起動までは済んでいる
+			return ( errno == ECHILD ) ? 0 : -1;
+		}
+		return ( WIFEXITED(status) && WEXITSTATUS(status) == 0 ) ? 0 : -1;
+	}
+
+	if ( r < 0 || ! WIFEXITED(status) ) {
+		return -1;
+	}
+	return WEXITSTATUS(status);
+}
+
+/* -----------------------------------------------------------------------
+ *  EXECUTE / EXECUTE_WAIT のパスと引数からシェルに渡すコマンドを作る
+ * -----------------------------------------------------------------------
+ */
+static std::string MakeExecuteCommandPosix(const yaya::string_t &file, const yaya::string_t &param)
+{
+	std::string cmd = narrow(file);
+	fix_filepath(cmd);
+
+	if ( param.size() ) {
+		cmd += ' ';
+		cmd += narrow(param);
+	}
+	return cmd;
+}
+#endif
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::EXECUTE_WAIT
  * -----------------------------------------------------------------------
  */
 CValue	CSystemFunction::EXECUTE_WAIT(CSF_FUNCPARAM &p)
 {
-	if (!p.arg.array_size()) {
-		vm.logger().Error(E_W, 8, L"EXECUTE_WAIT", p.dicname, p.line);
-		SetError(8);
+	yaya::string_t file, param, dir;
+	int err = GetExecuteArgs(vm, p, file, param, dir);
+	if ( err ) {
+		vm.logger().Error(E_W, err, L"EXECUTE_WAIT", p.dicname, p.line);
+		SetError(err);
 		return CValue(-1);
 	}
 
-	if (!p.arg.array()[0].IsString()) {
-		vm.logger().Error(E_W, 9, L"EXECUTE_WAIT", p.dicname, p.line);
-		SetError(9);
-		return CValue(-1);
-	}
-
-	// パスをMBCSに変換
-	int result;
+	yaya::int_t result;
 
 #if defined(WIN32)
 
-	char *s_filestr = Ccct::Ucs2ToMbcs(p.arg.array()[0].s_value, CHARSET_DEFAULT);
+	// パスをMBCSに変換
+	char *s_filestr = Ccct::Ucs2ToMbcs(file, CHARSET_DEFAULT);
 	if (s_filestr == NULL) {
 		vm.logger().Error(E_E, 89, L"EXECUTE_WAIT", p.dicname, p.line);
 		return CValue(-1);
 	}
 
 	char *s_parameter = NULL;
-	if ( p.arg.array_size() >= 2 ) {
-		if ( p.arg.array()[1].s_value.size() ) {
-			s_parameter = Ccct::Ucs2ToMbcs(p.arg.array()[1].s_value, CHARSET_DEFAULT);
-		}
+	if ( param.size() ) {
+		s_parameter = Ccct::Ucs2ToMbcs(param, CHARSET_DEFAULT);
+	}
+
+	char *s_dir = NULL;
+	if ( dir.size() ) {
+		s_dir = Ccct::Ucs2ToMbcs(dir, CHARSET_DEFAULT);
 	}
 
 	SHELLEXECUTEINFOA inf;
@@ -7283,13 +7423,28 @@ CValue	CSystemFunction::EXECUTE_WAIT(CSF_FUNCPARAM &p)
 	inf.lpVerb = "open";
 	inf.lpFile = s_filestr;
 	inf.lpParameters = s_parameter;
+	inf.lpDirectory = s_dir;
 	inf.nShow = SW_SHOWNORMAL;
 
-	if ( ::ShellExecuteExA(&inf) ) {
-		::WaitForSingleObject(inf.hProcess,INFINITE);
-		DWORD status;
-		result = ::GetExitCodeProcess(inf.hProcess,&status);
-		::CloseHandle(inf.hProcess);
+	if ( s_dir && ! IsExecuteDirWin32(s_dir) ) {
+		result = -1;
+	}
+	else if ( ::ShellExecuteExA(&inf) ) {
+		if ( inf.hProcess ) {
+			::WaitForSingleObject(inf.hProcess,INFINITE);
+			DWORD status;
+			if ( ::GetExitCodeProcess(inf.hProcess,&status) ) {
+				result = (yaya::int_t)status;
+			}
+			else {
+				result = -1;
+			}
+			::CloseHandle(inf.hProcess);
+		}
+		else {
+			// 起動済みのアプリケーションに処理を渡した場合などは待つプロセスがない
+			result = 0;
+		}
 	}
 	else {
 		result = -1;
@@ -7298,21 +7453,14 @@ CValue	CSystemFunction::EXECUTE_WAIT(CSF_FUNCPARAM &p)
 	free(s_filestr);
 	s_filestr = NULL;
 	if ( s_parameter ) { free(s_parameter); s_parameter = NULL;}
+	if ( s_dir ) { free(s_dir); s_dir = NULL;}
 
 #elif defined(POSIX)
 
-	std::string path = narrow(p.arg.array()[0].s_value);
-	fix_filepath(path);
+	std::string s_dir = narrow(dir);
+	fix_filepath(s_dir);
 
-	if ( p.arg.array_size() >= 2 ) {
-		if ( p.arg.array()[1].s_value.size() ) {
-			path += ' ';
-			std::string tmp(p.arg.array()[1].s_value.begin(), p.arg.array()[1].s_value.end());
-			path += tmp;
-		}
-	}
-
-	result = system(path.c_str());
+	result = ExecutePosix(MakeExecuteCommandPosix(file, param), s_dir, true);
 
 #endif
 
@@ -7421,49 +7569,57 @@ CValue	CSystemFunction::SLEEP(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::EXECUTE(CSF_FUNCPARAM &p)
 {
-	if (!p.arg.array_size()) {
-		vm.logger().Error(E_W, 8, L"EXECUTE", p.dicname, p.line);
-		SetError(8);
+	yaya::string_t file, param, dir;
+	int err = GetExecuteArgs(vm, p, file, param, dir);
+	if ( err ) {
+		vm.logger().Error(E_W, err, L"EXECUTE", p.dicname, p.line);
+		SetError(err);
 		return CValue(-1);
 	}
 
-	if (!p.arg.array()[0].IsString()) {
-		vm.logger().Error(E_W, 9, L"EXECUTE", p.dicname, p.line);
-		SetError(9);
-		return CValue(-1);
-	}
-
-	// パスをMBCSに変換
 #if defined(WIN32)
 	int result;
 
-	char *s_filestr = Ccct::Ucs2ToMbcs(p.arg.array()[0].s_value, CHARSET_DEFAULT);
+	// パスをMBCSに変換
+	char *s_filestr = Ccct::Ucs2ToMbcs(file, CHARSET_DEFAULT);
 	if (s_filestr == NULL) {
 		vm.logger().Error(E_E, 89, L"EXECUTE", p.dicname, p.line);
 		return CValue(-1);
 	}
 
 	char *s_parameter = NULL;
-	if ( p.arg.array_size() >= 2 ) {
-		if ( p.arg.array()[1].s_value.size() ) {
-			s_parameter = Ccct::Ucs2ToMbcs(p.arg.array()[1].s_value, CHARSET_DEFAULT);
-		}
+	if ( param.size() ) {
+		s_parameter = Ccct::Ucs2ToMbcs(param, CHARSET_DEFAULT);
+	}
+
+	char *s_dir = NULL;
+	if ( dir.size() ) {
+		s_dir = Ccct::Ucs2ToMbcs(dir, CHARSET_DEFAULT);
 	}
 
 	// 返値はHINSTANCE型だが中身は32以下ならエラーを表す整数（64bitではポインタの幅なのでINT_PTRで受ける）
-	INT_PTR shellresult = (INT_PTR)::ShellExecuteA(NULL,"open",s_filestr,s_parameter,NULL,SW_SHOWNORMAL);
-	result = ( shellresult <= 32 ) ? -1 : (int)shellresult;
+	if ( s_dir && ! IsExecuteDirWin32(s_dir) ) {
+		result = -1;
+	}
+	else {
+		INT_PTR shellresult = (INT_PTR)::ShellExecuteA(NULL,"open",s_filestr,s_parameter,s_dir,SW_SHOWNORMAL);
+		result = ( shellresult <= 32 ) ? -1 : (int)shellresult;
+	}
 
 	free(s_filestr);
 	s_filestr = NULL;
 	if ( s_parameter ) { free(s_parameter); s_parameter = NULL;}
+	if ( s_dir ) { free(s_dir); s_dir = NULL;}
 
 	// 実行
 	return CValue(result);
 
 #elif defined(POSIX)
-	//TODO: Implement
-	return CValue(-1);
+
+	std::string s_dir = narrow(dir);
+	fix_filepath(s_dir);
+
+	return CValue(ExecutePosix(MakeExecuteCommandPosix(file, param), s_dir, false));
 
 #endif
 
