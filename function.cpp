@@ -1004,7 +1004,12 @@ void	CFunction::SolveEmbedCell(CCell &cell, CStatement &st, CLocalVariable &lvar
 	int	solve_src;	// 種別 0/1/2/3=ローカル変数/変数/関数/システム関数
 	size_t	max_len = 0;	// 最長一致検索用
 
-	if (cell.value_const().s_value[0] == L'_') {
+	if (cell.index >= 0) {
+		// embed.lazy,offで読み込み時に確定済み（CParser0::FixEmbedName）
+		solve_src = (int)cell.depth;
+		max_len   = (size_t)cell.index;
+	}
+	else if (cell.value_const().s_value[0] == L'_') {
 		// ローカル変数
 		solve_src = 0;
 		max_len   = lvar.GetMacthedLongestNameLength(cell.value_const().s_value);

@@ -85,6 +85,28 @@ size_t	CGlobalVariable::GetMacthedLongestNameLength(const yaya::string_t &name)
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CGlobalVariable::GetMacthedLongestInCodeNameLength
+ *  機能概要：  指定された文字列にマッチする名前を持つ変数を、辞書の式に名前が書かれたものの中から探し、
+ *  　　　　　  マッチした長さを返します
+ *
+ *  消去されているかどうかは問いません（embed.lazy,offの%埋め込みを読み込み時に確定させるため）
+ *  複数見つかった場合は最長のものを返します。見つからなかった場合は0を返します
+ * -----------------------------------------------------------------------
+ */
+size_t	CGlobalVariable::GetMacthedLongestInCodeNameLength(const yaya::string_t &name)
+{
+	size_t	max_len = 0;
+
+	for(std::vector<CVariable>::iterator it = var.begin(); it != var.end(); it++) {
+		size_t	len = it->name.size();
+		if (it->IsInCode() && max_len < len && !name.compare(0,len,it->name,0,len))
+			max_len = len;
+	}
+
+	return max_len;
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CGlobalVariable::GetIndex
  *  機能概要：  指定された名前の変数の位置を返します
  *

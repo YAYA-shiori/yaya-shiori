@@ -50,6 +50,8 @@ protected:
 	mutable std_shared_ptr<CValue> m_value;				// 値
 	bool	erased;					// 消去されたことを示すフラグ（グローバル変数で使用）
 									// 0/1=有効/消去された
+	bool	in_code;				// 辞書（EVAL等を含む）の式に名前が書かれたことを示すフラグ（グローバル変数で使用）
+									// embed.lazy,offの%埋め込みの解決に使う。消去しても戻さない
 
 public:
 	CVariable(const yaya::string_t &n)
@@ -58,6 +60,7 @@ public:
 		delimiter  = VAR_DELIMITER;
 
 		erased     = 0;
+		in_code    = 0;
 	}
 
 	CVariable(yaya::char_t *n)
@@ -66,6 +69,7 @@ public:
 		delimiter  = VAR_DELIMITER;
 
 		erased     = 0;
+		in_code    = 0;
 	}
 
 	CVariable(void)
@@ -74,6 +78,7 @@ public:
 		delimiter  = VAR_DELIMITER;
 
 		erased     = 0;
+		in_code    = 0;
 	}
 
 	~CVariable(void) {}
@@ -87,6 +92,9 @@ public:
 		destorier.erase();
 	}
 	char	IsErased(void) { return erased; }
+
+	void	SetInCode(void) { in_code = 1; }
+	bool	IsInCode(void) const { return in_code; }
 
 	//////////////////////////////////////
 	std_shared_ptr<CValue> &value_shared(void) const {
@@ -201,6 +209,7 @@ public:
 	int		Make(const yaya::string_t &name, char erased);
 
 	size_t	GetMacthedLongestNameLength(const yaya::string_t &name);
+	size_t	GetMacthedLongestInCodeNameLength(const yaya::string_t &name);
 
 	int		GetIndex(const yaya::string_t &name);
 

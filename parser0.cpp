@@ -211,6 +211,13 @@ char	CParser0::Parse(int charset, const std::vector<CDic1>& dics)
 		errcount += ParseAfterLoad(it->path);
 	}
 
+	// embed.lazy,offなら%埋め込みの名前を確定（全辞書の変数名が出揃ってから行う）
+	if (!vm.basis().IsEmbedLazy()) {
+		for(std::vector<CDic1>::const_iterator it = dics.begin(); it != dics.end(); it++) {
+			FixEmbedName(it->path);
+		}
+	}
+
 	vm.logger().Message(8);
 	
 	return bool(errcount != 0);
@@ -310,6 +317,10 @@ char	CParser0::ParseEmbedString(yaya::string_t& str, CStatement& st, const yaya:
 	// 後処理と検査
 	if (vm.parser1().CheckExecutionCode1(st, dicfilename))
 		return 1;
+
+	// embed.lazy,offなら%埋め込みの名前を確定
+	if (!vm.basis().IsEmbedLazy())
+		FixEmbedName1(st, dicfilename);
 
 	return 0;
 }
@@ -507,6 +518,10 @@ char	CParser0::ParseEvalBlock(const yaya::string_t& str, CFunction& func, const 
 		errcount += vm.parser1().CheckExecutionCode(func);
 	}
 
+	// embed.lazy,offなら%埋め込みの名前を確定
+	if (!errcount && !vm.basis().IsEmbedLazy())
+		FixEmbedName(func);
+
 	m_defaultBlockChoicetypeStack = old_choicetype;
 	m_BlockhHeaderOfProcessingIndexStack = old_blockheader;
 
@@ -539,6 +554,10 @@ int CParser0::DynamicLoadDictionary(const yaya::string_t& dicfilename, int chars
 
 	if ( t == 0 ) {
 		t += ParseAfterLoad(dicfilename);
+	}
+
+	if ( t == 0 && !vm.basis().IsEmbedLazy() ) {
+		FixEmbedName(dicfilename);
 	}
 
 	if ( t == 0 ) { //success
@@ -584,6 +603,10 @@ int CParser0::DynamicAppendRuntimeDictionary(const yaya::string_t& codes)
 
 	if(isnoterror) {
 		isnoterror &= !ParseAfterLoad(L"_RUNTIME_DIC_");
+	}
+
+	if(isnoterror && !vm.basis().IsEmbedLazy()) {
+		FixEmbedName(L"_RUNTIME_DIC_");
 	}
 
 	if(isnoterror) { //success
@@ -2316,6 +2339,7 @@ char	CParser0::SetCellType1(CCell& scell, char emb, const yaya::string_t& dicfil
 		// グローバル変数
 		scell.value_SetType(F_TAG_VARIABLE);
 		scell.index  = vm.variable().Make(scell.value_const().s_value, 1);
+		vm.variable().GetPtr(scell.index)->SetInCode();
 		scell.name   = scell.value_const().s_value;
 		scell.value_Delete();
 		return 0;
@@ -2530,6 +2554,109 @@ void	CParser0::ConvertPlainString1(CStatement& st, const yaya::string_t& /*dicfi
 		for(std::vector<CCell>::iterator it = st.cell().begin(); it != st.cell().end(); it++)
 			if (it->value_GetType() == F_TAG_STRING_PLAIN)
 				it->value_SetType(F_TAG_STRING);
+	}
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CParser0::FixEmbedName
+ *  機能概要：  embed.lazy,offのとき、%埋め込み（括弧なし）の名前を読み込み時に確定します
+ *
+ *  ユーザー関数、システム関数、辞書の式に名前が書かれたグローバル変数の最長一致で決め、
+ *  結果をF_TAG_STRING_EMBEDの項のdepth（種別）とindex（長さ、0なら文字列のまま）に記録します。
+ *  ローカル変数（_始まり）はスコープが実行時にしか決まらないので従来どおり実行時に解決します。
+ * -----------------------------------------------------------------------
+ */
+void	CParser0::FixEmbedName(const yaya::string_t& dicfilename)
+{
+	for(std::vector<CFunction>::iterator it = vm.function_parse().func.begin(); it != vm.function_parse().func.end(); it++) {
+		if ( it->dicfilename != dicfilename ) { continue; }
+
+		FixEmbedName(*it);
+	}
+}
+
+void	CParser0::FixEmbedName(CFunction &func)
+{
+	for(std::vector<CStatement>::iterator it2 = func.statement.begin(); it2 != func.statement.end(); it2++) {
+		FixEmbedName1(*it2, func.dicfilename);
+	}
+}
+
+// 識別子の一部になり得る文字か
+static bool IsEmbedNameChar(yaya::char_t c)
+{
+	return c >= 0x80 || c == L'_' || (c >= L'0' && c <= L'9') || (c >= L'a' && c <= L'z') || (c >= L'A' && c <= L'Z');
+}
+
+static bool IsHexChar(yaya::char_t c)
+{
+	return (c >= L'0' && c <= L'9') || (c >= L'a' && c <= L'f') || (c >= L'A' && c <= L'F');
+}
+
+// 確定できなかった%埋め込みを警告するか
+// 名前になり得ない文字で始まるものと、URLエンコード（%E3 のような16進数2桁）は警告しない
+static bool IsWarnUnfixedEmbed(const yaya::string_t &s)
+{
+	if (s.empty())
+		return false;
+
+	yaya::char_t c = s[0];
+	if (c < 0x80 && !((c >= L'a' && c <= L'z') || (c >= L'A' && c <= L'Z')))
+		return false;
+
+	if (s.size() >= 2 && IsHexChar(s[0]) && IsHexChar(s[1]) && (s.size() == 2 || !IsEmbedNameChar(s[2])))
+		return false;
+
+	return true;
+}
+
+void	CParser0::FixEmbedName1(CStatement& st, const yaya::string_t& dicfilename)
+{
+	if (st.type < ST_FORMULA)
+		return;
+
+	if ( ! st.cell_size() ) //高速化用
+		return;
+
+	for(std::vector<CCell>::iterator it = st.cell().begin(); it != st.cell().end(); it++) {
+		if (it->value_GetType() != F_TAG_STRING_EMBED)
+			continue;
+		// 確定済み
+		if (it->index >= 0)
+			continue;
+
+		const yaya::string_t &s = it->value_const().s_value;
+		// ローカル変数は実行時に解決
+		if (s.empty() || s[0] == L'_')
+			continue;
+
+		// 種別 1/2/3=変数/関数/システム関数（CFunction::SolveEmbedCellと同じ）
+		ptrdiff_t	solve_src = 1;
+		size_t	max_len   = vm.variable().GetMacthedLongestInCodeNameLength(s);
+		// 関数
+		size_t	t_len = 0;
+		for(std::vector<CFunction>::iterator itf = vm.function_parse().func.begin(); itf != vm.function_parse().func.end(); itf++)
+			if (!itf->name.compare(0,itf->namelen,s,0,itf->namelen))
+				if (t_len < itf->namelen)
+					t_len = itf->namelen;
+		if (t_len > max_len) {
+			solve_src = 2;
+			max_len   = t_len;
+		}
+		// システム関数
+		if ( max_len < (size_t)CSystemFunction::GetMaxNameLength() ) {
+			t_len = CSystemFunction::FindIndexLongestMatch(s,max_len);
+			if (t_len > max_len) {
+				solve_src = 3;
+				max_len   = t_len;
+			}
+		}
+
+		it->depth = solve_src;
+		it->index = max_len;
+
+		if (!max_len && IsWarnUnfixedEmbed(s))
+			vm.logger().Error(E_W, 31, L"%" + s, dicfilename, st.linecount);
 	}
 }
 

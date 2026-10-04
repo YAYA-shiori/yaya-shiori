@@ -148,6 +148,7 @@
 *warning W0028 : Warning by #warning.
 *warning W0029 : SQLite operation failed.
 *warning W0030 : More values were given than parameters. The extra values are not used.
+*warning W0031 : The name after % matches no function and no variable written in the dictionary, so it is treated as a plain string (embed.lazy,off). Use %(name) to embed a variable created at run time.
 //
 // 注記文字列（英語）
 !!!msgn

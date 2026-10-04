@@ -183,6 +183,7 @@ CBasis::CBasis(CAyaVM &vmr) : vm(vmr)
 
 	encode_savefile = false;
 	auto_save = true;
+	embed_lazy = true;
 
 #if defined(WIN32)
 	hlogrcvWnd  = NULL;
@@ -836,6 +837,11 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 		auto_save = param != L"off";
 		return true;
 	}
+	// %埋め込みの名前の解決（off=読み込み時に確定）
+	else if ( cmd == L"embed.lazy" ) {
+		embed_lazy = param != L"off";
+		return true;
+	}
 	// charset
 	else if ( cmd == L"charset" ) {
 		dic_charset       = Ccct::CharsetTextToID(param.c_str());
@@ -982,6 +988,10 @@ CValue CBasis::GetParameter(const yaya::string_t &cmd)
 	// save.auto
 	else if ( cmd == L"save.auto" ) {
 		return yaya::string_t(auto_save ? L"on" : L"off");
+	}
+	// embed.lazy
+	else if ( cmd == L"embed.lazy" ) {
+		return yaya::string_t(embed_lazy ? L"on" : L"off");
 	}
 	// msglang
 	else if ( cmd == L"msglang" ) { //obsolete, for compatibility

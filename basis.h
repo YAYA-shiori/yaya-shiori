@@ -72,6 +72,7 @@ protected:
 
 	bool	encode_savefile;
 	bool	auto_save;
+	bool	embed_lazy;				// %埋め込み（括弧なし）の名前を実行時に解決するか（offなら読み込み時に確定）
 
 #if !defined(WIN32)
 	typedef void* HWND;
@@ -118,6 +119,7 @@ public:
 	const yaya::string_t& GetRootPath(void) const { return base_path;    }
 	yaya::string_t GetSavefilePath(void) const { return load_path + modulename + L"_variable.cfg"; }
 	const yaya::char_t* GetModeName(void) const { return modename.c_str(); }
+	bool	IsEmbedLazy(void) const { return embed_lazy; }
 
 	void	ResetFuncPos(void);
 

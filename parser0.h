@@ -130,6 +130,9 @@ protected:
 	void	ConvertPlainString(CFunction &func);
 	void	ConvertPlainString1(CStatement& st, const yaya::string_t& dicfilename);
 	char	ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::string_t& dicfilename, ptrdiff_t linecount);
+	void	FixEmbedName(const yaya::string_t& dicfilename);
+	void	FixEmbedName(CFunction &func);
+	void	FixEmbedName1(CStatement& st, const yaya::string_t& dicfilename);
 	char	CheckDepthAndSerialize(const yaya::string_t& dicfilename);
 	char	CheckDepthAndSerialize(CFunction &func);
 	char	CheckDepth1(CStatement& st, const yaya::string_t& dicfilename);

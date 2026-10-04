@@ -101,6 +101,12 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 - `depth` – ローカル変数のスコープ深さ用フィールド（実際には未使用、フラグ用途に流用可）
 - `ansv` – 実行時の演算結果
 
+### %埋め込み（括弧なし）と embed.lazy
+- `"..%name.."` の括弧なし部分は `F_TAG_STRING_EMBED` の項になり、既定（`embed.lazy, on`）では実行時に `CFunction::SolveEmbedCell` がその時点の変数・関数の最長一致で名前を探す
+- `embed.lazy, off` のときは `CParser0::FixEmbedName` が読み込み後に名前を確定し、項の `depth`（種別 1/2/3=変数/関数/システム関数）と `index`（一致した長さ、0 なら文字列のまま）に記録する。`index >= 0` が確定済みの印。変数は `CVariable::in_code`（`SetCellType1` が式に書かれた名前に立てる）が立ったものだけを対象にする。ローカル変数（`_` 始まり）は実行時のまま
+- 全辞書の変数名が出揃ってから確定するため、`Parse` では `ParseAfterLoad` のループの後に回す。`DICLOAD` / `APPEND_RUNTIME_DIC` / `EVAL`（`ParseEmbedString` / `ParseEvalBlock`）でもそれぞれの解析の後に呼ぶ
+- `%[n]` は `F_TAG_STRING_EMBED` の項を数えるので、文字列のまま残るものも型は変えない
+
 ### 演算順序の決定（CheckDepthAndSerialize1）
 - `(` で深さ+20、`)` で深さ-20（括弧内の優先度を大幅に上げる）
 - `F_TAG_FUNCPARAM` の優先度は11（括弧内より低い）

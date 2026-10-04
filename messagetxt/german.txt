@@ -148,6 +148,7 @@
 *Warnung W0028 : Warnung durch #warning.
 *Warnung W0029 : Der SQLite-Vorgang ist fehlgeschlagen.
 *Warnung W0030 : Es wurden mehr Werte als Parameter übergeben. Die überzähligen Werte werden nicht verwendet.
+*Warnung W0031 : Der Name nach % entspricht weder einer Funktion noch einer im Wörterbuch geschriebenen Variable und wird daher als normaler Text behandelt (embed.lazy,off). Zur Laufzeit erzeugte Variablen mit %(Name) einbetten.
 //
 // Hinweiszeichenketten (Deutsch)
 !!!msgn
