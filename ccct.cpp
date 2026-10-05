@@ -675,12 +675,20 @@ size_t Ccct_ConvUTF8ToUnicode(yaya::string_t &buf,const char* pStrIn)
 	unsigned char c;
 	unsigned long tmp;
 
-	buf.reserve(buf.length() + (pStrLast - pStr)); //UTF-16の文字数はUTF-8のバイト数を超えない
+	// UTF-16の文字数はUTF-8のバイト数を超えない。1文字ずつappendすると遅い（VC6では1文字あたり十数ns）ので、
+	// 先にバイト数ぶん確保して直接書き込み、最後に実際の長さへ詰める
+	const size_t base_len = buf.length();
+	const size_t in_len = static_cast<size_t>(pStrLast - pStr);
+	if ( in_len == 0 ) {
+		return base_len;
+	}
+	buf.resize(base_len + in_len);
+	yaya::char_t *po = &buf[base_len];
 
 	while( pStr < pStrLast ){
 		c = *(pStr++);
 		if( (c & 0x80) == 0 ){ //1Byte - 0???????
-			buf.append(1,(WORD)c);
+			*(po++) = static_cast<yaya::char_t>(static_cast<WORD>(c));
 		}
 		/*else if( (c & 0xc0) == 0x80 ){ //1Byte - 10?????? -> 必ず2バイト目以降のため、単体で出たら不正 
 			m_Str.Add() = (WORD)c;
@@ -689,7 +697,7 @@ size_t Ccct_ConvUTF8ToUnicode(yaya::string_t &buf,const char* pStrIn)
 			if( pStrLast - pStr < 1 ){ break; } //末尾で途切れている
 			tmp  = static_cast<DWORD>(c & 0x1f) << 6; //下5bit - 10-6
 			tmp |= static_cast<DWORD>(*(pStr++) & 0x3f); //下6bit - 5-0
-			buf.append(1,static_cast<WORD>(tmp));
+			*(po++) = static_cast<yaya::char_t>(static_cast<WORD>(tmp));
 		}
 		else if( (c & 0xf0) == 0xe0 ){ //3Byte - 1110????
 			if( pStrLast - pStr < 2 ){ break; } //末尾で途切れている
@@ -697,7 +705,7 @@ size_t Ccct_ConvUTF8ToUnicode(yaya::string_t &buf,const char* pStrIn)
 			tmp |= static_cast<DWORD>(*(pStr++) & 0x3f) << 6;  //下6bit - 11-6
 			tmp |= static_cast<DWORD>(*(pStr++) & 0x3f); //下6bit - 5-0
 			if ( tmp != 0xfeff && tmp != 0xfffe ) { //BOMでない
-				buf.append(1,static_cast<WORD>(tmp));
+				*(po++) = static_cast<yaya::char_t>(static_cast<WORD>(tmp));
 			}
 		}
 		else if( (c & 0xf8) == 0xf0 ){ //4Byte - 11110??? UTF-16 Surrogate
@@ -707,8 +715,8 @@ size_t Ccct_ConvUTF8ToUnicode(yaya::string_t &buf,const char* pStrIn)
 			tmp |= static_cast<DWORD>(*(pStr++) & 0x3f) << 6; //下6bit - 11-6
 			tmp |= static_cast<DWORD>(*(pStr++) & 0x3f); //下6bit - 5-0
 			tmp -= 0x10000;
-			buf.append(1,(WORD)(0xD800U | ((tmp >> 10) & 0x3FF))); //上位サロゲート
-			buf.append(1,(WORD)(0xDC00U | (tmp & 0x3FF))); //下位サロゲート
+			*(po++) = static_cast<yaya::char_t>((WORD)(0xD800U | ((tmp >> 10) & 0x3FF))); //上位サロゲート
+			*(po++) = static_cast<yaya::char_t>((WORD)(0xDC00U | (tmp & 0x3FF))); //下位サロゲート
 		}
 		else if( (c & 0xfc) == 0xf8 ){ //5Byte - 111110?? -- UCS-4
 			if( pStrLast - pStr < 4 ){ break; } //末尾で途切れている
@@ -722,6 +730,8 @@ size_t Ccct_ConvUTF8ToUnicode(yaya::string_t &buf,const char* pStrIn)
 			m_Str.Add() = (WORD)c;
 		}*/
 	}
+
+	buf.resize(base_len + static_cast<size_t>(po - &buf[base_len]));
 
 	return buf.length();
 }

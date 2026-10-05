@@ -350,14 +350,27 @@ int yaya::ws_fgets(std::string &buf, yaya::string_t &str, FILE *stream, int char
 		}
 	}
 	else {
+		// 1バイトずつfgetcすると、CRTのロックを毎回取るので遅い（/MTのVC6では1行400バイトで約8μs）。
+		// fgetsで塊ごとに読む。NULを含む行も壊さないよう、読む前にバッファを0xFFで埋めておき、
+		// fgetsが書いた終端NULの位置（末尾から見て最初に0xFFでない所）から読めたバイト数を割り出す。
+		// 0x0aで終わらないのは、バッファが満杯のとき（続きを読む）か、最後の行に改行が無いとき。
+		const size_t chunk_size = 512;
+		char chunk[chunk_size];
 		while (true) {
-			c = fgetc(stream);
-			if (c == EOF) {
+			memset(chunk, 0xFF, chunk_size);
+			if (fgets(chunk, static_cast<int>(chunk_size), stream) == NULL) {
+				c = EOF;
 				break;
 			}
-			ws_fgets_append(buf, static_cast<char>(c));
-			if (c == '\x0a') {
+			size_t n = chunk_size - 1;
+			while (n > 0 && static_cast<unsigned char>(chunk[n]) == 0xFFU) {
+				--n;
+			}
+			// chunk[n] が終端NUL。読めたのは chunk[0..n)
+			buf.append(chunk, n);
+			if (n > 0 && chunk[n - 1] == '\x0a') {
 				// 行の終わり
+				c = '\x0a';
 				break;
 			}
 		}

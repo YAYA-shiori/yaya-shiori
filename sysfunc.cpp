@@ -3867,6 +3867,29 @@ CValue	CSystemFunction::FSIZE(CSF_FUNCPARAM &p)
 	yaya::int_t size = vm.files().Size(fullpath);
 	if ( size >= 0 ) { return CValue((yaya::int_t)size); }
 
+	// ファイルを開かずに属性から大きさを取る。開くと1件あたり約30μsかかり、ウイルス対策ソフトの
+	// オンアクセススキャン（初めて開くファイルで1件数ms）も受ける。他のプロセスが排他で開いていても取れる。
+	// ディレクトリ・リパースポイント（シンボリックリンクなど）・属性が取れなかった場合は、従来どおり開いて調べる
+	if ( IsUnicodeAware() ) {
+		typedef BOOL (WINAPI* YGetFileAttributesExW)(LPCWSTR lpFileName, int fInfoLevelId, LPVOID lpFileInformation);
+		static const YGetFileAttributesExW pGetFileAttributesExW = (YGetFileAttributesExW)::GetProcAddress(::GetModuleHandleA("kernel32"),"GetFileAttributesExW");
+
+		if ( pGetFileAttributesExW ) {
+			WIN32_FILE_ATTRIBUTE_DATA fad;
+			if ( pGetFileAttributesExW(fullpath.c_str(), 0 /*GetFileExInfoStandard*/, &fad) ) {
+				if ( ! (fad.dwFileAttributes & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT)) ) {
+					return CValue((static_cast<yaya::int_t>(fad.nFileSizeHigh) << 32) | static_cast<yaya::int_t>(fad.nFileSizeLow));
+				}
+			}
+			else {
+				DWORD err = ::GetLastError();
+				if ( err == ERROR_FILE_NOT_FOUND || err == ERROR_PATH_NOT_FOUND ) {
+					return CValue(-1);
+				}
+			}
+		}
+	}
+
 	HANDLE hFile = INVALID_HANDLE_VALUE;
 
 	if ( IsUnicodeAware() ) {
@@ -7547,6 +7570,28 @@ CValue	CSystemFunction::GETENV(CSF_FUNCPARAM &p)
 		SetError(9);
 		return yaya::string_t();
 	}
+
+#if defined(WIN32)
+	// getenvは環境変数を先頭から全部strchrで調べ、文字コード変換も2回かかる（約5μs）。
+	// ワイド文字のAPIで直接取る。名前が空か'='を含むとき、値が長すぎるときは従来どおり
+	if ( IsUnicodeAware() ) {
+		const yaya::string_t &ename = p.arg.array()[0].s_value;
+		if ( ! ename.empty() && ename.find(L'=') == yaya::string_t::npos ) {
+			const DWORD sbuf_size = 512;
+			wchar_t sbuf[sbuf_size];
+			::SetLastError(NO_ERROR);
+			DWORD n = ::GetEnvironmentVariableW(ename.c_str(), sbuf, sbuf_size);
+			if ( n == 0 && ::GetLastError() == ERROR_ENVVAR_NOT_FOUND ) {
+				vm.logger().Error(E_W, 12, L"GETENV", p.dicname, p.line);
+				SetError(12);
+				return yaya::string_t();
+			}
+			if ( n < sbuf_size ) {
+				return CValue(yaya::string_t(sbuf, n));
+			}
+		}
+	}
+#endif
 
 	char *s_name = Ccct::Ucs2ToMbcs(p.arg.array()[0].s_value, CHARSET_DEFAULT);
 	if (s_name == NULL) {

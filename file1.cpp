@@ -10,6 +10,9 @@
 #endif
 
 #include <string.h>
+#if defined(WIN32) || defined(_WIN32_WCE)
+#  include <io.h>
+#endif
 
 #include "ccct.h"
 #include "file.h"
@@ -65,6 +68,19 @@ int	CFile1::Open(void)
 	yaya::int_t end = ftello(fp);
 	fseeko(fp, cur, SEEK_SET);
 #else
+	// seekして戻すとstdioのバッファが捨てられ、最初の読み込みで読み直しになる。
+	// ディスク上のファイルならハンドルからサイズを直接取る（取れなければ従来どおりseekで測る）
+	HANDLE hFile = (HANDLE)_get_osfhandle(_fileno(fp));
+	if ( hFile != INVALID_HANDLE_VALUE ) {
+		DWORD size_high = 0;
+		::SetLastError(NO_ERROR);
+		DWORD size_low = ::GetFileSize(hFile, &size_high);
+		if ( size_low != INVALID_FILE_SIZE || ::GetLastError() == NO_ERROR ) {
+			size = (static_cast<yaya::int_t>(size_high) << 32) | static_cast<yaya::int_t>(size_low);
+			return 1;
+		}
+	}
+
 	yaya::int_t cur = _ftelli64(fp);
 	_fseeki64(fp,0,SEEK_SET);
 	yaya::int_t start = _ftelli64(fp);

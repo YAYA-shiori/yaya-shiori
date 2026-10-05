@@ -1700,14 +1700,31 @@ char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, C
 	std::vector<size_t>::size_type sidsize = sid.size();
 
 	// 各引数が _argv のどこから何個を占めるか（配列引数は展開されるので引数の位置とは一致しない）
+	// 書き戻し（&引数）があるときだけ使うので、無いときは作らない（呼び出しのたびに3本のvectorを確保していた）
 	std::vector<size_t>	argoffset;
 	std::vector<size_t>	argwidth;
 	std::vector<char>	argisarray;
 
+	bool has_feedback = false;
+	for(std::vector<size_t>::iterator fit = it; fit != sid.end(); fit++) {
+		if (st.cell()[*fit].value_GetType() == F_TAG_FEEDBACK) {
+			has_feedback = true;
+			break;
+		}
+	}
+	if (has_feedback) {
+		argoffset.reserve(sidsize - 1);
+		argwidth.reserve(sidsize - 1);
+		argisarray.reserve(sidsize - 1);
+	}
+	if (sidsize > 2) {
+		arg.array().reserve(sidsize - 1);
+	}
+
 	for( ; it != sid.end(); it++) {
 		const CValue &addv = GetValueRefForCalc(st.cell()[*it], st, lvar);
 		
-		argoffset.push_back(arg.array_size());
+		const size_t offset = arg.array_size();
 		if (addv.GetType() == F_TAG_ARRAY) {
 			if ( sidsize <= 2 ) { //配列1つのみが与えられている->最適化のためスマートポインタ代入のみで済ませる
 				arg.array_shared() = addv.array_shared();
@@ -1715,13 +1732,20 @@ char	CFunction::ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, C
 			else {
 				arg.array().insert(arg.array().end(), addv.array().begin(), addv.array().end());
 			}
-			argisarray.push_back(1);
+			if (has_feedback) {
+				argisarray.push_back(1);
+			}
 		}
 		else {
 			arg.array().emplace_back(CValue(addv));
-			argisarray.push_back(0);
+			if (has_feedback) {
+				argisarray.push_back(0);
+			}
 		}
-		argwidth.push_back(arg.array_size() - argoffset.back());
+		if (has_feedback) {
+			argoffset.push_back(offset);
+			argwidth.push_back(arg.array_size() - offset);
+		}
 	}
 
 	// 関数を取得　引数の中で関数表が差し替えられることがあるので、引数を作ってから引く
@@ -1808,6 +1832,13 @@ char	CFunction::ExecSystemFunctionWithArgs(CCell& cell, std::vector<size_t> &sid
 	std::vector<CCell *> pcellarg;
 	std::vector<CValue> valuearg;
 	std::vector<size_t>::size_type sidsize = sid.size();
+
+	// 引数が2つ以上のとき、3本のvectorが1個ずつ伸びて何度も確保し直されるのを避ける
+	if (sidsize > 2) {
+		arg.array().reserve(sidsize - 1);
+		pcellarg.reserve(sidsize - 1);
+		valuearg.reserve(sidsize - 1);
+	}
 
 	for( ; it != sid.end(); it++) {
 		const CValue &addv = GetValueRefForCalc(st.cell()[*it], st, lvar);
