@@ -2687,33 +2687,7 @@ CValue	CSystemFunction::FCOPY(CSF_FUNCPARAM &p)
 	yaya::string_t	d_path = (drive.size() ?
 						yaya::string_t() : vm.basis().base_path) + p.arg.array()[1].s_value + L"\\" + fname + ext;
 
-	int result;
-
-	if ( IsUnicodeAware() ) {
-		result = ::CopyFileW(s_path.c_str(),d_path.c_str(),FALSE) ? 1 : 0;
-	}
-	else {
-		// パスをMBCSに変換
-		char	*s_pstr = Ccct::Ucs2ToMbcs(s_path, CHARSET_DEFAULT);
-		if (s_pstr == NULL) {
-			vm.logger().Error(E_E, 89, L"FCOPY", p.dicname, p.line);
-			return CValue(0);
-		}
-		char	*d_pstr = Ccct::Ucs2ToMbcs(d_path, CHARSET_DEFAULT);
-		if (d_pstr == NULL) {
-			free(s_pstr);
-			s_pstr = NULL;
-			vm.logger().Error(E_E, 89, L"FCOPY", p.dicname, p.line);
-			return CValue(0);
-		}
-
-		// 実行
-		result = (::CopyFileA(s_pstr, d_pstr, FALSE) ? 1 : 0);
-		free(s_pstr);
-		s_pstr = NULL;
-		free(d_pstr);
-		d_pstr = NULL;
-	}
+	int result = ::CopyFileW(s_path.c_str(),d_path.c_str(),FALSE) ? 1 : 0;
 
 	return CValue(result);
 }
@@ -2801,33 +2775,7 @@ CValue	CSystemFunction::FMOVE(CSF_FUNCPARAM &p)
 	yaya::string_t	d_path = (drive.size() ?
 						yaya::string_t() : vm.basis().base_path) + p.arg.array()[1].s_value + L"\\" + fname + ext;
 
-	int result;
-
-	if ( IsUnicodeAware() ) {
-		result = ::MoveFileW(s_path.c_str(),d_path.c_str()) ? 1 : 0;
-	}
-	else {
-		// パスをMBCSに変換
-		char	*s_pstr = Ccct::Ucs2ToMbcs(s_path, CHARSET_DEFAULT);
-		if (s_pstr == NULL) {
-			vm.logger().Error(E_E, 89, L"FMOVE", p.dicname, p.line);
-			return CValue(0);
-		}
-		char	*d_pstr = Ccct::Ucs2ToMbcs(d_path, CHARSET_DEFAULT);
-		if (d_pstr == NULL) {
-			free(s_pstr);
-			s_pstr = NULL;
-			vm.logger().Error(E_E, 89, L"FMOVE", p.dicname, p.line);
-			return CValue(0);
-		}
-
-		// 実行
-		result = (::MoveFileA(s_pstr, d_pstr) ? 1 : 0);
-		free(s_pstr);
-		s_pstr = NULL;
-		free(d_pstr);
-		d_pstr = NULL;
-	}
+	int result = ::MoveFileW(s_path.c_str(),d_path.c_str()) ? 1 : 0;
 
 	return CValue(result);
 }
@@ -2992,25 +2940,9 @@ CValue	CSystemFunction::FDEL(CSF_FUNCPARAM &p)
 		return CValue(0);
 	}
 
-	int result;
 	yaya::string_t fullpath = vm.basis().ToFullPath(p.arg.array()[0].s_value);
 
-	if ( IsUnicodeAware() ) {
-		result = (::DeleteFileW(fullpath.c_str()) ? 1 : 0);
-	}
-	else {
-		// パスをMBCSに変換
-		char	*s_filestr = Ccct::Ucs2ToMbcs(fullpath, CHARSET_DEFAULT);
-		if (s_filestr == NULL) {
-			vm.logger().Error(E_E, 89, L"FDEL", p.dicname, p.line);
-			return CValue(0);
-		}
-
-		// 実行
-		result = (::DeleteFileA(s_filestr) ? 1 : 0);
-		free(s_filestr);
-		s_filestr = NULL;
-	}
+	int result = (::DeleteFileW(fullpath.c_str()) ? 1 : 0);
 
 	return CValue(result);
 }
@@ -3058,36 +2990,10 @@ CValue	CSystemFunction::FRENAME(CSF_FUNCPARAM &p)
 		return CValue(0);
 	}
 
-	int result;
-
 	yaya::string_t s_file = vm.basis().ToFullPath(p.arg.array()[0].s_value);
 	yaya::string_t d_file = vm.basis().ToFullPath(p.arg.array()[1].s_value);
 
-	if ( IsUnicodeAware() ) {
-		result = ::MoveFileW(s_file.c_str(), d_file.c_str()) ? 1 : 0;
-	}
-	else {
-		// パスをMBCSに変換
-		char	*s_filestr = Ccct::Ucs2ToMbcs(s_file, CHARSET_DEFAULT);
-		if (s_filestr == NULL) {
-			vm.logger().Error(E_E, 89, L"FRENAME", p.dicname, p.line);
-			return CValue(0);
-		}
-		char	*d_filestr = Ccct::Ucs2ToMbcs(d_file, CHARSET_DEFAULT);
-		if (d_filestr == NULL) {
-			free(s_filestr);
-			s_filestr = NULL;
-			vm.logger().Error(E_E, 89, L"FRENAME", p.dicname, p.line);
-			return CValue(0);
-		}
-
-		// 実行
-		result = (::MoveFileA(s_filestr, d_filestr) ? 1 : 0);
-		free(s_filestr);
-		s_filestr = NULL;
-		free(d_filestr);
-		d_filestr = NULL;
-	}
+	int result = ::MoveFileW(s_file.c_str(), d_file.c_str()) ? 1 : 0;
 
 	return CValue(result);
 }
@@ -3148,22 +3054,7 @@ CValue	CSystemFunction::FDIGEST(CSF_FUNCPARAM &p)
 	yaya::string_t full_path = vm.basis().ToFullPath(p.arg.array()[0].s_value);
 
 #if defined(WIN32)
-	if ( IsUnicodeAware() ) {
-		pF = _wfopen(full_path.c_str(),L"rb");
-	}
-	else {
-		// パスをMBCSに変換
-		const char *s_filestr = Ccct::Ucs2ToMbcs(full_path, CHARSET_DEFAULT);
-		if (s_filestr == NULL) {
-			vm.logger().Error(E_E, 89, L"FDIGEST", p.dicname, p.line);
-			return CValue(-1);
-		}
-
-		pF = fopen(s_filestr,"rb");
-
-		free((void*)s_filestr);
-		s_filestr = NULL;
-	}
+	pF = _wfopen(full_path.c_str(),L"rb");
 #elif defined(POSIX)
 	std::string path = narrow(full_path);
 	fix_filepath(path);
@@ -3870,44 +3761,20 @@ CValue	CSystemFunction::FSIZE(CSF_FUNCPARAM &p)
 	// ファイルを開かずに属性から大きさを取る。開くと1件あたり約30μsかかり、ウイルス対策ソフトの
 	// オンアクセススキャン（初めて開くファイルで1件数ms）も受ける。他のプロセスが排他で開いていても取れる。
 	// ディレクトリ・リパースポイント（シンボリックリンクなど）・属性が取れなかった場合は、従来どおり開いて調べる
-	if ( IsUnicodeAware() ) {
-		typedef BOOL (WINAPI* YGetFileAttributesExW)(LPCWSTR lpFileName, int fInfoLevelId, LPVOID lpFileInformation);
-		static const YGetFileAttributesExW pGetFileAttributesExW = (YGetFileAttributesExW)::GetProcAddress(::GetModuleHandleA("kernel32"),"GetFileAttributesExW");
-
-		if ( pGetFileAttributesExW ) {
-			WIN32_FILE_ATTRIBUTE_DATA fad;
-			if ( pGetFileAttributesExW(fullpath.c_str(), 0 /*GetFileExInfoStandard*/, &fad) ) {
-				if ( ! (fad.dwFileAttributes & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT)) ) {
-					return CValue((static_cast<yaya::int_t>(fad.nFileSizeHigh) << 32) | static_cast<yaya::int_t>(fad.nFileSizeLow));
-				}
-			}
-			else {
-				DWORD err = ::GetLastError();
-				if ( err == ERROR_FILE_NOT_FOUND || err == ERROR_PATH_NOT_FOUND ) {
-					return CValue(-1);
-				}
-			}
+	WIN32_FILE_ATTRIBUTE_DATA fad;
+	if ( ::GetFileAttributesExW(fullpath.c_str(), GetFileExInfoStandard, &fad) ) {
+		if ( ! (fad.dwFileAttributes & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT)) ) {
+			return CValue((static_cast<yaya::int_t>(fad.nFileSizeHigh) << 32) | static_cast<yaya::int_t>(fad.nFileSizeLow));
 		}
-	}
-
-	HANDLE hFile = INVALID_HANDLE_VALUE;
-
-	if ( IsUnicodeAware() ) {
-		hFile = ::CreateFileW(fullpath.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	}
 	else {
-		// パスをMBCSに変換
-		char *s_filestr = Ccct::Ucs2ToMbcs(fullpath, CHARSET_DEFAULT);
-		if (s_filestr == NULL) {
-			vm.logger().Error(E_E, 89, L"FSIZE", p.dicname, p.line);
+		DWORD err = ::GetLastError();
+		if ( err == ERROR_FILE_NOT_FOUND || err == ERROR_PATH_NOT_FOUND ) {
 			return CValue(-1);
 		}
-
-		// 実行
-		hFile = ::CreateFileA(s_filestr, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-		free(s_filestr);
-		s_filestr = NULL;
 	}
+
+	HANDLE hFile = ::CreateFileW(fullpath.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	if (hFile == INVALID_HANDLE_VALUE) {
 		return CValue(-1);
@@ -3915,19 +3782,8 @@ CValue	CSystemFunction::FSIZE(CSF_FUNCPARAM &p)
 	
 	LARGE_INTEGER result;
 
-	typedef BOOL (WINAPI* YGetFileSizeEx)(HANDLE hFile,PLARGE_INTEGER lpFileSize);
-	static const YGetFileSizeEx pGetFileSizeEx = (YGetFileSizeEx)::GetProcAddress(::GetModuleHandleA("kernel32"),"GetFileSizeEx");
-	
-	if ( pGetFileSizeEx ) {
-		if(!pGetFileSizeEx(hFile, &result)) {
-			result.QuadPart=-1;
-		}
-	}
-	else {
-		result.LowPart = ::GetFileSize(hFile,(DWORD*)&result.HighPart);
-		if ( result.LowPart == INVALID_FILE_SIZE ) {
-			result.QuadPart=-1;
-		}
+	if ( ! ::GetFileSizeEx(hFile, &result) ) {
+		result.QuadPart=-1;
 	}
 
 	::CloseHandle(hFile);
@@ -4726,34 +4582,17 @@ CValue	CSystemFunction::GETTICKCOUNT(CSF_FUNCPARAM &p)
 #if defined(WIN32)
 CValue	CSystemFunction::GETMEMINFO(CSF_FUNCPARAM &p)
 {
-	typedef BOOL (WINAPI *DefGlobalMemoryStatusEx)(LPMEMORYSTATUSEX lpBuffer);
-
-	static const DefGlobalMemoryStatusEx pGlobalMemoryStatusEx = (DefGlobalMemoryStatusEx)::GetProcAddress(::GetModuleHandleA("kernel32"),"GlobalMemoryStatusEx");
-
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 
-	if ( pGlobalMemoryStatusEx ) {
-		MEMORYSTATUSEX	meminfo = {0};
-		meminfo.dwLength = sizeof(meminfo);
-		pGlobalMemoryStatusEx(&meminfo);
+	MEMORYSTATUSEX	meminfo = {0};
+	meminfo.dwLength = sizeof(meminfo);
+	::GlobalMemoryStatusEx(&meminfo);
 
-		result.array().emplace_back(CValue((yaya::int_t)meminfo.dwMemoryLoad)   );
-		result.array().emplace_back(CValue((yaya::int_t)meminfo.ullTotalPhys)   );
-		result.array().emplace_back(CValue((yaya::int_t)meminfo.ullAvailPhys)   );
-		result.array().emplace_back(CValue((yaya::int_t)meminfo.ullTotalVirtual));
-		result.array().emplace_back(CValue((yaya::int_t)meminfo.ullAvailVirtual));
-	}
-	else {
-		MEMORYSTATUS meminfo = {0};
-		meminfo.dwLength = sizeof(meminfo);
-		::GlobalMemoryStatus(&meminfo);
-
-		result.array().emplace_back(CValue((yaya::int_t)meminfo.dwMemoryLoad)   );
-		result.array().emplace_back(CValue((yaya::int_t)meminfo.dwTotalPhys)    );
-		result.array().emplace_back(CValue((yaya::int_t)meminfo.dwAvailPhys)    );
-		result.array().emplace_back(CValue((yaya::int_t)meminfo.dwTotalVirtual) );
-		result.array().emplace_back(CValue((yaya::int_t)meminfo.dwAvailVirtual) );
-	}
+	result.array().emplace_back(CValue((yaya::int_t)meminfo.dwMemoryLoad)   );
+	result.array().emplace_back(CValue((yaya::int_t)meminfo.ullTotalPhys)   );
+	result.array().emplace_back(CValue((yaya::int_t)meminfo.ullAvailPhys)   );
+	result.array().emplace_back(CValue((yaya::int_t)meminfo.ullTotalVirtual));
+	result.array().emplace_back(CValue((yaya::int_t)meminfo.ullAvailVirtual));
 
 	return result;
 }
@@ -6834,54 +6673,23 @@ CValue	CSystemFunction::FATTRIB(CSF_FUNCPARAM &p)
 
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 
-	if ( IsUnicodeAware() ) {
-		WIN32_FIND_DATAW ffdata;
-		if ( ::GetFileAttributesExW(fullpath.c_str(),GetFileExInfoStandard,&ffdata) ) {
-			result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE   ) ? 1 : 0));
-			result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) ? 1 : 0));
-			result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) ? 1 : 0));
-			result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN    ) ? 1 : 0));
-			result.array().emplace_back(CValue((ffdata.dwFileAttributes == FILE_ATTRIBUTE_NORMAL   ) ? 1 : 0));
-			result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_OFFLINE   ) ? 1 : 0));
-			result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_READONLY  ) ? 1 : 0));
-			result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM    ) ? 1 : 0));
-			result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_TEMPORARY ) ? 1 : 0));
+	WIN32_FIND_DATAW ffdata;
+	if ( ::GetFileAttributesExW(fullpath.c_str(),GetFileExInfoStandard,&ffdata) ) {
+		result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE   ) ? 1 : 0));
+		result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) ? 1 : 0));
+		result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) ? 1 : 0));
+		result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN    ) ? 1 : 0));
+		result.array().emplace_back(CValue((ffdata.dwFileAttributes == FILE_ATTRIBUTE_NORMAL   ) ? 1 : 0));
+		result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_OFFLINE   ) ? 1 : 0));
+		result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_READONLY  ) ? 1 : 0));
+		result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM    ) ? 1 : 0));
+		result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_TEMPORARY ) ? 1 : 0));
 
-			result.array().emplace_back(CValue((yaya::int_t)FileTimeToUnixTime(ffdata.ftCreationTime)));
-			result.array().emplace_back(CValue((yaya::int_t)FileTimeToUnixTime(ffdata.ftLastWriteTime)));
-		}
-		else {
-			result = CValue(-1);
-		}
+		result.array().emplace_back(CValue((yaya::int_t)FileTimeToUnixTime(ffdata.ftCreationTime)));
+		result.array().emplace_back(CValue((yaya::int_t)FileTimeToUnixTime(ffdata.ftLastWriteTime)));
 	}
 	else {
-		// パスをMBCSに変換
-		char	*s_filestr = Ccct::Ucs2ToMbcs(fullpath, CHARSET_DEFAULT);
-		if (s_filestr == NULL) {
-			vm.logger().Error(E_E, 89, L"FATTRIB", p.dicname, p.line);
-			return CValue(-1);
-		}
-
-		WIN32_FIND_DATAA ffdata;
-		if ( ::GetFileAttributesExA(s_filestr,GetFileExInfoStandard,&ffdata) ) {
-			result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE   ) ? 1 : 0));
-			result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) ? 1 : 0));
-			result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) ? 1 : 0));
-			result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN    ) ? 1 : 0));
-			result.array().emplace_back(CValue((ffdata.dwFileAttributes == FILE_ATTRIBUTE_NORMAL   ) ? 1 : 0));
-			result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_OFFLINE   ) ? 1 : 0));
-			result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_READONLY  ) ? 1 : 0));
-			result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM    ) ? 1 : 0));
-			result.array().emplace_back(CValue((ffdata.dwFileAttributes & FILE_ATTRIBUTE_TEMPORARY ) ? 1 : 0));
-
-			result.array().emplace_back(CValue((yaya::int_t)FileTimeToUnixTime(ffdata.ftCreationTime)));
-			result.array().emplace_back(CValue((yaya::int_t)FileTimeToUnixTime(ffdata.ftLastWriteTime)));
-		}
-		else {
-			result = CValue(-1);
-		}
-
-		free(s_filestr);
+		result = CValue(-1);
 	}
 
 #elif defined(POSIX)
@@ -7574,21 +7382,19 @@ CValue	CSystemFunction::GETENV(CSF_FUNCPARAM &p)
 #if defined(WIN32)
 	// getenvは環境変数を先頭から全部strchrで調べ、文字コード変換も2回かかる（約5μs）。
 	// ワイド文字のAPIで直接取る。名前が空か'='を含むとき、値が長すぎるときは従来どおり
-	if ( IsUnicodeAware() ) {
-		const yaya::string_t &ename = p.arg.array()[0].s_value;
-		if ( ! ename.empty() && ename.find(L'=') == yaya::string_t::npos ) {
-			const DWORD sbuf_size = 512;
-			wchar_t sbuf[sbuf_size];
-			::SetLastError(NO_ERROR);
-			DWORD n = ::GetEnvironmentVariableW(ename.c_str(), sbuf, sbuf_size);
-			if ( n == 0 && ::GetLastError() == ERROR_ENVVAR_NOT_FOUND ) {
-				vm.logger().Error(E_W, 12, L"GETENV", p.dicname, p.line);
-				SetError(12);
-				return yaya::string_t();
-			}
-			if ( n < sbuf_size ) {
-				return CValue(yaya::string_t(sbuf, n));
-			}
+	const yaya::string_t &ename = p.arg.array()[0].s_value;
+	if ( ! ename.empty() && ename.find(L'=') == yaya::string_t::npos ) {
+		const DWORD sbuf_size = 512;
+		wchar_t sbuf[sbuf_size];
+		::SetLastError(NO_ERROR);
+		DWORD n = ::GetEnvironmentVariableW(ename.c_str(), sbuf, sbuf_size);
+		if ( n == 0 && ::GetLastError() == ERROR_ENVVAR_NOT_FOUND ) {
+			vm.logger().Error(E_W, 12, L"GETENV", p.dicname, p.line);
+			SetError(12);
+			return yaya::string_t();
+		}
+		if ( n < sbuf_size ) {
+			return CValue(yaya::string_t(sbuf, n));
 		}
 	}
 #endif

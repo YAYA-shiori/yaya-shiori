@@ -237,37 +237,12 @@ void	yaya::ws_replace(yaya::string_t &str, const wchar_t *before, const wchar_t 
 /* -----------------------------------------------------------------------
 *  関数名  ：  w_fopen
 *  機能概要：  UCS-2文字列のファイル名でオープンできるfopen
-*
-*  補足　wchar_t*を直接渡せる_wfopenはWin9x系未サポートのため使えないのです。無念。
 * -----------------------------------------------------------------------
 */
 #if defined(WIN32) || defined(_WIN32_WCE)
 FILE	*yaya::w_fopen(const yaya::char_t *fname, const yaya::char_t *mode)
 {
-	FILE *fp;
-	if ( IsUnicodeAware() ) {
-		fp = _wfopen(fname,mode);
-	}
-	else {
-		// ファイル名とオープンモードををMBCSへ変換
-		char	*mfname = Ccct::Ucs2ToMbcs(fname, CHARSET_DEFAULT);
-		if (mfname == NULL)
-			return NULL;
-		char	*mmode  = Ccct::Ucs2ToMbcs(mode,  CHARSET_DEFAULT);
-		if (mmode == NULL) {
-			free(mfname);
-			mfname = NULL;
-			return NULL;
-		}
-		// オープン
-		fp = fopen(mfname, mmode);
-		free(mfname);
-		mfname = NULL;
-		free(mmode);
-		mmode = NULL;
-	}
-	
-	return fp;
+	return _wfopen(fname,mode);
 }
 #else
 FILE* yaya::w_fopen(const yaya::char_t* fname, const yaya::char_t* mode) {

@@ -175,26 +175,13 @@ static void AYA_InitModule(HMODULE hModule)
 
 	g_hModule = hModule;
 
-	if ( IsUnicodeAware() ) {
-		wchar_t path[MAX_PATH] = L"";
-		::GetModuleFileNameW(hModule, path, sizeof(path) / sizeof(path[0]));
-		
-		wchar_t drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
-		_wsplitpath(path, drive, dir, fname, ext);
+	wchar_t path[MAX_PATH] = L"";
+	::GetModuleFileNameW(hModule, path, sizeof(path) / sizeof(path[0]));
 
-		modulename = fname;
-	}
-	else {
-		char path[MAX_PATH] = "";
-		::GetModuleFileNameA(hModule, path, sizeof(path));
-		
-		char drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
-		_splitpath(path, drive, dir, fname, ext);
+	wchar_t drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
+	_wsplitpath(path, drive, dir, fname, ext);
 
-		std::string	mbmodulename = fname;
-
-		Ccct::MbcsToUcs2Buf(modulename, mbmodulename, CHARSET_DEFAULT);
-	}
+	modulename = fname;
 
 	Ccct::sys_setlocale(LC_ALL);
 }
@@ -207,7 +194,6 @@ static void AYA_InitModule(HMODULE hModule)
 extern "C" BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID /*lpReserved*/)
 {
 	// モジュールの主ファイル名を取得
-	// NT系ではいきなりUNICODEで取得できるが、9x系を考慮してMBCSで取得してからUCS-2へ変換
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
 		AYA_InitModule(hModule);
 	}

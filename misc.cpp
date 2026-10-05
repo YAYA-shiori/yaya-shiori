@@ -879,39 +879,6 @@ char	IsLegalPlainStrLiteral(const yaya::string_t &str)
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  IsUnicodeAware
- *  機能概要：  Unicode系APIが使えるかどうかを返します
- *              POSIXは常にtrue / Win9x/Meのみfalse
- * -----------------------------------------------------------------------
- */
-#if defined(WIN32) || defined(_WIN32_WCE)
-class IsUnicodeAwareHelper
-{
-public:
-	bool isnt;
-
-	IsUnicodeAwareHelper() {
-		OSVERSIONINFO osVer;
-		osVer.dwOSVersionInfoSize = sizeof(osVer);
-
-		::GetVersionEx(&osVer);
-		isnt = (osVer.dwPlatformId == VER_PLATFORM_WIN32_NT);
-	}
-};
-
-bool	IsUnicodeAware(void)
-{
-	static IsUnicodeAwareHelper h;
-	return h.isnt;
-}
-#else
-bool	IsUnicodeAware(void)
-{
-	return true;
-}
-#endif
-
-/* -----------------------------------------------------------------------
  *  関数名  ：  GetEpochTime
  *  機能概要：  64bit対応の time() 相当
  * -----------------------------------------------------------------------
