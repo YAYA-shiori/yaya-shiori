@@ -1,0 +1,9 @@
+charset.setting, UTF-8
+charset.dic, UTF-8
+charset.output, UTF-8
+charset.file, UTF-8
+charset.save, UTF-8
+charset.extension, UTF-8
+looplimit, 0
+dic, bench.dic
+dic, bench_scenario.dic

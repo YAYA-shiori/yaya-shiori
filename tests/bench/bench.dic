@@ -1,0 +1,656 @@
+//******************************************************************************
+// マイクロ・ベンチ: 作業履歴の頁（Claudia の CC.PageHist / CCS.Span）が使う処理を、要素ごとに分けて測る
+//   各関数は _argv[0] 回くり返し、1 回あたりのマイクロ秒を文字列で返す（ファイル系の B.FreadAll 等は 1 行あたり）
+//   時計は GETTICKCOUNT（約 15ms 刻み）なので、回数は 1 本が 200ms 以上になるよう選ぶこと
+//   ループの回数には looplimit（既定 10000）がかかる。yaya.txt で looplimit, 0 にしてあるが、
+//   辞書を移すときは忘れないこと（10000 を超えると黙って打ち切られ、1 回あたりの値が小さく出る）
+//   実データ（~/.claude/history.jsonl）と同じ形の合成データを %USERPROFILE% に置いて使う（gen-data.ps1）
+//******************************************************************************
+
+load
+{
+}
+
+unload
+{
+}
+
+request
+{
+	'!! ' + EVAL(SUBSTR(_argv[0], 3, STRLEN(_argv[0])))
+}
+
+B.Out
+{
+	_argv[0] + ': ' + TOSTR(TOREAL(_argv[1]) * 1000.0 / _argv[2]) + ' us/op'
+}
+
+B.HistPath
+{
+	REPLACE(GETENV('USERPROFILE'), '\', '/') + '/.claude/history.jsonl'
+}
+
+//---- 履歴の 1 行（実データと同じ形）。bline に覚える
+B.Line
+{
+	_path = B.HistPath
+	_i    = 0
+	if FOPEN(_path, 'r') {
+		for _i = 0 ; _i < 3000 ; _i++ {
+			bline = FREAD(_path)
+		}
+		void FCLOSE(_path)
+	}
+	STRLEN(bline)
+}
+
+B.Nop
+{
+	0
+}
+
+B.Id
+{
+	_argv[0]
+}
+
+//------------------------------------------------------------------------------
+//インタプリタそのもの
+//------------------------------------------------------------------------------
+B.Loop
+{
+	_n = _argv[0]
+	_i = 0
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+	}
+	B.Out('empty loop iteration', GETTICKCOUNT - _t, _n)
+}
+
+B.Assign
+{
+	_n = _argv[0]
+	_i = 0
+	_x = 0
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_x = _i + 1
+	}
+	B.Out('assign _x = _i + 1', GETTICKCOUNT - _t, _n)
+}
+
+B.If
+{
+	_n = _argv[0]
+	_i = 0
+	_x = 0
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		if _i < 0 {
+			_x = 1
+		}
+		elseif _i == -1 {
+			_x = 2
+		}
+		else {
+			_x = 3
+		}
+	}
+	B.Out('if/elseif/else', GETTICKCOUNT - _t, _n)
+}
+
+B.Call0
+{
+	_n = _argv[0]
+	_i = 0
+	_x = 0
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_x = B.Nop
+	}
+	B.Out('call user func (no arg)', GETTICKCOUNT - _t, _n)
+}
+
+B.Call1
+{
+	_n = _argv[0]
+	_i = 0
+	_x = 0
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_x = B.Id(_i)
+	}
+	B.Out('call user func (1 arg)', GETTICKCOUNT - _t, _n)
+}
+
+//------------------------------------------------------------------------------
+//文字列
+//------------------------------------------------------------------------------
+B.Strstr
+{
+	_n  = _argv[0]
+	_i  = 0
+	_x  = 0
+	_ln = bline
+	_t  = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_x = STRSTR(_ln, '"sessionId":"', 0)
+	}
+	B.Out('STRSTR on history line (' + STRLEN(_ln) + ' chars)', GETTICKCOUNT - _t, _n)
+}
+
+B.StrstrShort
+{
+	_n  = _argv[0]
+	_i  = 0
+	_x  = 0
+	_ln = 'abcdefghij"sessionId":"klmnop'
+	_t  = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_x = STRSTR(_ln, '"sessionId":"', 0)
+	}
+	B.Out('STRSTR on 30-char string', GETTICKCOUNT - _t, _n)
+}
+
+B.Substr
+{
+	_n  = _argv[0]
+	_i  = 0
+	_x  = ''
+	_ln = bline
+	_t  = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_x = SUBSTR(_ln, 100, 36)
+	}
+	B.Out('SUBSTR(line, 100, 36)', GETTICKCOUNT - _t, _n)
+}
+
+B.Strlen
+{
+	_n  = _argv[0]
+	_i  = 0
+	_x  = 0
+	_ln = bline
+	_t  = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_x = STRLEN(_ln)
+	}
+	B.Out('STRLEN(line)', GETTICKCOUNT - _t, _n)
+}
+
+B.Toint
+{
+	_n = _argv[0]
+	_i = 0
+	_x = 0
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_x = TOINT('1759650000000')
+	}
+	B.Out('TOINT(13 digits)', GETTICKCOUNT - _t, _n)
+}
+
+B.Replace
+{
+	_n = _argv[0]
+	_i = 0
+	_x = ''
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_x = REPLACE('C:\\Users\\bench\\work\\proj07', '\\', '\')
+	}
+	B.Out('REPLACE(28 chars)', GETTICKCOUNT - _t, _n)
+}
+
+B.ReReplace
+{
+	_n = _argv[0]
+	_i = 0
+	_x = ''
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_x = RE_REPLACE('C:\Users\bench\work\proj07', '[^A-Za-z0-9]', '-')
+	}
+	B.Out('RE_REPLACE(26 chars)', GETTICKCOUNT - _t, _n)
+}
+
+B.Split
+{
+	_n = _argv[0]
+	_i = 0
+	_x = IARRAY
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_x = SPLIT('1759650000000|aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', '|')
+	}
+	B.Out('SPLIT(2 parts)', GETTICKCOUNT - _t, _n)
+}
+
+B.Getenv
+{
+	_n = _argv[0]
+	_i = 0
+	_x = ''
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_x = GETENV('USERPROFILE')
+	}
+	B.Out('GETENV', GETTICKCOUNT - _t, _n)
+}
+
+B.Gettime
+{
+	_n = _argv[0]
+	_i = 0
+	_x = IARRAY
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_x = GETTIME(1759650000)
+	}
+	B.Out('GETTIME', GETTICKCOUNT - _t, _n)
+}
+
+//---- 文字列の連結（長くなるときのスケール。n 回、1 文字ずつ足す）
+B.Concat
+{
+	_n = _argv[0]
+	_i = 0
+	_s = ''
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_s += 'あいうえお'
+	}
+	B.Out('string += 5 chars, final ' + STRLEN(_s) + ' chars', GETTICKCOUNT - _t, _n)
+}
+
+//------------------------------------------------------------------------------
+//配列・ハッシュ
+//------------------------------------------------------------------------------
+B.Keys
+{
+	_n    = _argv[0]
+	_i    = 0
+	_keys = IARRAY
+	for _i = 0 ; _i < _n ; _i++ {
+		_keys ,= TOSTR(1000000 + _i * 7919) + '-aaaa-bbbb-cccc-dddddddddddd'
+	}
+	_keys
+}
+
+B.ArrayAppend
+{
+	_n = _argv[0]
+	_i = 0
+	_a = IARRAY
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_a ,= _i
+	}
+	B.Out('array ,= int (final ' + ARRAYSIZE(_a) + ')', GETTICKCOUNT - _t, _n)
+}
+
+B.ArrayAppendHash
+{
+	_n = _argv[0]
+	_i = 0
+	_a = IARRAY
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_a ,= IHASH('id', 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', 'ts', _i, 'cwd', 'C:\Users\bench\work\proj07')
+	}
+	B.Out('array ,= IHASH(3 keys) (final ' + ARRAYSIZE(_a) + ')', GETTICKCOUNT - _t, _n)
+}
+
+B.ArrayIndexHash
+{
+	_n = _argv[0]
+	_i = 0
+	_a = IARRAY
+	_r = IHASH()
+	for _i = 0 ; _i < 500 ; _i++ {
+		_a ,= IHASH('id', 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', 'ts', _i, 'cwd', 'C:\Users\bench\work\proj07')
+	}
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_r = _a[_i % 500]
+	}
+	B.Out('_r = _a[i] (500 hashes of 3 keys)', GETTICKCOUNT - _t, _n)
+}
+
+B.HashSetNew
+{
+	_n    = _argv[0]
+	_keys = B.Keys(800)
+	_h    = IHASH()
+	_i    = 0
+	_t    = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		if _i % 800 == 0 {
+			_h = IHASH()
+		}
+		_h[_keys[_i % 800]] = _i
+	}
+	B.Out('hash[newkey] = v (800 distinct keys)', GETTICKCOUNT - _t, _n)
+}
+
+B.HashSetSame
+{
+	_n    = _argv[0]
+	_keys = B.Keys(800)
+	_h    = IHASH()
+	_i    = 0
+	for _i = 0 ; _i < 800 ; _i++ {
+		_h[_keys[_i]] = _i
+	}
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_h[_keys[_i % 800]] = _i
+	}
+	B.Out('hash[existing] = v (800 keys)', GETTICKCOUNT - _t, _n)
+}
+
+B.HashGet
+{
+	_n    = _argv[0]
+	_keys = B.Keys(800)
+	_h    = IHASH()
+	_i    = 0
+	_x    = 0
+	for _i = 0 ; _i < 800 ; _i++ {
+		_h[_keys[_i]] = _i
+	}
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_x = _h[_keys[_i % 800]]
+	}
+	B.Out('x = hash[key] (800 keys)', GETTICKCOUNT - _t, _n)
+}
+
+B.HashForeach
+{
+	_n    = _argv[0]
+	_keys = B.Keys(800)
+	_h    = IHASH()
+	_i    = 0
+	_k    = ''
+	_v    = 0
+	_x    = 0
+	for _i = 0 ; _i < 800 ; _i++ {
+		_h[_keys[_i]] = _i
+	}
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		foreach _h ; _k, _v {
+			_x += 1
+		}
+	}
+	B.Out('foreach hash ; k, v (800 entries) per element', GETTICKCOUNT - _t, _n * 800)
+}
+
+B.HashCopy
+{
+	_n    = _argv[0]
+	_keys = B.Keys(800)
+	_h    = IHASH()
+	_a    = IHASH()
+	_i    = 0
+	for _i = 0 ; _i < 800 ; _i++ {
+		_h[_keys[_i]] = _i
+	}
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_a = _h
+	}
+	B.Out('_a = _h (copy 800-entry hash)', GETTICKCOUNT - _t, _n)
+}
+
+B.HashReturn
+{
+	_n    = _argv[0]
+	_keys = B.Keys(800)
+	_h    = IHASH()
+	_a    = IHASH()
+	_i    = 0
+	for _i = 0 ; _i < 800 ; _i++ {
+		_h[_keys[_i]] = _i
+	}
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_a = B.Id(_h)
+	}
+	B.Out('_a = F(_h) (pass+return 800-entry hash)', GETTICKCOUNT - _t, _n)
+}
+
+B.HashNested
+{
+	_n    = _argv[0]
+	_keys = B.Keys(800)
+	_h    = IHASH()
+	_s    = IHASH()
+	_a    = IHASH()
+	_i    = 0
+	for _i = 0 ; _i < 800 ; _i++ {
+		_h[_keys[_i]] = _i
+	}
+	_s = IHASH('last', _h, 'proj', _h)
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_a = _s['last']
+	}
+	B.Out('_a = _s[''last''] (nested 800-entry hash)', GETTICKCOUNT - _t, _n)
+}
+
+B.Asort
+{
+	_n    = _argv[0]
+	_keys = IARRAY
+	_x    = IARRAY
+	_i    = 0
+	for _i = 0 ; _i < 500 ; _i++ {
+		_keys ,= TOSTR(1759650000000 + ((_i * 7919) % 5000) * 1000) + '|aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
+	}
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_x = ASORT('string,descending', _keys)
+	}
+	B.Out('ASORT string,descending (500 elements)', GETTICKCOUNT - _t, _n)
+}
+
+//------------------------------------------------------------------------------
+//ファイル
+//------------------------------------------------------------------------------
+B.Fsize
+{
+	_n    = _argv[0]
+	_path = B.HistPath
+	_i    = 0
+	_x    = 0
+	_t    = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_x = FSIZE(_path)
+	}
+	B.Out('FSIZE', GETTICKCOUNT - _t, _n)
+}
+
+B.FsizeMissing
+{
+	_n = _argv[0]
+	_i = 0
+	_x = 0
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_x = FSIZE('C:/nonexistent/aaaa/bbbb.jsonl')
+	}
+	B.Out('FSIZE (missing file)', GETTICKCOUNT - _t, _n)
+}
+
+B.FopenClose
+{
+	_n    = _argv[0]
+	_path = B.HistPath
+	_i    = 0
+	_t    = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		if FOPEN(_path, 'r') {
+			void FCLOSE(_path)
+		}
+	}
+	B.Out('FOPEN + FCLOSE', GETTICKCOUNT - _t, _n)
+}
+
+//---- 履歴の全行を FREAD するだけ（行あたり）
+B.FreadAll
+{
+	_path = B.HistPath
+	_line = ''
+	_cnt  = 0
+	_t    = GETTICKCOUNT
+	if FOPEN(_path, 'r') {
+		while 1 {
+			_line = FREAD(_path)
+			if _line == -1 {
+				break
+			}
+			_cnt += 1
+		}
+		void FCLOSE(_path)
+	}
+	B.Out('FREAD whole history.jsonl, per line (' + _cnt + ' lines / ' + FSIZE(_path) + ' B)', GETTICKCOUNT - _t, _cnt)
+}
+
+//---- 履歴の全行を FREAD して、HistScan と同じ文字列処理をする（ハッシュに入れる所は除く）
+B.ScanNoHash
+{
+	_path = B.HistPath
+	_line = ''
+	_cnt  = 0
+	_i    = 0
+	_j    = 0
+	_ms   = 0
+	_id   = ''
+	_cwd  = ''
+	_t    = GETTICKCOUNT
+	if FOPEN(_path, 'r') {
+		while 1 {
+			_line = FREAD(_path)
+			if _line == -1 {
+				break
+			}
+			_cnt += 1
+			_i = STRSTR(_line, '"timestamp":', 0)
+			if _i < 0 {
+				continue
+			}
+			_ms = TOINT(SUBSTR(_line, _i + 12, 20))
+			_i  = STRSTR(_line, '"sessionId":"', 0)
+			if _ms <= 0 || _i < 0 {
+				continue
+			}
+			_id = SUBSTR(_line, _i + 13, 36)
+			_i  = STRSTR(_line, '"project":"', 0)
+			if _i < 0 {
+				continue
+			}
+			_j   = STRSTR(_line, '"', _i + 11)
+			_cwd = SUBSTR(_line, _i + 11, _j - _i - 11)
+		}
+		void FCLOSE(_path)
+	}
+	B.Out('HistScan string work without hash, per line', GETTICKCOUNT - _t, _cnt)
+}
+
+//---- 全行のまま FREAD → ハッシュ 2 つに入れる（HistScan 相当）
+B.ScanFull
+{
+	_path = B.HistPath
+	_line = ''
+	_cnt  = 0
+	_i    = 0
+	_j    = 0
+	_ms   = 0
+	_id   = ''
+	_cwd  = ''
+	_last = IHASH()
+	_proj = IHASH()
+	_t    = GETTICKCOUNT
+	if FOPEN(_path, 'r') {
+		while 1 {
+			_line = FREAD(_path)
+			if _line == -1 {
+				break
+			}
+			_cnt += 1
+			_i = STRSTR(_line, '"timestamp":', 0)
+			if _i < 0 {
+				continue
+			}
+			_ms = TOINT(SUBSTR(_line, _i + 12, 20))
+			_i  = STRSTR(_line, '"sessionId":"', 0)
+			if _ms <= 0 || _i < 0 {
+				continue
+			}
+			_id = SUBSTR(_line, _i + 13, 36)
+			_i  = STRSTR(_line, '"project":"', 0)
+			if _i < 0 {
+				continue
+			}
+			_j   = STRSTR(_line, '"', _i + 11)
+			_cwd = SUBSTR(_line, _i + 11, _j - _i - 11)
+			_last[_id] = _ms
+			_proj[_id] = _cwd
+		}
+		void FCLOSE(_path)
+	}
+	B.Out('HistScan whole file incl. 2 hash sets (' + HASH_SIZE(_last) + ' ids), per line', GETTICKCOUNT - _t, _cnt)
+}
+
+B.Seek
+{
+	_n    = _argv[0]
+	_path = B.HistPath
+	_size = FSIZE(_path)
+	_line = ''
+	_i    = 0
+	_t    = GETTICKCOUNT
+	if FOPEN(_path, 'r') {
+		for _i = 0 ; _i < _n ; _i++ {
+			void FSEEK(_path, _size - 524288, 'SEEK_SET')
+			_line = FREAD(_path)
+		}
+		void FCLOSE(_path)
+	}
+	B.Out('FSEEK + 1 FREAD', GETTICKCOUNT - _t, _n)
+}
+
+//------------------------------------------------------------------------------
+//JSON（記録の 1 行 = 約 4KB）
+//------------------------------------------------------------------------------
+B.ParseJson
+{
+	_n    = _argv[0]
+	_text = '{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"' + REPLACE(CHR(97) + 'あいうえおかきくけこ', 'a', 'b') + '"},{"type":"tool_use","id":"toolu_01","name":"Bash","input":{"command":"ls","description":"List files"}}]},"timestamp":"2026-10-05T08:12:25.123Z","sessionId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"}'
+	_i    = 0
+	_x    = IHASH()
+	_t    = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_x = PARSEJSON(_text)
+	}
+	B.Out('PARSEJSON (' + STRLEN(_text) + ' chars)', GETTICKCOUNT - _t, _n)
+}
+
+B.ParseJsonBig
+{
+	_n    = _argv[0]
+	_text = '{"a":"'
+	_i    = 0
+	_x    = IHASH()
+	for _i = 0 ; _i < 800 ; _i++ {
+		_text += 'あいうえおかきくけこ'
+	}
+	_text += '"}'
+	_t = GETTICKCOUNT
+	for _i = 0 ; _i < _n ; _i++ {
+		_x = PARSEJSON(_text)
+	}
+	B.Out('PARSEJSON (' + STRLEN(_text) + ' chars, Japanese)', GETTICKCOUNT - _t, _n)
+}

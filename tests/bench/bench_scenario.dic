@@ -1,0 +1,427 @@
+//******************************************************************************
+// シナリオ・ベンチ: Claudia ゴーストの「Claude Code は？」の「作業履歴」頁から抜き出した処理
+//
+// 元の関数は ghost/master/dic/normal/yaya_claudecode.dic（CC.*）と yaya_ccstats.dic（CCS.*）にある。
+// ここでは SHIORI3FW / MENU など頁の組み立てに使う部分を外し、データを読む処理の形をそのまま残した。
+//   S.HistScan   履歴（history.jsonl）の末尾からセッションごとの最後の依頼を拾う（CC.HistScan）
+//   S.HistList   記録の残っているセッションを新しい順に並べる（CC.HistList）
+//   S.ReadTail   会話の記録の末尾 256KB を読んで、最後のメッセージ・題名を拾う（CC.ReadTail）
+//   S.HistRow    履歴 1 件分の 2 行（CC.HistRow。題名・時刻・キャッシュの温冷）
+//   S.Page       頁 1 枚分（HistList + HistRow x 6）。体感の待ち時間に近い
+//   S.Span       期間の依頼数・日数・時間帯・作業フォルダの集計（CCS.Span から月の索引を除いたもの）
+// 返り値は「名前: 経過ms」。時計は GETTICKCOUNT（約 15ms 刻み）なので 3 回以上くり返して平均を見ること。
+// データは gen-data.ps1 が作る合成データ（%USERPROFILE%\.claude）を使う。
+//******************************************************************************
+
+S.Out
+{
+	_argv[0] + ': ' + _argv[1] + ' ms'
+}
+
+//------------------------------------------------------------------------------
+//元: CC.UnescapePath / CC.TranscriptPath / CC.ParseJSON / CC.LineSec（ほぼそのまま）
+//------------------------------------------------------------------------------
+S.UnescapePath
+{
+	REPLACE(_argv[0], '\\', '\')
+}
+
+S.TranscriptPath
+{
+	_home = GETENV("USERPROFILE")
+	_path = ''
+	if STRLEN(_home) > 0 && STRLEN(_argv[0]) > 0 && STRLEN(_argv[1]) > 0 {
+		_path = REPLACE(_home, '\', '/') + '/.claude/projects/' + /
+		        RE_REPLACE(_argv[0], '[^A-Za-z0-9]', '-') + '/' + _argv[1] + '.jsonl'
+	}
+	_path
+}
+
+S.ParseJSON
+{
+	_text = _argv[0]
+	_h    = IHASH()
+
+	if SUBSTR(_text, 0, 1) == '{' && SUBSTR(_text, STRLEN(_text) - 1, 1) == '}' {
+		_h = PARSEJSON(_text)
+		if GETTYPE(_h) != 5 {
+			_h = IHASH()
+		}
+	}
+	_h
+}
+
+S.LineSec
+{
+	_i   = STRSTR(_argv[0], '"timestamp":"', 0)
+	_s   = ''
+	_y   = 0
+	_m   = 0
+	_d   = 0
+	_era = 0
+	_yoe = 0
+	_mp  = 0
+	_doy = 0
+	_doe = 0
+
+	if _i < 0 {
+		return 0
+	}
+	_s = SUBSTR(_argv[0], _i + 13, 19)
+	if STRLEN(RE_REPLACE(_s, '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}$', '')) > 0 {
+		return 0
+	}
+	_y = TOINT(SUBSTR(_s, 0, 4))
+	_m = TOINT(SUBSTR(_s, 5, 2))
+	_d = TOINT(SUBSTR(_s, 8, 2))
+	if _m <= 2 {
+		_y = _y - 1
+	}
+	_era = TOINT(_y / 400)
+	_yoe = _y - _era * 400
+	_mp  = (_m + 9) % 12
+	_doy = TOINT((153 * _mp + 2) / 5) + _d - 1
+	_doe = _yoe * 365 + TOINT(_yoe / 4) - TOINT(_yoe / 100) + _doy
+	(_era * 146097 + _doe - 719468) * 86400 + TOINT(SUBSTR(_s, 11, 2)) * 3600 + TOINT(SUBSTR(_s, 14, 2)) * 60 + TOINT(SUBSTR(_s, 17, 2))
+}
+
+//------------------------------------------------------------------------------
+//元: CC.HistScan（履歴の末尾から、約 60 日前に届くまで 512KB から倍々に読む）
+//------------------------------------------------------------------------------
+S.HistScan
+{
+	_path  = B.HistPath
+	_size  = 0
+	_chunk = 524288
+	_want  = (GETSECCOUNT - 60 * 86400) * 1000
+	_from  = 0
+	_first = 0
+	_last  = IHASH()
+	_proj  = IHASH()
+	_line  = ''
+	_i     = 0
+	_j     = 0
+	_ms    = 0
+	_id    = ''
+	_cwd   = ''
+
+	if STRLEN(_path) > 0 {
+		_size = FSIZE(_path)
+	}
+	if _size <= 0 {
+		return IHASH('last', _last, 'proj', _proj)
+	}
+	while 1 {
+		_from  = _size - _chunk
+		_first = 0
+		_last  = IHASH()
+		_proj  = IHASH()
+		if _from < 0 {
+			_from = 0
+		}
+		if FOPEN(_path, 'r') {
+			if _from > 0 {
+				void FSEEK(_path, _from, 'SEEK_SET')
+				_line = FREAD(_path)
+			}
+			while 1 {
+				_line = FREAD(_path)
+				if _line == -1 {
+					break
+				}
+				_i = STRSTR(_line, '"timestamp":', 0)
+				if _i < 0 {
+					continue
+				}
+				_ms = TOINT(SUBSTR(_line, _i + 12, 20))
+				_i  = STRSTR(_line, '"sessionId":"', 0)
+				if _ms <= 0 || _i < 0 {
+					continue
+				}
+				_id = SUBSTR(_line, _i + 13, 36)
+				_i  = STRSTR(_line, '"project":"', 0)
+				if _i < 0 {
+					continue
+				}
+				_j   = STRSTR(_line, '"', _i + 11)
+				_cwd = SUBSTR(_line, _i + 11, _j - _i - 11)
+				if _first == 0 {
+					_first = _ms
+				}
+				_last[_id] = _ms
+				_proj[_id] = _cwd
+			}
+			void FCLOSE(_path)
+		}
+		if _from == 0 || (_first > 0 && _first <= _want) || _chunk >= 16777216 {
+			break
+		}
+		_chunk *= 2
+	}
+	IHASH('last', _last, 'proj', _proj)
+}
+
+//------------------------------------------------------------------------------
+//元: CC.HistList
+//------------------------------------------------------------------------------
+S.HistList
+{
+	_scan = S.HistScan
+	_last = _scan['last']
+	_proj = _scan['proj']
+	_keys = IARRAY
+	_list = IARRAY
+	_id   = ''
+	_ms   = 0
+	_k    = ''
+	_a    = IARRAY
+
+	foreach _last ; _id, _ms {
+		if FSIZE(S.TranscriptPath(S.UnescapePath(_proj[_id]), _id)) > 0 {
+			_keys ,= _ms + '|' + _id
+		}
+	}
+	if ARRAYSIZE(_keys) == 0 {
+		return _list
+	}
+	_keys = ASORT('string,descending', _keys)
+	foreach _keys ; _k {
+		_a = SPLIT(_k, '|')
+		_list ,= IHASH('id', _a[1], 'ts', TOINT(_a[0]) / 1000, 'cwd', S.UnescapePath(_proj[_a[1]]))
+	}
+	_list
+}
+
+//------------------------------------------------------------------------------
+//元: CC.ReadTail（末尾 256KB を FREAD で 1 行ずつ。題名の行だけ PARSEJSON）
+//------------------------------------------------------------------------------
+S.ReadTail
+{
+	_path  = S.TranscriptPath(_argv[0], _argv[1])
+	_size  = FSIZE(_path)
+	_line  = ''
+	_last  = ''
+	_title = ''
+	_agent = ''
+	_h     = IHASH()
+
+	if _size <= 0 {
+		return IHASH()
+	}
+	if !FOPEN(_path, 'r') {
+		return IHASH()
+	}
+	if _size > 262144 {
+		void FSEEK(_path, _size - 262144, 'start')
+		_line = FREAD(_path)
+	}
+	while 1 {
+		_line = FREAD(_path)
+		if _line == -1 {
+			break
+		}
+		if STRSTR(_line, '"role":"assistant"', 0) >= 0 || STRSTR(_line, '"role":"user"', 0) >= 0 {
+			_last = _line
+		}
+		elseif STRSTR(_line, '"type":"ai-title"', 0) >= 0 {
+			_h = S.ParseJSON(_line)
+			if _h['type'] == 'ai-title' && STRLEN(_h['aiTitle']) > 0 {
+				_title = _h['aiTitle']
+			}
+		}
+		elseif STRSTR(_line, '"type":"agent-name"', 0) >= 0 {
+			_h = S.ParseJSON(_line)
+			if _h['type'] == 'agent-name' && STRLEN(_h['agentName']) > 0 {
+				_agent = _h['agentName']
+			}
+		}
+	}
+	void FCLOSE(_path)
+	IHASH('last', _last, 'title', _title, 'agent', _agent)
+}
+
+//------------------------------------------------------------------------------
+//元: CC.HistRow（SHIORI3FW / AYATEMPLATE の整形は外した）
+//------------------------------------------------------------------------------
+S.HistRow
+{
+	_s    = _argv[0]
+	_tail = S.ReadTail(_s['cwd'], _s['id'])
+	_sec  = S.LineSec(_tail['last'])
+	_t    = IARRAY
+	_mark = '冷'
+
+	if _sec <= 0 {
+		_sec = _s['ts']
+	}
+	_t = GETTIME(_sec)
+	if GETSECCOUNT - _sec <= 3600 {
+		_mark = '温'
+	}
+	_tail['title'] + '\n　' + _t[1] + '/' + _t[2] + ' ' + _t[4] + ':' + SUBSTR(TOSTR(100 + _t[5]), 1, 2) + '　' + _mark + '　' + _s['cwd']
+}
+
+//------------------------------------------------------------------------------
+//元: CC.PageHist（6 件ずつの 1 頁目）
+//------------------------------------------------------------------------------
+S.Page
+{
+	_list = S.HistList
+	_talk = ''
+	_i    = 0
+	_end  = ARRAYSIZE(_list)
+
+	if _end > 6 {
+		_end = 6
+	}
+	for _i = 0 ; _i < _end ; _i++ {
+		_talk += S.HistRow(_list[_i]) + '\n'
+	}
+	STRLEN(_talk)
+}
+
+//------------------------------------------------------------------------------
+//元: CCS.Span の行ループ（時刻を業務日に直し、日数・1 日の最大・時間帯・作業フォルダを数える）
+//  月の索引（FTELL / FSEEK）と上位 3 件の選び出しは省いた。_argv[0] 始まり / _argv[1] 終わり（YYYYMMDD）
+//------------------------------------------------------------------------------
+S.DayKey
+{
+	_t = GETTIME(_argv[0] - 14400)
+	_t[0] * 10000 + _t[1] * 100 + _t[2]
+}
+
+S.Span
+{
+	_from   = TOINT(_argv[0])
+	_to     = TOINT(_argv[1])
+	_path   = B.HistPath
+	_line   = ''
+	_i      = 0
+	_ms     = 0
+	_key    = 0
+	_j      = 0
+	_t      = IARRAY
+	_name   = ''
+	_n      = 0
+	_days   = 0
+	_max    = 0
+	_late   = 0
+	_daykey = 0
+	_dayn   = 0
+	_hour   = IARRAY
+	_proj   = IHASH()
+
+	for _i = 0 ; _i < 24 ; _i++ {
+		_hour ,= 0
+	}
+	if FOPEN(_path, 'r') {
+		while 1 {
+			_line = FREAD(_path)
+			if _line == -1 {
+				break
+			}
+			_i = STRSTR(_line, '"timestamp":', 0)
+			if _i < 0 {
+				continue
+			}
+			_ms = TOINT(SUBSTR(_line, _i + 12, 20))
+			if _ms <= 0 {
+				continue
+			}
+			_key = S.DayKey(_ms / 1000)
+			if _key < _from || _key > _to {
+				continue
+			}
+			_n += 1
+			if _key != _daykey {
+				_days  += 1
+				_daykey = _key
+				_dayn   = 0
+			}
+			_dayn += 1
+			if _dayn > _max {
+				_max = _dayn
+			}
+			_t = GETTIME(_ms / 1000)
+			_hour[_t[4]] += 1
+			if _t[4] <= 4 {
+				_late += 1
+			}
+			_name = ''
+			_i    = STRSTR(_line, '"project":"', 0)
+			if _i >= 0 {
+				_j    = STRSTR(_line, '"', _i + 11)
+				_name = SUBSTR(_line, _i + 11, _j - _i - 11)
+			}
+			if STRLEN(_name) > 0 {
+				_proj[_name] = TOINT(_proj[_name]) + 1
+			}
+		}
+		void FCLOSE(_path)
+	}
+	IHASH('n', _n, 'days', _days, 'max', _max, 'late', _late, 'lands', HASH_SIZE(_proj))
+}
+
+//------------------------------------------------------------------------------
+//計測用の枠。_argv[0] 名前 / _argv[1] 回数。数回くり返して平均 ms を返す
+//------------------------------------------------------------------------------
+S.RunHistScan
+{
+	_n = _argv[1]
+	_r = 0
+	_x = IHASH()
+	_t = GETTICKCOUNT
+	for _r = 0 ; _r < _n ; _r++ {
+		_x = S.HistScan
+	}
+	S.Out('HistScan (' + HASH_SIZE(_x['last']) + ' sessions)', TOSTR(TOREAL(GETTICKCOUNT - _t) / _n))
+}
+
+S.RunHistList
+{
+	_n = _argv[1]
+	_r = 0
+	_x = IARRAY
+	_t = GETTICKCOUNT
+	for _r = 0 ; _r < _n ; _r++ {
+		_x = S.HistList
+	}
+	S.Out('HistList (' + ARRAYSIZE(_x) + ' listed)', TOSTR(TOREAL(GETTICKCOUNT - _t) / _n))
+}
+
+S.RunReadTail
+{
+	_n    = _argv[1]
+	_list = S.HistList
+	_r    = 0
+	_x    = IHASH()
+	_t    = GETTICKCOUNT
+	for _r = 0 ; _r < _n ; _r++ {
+		_x = S.ReadTail(_list[0]['cwd'], _list[0]['id'])
+	}
+	S.Out('ReadTail x1 (newest session, last line ' + STRLEN(_x['last']) + ' chars)', TOSTR(TOREAL(GETTICKCOUNT - _t) / _n))
+}
+
+S.RunPage
+{
+	_n = _argv[1]
+	_r = 0
+	_x = 0
+	_t = GETTICKCOUNT
+	for _r = 0 ; _r < _n ; _r++ {
+		_x = S.Page
+	}
+	S.Out('Page (HistList + HistRow x 6, ' + _x + ' chars)', TOSTR(TOREAL(GETTICKCOUNT - _t) / _n))
+}
+
+S.RunSpan
+{
+	_n = _argv[1]
+	_r = 0
+	_x = IHASH()
+	_t = GETTICKCOUNT
+	for _r = 0 ; _r < _n ; _r++ {
+		_x = S.Span(19000101, 29991231)
+	}
+	S.Out('Span (' + _x['n'] + ' requests)', TOSTR(TOREAL(GETTICKCOUNT - _t) / _n))
+}
