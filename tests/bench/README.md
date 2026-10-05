@@ -36,7 +36,7 @@ pwsh -NoProfile -File tests/bench/run.ps1 -Set scenario     # 頁の処理だけ
 - **初めて開くファイルは遅い。** リアルタイム保護が有効な Windows では、新しくコピーしたファイルの初回オープンが 1 件 2.5ms（2 回目は 66µs）かかる。合成データを作り直した直後は 1 回空打ちしてから測る
 - EVAL の式の中に書いたループより、登録済みの関数の中に書いたループの方が測りやすい。ただし速度そのものは同じ
 
-## 基準値（VC6 Release EXE、この PC）
+## 基準値（VC6 Release EXE、この PC。下の「対応済み」の修正を入れる前）
 
 マイクロ（`run.ps1 -Set micro`。ループ 1 周の分を含む。1 回あたり µs）:
 
@@ -63,7 +63,35 @@ pwsh -NoProfile -File tests/bench/run.ps1 -Set scenario     # 頁の処理だけ
 | 頁 1 枚（`HistList` + `HistRow` × 6） | **309** | 実機の `CC.PageHist` は約 300ms で一致 |
 | `Span`（7855 行） | **488** | 実機の `CCS.Span`（月の索引つき）は約 780ms |
 
-## ボトルネックの所見（優先順）
+## 対応済み（局所的な修正。同じデータ・同じ PC で旧 → 新）
+
+| 修正 | 内容 |
+|---|---|
+| `ws_fgets`（`wsex.cpp`） | 暗号化なしの経路を `fgets` の塊読み（512 バイト）に。NUL を含む行も壊さないよう、バッファを 0xFF で埋めて終端 NUL の位置から長さを出す |
+| `CFile1::Open`（`file1.cpp`） | Windows はサイズ取得の seek / `ftell` 3 往復（stdio のバッファが捨てられる）をやめ、ハンドルから `GetFileSize` |
+| `FSIZE`（`sysfunc.cpp`、Windows） | `GetFileAttributesExW` で、開かずにサイズを取る。ディレクトリ・リパースポイント・取得失敗は従来の `CreateFile` 経路 |
+| `Ccct_ConvUTF8ToUnicode`（`ccct.cpp`） | 1 文字ずつ `append(1, c)` をやめ、先に確保して直接書き込む |
+| `ExecFunctionWithArgs` / `ExecSystemFunctionWithArgs`（`function.cpp`） | 引数ベクタを `reserve`。`&` 引数が無い呼び出しでは、書き戻し用の 3 本のベクタを作らない |
+| `GETENV`（`sysfunc.cpp`、Windows） | `GetEnvironmentVariableW` で直接取る（`getenv` の全走査と文字コード変換 2 回をやめる）。値が ANSI に収まらない文字も欠けなくなる |
+
+| 項目 | 旧 | 新 |
+|---|---|---|
+| `FREAD` 1 行（404B） | 18.0 µs | **5.9 µs** |
+| `HistScan` | 156 ms | 88 ms |
+| `HistList`（ファイルが温まっている） | 206 ms | 141 ms |
+| `HistList`（初めて開く 493 ファイル。AV のスキャンあり） | 1594 ms | **172 ms** |
+| `ReadTail` 1 件 | 9.4 ms | 3.0 ms |
+| 頁 1 枚 | 294 ms | **166 ms**（−44%） |
+| `Span`（7855 行） | 469 ms | 328 ms（−30%） |
+| `GETENV` | 5.0 µs | 1.9 µs |
+| `REPLACE` / `SPLIT`（引数 2〜3 個の呼び出し） | 3.3 / 3.0 µs | 2.0 / 2.3 µs |
+| Claudia の全辞書の load | 約 141 ms | 約 131 ms（約 7%） |
+
+検証: 改修前後の EXE に、境界ケースのファイル（改行なし・CRLF・NUL・0xFF・BOM・511 / 512 / 513 バイトの行・空ファイル・サロゲート・途切れた UTF-8・不正な UTF-8）の
+`FREAD` / `FSIZE`、`&` 引数と配列引数の書き戻し、`GETENV` の各種名前を食わせ、46 ケースで比べた。差は `GETENV` が `é` を欠かなくなった 1 件だけ。
+MinGW 版でも同じ 46 ケースが VC6 版と一致した。
+
+## ボトルネックの所見（優先順。1〜2 と 4 の一部は上で対応済み）
 
 ### 1. `FREAD` の 1 バイトずつの `fgetc`（頁の約 24%、`FREAD` の約 65%）
 
@@ -79,9 +107,9 @@ pwsh -NoProfile -File tests/bench/run.ps1 -Set scenario     # 頁の処理だけ
 | `_getc_nolock`（1 バイトずつ、ロックなし） | 1.8 µs |
 | `fgets`（512 バイトずつ、1 行につきロック 1 回） | **1.1 µs** |
 
-`FREAD` 全体は 18〜20 µs/行なので、`fgetc` を直しても 8〜10 µs/行は残る。計測できたのは `MbcsToUcs2Buf`（UTF-8 → UCS-2）の 13% で、毎回の
-`std::string buf; buf.reserve(1000)`、`ToFullPath`、`CFile::Read` のリスト検索は読んだだけの候補で、未計測）。
-`ws_fgets` は辞書の読み込み（`parser0.cpp`）、設定ファイル、セーブファイルの復元にも使われるので、直せば起動（load）も速くなるはず（未計測）。VC6 に `_getc_nolock` は無いので、`fgets` か `fread` の自前バッファが候補。
+`FREAD` 全体は 18〜20 µs/行で、`fgetc` を直しても 8〜10 µs/行は残ると見ていた。計測できた残りは `MbcsToUcs2Buf`（UTF-8 → UCS-2）の 13% で、
+これは 1 文字ずつの `append` をやめて対応した。`fgets` 化と合わせて 18.0 → 5.9 µs/行。`ToFullPath`、`CFile::Read` のリスト検索、毎回の `std::string buf; buf.reserve(1000)` は
+読んだだけの候補で未計測。`ws_fgets` は辞書の読み込み（`parser0.cpp`）にも使われるが、Claudia の全辞書の load は約 7% しか縮まなかった（辞書の読み込みは行読みが支配的ではない）。
 
 ### 2. `FSIZE` が毎回ファイルを開いている（頁の約 12%。初回アクセスでは支配的）
 
@@ -106,8 +134,9 @@ Claude Code の会話の記録は書き換わり続けるので、再スキャ�
 
 ### 4. その他
 
-- `FTELL`（`CFile1::FTell`）は `CCS.Span` で約 6〜10%。`ftell` が内部で `NtQueryInformationFile` を呼ぶ。位置を自分で数える手もある
-- `GETENV` は 4.7 µs（`getenv` の全走査 + 文字コード変換 2 回）。`CC.TranscriptPath` が履歴の 1 件ごとに呼ぶ
+- `FTELL`（`CFile1::FTell`）は `CCS.Span` で約 6〜10%。テキストモードの `ftell` は CRLF 変換の分を数え直すので遅く、位置を自分で数える手もあるが、
+  テキストモードの CRLF 変換とずれないようにするのが難しい（未対応）
+- ~~`GETENV` は 4.7 µs~~ → 対応済み（1.9 µs）
 - `PARSEJSON` は 88 ns/字。会話の記録の末尾の行（4〜30KB）を解くと 0.4〜2.6 ms
 - `ASORT` は文字列 500 件で 0.6〜0.7 ms（1 件あたり 1.3 µs。内訳は未調査）
 
