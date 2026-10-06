@@ -29,7 +29,7 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 ### VC6 以外（makefile / GitHub Actions）
 
 - `makefile.linux` が基準で、`freebsd` / `posix`（macOS、`.bundle`）/ `emscripten` はオブジェクト一覧と規則を linux と同じにしてある。ソースを増やしたら全部の一覧に足す（`makefile.mingw32` は `posix_utils.o` に加えて `aya5_res.o` も持つ）
-- ソースは Shift JIS（CP932）で統一する。POSIX 系の makefile は `.cpp` を iconv で UTF-8 にしてからコンパイルし、MinGW は `-finput-charset=CP932` なので、UTF-8 のファイルが混ざると通らない
+- ソースは Shift JIS（CP932）で統一する。POSIX 系の makefile は `.cpp` を iconv で UTF-8 にしてからコンパイルし（変換できない文字があれば止まる。`#line` で元のファイルを指す）、MinGW は `-finput-charset=CP932` なので、UTF-8 のファイルが混ざると通らない。POSIX ではヘッダは変換しないので、ヘッダの非 ASCII はコメントだけにする
 - `makefile.mingw32` は Windows 用の yaya.dll を MinGW-w64 で作る（文字列を VC++ と同じく CP932 のまま扱う）。Strawberry Perl 同梱の gcc（x86_64）で確かめられる。リポジトリを汚さないよう `git ls-files --recurse-submodules` のファイルを作業用ディレクトリに写してから `mingw32-make -f makefile.mingw32`（動作確認用の EXE は `exe` ターゲット）
   - MinGW は `_WINDOWS` だが `_MSC_VER` ではない。SEH（`__try`）など MSVC 専用の書き方は `_MSC_VER` で分け、64bit の整数リテラルは `LL_DEF()` / `ULL_DEF()` で書く
 - Linux / macOS は手動実行の `.github/workflows/posix-build.yml`（`gh workflow run posix-build.yml --ref 600`）でビルドし、`tests/posix_smoke.c` で dlopen → load → request → unload → dlclose まで通す。スモークテストは空ディレクトリを load してシェルモードにし、式を EVAL した結果を比べる（期待値を足すときは `yaya.exe` で先に確かめる）
