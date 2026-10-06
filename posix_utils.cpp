@@ -76,6 +76,9 @@ std::string::size_type file_content_search(const std::string& file, const std::s
 
 std::string::size_type bm_search(const std::string& world, const std::string& data) {
 	std::string::size_type data_len = data.length();
+	if (data_len == 0 || world.length() < data_len) {
+		return std::string::npos;
+	}
 	std::unique_ptr<std::string::size_type[]> skip(new std::string::size_type[256]);
 	for (std::string::size_type i = 0; i < 256; i++) {
 		skip[i] = data_len;
@@ -106,21 +109,13 @@ std::string::size_type bm_search(const std::string& world, const std::string& da
 	return std::string::npos;
 }
 
-std::wstring widen(const std::string& str) {
-	std::wstring ws;
-	ws.reserve(str.size());
-	for (std::string::const_iterator ite = str.begin(); ite != str.end(); ite++) {
-		ws += static_cast<wchar_t>(*ite);
-	}
-	return ws;
-}
+size_t Ccct_ConvUnicodeToUTF8(std::string &buf,const wchar_t *pStrw);
 
-std::string narrow(const std::wstring& str) {
+std::string posix_path(const std::wstring& path) {
+	// パスは UTF-8 として扱う（内部の文字列は UTF-16）
 	std::string s;
-	s.reserve(str.size());
-	for (std::wstring::const_iterator ite = str.begin(); ite != str.end(); ite++) {
-		s += static_cast<char>(*ite);
-	}
+	Ccct_ConvUnicodeToUTF8(s, path.c_str());
+	fix_filepath(s);
 	return s;
 }
 

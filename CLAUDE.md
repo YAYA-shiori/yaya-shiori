@@ -35,6 +35,8 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 - Linux / macOS は手動実行の `.github/workflows/posix-build.yml`（`gh workflow run posix-build.yml --ref 600`）でビルドし、`tests/posix_smoke.c` で dlopen → load → request → unload → dlclose まで通す。スモークテストは空ディレクトリを load してシェルモードにし、式を EVAL した結果を比べる（期待値を足すときは `yaya.exe` で先に確かめる）
   - gcc で通って clang（macOS）で落ちる典型: `yaya::int_t`（`std::int64_t`）は Linux が `long`、macOS が `long long` なので、`ptrdiff_t` / `size_t` から `CValue(...)` を作ると曖昧になる（`static_cast<yaya::int_t>` を付ける）。他の翻訳単位から呼ぶ関数は1ファイルだけで `inline` 定義しない（gcc はたまたまリンクできるが clang は実体を出さない）。macOS の `<fcntl.h>` は `FREAD` / `FWRITE` をマクロにする（`sysfunc.h` で `#undef`）。`basename` には `<libgen.h>` が要る
   - POSIX 版 `CBasis::ExecuteRequest` は成功時に入力バッファを `free` しない（エラー時は `free` する）。テストも成功時は解放しない
+  - POSIX のパスは UTF-8。内部の文字列からは `posix_path()`（UTF-8 化と `fix_filepath`）で作り、OS から受け取った名前は `Ccct::MbcsToUcs2Buf(..., CHARSET_UTF8)` で戻す（旧 `narrow` / `widen` は廃止）。文字コード変換は iconv（macOS は `-liconv`）で、OS デフォルトは UTF-8 扱い
+  - 公開するのは `DLLEXPORT` の関数だけ（`-fvisibility=hidden`）。スモークテストの共通ケースは Windows の `yaya.exe` で期待値を確かめてから足す。非 ASCII は UTF-8 の `\x` エスケープで書き、`\x` の直後に16進の文字が続くときは文字列を区切る
   - Emscripten は CI の対象外（最新の emsdk では `-shared` が `-fPIC` 必須の SIDE_MODULE になりリンクが通らない）。MinGW / VC6 も CI には載せていない
 
 ## リリース手順

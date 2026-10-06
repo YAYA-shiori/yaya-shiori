@@ -45,6 +45,10 @@ private:
 	bool is_init;
 	yaya::string_t enumpath;
 
+#if defined(POSIX)
+	bool IsDirEntry(const struct dirent *ent);
+#endif
+
 public:
 	CDirEnum(const yaya::string_t &enumpath);
 	~CDirEnum();

@@ -25,9 +25,12 @@ ARCH_FLAGS =
 # 追加するフラグ。
 # CXXFLAGSは必要無ければ空でも良いが、LDFLAGSはdlopen可能なライブラリを
 # 作れる設定にしなければならない（macOSなら-bundle）。
-CXXFLAGS = -O3 -Wall -std=c++11 $(ARCH_FLAGS)
-CFLAGS = -O3 -Wall $(ARCH_FLAGS)
-LDFLAGS = -bundle $(ARCH_FLAGS)
+# -fvisibility=hidden は load / request などの入口（DLLEXPORT）以外を公開しないため。
+# 同梱の SQLite などがホスト側の同名の関数と入れ替わらないようにする。
+# macOS の iconv は libc ではなく libiconv にあるので -liconv が要る。
+CXXFLAGS = -O3 -Wall -std=c++11 -fvisibility=hidden -fvisibility-inlines-hidden $(ARCH_FLAGS)
+CFLAGS = -O3 -Wall -fvisibility=hidden $(ARCH_FLAGS)
+LDFLAGS = -bundle -liconv $(ARCH_FLAGS)
 
 ################## これより下は弄らなくてもコンパイル出来ます ##################
 

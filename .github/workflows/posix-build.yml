@@ -25,11 +25,20 @@ jobs:
           ls -l libaya5.so
           file libaya5.so
 
+      - name: Check exported symbols
+        run: |
+          nm -D --defined-only libaya5.so | grep -E ' (load|unload|request|multi_load|multi_unload|multi_request)$'
+          if nm -D --defined-only libaya5.so | grep -E ' (sqlite3_|json_|gumbo_|MD5|SHA1)'; then
+            echo "internal symbols are exported"
+            exit 1
+          fi
+
+      # 日本語の名前のディレクトリで、文字コードの変換とファイル操作も確かめる
       - name: Smoke test (dlopen + SHIORI load/request/unload)
         run: |
           cc -o posix_smoke tests/posix_smoke.c -ldl
-          mkdir shell_dir
-          ./posix_smoke "$PWD/libaya5.so" "$PWD/shell_dir"
+          mkdir "$PWD/シェル"
+          ./posix_smoke "$PWD/libaya5.so" "$PWD/シェル"
 
   macos:
     name: macOS (makefile.posix)
@@ -48,8 +57,17 @@ jobs:
           ls -l libyaya.bundle
           file libyaya.bundle
 
+      - name: Check exported symbols
+        run: |
+          nm -gU libyaya.bundle | grep -E ' _(load|unload|request|multi_load|multi_unload|multi_request)$'
+          if nm -gU libyaya.bundle | grep -E ' _(sqlite3_|json_|gumbo_|MD5|SHA1)'; then
+            echo "internal symbols are exported"
+            exit 1
+          fi
+
+      # 日本語の名前のディレクトリで、文字コードの変換とファイル操作も確かめる
       - name: Smoke test (dlopen + SHIORI load/request/unload)
         run: |
           cc -o posix_smoke tests/posix_smoke.c
-          mkdir shell_dir
-          ./posix_smoke "$PWD/libyaya.bundle" "$PWD/shell_dir"
+          mkdir "$PWD/シェル"
+          ./posix_smoke "$PWD/libyaya.bundle" "$PWD/シェル"

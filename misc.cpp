@@ -434,16 +434,12 @@ yaya::string_t GetDateString()
     struct tm* tm = localtime(&t);
     strftime(buf, 127, "%Y/%m/%d %H:%M:%S", tm);
 
-#if !defined(POSIX) && !defined(__MINGW32__)
 	yaya::char_t wbuf[64];
 	for ( size_t i = 0 ; i < 64 ; ++i ) {
 		wbuf[i] = buf[i];
 		if ( wbuf[i] == 0 ) { break; }
 	}
 	return wbuf;
-#else
-    return widen(std::string(buf));
-#endif
 }
 
 /* -----------------------------------------------------------------------

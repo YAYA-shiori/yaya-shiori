@@ -8,6 +8,7 @@
 # include "stdafx.h"
 #elif defined(POSIX)
 # include "posix_utils.h"
+# include <sys/stat.h>
 #endif
 
 #include <list>
@@ -46,6 +47,26 @@ CDirEnum::~CDirEnum()
 	}
 }
 
+#if defined(POSIX)
+// d_type が分からない（DT_UNKNOWN）ファイルシステムや、ディレクトリへのシンボリックリンクは stat で確かめる
+bool CDirEnum::IsDirEntry(const struct dirent *ent)
+{
+#if defined(DT_DIR) && defined(DT_UNKNOWN) && defined(DT_LNK)
+	if ( ent->d_type == DT_DIR ) { return true; }
+	if ( ent->d_type != DT_UNKNOWN && ent->d_type != DT_LNK ) { return false; }
+#endif
+	std::string path = posix_path(enumpath);
+	if ( path.empty() || path[path.size() - 1] != '/' ) {
+		path += '/';
+	}
+	path += ent->d_name;
+
+	struct stat sb;
+	if ( stat(path.c_str(), &sb) != 0 ) { return false; }
+	return S_ISDIR(sb.st_mode);
+}
+#endif
+
 bool CDirEnum::next(CDirEnumEntry &entry)
 {
 #if defined(WIN32)
@@ -73,10 +94,7 @@ bool CDirEnum::next(CDirEnumEntry &entry)
 
 #elif defined(POSIX)
 
-			std::string path = narrow(enumpath);
-			fix_filepath(path);
-
-			dh = opendir(path.c_str());
+			dh = opendir(posix_path(enumpath).c_str());
 			if ( ! dh ) { return false; }
 
 			struct dirent* ent = readdir(dh);
@@ -85,7 +103,7 @@ bool CDirEnum::next(CDirEnumEntry &entry)
 			is_init = true;
 	
 			name_a = ent->d_name;
-			isdir = ent->d_type == DT_DIR;
+			isdir = IsDirEntry(ent);
 
 #endif
 		}
@@ -104,7 +122,7 @@ bool CDirEnum::next(CDirEnumEntry &entry)
 			if ( ! ent ) { return false; }
 
 			name_a = ent->d_name;
-			isdir = ent->d_type == DT_DIR;
+			isdir = IsDirEntry(ent);
 
 #endif
 		}
@@ -123,7 +141,7 @@ bool CDirEnum::next(CDirEnumEntry &entry)
 #if defined(WIN32)
 	entry.name = name_w;
 #elif defined(POSIX)
-	entry.name = widen(name_a);
+	Ccct::MbcsToUcs2Buf(entry.name, name_a, CHARSET_UTF8);
 #endif
 
 	entry.isdir = isdir;

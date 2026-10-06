@@ -50,7 +50,9 @@
 # include <fcntl.h>
 # include <memory>
 # include <semaphore.h>
+# include <signal.h>
 # include <sstream>
+# include <time.h>
 # include <sys/mman.h>
 # include <sys/socket.h>
 # include <sys/un.h>
@@ -2707,42 +2709,68 @@ CValue CSystemFunction::FCOPY(CSF_FUNCPARAM &p) {
 	}
 
 	// 絶対パス化
-	std::string src = narrow(vm.basis().ToFullPath(p.arg.array()[0].s_value));
-	std::string dest = narrow(vm.basis().ToFullPath(p.arg.array()[1].s_value));
-	fix_filepath(src);
-	fix_filepath(dest);
+	std::string src = posix_path(vm.basis().ToFullPath(p.arg.array()[0].s_value));
+	std::string dest = posix_path(vm.basis().ToFullPath(p.arg.array()[1].s_value));
 
 	// srcは通常ファイルでなければならない。
 	// FCOPY("/dev/zero", "/tmp/hoge") とかやられたら嫌過ぎ。
 	struct stat sb;
 	if (stat(src.c_str(), &sb) != 0) {
-	return CValue(0);
+		return CValue(0);
 	}
-	if ((sb.st_mode & S_IFREG) == 0) {
-	return CValue(0);
+	if (!S_ISREG(sb.st_mode)) {
+		return CValue(0);
+	}
+
+	// コピー先が既存のディレクトリなら、Windows 版と同じくその中に同じ名前で置く
+	struct stat db;
+	if (stat(dest.c_str(), &db) == 0 && S_ISDIR(db.st_mode)) {
+		std::string::size_type pos = src.find_last_of('/');
+		std::string name = (pos == std::string::npos) ? src : src.substr(pos + 1);
+		if (dest.empty() || dest[dest.size() - 1] != '/') {
+			dest += '/';
+		}
+		dest += name;
+	}
+
+	// コピー先がディレクトリ、またはコピー元と同じファイルなら何もしない
+	if (stat(dest.c_str(), &db) == 0) {
+		if (S_ISDIR(db.st_mode)) {
+			return CValue(0);
+		}
+		if (db.st_dev == sb.st_dev && db.st_ino == sb.st_ino) {
+			return CValue(0);
+		}
 	}
 
 	// 実行
-	std::remove(dest.c_str()); // コピー先がシンボリックリンクとかだと嫌。
-	std::ifstream is(src.c_str());
-	int result = 0;
-	if (is.good()) {
-		std::ofstream os(dest.c_str());
-	if (os.good()) {
-		std::unique_ptr<char[]> buf(new char[512]);
-	    while (is.good()) {
-		is.read(buf.get(), 512);
-		int len = is.gcount();
-		if (len == 0) {
-		    break;
-		}
-		os.write(buf.get(), len);
-	    }
-	    result = 1;
+	std::ifstream is(src.c_str(), std::ios::in | std::ios::binary);
+	if (!is.good()) {
+		return CValue(0);
 	}
+	std::remove(dest.c_str()); // コピー先がシンボリックリンクとかだと嫌。
+	std::ofstream os(dest.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
+	if (!os.good()) {
+		return CValue(0);
+	}
+	std::unique_ptr<char[]> buf(new char[65536]);
+	while (is.good()) {
+		is.read(buf.get(), 65536);
+		std::streamsize len = is.gcount();
+		if (len == 0) {
+			break;
+		}
+		if (!os.write(buf.get(), len)) {
+			break;
+		}
+	}
+	bool ok = is.eof() && !is.bad();
+	os.close();
+	if (os.fail()) {
+		ok = false;
 	}
 
-	return CValue(result);
+	return CValue(ok ? 1 : 0);
 }
 #endif
 
@@ -2795,12 +2823,24 @@ CValue CSystemFunction::FMOVE(CSF_FUNCPARAM &p) {
 	}
 
 	// 絶対パス化
-	std::string src = narrow(vm.basis().ToFullPath(p.arg.array()[0].s_value));
-	std::string dest = narrow(vm.basis().ToFullPath(p.arg.array()[1].s_value));
-	fix_filepath(src);
-	fix_filepath(dest);
+	std::string src = posix_path(vm.basis().ToFullPath(p.arg.array()[0].s_value));
+	std::string dest = posix_path(vm.basis().ToFullPath(p.arg.array()[1].s_value));
 
-	// 実行
+	// 移動先が既存のディレクトリなら、Windows 版と同じくその中に同じ名前で置く
+	struct stat db;
+	if (stat(dest.c_str(), &db) == 0 && S_ISDIR(db.st_mode)) {
+		std::string::size_type pos = src.find_last_of('/');
+		std::string name = (pos == std::string::npos) ? src : src.substr(pos + 1);
+		if (dest.empty() || dest[dest.size() - 1] != '/') {
+			dest += '/';
+		}
+		dest += name;
+	}
+
+	// 実行（MoveFile と同じく、移動先が既にあれば失敗する）
+	if (lstat(dest.c_str(), &db) == 0) {
+		return CValue(0);
+	}
 	int result = rename(src.c_str(), dest.c_str()) ? 0 : 1;
 
 	return CValue(result);
@@ -2854,8 +2894,7 @@ CValue CSystemFunction::MKDIR(CSF_FUNCPARAM &p) {
 	return CValue(0);
 	}
 
-	std::string dirstr = narrow(vm.basis().ToFullPath(p.arg.array()[0].s_value));
-	fix_filepath(dirstr);
+	std::string dirstr = posix_path(vm.basis().ToFullPath(p.arg.array()[0].s_value));
 
 	// 実行
 	int result = (mkdir(dirstr.c_str(), 0755) == 0 ? 1 : 0);
@@ -2911,11 +2950,10 @@ CValue CSystemFunction::RMDIR(CSF_FUNCPARAM &p) {
 	return CValue(0);
 	}
 
-	std::string dirstr = narrow(vm.basis().ToFullPath(p.arg.array()[0].s_value));
-	fix_filepath(dirstr);
+	std::string dirstr = posix_path(vm.basis().ToFullPath(p.arg.array()[0].s_value));
 
-	// 実行。
-	int result = (std::remove(dirstr.c_str()) ? 0 : 1);
+	// 実行。RemoveDirectory と同じく、ディレクトリ以外は消さない
+	int result = (rmdir(dirstr.c_str()) ? 0 : 1);
 
 	return CValue(result);
 }
@@ -2960,11 +2998,10 @@ CValue CSystemFunction::FDEL(CSF_FUNCPARAM &p) {
 	return CValue(0);
 	}
 
-	std::string filestr = narrow(vm.basis().ToFullPath(p.arg.array()[0].s_value));
-	fix_filepath(filestr);
+	std::string filestr = posix_path(vm.basis().ToFullPath(p.arg.array()[0].s_value));
 
-	// 実行
-	int result = (std::remove(filestr.c_str()) ? 0 : 1);
+	// 実行。DeleteFile と同じく、ディレクトリは消さない
+	int result = (unlink(filestr.c_str()) ? 0 : 1);
 
 	return CValue(result);
 }
@@ -3013,10 +3050,8 @@ CValue CSystemFunction::FRENAME(CSF_FUNCPARAM &p) {
 	}
 
 	// 絶対パス化
-	std::string src = narrow(vm.basis().ToFullPath(p.arg.array()[0].s_value));
-	std::string dest = narrow(vm.basis().ToFullPath(p.arg.array()[1].s_value));
-	fix_filepath(src);
-	fix_filepath(dest);
+	std::string src = posix_path(vm.basis().ToFullPath(p.arg.array()[0].s_value));
+	std::string dest = posix_path(vm.basis().ToFullPath(p.arg.array()[1].s_value));
 
 	// 実行
 	int result = rename(src.c_str(), dest.c_str()) ? 0 : 1;
@@ -3056,8 +3091,7 @@ CValue	CSystemFunction::FDIGEST(CSF_FUNCPARAM &p)
 #if defined(WIN32)
 	pF = _wfopen(full_path.c_str(),L"rb");
 #elif defined(POSIX)
-	std::string path = narrow(full_path);
-	fix_filepath(path);
+	std::string path = posix_path(full_path);
 
 	pF = fopen(path.c_str(),"rb");
 #endif
@@ -3808,8 +3842,7 @@ CValue CSystemFunction::FSIZE(CSF_FUNCPARAM &p) {
 	yaya::int_t size = vm.files().Size(fullpath);
 	if ( size >= 0 ) { return CValue((yaya::int_t)size); }
 
-	std::string path = narrow(fullpath);
-	fix_filepath(path);
+	std::string path = posix_path(fullpath);
 
 	struct stat sb;
 	if (stat(path.c_str(), &sb) != 0) {
@@ -4564,10 +4597,18 @@ CValue	CSystemFunction::GETTICKCOUNT(CSF_FUNCPARAM &p)
 	}
 
 #elif defined(POSIX)
-	struct timeval tv;
-	struct timezone tz;
-	gettimeofday(&tv, &tz);
+	// GetTickCount64 と同じく、時刻の調整で戻らない「起動からの経過時間」を返す
+	struct timespec ts;
+#if defined(CLOCK_BOOTTIME)
+	if (clock_gettime(CLOCK_BOOTTIME, &ts) == 0 || clock_gettime(CLOCK_MONOTONIC, &ts) == 0) {
+#else
+	if (clock_gettime(CLOCK_MONOTONIC, &ts) == 0) {
+#endif
+		return CValue(static_cast<yaya::int_t>(ts.tv_sec) * 1000 + static_cast<yaya::int_t>(ts.tv_nsec) / 1000000);
+	}
 
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
 	return CValue(static_cast<yaya::int_t>(tv.tv_sec) * 1000 + static_cast<yaya::int_t>(tv.tv_usec) / 1000);
 #endif
 }
@@ -6693,25 +6734,48 @@ CValue	CSystemFunction::FATTRIB(CSF_FUNCPARAM &p)
 	}
 
 #elif defined(POSIX)
-	std::string path = narrow(vm.basis().ToFullPath(p.arg.array()[0].s_value));
-	fix_filepath(path);
+	std::string path = posix_path(vm.basis().ToFullPath(p.arg.array()[0].s_value));
 
 	struct stat sb;
 	if (stat(path.c_str(), &sb) != 0) {
 		return CValue(-1);
 	}
 
+	// hidden は名前が . で始まるもの、readonly は書き込めないもの
+	std::string name = path;
+	while (name.size() > 1 && name[name.size() - 1] == '/') {
+		name.erase(name.size() - 1);
+	}
+	std::string::size_type slash = name.find_last_of('/');
+	if (slash != std::string::npos) {
+		name = name.substr(slash + 1);
+	}
+	bool is_hidden = name.size() > 0 && name[0] == '.' && name != "." && name != "..";
+	bool is_readonly = access(path.c_str(), W_OK) != 0;
+	bool is_dir = S_ISDIR(sb.st_mode);
+
+	// 作成時刻が取れなければ、変更時刻と状態変更時刻の早いほうで代用する
+	yaya::int_t created = (sb.st_ctime < sb.st_mtime) ? (yaya::int_t)sb.st_ctime : (yaya::int_t)sb.st_mtime;
+#if defined(__APPLE__) || defined(__FreeBSD__)
+	created = (yaya::int_t)sb.st_birthtime;
+#elif defined(__linux__) && defined(STATX_BTIME)
+	struct statx sx;
+	if (statx(AT_FDCWD, path.c_str(), 0, STATX_BTIME, &sx) == 0 && (sx.stx_mask & STATX_BTIME)) {
+		created = (yaya::int_t)sx.stx_btime.tv_sec;
+	}
+#endif
+
 	CValue	result(F_TAG_ARRAY, 0/*dmy*/);
 	result.array().emplace_back(CValue(0));
 	result.array().emplace_back(CValue(0));
-	result.array().emplace_back(CValue(S_ISDIR(sb.st_mode) ? 1 : 0));
+	result.array().emplace_back(CValue(is_dir ? 1 : 0));
+	result.array().emplace_back(CValue(is_hidden ? 1 : 0));
+	result.array().emplace_back(CValue((S_ISREG(sb.st_mode) && !is_hidden && !is_readonly) ? 1 : 0));
 	result.array().emplace_back(CValue(0));
-	result.array().emplace_back(CValue(S_ISREG(sb.st_mode) ? 1 : 0));
+	result.array().emplace_back(CValue(is_readonly ? 1 : 0));
 	result.array().emplace_back(CValue(0));
 	result.array().emplace_back(CValue(0));
-	result.array().emplace_back(CValue(0));
-	result.array().emplace_back(CValue(0));
-	result.array().emplace_back(CValue((yaya::int_t)sb.st_ctime));
+	result.array().emplace_back(CValue(created));
 	result.array().emplace_back(CValue((yaya::int_t)sb.st_mtime));
 #endif
 
@@ -7191,8 +7255,9 @@ static bool IsExecuteDirWin32(const char *dir)
  *  /bin/sh -c cmd を子プロセスで実行する
  *
  *  dir が空でなければ子プロセスの中だけで chdir する。
- *  wait が true なら終了を待って終了コードを返す。false なら子からさらに fork した孫に
- *  実行させ、子はすぐ終わらせて回収する（孫は init に引き取られるのでゾンビが残らない）。
+ *  どちらも子からさらに fork した孫に実行させる。wait が true なら子が孫の終了を待ち、
+ *  終了コードをパイプで返す。false なら子はすぐ終わらせて回収する（孫は init に引き取られるので
+ *  ゾンビが残らない）。
  *  ホストがマルチスレッドの場合に備え、fork から exec までの間は async-signal-safe な
  *  関数しか呼ばない（文字列は fork の前に用意しておく）。
  * -----------------------------------------------------------------------
@@ -7214,20 +7279,55 @@ static yaya::int_t ExecutePosix(const std::string &cmd, const std::string &dir, 
 	argv[2] = const_cast<char*>(cmd.c_str());
 	argv[3] = NULL;
 
+	// 待つ場合は、子が孫を実行して終了コードをパイプで返す。
+	// ホストが SIGCHLD を無視していると、ホスト側の waitpid は ECHILD になって終了コードを取れないため
+	int fds[2] = { -1, -1 };
+	if ( wait && pipe(fds) != 0 ) {
+		return -1;
+	}
+
 	pid_t pid = fork();
 	if ( pid < 0 ) {
+		if ( wait ) {
+			close(fds[0]);
+			close(fds[1]);
+		}
 		return -1;
 	}
 
 	if ( pid == 0 ) {
-		if ( ! wait ) {
-			pid_t pid2 = fork();
-			if ( pid2 < 0 ) {
-				_exit(1);
+		if ( wait ) {
+			close(fds[0]);
+			// 子プロセスの中だけ SIGCHLD を既定に戻し、孫の終了コードを受け取れるようにする
+			struct sigaction sa;
+			memset(&sa, 0, sizeof(sa));
+			sa.sa_handler = SIG_DFL;
+			sigemptyset(&sa.sa_mask);
+			sigaction(SIGCHLD, &sa, NULL);
+		}
+		pid_t pid2 = fork();
+		if ( pid2 < 0 ) {
+			_exit(1);
+		}
+		if ( pid2 > 0 ) {
+			if ( wait ) {
+				int st = 0;
+				pid_t r2;
+				do {
+					r2 = waitpid(pid2, &st, 0);
+				} while ( r2 < 0 && errno == EINTR );
+				int code = ( r2 == pid2 && WIFEXITED(st) ) ? WEXITSTATUS(st) : -1;
+				ssize_t w;
+				do {
+					w = write(fds[1], &code, sizeof(code));
+				} while ( w < 0 && errno == EINTR );
 			}
-			if ( pid2 > 0 ) {
-				_exit(0);
-			}
+			_exit(0);
+		}
+		if ( wait ) {
+			close(fds[1]);
+		}
+		else {
 			setsid();
 		}
 		if ( s_dir && chdir(s_dir) != 0 ) {
@@ -7237,24 +7337,97 @@ static yaya::int_t ExecutePosix(const std::string &cmd, const std::string &dir, 
 		_exit(127);
 	}
 
+	yaya::int_t result = -1;
+	if ( wait ) {
+		close(fds[1]);
+		int code = -1;
+		size_t got = 0;
+		while ( got < sizeof(code) ) {
+			ssize_t n = read(fds[0], reinterpret_cast<char*>(&code) + got, sizeof(code) - got);
+			if ( n < 0 && errno == EINTR ) {
+				continue;
+			}
+			if ( n <= 0 ) {
+				break;
+			}
+			got += static_cast<size_t>(n);
+		}
+		close(fds[0]);
+		if ( got == sizeof(code) ) {
+			result = code;
+		}
+	}
+
 	int status = 0;
 	pid_t r;
 	do {
 		r = waitpid(pid, &status, 0);
 	} while ( r < 0 && errno == EINTR );
 
-	if ( ! wait ) {
-		if ( r < 0 ) {
-			// ホストが SIGCHLD を無視していると子は自動で回収され ECHILD になる。孫の起動までは済んでいる
-			return ( errno == ECHILD ) ? 0 : -1;
-		}
-		return ( WIFEXITED(status) && WEXITSTATUS(status) == 0 ) ? 0 : -1;
+	if ( wait ) {
+		return result;
 	}
 
-	if ( r < 0 || ! WIFEXITED(status) ) {
-		return -1;
+	if ( r < 0 ) {
+		// ホストが SIGCHLD を無視していると子は自動で回収され ECHILD になる。孫の起動までは済んでいる
+		return ( errno == ECHILD ) ? 0 : -1;
 	}
-	return WEXITSTATUS(status);
+	return ( WIFEXITED(status) && WEXITSTATUS(status) == 0 ) ? 0 : -1;
+}
+
+/* -----------------------------------------------------------------------
+ *  内部の文字列（UTF-16）を UTF-8 にする
+ * -----------------------------------------------------------------------
+ */
+static std::string ToUtf8Posix(const yaya::string_t &str)
+{
+	std::string result;
+	char *p = Ccct::Ucs2ToMbcs(str, CHARSET_UTF8);
+	if ( p ) {
+		result = p;
+		free(p);
+	}
+	return result;
+}
+
+/* -----------------------------------------------------------------------
+ *  シェルに渡すため、文字列を ' で囲む
+ * -----------------------------------------------------------------------
+ */
+static std::string ShellQuotePosix(const std::string &str)
+{
+	std::string result = "'";
+	for ( std::string::size_type i = 0; i < str.size(); ++i ) {
+		if ( str[i] == '\'' ) {
+			result += "'\\''";
+		}
+		else {
+			result += str[i];
+		}
+	}
+	result += '\'';
+	return result;
+}
+
+/* -----------------------------------------------------------------------
+ *  URL（スキーム:// か mailto:）か
+ * -----------------------------------------------------------------------
+ */
+static bool IsUrlPosix(const std::string &str)
+{
+	std::string::size_type colon = str.find(':');
+	if ( colon == std::string::npos || colon < 2 ) {
+		return false;
+	}
+	for ( std::string::size_type i = 0; i < colon; ++i ) {
+		char c = str[i];
+		bool ok = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+			(i > 0 && ((c >= '0' && c <= '9') || c == '+' || c == '-' || c == '.'));
+		if ( ! ok ) {
+			return false;
+		}
+	}
+	return str.compare(colon, 3, "://") == 0 || str.compare(0, colon + 1, "mailto:") == 0;
 }
 
 /* -----------------------------------------------------------------------
@@ -7263,12 +7436,41 @@ static yaya::int_t ExecutePosix(const std::string &cmd, const std::string &dir, 
  */
 static std::string MakeExecuteCommandPosix(const yaya::string_t &file, const yaya::string_t &param)
 {
-	std::string cmd = narrow(file);
-	fix_filepath(cmd);
+#if defined(__APPLE__)
+	const char *opener = "open ";
+#else
+	const char *opener = "xdg-open ";
+#endif
 
-	if ( param.size() ) {
+	// URL は ShellExecute と同じく既定のアプリケーションで開く
+	std::string url = ToUtf8Posix(file);
+	if ( IsUrlPosix(url) ) {
+		return opener + ShellQuotePosix(url);
+	}
+
+	std::string path = posix_path(file);
+	std::string s_param = ToUtf8Posix(param);
+
+	struct stat sb;
+	if ( stat(path.c_str(), &sb) == 0 ) {
+		// ディレクトリと、実行できないファイル（文書など）は既定のアプリケーションで開く
+		if ( S_ISDIR(sb.st_mode) || access(path.c_str(), X_OK) != 0 ) {
+			return opener + ShellQuotePosix(path);
+		}
+		// 実行ファイルはパスに空白などがあっても1つの名前として渡す
+		std::string cmd = ShellQuotePosix(path);
+		if ( s_param.size() ) {
+			cmd += ' ';
+			cmd += s_param;
+		}
+		return cmd;
+	}
+
+	// 見つからなければ、従来どおりシェルのコマンドとして渡す（PATH から探す）
+	std::string cmd = path;
+	if ( s_param.size() ) {
 		cmd += ' ';
-		cmd += narrow(param);
+		cmd += s_param;
 	}
 	return cmd;
 }
@@ -7350,8 +7552,7 @@ CValue	CSystemFunction::EXECUTE_WAIT(CSF_FUNCPARAM &p)
 
 #elif defined(POSIX)
 
-	std::string s_dir = narrow(dir);
-	fix_filepath(s_dir);
+	std::string s_dir = posix_path(dir);
 
 	result = ExecutePosix(MakeExecuteCommandPosix(file, param), s_dir, true);
 
@@ -7529,8 +7730,7 @@ CValue	CSystemFunction::EXECUTE(CSF_FUNCPARAM &p)
 
 #elif defined(POSIX)
 
-	std::string s_dir = narrow(dir);
-	fix_filepath(s_dir);
+	std::string s_dir = posix_path(dir);
 
 	return CValue(ExecutePosix(MakeExecuteCommandPosix(file, param), s_dir, false));
 

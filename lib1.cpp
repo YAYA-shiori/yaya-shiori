@@ -153,8 +153,7 @@ int CLib1::LoadLib() {
 	return 1;
     }
 
-	std::string libfile = narrow(name);
-    fix_filepath(libfile);
+	std::string libfile = posix_path(name);
 
     // 環境変数 SAORI_FALLBACK_ALWAYS が定義されていて、且つ
     // 空でも"0"でもなければ、このdllファイルを開いてみる事は
@@ -195,13 +194,17 @@ int CLib1::LoadLib() {
 		std::string message =
 		libfile+": This is not usable in this platform.\n"+
 		"Fallback library doesn't exist: "+fallback_path+"\n";
-	    vm.logger().Write(widen(message));
+		yaya::string_t wmessage;
+		Ccct::MbcsToUcs2Buf(wmessage, message, CHARSET_UTF8);
+	    vm.logger().Write(wmessage);
 	    return 0;
 	}
 	else {
 		std::string message =
 		"SAORI: using "+fallback_lib+" instead of "+libfile+"\n";
-	    vm.logger().Write(widen(message));
+		yaya::string_t wmessage;
+		Ccct::MbcsToUcs2Buf(wmessage, message, CHARSET_UTF8);
+	    vm.logger().Write(wmessage);
 	    
 	    libfile = fallback_lib;
 	}
@@ -317,13 +320,13 @@ int CLib1::Load(void) {
     }
     
     // DLLパス文字列作成
-	yaya::string_t::size_type pos_slash = name.rfind(L'/');
-	std::string dllpath;
-    if (pos_slash == yaya::string_t::npos) {
+	std::string dllpath = posix_path(name);
+	std::string::size_type pos_slash = dllpath.rfind('/');
+    if (pos_slash == std::string::npos) {
 		dllpath = ".";
     }
     else {
-		dllpath = narrow(name.substr(0, pos_slash+1));
+		dllpath = dllpath.substr(0, pos_slash+1);
     }
 
     long len = dllpath.length();
@@ -547,7 +550,13 @@ int CLib1::Request(const yaya::string_t &istr, yaya::string_t &ostr) {
     // 実行
     char* ogmem = (*requestlib)(id, igmem, &len);
 
-    // 結果取得
+    // 結果取得（応答が無ければ、Windows 版と同じく空の応答として扱う）
+	if (ogmem == NULL || len < 0) {
+		if (ogmem) {
+			free(ogmem);
+		}
+		return 1;
+	}
 	std::string t_ostr(ogmem, len);
 	free(ogmem);
 
@@ -848,8 +857,7 @@ static bool	ReadPipePosix(int fd, std::string &out)
  */
 static yaya::string_t	RunBasic(const yaya::string_t &path, const std::vector<yaya::string_t> &args, int charset, std::string &out)
 {
-	std::string	s_path = narrow(path);
-	fix_filepath(s_path);
+	std::string	s_path = posix_path(path);
 
 	std::string	s_dir;
 	std::string::size_type	pos_slash = s_path.rfind('/');
@@ -974,8 +982,7 @@ static yaya::string_t	RunBasic(const yaya::string_t &path, const std::vector<yay
  */
 int	CLib1::LoadBasic(void)
 {
-	std::string	s_path = narrow(name);
-	fix_filepath(s_path);
+	std::string	s_path = posix_path(name);
 
 	struct stat	sb;
 	if ( stat(s_path.c_str(), &sb) != 0 || ! S_ISREG(sb.st_mode) ) {

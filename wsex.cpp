@@ -246,11 +246,9 @@ FILE	*yaya::w_fopen(const yaya::char_t *fname, const yaya::char_t *mode)
 }
 #else
 FILE* yaya::w_fopen(const yaya::char_t* fname, const yaya::char_t* mode) {
-	std::string s_fname = narrow(yaya::string_t(fname));
-	std::string s_mode = narrow(yaya::string_t(mode));
-	
-    fix_filepath(s_fname);
-	
+	std::string s_fname = posix_path(yaya::string_t(fname));
+	std::string s_mode = Ccct::Ucs2ToPlainASCII(yaya::string_t(mode));
+
     return fopen(s_fname.c_str(), s_mode.c_str());
 }
 #endif

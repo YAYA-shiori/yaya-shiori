@@ -12,8 +12,7 @@ std::string drop_extension(const std::string& fname);
 std::string change_extension(const std::string& fname, const std::string& ext);
 std::string::size_type file_content_search(const std::string& file, const std::string& str);
 std::string::size_type bm_search(const std::string& world, const std::string& data);
-std::wstring widen(const std::string& str);
-std::string narrow(const std::wstring& str);
+std::string posix_path(const std::wstring& path); // UTF-8 ‚É‚µ‚Ä fix_filepath ‚ð’Ê‚·
 void fix_filepath(std::string& str);
 void fix_filepath(std::wstring& str);
 

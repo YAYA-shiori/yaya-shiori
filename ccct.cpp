@@ -25,6 +25,8 @@
 
 #ifdef POSIX
 #  include <ctype.h>
+#  include <errno.h>
+#  include <iconv.h>
 //https://learn.microsoft.com/ja-jp/windows/win32/winprog/windows-data-types
 typedef unsigned long DWORD;
 typedef unsigned short WORD;
@@ -490,27 +492,140 @@ char *Ccct::ccct_setlocale(int category, int charset)
 	}
 }
 
+#ifdef POSIX
 /* -----------------------------------------------------------------------
- *  setlocaleバリア
+ *  iconv による変換（POSIX）
+ *
+ *  ロケールには頼らない（SJIS などのロケールは入っていないことが多く、setlocale は
+ *  プロセス全体に効くため）。いったん UTF-8 を介して変換する。
+ *  OSデフォルトと、iconv が対応していない文字コードは UTF-8 として扱う。
  * -----------------------------------------------------------------------
  */
+namespace {
+	// Windows のコードページに近いものから順に試す
+	const char *const *IconvNames(int charset)
+	{
+		static const char *const sjis[]  = { "CP932", "WINDOWS-31J", "SHIFT_JIS", "SJIS", NULL };
+		static const char *const eucjp[] = { "EUC-JP-MS", "EUC-JP", "EUCJP", NULL };
+		static const char *const jis[]   = { "ISO-2022-JP", "CSISO2022JP", NULL };
+		static const char *const big5[]  = { "CP950", "BIG5", NULL };
+		static const char *const gb[]    = { "CP936", "GBK", "GB2312", NULL };
+		static const char *const kr[]    = { "CP949", "UHC", "EUC-KR", NULL };
 
-class CcctSetLocaleSwitcher {
-private:
-	const char *m_oldLocale;
-	int m_category;
-public:
-	CcctSetLocaleSwitcher(int category,int charset) {
-		m_category = category;
-		m_oldLocale = setlocale(category,NULL);
-		Ccct::ccct_setlocale(category,charset);
-	}
-	~CcctSetLocaleSwitcher() {
-		if ( m_oldLocale ) {
-			setlocale(m_category,m_oldLocale);
+		switch ( charset ) {
+		case CHARSET_SJIS:   return sjis;
+		case CHARSET_EUCJP:  return eucjp;
+		case CHARSET_JIS:    return jis;
+		case CHARSET_BIG5:   return big5;
+		case CHARSET_GB2312: return gb;
+		case CHARSET_EUCKR:  return kr;
+		default:             return NULL;
 		}
 	}
-};
+
+	iconv_t OpenIconvName(const char *name, bool to_mbcs)
+	{
+		return to_mbcs ? iconv_open(name, "UTF-8") : iconv_open("UTF-8", name);
+	}
+
+	iconv_t OpenIconv(int charset, bool to_mbcs)
+	{
+		const char *const *names = IconvNames(charset);
+		if ( ! names ) {
+			return (iconv_t)-1;
+		}
+
+		// 使えた名前を覚えておき、次からは先に試す（読み込み中は1行ごとに呼ばれるため）
+		static const char *last_name[2][CHARSET_JIS + 1];
+		const char **cache = NULL;
+		if ( charset >= 0 && charset <= CHARSET_JIS ) {
+			cache = &last_name[to_mbcs ? 1 : 0][charset];
+			if ( *cache ) {
+				iconv_t cd = OpenIconvName(*cache, to_mbcs);
+				if ( cd != (iconv_t)-1 ) {
+					return cd;
+				}
+			}
+		}
+
+		for ( ; *names; ++names ) {
+			iconv_t cd = OpenIconvName(*names, to_mbcs);
+			if ( cd != (iconv_t)-1 ) {
+				if ( cache ) {
+					*cache = *names;
+				}
+				return cd;
+			}
+		}
+		return (iconv_t)-1;
+	}
+
+	// 入力の引数が char** の実装と const char** の実装（古い macOS / FreeBSD）の両方に合わせる
+	template<class T>
+	size_t CallIconv(size_t (*func)(iconv_t, T, size_t *, char **, size_t *), iconv_t cd, char **in, size_t *inleft, char **out, size_t *outleft)
+	{
+		return func(cd, (T)in, inleft, out, outleft);
+	}
+
+	size_t Utf8CharLen(unsigned char c)
+	{
+		if ( (c & 0xe0) == 0xc0 ) { return 2; }
+		if ( (c & 0xf0) == 0xe0 ) { return 3; }
+		if ( (c & 0xf8) == 0xf0 ) { return 4; }
+		return 1;
+	}
+
+	void IconvAppend(iconv_t cd, char **in, size_t *inleft, std::string &out)
+	{
+		char tmp[4096];
+		while ( true ) {
+			char *op = tmp;
+			size_t ol = sizeof(tmp);
+			size_t r = CallIconv(&iconv, cd, in, inleft, &op, &ol);
+			out.append(tmp, static_cast<size_t>(op - tmp));
+			if ( r == (size_t)-1 && errno == E2BIG ) {
+				continue;
+			}
+			return;
+		}
+	}
+
+	// 変換できない文字は '?' にする（Windows の既定の置換文字と同じ）
+	void IconvConvert(iconv_t cd, const char *in, size_t len, std::string &out, bool to_mbcs)
+	{
+		char *ip = const_cast<char*>(in);
+		size_t il = len;
+
+		while ( il > 0 ) {
+			IconvAppend(cd, &ip, &il, out);
+			if ( il == 0 ) {
+				break;
+			}
+			// EILSEQ（変換できない）/ EINVAL（途中で切れている）: 1文字飛ばす
+			size_t skip = to_mbcs ? Utf8CharLen(static_cast<unsigned char>(*ip)) : 1;
+			if ( skip > il ) {
+				skip = il;
+			}
+			ip += skip;
+			il -= skip;
+
+			if ( to_mbcs ) {
+				// ISO-2022-JP のシフト状態に合わせるため、置換文字も iconv を通す
+				char q[] = "?";
+				char *qp = q;
+				size_t ql = 1;
+				IconvAppend(cd, &qp, &ql, out);
+			}
+			else {
+				out += '?';
+			}
+		}
+
+		// シフト状態を初期状態に戻す（ISO-2022-JP）
+		IconvAppend(cd, NULL, NULL, out);
+	}
+}
+#endif
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  Ccct::utf16be_to_mbcs
@@ -547,46 +662,38 @@ char *Ccct::utf16be_to_mbcs(const yaya::char_t *pUcsStr, int charset)
 	pAnsiStr[alen] = 0;
 
 #else
-	CcctSetLocaleSwitcher loc(LC_CTYPE, charset);
-
     size_t nLen = wcslen( pUcsStr);
 
-	if (charset != CHARSET_BINARY) {
-	    if (pUcsStr[0] == static_cast<yaya::char_t>(0xfeff) ||
-				pUcsStr[0] == static_cast<yaya::char_t>(0xfffe)) {
-			pUcsStr++; // 先頭にBOM(byte Order Mark)があれば，スキップする
-	        nLen--;
+	if (charset == CHARSET_BINARY) {
+		pAnsiStr = (char *)malloc(nLen+1);
+		if (!pAnsiStr) {
+			return NULL;
 		}
+		for (size_t i = 0; i < nLen; i++) {
+			pAnsiStr[i] = (char)(0x00ff & pUcsStr[i]);
+		}
+		pAnsiStr[nLen] = 0;
+		return pAnsiStr;
 	}
 
-	//文字長×マルチバイト最大長＋ゼロ終端
-    pAnsiStr = (char *)malloc((nLen*MB_CUR_MAX)+1);
-    if (!pAnsiStr) {
-		return NULL;
+	if (pUcsStr[0] == static_cast<yaya::char_t>(0xfeff) ||
+			pUcsStr[0] == static_cast<yaya::char_t>(0xfffe)) {
+		pUcsStr++; // 先頭にBOM(byte Order Mark)があれば，スキップする
 	}
 
-    // 1文字ずつ変換する。
-    // まとめて変換すると、変換不能文字への対応が困難なので
-    size_t i, nMbpos = 0;
-	int nRet;
+	std::string utf8;
+	Ccct_ConvUnicodeToUTF8(utf8, pUcsStr);
 
-    for (i = 0; i < nLen; i++) {
-		if (charset != CHARSET_BINARY) {
-			nRet = wctomb(pAnsiStr+nMbpos, pUcsStr[i]);
-		}
-		else {
-			pAnsiStr[nMbpos] = (char)(0x00ff & pUcsStr[i]);
-			nRet = 1;
-		}
-		if ( nRet <= 0 ) { // can not conversion
-            pAnsiStr[nMbpos++] = ' ';
-        }
-		else {
-			nMbpos += nRet;
-		}
-    }
+	iconv_t cd = OpenIconv(charset, true);
+	if (cd == (iconv_t)-1) {
+		return string_to_malloc(utf8);
+	}
 
-	pAnsiStr[nMbpos] = 0;
+	std::string out;
+	IconvConvert(cd, utf8.data(), utf8.size(), out, true);
+	iconv_close(cd);
+
+	pAnsiStr = string_to_malloc(out);
 #endif
 
     return pAnsiStr;
@@ -626,39 +733,50 @@ yaya::char_t *Ccct::mbcs_to_utf16be(const char *pAnsiStr, int charset)
 	pUcsStr[wlen] = 0;
 
 #else
-	CcctSetLocaleSwitcher loc(LC_CTYPE, charset);
-
     size_t nLen = strlen(pAnsiStr);
 
-    yaya::char_t *pUcsStr = (yaya::char_t *)malloc(sizeof(yaya::char_t)*(nLen+7));
-    if (!pUcsStr) {
-		return NULL;
+	if (charset == CHARSET_BINARY) {
+		yaya::char_t *pUcsStr = (yaya::char_t *)malloc(sizeof(yaya::char_t)*(nLen+1));
+		if (!pUcsStr) {
+			return NULL;
+		}
+		for (size_t i = 0; i < nLen; i++) {
+			pUcsStr[i] = static_cast<yaya::char_t>(static_cast<unsigned char>(pAnsiStr[i]));
+		}
+		pUcsStr[nLen] = 0;
+		return pUcsStr;
 	}
 
-    // 1文字ずつ変換する。
-    // まとめて変換すると、変換不能文字への対応が困難なので
-    size_t i, nMbpos = 0;
-	int nRet;
+	yaya::string_t wstr;
 
-    for (i = 0; i < nLen; ) {
-		if (charset != CHARSET_BINARY) {
-	        nRet = mbtowc(pUcsStr+nMbpos, pAnsiStr+i, nLen-i);
-		}
-		else {
-			pUcsStr[i]=static_cast<yaya::char_t>(pAnsiStr[i]);
-			nRet = 1;
-		}
-		if ( nRet <= 0 ) { // can not conversion
-            pUcsStr[nMbpos++] = L' ';
-			i += 1;
-        }
-		else {
-			++nMbpos;
-			i += nRet;
-		}
-    }
+	iconv_t cd = OpenIconv(charset, false);
+	if (cd == (iconv_t)-1) {
+		Ccct_ConvUTF8ToUnicode(wstr, pAnsiStr);
+	}
+	else {
+		std::string utf8;
+		IconvConvert(cd, pAnsiStr, nLen, utf8, false);
+		iconv_close(cd);
+		Ccct_ConvUTF8ToUnicode(wstr, utf8.c_str());
+	}
 
-	pUcsStr[nMbpos] = 0;
+	if (charset == CHARSET_SJIS) {
+		// libiconv（macOS など）の CP932 は一部を JIS X 0208 の対応で返すので、Windows の CP932 に揃える。
+		// CP932 ではこれらの文字に当たるバイト列はほかに無いので、置き換えても取り違えない
+		for (yaya::string_t::size_type i = 0; i < wstr.size(); ++i) {
+			switch (wstr[i]) {
+			case 0x301C: wstr[i] = 0xFF5E; break; // WAVE DASH -> FULLWIDTH TILDE
+			case 0x2016: wstr[i] = 0x2225; break; // DOUBLE VERTICAL LINE -> PARALLEL TO
+			case 0x2212: wstr[i] = 0xFF0D; break; // MINUS SIGN -> FULLWIDTH HYPHEN-MINUS
+			case 0x2014: wstr[i] = 0x2015; break; // EM DASH -> HORIZONTAL BAR
+			case 0x00A2: wstr[i] = 0xFFE0; break; // CENT SIGN -> FULLWIDTH CENT SIGN
+			case 0x00A3: wstr[i] = 0xFFE1; break; // POUND SIGN -> FULLWIDTH POUND SIGN
+			case 0x00AC: wstr[i] = 0xFFE2; break; // NOT SIGN -> FULLWIDTH NOT SIGN
+			}
+		}
+	}
+
+	yaya::char_t *pUcsStr = wstring_to_malloc(wstr);
 #endif
 
     return pUcsStr;

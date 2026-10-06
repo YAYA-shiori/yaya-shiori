@@ -18,7 +18,7 @@
 # define BOOL_TYPE   BOOL
 # define FUNCATTRIB __cdecl
 #elif defined(POSIX)
-# define DLLEXPORT
+# define DLLEXPORT __attribute__((visibility("default")))
 # define BOOL_TYPE   int
 # define FUNCATTRIB
 #endif

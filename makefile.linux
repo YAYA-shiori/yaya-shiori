@@ -19,8 +19,10 @@ DYLIB_NAME_POSTFIX = .so
 # 追加するフラグ。
 # CXXFLAGSは必要無ければ空でも良いが、LDFLAGSはdlopen可能なライブラリを
 # 作れる設定にしなければならない。darwinなら-bundle、LinuxやBSDなら-shared。
-CXXFLAGS = -O3 -Wall -fPIC -std=c++11 -fpermissive
-CFLAGS = -O3 -Wall -fPIC
+# -fvisibility=hidden は load / request などの入口（DLLEXPORT）以外を公開しないため。
+# 同梱の SQLite などがホスト側の同名の関数と入れ替わらないようにする。
+CXXFLAGS = -O3 -Wall -fPIC -std=c++11 -fpermissive -fvisibility=hidden -fvisibility-inlines-hidden
+CFLAGS = -O3 -Wall -fPIC -fvisibility=hidden
 LDFLAGS = -shared -lpthread -ldl
 
 ################## これより下は弄らなくてもコンパイル出来ます ##################

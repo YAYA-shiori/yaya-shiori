@@ -243,15 +243,11 @@ void	CBasis::SetPath(yaya::global_t h, int len, bool is_utf8)
 #elif defined(POSIX)
 void	CBasis::SetPath(yaya::global_t h, int len, bool is_utf8)
 {
-	// 取得と領域開放
-	if ( is_utf8 ) {
-		std::string	mbpath;
-		mbpath.assign((const char *)h, (size_t)len);
-		Ccct::MbcsToUcs2Buf(base_path, mbpath, CHARSET_UTF8);
-	}
-	else {
-		base_path = widen(std::string(h, static_cast<std::string::size_type>(len)));
-	}
+	// 取得と領域開放（POSIX のパスは load / loadu のどちらでも UTF-8 として扱う）
+	(void)is_utf8;
+	std::string	mbpath;
+	mbpath.assign((const char *)h, (size_t)len);
+	Ccct::MbcsToUcs2Buf(base_path, mbpath, CHARSET_UTF8);
 	//free(h); //load側で開放
 	h = NULL;
 	// スラッシュで終わってなければ付ける。
@@ -263,10 +259,13 @@ void	CBasis::SetPath(yaya::global_t h, int len, bool is_utf8)
 	// 中身にyaya.dllという文字列を含んでいたら、それを選ぶ。
 	// ただし対応する*.txtが無ければdllの中身は見ずに次へ行く。
 	modulename = L"yaya";
-	DIR* dh = opendir(narrow(base_path).c_str());
+	const std::string dir_path = posix_path(base_path);
+	DIR* dh = opendir(dir_path.c_str());
 	if (dh == NULL) {
-		std::cerr << narrow(base_path) << "is not a directory!" << std::endl;
-	exit(1);
+		// ホストごと終了させないよう、モジュール名は既定のままで続ける
+		std::cerr << dir_path << " is not a directory!" << std::endl;
+		load_path = base_path;
+		return;
 	}
 	while (true) {
 	struct dirent* ent = readdir(dh);
@@ -275,13 +274,13 @@ void	CBasis::SetPath(yaya::global_t h, int len, bool is_utf8)
 	}
 	std::string fname(ent->d_name, strlen(ent->d_name)/*ent->d_namlen*/);	// by umeici. 2005/1/16 5.6.0.232
 	if (lc(get_extension(fname)) == "dll") {
-		std::string txt_file = narrow(base_path) + change_extension(fname, "txt");
+		std::string txt_file = dir_path + change_extension(fname, "txt");
 	    struct stat sb;
 	    if (::stat(txt_file.c_str(), &sb) == 0) {
 		// txtファイルがあるので、中身を見てみる。
-		if (file_content_search(narrow(base_path) + fname, "yaya.dll") != std::string::npos) {
+		if (file_content_search(dir_path + fname, "yaya.dll") != std::string::npos) {
 		    // これはYAYAのDLLである。
-		    modulename = widen(drop_extension(fname));
+		    Ccct::MbcsToUcs2Buf(modulename, drop_extension(fname), CHARSET_UTF8);
 		    break;
 		}
 	    }
@@ -1486,28 +1485,28 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 	}
 
 	if ( ayc ) {
-		char *s_filestr = Ccct::Ucs2ToMbcs(filename,CHARSET_DEFAULT);
 #if defined(WIN32)
+		char *s_filestr = Ccct::Ucs2ToMbcs(filename,CHARSET_DEFAULT);
 		DeleteFileA(s_filestr);
-#else
-	std::remove(s_filestr);
-#endif
 		free(s_filestr);
 		s_filestr=0;
+#elif defined(POSIX)
+		unlink(posix_path(filename).c_str());
+#endif
 
 		filename += L".ays"; //aycだとかぶるので…
 	}
 	else {
 		filename += L".ays"; //aycだとかぶるので…
 
-		char *s_filestr = Ccct::Ucs2ToMbcs(filename,CHARSET_DEFAULT);
 #if defined(WIN32)
+		char *s_filestr = Ccct::Ucs2ToMbcs(filename,CHARSET_DEFAULT);
 		DeleteFileA(s_filestr);
-#else
-	std::remove(s_filestr);
-#endif
 		free(s_filestr);
 		s_filestr=0;
+#elif defined(POSIX)
+		unlink(posix_path(filename).c_str());
+#endif
 
 		filename.erase(filename.size()-4,4);
 	}
