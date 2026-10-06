@@ -1022,22 +1022,6 @@ yaya::char_t *Ccct::mbcs_to_utf16be(const char *pAnsiStr, int charset)
 		Ccct_ConvUTF8ToUnicode(wstr, utf8.c_str());
 	}
 
-	if (charset == CHARSET_SJIS) {
-		// libiconv（macOS など）の CP932 は一部を JIS X 0208 の対応で返すので、Windows の CP932 に揃える。
-		// CP932 ではこれらの文字に当たるバイト列はほかに無いので、置き換えても取り違えない
-		for (yaya::string_t::size_type i = 0; i < wstr.size(); ++i) {
-			switch (wstr[i]) {
-			case 0x301C: wstr[i] = 0xFF5E; break; // WAVE DASH -> FULLWIDTH TILDE
-			case 0x2016: wstr[i] = 0x2225; break; // DOUBLE VERTICAL LINE -> PARALLEL TO
-			case 0x2212: wstr[i] = 0xFF0D; break; // MINUS SIGN -> FULLWIDTH HYPHEN-MINUS
-			case 0x2014: wstr[i] = 0x2015; break; // EM DASH -> HORIZONTAL BAR
-			case 0x00A2: wstr[i] = 0xFFE0; break; // CENT SIGN -> FULLWIDTH CENT SIGN
-			case 0x00A3: wstr[i] = 0xFFE1; break; // POUND SIGN -> FULLWIDTH POUND SIGN
-			case 0x00AC: wstr[i] = 0xFFE2; break; // NOT SIGN -> FULLWIDTH NOT SIGN
-			}
-		}
-	}
-
 	yaya::char_t *pUcsStr = wstring_to_malloc(wstr);
 #endif
 
