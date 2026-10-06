@@ -184,6 +184,11 @@ static void AYA_InitModule(HMODULE hModule)
 	modulename = fname;
 
 	Ccct::sys_setlocale(LC_ALL);
+
+	// 数値の書式は常にC（小数点は"."）にする。
+	// 実数の文字列化・解析は小数点をロケールに依らず補正している（wsex.cpp）が、
+	// 外部のライブラリがCRTの書式関数を使う場合に備える。VC++でCRTを静的リンクしていれば、ホストには影響しない
+	setlocale(LC_NUMERIC, "C");
 }
 
 #endif //win32

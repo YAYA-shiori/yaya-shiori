@@ -100,6 +100,13 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 - 多次元代入 `a[x][y] = v` はパース側（`parser1.cpp:CheckSubstSyntax`）と実行側（`CFunction::SubstToArray` → `FindUpperArrayOrder`）の両方で `]` を遡って処理している。配列序数まわりを変更する際は両方を揃える
   - 参照渡し `F(&a[x][y])` の書き戻し（`ExecFunctionWithArgs`）も同じ `SubstToArray` を使う。`FindFeedbackArrayOrder` で `&` が指す配列序数セルを求め、`RefreshUpperArrayOrder` で手前の次元を関数実行後の値に読み直してから渡す
 
+## ロケール
+
+- `setlocale` はプロセス全体に効く（POSIX ではホストにも）ので、一時的に切り替える書き方はしない。実数の文字列化・解析は `wsex.cpp` の `ws_atof` / `ws_ftoa` / `ws_decimal_point_to_dot`（`localeconv()` の小数点を `.` に直す）を通す。`wcstod` / `snprintf("%f")` を直接使うと、小数点が `,` のロケール（ドイツ語など）で `0.25 * 4` が `0,000000` になる。`STRFORM` の実数もこれを通している
+- Windows の `AYA_InitModule` は `setlocale(LC_ALL, "")` の後に `LC_NUMERIC` だけ `"C"` へ戻す。確かめるときは、そこに `setlocale(LC_NUMERIC, "German_Germany")` を一時的に足して EXE 構成をビルドし、`yaya.exe` に `0.25 * 4` や `TOREAL("1.5")*2` を EVAL させる（終わったら必ず外す）。POSIX は `setlocale` を呼ばないのでホストのロケールのまま
+- `TOUPPER` / `TOLOWER` のロケールは `Ccct::MapCase`。Windows は `LCMapStringEx`（`LocaleNameToLCID` が `0x1000` を返す名前は未知とみなし、CRT のロケール名として `setlocale` 経由に回す）、POSIX は `newlocale` + `towupper_l` / `towlower_l`（UTF-8 版を先に探す）。使えない名前は W0012 を出して C モードで変換する。`LCMapStringEx` は未知の `xx-ZZ` でも成功してしまうので、名前の検証は必須
+- OS のロケール名は `Ccct::GetOsLocaleName`（`GETSETTING("coreinfo.locale" / "coreinfo.uilocale")`）。POSIX は環境変数だけを見る
+
 ## JSON/XML/YAML/TOML/HTML の入出力
 
 - `FREAD*` / `PARSE*` / `FWRITE*` / `DUMP*` は `sysfunc.cpp` の共通処理（`FReadDataFile` / `ParseDataString` / `FWriteDataFile` / `DumpData` など）に形式 `DATAFMT_*`（`jsonxml.h`）を渡して振り分ける。解析側はいったん UTF-8 の `std::string` にしてから各形式の関数に渡す

@@ -2098,9 +2098,18 @@ CValue CSystemFunction::ToLowerOrUpper(CSF_FUNCPARAM &p,const yaya::char_t *func
 	}
 
 	yaya::string_t result = p.arg.array()[0].GetValueString();
-	size_t len = result.size();
 
-	if ( locale == "C" ) {
+	// "C"（省略時）はA-Zとa-zだけ。それ以外はロケールに従う（setlocaleは使わず、プロセスのロケールは変えない）
+	bool use_locale = (locale != "C" && locale != "POSIX");
+	if ( use_locale && ! Ccct::MapCase(result, isUpper, locale.c_str()) ) {
+		// 使えないロケールは警告して、Cモードで変換する
+		vm.logger().Error(E_W, 12, yaya::string_t(funcname) + L" : " + p.arg.array()[1].GetValueString(), p.dicname, p.line);
+		SetError(12);
+		use_locale = false;
+	}
+
+	if ( ! use_locale ) {
+		size_t len = result.size();
 		if ( isUpper ) {
 			for ( size_t i = 0; i < len; ++i ) {
 				if (result[i] >= L'a' && result[i] <= L'z') {
@@ -2115,23 +2124,6 @@ CValue CSystemFunction::ToLowerOrUpper(CSF_FUNCPARAM &p,const yaya::char_t *func
 				}
 			}
 		}
-	}
-	else {
-		std::string old_locale = yaya::get_safe_str(setlocale(LC_CTYPE,NULL));
-		setlocale(LC_CTYPE,locale.c_str());
-
-		if ( isUpper ) {
-			for ( size_t i = 0; i < len; ++i ) {
-				result[i] = towupper(result[i]);
-			}
-		}
-		else {
-			for ( size_t i = 0; i < len; ++i ) {
-				result[i] = towlower(result[i]);
-			}
-		}
-
-		setlocale(LC_CTYPE,old_locale.c_str());
 	}
 
 	return CValue(result);
@@ -5821,6 +5813,13 @@ CValue	CSystemFunction::STRFORM(CSF_FUNCPARAM &p)
 				break;
 			case F_TAG_DOUBLE:
 				yaya::snprintf(t_str,t_str_size,t_format.c_str(),p.arg.array()[i].GetValueDouble());
+				{
+					// ロケールによらず小数点は"."にする（長さは変わらないか短くなる）
+					yaya::string_t t_num(t_str);
+					yaya::ws_decimal_point_to_dot(t_num);
+					wcsncpy(t_str, t_num.c_str(), t_str_size - 1);
+					t_str[t_str_size - 1] = 0;
+				}
 				break;
 			case F_TAG_STRING:
 				yaya::snprintf(t_str,t_str_size,t_format.c_str(),p.arg.array()[i].GetValueString().c_str());
@@ -6468,6 +6467,12 @@ CValue	CSystemFunction::GETSETTING(CSF_FUNCPARAM &p)
 		}
 		if ( str == L"coreinfo.mode" ) {
 			return CValue(vm.basis().GetModeName());
+		}
+		if ( str == L"coreinfo.locale" ) {
+			return CValue(Ccct::GetOsLocaleName(false));
+		}
+		if ( str == L"coreinfo.uilocale" ) {
+			return CValue(Ccct::GetOsLocaleName(true));
 		}
 
 		return vm.basis().GetParameter(str);

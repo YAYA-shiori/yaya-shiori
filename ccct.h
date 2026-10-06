@@ -55,7 +55,11 @@ public:
 	static const char    *CharsetIDToTextA(const int charset);
 
 	static char		*sys_setlocale(int category);
-	static char		*ccct_setlocale(int category, int charset);
+
+	// ロケールに従って大文字/小文字にする（setlocaleでプロセスのロケールは変えない）。使えないロケールならfalse
+	static bool		MapCase(yaya::string_t &str, bool upper, const char *locale);
+	// OSのユーザー設定のロケールを"ja-JP"形式で返す（ui=trueで表示言語、falseで書式）。取得できなければ空
+	static yaya::string_t GetOsLocaleName(bool ui);
 	static unsigned int ccct_getcodepage(int charset);
 
 private:

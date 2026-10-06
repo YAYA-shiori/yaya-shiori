@@ -158,6 +158,21 @@ static const struct test_case common_cases[] = {
 	{ "GETTICKCOUNT",
 	  "_a = GETTICKCOUNT()\n_b = GETTICKCOUNT()\n_a > 0 && _b >= _a",
 	  "1" },
+	{ "real to string and back",
+	  "TOREAL(\"1.5\")*2",
+	  "3.000000" },
+	{ "STRFORM real",
+	  "STRFORM(\"v=$.2f x\",1.5)",
+	  "v=1.50 x" },
+	{ "TOUPPER C mode keeps non-ASCII",
+	  "TOUPPER(\"a\xC3\xA9\",\"C\")",
+	  "A\xC3\xA9" },
+	{ "TOUPPER unknown locale falls back to C",
+	  "TOUPPER(\"abc\",\"xx-ZZ\")",
+	  "ABC" },
+	{ "GETSETTING locale",
+	  "_a = GETSETTING(\"coreinfo.locale\") + GETSETTING(\"coreinfo.uilocale\")\nSTRLEN(_a) >= 0",
+	  "1" },
 };
 
 /* Cases for POSIX only (files made by setup_dir(), processes, signals) */

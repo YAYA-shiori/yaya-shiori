@@ -22,6 +22,8 @@
 #include <string>
 #include <stdarg.h>
 #include <string.h>
+#include <stdlib.h>
+#include <locale.h>
 
 #include "ccct.h"
 #if defined(POSIX)
@@ -113,8 +115,69 @@ yaya::int_t yaya::ws_atoll(const yaya::string_t &str, int rdx_arg)
 }
 
 /* -----------------------------------------------------------------------
+*  ロケールの小数点
+*
+*  実数の文字列化・解析はCRTがLC_NUMERICの小数点を使うので、ドイツ語などのロケールでは
+*  "1,5"になる。YAYAの実数表記は常に"."なので、ここで差を吸収する。
+*  setlocaleでLC_NUMERICを切り替えるとプロセス全体（POSIXではホストを含む）に効くため、
+*  ロケールは変えずに文字列のほうを直す。
+* -----------------------------------------------------------------------
+*/
+namespace {
+	// 現在のロケールの小数点を取得する。"."のとき（何もしなくてよいとき）はfalse
+	bool GetLocaleDecimalPoint(yaya::string_t &dp)
+	{
+		const struct lconv *lc = localeconv();
+		if ( ! lc || ! lc->decimal_point || ! lc->decimal_point[0] ) {
+			return false;
+		}
+		if ( lc->decimal_point[0] == '.' && lc->decimal_point[1] == 0 ) {
+			return false;
+		}
+
+		wchar_t buf[8];
+		size_t n = mbstowcs(buf, lc->decimal_point, 7);
+		if ( n == static_cast<size_t>(-1) || n == 0 || n > 7 ) {
+			return false;
+		}
+		buf[n] = 0;
+		dp = buf;
+		return true;
+	}
+}
+
+void	yaya::ws_decimal_point_to_dot(yaya::string_t &str)
+{
+	yaya::string_t dp;
+	if ( ! GetLocaleDecimalPoint(dp) ) {
+		return;
+	}
+	yaya::string_t::size_type pos = str.find(dp);
+	if ( pos != yaya::string_t::npos ) {
+		str.replace(pos, dp.size(), 1, L'.');
+	}
+}
+
+void	yaya::ws_decimal_point_to_dot(std::string &str)
+{
+	const struct lconv *lc = localeconv();
+	if ( ! lc || ! lc->decimal_point || ! lc->decimal_point[0] ) {
+		return;
+	}
+	if ( lc->decimal_point[0] == '.' && lc->decimal_point[1] == 0 ) {
+		return;
+	}
+	const std::string dp(lc->decimal_point);
+	std::string::size_type pos = str.find(dp);
+	if ( pos != std::string::npos ) {
+		str.replace(pos, dp.size(), 1, '.');
+	}
+}
+
+/* -----------------------------------------------------------------------
 *  関数名  ：  yaya::ws_atof
 *  機能概要：  yaya::string_tをdoubleへ変換
+*              ロケールによらず小数点は"."
 * -----------------------------------------------------------------------
 */
 double	yaya::ws_atof(const yaya::string_t &str)
@@ -122,7 +185,31 @@ double	yaya::ws_atof(const yaya::string_t &str)
 	if (!str.size())
 		return 0.0;
 
-	return wcstod(str.c_str(), NULL);
+	yaya::string_t dp;
+	if ( ! GetLocaleDecimalPoint(dp) ) {
+		return wcstod(str.c_str(), NULL);
+	}
+
+	// wcstodはロケールの小数点で数を読むので、小数点が"."でないロケールでは"1.5"が1になってしまう。
+	// 読ませたい書式は常に"."なので、"."をロケールの小数点に置き換え、
+	// 文字列にあるロケールの小数点そのものは数の一部と見なされないよう潰してから渡す
+	yaya::string_t tmp;
+	tmp.reserve(str.size());
+	for ( size_t i = 0; i < str.size(); ) {
+		if ( str[i] == L'.' ) {
+			tmp += dp;
+			++i;
+		}
+		else if ( str.compare(i, dp.size(), dp) == 0 ) {
+			tmp += static_cast<yaya::char_t>(1);
+			i += dp.size();
+		}
+		else {
+			tmp += str[i];
+			++i;
+		}
+	}
+	return wcstod(tmp.c_str(), NULL);
 }
 
 /* -----------------------------------------------------------------------
@@ -180,6 +267,7 @@ yaya::string_t yaya::ws_lltoa(yaya::int_t num, int rdx)
 /* -----------------------------------------------------------------------
 *  関数名  ：  yaya::ws_ftoa
 *  機能概要：  doubleをyaya::string_tへ変換
+*              ロケールによらず小数点は"."
 * -----------------------------------------------------------------------
 */
 yaya::string_t	yaya::ws_ftoa(double num)
@@ -188,7 +276,10 @@ yaya::string_t	yaya::ws_ftoa(double num)
 	yaya::char_t numtxt[1024];
 	yaya::snprintf(numtxt,512,L"%f",num);
 	numtxt[511] = 0;
-	return numtxt;
+
+	yaya::string_t result(numtxt);
+	ws_decimal_point_to_dot(result);
+	return result;
 }
 
 /* -----------------------------------------------------------------------

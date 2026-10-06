@@ -15,6 +15,8 @@
 
 #include <string.h>
 
+#include <stdlib.h>
+#include <wctype.h>
 #include <clocale>
 #include <string>
 
@@ -27,6 +29,10 @@
 #  include <ctype.h>
 #  include <errno.h>
 #  include <iconv.h>
+#  include <locale.h>
+#  if defined(__APPLE__) || defined(__FreeBSD__)
+#    include <xlocale.h>
+#  endif
 //https://learn.microsoft.com/ja-jp/windows/win32/winprog/windows-data-types
 typedef unsigned long DWORD;
 typedef unsigned short WORD;
@@ -442,55 +448,311 @@ unsigned int Ccct::ccct_getcodepage(int charset)
 }
 
 /* -----------------------------------------------------------------------
- *  関数名  ：  Ccct::ccct_setlocale
- *  機能概要：  言語IDでロケール設定する
+ *  ロケール名の整形
+ *
+ *  "ja_JP.UTF-8" "ja-JP@euro" のような名前から、言語タグ（"ja-JP"）にあたる部分だけを取り出す。
+ *  ASCII以外が混ざっていたらfalse。空文字列は空のタグ（OSのユーザー既定）になる。
  * -----------------------------------------------------------------------
  */
-char *Ccct::ccct_setlocale(int category, int charset)
-{
-#ifdef POSIX
-	if (charset == CHARSET_SJIS) {
-		return setlocale(category, "ja_JP.SJIS");
+namespace {
+	bool NormalizeLocaleTag(const char *locale, std::string &tag)
+	{
+		tag.erase();
+		if ( ! locale ) {
+			return true;
+		}
+		for ( ; *locale && *locale != '.' && *locale != '@'; ++locale ) {
+			unsigned char c = static_cast<unsigned char>(*locale);
+			if ( c >= 0x80 ) {
+				return false;
+			}
+			tag += (c == '_') ? '-' : static_cast<char>(c);
+		}
+		return true;
 	}
-	else if (charset == CHARSET_EUCJP) {
-		return setlocale(category, "ja_JP.eucJP");
-	}
-	else if (charset == CHARSET_BIG5) {
-		return setlocale(category, "zh_TW.Big5");
-	}
-	else if (charset == CHARSET_GB2312) {
-		return setlocale(category, "zh_CN.GB2312");
-	}
-	else if (charset == CHARSET_EUCKR) {
-		return setlocale(category, "ko_KR.eucKR");
-	}
-	else if (charset == CHARSET_JIS) {
-		return setlocale(category, "ja_JP.SJIS");
-	}
-#else
-	if (charset == CHARSET_SJIS) {
-		return setlocale(category, ".932");
-	}
-	else if (charset == CHARSET_EUCJP) {
-		return setlocale(category, ".20932");
-	}
-	else if (charset == CHARSET_BIG5) {
-		return setlocale(category, ".950");
-	}
-	else if (charset == CHARSET_GB2312) {
-		return setlocale(category, ".936");
-	}
-	else if (charset == CHARSET_EUCKR) {
-		return setlocale(category, ".949");
-	}
-	else if (charset == CHARSET_JIS) {
-		return setlocale(category, ".50222");
-	}
-#endif
-	else {
-		return sys_setlocale(category);
+
+	yaya::string_t AsciiToString(const std::string &s)
+	{
+		yaya::string_t r;
+		for ( std::string::size_type i = 0; i < s.size(); ++i ) {
+			r += static_cast<yaya::char_t>(static_cast<unsigned char>(s[i]));
+		}
+		return r;
 	}
 }
+
+#if defined(WIN32) || defined(_WIN32_WCE)
+
+#ifndef LOCALE_SISO639LANGNAME
+# define LOCALE_SISO639LANGNAME 0x00000059
+#endif
+#ifndef LOCALE_SISO3166CTRYNAME
+# define LOCALE_SISO3166CTRYNAME 0x0000005A
+#endif
+
+namespace {
+	// 古いSDKにも無いものは、実行時にkernel32から探す（Vista以降）
+	typedef int (WINAPI *LCMapStringExFn)(LPCWSTR, DWORD, LPCWSTR, int, LPWSTR, int, void *, void *, LPARAM);
+	typedef LCID (WINAPI *LocaleNameToLCIDFn)(LPCWSTR, DWORD);
+	typedef int (WINAPI *GetUserDefaultLocaleNameFn)(LPWSTR, int);
+	typedef int (WINAPI *LCIDToLocaleNameFn)(LCID, LPWSTR, int, DWORD);
+	typedef LANGID (WINAPI *GetUserDefaultUILanguageFn)(void);
+
+	const DWORD YAYA_LCMAP_LOWERCASE = 0x00000100;
+	const DWORD YAYA_LCMAP_UPPERCASE = 0x00000200;
+	const DWORD YAYA_LCMAP_LINGUISTIC_CASING = 0x01000000;
+
+	FARPROC Kernel32Proc(const char *name)
+	{
+		HMODULE k32 = ::GetModuleHandleA("kernel32");
+		return k32 ? ::GetProcAddress(k32, name) : NULL;
+	}
+
+	// ロケールIDから"ja-JP"のようなタグを得る
+	yaya::string_t LcidToTag(LCID lcid)
+	{
+		static const LCIDToLocaleNameFn pLCIDToLocaleName = reinterpret_cast<LCIDToLocaleNameFn>(Kernel32Proc("LCIDToLocaleName"));
+
+		wchar_t buf[96];
+		if ( pLCIDToLocaleName ) {
+			int n = pLCIDToLocaleName(lcid, buf, 96, 0);
+			if ( n > 1 ) {
+				return yaya::string_t(buf);
+			}
+		}
+
+		// XPなど：ISO 639の言語名とISO 3166の国名を"-"でつなぐ
+		wchar_t lang[16] = L"";
+		wchar_t ctry[16] = L"";
+		if ( ::GetLocaleInfoW(lcid, LOCALE_SISO639LANGNAME, lang, 16) <= 1 ) {
+			return yaya::string_t();
+		}
+		yaya::string_t tag(lang);
+		if ( ::GetLocaleInfoW(lcid, LOCALE_SISO3166CTRYNAME, ctry, 16) > 1 ) {
+			tag += L'-';
+			tag += ctry;
+		}
+		return tag;
+	}
+
+	// OSが知っているロケール名か。構文が正しければ"xx-ZZ"のような名前も有効扱いになるが、
+	// 知らない名前はLOCALE_CUSTOM_UNSPECIFIED(0x1000)のロケールIDになるので、それで見分ける
+	bool IsKnownLocaleName(const wchar_t *name)
+	{
+		static const LocaleNameToLCIDFn pLocaleNameToLCID = reinterpret_cast<LocaleNameToLCIDFn>(Kernel32Proc("LocaleNameToLCID"));
+		if ( ! pLocaleNameToLCID ) {
+			return true; // 調べられないときは、LCMapStringExの結果に任せる
+		}
+		LCID lcid = pLocaleNameToLCID(name, 0);
+		return lcid != 0 && lcid != 0x1000;
+	}
+
+	// CRTのロケール名（"Japanese_Japan.932"など）でも通すための、setlocale経由の変換。
+	// このDLLのCRTのロケールを一時的に変えるだけで、ホストには影響しない（静的リンク時）
+	bool MapCaseByCrt(yaya::string_t &str, bool upper, const char *locale)
+	{
+		const char *old = setlocale(LC_CTYPE, NULL);
+		std::string old_locale(old ? old : "C");
+
+		if ( ! setlocale(LC_CTYPE, locale) ) {
+			return false;
+		}
+		for ( size_t i = 0; i < str.size(); ++i ) {
+			str[i] = static_cast<yaya::char_t>(upper ? towupper(str[i]) : towlower(str[i]));
+		}
+		setlocale(LC_CTYPE, old_locale.c_str());
+		return true;
+	}
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  Ccct::MapCase
+ *  機能概要：  ロケールに従って大文字／小文字に変換する
+ *
+ *  setlocaleでプロセスのロケールを切り替えず、ロケールを引数に取るAPI（LCMapStringEx）で変換する。
+ *  言語固有の規則（トルコ語のiなど）も反映される。
+ *  localeは"ja-JP" "ja_JP" "tr_TR.UTF-8"のような名前で、空文字列ならOSのユーザー既定。
+ *  LCMapStringExが無い、または名前が通らないときは、CRTのロケール名として扱う。
+ *  使えないロケールならfalseを返し、strは変えない。
+ * -----------------------------------------------------------------------
+ */
+bool Ccct::MapCase(yaya::string_t &str, bool upper, const char *locale)
+{
+	if ( str.empty() ) {
+		return true;
+	}
+
+	static const LCMapStringExFn pLCMapStringEx = reinterpret_cast<LCMapStringExFn>(Kernel32Proc("LCMapStringEx"));
+
+	std::string tag;
+	if ( pLCMapStringEx && NormalizeLocaleTag(locale, tag) ) {
+		const wchar_t *name = NULL; // LOCALE_NAME_USER_DEFAULT
+		yaya::string_t wtag;
+		if ( ! tag.empty() ) {
+			wtag = AsciiToString(tag);
+			name = wtag.c_str();
+		}
+
+		if ( name && ! IsKnownLocaleName(name) ) {
+			return MapCaseByCrt(str, upper, locale ? locale : "");
+		}
+
+		const DWORD base = upper ? YAYA_LCMAP_UPPERCASE : YAYA_LCMAP_LOWERCASE;
+		const DWORD flags[2] = { base | YAYA_LCMAP_LINGUISTIC_CASING, base };
+		const int src_len = static_cast<int>(str.size());
+
+		for ( int i = 0; i < 2; ++i ) {
+			int n = pLCMapStringEx(name, flags[i], str.c_str(), src_len, NULL, 0, NULL, NULL, 0);
+			if ( n > 0 ) {
+				yaya::string_t out(static_cast<size_t>(n), L'\0');
+				int m = pLCMapStringEx(name, flags[i], str.c_str(), src_len, &out[0], n, NULL, NULL, 0);
+				if ( m > 0 ) {
+					out.resize(static_cast<size_t>(m));
+					str = out;
+					return true;
+				}
+				break;
+			}
+			if ( ::GetLastError() != ERROR_INVALID_FLAGS ) {
+				break;
+			}
+		}
+	}
+
+	return MapCaseByCrt(str, upper, locale ? locale : "");
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  Ccct::GetOsLocaleName
+ *  機能概要：  OSのユーザー設定のロケールを"ja-JP"のような名前で返す
+ *              uiがtrueなら表示言語、falseなら地域の書式のロケール。取得できなければ空文字列
+ * -----------------------------------------------------------------------
+ */
+yaya::string_t Ccct::GetOsLocaleName(bool ui)
+{
+	if ( ui ) {
+		static const GetUserDefaultUILanguageFn pGetUILang = reinterpret_cast<GetUserDefaultUILanguageFn>(Kernel32Proc("GetUserDefaultUILanguage"));
+		if ( pGetUILang ) {
+			return LcidToTag(MAKELCID(pGetUILang(), SORT_DEFAULT));
+		}
+		return LcidToTag(::GetUserDefaultLCID());
+	}
+
+	static const GetUserDefaultLocaleNameFn pGetUserLocaleName = reinterpret_cast<GetUserDefaultLocaleNameFn>(Kernel32Proc("GetUserDefaultLocaleName"));
+	if ( pGetUserLocaleName ) {
+		wchar_t buf[96];
+		if ( pGetUserLocaleName(buf, 96) > 1 ) {
+			return yaya::string_t(buf);
+		}
+	}
+	return LcidToTag(::GetUserDefaultLCID());
+}
+
+#else // POSIX
+
+namespace {
+	// "ja-JP" → "ja_JP"。UTF-8のロケールを優先して開く（wchar_tをUnicodeとして扱うため）
+	locale_t OpenCtypeLocale(const char *locale)
+	{
+		std::string name(locale ? locale : "");
+		for ( std::string::size_type i = 0; i < name.size() && name[i] != '.' && name[i] != '@'; ++i ) {
+			if ( name[i] == '-' ) {
+				name[i] = '_';
+			}
+		}
+
+		std::string cand[3];
+		size_t count = 0;
+		if ( name.empty() || name.find('.') != std::string::npos || name.find('@') != std::string::npos ) {
+			cand[count++] = name; // 空文字列は環境変数（LC_ALL/LC_CTYPE/LANG）の指定
+		}
+		else {
+			cand[count++] = name + ".UTF-8";
+			cand[count++] = name + ".utf8";
+			cand[count++] = name;
+		}
+
+		for ( size_t i = 0; i < count; ++i ) {
+			locale_t loc = newlocale(LC_CTYPE_MASK, cand[i].c_str(), static_cast<locale_t>(0));
+			if ( loc ) {
+				return loc;
+			}
+		}
+		return static_cast<locale_t>(0);
+	}
+
+	bool IsCLocaleTag(const std::string &tag)
+	{
+		return tag == "C" || tag == "POSIX";
+	}
+
+	// 環境変数から取り出してロケール名（"ja-JP"）にする。"C" "POSIX"は設定なしと同じ
+	yaya::string_t LocaleFromEnv(const char *const *names)
+	{
+		for ( ; *names; ++names ) {
+			const char *v = getenv(*names);
+			if ( ! v || ! *v ) {
+				continue;
+			}
+
+			// LANGUAGEは"ja:en"のようにコロン区切りの優先順
+			std::string first;
+			for ( ; *v && *v != ':'; ++v ) {
+				first += *v;
+			}
+
+			std::string tag;
+			if ( ! NormalizeLocaleTag(first.c_str(), tag) || tag.empty() || IsCLocaleTag(tag) ) {
+				return yaya::string_t();
+			}
+			return AsciiToString(tag);
+		}
+		return yaya::string_t();
+	}
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  Ccct::MapCase
+ *  機能概要：  ロケールに従って大文字／小文字に変換する
+ *
+ *  setlocaleはプロセス全体（ホストを含む）のロケールを変えてしまうので使わず、
+ *  newlocaleで作ったロケールをtowupper_l / towlower_lに渡す。
+ *  localeは"ja_JP" "ja-JP" "tr_TR.UTF-8"のような名前で、空文字列なら環境変数の指定。
+ *  OSにそのロケールが入っていないときはfalseを返し、strは変えない。
+ * -----------------------------------------------------------------------
+ */
+bool Ccct::MapCase(yaya::string_t &str, bool upper, const char *locale)
+{
+	locale_t loc = OpenCtypeLocale(locale);
+	if ( ! loc ) {
+		return false;
+	}
+
+	for ( size_t i = 0; i < str.size(); ++i ) {
+		wint_t c = static_cast<wint_t>(str[i]);
+		str[i] = static_cast<yaya::char_t>(upper ? towupper_l(c, loc) : towlower_l(c, loc));
+	}
+
+	freelocale(loc);
+	return true;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  Ccct::GetOsLocaleName
+ *  機能概要：  環境変数のロケールを"ja-JP"のような名前で返す
+ *              uiがtrueなら表示言語（LANGUAGE/LC_ALL/LC_MESSAGES/LANG）、
+ *              falseなら書式のロケール（LC_ALL/LC_NUMERIC/LANG）。設定が無ければ空文字列
+ * -----------------------------------------------------------------------
+ */
+yaya::string_t Ccct::GetOsLocaleName(bool ui)
+{
+	static const char *const ui_names[]  = { "LANGUAGE", "LC_ALL", "LC_MESSAGES", "LANG", NULL };
+	static const char *const fmt_names[] = { "LC_ALL", "LC_NUMERIC", "LANG", NULL };
+
+	return LocaleFromEnv(ui ? ui_names : fmt_names);
+}
+
+#endif
 
 #ifdef POSIX
 /* -----------------------------------------------------------------------
