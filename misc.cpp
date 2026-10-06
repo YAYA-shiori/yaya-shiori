@@ -10,11 +10,19 @@
 #endif
 
 #include <ctime>
+#include <string.h>
+#include <time.h>
 #include <string>
 #include <vector>
+#if defined(POSIX)
+# include <stdio.h>
+# include <stdlib.h>
+# include <unistd.h>
+#endif
 
 #include "manifest.h"
 #include "misc.h"
+#include "ccct.h"
 #if defined(POSIX) || defined(__MINGW32__)
 # include "posix_utils.h"
 #endif
@@ -430,9 +438,14 @@ void	CutCrLf(yaya::string_t &str)
 yaya::string_t GetDateString()
 {
     char buf[128];
-    time_t t = time(NULL);
-    struct tm* tm = localtime(&t);
-    strftime(buf, 127, "%Y/%m/%d %H:%M:%S", tm);
+    struct tm tm;
+    if (!EpochTimeToTM(GetEpochTime(), CTimeZone(), tm)) {
+        memset(&tm, 0, sizeof(tm));
+        tm.tm_mday = 1;
+        tm.tm_year = 70;
+        tm.tm_wday = 4;
+    }
+    strftime(buf, 127, "%Y/%m/%d %H:%M:%S", &tm);
 
 	yaya::char_t wbuf[64];
 	for ( size_t i = 0 ; i < 64 ; ++i ) {
@@ -880,7 +893,7 @@ char	IsLegalPlainStrLiteral(const yaya::string_t &str)
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32) || defined(_WIN32_WCE)
-static yaya::time_t FileTimeToEpochTime(FILETIME &ft)
+yaya::time_t FileTimeToEpochTime(const FILETIME &ft)
 {
 	ULARGE_INTEGER ul;
 	ul.LowPart = ft.dwLowDateTime;
@@ -907,41 +920,6 @@ static FILETIME EpochTimeToFileTime(yaya::time_t &tv)
 	return tc.ft;
 }
 
-static unsigned int month_to_day_table[] = {
-	0,
-	31,
-	31+28,
-	31+28+31,
-	31+28+31+30,
-	31+28+31+30+31,
-	31+28+31+30+31+30,
-	31+28+31+30+31+30+31,
-	31+28+31+30+31+30+31+31,
-	31+28+31+30+31+30+31+31+30,
-	31+28+31+30+31+30+31+31+30+31,
-	31+28+31+30+31+30+31+31+30+31+30,
-};
-
-static bool IsLeapYear(unsigned int year)
-{
-	if (year % 4 == 0) {
-		if (year % 100 == 0) {
-			if (year % 400 == 0) {
-				return true;
-			}
-			else {
-				return false;
-			}
-		}
-		else {
-			return true;
-		}
-	}
-	else {
-		return false;
-	}
-}
-
 #endif
 
 yaya::time_t GetEpochTime()
@@ -958,118 +936,382 @@ yaya::time_t GetEpochTime()
 #endif
 }
 
-struct tm EpochTimeToLocalTime(yaya::time_t tv)
+/* -----------------------------------------------------------------------
+ *  タイムゾーンと暦の計算
+ *
+ *  localtime / mktime / Win32 の時刻変換APIは、扱える年の範囲やタイムゾーンの
+ *  解釈が環境ごとに違い、範囲外の値で失敗する（localtime は NULL を返す）。
+ *  そのためEPOCH秒と年月日時分秒の相互変換は64bitの暦計算で自前で行い、
+ *  OSからは「あるUTC時刻でのローカルタイムのUTCオフセット」だけを借りる。
+ * -----------------------------------------------------------------------
+ */
+static yaya::time_t FloorDiv(yaya::time_t a, yaya::time_t b)
 {
-#if defined(WIN32) || defined(_WIN32_WCE)
-	FILETIME ft = EpochTimeToFileTime(tv);
-	FILETIME lft;
-
-	::FileTimeToLocalFileTime(&ft,&lft);
-
-	SYSTEMTIME stime;
-	::FileTimeToSystemTime(&lft,&stime);
-
-	struct tm tmtime;
-	tmtime.tm_sec = stime.wSecond;
-	tmtime.tm_min = stime.wMinute;
-	tmtime.tm_hour = stime.wHour;
-	tmtime.tm_mday = stime.wDay;
-	tmtime.tm_mon = stime.wMonth - 1; //struct tm 0-11 = SYSTEMTIME 1-12
-	tmtime.tm_year = stime.wYear - 1900; //struct tm 100 = SYSTEMTIME 2000
-	tmtime.tm_wday = stime.wDayOfWeek;
-	tmtime.tm_yday = month_to_day_table[stime.wMonth-1] + stime.wDay;
-	if ( IsLeapYear(stime.wYear) && stime.wMonth >= 3 ) { tmtime.tm_yday += 1; }
-
-	TIME_ZONE_INFORMATION tzinfo;
-	tmtime.tm_isdst = ::GetTimeZoneInformation(&tzinfo) == TIME_ZONE_ID_DAYLIGHT;
-
-	return tmtime;
-#else
-	time_t tc = tv;
-	return *localtime(&tc);
-#endif
+	yaya::time_t q = a / b;
+	if ( (a % b != 0) && ((a < 0) != (b < 0)) ) {
+		--q;
+	}
+	return q;
 }
 
-yaya::time_t LocalTimeToEpochTime(struct tm &tm)
+// 1970-01-01 からの通算日数（グレゴリオ暦、month は 1-12）
+static yaya::time_t DaysFromCivil(yaya::time_t y, int m, int d)
 {
+	if ( m <= 2 ) { y -= 1; }
+	yaya::time_t era = FloorDiv(y, 400);
+	yaya::time_t yoe = y - era * 400;
+	yaya::time_t doy = (153 * (m + (m > 2 ? -3 : 9)) + 2) / 5 + d - 1;
+	yaya::time_t doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+	return era * 146097 + doe - 719468;
+}
+
+static void CivilFromDays(yaya::time_t z, yaya::time_t &y, int &m, int &d)
+{
+	z += 719468;
+	yaya::time_t era = FloorDiv(z, 146097);
+	yaya::time_t doe = z - era * 146097;
+	yaya::time_t yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
+	yaya::time_t doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+	yaya::time_t mp = (5 * doy + 2) / 153;
+	d = static_cast<int>(doy - (153 * mp + 2) / 5 + 1);
+	m = static_cast<int>(mp < 10 ? mp + 3 : mp - 9);
+	y = yoe + era * 400 + (m <= 2 ? 1 : 0);
+}
+
+// 扱うEPOCH秒の範囲（約±9億5千万年）。tm_year が int に収まり、オフセットを足してもあふれない
+static const yaya::time_t EPOCH_LIMIT = LL_DEF(30000000000000000);
+
 #if defined(WIN32) || defined(_WIN32_WCE)
-	__int64 t1 = tm.tm_year;
 
-	if ( tm.tm_mon < 0 || tm.tm_mon > 11 ) { //1-12より外
-		t1 += (tm.tm_mon / 12);
+typedef BOOL (WINAPI *DefSystemTimeToTzSpecificLocalTimeEx)(const void *pDynamicTzInfo, const SYSTEMTIME *pUtc, SYSTEMTIME *pLocal);
+typedef BOOL (WINAPI *DefSystemTimeToTzSpecificLocalTime)(const TIME_ZONE_INFORMATION *pTzInfo, const SYSTEMTIME *pUtc, SYSTEMTIME *pLocal);
 
-		tm.tm_mon %= 12;
-		if ( tm.tm_mon < 0 ) {
-			tm.tm_mon += 12;
-			t1 -= 1;
+// UTC の SYSTEMTIME を、現在のタイムゾーンのローカルタイムにする
+// その時点の夏時間の規則を使う（Windows 7 以降は年ごとの規則も反映される）
+static bool SystemTimeUtcToLocal(const SYSTEMTIME &utc, SYSTEMTIME &local)
+{
+	static bool inited = false;
+	static DefSystemTimeToTzSpecificLocalTimeEx pEx = NULL;
+	static DefSystemTimeToTzSpecificLocalTime pOld = NULL;
+
+	if ( ! inited ) {
+		HMODULE hKernel = ::GetModuleHandleA("kernel32");
+		if ( hKernel ) {
+			pEx = (DefSystemTimeToTzSpecificLocalTimeEx)::GetProcAddress(hKernel,"SystemTimeToTzSpecificLocalTimeEx");
+			pOld = (DefSystemTimeToTzSpecificLocalTime)::GetProcAddress(hKernel,"SystemTimeToTzSpecificLocalTime");
+		}
+		inited = true;
+	}
+
+	if ( pEx && pEx(NULL,&utc,&local) ) {
+		return true;
+	}
+	if ( pOld && pOld(NULL,&utc,&local) ) {
+		return true;
+	}
+	return false;
+}
+
+// 変換APIが使えないときの代用。今のバイアスだけを見る
+static int GetLocalOffsetByBias()
+{
+	TIME_ZONE_INFORMATION tzinfo;
+	DWORD r = ::GetTimeZoneInformation(&tzinfo);
+
+	LONG bias = tzinfo.Bias;
+	if ( r == TIME_ZONE_ID_DAYLIGHT ) {
+		bias += tzinfo.DaylightBias;
+	}
+	else if ( r != TIME_ZONE_ID_INVALID ) {
+		bias += tzinfo.StandardBias;
+	}
+	return static_cast<int>(-bias * 60);
+}
+
+static int GetLocalOffsetRaw(yaya::time_t utc)
+{
+	// FILETIME / SYSTEMTIME で表せる範囲に収める
+	static const yaya::time_t lo = DaysFromCivil(1602,1,1) * 86400;
+	static const yaya::time_t hi = DaysFromCivil(30000,1,1) * 86400;
+
+	yaya::time_t t = utc;
+	if ( t < lo ) { t = lo; }
+	if ( t > hi ) { t = hi; }
+
+	FILETIME ft = EpochTimeToFileTime(t);
+	SYSTEMTIME su;
+	SYSTEMTIME sl;
+	if ( ::FileTimeToSystemTime(&ft,&su) && SystemTimeUtcToLocal(su,sl) ) {
+		yaya::time_t lt = DaysFromCivil(sl.wYear,sl.wMonth,sl.wDay) * 86400
+			+ sl.wHour * 3600 + sl.wMinute * 60 + sl.wSecond;
+		return static_cast<int>(lt - t);
+	}
+	return GetLocalOffsetByBias();
+}
+
+// utc の時点でのローカルタイムの UTC オフセット（秒、東が正）。isdst は夏時間なら 1
+static int GetLocalOffset(yaya::time_t utc, int *isdst)
+{
+	int offset = GetLocalOffsetRaw(utc);
+
+	if ( isdst ) {
+		// 夏時間かどうかはAPIから直接分からないので、その年の1月と7月のうち
+		// オフセットの小さいほうを標準時とみなす
+		yaya::time_t y;
+		int m, d;
+		CivilFromDays(FloorDiv(utc + offset,86400),y,m,d);
+
+		int o1 = GetLocalOffsetRaw(DaysFromCivil(y,1,1) * 86400);
+		int o2 = GetLocalOffsetRaw(DaysFromCivil(y,7,1) * 86400);
+		int std_offset = (o1 < o2) ? o1 : o2;
+
+		*isdst = (offset > std_offset) ? 1 : 0;
+	}
+	return offset;
+}
+
+#else
+
+static int GetLocalOffset(yaya::time_t utc, int *isdst)
+{
+	if ( isdst ) { *isdst = 0; }
+
+	time_t t = static_cast<time_t>(utc);
+	if ( static_cast<yaya::time_t>(t) != utc ) {
+		return 0;
+	}
+
+	// 環境変数 TZ の変更に追従する
+	tzset();
+
+	struct tm lt;
+	if ( ! localtime_r(&t,&lt) ) {
+		return 0;
+	}
+	if ( isdst ) { *isdst = (lt.tm_isdst > 0) ? 1 : 0; }
+	return static_cast<int>(lt.tm_gmtoff);
+}
+
+#endif
+
+bool EpochTimeToTM(yaya::time_t tv, const CTimeZone &tz, struct tm &out)
+{
+	memset(&out,0,sizeof(out));
+
+	if ( tv > EPOCH_LIMIT || tv < -EPOCH_LIMIT ) {
+		return false;
+	}
+
+	int isdst = 0;
+	int offset = tz.is_local ? GetLocalOffset(tv,&isdst) : tz.offset_sec;
+
+	yaya::time_t lt = tv + offset;
+	yaya::time_t days = FloorDiv(lt,86400);
+	int rem = static_cast<int>(lt - days * 86400);
+
+	yaya::time_t y;
+	int m, d;
+	CivilFromDays(days,y,m,d);
+
+	out.tm_sec = rem % 60;
+	out.tm_min = (rem / 60) % 60;
+	out.tm_hour = rem / 3600;
+	out.tm_mday = d;
+	out.tm_mon = m - 1;
+	out.tm_year = static_cast<int>(y - 1900);
+	out.tm_wday = static_cast<int>((days % 7 + 11) % 7); // 1970-01-01 は木曜
+	out.tm_yday = static_cast<int>(days - DaysFromCivil(y,1,1)); // 0始まり（localtime と同じ）
+	out.tm_isdst = isdst;
+
+	return true;
+}
+
+bool TMToEpochTime(const struct tm &in, const CTimeZone &tz, yaya::time_t &out)
+{
+	// 月が1-12の外でも、年をずらして正規化する
+	yaya::time_t y = static_cast<yaya::time_t>(in.tm_year) + 1900;
+	yaya::time_t carry = FloorDiv(in.tm_mon,12);
+	y += carry;
+	int mon = static_cast<int>(in.tm_mon - carry * 12);
+
+	// 日以下の桁あふれは線形に足すだけで正規化される
+	yaya::time_t t = (DaysFromCivil(y,mon + 1,1) + in.tm_mday - 1) * 86400
+		+ static_cast<yaya::time_t>(in.tm_hour) * 3600
+		+ static_cast<yaya::time_t>(in.tm_min) * 60
+		+ in.tm_sec;
+
+	if ( t > EPOCH_LIMIT || t < -EPOCH_LIMIT ) {
+		return false;
+	}
+
+	if ( tz.is_local ) {
+		// ローカルタイムを UTC に直すには、その時刻でのオフセットが要る。
+		// 夏時間の境目でずれないよう、求めたオフセットで引いた時刻のオフセットを使い直す
+		int o1 = GetLocalOffset(t,NULL);
+		int o2 = GetLocalOffset(t - o1,NULL);
+		out = t - o2;
+	}
+	else {
+		out = t - tz.offset_sec;
+	}
+	return true;
+}
+
+/* -----------------------------------------------------------------------
+ *  ローカルタイムゾーンの情報（GETTIMEZONE / GETSETTING）
+ * -----------------------------------------------------------------------
+ */
+#if defined(WIN32) || defined(_WIN32_WCE)
+
+// DYNAMIC_TIME_ZONE_INFORMATION（VC6のSDKには無い）
+struct DynamicTzInfo {
+	LONG Bias;
+	WCHAR StandardName[32];
+	SYSTEMTIME StandardDate;
+	LONG StandardBias;
+	WCHAR DaylightName[32];
+	SYSTEMTIME DaylightDate;
+	LONG DaylightBias;
+	WCHAR TimeZoneKeyName[128];
+	BOOLEAN DynamicDaylightTimeDisabled;
+};
+
+typedef DWORD (WINAPI *DefGetDynamicTimeZoneInformation)(DynamicTzInfo *pInfo);
+// ICU (Windows 10 1903 以降の icu.dll)。UChar は 16bit
+typedef int (__cdecl *DefUcalGetTimeZoneIDForWindowsID)(const unsigned short *winid, int len, const char *region, unsigned short *id, int capacity, int *status);
+
+bool GetLocalTimeZoneInfo(yaya::time_t utc, int &offset, int &isdst, yaya::string_t &name)
+{
+	if ( utc > EPOCH_LIMIT || utc < -EPOCH_LIMIT ) {
+		return false;
+	}
+
+	offset = GetLocalOffset(utc,&isdst);
+
+	// 名前はOSの表示名（日本語環境なら「東京 (標準時)」）
+	TIME_ZONE_INFORMATION tzinfo;
+	::GetTimeZoneInformation(&tzinfo);
+	name = isdst ? tzinfo.DaylightName : tzinfo.StandardName;
+
+	return true;
+}
+
+yaya::string_t GetLocalTimeZoneId()
+{
+	static bool inited = false;
+	static DefGetDynamicTimeZoneInformation pGetDynamic = NULL;
+	static DefUcalGetTimeZoneIDForWindowsID pUcalConv = NULL;
+
+	if ( ! inited ) {
+		HMODULE hKernel = ::GetModuleHandleA("kernel32");
+		if ( hKernel ) {
+			pGetDynamic = (DefGetDynamicTimeZoneInformation)::GetProcAddress(hKernel,"GetDynamicTimeZoneInformation");
+		}
+		// システムフォルダのDLLだけを読む（0x800 = LOAD_LIBRARY_SEARCH_SYSTEM32）
+		HMODULE hIcu = ::LoadLibraryExW(L"icu.dll",NULL,0x00000800);
+		if ( hIcu ) {
+			pUcalConv = (DefUcalGetTimeZoneIDForWindowsID)::GetProcAddress(hIcu,"ucal_getTimeZoneIDForWindowsID");
+		}
+		inited = true;
+	}
+
+	// Windows のタイムゾーン名（"Tokyo Standard Time"）を、ICU で IANA の名前（"Asia/Tokyo"）にする。
+	// ICU の既定のタイムゾーン（ucal_getDefaultTimeZone）は最初に決めた値を覚えてしまうので、
+	// 実行中の設定変更に追従するよう、毎回OSから名前を取って変換する
+	if ( ! pGetDynamic || ! pUcalConv ) {
+		return yaya::string_t();
+	}
+
+	DynamicTzInfo dtzi;
+	memset(&dtzi,0,sizeof(dtzi));
+	if ( pGetDynamic(&dtzi) == TIME_ZONE_ID_INVALID || ! dtzi.TimeZoneKeyName[0] ) {
+		return yaya::string_t();
+	}
+
+	unsigned short buf[128];
+	int status = 0;
+	int len = pUcalConv(reinterpret_cast<const unsigned short*>(dtzi.TimeZoneKeyName),-1,NULL,buf,128,&status);
+	if ( status > 0 || len <= 0 || len >= 128 ) { // 正の値がエラー（負は警告）
+		return yaya::string_t();
+	}
+
+	yaya::string_t result;
+	for ( int i = 0 ; i < len ; ++i ) {
+		result.append(1,static_cast<yaya::char_t>(buf[i]));
+	}
+	return result;
+}
+
+#else
+
+bool GetLocalTimeZoneInfo(yaya::time_t utc, int &offset, int &isdst, yaya::string_t &name)
+{
+	if ( utc > EPOCH_LIMIT || utc < -EPOCH_LIMIT ) {
+		return false;
+	}
+
+	offset = GetLocalOffset(utc,&isdst);
+
+	// 略称（"JST"）
+	name.erase();
+	time_t t = static_cast<time_t>(utc);
+	struct tm lt;
+	if ( static_cast<yaya::time_t>(t) == utc && localtime_r(&t,&lt) && lt.tm_zone ) {
+		Ccct::MbcsToUcs2Buf(name,lt.tm_zone,CHARSET_UTF8);
+	}
+
+	return true;
+}
+
+yaya::string_t GetLocalTimeZoneId()
+{
+	std::string id;
+
+	// 環境変数 TZ があればそれ。無ければ /etc/localtime のリンク先（.../zoneinfo/Asia/Tokyo）、
+	// それも無ければ /etc/timezone
+	const char *tz = getenv("TZ");
+	if ( tz && *tz ) {
+		id = tz;
+		if ( id[0] == ':' ) {
+			id.erase(0,1);
+		}
+	}
+	else {
+		char buf[1024];
+		ssize_t n = readlink("/etc/localtime",buf,sizeof(buf) - 1);
+		if ( n > 0 ) {
+			buf[n] = 0;
+			id = buf;
+		}
+		else {
+			FILE *fp = fopen("/etc/timezone","r");
+			if ( fp ) {
+				if ( fgets(buf,sizeof(buf),fp) ) {
+					id = buf;
+				}
+				fclose(fp);
+			}
 		}
 	}
 
-	//t1 = 年
-	static __int64 count_days[] = {
-		0,
-		31,
-		31+28,
-		31+28+31,
-		31+28+31+30,
-		31+28+31+30+31,
-		31+28+31+30+31+30,
-		31+28+31+30+31+30+31,
-		31+28+31+30+31+30+31+31,
-		31+28+31+30+31+30+31+31+30,
-		31+28+31+30+31+30+31+31+30+31,
-		31+28+31+30+31+30+31+31+30+31+30};
-
-	__int64 t2 = count_days[tm.tm_mon] - 1;
-
-	if ( !(t1 & 3) && (tm.tm_mon > 1) ) {
-		t2 += 1;
+	// 絶対パスなら zoneinfo/ より後ろだけにする（posix/ right/ の下も同じ名前）
+	std::string::size_type pos = id.find("zoneinfo/");
+	if ( pos != std::string::npos ) {
+		id.erase(0,pos + 9);
+		if ( id.compare(0,6,"posix/") == 0 ) { id.erase(0,6); }
+		else if ( id.compare(0,6,"right/") == 0 ) { id.erase(0,6); }
 	}
 
-	__int64 t3 = (t1 - 70) * LL_DEF(365) + ((t1 - LL_DEF(1)) >> 2) - LL_DEF(17);
+	while ( ! id.empty() && (id[id.size() - 1] == '\n' || id[id.size() - 1] == '\r' || id[id.size() - 1] == ' ') ) {
+		id.erase(id.size() - 1);
+	}
 
-	t3 += t2;
-	t2 = tm.tm_mday;
-
-	t1 = t3 + t2;
-
-	//t1 = 日
-	t2 = t1 * LL_DEF(24);
-	t3 = tm.tm_hour;
-
-	t1 = t2 + t3;
-
-	//t1 = 時
-	t2 = t1 * LL_DEF(60);
-	t3 = tm.tm_min;
-
-	t1 = t2 + t3;
-
-	//t1 = 分
-	t2 = t1 * LL_DEF(60);
-	t3 = tm.tm_sec;
-
-	t1 = t2 + t3;
-
-	//t1 = 秒(local EPOCH)
-	
-	FILETIME lft = EpochTimeToFileTime(t1);
-	
-	FILETIME ft;
-	::LocalFileTimeToFileTime(&lft,&ft);
-
-	return FileTimeToEpochTime(ft);
-#else
-	time_t gmt_local = mktime(&tm);
-
-	time_t now;
-	time(&now);
-	struct tm* gmt_tm = gmtime(&now);
-	time_t local_gmt = now - mktime(gmt_tm);
-
-	return (yaya::time_t)(gmt_local + local_gmt);
-#endif
+	yaya::string_t result;
+	Ccct::MbcsToUcs2Buf(result,id,CHARSET_UTF8);
+	return result;
 }
+
+#endif
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  EscapeString

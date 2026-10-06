@@ -107,6 +107,16 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 - `TOUPPER` / `TOLOWER` のロケールは `Ccct::MapCase`。Windows は `LCMapStringEx`（`LocaleNameToLCID` が `0x1000` を返す名前は未知とみなし、CRT のロケール名として `setlocale` 経由に回す）、POSIX は `newlocale` + `towupper_l` / `towlower_l`（UTF-8 版を先に探す）。使えない名前は W0012 を出して C モードで変換する。`LCMapStringEx` は未知の `xx-ZZ` でも成功してしまうので、名前の検証は必須
 - OS のロケール名は `Ccct::GetOsLocaleName`（`GETSETTING("coreinfo.locale" / "coreinfo.uilocale")`）。POSIX は環境変数だけを見る
 
+## 時刻とタイムゾーン
+
+- `GETTIME` / `GETSECCOUNT` / ログの時刻は `misc.cpp` の `EpochTimeToTM` / `TMToEpochTime`（`CTimeZone` でローカルか固定オフセットかを指定）を通す。年月日の計算は 64bit の暦計算（`DaysFromCivil` / `CivilFromDays`）で自前で行い、`localtime` / `mktime` / Win32 の時刻変換 API で年月日は求めない（範囲外で NULL や失敗になる、VC6 の `time_t` が 32bit、`mktime` の夏時間の判定が環境ごとに違う、といった差を避けるため）
+- OS から借りるのは `GetLocalOffset`（あるUTC時刻でのローカルタイムのUTCオフセットと夏時間か）だけ。Windows は `SystemTimeToTzSpecificLocalTimeEx`（Windows 7 以降、年ごとの夏時間の規則も反映）→ `SystemTimeToTzSpecificLocalTime` → `GetTimeZoneInformation` の順に `GetProcAddress` で探して使い、夏時間かどうかはその年の1月と7月のオフセットの小さいほうを標準時とみなして決める。POSIX は `tzset` + `localtime_r` の `tm_gmtoff`。`FileTimeToLocalFileTime` / `LocalFileTimeToFileTime` は現在のバイアスしか使わないので、過去・未来の日時に使わない
+- ローカル時刻 → EPOCH は、その時刻でのオフセットを求め、それで引いた時刻のオフセットを使い直す（夏時間の境目対策）。夏時間が戻る日の重複する1時間は、どちらか一方になる（`mktime` と同じく実装依存）
+- `tm_yday` は0始まり（`localtime` と同じ）。タイムゾーン引数は文字列（`UTC` / `+09:00` / `JST` など）か整数（秒、東が正）で、`GETTIME` の2番目、`GETSECCOUNT` の8番目
+- 日付文字列（`GETSECCOUNT(text)`）の読み取りは `sysfunc.cpp` の `Utils_ISO8601ToTM`（先に試す。0=ISO 8601 ではない / 1=成功 / -1=ISO 8601 の形だが値が不正で、-1 のときは HTTP 形式に回さない）→ `Utils_HTTPToTM`。HTTP 形式では `-` は英数字に続くときだけ日付の区切りとして扱う（タイムゾーンの符号を潰さないため）。どちらもタイムゾーンが書かれていなければローカルタイム、読めなければ W0012 と `-1`
+- `GETTIMEZONE` / `GETSETTING("coreinfo.timezone")` は `misc.cpp` の `GetLocalTimeZoneInfo` / `GetLocalTimeZoneId`。IANA 名は、POSIX は `TZ` → `/etc/localtime` のリンク先 → `/etc/timezone`。Windows は `GetDynamicTimeZoneInformation` の `TimeZoneKeyName` を `icu.dll`（Windows 10 1903 以降。`LoadLibraryExW` に `LOAD_LIBRARY_SEARCH_SYSTEM32` を付けて読む）の `ucal_getTimeZoneIDForWindowsID` で変換する。`ucal_getDefaultTimeZone` は最初に決めた値を ICU が覚えてしまい実行中の設定変更に追従しないので使わない
+- UTC や固定オフセットの指定は OS のタイムゾーンによらないので、スモークテストの共通ケースに入れてある。ローカルの夏時間は POSIX 専用の `tz_cases`（`TZ` をテスト側で設定）で確かめる
+
 ## JSON/XML/YAML/TOML/HTML の入出力
 
 - `FREAD*` / `PARSE*` / `FWRITE*` / `DUMP*` は `sysfunc.cpp` の共通処理（`FReadDataFile` / `ParseDataString` / `FWriteDataFile` / `DumpData` など）に形式 `DATAFMT_*`（`jsonxml.h`）を渡して振り分ける。解析側はいったん UTF-8 の `std::string` にしてから各形式の関数に渡す

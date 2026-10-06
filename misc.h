@@ -47,9 +47,39 @@ void	CutCrLf(yaya::string_t &str);
 
 yaya::string_t	GetDateString(void);
 
+// タイムゾーンの指定。ローカルタイム（OSの設定）か、UTCからの固定オフセット
+struct CTimeZone
+{
+	bool is_local;
+	int offset_sec; // is_local が false のときの UTC からのオフセット（秒、東が正）
+
+	CTimeZone() : is_local(true), offset_sec(0) { }
+
+	static CTimeZone Fixed(int sec)
+	{
+		CTimeZone tz;
+		tz.is_local = false;
+		tz.offset_sec = sec;
+		return tz;
+	}
+};
+
 yaya::time_t GetEpochTime();
-struct tm EpochTimeToLocalTime(yaya::time_t tv);
-yaya::time_t LocalTimeToEpochTime(struct tm &tm);
+#if defined(WIN32) || defined(_WIN32_WCE)
+// FILETIME（UTC）をEPOCH秒にする。タイムゾーンは関係しない
+yaya::time_t FileTimeToEpochTime(const FILETIME &ft);
+#endif
+// EPOCH秒を tz の年月日時分秒にする（tm_yday は0始まり）。範囲外なら false
+bool EpochTimeToTM(yaya::time_t tv, const CTimeZone &tz, struct tm &out);
+// tz の年月日時分秒をEPOCH秒にする。月や日などは範囲外でもよい（桁上げ・桁下げする）。範囲外なら false
+bool TMToEpochTime(const struct tm &in, const CTimeZone &tz, yaya::time_t &out);
+
+// ローカルタイムゾーンの、utc の時点でのUTCオフセット（秒、東が正）・夏時間か・名前
+// 名前は Windows ではOSの表示名、POSIX では略称（"JST"）。範囲外なら false
+bool GetLocalTimeZoneInfo(yaya::time_t utc, int &offset, int &isdst, yaya::string_t &name);
+// ローカルタイムゾーンの IANA の名前（"Asia/Tokyo"）。分からなければ空文字列
+// POSIX は TZ か /etc/localtime、Windows は ICU (icu.dll) で Windows の名前から変換する
+yaya::string_t GetLocalTimeZoneId();
 
 extern const yaya::string_t::size_type IsInDQ_notindq;
 extern const yaya::string_t::size_type IsInDQ_runaway;

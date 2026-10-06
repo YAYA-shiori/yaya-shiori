@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
 
 typedef int (*load_fn)(char *h, long len);
@@ -173,6 +174,119 @@ static const struct test_case common_cases[] = {
 	{ "GETSETTING locale",
 	  "_a = GETSETTING(\"coreinfo.locale\") + GETSETTING(\"coreinfo.uilocale\")\nSTRLEN(_a) >= 0",
 	  "1" },
+	{ "GETTIME UTC",
+	  "GETTIME(0,\"UTC\")",
+	  "1970,1,1,4,0,0,0,0,0" },
+	{ "GETTIME fixed offset",
+	  "GETTIME(1704067200,\"-05:00\")",
+	  "2023,12,31,0,19,0,0,364,0" },
+	{ "GETTIME offset seconds",
+	  "GETTIME(0,19800)",
+	  "1970,1,1,4,5,30,0,0,0" },
+	{ "GETTIME yday is 0-based",
+	  "GETTIME(1719792000,\"UTC\")",
+	  "2024,7,1,1,0,0,0,182,0" },
+	{ "GETSECCOUNT UTC",
+	  "GETSECCOUNT(2024,1,1,0,0,0,0,\"UTC\")",
+	  "1704067200" },
+	{ "GETSECCOUNT fixed offset",
+	  "GETSECCOUNT(2024,1,1,0,0,0,0,\"+09:00\")",
+	  "1704034800" },
+	{ "GETSECCOUNT 2100 is not a leap year",
+	  "GETSECCOUNT(2100,3,1,0,0,0,0,\"UTC\")",
+	  "4107542400" },
+	{ "GETSECCOUNT text GMT",
+	  "GETSECCOUNT(\"Sun, 06 Nov 1994 08:49:37 GMT\")",
+	  "784111777" },
+	{ "GETSECCOUNT text offset",
+	  "GETSECCOUNT(\"Sun, 06 Nov 1994 14:19:37 +05:30\")",
+	  "784111777" },
+	{ "GETSECCOUNT text RFC850 minus offset",
+	  "GETSECCOUNT(\"Sunday, 06-Nov-94 03:49:37 -0500\")",
+	  "784111777" },
+	{ "GETSECCOUNT text invalid",
+	  "GETSECCOUNT(\"garbage\")",
+	  "-1" },
+	{ "GETTIME out of range",
+	  "GETTIME(99999999999999999)",
+	  "-1" },
+	{ "GETSECCOUNT ISO 8601 Z",
+	  "GETSECCOUNT(\"2024-01-01T00:00:00Z\")",
+	  "1704067200" },
+	{ "GETSECCOUNT ISO 8601 offset",
+	  "GETSECCOUNT(\"2024-01-01T09:00:00+09:00\")",
+	  "1704067200" },
+	{ "GETSECCOUNT ISO 8601 minus offset",
+	  "GETSECCOUNT(\"2023-12-31T19:00:00-05:00\")",
+	  "1704067200" },
+	{ "GETSECCOUNT ISO 8601 fraction and lowercase",
+	  "GETSECCOUNT(\"2024-01-01t00:00:00.999z\")",
+	  "1704067200" },
+	{ "GETSECCOUNT ISO 8601 basic format",
+	  "GETSECCOUNT(\"20240101T000000Z\")",
+	  "1704067200" },
+	{ "GETSECCOUNT ISO 8601 24:00",
+	  "GETSECCOUNT(\"2024-02-29T24:00:00Z\")",
+	  "1709251200" },
+	{ "GETSECCOUNT ISO 8601 no such day",
+	  "GETSECCOUNT(\"2024-02-30T00:00:00Z\")",
+	  "-1" },
+	{ "GETSECCOUNT ISO 8601 trailing garbage",
+	  "GETSECCOUNT(\"2024-01-01T00:00:00Zjunk\")",
+	  "-1" },
+	{ "GETTIMEZONE size",
+	  "ARRAYSIZE(GETTIMEZONE())",
+	  "4" },
+	{ "GETTIMEZONE out of range",
+	  "GETTIMEZONE(99999999999999999)",
+	  "-1" },
+	{ "GETSETTING timezone",
+	  "STRLEN(GETSETTING(\"coreinfo.timezone\")) >= 0",
+	  "1" },
+};
+
+/*
+ * Cases that depend on the host's time zone. The test sets TZ itself
+ * (US Eastern with explicit rules, so it does not need zoneinfo files).
+ * Windows ignores TZ, so these are POSIX only.
+ */
+static const struct test_case tz_cases[] = {
+	{ "GETTIME local summer",
+	  "GETTIME(1719792000)",
+	  "2024,6,30,0,20,0,0,181,1" },
+	{ "GETTIME local winter",
+	  "GETTIME(1704067200)",
+	  "2023,12,31,0,19,0,0,364,0" },
+	{ "GETSECCOUNT local summer",
+	  "GETSECCOUNT(2024,7,1,0,8,0,0)",
+	  "1719835200" },
+	{ "GETSECCOUNT local winter",
+	  "GETSECCOUNT(2024,1,1,0,0,0,0)",
+	  "1704085200" },
+	{ "GETSECCOUNT local, time zone given",
+	  "GETSECCOUNT(2024,7,1,0,12,0,0,\"local\")",
+	  "1719849600" },
+	{ "GETSECCOUNT ISO 8601 without zone is local",
+	  "GETSECCOUNT(\"2024-07-01T08:00:00\")",
+	  "1719835200" },
+	{ "GETTIMEZONE summer offset",
+	  "GETTIMEZONE(1719792000)[0]",
+	  "-14400" },
+	{ "GETTIMEZONE summer isdst",
+	  "GETTIMEZONE(1719792000)[1]",
+	  "1" },
+	{ "GETTIMEZONE summer name",
+	  "GETTIMEZONE(1719792000)[2]",
+	  "EDT" },
+	{ "GETTIMEZONE winter offset",
+	  "GETTIMEZONE(1704067200)[0]",
+	  "-18000" },
+	{ "GETTIMEZONE winter name",
+	  "GETTIMEZONE(1704067200)[2]",
+	  "EST" },
+	{ "GETSETTING timezone is TZ",
+	  "GETSETTING(\"coreinfo.timezone\")",
+	  "EST5EDT,M3.2.0,M11.1.0" },
 };
 
 /* Cases for POSIX only (files made by setup_dir(), processes, signals) */
@@ -360,6 +474,12 @@ int main(int argc, char **argv)
 	check_cases(common_cases, sizeof(common_cases) / sizeof(common_cases[0]));
 	check_sjis_file(argv[2]);
 	check_cases(posix_cases, sizeof(posix_cases) / sizeof(posix_cases[0]));
+
+	setenv("TZ", "EST5EDT,M3.2.0,M11.1.0", 1);
+	tzset();
+	check_cases(tz_cases, sizeof(tz_cases) / sizeof(tz_cases[0]));
+	unsetenv("TZ");
+	tzset();
 
 	/* The exit code must be returned even if the host ignores SIGCHLD */
 	signal(SIGCHLD, SIG_IGN);
