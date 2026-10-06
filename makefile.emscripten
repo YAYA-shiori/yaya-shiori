@@ -22,7 +22,8 @@ LDFLAGS = -shared -O3 --memory-init-file 0 --pre-js em-pre.js --post-js em-post.
 
 ################## これより下は弄らなくてもコンパイル出来ます ##################
 
-CXXFLAGS_ADD = -DPOSIX -I.
+# _FILE_OFFSET_BITS=64 は 32bit 環境でも 2GB を超えるファイルを扱えるようにするため
+CXXFLAGS_ADD = -DPOSIX -D_FILE_OFFSET_BITS=64 -I.
 
 LIBAYA5_OBJ = \
 	aya5.o \
@@ -122,10 +123,14 @@ gumbo/src/vector.o: gumbo/src/vector.c
 .c.o:
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $<
 
+# ソースは Shift_JIS なので UTF-8 にしてからコンパイルする。変換できない文字があれば止める
+# （以前の -c は黙って捨てていた）。#line でエラーの行が元のファイルを指すようにする。
+# ヘッダは変換しない（非 ASCII はコメントだけにすること）
 .cpp.o:
-	@iconv -f CP932 -t UTF-8 -c $< > $*.tmp.cpp
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $*.tmp.cpp
-	@rm $*.tmp.cpp
+	@printf '#line 1 "%s"\n' $< > $*.tmp.cpp
+	@iconv -f CP932 -t UTF-8 $< >> $*.tmp.cpp || { rm -f $*.tmp.cpp; exit 1; }
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_ADD) -o $@ -c $*.tmp.cpp || { rm -f $*.tmp.cpp; exit 1; }
+	@rm -f $*.tmp.cpp
 
 #-include .depend
 

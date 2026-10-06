@@ -16,4 +16,18 @@ std::string posix_path(const std::wstring& path); // UTF-8 ‚É‚µ‚Ä fix_filepath ‚
 void fix_filepath(std::string& str);
 void fix_filepath(std::wstring& str);
 
+#if defined(POSIX)
+// —”‚Ìíi‚ÆƒvƒƒZƒXID‚ğ¬‚º‚éj
+unsigned int posix_random_seed();
+
+// GETMEMINFO —pBæ‚ê‚È‚©‚Á‚½’l‚Í 0i’PˆÊ‚ÍƒoƒCƒgj
+struct posix_meminfo {
+	unsigned long long total_phys;
+	unsigned long long avail_phys;
+	unsigned long long total_virtual;
+	unsigned long long avail_virtual;
+};
+void posix_get_meminfo(posix_meminfo& mi);
+#endif
+
 #endif

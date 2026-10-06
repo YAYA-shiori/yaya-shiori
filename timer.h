@@ -16,6 +16,7 @@
 
 #if defined(POSIX)
 # include <sys/time.h>
+# include <time.h>
 #endif
 
 //----
@@ -27,14 +28,20 @@ namespace yaya {
 			timer() { start_time_ = get_now_time(); }
 
 			void restart() { start_time_ = get_now_time(); }
-			int  elapsed() { return get_now_time() - start_time_; }
+			// GetTickCount ‚Æ“¯‚¶‚­ˆêü‚µ‚Ä‚à·‚ª³‚µ‚­‚È‚é‚æ‚¤A•„†‚È‚µ‚Åˆø‚­
+			int  elapsed() { return static_cast<int>(static_cast<unsigned int>(get_now_time()) - static_cast<unsigned int>(start_time_)); }
 			static int  get_now_time() {
 #if defined(WIN32) || defined(_WIN32_WCE)
 				return ::GetTickCount();
 #elif defined(POSIX)
+				// ‚Ì’²®‚Å–ß‚ç‚È‚¢‚æ‚¤ CLOCK_MONOTONIC ‚ğg‚¤
+				struct timespec ts;
+				if (clock_gettime(CLOCK_MONOTONIC, &ts) == 0) {
+					return static_cast<int>(static_cast<unsigned int>(ts.tv_sec) * 1000U + static_cast<unsigned int>(ts.tv_nsec / 1000000));
+				}
 				struct timeval tv;
 				gettimeofday(&tv, NULL);
-				return tv.tv_sec * 1000 + tv.tv_usec / 1000;
+				return static_cast<int>(static_cast<unsigned int>(tv.tv_sec) * 1000U + static_cast<unsigned int>(tv.tv_usec / 1000));
 #endif
 			}
 

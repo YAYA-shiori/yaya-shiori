@@ -25,7 +25,7 @@
 //#include "babel/babel.h"
 
 #ifdef POSIX
-#include <sys/time.h>
+#include "posix_utils.h"
 #else
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
@@ -94,9 +94,7 @@ void CAyaVM::load(void)
 	//babel::init_babel();
 
 #ifdef POSIX
-	struct timeval tv;
-	gettimeofday(&tv,NULL);
-	dwSeed = tv.tv_usec;
+	dwSeed = posix_random_seed();
 #else
 	dwSeed = ::GetTickCount();
 #endif

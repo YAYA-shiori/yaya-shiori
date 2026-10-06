@@ -19,7 +19,7 @@ DYLIB_NAME_POSTFIX = .dll
 # 追加するフラグ。
 # ソースは Shift_JIS（CP932）なので、文字列リテラルを VC++ と同じく CP932 のまま扱わせる。
 # MinGW の実行時ライブラリ（libstdc++ などの DLL）を要求しないよう静的にリンクする。
-CXXFLAGS = -O3 -Wall -std=c++11 -fpermissive -finput-charset=CP932 -fexec-charset=CP932
+CXXFLAGS = -O3 -Wall -std=c++11 -finput-charset=CP932 -fexec-charset=CP932
 CFLAGS = -O3 -Wall
 LDFLAGS = -shared -static -s
 

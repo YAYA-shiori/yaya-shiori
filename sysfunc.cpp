@@ -1509,9 +1509,7 @@ CValue	CSystemFunction::SRAND(CSF_FUNCPARAM &p)
 	unsigned int dwSeed;
 
 #ifdef POSIX
-	struct timeval tv;
-	gettimeofday(&tv,NULL);
-	dwSeed = tv.tv_usec;
+	dwSeed = posix_random_seed();
 #else
 	dwSeed = ::GetTickCount();
 #endif
@@ -4639,13 +4637,21 @@ CValue	CSystemFunction::GETMEMINFO(CSF_FUNCPARAM &p)
 }
 #elif defined(POSIX)
 CValue CSystemFunction::GETMEMINFO(CSF_FUNCPARAM &p) {
-	// メモリの状態を取得するポータブルな方法は無いので…
+	// Linux は /proc、macOS は sysctl と Mach の API、それ以外は sysconf で取る（取れない値は 0）
+	posix_meminfo mi;
+	posix_get_meminfo(mi);
+
+	yaya::int_t load = 0;
+	if ( mi.total_phys > 0 ) {
+		load = static_cast<yaya::int_t>((mi.total_phys - mi.avail_phys) * 100 / mi.total_phys);
+	}
+
 	CValue result(F_TAG_ARRAY, 0/*dmy*/);
-	result.array().emplace_back(CValue(0)); // dwMemoryLoad
-	result.array().emplace_back(CValue(0)); // dwTotalPhys
-	result.array().emplace_back(CValue(0)); // dwAvailPhys
-	result.array().emplace_back(CValue(0)); // dwTotalVirtual
-	result.array().emplace_back(CValue(0)); // dwAvailVirtual
+	result.array().emplace_back(CValue(load));
+	result.array().emplace_back(CValue(static_cast<yaya::int_t>(mi.total_phys)));
+	result.array().emplace_back(CValue(static_cast<yaya::int_t>(mi.avail_phys)));
+	result.array().emplace_back(CValue(static_cast<yaya::int_t>(mi.total_virtual)));
+	result.array().emplace_back(CValue(static_cast<yaya::int_t>(mi.avail_virtual)));
 	return result;
 }
 #endif
