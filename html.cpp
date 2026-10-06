@@ -209,6 +209,9 @@ bool HtmlToValue(const std::string &utf8, CValue &out, yaya::string_t &errstr)
 {
 	GumboOptions options = kGumboDefaultOptions;
 	options.max_errors = 0; // 解析エラーの一覧は使わない
+	// 深すぎる入力は二乗時間がかかるので、gumbo側でも打ち切る。開き要素の数と木の深さは
+	// ずれることがあるため余裕を持たせる。打ち切られても木は上限を超えるのでエラーになる
+	options.max_depth = HTML_MAX_DEPTH * 2;
 
 	GumboOutput *output = gumbo_parse_with_options(&options, utf8.c_str(), utf8.size());
 	if ( ! output ) {
