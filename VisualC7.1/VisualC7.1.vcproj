@@ -93,7 +93,6 @@
 				Optimization="2"
 				EnableFiberSafeOptimizations="TRUE"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\..\..\..\boost_1_37_0"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;AYA5_EXPORTS;WINVER=0x400;WIN32_WINDOWS=0x400;WIN32_WINNT=0;WIN32_IE=0x300"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="TRUE"
@@ -114,7 +113,6 @@
 				OutputFile=".\Release/yaya.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\..\..\..\boost_1_37_0\lib"
 				ProgramDatabaseFile=".\Release/yaya.pdb"
 				ImportLibrary=".\Release/yaya.lib"
 				TargetMachine="1"/>

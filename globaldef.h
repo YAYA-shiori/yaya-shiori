@@ -15,10 +15,7 @@
 // compiler compat section
 //=============================================================================================================
 
-#ifndef _MSVC_LANG
-//C++11 or older
-
-#if __cplusplus >= 201103L
+#if defined(_MSVC_LANG) || __cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1600)
 
 #include <memory>
 
@@ -30,23 +27,16 @@
 // 型不一致のエラーが出るのでdefineしない。
 
 #else
+//C++11 or older (VC6など) : std::shared_ptrが無いので自前のものを使う
 
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
+#include "sharedptr.h"
 
-#define std_shared_ptr   boost::shared_ptr
-#define std_make_shared  boost::make_shared
+#define std_shared_ptr   yaya::shared_ptr
+#define std_make_shared  yaya::make_shared
 
 #define nullptr 0
 
 #endif // C++11
-
-#else
-
-#define std_shared_ptr   std::shared_ptr
-#define std_make_shared  std::make_shared
-
-#endif //_MSVC_LANG
 
 
 #define AYX_WIN64_AWARE
@@ -120,6 +110,21 @@ namespace std {
 
 #define ULL_DEF(p) p ## Ui64
 #define LL_DEF(p) p ## i64
+
+// VC6の標準ライブラリには std::min / std::max が無い
+// (min)のように括弧で囲むのは、windows.hのmin/maxマクロに展開させないため
+#ifdef __cplusplus
+#include <algorithm>
+
+namespace std {
+	template<class T> inline const T& (min)(const T &a,const T &b) {
+		return (b < a) ? b : a;
+	}
+	template<class T> inline const T& (max)(const T &a,const T &b) {
+		return (a < b) ? b : a;
+	}
+};
+#endif
 
 #else
 

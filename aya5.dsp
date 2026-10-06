@@ -57,7 +57,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /base:"0x13700000" /dll /map /machine:I386 /out:"Release/yaya.dll" /libpath:"D:\boost\libs\regex\build\vc6-stlport"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /base:"0x13700000" /dll /map /machine:I386 /out:"Release/yaya.dll"
 
 !ELSEIF  "$(CFG)" == "aya5 - Win32 Debug"
 
@@ -115,8 +115,8 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /map /machine:I386 /out:"Release_EXE/yaya.exe" /libpath:"D:\boost\libs\regex\build\vc6-stlport"
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /map /machine:I386 /out:"Release_EXE/yaya.exe" /libpath:"D:\boost\libs\regex\build\vc6-stlport"
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /map /machine:I386 /out:"Release_EXE/yaya.exe"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /map /machine:I386 /out:"Release_EXE/yaya.exe"
 
 !ELSEIF  "$(CFG)" == "aya5 - Win32 Debug EXE"
 
@@ -175,8 +175,8 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /base:"0x13700000" /dll /map /machine:I386 /out:"Release/yaya.dll" /libpath:"D:\boost\libs\regex\build\vc6-stlport"
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /base:"0x13700000" /dll /map /machine:I386 /out:"ReleaseLangSep/yaya.dll" /libpath:"D:\boost\libs\regex\build\vc6-stlport"
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /base:"0x13700000" /dll /map /machine:I386 /out:"Release/yaya.dll"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /base:"0x13700000" /dll /map /machine:I386 /out:"ReleaseLangSep/yaya.dll"
 
 !ENDIF 
 
@@ -544,6 +544,10 @@ SOURCE=.\selecter.h
 # Begin Source File
 
 SOURCE=.\sha1.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\sharedptr.h
 # End Source File
 # Begin Source File
 
