@@ -15,38 +15,28 @@
 // compiler compat section
 //=============================================================================================================
 
-#ifndef _MSVC_LANG
-//C++11 or older
-
-#if __cplusplus >= 201103L
+#if defined(_MSVC_LANG) || __cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1600)
 
 #include <memory>
 
 #define std_shared_ptr  std::shared_ptr
 #define std_make_shared std::make_shared
 
-// freebsdã§define nullptr 0ã‚’è¡Œã†ã¨
-// aya5.cpp:L507ã®loghandler_list.emplace_back(nullptr)ã§
-// åž‹ä¸ä¸€è‡´ã®ã‚¨ãƒ©ãƒ¼ãŒå‡ºã‚‹ã®ã§defineã—ãªã„ã€‚
+// freebsd‚Ådefine nullptr 0‚ðs‚¤‚Æ
+// aya5.cpp:L507‚Ìloghandler_list.emplace_back(nullptr)‚Å
+// Œ^•sˆê’v‚ÌƒGƒ‰[‚ªo‚é‚Ì‚Ådefine‚µ‚È‚¢B
 
 #else
+//C++11 or older (VC6‚È‚Ç) : std::shared_ptr‚ª–³‚¢‚Ì‚ÅŽ©‘O‚Ì‚à‚Ì‚ðŽg‚¤
 
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
+#include "sharedptr.h"
 
-#define std_shared_ptr   boost::shared_ptr
-#define std_make_shared  boost::make_shared
+#define std_shared_ptr   yaya::shared_ptr
+#define std_make_shared  yaya::make_shared
 
 #define nullptr 0
 
 #endif // C++11
-
-#else
-
-#define std_shared_ptr   std::shared_ptr
-#define std_make_shared  std::make_shared
-
-#endif //_MSVC_LANG
 
 
 #define AYX_WIN64_AWARE
@@ -120,6 +110,24 @@ namespace std {
 
 #define ULL_DEF(p) p ## Ui64
 #define LL_DEF(p) p ## i64
+
+// VC6‚Ì•W€ƒ‰ƒCƒuƒ‰ƒŠ‚É‚Í std::min / std::max / std::ptrdiff_t ‚ª–³‚¢
+// (‚±‚ê‚Ü‚Å‚Í boost ‚Ì config ‚ª•â‚Á‚Ä‚¢‚½)
+// (min)‚Ì‚æ‚¤‚ÉŠ‡ŒÊ‚ÅˆÍ‚Þ‚Ì‚ÍAwindows.h‚Ìmin/maxƒ}ƒNƒ‚É“WŠJ‚³‚¹‚È‚¢‚½‚ß
+#ifdef __cplusplus
+#include <algorithm>
+#include <cstddef>
+
+namespace std {
+	using ::ptrdiff_t;
+	template<class T> inline const T& (min)(const T &a,const T &b) {
+		return (b < a) ? b : a;
+	}
+	template<class T> inline const T& (max)(const T &a,const T &b) {
+		return (a < b) ? b : a;
+	}
+};
+#endif
 
 #else
 

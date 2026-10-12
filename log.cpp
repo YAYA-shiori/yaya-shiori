@@ -5,6 +5,11 @@
 // written by umeici. 2004
 // 
 
+// VC6: æ‚É“Ç‚Ş<algorithm>‚È‚Ç‚ÌSTL‚Ì¯•Êq‚É‚àC4786‚Ì—}§‚ªŒø‚­‚æ‚¤AÅ‰‚É’u‚­
+#if defined(_MSC_VER)
+# pragma warning (disable: 4786)
+#endif
+
 #include <algorithm>
 
 #if defined(WIN32) || defined(_WIN32_WCE)

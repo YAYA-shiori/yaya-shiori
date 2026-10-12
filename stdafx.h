@@ -15,12 +15,6 @@
 # pragma warning (disable: 4786)
 #endif
 
-// Boost‚ªCEŒn‚Å’Ê‚ç‚È‚¢‚±‚Æ‚Ì‘Îô
-#if defined(_WIN32_WCE)
-# define BOOST_USE_WINDOWS_H
-# define BOOST_NO_STD_LOCALE
-#endif
-
 // VC8 Secure C ŠÖ”‘Îô
 #if (_MSC_VER >= 1400)
 # pragma warning(disable : 4996)
