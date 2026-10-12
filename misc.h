@@ -87,7 +87,7 @@ inline bool IsSpace(const yaya::char_t &c) {
 // 関数呼び出しの限界を検査するためのクラス
 
 #define	CCALLLIMIT_CALLDEPTH_MAX	32		//呼び出し限界デフォルト
-#define	CCALLLIMIT_LOOP_MAX			10000	//ループ処理限界デフォルト
+#define	CCALLLIMIT_LOOP_MAX			1000000	//ループ処理限界デフォルト
 class	CCallLimit
 {
 protected:
