@@ -359,13 +359,13 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 				bool loop_limited = false; //上限に達して打ち切ったときだけ真（自然終了やbreakでは偽）
 
 				while ( true ) {
+					if (!GetFormulaAnswer(lvar, st).GetTruth())
+						break;
 					if ( loop_max != 0 && loop_max <= loop_cur ) {
 						loop_limited = true;
 						break;
 					}
 					++loop_cur;
-					if (!GetFormulaAnswer(lvar, st).GetTruth())
-						break;
 					CValue t_value = ExecuteInBrace(i + 2, lvar, BRACE_LOOP, exitcode, &output, UpperLvCandidatePool, inpool_to_next, pReturnExpr);
 					output.Append(t_value);
 
@@ -410,13 +410,13 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 				bool loop_limited = false; //上限に達して打ち切ったときだけ真（自然終了やbreakでは偽）
 
 				while ( true ) {
+					if (!GetFormulaAnswer(lvar, statement[i + 1]).GetTruth()) //for第二パラメータ
+						break;
 					if ( loop_max != 0 && loop_max <= loop_cur ) {
 						loop_limited = true;
 						break;
 					}
 					++loop_cur;
-					if (!GetFormulaAnswer(lvar, statement[i + 1]).GetTruth()) //for第二パラメータ
-						break;
 					CValue t_value = ExecuteInBrace(i + 4, lvar, BRACE_LOOP, exitcode, &output, UpperLvCandidatePool, inpool_to_next, pReturnExpr);
 					output.Append(t_value);
 
