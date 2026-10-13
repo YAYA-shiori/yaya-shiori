@@ -1119,9 +1119,13 @@ static void AppendSaveDouble(yaya::string_t &str, double d)
 		sprintf(buf, "%.17g", d);
 	}
 
+	// ロケールの小数点（ドイツ語などでは","）を"."に直す
+	std::string numtxt(buf);
+	yaya::ws_decimal_point_to_dot(numtxt);
+
 	// 符号、仮数の数字の並び、小数点の位置、指数に分ける
 	std::string out;
-	const char *p = buf;
+	const char *p = numtxt.c_str();
 	if (*p == '-') {
 		out += '-';
 		++p;
@@ -1213,9 +1217,6 @@ static bool ParseSaveSpecialDouble(const yaya::string_t &str, double &d)
 void	CBasis::SaveVariable(const yaya::char_t* pName)
 {
 	// 変数の保存
-	std::string old_locale = yaya::get_safe_str(setlocale(LC_NUMERIC,NULL));
-	setlocale(LC_NUMERIC,"English"); //小数点問題回避
-
 	bool ayc = encode_savefile;
 
 	// ファイルを開く
@@ -1259,7 +1260,6 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 	FILE	*fp = yaya::w_fopen(filename.c_str(), L"w");
 	if (fp == NULL) {
 		vm.logger().Error(E_E, 57, filename);
-		setlocale(LC_NUMERIC,old_locale.c_str());
 		return;
 	}
 /*
@@ -1387,9 +1387,6 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 	// ファイルを閉じる
 	fclose(fp);
 
-	// 小数点問題修正を戻す
-	setlocale(LC_NUMERIC,old_locale.c_str());
-
 	vm.logger().Message(8);
 }
 /* -----------------------------------------------------------------------
@@ -1399,9 +1396,6 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
  */
 void	CBasis::RestoreVariable(const yaya::char_t* pName)
 {
-	std::string old_locale = yaya::get_safe_str(setlocale(LC_NUMERIC,NULL));
-	setlocale(LC_NUMERIC,"English"); //小数点問題回避
-
 	bool ayc = encode_savefile;
 
 	// ファイルを開く
@@ -1427,7 +1421,6 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 			fp = yaya::w_fopen(filename.c_str(), L"r");
 			if (!fp) {
 				vm.logger().Error(E_N, 0);
-				setlocale(LC_NUMERIC,old_locale.c_str());
 				return;
 			}
 			else {
@@ -1442,7 +1435,6 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 			fp = yaya::w_fopen(filename.c_str(), L"r");
 			if (!fp) {
 				vm.logger().Error(E_N, 0);
-				setlocale(LC_NUMERIC,old_locale.c_str());
 				return;
 			}
 			else {
@@ -1594,8 +1586,6 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 
 	// ファイルを閉じる
 	fclose(fp);
-
-	setlocale(LC_NUMERIC,old_locale.c_str());
 
 	vm.logger().Message(8);
 }

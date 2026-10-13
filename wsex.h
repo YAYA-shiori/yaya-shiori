@@ -13,6 +13,7 @@
 #endif
 
 #include <cstdio>
+#include <string>
 
 #include "globaldef.h"
 
@@ -28,6 +29,10 @@ namespace yaya {
 	yaya::string_t	ws_lltoa(yaya::int_t num, int base = 10);
 	yaya::string_t	ws_itoa(int num, int base = 10);
 	yaya::string_t	ws_ftoa(double num);
+
+	// printf系で実数を書式化した文字列の、ロケールの小数点（最初の1個）を"."に直す
+	void	ws_decimal_point_to_dot(yaya::string_t &str);
+	void	ws_decimal_point_to_dot(std::string &str);
 
 	void	ws_eraseend(yaya::string_t &str, wchar_t c);
 	void	ws_replace(yaya::string_t& str, const wchar_t* before, const wchar_t* after, yaya::int_t count = 0);

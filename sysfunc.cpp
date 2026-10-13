@@ -5697,6 +5697,13 @@ CValue	CSystemFunction::STRFORM(CSF_FUNCPARAM &p)
 				break;
 			case F_TAG_DOUBLE:
 				yaya::snprintf(t_str,t_str_size,t_format.c_str(),p.arg.array()[i].GetValueDouble());
+				{
+					// ロケールによらず小数点は"."にする（長さは変わらないか短くなる）
+					yaya::string_t t_num(t_str);
+					yaya::ws_decimal_point_to_dot(t_num);
+					wcsncpy(t_str, t_num.c_str(), t_str_size - 1);
+					t_str[t_str_size - 1] = 0;
+				}
 				break;
 			case F_TAG_STRING:
 				yaya::snprintf(t_str,t_str_size,t_format.c_str(),p.arg.array()[i].GetValueString().c_str());
