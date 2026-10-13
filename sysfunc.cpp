@@ -4755,10 +4755,11 @@ CValue	CSystemFunction::RE_GREP(CSF_FUNCPARAM &p)
 
 	// 実行
 	int	match_count = 0;
+	CContext *pCtx = 0;
 
 	try {
 		CRegexpT<yaya::char_t> regex(arg1.c_str(),re_option);
-		CContext *pCtx = regex.PrepareMatch(arg0.c_str());
+		pCtx = regex.PrepareMatch(arg0.c_str());
 
 		for( ; ; ) {
 			MatchResult result = regex.Match(pCtx);
@@ -4773,7 +4774,6 @@ CValue	CSystemFunction::RE_GREP(CSF_FUNCPARAM &p)
 				result.GetEnd()-result.GetStart());
 		}
 
-		regex.ReleaseContext(pCtx);
 	}
 	catch(const std::runtime_error &) {
 		match_count = 0;
@@ -4785,6 +4785,9 @@ CValue	CSystemFunction::RE_GREP(CSF_FUNCPARAM &p)
 		vm.logger().Error(E_W, 17, L"RE_GREP", p.dicname, p.line);
 		SetError(17);
 	}
+
+	//例外で途中から抜けた場合も含め、ここで解放する
+	delete pCtx;
 
 	return CValue(match_count);
 }
@@ -5082,11 +5085,11 @@ CValue	CSystemFunction::RE_REPLACEEX(CSF_FUNCPARAM &p)
 		regex.ReleaseString(result);
 	}
 	catch(const std::runtime_error &) {
-		vm.logger().Error(E_W, 16, L"RE_GREP", p.dicname, p.line);
+		vm.logger().Error(E_W, 16, L"RE_REPLACEEX", p.dicname, p.line);
 		SetError(16);
 	}
 	catch(...) {
-		vm.logger().Error(E_W, 17, L"RE_GREP", p.dicname, p.line);
+		vm.logger().Error(E_W, 17, L"RE_REPLACEEX", p.dicname, p.line);
 		SetError(17);
 	}
 	return CValue(str_result);
@@ -5133,10 +5136,11 @@ CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, const yaya::string_t &d
 	int	t_pos = 0;
 	size_t count = 1;
 	CValue	splits(F_TAG_ARRAY, 0/*dmy*/);
+	CContext *pCtx = 0;
 
 	try {
 		CRegexpT<yaya::char_t> regex(arg1.c_str(),re_option);
-		CContext *pCtx = regex.PrepareMatch(arg0.c_str());
+		pCtx = regex.PrepareMatch(arg0.c_str());
 
 		for( ; ; ) {
 			MatchResult result = regex.Match(pCtx);
@@ -5159,8 +5163,6 @@ CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, const yaya::string_t &d
 			}
 		}
 
-		regex.ReleaseContext(pCtx);
-
 		int len = arg0.size() - t_pos;
 		if ( len > 0 ) {
 			splits.array().emplace_back(arg0.substr(t_pos, len));
@@ -5179,6 +5181,9 @@ CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, const yaya::string_t &d
 		vm.logger().Error(E_W, 17, fncname, d, l);
 		SetError(17);
 	}
+
+	//例外で途中から抜けた場合も含め、ここで解放する
+	delete pCtx;
 
 	return splits;
 }
