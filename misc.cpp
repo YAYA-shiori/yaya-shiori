@@ -432,7 +432,12 @@ yaya::string_t GetDateString()
     char buf[128];
     time_t t = time(NULL);
     struct tm* tm = localtime(&t);
-    strftime(buf, 127, "%Y/%m/%d %H:%M:%S", tm);
+    if ( tm ) {
+        strftime(buf, 127, "%Y/%m/%d %H:%M:%S", tm);
+    }
+    else {
+        buf[0] = 0;
+    }
 
 #if !defined(POSIX) && !defined(__MINGW32__)
 	yaya::char_t wbuf[64];
@@ -995,6 +1000,46 @@ yaya::time_t GetEpochTime()
 #endif
 }
 
+/* -----------------------------------------------------------------------
+ *  関数名  ：  UTCTimeToEpochTime
+ *  機能概要：  UTCとして書かれたstruct tmをEPOCH秒にします
+ *              年月日は64bitの暦計算で求めるので、範囲外の値や2100年などの閏年の扱いをOSに頼りません
+ *              tm_monが0-11の外や、tm_mday等が範囲外でも繰り上げ・繰り下げて計算します
+ * -----------------------------------------------------------------------
+ */
+static yaya::time_t FloorDiv(yaya::time_t a, yaya::time_t b)
+{
+	yaya::time_t q = a / b;
+	if ( (a % b != 0) && ((a < 0) != (b < 0)) ) {
+		--q;
+	}
+	return q;
+}
+
+// 1970-01-01 からの通算日数（グレゴリオ暦、month は 1-12）
+static yaya::time_t DaysFromCivil(yaya::time_t y, int m, int d)
+{
+	if ( m <= 2 ) { y -= 1; }
+	yaya::time_t era = FloorDiv(y, 400);
+	yaya::time_t yoe = y - era * 400;
+	yaya::time_t doy = (153 * (m + (m > 2 ? -3 : 9)) + 2) / 5 + d - 1;
+	yaya::time_t doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+	return era * 146097 + doe - 719468;
+}
+
+yaya::time_t UTCTimeToEpochTime(const struct tm &tm)
+{
+	yaya::time_t mon = tm.tm_mon;
+	yaya::time_t carry = FloorDiv(mon, 12);
+	yaya::time_t y = static_cast<yaya::time_t>(tm.tm_year) + 1900 + carry;
+	mon -= carry * 12;
+
+	return (DaysFromCivil(y, static_cast<int>(mon) + 1, 1) + tm.tm_mday - 1) * 86400
+		+ static_cast<yaya::time_t>(tm.tm_hour) * 3600
+		+ static_cast<yaya::time_t>(tm.tm_min) * 60
+		+ static_cast<yaya::time_t>(tm.tm_sec);
+}
+
 struct tm EpochTimeToLocalTime(yaya::time_t tv)
 {
 #if defined(WIN32) || defined(_WIN32_WCE)
@@ -1022,74 +1067,24 @@ struct tm EpochTimeToLocalTime(yaya::time_t tv)
 
 	return tmtime;
 #else
-	time_t tc = tv;
-	return *localtime(&tc);
+	time_t tc = static_cast<time_t>(tv);
+	struct tm tmtime;
+	if ( localtime_r(&tc, &tmtime) == NULL ) {
+		// 表せない時刻ならEPOCHにする（NULLをそのまま参照して落ちないように）
+		memset(&tmtime, 0, sizeof(tmtime));
+		tmtime.tm_mday = 1;
+		tmtime.tm_year = 70;
+	}
+	return tmtime;
 #endif
 }
 
 yaya::time_t LocalTimeToEpochTime(struct tm &tm)
 {
 #if defined(WIN32) || defined(_WIN32_WCE)
-	__int64 t1 = tm.tm_year;
+	//ローカルタイムのまま秒にする（2100年などの閏年も正しく数える）
+	yaya::time_t t1 = UTCTimeToEpochTime(tm);
 
-	if ( tm.tm_mon < 0 || tm.tm_mon > 11 ) { //1-12より外
-		t1 += (tm.tm_mon / 12);
-
-		tm.tm_mon %= 12;
-		if ( tm.tm_mon < 0 ) {
-			tm.tm_mon += 12;
-			t1 -= 1;
-		}
-	}
-
-	//t1 = 年
-	static __int64 count_days[] = {
-		0,
-		31,
-		31+28,
-		31+28+31,
-		31+28+31+30,
-		31+28+31+30+31,
-		31+28+31+30+31+30,
-		31+28+31+30+31+30+31,
-		31+28+31+30+31+30+31+31,
-		31+28+31+30+31+30+31+31+30,
-		31+28+31+30+31+30+31+31+30+31,
-		31+28+31+30+31+30+31+31+30+31+30};
-
-	__int64 t2 = count_days[tm.tm_mon] - 1;
-
-	if ( !(t1 & 3) && (tm.tm_mon > 1) ) {
-		t2 += 1;
-	}
-
-	__int64 t3 = (t1 - 70) * 365i64 + ((t1 - 1i64) >> 2) - 17i64;
-
-	t3 += t2;
-	t2 = tm.tm_mday;
-
-	t1 = t3 + t2;
-
-	//t1 = 日
-	t2 = t1 * 24i64;
-	t3 = tm.tm_hour;
-
-	t1 = t2 + t3;
-
-	//t1 = 時
-	t2 = t1 * 60i64;
-	t3 = tm.tm_min;
-
-	t1 = t2 + t3;
-
-	//t1 = 分
-	t2 = t1 * 60i64;
-	t3 = tm.tm_sec;
-
-	t1 = t2 + t3;
-
-	//t1 = 秒(local EPOCH)
-	
 	FILETIME lft = EpochTimeToFileTime(t1);
 	
 	FILETIME ft;
@@ -1097,14 +1092,9 @@ yaya::time_t LocalTimeToEpochTime(struct tm &tm)
 
 	return FileTimeToEpochTime(ft);
 #else
-	time_t gmt_local = mktime(&tm);
-
-	time_t now;
-	time(&now);
-	struct tm* gmt_tm = gmtime(&now);
-	time_t local_gmt = now - mktime(gmt_tm);
-
-	return (yaya::time_t)(gmt_local + local_gmt);
+	//mktimeはローカルタイムからEPOCH秒を求めるので、オフセットを足し直す必要はない
+	tm.tm_isdst = -1;
+	return (yaya::time_t)mktime(&tm);
 #endif
 }
 

@@ -4219,106 +4219,170 @@ CValue	CSystemFunction::GETTIME(CSF_FUNCPARAM &p)
 /*-----------------------------------------------------
 	HTTP Date Conversion
 ------------------------------------------------------*/
-#define HTTP_DATE_TOKEN " \t,:-;"
+// '-' は日付の区切り（06-Nov-94）にだけ使う。タイムゾーンの符号（-0500）は後で潰す
+#define HTTP_DATE_TOKEN " \t,:;"
 
 static const char * const g_pWDayArray[] = {"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
 static const char * const g_pMonthArray[] = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
 
-static unsigned int Utils_HTTPToSystemTime_MonthConv(char *pMon)
+// 月の英語名から 1-12 にする。該当なしは 0
+static unsigned int Utils_HTTPToSystemTime_MonthConv(const char *pMon)
 {
 	static const unsigned int n = sizeof(g_pMonthArray) / sizeof(g_pMonthArray[0]);
 	unsigned int i = 0;
 	for ( i = 0 ; i < n ; ++i ) {
 		if ( strnicmp(pMon,g_pMonthArray[i],3) == 0 ) {
-			break;
+			return i + 1;
 		}
 	}
-	return i + 1;
+	return 0;
 }
 
-static int Utils_TimeZoneConvert(char *pTZ)
+static bool Utils_IsSpaceTab(char c)
 {
-	if ( ! pTZ || ! *pTZ ) { return 0; }
+	return c == ' ' || c == '\t';
+}
 
-	int tzdiff = atoi(pTZ);
-	if ( ! tzdiff ) {
-		if ( stricmp(pTZ,"ut") == 0 ) {
-			return 0;
+// タイムゾーンを表す文字列を、UTC からの分（東が正）にする。解釈できなければ false
+//   +09:00 / +0900 / +09 / -5 / UTC / GMT / Z / JST / EST ... など
+static bool Utils_TimeZoneConvert(const char *pTZ, int &minutes)
+{
+	minutes = 0;
+
+	if ( ! pTZ ) { return false; }
+	while ( Utils_IsSpaceTab(*pTZ) ) { ++pTZ; }
+	if ( ! *pTZ ) { return false; }
+
+	// 数値形式: [+-]H / [+-]HH / [+-]HHMM / [+-]HH:MM
+	if ( *pTZ == '+' || *pTZ == '-' || isdigit(static_cast<unsigned char>(*pTZ)) ) {
+		int sign = 1;
+		if ( *pTZ == '+' ) {
+			++pTZ;
 		}
-		if ( stricmp(pTZ,"gmt") == 0 ) {
-			return 0;
-		}
-		if ( stricmp(pTZ,"est") == 0 ) {
-			return -5*60;
-		}
-		if ( stricmp(pTZ,"edt") == 0 ) {
-			return -4*60;
-		}
-		if ( stricmp(pTZ,"cst") == 0 ) {
-			return -6*60;
-		}
-		if ( stricmp(pTZ,"cdt") == 0 ) {
-			return -5*60;
-		}
-		if ( stricmp(pTZ,"mst") == 0 ) {
-			return -7*60;
-		}
-		if ( stricmp(pTZ,"mdt") == 0 ) {
-			return -6*60;
-		}
-		if ( stricmp(pTZ,"pst") == 0 ) {
-			return -8*60;
-		}
-		if ( stricmp(pTZ,"pdt") == 0 ) {
-			return -7*60;
+		else if ( *pTZ == '-' ) {
+			sign = -1;
+			++pTZ;
 		}
 
-		if ( pTZ[1] == 0 ) { //1文字アルファベット？
-			int c = pTZ[0];
-			if ( c >= 'A' && c <= 'Z' ) {
-				c = c - 'A' + 'a';
+		int num = 0;
+		int digits = 0;
+		while ( isdigit(static_cast<unsigned char>(*pTZ)) && digits < 5 ) {
+			num = num * 10 + (*pTZ - '0');
+			++digits;
+			++pTZ;
+		}
+
+		int hh = 0;
+		int mm = 0;
+		if ( digits == 1 || digits == 2 ) {
+			hh = num;
+			if ( *pTZ == ':' ) {
+				++pTZ;
+				int mdigits = 0;
+				while ( isdigit(static_cast<unsigned char>(*pTZ)) && mdigits < 3 ) {
+					mm = mm * 10 + (*pTZ - '0');
+					++mdigits;
+					++pTZ;
+				}
+				if ( mdigits != 2 ) { return false; }
 			}
-			if ( c >= 'a' && c <= 'm' ) {
-				return static_cast<int>(c - 'n' + 1)*-60;
-			}
-			if ( c >= 'n' && c <= 'y' ) {
-				return static_cast<int>(c - 'n' + 1)*60;
-			}
-			if ( c == 'z' ) {
-				return 0;
-			}
+		}
+		else if ( digits == 3 || digits == 4 ) {
+			hh = num / 100;
+			mm = num % 100;
+		}
+		else {
+			return false;
+		}
+
+		while ( Utils_IsSpaceTab(*pTZ) ) { ++pTZ; }
+		if ( *pTZ ) { return false; }
+		if ( hh > 23 || mm > 59 ) { return false; }
+
+		minutes = sign * (hh * 60 + mm);
+		return true;
+	}
+
+	// 名前
+	static const struct { const char *name; int minutes; } names[] = {
+		{"ut",0}, {"utc",0}, {"gmt",0}, {"z",0},
+		{"jst",9*60},
+		{"est",-5*60}, {"edt",-4*60},
+		{"cst",-6*60}, {"cdt",-5*60},
+		{"mst",-7*60}, {"mdt",-6*60},
+		{"pst",-8*60}, {"pdt",-7*60},
+	};
+	for ( size_t i = 0 ; i < sizeof(names) / sizeof(names[0]) ; ++i ) {
+		if ( stricmp(pTZ,names[i].name) == 0 ) {
+			minutes = names[i].minutes;
+			return true;
 		}
 	}
 
-	if ( labs(tzdiff) <= 24 ) { //2けた+時間
-		return tzdiff * 60;
+	if ( pTZ[1] == 0 ) { //1文字アルファベット？
+		int c = pTZ[0];
+		if ( c >= 'A' && c <= 'Z' ) {
+			c = c - 'A' + 'a';
+		}
+		if ( c >= 'a' && c <= 'm' ) {
+			minutes = static_cast<int>(c - 'n' + 1)*-60;
+			return true;
+		}
+		if ( c >= 'n' && c <= 'y' ) {
+			minutes = static_cast<int>(c - 'n' + 1)*60;
+			return true;
+		}
 	}
 
-	int h = tzdiff / 100;
-	return (h * 60) + (tzdiff - (h*100));
+	return false;
+}
+
+// 年のテキストを tm_year にする。2桁は 70-99 を 19xx、00-69 を 20xx とみなす
+static int Utils_HTTPToTM_Year(const char *pYear)
+{
+	int year = static_cast<int>(strtoul(pYear,NULL,10));
+	if ( year < 100 ) {
+		year += (year < 70) ? 2000 : 1900;
+	}
+	return year - 1900;
 }
 
 // Sun, 06 Nov 1994 08:49:37 GMT  ; RFC 822, updated by RFC 1123
 // Sunday, 06-Nov-94 08:49:37 GMT ; RFC 850, obsoleted by RFC 1036
 // Sun Nov  6 08:49:37 1994       ; ANSI C's asctime() format
+//
+// outTime には書かれたままの日時を入れ、タイムゾーンが書かれていれば hasTZ を true にして
+// tzMinutes（UTC からの分）に入れる。
 
-static bool Utils_HTTPToTM(const char *pText,struct tm &outTime)
+static bool Utils_HTTPToTM(const char *pText,struct tm &outTime,bool &hasTZ,int &tzMinutes)
 {
+	hasTZ = false;
+	tzMinutes = 0;
+
 	if ( ! pText ) { return false; }
 
 	memset(&outTime,0,sizeof(outTime));
 
 	unsigned int len = strlen(pText) + 1;
 	char *pData = (char*)malloc(len);
+	if( ! pData ) { return false; }
 	memcpy(pData,pText,len);
+
+	// 英数字に続く '-' は日付の区切りなので空白にする
+	for ( unsigned int i = 1 ; i < len ; ++i ) {
+		if ( pData[i] == '-' && isalnum(static_cast<unsigned char>(pData[i-1])) ) {
+			pData[i] = ' ';
+		}
+	}
 
 	char *pTok = strtok(pData,HTTP_DATE_TOKEN);
 	unsigned int num = 0;
 
-	char *pTokArray[8];
+	// [7] はタイムゾーン、[8] は +09:00 の分の部分
+	char *pTokArray[9];
 	memset(&pTokArray,0,sizeof(pTokArray));
 
-	while ( pTok && (num <= 7) ) {
+	while ( pTok && (num <= 8) ) {
 		pTokArray[num] = pTok;
 		++num;
 		pTok = strtok(NULL,HTTP_DATE_TOKEN);
@@ -4326,7 +4390,7 @@ static bool Utils_HTTPToTM(const char *pText,struct tm &outTime)
 
 	if ( num < 6 ) {
 		free(pData);
-		return FALSE;
+		return false;
 	}
 
 	unsigned int n,i = 0;
@@ -4340,7 +4404,7 @@ static bool Utils_HTTPToTM(const char *pText,struct tm &outTime)
 	}
 
 	if ( ! isDayOfWeekFound ) { //曜日省略形
-		for ( int j = 7 ; j > 0 ; --j ) {
+		for ( int j = 8 ; j > 0 ; --j ) {
 			pTokArray[j] = pTokArray[j-1];
 		}
 		pTokArray[0] = "";
@@ -4358,44 +4422,47 @@ static bool Utils_HTTPToTM(const char *pText,struct tm &outTime)
 		}
 	}
 
+	unsigned int mon = 0;
+
 	if ( isdigit(static_cast<unsigned char>(pTokArray[1][0])) ) { //RFC Format
+		mon = Utils_HTTPToSystemTime_MonthConv(pTokArray[2]);
+
 		outTime.tm_mday = static_cast<unsigned short>(strtoul(pTokArray[1],NULL,10));
-		outTime.tm_mon = Utils_HTTPToSystemTime_MonthConv(pTokArray[2]) - 1;
-		outTime.tm_year = static_cast<unsigned short>(strtoul(pTokArray[3],NULL,10)) - 1900;
+		outTime.tm_mon = static_cast<int>(mon) - 1;
+		outTime.tm_year = Utils_HTTPToTM_Year(pTokArray[3]);
 		outTime.tm_hour = static_cast<unsigned short>(strtoul(pTokArray[4],NULL,10));
 		outTime.tm_min = static_cast<unsigned short>(strtoul(pTokArray[5],NULL,10));
 		outTime.tm_sec = static_cast<unsigned short>(strtoul(pTokArray[6],NULL,10));
 
-		if ( outTime.tm_year < 100 ) { //2桁だった
-			if ( outTime.tm_year < 70 ) {
-				outTime.tm_year += 100;
-			}
-		}
+		if ( pTokArray[7] ) { //タイムゾーン
+			std::string tzText = pTokArray[7];
 
-		if ( pTokArray[7] ) { //補正
-			int diff = Utils_TimeZoneConvert(pTokArray[7]);
-			if ( diff ) {
-				outTime.tm_min -= diff;
+			// +09:00 は ':' で分かれているので戻す
+			if ( pTokArray[8] && (tzText[0] == '+' || tzText[0] == '-') && isdigit(static_cast<unsigned char>(pTokArray[8][0])) ) {
+				tzText += ":";
+				tzText += pTokArray[8];
+			}
+
+			int minutes = 0;
+			if ( Utils_TimeZoneConvert(tzText.c_str(),minutes) ) {
+				hasTZ = true;
+				tzMinutes = minutes;
 			}
 		}
 	}
 	else { //C asctime
-		outTime.tm_mon = Utils_HTTPToSystemTime_MonthConv(pTokArray[1]) - 1;
+		mon = Utils_HTTPToSystemTime_MonthConv(pTokArray[1]);
+
+		outTime.tm_mon = static_cast<int>(mon) - 1;
 		outTime.tm_mday = static_cast<unsigned short>(strtoul(pTokArray[2],NULL,10));
 		outTime.tm_hour = static_cast<unsigned short>(strtoul(pTokArray[3],NULL,10));
 		outTime.tm_min = static_cast<unsigned short>(strtoul(pTokArray[4],NULL,10));
 		outTime.tm_sec = static_cast<unsigned short>(strtoul(pTokArray[5],NULL,10));
-		outTime.tm_year = static_cast<unsigned short>(strtoul(pTokArray[6],NULL,10)) - 1900;
-
-		if ( outTime.tm_year < 100 ) { //2桁だった
-			if ( outTime.tm_year < 70 ) {
-				outTime.tm_year += 100;
-			}
-		}
+		outTime.tm_year = Utils_HTTPToTM_Year(pTokArray[6]);
 	}
 
 	free(pData);
-	return true;
+	return mon != 0; //月の名前が読めなければ失敗
 }
 
 CValue	CSystemFunction::GETSECCOUNT(CSF_FUNCPARAM &p)
@@ -4418,9 +4485,21 @@ CValue	CSystemFunction::GETSECCOUNT(CSF_FUNCPARAM &p)
 
 	if ( asize == 1 && p.arg.array()[0].IsString() ) { //文字列日付の可能性
 		char* text = Ccct::Ucs2ToMbcs(p.arg.array()[0].GetValueString().c_str(),CHARSET_DEFAULT);
-		Utils_HTTPToTM(text,input_time);
+		bool hasTZ = false;
+		int tzMinutes = 0;
+		bool ok = Utils_HTTPToTM(text,input_time,hasTZ,tzMinutes);
 		free(text);
 
+		if ( ! ok ) {
+			vm.logger().Error(E_W, 12, L"GETSECCOUNT : " + p.arg.array()[0].GetValueString(), p.dicname, p.line);
+			SetError(12);
+			return CValue(-1);
+		}
+
+		// 日付文字列にタイムゾーンが書かれていればそれに従い、無ければローカルタイムとして読む
+		if ( hasTZ ) {
+			return CValue(static_cast<yaya::int_t>(UTCTimeToEpochTime(input_time) - static_cast<yaya::time_t>(tzMinutes) * 60));
+		}
 		return CValue(static_cast<yaya::int_t>(LocalTimeToEpochTime(input_time)));
 	}
 	else {
@@ -6487,21 +6566,19 @@ CValue	CSystemFunction::SETTAMAHWND(CSF_FUNCPARAM &p)
  */
 
 #if defined(WIN32)
-static time_t FileTimeToUnixTime(FILETIME &filetime)
+// FILETIME（UTC）から直接EPOCH秒にする
+// ローカルタイムを経由すると、今の夏時間のバイアスで換算されたり、VC6の32bitのmktimeで範囲外になったりする
+static yaya::time_t FileTimeToUnixTime(FILETIME &filetime)
 {
-	FILETIME localfiletime;
-	SYSTEMTIME systime;
-	struct tm utime;
-	FileTimeToLocalFileTime(&filetime, &localfiletime);
-	FileTimeToSystemTime(&localfiletime, &systime);
-	utime.tm_sec=systime.wSecond;
-	utime.tm_min=systime.wMinute;
-	utime.tm_hour=systime.wHour;
-	utime.tm_mday=systime.wDay;
-	utime.tm_mon=systime.wMonth-1;
-	utime.tm_year=systime.wYear-1900;
-	utime.tm_isdst=-1;
-	return(mktime(&utime));
+	ULARGE_INTEGER ul;
+	ul.LowPart = filetime.dwLowDateTime;
+	ul.HighPart = filetime.dwHighDateTime;
+
+	yaya::time_t tv = ul.QuadPart;
+	tv -= LL_DEF(116444736000000000);
+	tv /= LL_DEF(10000000);
+
+	return tv;
 }
 #endif
 
