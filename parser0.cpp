@@ -257,6 +257,46 @@ bool	CParser0::IsEvalBlock(const yaya::string_t& str)
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  HereDocumentStartType
+ *  機能概要：  linebufferの終端がクォートの外にある<<'か<<"なら、ヒアドキュメントの開始です
+ *  　　　　　  'abc<<' のように<<がクォートの内側にあるものは文字列リテラルの終わりなので開始としません
+ *
+ *  返値　　：  0/1/2=開始ではない/シングルクォート/ダブルクォート
+ * -----------------------------------------------------------------------
+ */
+static int	HereDocumentStartType(const yaya::string_t& linebuffer)
+{
+	yaya::string_t::size_type len = linebuffer.size();
+	if (len < 3 || linebuffer[len - 3] != L'<' || linebuffer[len - 2] != L'<') {
+		return 0;
+	}
+	yaya::char_t q = linebuffer[len - 1];
+	if (q != L'\'' && q != L'\"') {
+		return 0;
+	}
+
+	bool	dq = false;
+	bool	sq = false;
+	for(yaya::string_t::size_type i = 0; i < len - 3; ++i) {
+		if (linebuffer[i] == L'\"') {
+			if (!sq) {
+				dq = !dq;
+			}
+		}
+		else if (linebuffer[i] == L'\'') {
+			if (!dq) {
+				sq = !sq;
+			}
+		}
+	}
+	if (dq || sq) {
+		return 0;
+	}
+
+	return (q == L'\'') ? 1 : 2;
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CParser0::ParseEvalBlock
  *  機能概要：  EVALに渡された文の並びを、関数表に登録しない一時関数funcに変換します
  *  　　　　　  文字列全体が関数の本体の{}の中に書かれているものとして扱います
@@ -356,13 +396,8 @@ char	CParser0::ParseEvalBlock(const yaya::string_t& str, CFunction& func, const 
 					continue;
 				}
 				// 終端が<<'か<<"ならヒアドキュメントの開始　開きのクォートだけを残す
-				if (!last && readline.size() >= 3) {
-					if (readline.compare(readline.size() - 3, 3, L"<<'") == 0) {
-						isInHereDocument = 1;
-					}
-					else if (readline.compare(readline.size() - 3, 3, L"<<\"") == 0) {
-						isInHereDocument = 2;
-					}
+				if (!last) {
+					isInHereDocument = HereDocumentStartType(linebuffer);
 					if (isInHereDocument) {
 						isHereDocumentFirstLine = true;
 						linebuffer.erase(linebuffer.size() - 3, 2);
@@ -691,6 +726,7 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 
 	int	 isInHereDocument = 0; //2 = ダブルクオート 1 = シングルクオート
 	bool isHereDocumentFirstLine = true;
+	size_t hereDocumentStartLine = 0;
 
 	yaya::string_t	readline;
 	readline.reserve(1000);
@@ -743,7 +779,6 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 					isInHereDocument = 0;
 					
 					if ( isHereDocumentFirstLine ) {
-						linebuffer.append(L"'' ");
 						vm.logger().Error(E_W, 21, filename, i);
 					}
 
@@ -756,7 +791,6 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 					isInHereDocument = 0;
 					
 					if ( isHereDocumentFirstLine ) {
-						linebuffer.append(L"'' ");
 						vm.logger().Error(E_W, 21, filename, i);
 					}
 
@@ -823,18 +857,12 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 				linebuffer.erase(linebuffer.end() - 1);
 				continue;
 			}
-			//ヒアドキュメント開始判定
-			else if ( readline.size() >= 3 ) {
-				if ( readline.compare(readline.size()-3,3,L"<<'") == 0 ) {
-					isInHereDocument = 1;
+			//ヒアドキュメント開始判定　開きのクォートだけを残す
+			else {
+				isInHereDocument = HereDocumentStartType(linebuffer);
+				if ( isInHereDocument ) {
 					isHereDocumentFirstLine = true;
-					
-					linebuffer.erase(linebuffer.size() - 3,2);
-					continue;
-				}
-				else if ( readline.compare(readline.size()-3,3,L"<<\"") == 0 ) {
-					isInHereDocument = 2;
-					isHereDocumentFirstLine = true;
+					hereDocumentStartLine = i;
 
 					linebuffer.erase(linebuffer.size() - 3,2);
 					continue;
@@ -878,7 +906,12 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 	// ファイルを閉じる
 	::fclose(fp);
 
-	if ( depth != 0 ) {
+	// 閉じていないヒアドキュメントは閉じていない文字列と同じ扱い
+	if ( isInHereDocument ) {
+		vm.logger().Error(E_E, 7, filename, hereDocumentStartLine);
+		errcount = 1;
+	}
+	else if ( depth != 0 ) {
 		vm.logger().Error(E_E, 94, filename, -1);
 		errcount = 1;
 	}
