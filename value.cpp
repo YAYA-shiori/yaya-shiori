@@ -12,6 +12,7 @@
 #include <math.h>
 #include <vector>
 #include <iterator>
+#include <new>
 
 #include "misc.h"
 #include "globaldef.h"
@@ -175,6 +176,27 @@ static size_t SetArrayValue_RangeEnd(size_t order1, size_t sz)
 }
 
 /* -----------------------------------------------------------------------
+ *  SetArrayValue用：序数が末尾より先のとき、間を埋める個数を返します
+ *
+ *  序数が負のときは従来どおり埋めずに末尾へ追加します。
+ *  埋める個数が多すぎるとき（_a[2000000000] = 1など）はメモリ不足として扱います。
+ * -----------------------------------------------------------------------
+ */
+static const size_t SETARRAYVALUE_MAX_PAD = 0x1000000;
+
+static size_t SetArrayValue_PadSize(size_t order, size_t sz)
+{
+	if ((ptrdiff_t)order < 0 || order <= sz)
+		return 0;
+
+	size_t	add = order - sz;
+	if (add > SETARRAYVALUE_MAX_PAD)
+		throw std::bad_alloc();
+
+	return add;
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CValue::SetArrayValue
  *  機能概要：  配列の指定した位置へ値を設定します。必要に応じて型変換を行います
  *
@@ -221,7 +243,7 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 				}
 			}
 			else {
-				size_t addsize = (size_t)(order - sz);
+				size_t addsize = SetArrayValue_PadSize(order, sz);
 				for(size_t i = 0; i < addsize; i++) {
 					s_array.emplace_back(yaya::string_t());
 				}
@@ -260,8 +282,8 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 				}
 			}
 			else {
-				int	addsize = order - sz;
-				for(int i = 0; i < addsize; i++) {
+				size_t addsize = SetArrayValue_PadSize(order, sz);
+				for(size_t i = 0; i < addsize; i++) {
 					s_array.emplace_back(yaya::string_t());
 				}
 
@@ -318,8 +340,8 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 			}
 			else {
 				// 後端への追加
-				int	addsize = order - array().size();
-				for(int i = 1; i <= addsize; i++) {
+				size_t	addsize = SetArrayValue_PadSize(order, array().size());
+				for(size_t i = 1; i <= addsize; i++) {
 					array().emplace_back(CValueSub());
 				}
 				
@@ -351,8 +373,8 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 			}
 			else {
 				// 後端への追加
-				int	addsize = order - array().size();
-				for(int i = 1; i <= addsize; i++) {
+				size_t	addsize = SetArrayValue_PadSize(order, array().size());
+				for(size_t i = 1; i <= addsize; i++) {
 					array().emplace_back(CValueSub());
 				}
 				

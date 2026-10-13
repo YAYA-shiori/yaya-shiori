@@ -27,6 +27,7 @@
 #include "ccct.h"
 #include "log.h"
 #include "manifest.h"
+#include "misc.h"
 #if defined(POSIX)
 # include "posix_utils.h"
 #endif
@@ -168,8 +169,8 @@ int CLib1::LoadLib() {
 		// なんと正常に読めた。
 		do_fallback = false;
 	    }
+	    dlclose(handle);
 	}
-	dlclose(handle);
     }
     if (do_fallback) {
 	// 代替ライブラリを探す。
@@ -250,8 +251,8 @@ int	CLib1::Load(void)
 		}
 
 		// DLLパス文字列作成
-		wchar_t	drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
-		_wsplitpath(name.c_str(), drive, dir, fname, ext);
+		yaya::string_t	drive, dir, fname, ext;
+		SplitPathParts(name, drive, dir, fname, ext);
 		yaya::string_t	dllpath = drive;
 		dllpath += dir;
 

@@ -477,7 +477,10 @@ int main( int argc, char *argv[ ], char *envp[ ] )
 
 		while ( 1 ) {
 			char buf[2];
-			fread(buf,1,1,stdin);
+			if ( fread(buf,1,1,stdin) != 1 ) { //“ü—Í‚ª•Â‚¶‚½iunload‚ª—ˆ‚È‚©‚Á‚½j
+				unload();
+				return 0;
+			}
 			bufstr += static_cast<char>(buf[0]);
 
 			if ( bufstr.size() >= 2 ) {
