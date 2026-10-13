@@ -159,12 +159,29 @@ yaya::string_t	CValue::GetValueStringForLogging(void) const
 		return yaya::string_t();
 	};
 }
+
+/* -----------------------------------------------------------------------
+ *  SetArrayValue用：範囲指定の終端の次の位置を返します
+ *
+ *  序数はsize_tで持っているので、負の値は符号付きに戻して判定します。
+ *  終端が負の場合（_a[2,-1]など）は、末尾までを指します。
+ * -----------------------------------------------------------------------
+ */
+static size_t SetArrayValue_RangeEnd(size_t order1, size_t sz)
+{
+	if ((ptrdiff_t)order1 < 0)
+		return sz;
+	return (size_t)std::min<yaya::int_t>(static_cast<yaya::int_t>(order1) + 1, sz);
+}
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CValue::SetArrayValue
  *  機能概要：  配列の指定した位置へ値を設定します。必要に応じて型変換を行います
  *
  *  元の型が簡易配列と汎用配列の場合はそのまま処理しますが、整数/実数だった場合は
  *  汎用配列に型変換されます。このとき元の値は失われ、[0]はVOIDになります。
+ *
+ *  範囲指定の終端が負の場合（_a[2,-1]など）は、始点から末尾までを書き換えます。
  * -----------------------------------------------------------------------
  */
 void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
@@ -183,11 +200,9 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 		// 更新
 		if (aoflg) {
 			// 範囲つき
-			if (order1 < 0)
-				return;
-			else if(order < sz) {
+			if(order < sz) {
 				size_t	s_index = (size_t)std::max<yaya::int_t>(static_cast<yaya::int_t>(order), 0);
-				size_t	e_index = (size_t)std::min<yaya::int_t>(static_cast<yaya::int_t>(order1) + 1, sz);
+				size_t	e_index = SetArrayValue_RangeEnd(order1, sz);
 
 				if ( value.GetType() == F_TAG_ARRAY ) {
 					std::vector<yaya::string_t>::iterator it = s_array.erase(s_array.begin() + s_index,s_array.begin() + e_index);
@@ -285,12 +300,10 @@ void	CValue::SetArrayValue(const CValue &oval, const CValue &value)
 		if(aoflg) {
 			size_t	sz = array_size();
 			// 範囲つき
-			if (order1 < 0)
-				return;
 			if (order < sz) {
 				// 配列中途の書き換え
 				size_t	s_index = (size_t)std::max<yaya::int_t>(static_cast<yaya::int_t>(order), 0);
-				size_t	e_index = (size_t)std::min<yaya::int_t>(static_cast<yaya::int_t>(order1) + 1, sz);
+				size_t	e_index = SetArrayValue_RangeEnd(order1, sz);
 				
 				if ( value.GetType() == F_TAG_ARRAY ) {
 					CValueArray::iterator it = array().erase(array().begin() + s_index,array().begin() + e_index);
@@ -841,7 +854,11 @@ CValue CValue::operator /(const CValue &value) const
 	case F_TAG_INT:
 		{
 			yaya::int_t denom = value.GetValueInt();
-			if ( denom ) {
+			if ( denom == -1 ) {
+				// INT64_MIN / -1 はCPUが例外を出すので符号の反転で済ませる（INT64_MINはそのまま）
+				return CValue((yaya::int_t)(0 - (std::uint64_t)GetValueInt()));
+			}
+			else if ( denom ) {
 				return CValue(GetValueInt() / denom);
 			}
 			else {
@@ -889,7 +906,11 @@ CValue CValue::operator %(const CValue &value) const
 	case F_TAG_DOUBLE:
 		{
 			yaya::int_t denom = value.GetValueInt();
-			if ( denom ) {
+			if ( denom == -1 ) {
+				// INT64_MIN % -1 はCPUが例外を出すが、-1で割った余りは常に0
+				return CValue((yaya::int_t)0);
+			}
+			else if ( denom ) {
 				return CValue(GetValueInt() % denom);
 			}
 			else {
