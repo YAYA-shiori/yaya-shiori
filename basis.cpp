@@ -263,8 +263,10 @@ void	CBasis::SetPath(yaya::global_t h, int len, bool is_utf8)
 	modulename = L"yaya";
 	DIR* dh = opendir(narrow(base_path).c_str());
 	if (dh == NULL) {
-		std::cerr << narrow(base_path) << "is not a directory!" << std::endl;
-	exit(1);
+		// ホストごと終了させないよう、モジュール名は既定のままで続ける
+		std::cerr << narrow(base_path) << " is not a directory!" << std::endl;
+		load_path = base_path;
+		return;
 	}
 	while (true) {
 	struct dirent* ent = readdir(dh);

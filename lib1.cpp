@@ -516,7 +516,13 @@ int CLib1::Request(const yaya::string_t &istr, yaya::string_t &ostr) {
     // 実行
     char* ogmem = (*requestlib)(id, igmem, &len);
 
-    // 結果取得
+    // 結果取得（応答が無ければ、Windows 版と同じく空の応答として扱う）
+	if (ogmem == NULL || len < 0) {
+		if (ogmem) {
+			free(ogmem);
+		}
+		return 1;
+	}
 	std::string t_ostr(ogmem, len);
 	free(ogmem);
 

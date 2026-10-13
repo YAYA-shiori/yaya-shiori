@@ -336,7 +336,7 @@ extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB unload()
 
 extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB multi_unload(long id)
 {
-	if ( id <= 0 || id > (long)vm.size() || vm[id] == NULL ) { //1Ç©ÇÁ 0î‘ÇÕè]óàóp
+	if ( id <= 0 || id >= (long)vm.size() || vm[id] == NULL ) { //1Ç©ÇÁ 0î‘ÇÕè]óàóp
 		return 0;
 	}
 
@@ -362,7 +362,7 @@ extern "C" DLLEXPORT yaya::global_t FUNCATTRIB request(yaya::global_t h, long *l
 
 extern "C" DLLEXPORT yaya::global_t FUNCATTRIB multi_request(long id, yaya::global_t h, long *len)
 {
-	if ( id <= 0 || id > (long)vm.size() || vm[id] == NULL ) { //1Ç©ÇÁ 0î‘ÇÕè]óàóp
+	if ( id <= 0 || id >= (long)vm.size() || vm[id] == NULL ) { //1Ç©ÇÁ 0î‘ÇÕè]óàóp
 		return 0;
 	}
 
@@ -390,7 +390,7 @@ extern "C" DLLEXPORT yaya::global_t FUNCATTRIB multi_request(long id, yaya::glob
 
 extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB multi_CI_check_failed(long id)//?
 {
-	if( id <= 0 || id > (long)vm.size() || vm[id] == NULL ) { //1Ç©ÇÁ 0î‘ÇÕè]óàóp
+	if( id <= 0 || id >= (long)vm.size() || vm[id] == NULL ) { //1Ç©ÇÁ 0î‘ÇÕè]óàóp
 		return 0;
 	}
 
@@ -421,7 +421,7 @@ extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB multi_CI_check_failed(long id)//?
 
 extern "C" DLLEXPORT void FUNCATTRIB multi_Set_loghandler(long id,void (*loghandler)(const yaya::char_t *str, int mode, int id))//?
 {
-	if( id <= 0 || id > (long)vm.size() || vm[id] == NULL ) { //1Ç©ÇÁ 0î‘ÇÕè]óàóp
+	if( id <= 0 || id >= (long)vm.size() || vm[id] == NULL ) { //1Ç©ÇÁ 0î‘ÇÕè]óàóp
 		return;
 	}
 
