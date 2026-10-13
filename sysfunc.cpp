@@ -7375,7 +7375,7 @@ static std::string SendDataUsingUnixSocket(const std::string &path, std::string 
 		close(soc);
 		return "";
 	}
-	if (send(soc, request.data(), request.size(), 0) != request.size()) {
+	if (send(soc, request.data(), request.size(), 0) != static_cast<ssize_t>(request.size())) {
 		close(soc);
 		return "";
 	}
@@ -7394,7 +7394,7 @@ static std::string SendDataUsingUnixSocket(const std::string &path, std::string 
 		}
 	}
 	while (true) {
-		int ret = read(soc, buffer, BUFFER_SIZE);
+		ssize_t ret = read(soc, buffer, BUFFER_SIZE);
 		if (ret == -1) {
 			close(soc);
 			return "";
@@ -7457,7 +7457,7 @@ CValue	CSystemFunction::DIRECTSSTP(CSF_FUNCPARAM &p)
 		munmap(shm, sizeof(shm_t));
 		return CValue(-1);
 	}
-	std::string path(shm->buf, shm->size);
+	std::string path(shm->buf, (shm->size < sizeof(shm->buf)) ? shm->size : sizeof(shm->buf));
 	int post_result = sem_post(&shm->sem);
 	munmap(shm, sizeof(shm_t));
 	if (post_result == -1) {
@@ -7467,25 +7467,34 @@ CValue	CSystemFunction::DIRECTSSTP(CSF_FUNCPARAM &p)
 	if (data.empty()) {
 		return CValue(-1);
 	}
+	// FMO は「ID.キー\x01値」の行の並び。hwnd が target の行の ID がソケット名
 	std::istringstream iss(data);
 	std::string uuid;
-	while (true) {
-		if (!iss) {
-			return CValue(-1);
+	std::string line;
+	bool found = false;
+	while (std::getline(iss, line)) {
+		if (!line.empty() && line[line.size() - 1] == '\r') {
+			line.erase(line.size() - 1);
 		}
-		std::string tmp;
-		int hwnd;
-		std::getline(iss, tmp);
-		std::istringstream line(tmp);
-		std::getline(iss, uuid, '.');
-		std::getline(iss, tmp, '\x01');
-		if (tmp != "hwnd") {
+		std::string::size_type dot = line.find('.');
+		if (dot == std::string::npos) {
 			continue;
 		}
-		std::getline(iss, tmp);
-		if (target == atoi(tmp.c_str())) {
+		std::string::size_type sep = line.find('\x01', dot + 1);
+		if (sep == std::string::npos) {
+			continue;
+		}
+		if (line.compare(dot + 1, sep - dot - 1, "hwnd") != 0) {
+			continue;
+		}
+		if (atoi(line.c_str() + sep + 1) == target) {
+			uuid = line.substr(0, dot);
+			found = true;
 			break;
 		}
+	}
+	if (!found) {
+		return CValue(-1);
 	}
 	data = SendDataUsingUnixSocket(path + uuid, request, false);
 	if (data.empty()) {
