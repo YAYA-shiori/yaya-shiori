@@ -16,6 +16,7 @@
 # include <cstring>
 # include <dlfcn.h>
 # include <sys/stat.h>
+# include <libgen.h>
 #endif
 #include <string.h>
 

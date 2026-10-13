@@ -21,6 +21,14 @@
 #include "globaldef.h"
 #include "value.h"
 
+// macOS の <fcntl.h> は FREAD / FWRITE をマクロにするので、メンバ関数名に使えるよう外す
+#ifdef FREAD
+# undef FREAD
+#endif
+#ifdef FWRITE
+# undef FWRITE
+#endif
+
 class CAyaVM;
 class CCell;
 class CLocalVariable;
