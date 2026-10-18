@@ -6,7 +6,8 @@ del /F /S /Q tmp\yaya\*
 mkdir tmp\yaya\
 rem mkdir tmp\yaya\messagetxt\
 copy /B /Y .\Release\yaya.dll tmp\yaya\yaya.dll
-copy /B /Y .\readme.txt tmp\yaya\readme.txt
+copy /B /Y .\README.md tmp\yaya\README.md
+copy /B /Y .\LICENSE tmp\yaya\LICENSE
 copy /B /Y .\readme-original.txt tmp\yaya\readme-original.txt
 rem copy /B /Y .\messagetxt\*.* tmp\yaya\messagetxt\
 del /F /S /Q tmp\yaya\*.bak
@@ -24,7 +25,8 @@ del /F /S /Q tmp\yaya_lang_sep\*
 mkdir tmp\yaya_lang_sep\
 mkdir tmp\yaya_lang_sep\messagetxt\
 copy /B /Y .\ReleaseLangSep\yaya.dll tmp\yaya_lang_sep\yaya.dll
-copy /B /Y .\readme.txt tmp\yaya_lang_sep\readme.txt
+copy /B /Y .\README.md tmp\yaya_lang_sep\README.md
+copy /B /Y .\LICENSE tmp\yaya_lang_sep\LICENSE
 copy /B /Y .\readme-original.txt tmp\yaya_lang_sep\readme-original.txt
 copy /B /Y .\messagetxt\*.* tmp\yaya_lang_sep\messagetxt\
 del /F /S /Q tmp\yaya_lang_sep\*.bak

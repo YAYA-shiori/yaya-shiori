@@ -23,7 +23,6 @@
 #include "ccct.h"
 #include "manifest.h"
 #include "globaldef.h"
-//#include "babel/babel.h"
 
 #ifdef POSIX
 #  include <ctype.h>
@@ -300,18 +299,6 @@ char	*Ccct::Ucs2ToMbcs(const yaya::char_t *wstr, int charset)
 
 char	*Ccct::Ucs2ToMbcs(const yaya::string_t &wstr, int charset)
 {
-	/*if ( charset == CHARSET_UTF8 ) {
-		return string_to_malloc(babel::unicode_to_utf8(wstr));
-	}
-	else if ( charset == CHARSET_SJIS ) {
-		return string_to_malloc(babel::unicode_to_sjis(wstr));
-	}
-	else if ( charset == CHARSET_EUCJP ) {
-		return string_to_malloc(babel::unicode_to_euc(wstr));
-	}
-	else if ( charset == CHARSET_JIS ) {
-		return string_to_malloc(babel::unicode_to_jis(wstr));
-	}*/
 	if ( charset == CHARSET_UTF8 ) {
 		std::string buf;
 		Ccct_ConvUnicodeToUTF8(buf,wstr.c_str());

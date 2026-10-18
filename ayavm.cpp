@@ -24,8 +24,6 @@
 
 #include <string.h>
 
-//#include "babel/babel.h"
-
 #ifdef POSIX
 #include "posix_utils.h"
 #else
@@ -92,8 +90,6 @@ CAyaVM* CAyaVM::get_a_deep_copy()
 void CAyaVM::load(void)
 {
 	unsigned int dwSeed;
-
-	//babel::init_babel();
 
 #ifdef POSIX
 	dwSeed = posix_random_seed();

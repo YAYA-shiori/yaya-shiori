@@ -50,7 +50,7 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
    git submodule status
    ```
    - 参照が変わったら `git diff --submodule` で取り込まれるコミットを確認し、リリースのコミットに含める
-   - ライセンス文の年や著作権者が変わっていたら `sysfunc.cpp` の `LICENSE` 関数の該当部分も合わせる（SQLite はパブリックドメイン。uka_regexp は Unlicense なので表記不要）
+   - ライセンス文の年や著作権者が変わっていたら `sysfunc.cpp` の `LICENSE` 関数の該当部分も合わせる（SQLite はパブリックドメイン。uka_regexp は Unlicense なので表記不要）。`README.md` の「同梱しているサードパーティのコード」の表も合わせる
 3. Release と ReleaseLangSep をリビルドし、ログ末尾が `ｴﾗｰ 0` であることを確認する
    ```powershell
    msdev aya5.dsw /MAKE "aya5 - Win32 Release" /REBUILD /OUT "$env:TEMP\claude\yaya_build_Release.log"
