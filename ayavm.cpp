@@ -22,6 +22,8 @@
 #include "parser1.h"
 #include "sysfunc.h"
 
+#include <string.h>
+
 //#include "babel/babel.h"
 
 #ifdef POSIX
