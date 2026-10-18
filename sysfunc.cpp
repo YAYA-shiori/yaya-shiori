@@ -4990,6 +4990,69 @@ CValue CSystemFunction::GETMEMINFO(CSF_FUNCPARAM &p) {
 }
 #endif
 
+// 正規表現エンジンの例外から警告番号を決める（パターンの誤りはW0016、それ以外はW0017）
+static int RegexErrorCode(const CRegexpException &e)
+{
+	return (e.GetCode() == CRegexpException::ERR_SYNTAX) ? 16 : 17;
+}
+
+// 正規表現のサブルーチン呼び出し (?&name) の名前解決に使う情報
+struct ReResolveParam {
+	CAyaVM *vm;
+	CLocalVariable *lvar;
+};
+
+// 値を正規表現のパターン文字列として取り込む（文字列と数値のみ。VOID・配列・ハッシュは使えない）
+static bool ReAppendPattern(const CValue &v, CRegexpString &pattern)
+{
+	if (!v.IsStringReal() && !v.IsIntReal() && !v.IsDoubleReal()) {
+		return false;
+	}
+	yaya::string_t s = v.GetValueString();
+	pattern.append(s.c_str(), static_cast<int>(s.size()));
+	return true;
+}
+
+// パターンの中に定義が無いサブルーチン名を、ローカル変数 _name → グローバル変数 name → 関数 name の順に探す
+// 関数は引数なしで実行し、その戻り値を使う（見つからない・使えない値なら次へ。全部だめなら未定義）
+static bool ReResolveSubroutine(const yaya::char_t *name, CRegexpString &pattern, void *user)
+{
+	ReResolveParam *rp = static_cast<ReResolveParam*>(user);
+	yaya::string_t n(name);
+	yaya::string_t localname = (n.size() && n[0] == L'_') ? n : (L"_" + n);
+
+	int	id = -1, dp = -1;
+	rp->lvar->GetIndex(localname, id, dp);
+	if (id >= 0 && ReAppendPattern(rp->lvar->GetValue(localname), pattern)) {
+		return true;
+	}
+
+	int gindex = rp->vm->variable().GetIndex(n);
+	if (gindex >= 0 && ReAppendPattern(rp->vm->variable().GetValue(gindex), pattern)) {
+		return true;
+	}
+
+	ptrdiff_t findex = rp->vm->function_exec().GetFunctionIndexFromName(n);
+	if (findex >= 0) {
+		// 実行中に関数表が変わりうるので、参照を持ち越さない
+		CValue result = rp->vm->function_exec().func[size_t(findex)].Execute().Output();
+		if (ReAppendPattern(result, pattern)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+// 正規表現をコンパイルする（サブルーチン名は ReResolveSubroutine で解決する）
+static void ReCompile(CRegexpW &regex, CAyaVM &vm, CLocalVariable &lvar, const yaya::char_t *pattern, unsigned int flags)
+{
+	ReResolveParam rp;
+	rp.vm = &vm;
+	rp.lvar = &lvar;
+	regex.Compile(pattern, flags, ReResolveSubroutine, &rp);
+}
+
 /* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::RE_SEARCH
  * -----------------------------------------------------------------------
@@ -5017,24 +5080,26 @@ CValue	CSystemFunction::RE_SEARCH(CSF_FUNCPARAM &p)
 		return CValue(0);
 
 	// 実行
-	MatchResult	t_result;
+	bool matched = false;
 	try {
-		CRegexpT<yaya::char_t> regex(arg1.c_str(),re_option);
-		t_result = regex.Match(arg0.c_str());
-		if (t_result.IsMatched()) {
-			StoreReResultDetails(arg0,t_result);
+		CRegexpW regex; ReCompile(regex, vm, p.lvar, arg1.c_str(), re_option);
+		CRegexpContext ctx;
+		matched = regex.Match(arg0.c_str(),static_cast<int>(arg0.size()),ctx,0);
+		if (matched) {
+			StoreReResultDetails(arg0,ctx);
 		}
 	}
-	catch(const std::runtime_error &) {
-		vm.logger().Error(E_W, 16, L"RE_SEARCH", p.dicname, p.line);
-		SetError(16);
+	catch(const CRegexpException &e) {
+		int code = RegexErrorCode(e);
+		vm.logger().Error(E_W, code, L"RE_SEARCH", p.dicname, p.line);
+		SetError(code);
 	}
 	catch(...) {
 		vm.logger().Error(E_W, 17, L"RE_SEARCH", p.dicname, p.line);
 		SetError(17);
 	}
 
-	return CValue(t_result.IsMatched() ? 1 : 0);
+	return CValue(matched ? 1 : 0);
 }
 
 /* -----------------------------------------------------------------------
@@ -5058,18 +5123,20 @@ CValue	CSystemFunction::RE_ASEARCH(CSF_FUNCPARAM &p)
 	const CValue &key = p.arg.array()[0];
 
 	try {
-		CRegexpT<yaya::char_t> regex(key.GetValueString().c_str(),re_option);
+		CRegexpW regex; ReCompile(regex, vm, p.lvar, key.GetValueString().c_str(), re_option);
+		CRegexpContext ctx;
 
 		for(int i = 1; i < sz; i++) {
 			try {
-				MatchResult t_result = regex.Match(p.arg.array()[i].GetValueString().c_str());
-				if (t_result.IsMatched()) {
+				const yaya::string_t &target = p.arg.array()[i].GetValueString();
+				if (regex.Match(target.c_str(),static_cast<int>(target.size()),ctx,0)) {
 					return CValue(i-1);
 				}
 			}
-			catch(const std::runtime_error &) {
-				vm.logger().Error(E_W, 16, L"RE_ASEARCH", p.dicname, p.line);
-				SetError(16);
+			catch(const CRegexpException &e) {
+				int code = RegexErrorCode(e);
+				vm.logger().Error(E_W, code, L"RE_ASEARCH", p.dicname, p.line);
+				SetError(code);
 			}
 			catch(...) {
 				vm.logger().Error(E_W, 17, L"RE_ASEARCH", p.dicname, p.line);
@@ -5077,6 +5144,12 @@ CValue	CSystemFunction::RE_ASEARCH(CSF_FUNCPARAM &p)
 			}
 		}
 
+	}
+	catch(const CRegexpException &e) {
+		int code = RegexErrorCode(e);
+		vm.logger().Error(E_W, code, L"RE_ASEARCH", p.dicname, p.line);
+		SetError(code);
+		return CValue(F_TAG_ARRAY, 0/*dmy*/);
 	}
 	catch(...) {
 		vm.logger().Error(E_W, 17, L"RE_ASEARCH", p.dicname, p.line);
@@ -5104,18 +5177,20 @@ CValue	CSystemFunction::RE_ASEARCHEX(CSF_FUNCPARAM &p)
 	CValue res(F_TAG_ARRAY, 0/*dmy*/);
 
 	try {
-		CRegexpT<yaya::char_t> regex(key.GetValueString().c_str(),re_option);
+		CRegexpW regex; ReCompile(regex, vm, p.lvar, key.GetValueString().c_str(), re_option);
+		CRegexpContext ctx;
 
 		for(int i = 1; i < sz; i++) {
 			try {
-				MatchResult t_result = regex.Match(p.arg.array()[i].GetValueString().c_str());
-				if (t_result.IsMatched()) {
+				const yaya::string_t &target = p.arg.array()[i].GetValueString();
+				if (regex.Match(target.c_str(),static_cast<int>(target.size()),ctx,0)) {
 					res.array().emplace_back(CValue(i-1));
 				}
 			}
-			catch(const std::runtime_error &) {
-				vm.logger().Error(E_W, 16, L"RE_ASEARCHEX", p.dicname, p.line);
-				SetError(16);
+			catch(const CRegexpException &e) {
+				int code = RegexErrorCode(e);
+				vm.logger().Error(E_W, code, L"RE_ASEARCHEX", p.dicname, p.line);
+				SetError(code);
 			}
 			catch(...) {
 				vm.logger().Error(E_W, 17, L"RE_ASEARCHEX", p.dicname, p.line);
@@ -5123,6 +5198,12 @@ CValue	CSystemFunction::RE_ASEARCHEX(CSF_FUNCPARAM &p)
 			}
 		}
 
+	}
+	catch(const CRegexpException &e) {
+		int code = RegexErrorCode(e);
+		vm.logger().Error(E_W, code, L"RE_ASEARCHEX", p.dicname, p.line);
+		SetError(code);
+		return CValue(F_TAG_ARRAY, 0/*dmy*/);
 	}
 	catch(...) {
 		vm.logger().Error(E_W, 17, L"RE_ASEARCHEX", p.dicname, p.line);
@@ -5162,24 +5243,26 @@ CValue	CSystemFunction::RE_MATCH(CSF_FUNCPARAM &p)
 		return CValue(0);
 
 	// 実行
-	MatchResult	t_result;
+	bool matched = false;
 	try {
-		CRegexpT<yaya::char_t> regex(arg1.c_str(),re_option);
-		t_result = regex.MatchExact(arg0.c_str());
-		if (t_result.IsMatched()) {
-			StoreReResultDetails(arg0,t_result);
+		CRegexpW regex; ReCompile(regex, vm, p.lvar, arg1.c_str(), re_option);
+		CRegexpContext ctx;
+		matched = regex.MatchExact(arg0.c_str(),static_cast<int>(arg0.size()),ctx);
+		if (matched) {
+			StoreReResultDetails(arg0,ctx);
 		}
 	}
-	catch(const std::runtime_error &) {
-		vm.logger().Error(E_W, 16, L"RE_MATCH", p.dicname, p.line);
-		SetError(16);
+	catch(const CRegexpException &e) {
+		int code = RegexErrorCode(e);
+		vm.logger().Error(E_W, code, L"RE_MATCH", p.dicname, p.line);
+		SetError(code);
 	}
 	catch(...) {
 		vm.logger().Error(E_W, 17, L"RE_MATCH", p.dicname, p.line);
 		SetError(17);
 	}
 
-	return CValue(t_result.IsMatched() ? 1 : 0);
+	return CValue(matched ? 1 : 0);
 }
 
 /* -----------------------------------------------------------------------
@@ -5213,39 +5296,33 @@ CValue	CSystemFunction::RE_GREP(CSF_FUNCPARAM &p)
 
 	// 実行
 	int	match_count = 0;
-	CContext *pCtx = 0;
 
 	try {
-		CRegexpT<yaya::char_t> regex(arg1.c_str(),re_option);
-		pCtx = regex.PrepareMatch(arg0.c_str());
+		// GLOBAL：同じCRegexpContextで続けてMatchすると、前回の一致の続きから探す
+		CRegexpW regex; ReCompile(regex, vm, p.lvar, arg1.c_str(), re_option | CRegexpW::GLOBAL);
+		CRegexpContext ctx;
 
-		for( ; ; ) {
-			MatchResult result = regex.Match(pCtx);
-			if ( ! result.IsMatched() ) {
-				break;
-			}
+		while ( regex.Match(arg0.c_str(),static_cast<int>(arg0.size()),ctx) ) {
 			match_count++;
 
 			AppendReResultDetail(
-				arg0.substr(result.GetStart(),result.GetEnd()-result.GetStart()),
-				result.GetStart(),
-				result.GetEnd()-result.GetStart());
+				arg0.substr(ctx.GetStart(0),ctx.GetEnd(0)-ctx.GetStart(0)),
+				ctx.GetStart(0),
+				ctx.GetEnd(0)-ctx.GetStart(0));
 		}
 
 	}
-	catch(const std::runtime_error &) {
+	catch(const CRegexpException &e) {
+		int code = RegexErrorCode(e);
 		match_count = 0;
-		vm.logger().Error(E_W, 16, L"RE_GREP", p.dicname, p.line);
-		SetError(16);
+		vm.logger().Error(E_W, code, L"RE_GREP", p.dicname, p.line);
+		SetError(code);
 	}
 	catch(...) {
 		match_count = 0;
 		vm.logger().Error(E_W, 17, L"RE_GREP", p.dicname, p.line);
 		SetError(17);
 	}
-
-	//例外で途中から抜けた場合も含め、ここで解放する
-	delete pCtx;
 
 	return CValue(match_count);
 }
@@ -5305,31 +5382,31 @@ CValue	CSystemFunction::RE_OPTION(CSF_FUNCPARAM &p)
 
 		re_option = 0;
 		if ( opt.find(L"m") != yaya::string_t::npos ) {
-			re_option |= MULTILINE;
+			re_option |= CRegexpW::MULTILINE;
 		}
 		if ( opt.find(L"s") != yaya::string_t::npos ) {
-			re_option |= SINGLELINE;
+			re_option |= CRegexpW::SINGLELINE;
 		}
 		if ( opt.find(L"x") != yaya::string_t::npos ) {
-			re_option |= EXTENDED;
+			re_option |= CRegexpW::EXTENDED;
 		}
 		if ( opt.find(L"i") != yaya::string_t::npos ) {
-			re_option |= IGNORECASE;
+			re_option |= CRegexpW::IGNORECASE;
 		}
 	}
 
 	yaya::string_t result;
 
-	if ( (re_option & MULTILINE) != 0 ) {
+	if ( (re_option & CRegexpW::MULTILINE) != 0 ) {
 		result += L'm';
 	}
-	if ( (re_option & SINGLELINE) != 0 ) {
+	if ( (re_option & CRegexpW::SINGLELINE) != 0 ) {
 		result += L's';
 	}
-	if ( (re_option & EXTENDED) != 0 ) {
+	if ( (re_option & CRegexpW::EXTENDED) != 0 ) {
 		result += L'x';
 	}
-	if ( (re_option & IGNORECASE) != 0 ) {
+	if ( (re_option & CRegexpW::IGNORECASE) != 0 ) {
 		result += L'i';
 	}
 
@@ -5374,7 +5451,7 @@ CValue	CSystemFunction::RE_SPLIT(CSF_FUNCPARAM &p)
 		}
 	}
 
-	return RE_SPLIT_CORE(p.arg, p.dicname, p.line, L"RE_SPLIT", nums);
+	return RE_SPLIT_CORE(p.arg, p.lvar, p.dicname, p.line, L"RE_SPLIT", nums);
 }
 
 /* -----------------------------------------------------------------------
@@ -5418,7 +5495,7 @@ CValue	CSystemFunction::RE_REPLACE(CSF_FUNCPARAM &p)
 		return CValue(arg0);
 
 	// まずsplitする
-	CValue	splits = RE_SPLIT_CORE(p.arg, p.dicname, p.line, L"RE_REPLACE", count);
+	CValue	splits = RE_SPLIT_CORE(p.arg, p.lvar, p.dicname, p.line, L"RE_REPLACE", count);
 	int	num = splits.array_size();
 	if (!num || num == 1)
 		return CValue(arg0);
@@ -5522,29 +5599,23 @@ CValue	CSystemFunction::RE_REPLACEEX(CSF_FUNCPARAM &p)
 	yaya::string_t str_result;
 
 	try {
-		CRegexpT<yaya::char_t> regex(arg1.c_str(),re_option);
+		CRegexpW regex; ReCompile(regex, vm, p.lvar, arg1.c_str(), re_option);
+		CRegexpString result;
+		int last_start = -1, last_end = -1;
 
-		MatchResult t_result;
-		yaya::char_t *result;
+		int replaced = regex.Replace(arg0.c_str(),static_cast<int>(arg0.size()),arg2.c_str(),result,(int)count,&last_start,&last_end);
 
-		if ( arg2.size() > 0 ) {
-			result = regex.Replace(arg0.c_str(),arg2.c_str(),0,(int)count,&t_result);
+		str_result.assign(result.c_str(),result.size());
+
+		// 最後に置換した部分（置換後の文字列中の位置）を詳細として返す
+		if (replaced > 0) {
+			AppendReResultDetail(str_result.substr(last_start,last_end-last_start),last_start,last_end-last_start);
 		}
-		else {
-			result = regex.Replace(arg0.c_str(),L"",0,(int)count,&t_result);
-		}
-
-		str_result = result;
-
-		if (t_result.IsMatched()) {
-			StoreReResultDetails(str_result,t_result);
-		}
-
-		regex.ReleaseString(result);
 	}
-	catch(const std::runtime_error &) {
-		vm.logger().Error(E_W, 16, L"RE_REPLACEEX", p.dicname, p.line);
-		SetError(16);
+	catch(const CRegexpException &e) {
+		int code = RegexErrorCode(e);
+		vm.logger().Error(E_W, code, L"RE_REPLACEEX", p.dicname, p.line);
+		SetError(code);
 	}
 	catch(...) {
 		vm.logger().Error(E_W, 17, L"RE_REPLACEEX", p.dicname, p.line);
@@ -5586,7 +5657,7 @@ CValue	CSystemFunction::RE_GETLEN(CSF_FUNCPARAM &p)
  *  RE_SPLITの主処理部分です。RE_REPLACEでも使用します。
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, const yaya::string_t &d, int l, const yaya::char_t *fncname, size_t num)
+CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, CLocalVariable &lvar, const yaya::string_t &d, int l, const yaya::char_t *fncname, size_t num)
 {
 	const yaya::string_t &arg0 = arg.array()[0].GetValueString();
 	const yaya::string_t &arg1 = arg.array()[1].GetValueString();
@@ -5594,27 +5665,22 @@ CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, const yaya::string_t &d
 	int	t_pos = 0;
 	size_t count = 1;
 	CValue	splits(F_TAG_ARRAY, 0/*dmy*/);
-	CContext *pCtx = 0;
 
 	try {
-		CRegexpT<yaya::char_t> regex(arg1.c_str(),re_option);
-		pCtx = regex.PrepareMatch(arg0.c_str());
+		// GLOBAL：同じCRegexpContextで続けてMatchすると、前回の一致の続きから探す
+		CRegexpW regex; ReCompile(regex, vm, lvar, arg1.c_str(), re_option | CRegexpW::GLOBAL);
+		CRegexpContext ctx;
 
-		for( ; ; ) {
-			MatchResult result = regex.Match(pCtx);
-
-			if ( ! result.IsMatched() )
-				break;
-
+		while ( regex.Match(arg0.c_str(),static_cast<int>(arg0.size()),ctx) ) {
 			count += 1;
 
-			splits.array().emplace_back(arg0.substr(t_pos, result.GetStart()-t_pos));
-			t_pos = result.GetEnd();
+			splits.array().emplace_back(arg0.substr(t_pos, ctx.GetStart(0)-t_pos));
+			t_pos = ctx.GetEnd(0);
 
 			AppendReResultDetail(
-				arg0.substr(result.GetStart(),result.GetEnd()-result.GetStart()),
-				result.GetStart(),
-				result.GetEnd()-result.GetStart());
+				arg0.substr(ctx.GetStart(0),ctx.GetEnd(0)-ctx.GetStart(0)),
+				ctx.GetStart(0),
+				ctx.GetEnd(0)-ctx.GetStart(0));
 
 			if ( num != 0 && (count >= num) ) {
 				break;
@@ -5629,19 +5695,17 @@ CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, const yaya::string_t &d
 			splits.array().emplace_back(yaya::string_t());
 		}
 	}
-	catch(const std::runtime_error &) {
+	catch(const CRegexpException &e) {
+		int code = RegexErrorCode(e);
 		splits = CValue(F_TAG_ARRAY, 0/*dmy*/);
-		vm.logger().Error(E_W, 16, fncname, d, l);
-		SetError(16);
+		vm.logger().Error(E_W, code, fncname, d, l);
+		SetError(code);
 	}
 	catch(...) {
 		splits = CValue(F_TAG_ARRAY, 0/*dmy*/);
 		vm.logger().Error(E_W, 17, fncname, d, l);
 		SetError(17);
 	}
-
-	//例外で途中から抜けた場合も含め、ここで解放する
-	delete pCtx;
 
 	return splits;
 }
@@ -7301,15 +7365,15 @@ CValue	CSystemFunction::GETCALLSTACK(CSF_FUNCPARAM &p)
  *  機能概要：  正規表現系関数の処理結果詳細を蓄積します
  * -----------------------------------------------------------------------
  */
-void	CSystemFunction::StoreReResultDetails(const yaya::string_t &str,MatchResult &result)
+void	CSystemFunction::StoreReResultDetails(const yaya::string_t &str,const CRegexpContext &ctx)
 {
-	int	sz = result.MaxGroupNumber();
+	int	sz = ctx.GetGroupCount();
 	for(int i = 0; i <= sz; i++) {
-		if ( result.GetGroupStart(i) >= 0 ) {
+		if ( ctx.IsMatched(i) ) {
 			AppendReResultDetail(
-				str.substr(result.GetGroupStart(i),result.GetGroupEnd(i)-result.GetGroupStart(i)),
-				result.GetGroupStart(i),
-				result.GetGroupEnd(i)-result.GetGroupStart(i));
+				str.substr(ctx.GetStart(i),ctx.GetEnd(i)-ctx.GetStart(i)),
+				ctx.GetStart(i),
+				ctx.GetEnd(i)-ctx.GetStart(i));
 		}
 	}
 }

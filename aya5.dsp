@@ -415,6 +415,10 @@ SOURCE=.\tinyxml2\tinyxml2.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\uka_regexp\uka_regexp.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\value.cpp
 # End Source File
 # Begin Source File
@@ -564,6 +568,10 @@ SOURCE=.\sysfunc.h
 # Begin Source File
 
 SOURCE=.\tinyxml2\tinyxml2.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\uka_regexp\uka_regexp.h
 # End Source File
 # Begin Source File
 

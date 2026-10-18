@@ -83,6 +83,7 @@ LIBAYA5_OBJ = \
 	sqlitedb.o \
 	sysfunc.o \
 	tinyxml2/tinyxml2.o \
+	uka_regexp/uka_regexp.o \
 	value.o \
 	variable.o \
 	wsex.o \

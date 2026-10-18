@@ -312,6 +312,7 @@
     </ClCompile>
     <ClCompile Include="sysfunc.cpp" />
     <ClCompile Include="tinyxml2\tinyxml2.cpp" />
+    <ClCompile Include="uka_regexp\uka_regexp.cpp" />
     <ClCompile Include="value.cpp" />
     <ClCompile Include="variable.cpp" />
     <ClCompile Include="wsex.cpp" />
@@ -354,6 +355,7 @@
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="sysfunc.h" />
     <ClInclude Include="tinyxml2\tinyxml2.h" />
+    <ClInclude Include="uka_regexp\uka_regexp.h" />
     <ClInclude Include="value.h" />
     <ClInclude Include="variable.h" />
     <ClInclude Include="wsex.h" />

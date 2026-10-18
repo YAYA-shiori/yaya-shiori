@@ -16,7 +16,7 @@
 # include "stdafx.h"
 #endif
 
-#include "deelx/deelx.h"
+#include "uka_regexp/uka_regexp.h"
 
 #include "ccct.h"
 #include "log.h"
@@ -355,15 +355,18 @@ void	CLog::Io(char io, const yaya::char_t *str)
 
 			if ( ! found ) {
 				for(it = iolog_filter_keyword_regex.begin(); it != iolog_filter_keyword_regex.end(); it++){
-					//deelxはメモリ確保に失敗するとstd::bad_allocを投げる。ログの絞り込みのために落とさず、そのパターンは不一致として扱う
+					//正規表現の不正なパターン・バックトラック上限超過・メモリ確保失敗では、ログの絞り込みのために落とさず、そのパターンは不一致として扱う
 					try {
-						CRegexpT<yaya::char_t> regex(it->c_str(),MULTILINE | EXTENDED);
+						CRegexpW regex(it->c_str(),CRegexpW::MULTILINE | CRegexpW::EXTENDED);
+						CRegexpContext ctx;
 
-						MatchResult result = regex.Match(cstr.c_str());
-						if ( result.IsMatched() ) {
+						if ( regex.Match(cstr.c_str(), ctx) ) {
 							found = true;
 							break;
 						}
+					}
+					catch (const CRegexpException&) {
+						continue;
 					}
 					catch (const std::bad_alloc&) {
 						continue;

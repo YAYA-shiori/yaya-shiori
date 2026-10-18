@@ -7,9 +7,9 @@
 [submodule "sqlite"]
 	path = sqlite
 	url = https://github.com/ponapalt/sqlite-amalgamation-new.git
-[submodule "deelx"]
-	path = deelx
-	url = https://github.com/ponapalt/deelx.git
 [submodule "gumbo"]
 	path = gumbo
 	url = https://github.com/ponapalt/gumbo-parser-mirror.git
+[submodule "uka_regexp"]
+	path = uka_regexp
+	url = https://github.com/ukatech/uka_regexp.git

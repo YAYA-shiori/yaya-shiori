@@ -147,6 +147,9 @@
     <ClCompile Include="tinyxml2\tinyxml2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="uka_regexp\uka_regexp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="value.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -258,6 +261,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tinyxml2\tinyxml2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="uka_regexp\uka_regexp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="value.h">

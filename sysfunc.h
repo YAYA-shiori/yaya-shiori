@@ -16,7 +16,7 @@
 
 #include <vector>
 
-#include "deelx/deelx.h"
+#include "uka_regexp/uka_regexp.h"
 
 #include "globaldef.h"
 #include "value.h"
@@ -312,7 +312,7 @@ protected:
 	CValue	LINT_GetLocalVarLetted(CSF_FUNCPARAM& p);
 	CValue	LINT_GetVarRefs(CSF_FUNCPARAM& p);
 
-	CValue	RE_SPLIT_CORE(const CValue &arg, const yaya::string_t &d, int l, const yaya::char_t *fncname, size_t num);
+	CValue	RE_SPLIT_CORE(const CValue &arg, CLocalVariable &lvar, const yaya::string_t &d, int l, const yaya::char_t *fncname, size_t num);
 
 	CValue	IHASH(CSF_FUNCPARAM &p);
 	CValue	HASH_KEYS(CSF_FUNCPARAM &p);
@@ -361,7 +361,7 @@ protected:
 	CValue	SqlExecute(CSF_FUNCPARAM &p, const yaya::char_t *fname, bool query);
 	yaya::string_t	SqlDbName(const yaya::string_t &path);
 
-	void	StoreReResultDetails(const yaya::string_t &str,MatchResult &result);
+	void	StoreReResultDetails(const yaya::string_t &str,const CRegexpContext &ctx);
 	void	ClearReResultDetails(void);
 	void	AppendReResultDetail(const yaya::string_t &str, int pos, int len);
 	void	SetError(int code);

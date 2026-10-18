@@ -586,6 +586,9 @@
 				RelativePath="..\tinyxml2\tinyxml2.cpp">
 			</File>
 			<File
+				RelativePath="..\uka_regexp\uka_regexp.cpp">
+			</File>
+			<File
 				RelativePath="..\value.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -735,6 +738,9 @@
 			</File>
 			<File
 				RelativePath="..\tinyxml2\tinyxml2.h">
+			</File>
+			<File
+				RelativePath="..\uka_regexp\uka_regexp.h">
 			</File>
 			<File
 				RelativePath="..\value.h">

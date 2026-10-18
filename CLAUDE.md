@@ -21,9 +21,9 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 
 ### サブモジュール
 
-- parson / tinyxml2 / deelx / sqlite / gumbo は git サブモジュール。クローン直後は `git submodule update --init` が必要
-- 本体側では編集しない。tinyxml2 / deelx / SQLite の修正は `../tinyxml2` / `../deelx` / `../sqlite-amalgamation-new` のフォーク側で行ってから参照を更新する。いずれも UTF-8 なので Sjis_ 系ツールで触らない
-- サブモジュールを使う処理（JSON/XML、SQL* 関数、HTML）に手を入れる前に `git submodule update --init --remote parson tinyxml2 deelx sqlite gumbo` で参照を最新にする
+- parson / tinyxml2 / uka_regexp / sqlite / gumbo は git サブモジュール。クローン直後は `git submodule update --init` が必要
+- 本体側では編集しない。tinyxml2 / uka_regexp / SQLite の修正は `../tinyxml2` / `../uka_regexp` / `../sqlite-amalgamation-new` のフォーク側で行ってから参照を更新する。tinyxml2 / SQLite は UTF-8 なので Sjis_ 系ツールで触らない（uka_regexp は ASCII のみ）
+- サブモジュールを使う処理（JSON/XML、SQL* 関数、HTML、RE_* 関数）に手を入れる前に `git submodule update --init --remote parson tinyxml2 uka_regexp sqlite gumbo` で参照を最新にする
 - SQLite のフォークは upstream の amalgamation に VC6 / 古い SDK 向けの修正を1コミット載せたもの。64bit のリテラルは `INT64_C()` / `UINT64_C()`（`LL` は VC6 が、`i64` は gcc が読めない）。修正したら VC6 と gcc（Strawberry Perl 同梱）の両方で `sqlite3.c` 単体がコンパイルできることを確かめる
 
 ### VC6 以外（makefile / GitHub Actions）
@@ -44,13 +44,13 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 1. バージョンを上げる（例: `Tc600-2`）。どちらも Shift JIS かつ CRLF なので Sjis_ 系ツールで編集する（Git Bash の `sed -i` は CRLF を LF に変えてしまう）
    - `manifest.cpp` の `aya_version`
    - `aya5.rc` の `FILEVERSION 6,00,2,0` と `VALUE "FileVersion", "6, 00, 2, 0\0"`（`TcXYY-N` → `X,YY,N,0`）
-2. サブモジュール（`parson` / `tinyxml2` / `deelx` / `sqlite` / `gumbo`）の参照を最新に更新する
+2. サブモジュール（`parson` / `tinyxml2` / `uka_regexp` / `sqlite` / `gumbo`）の参照を最新に更新する
    ```powershell
-   git submodule update --init --remote parson tinyxml2 deelx sqlite gumbo
+   git submodule update --init --remote parson tinyxml2 uka_regexp sqlite gumbo
    git submodule status
    ```
    - 参照が変わったら `git diff --submodule` で取り込まれるコミットを確認し、リリースのコミットに含める
-   - ライセンス文の年や著作権者が変わっていたら `sysfunc.cpp` の `LICENSE` 関数の該当部分も合わせる（SQLite はパブリックドメイン）
+   - ライセンス文の年や著作権者が変わっていたら `sysfunc.cpp` の `LICENSE` 関数の該当部分も合わせる（SQLite はパブリックドメイン。uka_regexp は Unlicense なので表記不要）
 3. Release と ReleaseLangSep をリビルドし、ログ末尾が `ｴﾗｰ 0` であることを確認する
    ```powershell
    msdev aya5.dsw /MAKE "aya5 - Win32 Release" /REBUILD /OUT "$env:TEMP\claude\yaya_build_Release.log"
@@ -133,6 +133,13 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 - SQL の中に書いたパス（`ATTACH DATABASE`、`VACUUM INTO` など）は SQLite にそのまま渡る。相対パスを `base_path` から解決するため、`CSqliteDB::Open` は既定の VFS を写して `xFullPathname` だけ差し替えた VFS（`SqliteBaseVfs`）を接続ごとに登録する。POSIX ではここで `fix_filepath` も通す（`ToFullPath` の結果は `\` 区切りのため）
 - 準備済みステートメントは接続ごとに SQL 文字列をキーにしてキャッシュする。初回は1文ずつ prepare → 実行する（`CREATE TABLE t...; CREATE INDEX ... ON t` のように前の文が作った表を次の文が参照すると、まとめて prepare できないため）
 - パラメータは `args[2]` 以降。すべてスカラーなら1回実行、すべて配列/ハッシュなら1つを1回分として繰り返す（関数呼び出しで外側の配列が展開されるのを利用している）。BLOB は16進数の文字列
+
+## 正規表現（RE_* 関数）
+
+- エンジンは `uka_regexp`（`wchar_t` 専用、PCRE2 寄り）。RE_SEARCH / RE_MATCH / RE_ASEARCH(EX) / RE_GREP / RE_SPLIT / RE_REPLACE / RE_REPLACEEX は呼び出しごとに `CRegexpW` をコンパイルする（キャッシュなし）。`RE_OPTION` の `m s x i` は `CRegexpW::MULTILINE` などのフラグ
+- RE_MATCH は `MatchExact`（先頭から末尾まで届く一致）。RE_GREP / RE_SPLIT は `GLOBAL` を付けてコンパイルし、同じ `CRegexpContext` で `Match` を繰り返す（空一致で止まらない）。RE_REPLACEEX は個数指定つきの `Replace` で、`RE_GETSTR` 系には最後に置換した部分（置換後の文字列中の位置）を返す
+- 例外は `RegexErrorCode` で警告番号にする（パターンの誤り `ERR_SYNTAX` は W0016、それ以外は W0017）
+- パターン内の未定義のサブルーチン名 `(?&name)` `\g<name>` などは `ReResolveSubroutine` が解決する。探す順は ローカル変数 `_name`（名前が `_` で始まるときはそのまま）→ グローバル変数 `name` → 関数 `name`（引数なしで実行した戻り値）。文字列と数値だけが使え、VOID・配列・ハッシュは次の候補へ回る。全部だめなら W0016。コンパイルのたびに呼ぶので、関数は副作用に注意
 
 ## SAORI-basic（LOADLIB / REQUESTLIB）
 
