@@ -72,11 +72,6 @@ inline u64 Pair(const u32 *p)
 	return (static_cast<u64>(p[0]) << 32) | static_cast<u64>(p[1]);
 }
 
-inline u64 Pair(u32 hi, u32 lo)
-{
-	return (static_cast<u64>(hi) << 32) | static_cast<u64>(lo);
-}
-
 // ビット幅 width の値のビット順を反転する
 u64 Reflect(u64 v, unsigned int width)
 {
