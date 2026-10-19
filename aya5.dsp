@@ -216,7 +216,7 @@ SOURCE=.\comment.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\crc32.c
+SOURCE=.\digest.cpp
 # End Source File
 # Begin Source File
 
@@ -341,10 +341,6 @@ SOURCE=.\manifest.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\md5c.c
-# End Source File
-# Begin Source File
-
 SOURCE=.\messages.cpp
 # End Source File
 # Begin Source File
@@ -370,10 +366,6 @@ SOURCE=.\parser1.cpp
 # Begin Source File
 
 SOURCE=.\selecter.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\sha1.c
 # End Source File
 # Begin Source File
 
@@ -463,7 +455,7 @@ SOURCE=.\comment.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\crc32.h
+SOURCE=.\digest.h
 # End Source File
 # Begin Source File
 
@@ -476,10 +468,6 @@ SOURCE=.\file.h
 # Begin Source File
 
 SOURCE=.\function.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\global.h
 # End Source File
 # Begin Source File
 
@@ -515,10 +503,6 @@ SOURCE=.\manifest.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\md5.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\messages.h
 # End Source File
 # Begin Source File
@@ -544,10 +528,6 @@ SOURCE=.\parser1.h
 # Begin Source File
 
 SOURCE=.\selecter.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\sha1.h
 # End Source File
 # Begin Source File
 

@@ -97,9 +97,7 @@ const int BUFFER_SIZE = 1024;
 
 extern "C" {
 #define PROTOTYPES 1
-#include "md5.h"
-#include "sha1.h"
-#include "crc32.h"
+#include "digest.h"
 }
 
 //////////DEBUG/////////////////////////
@@ -3053,6 +3051,38 @@ CValue CSystemFunction::FRENAME(CSF_FUNCPARAM &p) {
 
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  DigestTypeFromName
+ *  機能概要：  FDIGEST / STRDIGEST の種類名からダイジェストのアルゴリズムを決める
+ *              大文字小文字と記号は無視する。未知の名前は従来どおり MD5 とみなす
+ * -----------------------------------------------------------------------
+ */
+static const CDigest::Algo* DigestAlgoFromName(const yaya::string_t &name)
+{
+	const CDigest::Algo *algo = CDigest::Find(name.c_str());
+	return algo ? algo : CDigest::Find(L"md5");
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  DigestToHexString
+ *  機能概要：  計算を終えたダイジェストを大文字の16進数文字列にする
+ * -----------------------------------------------------------------------
+ */
+static yaya::string_t DigestToHexString(CDigest &digest)
+{
+	unsigned char result[CDigest::MAX_SIZE];
+	digest.Final(result);
+
+	static const wchar_t hex[] = L"0123456789ABCDEF";
+
+	yaya::string_t str;
+	for ( size_t i = 0 ; i < digest.Size() ; ++i ) {
+		str += hex[result[i] >> 4];
+		str += hex[result[i] & 0x0F];
+	}
+	return str;
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::FDIGEST
  * -----------------------------------------------------------------------
  */
@@ -3089,67 +3119,20 @@ CValue	CSystemFunction::FDIGEST(CSF_FUNCPARAM &p)
 
 	if ( ! pF ) { return CValue(-1); }
 
-	unsigned char digest_result[32];
-	size_t digest_len;
+	CDigest digest(DigestAlgoFromName(digest_type));
 
 	const size_t buf_len = 32768;
-	unsigned char* buf_ptr = new unsigned char[buf_len];
-	
-	if ( wcsicmp(digest_type.c_str(),L"sha1") == 0 || wcsicmp(digest_type.c_str(),L"sha-1") == 0 ) {
-		SHA1Context sha1ctx;
-		SHA1Reset(&sha1ctx);
+	std::vector<unsigned char> buf(buf_len);
 
-		while ( ! feof(pF) ) {
-			size_t readsize = fread(buf_ptr,sizeof(buf_ptr[0]),buf_len,pF);
-			SHA1Input(&sha1ctx,buf_ptr,readsize);
-			if ( readsize < buf_len ) { break; }
-		}
-
-		SHA1Result(&sha1ctx,digest_result);
-		digest_len = SHA1HashSize;
+	for (;;) {
+		size_t readsize = fread(&buf[0],sizeof(buf[0]),buf_len,pF);
+		if ( readsize == 0 ) { break; }
+		digest.Update(&buf[0],readsize);
 	}
-	else if ( wcsicmp(digest_type.c_str(),L"crc32") == 0 ) {
-		unsigned long crc = 0;
-
-		while ( ! feof(pF) ) {
-			size_t readsize = fread(buf_ptr,sizeof(buf_ptr[0]),buf_len,pF);
-			crc = update_crc32(buf_ptr,readsize,crc);;
-			if ( readsize < buf_len ) { break; }
-		}
-
-		digest_result[0] = static_cast<unsigned char>(crc & 0xFFU);
-		digest_result[1] = static_cast<unsigned char>((crc >> 8) & 0xFFU);
-		digest_result[2] = static_cast<unsigned char>((crc >> 16) & 0xFFU);
-		digest_result[3] = static_cast<unsigned char>((crc >> 24) & 0xFFU);
-		digest_len = 4;
-	}
-	else { //md5
-		MD5_CTX md5ctx;
-		MD5Init(&md5ctx);
-
-		while ( ! feof(pF) ) {
-			size_t readsize = fread(buf_ptr,sizeof(buf_ptr[0]),buf_len,pF);
-			MD5Update(&md5ctx,buf_ptr,readsize);
-			if ( readsize < buf_len ) { break; }
-		}
-
-		MD5Final(digest_result,&md5ctx);
-		digest_len = 16;
-	}
-
-	delete [] buf_ptr;
-	buf_ptr = NULL;
 
 	fclose(pF);
 
-	yaya::char_t md5str[65];
-	md5str[digest_len*2] = 0; //ゼロ終端
-
-	for ( unsigned int i = 0 ; i < digest_len ; ++i ) {
-		yaya::snprintf(md5str+i*2,sizeof(md5str)/sizeof(md5str[0]), L"%02X",digest_result[i]);
-	}
-
-	return CValue(yaya::string_t(md5str));
+	return CValue(DigestToHexString(digest));
 }
 
 /* -----------------------------------------------------------------------
@@ -3176,51 +3159,11 @@ CValue	CSystemFunction::STRDIGEST(CSF_FUNCPARAM &p)
 	}
 	yaya::string_t buf = p.arg.array()[0].GetValueString();
 
-	unsigned char digest_result[32];
-	size_t digest_len;
-
 	// 内部表現(UTF-16/UTF-32)のバイト列を対象にするので、長さは文字数ではなくバイト数
-	const size_t buf_len = buf.size() * sizeof(yaya::char_t);
-	unsigned char* buf_ptr = (unsigned char*)buf.c_str();
-	
-	if ( wcsicmp(digest_type.c_str(),L"sha1") == 0 || wcsicmp(digest_type.c_str(),L"sha-1") == 0 ) {
-		SHA1Context sha1ctx;
-		SHA1Reset(&sha1ctx);
+	CDigest digest(DigestAlgoFromName(digest_type));
+	digest.Update(buf.c_str(), buf.size() * sizeof(yaya::char_t));
 
-		SHA1Input(&sha1ctx,buf_ptr,buf_len);
-
-		SHA1Result(&sha1ctx,digest_result);
-		digest_len = SHA1HashSize;
-	}
-	else if ( wcsicmp(digest_type.c_str(),L"crc32") == 0 ) {
-		unsigned long crc = 0;
-
-		crc = update_crc32(buf_ptr,buf_len,crc);
-
-		digest_result[0] = static_cast<unsigned char>(crc & 0xFFU);
-		digest_result[1] = static_cast<unsigned char>((crc >> 8) & 0xFFU);
-		digest_result[2] = static_cast<unsigned char>((crc >> 16) & 0xFFU);
-		digest_result[3] = static_cast<unsigned char>((crc >> 24) & 0xFFU);
-		digest_len = 4;
-	}
-	else { //md5
-		MD5_CTX md5ctx;
-		MD5Init(&md5ctx);
-
-		MD5Update(&md5ctx,buf_ptr,buf_len);
-
-		MD5Final(digest_result,&md5ctx);
-		digest_len = 16;
-	}
-
-	yaya::char_t md5str[65];
-	md5str[digest_len*2] = 0; //ゼロ終端
-
-	for ( unsigned int i = 0 ; i < digest_len ; ++i ) {
-		yaya::snprintf(md5str+i*2,sizeof(md5str)/sizeof(md5str[0]), L"%02X",digest_result[i]);
-	}
-
-	return CValue(yaya::string_t(md5str));
+	return CValue(DigestToHexString(digest));
 }
 
 /* -----------------------------------------------------------------------

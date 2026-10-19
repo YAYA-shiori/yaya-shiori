@@ -68,7 +68,7 @@ Linux と macOS は手動実行の GitHub Actions（`posix-build.yml`）でビ�
 | `make_aya.bat` | 配布用 zip（`tmp/yaya.zip` `tmp/yaya_lang_sep.zip`）の作成 |
 | `tests/` | POSIX 向けのスモークテストとベンチマーク |
 | `OriginalAya/` | AYA Ver.5 オリジナル（umeici 氏）の配布物 |
-| `md5c.c` `sha1.c` `crc32.c` `mt19937ar.cpp` | ハッシュ・乱数の実装 |
+| `digest.cpp` `mt19937ar.cpp` | ハッシュ（MD5・SHA-1・SHA-2・SHA-3・Adler-32・各種 CRC）・乱数の実装 |
 | `parson/` `tinyxml2/` `uka_regexp/` `sqlite/` `gumbo/` | git サブモジュール |
 
 ## ビルド
@@ -114,16 +114,13 @@ Copyright (c) 2007-, 整備班 (SEIBIHAN)
 | 名前 | 用途 | ライセンス | 場所 |
 |------|------|------------|------|
 | [Mersenne Twister (MT19937)](http://www.math.sci.hiroshima-u.ac.jp/m-mat/MT/emt.html) | 乱数 | BSD 3-Clause（Makoto Matsumoto, Takuji Nishimura） | `mt19937ar.cpp` |
-| MD5 Message-Digest Algorithm | `STRDIGEST` / `FDIGEST`（md5） | RSA Data Security, Inc. の使用許諾（下記） | `md5.h` `md5c.c` |
-| SHA-1（FIPS PUB 180-1） | 同（sha1） | ソース中に明示なし | `sha1.h` `sha1.c` |
-| CRC-32（zlib） | 同（crc32） | zlib License（Mark Adler） | `crc32.h` `crc32.c` |
 | [parson](https://github.com/kgabis/parson) | JSON | MIT License（Krzysztof Gabis） | `parson/` |
 | [TinyXML-2](https://github.com/leethomason/tinyxml2) | XML | zlib License（Lee Thomason） | `tinyxml2/` |
 | [uka_regexp](https://github.com/ukatech/uka_regexp) | 正規表現 | Unlicense（パブリックドメイン） | `uka_regexp/` |
 | [SQLite](https://www.sqlite.org/) | SQL | パブリックドメイン | `sqlite/` |
 | [Gumbo](https://github.com/google/gumbo-parser) | HTML | Apache License 2.0（Google Inc.）、UTF-8 デコーダは MIT License（Bjoern Hoehrmann） | `gumbo/` |
 
-- MD5 は RSA Data Security, Inc. の許諾により、これを言及する資料では「RSA Data Security, Inc. MD5 Message-Digest Algorithm」と、派生物では「derived from the RSA Data Security, Inc. MD5 Message-Digest Algorithm」と明記する必要があります。
+- `STRDIGEST` / `FDIGEST` のダイジェスト（MD5・SHA-1・SHA-2・SHA-3・Adler-32・各種 CRC）は、公開されている仕様（RFC 1321・RFC 1950・FIPS 180-4・FIPS 202・CRC のカタログ）をもとに `digest.cpp` で実装したもので、外部のコードを含みません。
 - バイナリ（`yaya.dll`）に含まれるサードパーティのライセンス全文のうち、MT19937・parson・TinyXML-2・Gumbo・SQLite の分は、システム関数 `LICENSE` で取得できます。
 - サブモジュールの本体は、それぞれのリポジトリのライセンスに従います（`tinyxml2` `sqlite` `gumbo` は、VC6・古い SDK 向けの修正を載せたフォークです）。
 

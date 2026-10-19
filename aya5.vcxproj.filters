@@ -30,7 +30,7 @@
     <ClCompile Include="comment.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="crc32.c">
+    <ClCompile Include="digest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="duplevinfo.cpp">
@@ -108,9 +108,6 @@
     <ClCompile Include="manifest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="md5c.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="misc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -127,9 +124,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="selecter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sha1.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sqlite3_yaya.c">
@@ -188,16 +182,13 @@
     <ClInclude Include="comment.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="crc32.h">
+    <ClInclude Include="digest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="file.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="function.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="globaldef.h">
@@ -224,9 +215,6 @@
     <ClInclude Include="manifest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="md5.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="messages.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -246,9 +234,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="selecter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sha1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sqlitedb.h">

@@ -31,7 +31,7 @@ LIBAYA5_OBJ = \
 	basis.o \
 	ccct.o \
 	comment.o \
-	crc32.o \
+	digest.o \
 	dir_enum.o \
 	duplevinfo.o \
 	file.o \
@@ -58,7 +58,6 @@ LIBAYA5_OBJ = \
 	log.o \
 	logexcode.o \
 	manifest.o \
-	md5c.o \
 	messages.o \
 	misc.o \
 	mt19937ar.o \
@@ -66,7 +65,6 @@ LIBAYA5_OBJ = \
 	parser0.o \
 	parser1.o \
 	selecter.o \
-	sha1.o \
 	sqlite3_yaya.o \
 	sqlitedb.o \
 	sysfunc.o \
