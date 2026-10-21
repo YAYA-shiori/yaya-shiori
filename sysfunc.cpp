@@ -8278,7 +8278,19 @@ static std::string SendDataUsingUnixSocket(const std::string &path, std::string 
 		close(soc);
 		return "";
 	}
-	if (send(soc, request.data(), request.size(), 0) != static_cast<ssize_t>(request.size())) {
+	// 相手が先に閉じていても SIGPIPE でホストが落ちないようにする
+#if defined(MSG_NOSIGNAL)
+	const int sendflags = MSG_NOSIGNAL;
+#else
+	const int sendflags = 0;
+#	if defined(SO_NOSIGPIPE)
+	{
+		int on = 1;
+		setsockopt(soc, SOL_SOCKET, SO_NOSIGPIPE, &on, sizeof(on));
+	}
+#	endif
+#endif
+	if (send(soc, request.data(), request.size(), sendflags) != static_cast<ssize_t>(request.size())) {
 		close(soc);
 		return "";
 	}
@@ -8287,9 +8299,15 @@ static std::string SendDataUsingUnixSocket(const std::string &path, std::string 
 	std::string data;
 	uint32_t remain = 0;
 	if (has_header) {
-		if (read(soc, buffer, sizeof(uint32_t)) != sizeof(uint32_t)) {
-			close(soc);
-			return "";
+		// 4バイトが分割して届くこともあるので揃うまで読む
+		size_t got = 0;
+		while (got < sizeof(uint32_t)) {
+			ssize_t r = read(soc, buffer + got, sizeof(uint32_t) - got);
+			if (r <= 0) {
+				close(soc);
+				return "";
+			}
+			got += static_cast<size_t>(r);
 		}
 		memcpy(&remain, buffer, sizeof(uint32_t));
 		if (remain <= 0x1000000) { //相手の申告した長さをそのまま確保しない
