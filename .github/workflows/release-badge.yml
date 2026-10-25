@@ -1,0 +1,73 @@
+name: release-badge
+
+# 最新リリースのバージョンと公開日のバッジ (badge.svg) を作って GitHub Pages に公開する。
+# ukatech.shillest.net のトップページがこのバッジを参照している。
+#
+# - リリースの公開時: github-pages 環境がデフォルトブランチ以外 (タグ) からのデプロイを許さないので、
+#   デフォルトブランチ上でこのワークフローを workflow_dispatch で起こし直す。
+# - 手動実行 (Actions タブの "Run workflow"): デフォルトブランチを選んで実行する。
+#   公開済みの最新リリース (リリースページの「Latest」) を読むので、初回やバッジの作り直しにも使える。
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  redispatch:
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - run: gh workflow run release-badge.yml --repo "$GITHUB_REPOSITORY" --ref "$DEFAULT_BRANCH"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+
+  build:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      # yaya / satori / kawari。ukatech.github.io の site/assets/tokens.css の色を使う
+      PROJECT: yaya
+    steps:
+      # バッジの生成スクリプトと色の定義はサイトのリポジトリにある
+      - uses: actions/checkout@v7
+        with:
+          repository: ukatech/ukatech.github.io
+          sparse-checkout: |
+            scripts/make_release_badge.py
+            site/assets/tokens.css
+      - name: Make badge.svg
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          release=$(gh api "repos/$GITHUB_REPOSITORY/releases/latest")
+          version=$(jq -r 'if ((.name // "") | length) > 0 then .name else .tag_name end' <<<"$release")
+          published=$(jq -r '.published_at' <<<"$release")
+          mkdir _site
+          python3 scripts/make_release_badge.py --project "$PROJECT" --version "$version" --published-at "$published" --out _site/badge.svg
+          cat _site/badge.svg
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
