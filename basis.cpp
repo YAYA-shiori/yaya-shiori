@@ -1453,6 +1453,85 @@ static void RestoreSaveHashBody(CValue &var, const yaya::string_t &str, yaya::st
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  AppendSaveValue
+ *  機能概要：  値1つを、セーブファイルの「変数内容」（名前,内容,デリミタ の内容）の書式で追加します
+ *
+ *  整数/実数はそのまま、文字列はダブルクォートで囲み、配列/ハッシュは要素を":"で区切ります。
+ *  書式の無い型（VOIDなど）は何も追加せずfalseを返します。
+ * -----------------------------------------------------------------------
+ */
+bool AppendSaveValue(yaya::string_t &str, const CValue &value)
+{
+	yaya::string_t wstr;
+
+	switch(value.GetType()) {
+	case F_TAG_INT:
+		str += yaya::ws_lltoa(value.i_value);
+		return true;
+	case F_TAG_DOUBLE:
+		AppendSaveDouble(str, value.d_value);
+		return true;
+	case F_TAG_STRING:
+		wstr = value.s_value;
+		EscapeString(wstr);
+		str += L"\"";
+		str += wstr;
+		str += L"\"";
+		return true;
+	case F_TAG_ARRAY:
+		AppendSaveArrayBody(str, value);
+		return true;
+	case F_TAG_HASH:
+		AppendSaveHashBody(str, value);
+		return true;
+	default:
+		return false;
+	};
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  RestoreSaveValue
+ *  機能概要：  セーブファイルの「変数内容」の書式の文字列から値を復元します
+ *
+ *  書式として読めなければ、outに触れずにfalseを返します。
+ *  型は、整数/実数/無限大・NaN/ダブルクォートで囲まれた文字列/配列/ハッシュの順に判定します。
+ * -----------------------------------------------------------------------
+ */
+bool RestoreSaveValue(CValue &out, const yaya::string_t &value)
+{
+	double special_d = 0.0;
+
+	if (IsIntString(value)) {
+		out = CValue(yaya::ws_atoll(value));
+	}
+	else if (IsDoubleButNotIntString(value)) {
+		out = CValue(yaya::ws_atof(value));
+	}
+	else if (ParseSaveSpecialDouble(value, special_d)) {
+		out = CValue(special_d);
+	}
+	else if (!IsLegalStrLiteral(value)) {
+		yaya::string_t str(value);
+		CutDoubleQuote(str);
+		UnescapeString(str);
+		out = CValue(str);
+	}
+	else {
+		// 配列とハッシュは":"を含む（要素が1つのときも末尾に":IARRAY"などが付く）
+		if (FindSaveSep(value, L':') == yaya::string_t::npos) {
+			return false;
+		}
+		if (FindSaveSep(value, L'=') != yaya::string_t::npos) {
+			RestoreSaveHashBody(out, value, 0, value.size());
+		}
+		else {
+			RestoreSaveArrayBody(out, value, 0, value.size());
+		}
+	}
+	return true;
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CBasis::SaveVariable
  *  機能概要：  変数値をファイルに保存します
  *
@@ -1569,34 +1648,12 @@ void	CBasis::SaveVariable(const yaya::char_t* pName)
 		str += L',';
 
 		// 値の保存
-		switch(var->value_const().GetType()) {
-		case F_TAG_INT:
-			str += yaya::ws_lltoa(var->value_const().i_value);
+		if (AppendSaveValue(str, var->value_const())) {
 			str += L',';
-			break;
-		case F_TAG_DOUBLE:
-			AppendSaveDouble(str, var->value_const().d_value);
-			str += L',';
-			break;
-		case F_TAG_STRING:
-			wstr = var->value_const().s_value;
-			EscapeString(wstr);
-			str += L"\"";
-			str += wstr;
-			str += L"\",";
-			break;
-		case F_TAG_ARRAY:
-			AppendSaveArrayBody(str, var->value_const());
-			str += L',';
-			break;
-		case F_TAG_HASH:
-			AppendSaveHashBody(str, var->value_const());
-			str += L",";
-			break;
-		default:
+		}
+		else {
 			vm.logger().Error(E_W, 7, var->name);
-			break;
-		};
+		}
 		// デリミタの保存
 		wstr = var->delimiter;
 		EscapeString(wstr);
@@ -1749,35 +1806,11 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 		}
 		else
 			delimiter = parseline;
-		// 値をチェックして型を判定
-		int	type;
-		double	special_d = 0.0;
-		bool	is_special_d = false;
-
-		if (IsIntString(value)) {
-			type = F_TAG_INT;
-		}
-		else if (IsDoubleButNotIntString(value)) {
-			type = F_TAG_DOUBLE;
-		}
-		else if (ParseSaveSpecialDouble(value, special_d)) {
-			type = F_TAG_DOUBLE;
-			is_special_d = true;
-		}
-		else if (!IsLegalStrLiteral(value)) {
-			type = F_TAG_STRING;
-		}
-		else {
-			if (FindSaveSep(value,L':') == yaya::string_t::npos) {
-				vm.logger().Error(E_W, 4, filename, i);
-				continue;
-			}
-			else {
-				type = F_TAG_ARRAY;
-				if (FindSaveSep(value,L'=') != yaya::string_t::npos) {
-					type = F_TAG_HASH;
-				}
-			}
+		// 値をチェックして型を判定し、復元する
+		CValue	restored;
+		if (!RestoreSaveValue(restored, value)) {
+			vm.logger().Error(E_W, 4, filename, i);
+			continue;
 		}
 		// デリミタの正当性を検査
 		if (!delimiter.size()) {
@@ -1786,34 +1819,7 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 		}
 		// 変数を作成
 		int	index = vm.variable().Make(varname, 0);
-		vm.variable().SetType(index, type);
-
-		if (type == F_TAG_INT) {
-			// 整数型
-			vm.variable().SetValue(index, yaya::ws_atoll(value));
-		}
-		else if (type == F_TAG_DOUBLE) {
-			// 実数型
-			vm.variable().SetValue(index, is_special_d ? special_d : yaya::ws_atof(value));
-		}
-		else if (type == F_TAG_STRING) {
-			// 文字列型
-			CutDoubleQuote(value);
-			UnescapeString(value);
-			vm.variable().SetValue(index, value);
-		}
-		else if (type == F_TAG_ARRAY) {
-			// 配列型
-			RestoreArrayVariable(*(vm.variable().GetValuePtr(index)), value);
-		}
-		else if (type == F_TAG_HASH) {
-			// 連想配列型
-			RestoreHashVariable(*(vm.variable().GetValuePtr(index)), value);
-		}
-		else {
-			vm.logger().Error(E_W, 6, filename, i);
-			continue;
-		}
+		vm.variable().SetValue(index, restored);
 		vm.variable().SetDelimiter(index, delimiter);
 		CVariable& v = *vm.variable().GetPtr(index);
 		v.set_watcher(watcher);
@@ -1825,27 +1831,6 @@ void	CBasis::RestoreVariable(const yaya::char_t* pName)
 	fclose(fp);
 
 	vm.logger().Message(8);
-}
-
-/* -----------------------------------------------------------------------
- *  関数名  ：  CBasis::RestoreArrayVariable
- *  機能概要：  RestoreVariableから呼ばれます。配列変数の内容を復元します
- * -----------------------------------------------------------------------
- */
-void	CBasis::RestoreArrayVariable(CValue &var, yaya::string_t &value)
-{
-	RestoreSaveArrayBody(var, value, 0, value.size());
-}
-
-
-/* -----------------------------------------------------------------------
- *  関数名  ：  CBasis::RestoreHashVariable
- *  機能概要：  RestoreVariableから呼ばれます。ハッシュ変数の内容を復元します
- * -----------------------------------------------------------------------
- */
-void	CBasis::RestoreHashVariable(CValue &var, yaya::string_t &value)
-{
-	RestoreSaveHashBody(var, value, 0, value.size());
 }
 
 /* -----------------------------------------------------------------------

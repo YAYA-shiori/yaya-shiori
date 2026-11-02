@@ -271,6 +271,8 @@ constexpr CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::FWRITEBIN , L"FWRITEBIN" } ,
 	// 特殊(5)
 	{ &CSystemFunction::RESTOREVAR , L"RESTOREVAR" } ,
+	{ &CSystemFunction::SERIALIZEVAR , L"SERIALIZEVAR" } ,
+	{ &CSystemFunction::DESERIALIZEVAR , L"DESERIALIZEVAR" } ,
 	{ &CSystemFunction::GETCALLSTACK , L"GETCALLSTACK" } ,
 	// 文字列操作(7) 互換用
 	{ &CSystemFunction::STRENCODE , L"GETSTRURLENCODE" } ,
@@ -6269,6 +6271,108 @@ CValue	CSystemFunction::RESTOREVAR(CSF_FUNCPARAM &p)
 	}
 
 	return CValue(F_TAG_NOP, 0/*dmy*/);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::SERIALIZEVAR
+ *
+ *  指定した変数の値を、セーブファイルの「変数内容」の書式の文字列にします。
+ *  名前が"_"で始まればローカル変数、それ以外はグローバル変数です。
+ *  存在しない・VOID・消去済みの変数は、警告を出してVOIDを返します。
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::SERIALIZEVAR(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"SERIALIZEVAR", p.dicname, p.line);
+		SetError(8);
+		return CValue();
+	}
+
+	if (!p.arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"SERIALIZEVAR", p.dicname, p.line);
+		SetError(9);
+	}
+
+	const yaya::string_t &name = p.arg.array()[0].GetValueString();
+	if (!name.size()) {
+		vm.logger().Error(E_W, 10, L"SERIALIZEVAR", p.dicname, p.line);
+		SetError(10);
+		return CValue();
+	}
+
+	CVariable *pv;
+	if (name[0] == L'_')
+		pv = p.lvar.GetPtr(name);
+	else
+		pv = vm.variable().GetPtr(name);
+
+	yaya::string_t result;
+	if (!pv || pv->IsErased() || !AppendSaveValue(result, pv->value_const())) {
+		vm.logger().Error(E_W, 12, L"SERIALIZEVAR : " + name, p.dicname, p.line);
+		SetError(12);
+		return CValue();
+	}
+
+	return CValue(result);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::DESERIALIZEVAR
+ *
+ *  SERIALIZEVARの書式の文字列から値を復元し、指定した変数へ格納します。
+ *  名前が"_"で始まればローカル変数、それ以外はグローバル変数です（無ければ作ります）。
+ *  LETTONAMEと同じく、setter/watcherは呼ばず、デリミタなどの属性も変えません。
+ *  成功すれば1、書式として読めなければ変数に触れずに警告を出して0を返します。
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::DESERIALIZEVAR(CSF_FUNCPARAM &p)
+{
+	if (p.arg.array_size() < 2) {
+		vm.logger().Error(E_W, 8, L"DESERIALIZEVAR", p.dicname, p.line);
+		SetError(8);
+		return CValue(0);
+	}
+
+	if (!p.arg.array()[0].IsString() || !p.arg.array()[1].IsString()) {
+		vm.logger().Error(E_W, 9, L"DESERIALIZEVAR", p.dicname, p.line);
+		SetError(9);
+		return CValue(0);
+	}
+
+	const yaya::string_t &name = p.arg.array()[0].GetValueString();
+	const yaya::string_t &text = p.arg.array()[1].GetValueString();
+
+	if (!name.size()) {
+		vm.logger().Error(E_W, 10, L"DESERIALIZEVAR", p.dicname, p.line);
+		SetError(10);
+		return CValue(0);
+	}
+
+	// 変数名の正当性（グローバルはRESTOREVARと同じ検査。ローカルは"_"始まりの名前が正当で16が返る）
+	bool is_local = (name[0] == L'_');
+	if (IsLegalVariableName(name) != (is_local ? 16 : 0)) {
+		vm.logger().Error(E_W, 12, L"DESERIALIZEVAR : " + name, p.dicname, p.line);
+		SetError(12);
+		return CValue(0);
+	}
+
+	CValue restored;
+	if (!RestoreSaveValue(restored, text)) {
+		vm.logger().Error(E_W, 26, L"DESERIALIZEVAR : " + name, p.dicname, p.line);
+		SetError(26);
+		return CValue(0);
+	}
+
+	if (is_local) {
+		p.lvar.SetValue(name, restored);
+	}
+	else {
+		int index = vm.variable().Make(name, 0);
+		vm.variable().SetValue(index, restored);
+	}
+
+	return CValue(1);
 }
 
 /* -----------------------------------------------------------------------

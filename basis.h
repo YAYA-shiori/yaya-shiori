@@ -148,10 +148,13 @@ protected:
 	bool LoadBaseConfigureFile(std::vector<CDic1> &dics);
 
 	void LoadBaseConfigureFile_Base(yaya::string_t filename, std::vector<CDic1> &dics,char cset);
-
-	void	RestoreArrayVariable(CValue &var, yaya::string_t &value);
-	void	RestoreHashVariable(CValue &var, yaya::string_t &value);
 };
+
+// セーブファイルの「変数内容」（名前,内容,デリミタ の内容）の書式と値の相互変換
+// AppendSaveValue: 値を書式にして追加する（VOIDなど書式の無い型は何も追加せずfalse）
+// RestoreSaveValue: 書式の文字列から値を作る（読めなければoutに触れずfalse）
+bool	AppendSaveValue(yaya::string_t &str, const CValue &value);
+bool	RestoreSaveValue(CValue &out, const yaya::string_t &value);
 
 //----
 
