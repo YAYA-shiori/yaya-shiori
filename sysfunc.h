@@ -43,6 +43,23 @@ class CSF_FUNCPARAM;
 class	CSystemFunction;
 class	CSystemFunctionInit;
 
+// システム関数が「直前の呼び出し」について覚えている状態（GETLASTERROR、LSO、RE_GETSTRなど）
+// ワーカースレッドと実行権を切り替えるとき、スレッドごとに持てるよう入れ替える（workthread.cpp）
+class CSysFuncState
+{
+public:
+	int		lasterror;
+	size_t	lso;
+	CValue	re_str;
+	CValue	re_pos;
+	CValue	re_len;
+	int		re_option;
+
+	// 正規表現の結果は、CSystemFunctionと同じく空の配列で始める（空の値のままだと配列として使えない）
+	CSysFuncState(void) : lasterror(0), lso(0),
+		re_str(F_TAG_ARRAY, 0/*dmy*/), re_pos(F_TAG_ARRAY, 0/*dmy*/), re_len(F_TAG_ARRAY, 0/*dmy*/), re_option(0) { }
+};
+
 typedef CValue (CSystemFunction::*SysFuncProc)(CSF_FUNCPARAM &p);
 
 typedef struct CSF_FUNCTABLE
@@ -86,6 +103,16 @@ public:
 	static const yaya::char_t* HistoryFunctionName(void);
 
 	void	SetLso(size_t order) { lso = order; }
+
+	// 直前の呼び出しの状態をsと入れ替える。実行権を持つスレッドが切り替わるたびに、出る側・入る側で呼ぶ
+	void	SwapState(CSysFuncState &s) {
+		std::swap(lasterror, s.lasterror);
+		std::swap(lso, s.lso);
+		re_str.swap(s.re_str);
+		re_pos.swap(s.re_pos);
+		re_len.swap(s.re_len);
+		std::swap(re_option, s.re_option);
+	}
 
 	CValue	Execute(ptrdiff_t index, const CValue &arg, const std::vector<CCell *> &pcellarg,
 				CValueArgArray &valuearg, CLocalVariable &lvar, int l, CFunction *thisfunc);
@@ -225,6 +252,13 @@ protected:
 	CValue	RESTOREVAR(CSF_FUNCPARAM &p);
 	CValue	SERIALIZEVAR(CSF_FUNCPARAM &p);
 	CValue	DESERIALIZEVAR(CSF_FUNCPARAM &p);
+
+	CValue	THREADSTART(CSF_FUNCPARAM &p);
+	CValue	THREADSTATE(CSF_FUNCPARAM &p);
+	CValue	THREADSTOP(CSF_FUNCPARAM &p);
+	CValue	THREADJOIN(CSF_FUNCPARAM &p);
+	CValue	THREADRESULT(CSF_FUNCPARAM &p);
+	CValue	THREADCLOSE(CSF_FUNCPARAM &p);
 
 	CValue	GETSTRBYTES(CSF_FUNCPARAM &p);
 

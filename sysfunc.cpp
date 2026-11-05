@@ -89,6 +89,7 @@ const int BUFFER_SIZE = 1024;
 #include "globaldef.h"
 #include "value.h"
 #include "variable.h"
+#include "workthread.h"
 #include "wsex.h"
 #include "dir_enum.h"
 #include "jsonxml.h"
@@ -395,6 +396,13 @@ constexpr CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::SQLCLOSE , L"SQLCLOSE" } ,
 	{ &CSystemFunction::SQLEXEC , L"SQLEXEC" } ,
 	{ &CSystemFunction::SQLQUERY , L"SQLQUERY" } ,
+	// スレッド
+	{ &CSystemFunction::THREADSTART , L"THREADSTART" } ,
+	{ &CSystemFunction::THREADSTATE , L"THREADSTATE" } ,
+	{ &CSystemFunction::THREADSTOP , L"THREADSTOP" } ,
+	{ &CSystemFunction::THREADJOIN , L"THREADJOIN" } ,
+	{ &CSystemFunction::THREADRESULT , L"THREADRESULT" } ,
+	{ &CSystemFunction::THREADCLOSE , L"THREADCLOSE" } ,
 };
 
 #define SYSFUNC_NUM (sizeof(CSystemFunction::sysfunc)/sizeof(CSystemFunction::sysfunc[0]))
@@ -7974,9 +7982,21 @@ CValue	CSystemFunction::EXECUTE_WAIT(CSF_FUNCPARAM &p)
 	}
 	else if ( ::ShellExecuteExA(&inf) ) {
 		if ( inf.hProcess ) {
-			::WaitForSingleObject(inf.hProcess,INFINITE);
+			// 待つ間はGILを手放して、ほかのスレッド（SSPのrequestを含む）を動かす。
+			// ワーカーが中断を求められたら、待つのをやめる（起動したプロセスはそのままにする）
+			bool canceled = false;
+			CWorkerContext *me = vm.threads().Current();
+			{
+				CGilRelease rel(vm.threads(), true);
+				while ( ::WaitForSingleObject(inf.hProcess, 200) == WAIT_TIMEOUT ) {
+					if ( me && me->cancel ) {
+						canceled = true;
+						break;
+					}
+				}
+			}
 			DWORD status;
-			if ( ::GetExitCodeProcess(inf.hProcess,&status) ) {
+			if ( ! canceled && ::GetExitCodeProcess(inf.hProcess,&status) ) {
 				result = (yaya::int_t)status;
 			}
 			else {
@@ -8001,8 +8021,14 @@ CValue	CSystemFunction::EXECUTE_WAIT(CSF_FUNCPARAM &p)
 #elif defined(POSIX)
 
 	std::string s_dir = posix_path(dir);
+	std::string s_cmd = MakeExecuteCommandPosix(file, param);
 
-	result = ExecutePosix(MakeExecuteCommandPosix(file, param), s_dir, true);
+	{
+		// 待つ間はGILを手放して、ほかのスレッド（SSPのrequestを含む）を動かす。
+		// POSIXでは、終わるまで待つ（中断を求められても途中では戻らない）
+		CGilRelease rel(vm.threads(), true);
+		result = ExecutePosix(s_cmd, s_dir, true);
+	}
 
 #endif
 
@@ -8104,6 +8130,11 @@ CValue	CSystemFunction::SLEEP(CSF_FUNCPARAM &p)
 		vm.logger().Error(E_W, 9, L"SLEEP", p.dicname, p.line);
 		SetError(9);
 		return CValue(-1);
+	}
+
+	// ワーカースレッドなら、実行権を手放して待つ（中断されたら早く戻る）
+	if (vm.threads().WorkerSleep(static_cast<unsigned long>(time))) {
+		return CValue(0);
 	}
 
 #if defined(WIN32)
@@ -8476,6 +8507,190 @@ static bool GetNinixFMO(std::string &sockdir, std::string &fmo)
 
 #endif
 
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::THREADSTART
+ *  機能概要：  指定した関数を別スレッドで実行します
+ *
+ *  THREADSTART(関数名[,引数...])　スレッドのID（1以上）を返します。
+ *  失敗したときは負の値を返します。
+ *  -1=関数がない -2=同時に動かせる数を超えた -3=終了処理中 -4=スレッドを作れない -5=このビルドは非対応
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::THREADSTART(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"THREADSTART", p.dicname, p.line);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!p.arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"THREADSTART", p.dicname, p.line);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	CValue	args(F_TAG_ARRAY, 0/*dmy*/);
+	for (size_t i = 1; i < p.arg.array_size(); ++i) {
+		args.array().emplace_back(p.arg.array()[i]);
+	}
+
+	int r = vm.threads().Start(p.arg.array()[0].s_value, args);
+	if (r < 0) {
+		const yaya::char_t *reason = L"THREADSTART";
+		switch (r) {
+		case WORKER_START_NOFUNC:	reason = L"THREADSTART : function not found"; break;
+		case WORKER_START_TOOMANY:	reason = L"THREADSTART : too many threads"; break;
+		case WORKER_START_DENIED:	reason = L"THREADSTART : unloading"; break;
+		case WORKER_START_FAILED:	reason = L"THREADSTART : cannot create a thread"; break;
+		case WORKER_START_NOSUPPORT:reason = L"THREADSTART : not supported"; break;
+		}
+		vm.logger().Error(E_W, 35, reason, p.dicname, p.line);
+		SetError(13);
+	}
+	return CValue(r);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::THREADSTATE
+ *  機能概要：  スレッドの状態を返します
+ *
+ *  THREADSTATE(ID)　-1=IDがない 0=実行中 1=正常に終了 2=中断された 3=エラーで終了
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::THREADSTATE(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"THREADSTATE", p.dicname, p.line);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!p.arg.array()[0].IsIntReal()) {
+		vm.logger().Error(E_W, 9, L"THREADSTATE", p.dicname, p.line);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	return CValue(vm.threads().State(static_cast<int>(p.arg.array()[0].GetValueInt())));
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::THREADSTOP
+ *  機能概要：  スレッドに中断を求めます（終わるのを待たない）
+ *
+ *  THREADSTOP(ID)　1=中断を求めた 0=すでに終わっている -1=IDがない
+ *  スレッドは次の文の境目で関数を抜けます。SLEEPなどの待機は途中で戻ります
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::THREADSTOP(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"THREADSTOP", p.dicname, p.line);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!p.arg.array()[0].IsIntReal()) {
+		vm.logger().Error(E_W, 9, L"THREADSTOP", p.dicname, p.line);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	return CValue(vm.threads().Stop(static_cast<int>(p.arg.array()[0].GetValueInt())));
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::THREADJOIN
+ *  機能概要：  スレッドが終わるのを待ちます
+ *
+ *  THREADJOIN(ID[,ミリ秒])　1=終わった 0=時間切れ -1=IDがない -2=自分自身
+ *  ミリ秒を省略すると終わるまで待ちます。待っている間、ほかのスレッドは動けます
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::THREADJOIN(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"THREADJOIN", p.dicname, p.line);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!p.arg.array()[0].IsIntReal()) {
+		vm.logger().Error(E_W, 9, L"THREADJOIN", p.dicname, p.line);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	long timeout = -1;
+	if (p.arg.array_size() >= 2) {
+		if (!p.arg.array()[1].IsIntReal()) {
+			vm.logger().Error(E_W, 9, L"THREADJOIN", p.dicname, p.line);
+			SetError(9);
+			return CValue(-1);
+		}
+		timeout = static_cast<long>(p.arg.array()[1].GetValueInt());
+		if (timeout < 0) {
+			timeout = 0;
+		}
+	}
+
+	return CValue(vm.threads().Join(static_cast<int>(p.arg.array()[0].GetValueInt()), timeout));
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::THREADRESULT
+ *  機能概要：  終わったスレッドの関数の返り値を返します
+ *
+ *  THREADRESULT(ID)　実行中・中断された・IDがないときは空の値
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::THREADRESULT(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"THREADRESULT", p.dicname, p.line);
+		SetError(8);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	if (!p.arg.array()[0].IsIntReal()) {
+		vm.logger().Error(E_W, 9, L"THREADRESULT", p.dicname, p.line);
+		SetError(9);
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+
+	CValue	result(F_TAG_NOP, 0/*dmy*/);
+	int id = static_cast<int>(p.arg.array()[0].GetValueInt());
+	if (vm.threads().State(id) != WORKER_FINISHED || !vm.threads().GetResult(id, result)) {
+		return CValue(F_TAG_NOP, 0/*dmy*/);
+	}
+	return result;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::THREADCLOSE
+ *  機能概要：  スレッドの記録を捨てます。実行中なら中断を求め、終わったら捨てます
+ *
+ *  THREADCLOSE(ID)　0=捨てた 1=中断を求めた（終わったら捨てる） -1=IDがない
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::THREADCLOSE(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"THREADCLOSE", p.dicname, p.line);
+		SetError(8);
+		return CValue(-1);
+	}
+
+	if (!p.arg.array()[0].IsIntReal()) {
+		vm.logger().Error(E_W, 9, L"THREADCLOSE", p.dicname, p.line);
+		SetError(9);
+		return CValue(-1);
+	}
+
+	return CValue(vm.threads().Close(static_cast<int>(p.arg.array()[0].GetValueInt())));
+}
+
 CValue	CSystemFunction::DIRECTSSTP(CSF_FUNCPARAM &p)
 {
 #ifdef POSIX
@@ -8504,7 +8719,13 @@ CValue	CSystemFunction::DIRECTSSTP(CSF_FUNCPARAM &p)
 	// TODO: log error message
 	std::string path;
 	std::string data;
-	if (!GetNinixFMO(path, data) || data.empty()) {
+	bool fmo_ok;
+	{
+		// ワーカースレッドなら、待っている間は実行権を手放す（SSPがrequestを返せるように）
+		CGilRelease rel(vm.threads());
+		fmo_ok = GetNinixFMO(path, data);
+	}
+	if (!fmo_ok || data.empty()) {
 		return CValue(-1);
 	}
 	// FMO は「ID.キー\x01値」の行の並び。hwnd が target の行の ID がソケット名
@@ -8536,7 +8757,10 @@ CValue	CSystemFunction::DIRECTSSTP(CSF_FUNCPARAM &p)
 	if (!found) {
 		return CValue(-1);
 	}
-	data = SendDataUsingUnixSocket(path + uuid, request, false);
+	{
+		CGilRelease rel(vm.threads());
+		data = SendDataUsingUnixSocket(path + uuid, request, false);
+	}
 	if (data.empty()) {
 		return CValue(-1);
 	}
@@ -8622,8 +8846,14 @@ CValue	CSystemFunction::DIRECTSSTP(CSF_FUNCPARAM &p)
 	//相手はWM_COPYDATAの処理中に、こちらのウインドウへWM_COPYDATAで返信してくるので、
 	//待っている間も送られてきたメッセージを処理できるよう、SMTO_BLOCKは付けないこと
 	DWORD_PTR res_dword = 0;
-	LRESULT sent = ::SendMessageTimeout((HWND)hwnd, WM_COPYDATA, (WPARAM)propertyWindow, (LPARAM)&cds, SMTO_ABORTIFHUNG, 5000, &res_dword);
-	DWORD sent_error = sent ? 0 : ::GetLastError();
+	LRESULT sent;
+	DWORD sent_error;
+	{
+		// ワーカースレッドなら、待っている間は実行権を手放す（SSPがrequestを返せるように）
+		CGilRelease rel(vm.threads());
+		sent = ::SendMessageTimeout((HWND)hwnd, WM_COPYDATA, (WPARAM)propertyWindow, (LPARAM)&cds, SMTO_ABORTIFHUNG, 5000, &res_dword);
+		sent_error = sent ? 0 : ::GetLastError();
+	}
 	
 	//リソースの開放
 	free(req);

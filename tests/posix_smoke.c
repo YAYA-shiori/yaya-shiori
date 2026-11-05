@@ -59,6 +59,8 @@ static const struct test_case common_cases[] = {
 	{ "RE_SEARCH subroutine global var", "re_dd = \"\\d\\d\"\nRE_SEARCH(\"2024\",\"^(?&re_dd)(?&re_dd)$\")", "1" },
 	{ "RE_SEARCH utf8", "RE_SEARCH(\"\xE6\x97\xA5\xE6\x9C\xAC\xE8\xAA\x9E\",\"\xE6\x9C\xAC.\")", "1" },
 	{ "while loop", "_s = 0\n_i = 0\nwhile _i < 5 {\n _s += _i\n _i++\n}\n_s", "10" },
+	{ "THREADSTART/JOIN/RESULT", "_id = THREADSTART(\"request\", \"1+2\")\n_r = THREADJOIN(_id)\nTOSTR(_r) + \",\" + TOSTR(THREADRESULT(_id))", "1,3" },
+	{ "THREADSTOP cancels SLEEP", "_id = THREADSTART(\"request\", \"SLEEP(60000)\")\n_r = THREADSTOP(_id)\n_r = THREADJOIN(_id, 5000)\nTOSTR(_r) + \",\" + TOSTR(THREADSTATE(_id))", "1,2" },
 	{ "utf8 concat",
 	  "\"\xE3\x81\x82\xE3\x81\x84\"+\"\xE3\x81\x86\"",
 	  "\xE3\x81\x82\xE3\x81\x84\xE3\x81\x86" },
@@ -526,6 +528,10 @@ int main(int argc, char **argv)
 	signal(SIGCHLD, SIG_IGN);
 	check("EXECUTE_WAIT with SIGCHLD ignored", "EXECUTE_WAIT(\"sh\", \"-c 'exit 3'\")", "3");
 	signal(SIGCHLD, SIG_DFL);
+
+	/* A worker left running is cancelled by the unload below (Shutdown under pthreads).
+	   Keep this last: while a worker runs, DICLOAD and friends are refused with W0032 */
+	check("THREADSTART left running for unload", "THREADSTART(\"request\", \"SLEEP(60000)\") > 0", "1");
 
 	p_unload();
 	printf("OK  unload\n");

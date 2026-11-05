@@ -12,7 +12,9 @@ param(
     [string]$Exe,
     [Parameter(Mandatory = $true)][string]$Dir,
     [Parameter(Mandatory = $true)][string[]]$Exprs,
-    [string]$UserProfile
+    [string]$UserProfile,
+    # 結果に、各 request の後の子プロセスのワーキングセット（MB）を WS_MB として足す
+    [switch]$Memory
 )
 $ErrorActionPreference = 'Stop'
 # Windows PowerShell 5.1 は -File 起動だと param の既定値で $PSScriptRoot が空になるので、ここで補う
@@ -73,7 +75,13 @@ foreach ($e in $Exprs) {
     $body = ReadBody $n
     $ms = $sw.ElapsedMilliseconds
     $r = ($body -replace "[\r\n]+", ' ') -replace '^!! ', ''
-    [pscustomobject]@{ Expr = $e; Ms = $ms; Result = $r }
+    if ($Memory) {
+        $p.Refresh()
+        [pscustomobject]@{ Expr = $e; Ms = $ms; Result = $r; WS_MB = [math]::Round($p.WorkingSet64 / 1MB, 1) }
+    }
+    else {
+        [pscustomobject]@{ Expr = $e; Ms = $ms; Result = $r }
+    }
 }
 Send 'unload:0' $null
 if (-not $p.WaitForExit(180000)) { $p.Kill() }

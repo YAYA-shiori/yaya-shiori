@@ -84,6 +84,7 @@ LIBAYA5_OBJ = \
 	uka_regexp/uka_regexp.o \
 	value.o \
 	variable.o \
+	workthread.o \
 	wsex.o \
 	yamltoml.o \
 	posix_utils.o

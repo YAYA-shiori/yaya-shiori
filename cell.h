@@ -204,6 +204,12 @@ public:
 	}
 	//////////////////////////////////////
 	// 一時値（ansv/order/emb_ansv）をp[0]～p[2]と交換します
+	// 一時値をすべて捨てる（関数表をスレッド用にコピーしたとき、元のセルと値を共有しないため）
+	void tmpdata_reset(void) const {
+		m_ansv.reset();
+		m_order.reset();
+		m_emb_ansv.reset();
+	}
 	void tmpdata_swap(std_shared_ptr<CValue> *p) const {
 		m_ansv.swap(p[0]);
 		m_order.swap(p[1]);

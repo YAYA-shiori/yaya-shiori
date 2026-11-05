@@ -1,0 +1,200 @@
+// THREADSTART などの試験用辞書（tests/thread/run_thread.ps1 が使う）
+
+load
+{
+}
+
+unload
+{
+}
+
+request
+{
+	'!! ' + EVAL(SUBSTR(_argv[0], 3, STRLEN(_argv[0])))
+}
+
+// 引数の和を返す
+TH.Add
+{
+	_argv[0] + _argv[1]
+}
+
+// 0 から n-1 までの和。関数呼び出しとループを混ぜて、ホストと同じ関数を同時に走らせる
+TH.Id
+{
+	_argv[0]
+}
+
+TH.Shared
+{
+	_s = 0
+	for _i = 0; _i < _argv[0]; _i++ {
+		_s = _s + TH.Id(_i)
+	}
+	_s
+}
+
+// グローバル変数を数え上げる
+TH.Count
+{
+	for _i = 0; _i < _argv[0]; _i++ {
+		TH.counter = TH.counter + 1
+	}
+	_argv[0]
+}
+
+// 終わらないループ（中断でしか止まらない）。looplimit, 0 で動かす
+TH.Spin
+{
+	while 1 {
+		TH.spin = TH.spin + 1
+	}
+}
+
+// 入れ子の呼び出しの途中で止まる
+TH.SpinDeep
+{
+	TH.SpinDeep2(0)
+}
+
+TH.SpinDeep2
+{
+	if _argv[0] < 50 {
+		TH.SpinDeep2(_argv[0] + 1)
+	}
+	else {
+		while 1 {
+			TH.spindeep = TH.spindeep + 1
+		}
+	}
+}
+
+// 待ってから印を付ける
+TH.Sleeper
+{
+	_x = SLEEP(_argv[0])
+	TH.slept = 1
+	'woke'
+}
+
+// 新しい変数を作りながら動く（変数表が伸びる間も、止まっている他のスレッドの参照が壊れない）
+TH.MakeVars
+{
+	for _i = 0; _i < _argv[0]; _i++ {
+		_r = EVAL('TH.made' + TOSTR(_i) + ' = ' + TOSTR(_i))
+	}
+	_argv[0]
+}
+
+// スレッドの中からスレッドを作る
+TH.Nest
+{
+	_id = THREADSTART('TH.Add', 10, 20)
+	_r = THREADJOIN(_id)
+	THREADRESULT(_id)
+}
+
+// 辞書を変える関数は、スレッドの中では失敗する
+TH.DicInThread
+{
+	APPEND_RUNTIME_DIC('TH.Appended { 1 }')
+}
+
+// ---- 負荷試験用 ----
+
+// 起動して、少し動かして、中断する。これを繰り返す
+TH.Churn
+{
+	_ok = 0
+	for _i = 0; _i < _argv[0]; _i++ {
+		_id = THREADSTART('TH.Shared', 500)
+		if _id > 0 {
+			_r = THREADJOIN(_id)
+			if THREADRESULT(_id) == 124750 {
+				_ok++
+			}
+			_r = THREADCLOSE(_id)
+		}
+	}
+	_ok
+}
+
+// 複数のワーカーを同時に起動して、全部を中断する
+TH.Burst
+{
+	_n = 0
+	for _i = 0; _i < _argv[0]; _i++ {
+		_id = THREADSTART('TH.Spin')
+		if _id > 0 {
+			_n++
+			_r = THREADSTOP(_id)
+		}
+	}
+	_n
+}
+
+// 文字列・配列を触りながら動く（参照カウントが壊れると落ちる）
+TH.Mixed
+{
+	_a = IARRAY
+	for _i = 0; _i < _argv[0]; _i++ {
+		_a ,= TOSTR(_i) + 'x'
+		if ARRAYSIZE(_a) > 50 {
+			_a = IARRAY
+		}
+		TH.mixed = TH.mixed + 1
+		TH.mixedstr = 'v' + TOSTR(_i)
+	}
+	ARRAYSIZE(_a)
+}
+
+// 正規表現の結果（RE_GETSTR）はスレッドごとに保たれる。待っている間にホストがRE_MATCHしても変わらない
+TH.ReState
+{
+	_r = RE_MATCH('abc', 'abc')
+	_x = SLEEP(400)
+	_s = RE_GETSTR()
+	_s[0]
+}
+
+// 警告を出し続ける（ログのコールバックがホストのスレッドで呼ばれることの試験用。SLEEPの引数が不正で警告になる）
+TH.WarnLoop
+{
+	for _i = 0; _i < _argv[0]; _i++ {
+		_x = SLEEP(-1)
+	}
+	_argv[0]
+}
+
+// 起動して終わりを待つだけで、記録は閉じない（終わったワーカーが関数表などを持ち続けないことの試験用）
+TH.ChurnKeep
+{
+	_ok = 0
+	for _i = 0; _i < _argv[0]; _i++ {
+		_id = THREADSTART('TH.Shared', 300)
+		_r = THREADJOIN(_id)
+		if THREADRESULT(_id) == 44850 {
+			_ok++
+		}
+	}
+	_ok
+}
+
+// ---- 外部の遅い応答を待つ（Windows。cmd.exe の ping で n-1 秒ほどかかる） ----
+
+// SAORI-basic（cmd.exe）をREQUESTLIBで呼ぶ
+TH.SaoriReq
+{
+	_cmd = GETENV('SystemRoot') + '\System32\cmd.exe'
+	_r = LOADLIB(_cmd)
+	_crlf = CHR(13) + CHR(10)
+	_q = 'EXECUTE SAORI/1.0' + _crlf + 'Charset: UTF-8' + _crlf + 'SecurityLevel: local' + _crlf + 'Argument0: /c' + _crlf + 'Argument1: ping' + _crlf + 'Argument2: -n' + _crlf + 'Argument3: ' + TOSTR(_argv[0]) + _crlf + 'Argument4: 127.0.0.1' + _crlf + _crlf
+	_res = REQUESTLIB(_cmd, _q)
+	TOSTR(STRSTR(_res, '200 OK', 0) >= 0)
+}
+
+// EXECUTE_WAITで外部プログラムの終わりを待つ
+TH.ExecWait
+{
+	EXECUTE_WAIT(GETENV('SystemRoot') + '\System32\cmd.exe', '/c ping -n ' + TOSTR(_argv[0]) + ' 127.0.0.1 >nul')
+}

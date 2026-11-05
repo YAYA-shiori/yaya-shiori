@@ -20,6 +20,7 @@
 #include "aya5.h"
 #include "basis.h"
 #include "ayavm.h"
+#include "workthread.h"
 #include "ccct.h"
 #include "manifest.h"
 #include "messages.h"
@@ -45,6 +46,24 @@ void*  g_hModule = NULL;
 #endif
 #endif
 ////////////////////////////////////////
+
+// load / request / unload の間、VMの実行権（ワーカースレッドとの排他）を持つ。例外で抜けても返す
+class CHostScope {
+private:
+	CThreadManager &tm;
+public:
+	CHostScope(CAyaVM *vm, bool unloading = false) : tm(vm->threads()) {
+		if (unloading) {
+			tm.HostEnterForUnload();
+		}
+		else {
+			tm.HostEnter();
+		}
+	}
+	~CHostScope() {
+		tm.HostLeave();
+	}
+};
 
 class CAyaVMWrapper {
 private:
@@ -91,15 +110,24 @@ public:
 			}
 			delete vme;
 		}
-		vm->basis().ExecuteLoad();
+		{
+			CHostScope host(vm);
 
-		// load関数の中で差し替えた古い関数表を解放
-		vm->func_destruct_clear();
+			vm->basis().ExecuteLoad();
+
+			// load関数の中で差し替えた古い関数表を解放
+			vm->func_destruct_clear();
+		}
 	}
 	virtual ~CAyaVMWrapper() {
-		vm->basis().Termination();
+		{
+			// ワーカースレッドが動いていても、GILが空くのを待って（応答しなければ強制的に取って）終了処理に入る
+			CHostScope host(vm, true);
 
-		vm->unload();
+			vm->basis().Termination();
+
+			vm->unload();
+		}
 
 		delete vm;
 	}
@@ -121,6 +149,9 @@ public:
 	{
 		if ( ! vm ) { return NULL; }
 		
+		// ワーカースレッドが動いていても、requestは優先して実行権を取る
+		CHostScope host(vm);
+
 		vm->request_before();
 
 		yaya::global_t r = vm->basis().ExecuteRequest(h,len,is_debug);
@@ -201,6 +232,10 @@ extern "C" BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPV
 	// モジュールの主ファイル名を取得
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
 		AYA_InitModule(hModule);
+	}
+	// DLLの解放中・プロセス終了中は、ローダーロックを持っているのでワーカースレッドを待てない
+	else if (ul_reason_for_call == DLL_PROCESS_DETACH) {
+		g_yaya_detaching = true;
 	}
 
 	return TRUE;

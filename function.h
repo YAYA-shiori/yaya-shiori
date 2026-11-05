@@ -130,6 +130,14 @@ public:
 			c[i].tmpdata_cleanup();
 		}
 	}
+	void cell_reset_tmpdata(void) const {
+		if ( ! m_cell.get() ) {
+			return;
+		}
+		for ( size_t i = 0 ; i < m_cell->size() ; ++i ) {
+			(*m_cell)[i].tmpdata_reset();
+		}
+	}
 };
 
 //----
@@ -150,6 +158,8 @@ protected:
 	size_t					statelenm1;		// statementの長さ-1（1を減じているのは終端の"}"を処理しないためです）
 	size_t					linecount;		// 定義された行
 	size_t					execdepth;		// 実行中の呼び出しの数（再帰の検出用）
+	bool					shared_ast;		// セル（中間コード）を別の関数表と共有している。スレッド用の関数表の関数は、
+											// 初めて実行するときにMakePrivateで自分用のコピーにする
 
 	friend class CFunctionReentryGuard;
 
@@ -162,6 +172,16 @@ public:
 	~CFunction(void) {}
 
 	void    deep_copy_statement(CFunction &from);
+	// 実行中の状態（再帰の深さとセルの一時値）を捨てる。スレッド用に関数表をコピーした直後に使う
+	void    ResetExecState(void) {
+		execdepth = 0;
+		for ( size_t i = 0 ; i < statement.size() ; ++i ) {
+			statement[i].cell_reset_tmpdata();
+		}
+	}
+	// セルを共有している関数（shared_ast）を、自分用のコピーにする
+	void    MakePrivate(void);
+	void    SetSharedAst(bool value) { shared_ast = value; }
 
 	class ExecutionResult {
 	public:
@@ -233,6 +253,10 @@ protected:
 	void	TakeFormulaAnswer(CValue& dst, CStatement& st, const CValue& ans);
 	void	AppendFormulaOutput(CSelecter& output, CStatement& st, const CValue& ans);
 	void	LoopLimitExceeded(const CStatement& st);
+	// ワーカースレッドの確認（ExecuteInBraceのフレームを増やさないよう分けてある）
+	// 実行を打ち切るべきなら、exitcodeをST_RETURNにして真を返す
+	bool	ThreadCancelStep(size_t& line, const CStatement& st, int& exitcode);
+	bool	ThreadCancelLoop(int& exitcode);
 	// GetFormulaAnswerの補助（同じ理由で分けてある）
 	void	ApplyBinaryOp(CCell& o_cell, int op, const CValue& lv, const CValue& rv, const CStatement& st);
 	void	SetIntAnswer(CCell& o_cell, int value);
@@ -287,6 +311,13 @@ public:
 	void ClearFunctionIndex(void);
 	void RebuildFunctionMap(void);
 	void deep_copy_func(CFunctionDef &from);
+	// スレッド用に関数表をコピーした直後に呼ぶ。セルはコピーせず共有したままにして、
+	// 各関数を初めて実行するとき（CFunction::MakePrivate）に自分用のコピーを作る
+	void MarkSharedAst(void) {
+		for (size_t i = 0; i < func.size(); ++i) {
+			func[i].SetSharedAst(true);
+		}
+	}
 };
 
 //----

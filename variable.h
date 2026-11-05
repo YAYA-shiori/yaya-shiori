@@ -26,6 +26,7 @@
 #endif
 
 #include <vector>
+#include <deque>
 #include <map>
 #include <memory>
 
@@ -191,7 +192,9 @@ public:
 class	CGlobalVariable
 {
 protected:
-	std::vector<CVariable> var;
+	// dequeは末尾に足しても既存の要素の参照が無効にならない。
+	// 実行権を譲って止まっているワーカースレッドが変数への参照を持ったまま、別のスレッドが変数を作れるようにするため
+	std::deque<CVariable> var;
 	yaya::indexmap varmap;
 
 private:

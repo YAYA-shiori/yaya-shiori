@@ -147,6 +147,9 @@
     <ClCompile Include="value.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="workthread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="wsex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -255,6 +258,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="variable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="workthread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="wsex.h">

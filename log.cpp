@@ -448,7 +448,32 @@ void	CLog::Call_loghandler(const yaya::string_t &str, int mode, int id)
 {
 	Call_loghandler((yaya::char_t *)str.c_str(), mode, id);
 }
+#define LOG_PENDING_MAX		10000	// 溜めておく数の上限（ホストが長い間来ないとき、メモリを使い切らないため）
+
+void	CLog::FlushDeferred(void)
+{
+	if (defer_callbacks || pending_callbacks.empty()) {
+		return;
+	}
+	// コールバックの中で新しいログが出ても壊れないよう、先に取り出す
+	std::vector<CPendingCallback> list;
+	list.swap(pending_callbacks);
+	for (size_t i = 0; i < list.size(); ++i) {
+		Call_loghandler(list[i].str.c_str(), list[i].mode, list[i].id);
+	}
+}
+
 void	CLog::Call_loghandler(const yaya::char_t *str, int mode, int id){
+	if (defer_callbacks) {
+		if (pending_callbacks.size() < LOG_PENDING_MAX) {
+			CPendingCallback p;
+			p.str = str;
+			p.mode = mode;
+			p.id = id;
+			pending_callbacks.push_back(p);
+		}
+		return;
+	}
 	if (loghandler)
 		loghandler(str,mode,id);
 	else

@@ -313,6 +313,7 @@
     <ClCompile Include="uka_regexp\uka_regexp.cpp" />
     <ClCompile Include="value.cpp" />
     <ClCompile Include="variable.cpp" />
+    <ClCompile Include="workthread.cpp" />
     <ClCompile Include="wsex.cpp" />
     <ClCompile Include="yamltoml.cpp" />
   </ItemGroup>
@@ -353,6 +354,7 @@
     <ClInclude Include="uka_regexp\uka_regexp.h" />
     <ClInclude Include="value.h" />
     <ClInclude Include="variable.h" />
+    <ClInclude Include="workthread.h" />
     <ClInclude Include="wsex.h" />
     <ClInclude Include="yamltoml.h" />
   </ItemGroup>

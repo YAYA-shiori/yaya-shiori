@@ -55,9 +55,21 @@ protected:
 
 	std::deque<yaya::string_t> error_log_history;
 
+	// ワーカースレッドが実行権を持っている間は、ホスト（SSP）のコールバックやチェックツールへの送出を溜めておき、
+	// ホストのスレッドが実行権を取ったときに送る。SHIORIのコールバックは load/request/unload を呼んだスレッドで
+	// 呼ばれる、という前提を守るため
+	struct CPendingCallback {
+		yaya::string_t	str;
+		int				mode;
+		int				id;
+	};
+	bool		defer_callbacks;
+	std::vector<CPendingCallback> pending_callbacks;
+
 public:
 	CLog(void)
 	{
+		defer_callbacks = false;
 		charset = CHARSET_UTF8;
 #if defined(WIN32)
 		hWnd = NULL;
@@ -100,6 +112,9 @@ public:
 	void	Call_loghandler(const yaya::string_t& str, int mode, int id=0);
 	void	Call_loghandler(const yaya::char_t* str, int mode, int id=0);
 	void	Set_loghandler(void(*loghandler_v)(const yaya::char_t* str, int mode, int id));
+	// trueの間、コールバックと送出は呼ばずに溜める（ワーカースレッドの実行中）。FlushDeferredで送る
+	void	SetDeferCallbacks(bool defer) { defer_callbacks = defer; }
+	void	FlushDeferred(void);
 
 	void	SendLogToWnd(const yaya::char_t *str, int mode);
 

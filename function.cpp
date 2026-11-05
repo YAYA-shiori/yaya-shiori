@@ -59,7 +59,7 @@ static const yaya::string_t& FuncNameName(void) {
 	return s;
 }
 
-CFunction::CFunction(CAyaVM& vmr, const yaya::string_t& n, const yaya::string_t& df, int lc) : pvm(&vmr), name(n), dicfilename(df), linecount(lc), dicfilename_fullpath(vmr.basis().ToFullPath(df)), execdepth(0)
+CFunction::CFunction(CAyaVM& vmr, const yaya::string_t& n, const yaya::string_t& df, int lc) : pvm(&vmr), name(n), dicfilename(df), linecount(lc), dicfilename_fullpath(vmr.basis().ToFullPath(df)), execdepth(0), shared_ast(false)
 {
 	statelenm1 = 0;
 	namelen = name.size();
@@ -182,6 +182,10 @@ void	CFunction::ExecuteInto(ExecutionResult &result, const CValue &arg, CLocalVa
 {
 	int exitcode = ST_NOP;
 
+	// スレッド用の関数表の関数は、初めて実行するときに自分用のセルにする
+	if (shared_ast)
+		MakePrivate();
+
 	// _argv/_argc/_FUNC_NAME_を作成
 	// （名前は呼び出しのたびに作らず使い回す。_argvは配列の中身を共有するだけでコピーしない）
 	lvar.SetValue(ArgvName(), arg);
@@ -211,6 +215,24 @@ void	CFunction::ExecuteInto(ExecutionResult &result, const CValue &arg, CLocalVa
 #if defined(_MSC_VER) && _MSC_VER < 1300
 # pragma auto_inline(off)
 #endif
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFunction::MakePrivate
+ *  機能概要：  別の関数表とセルを共有している関数を、自分用のコピーにします
+ *
+ *  スレッド用の関数表は、起動時には関数のセルを元の表と共有しています（全部をコピーすると、
+ *  辞書の大きさの数十倍のメモリと時間がかかるため）。セルには実行中の一時値が入るので、
+ *  同じ関数を別のスレッドと同時に実行できません。初めて実行するときにここでコピーして、
+ *  元の表が持っていた一時値や再帰の深さは引き継がずに空にします。
+ *  ExecuteIntoのフレームを増やさないよう、ここに分けてあります
+ * -----------------------------------------------------------------------
+ */
+YAYA_NOINLINE void	CFunction::MakePrivate(void)
+{
+	deep_copy_statement(*this);	// 共有しているセルを新しく作り直して、この関数のものにする
+	ResetExecState();
+	shared_ast = false;
+}
 
 /* -----------------------------------------------------------------------
  *  関数名  ：  CFunction::CallLimitExceeded
@@ -370,6 +392,10 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 	for(i = line; i < t_statelenm1; i++) {
 		CStatement& st = statement[i];
 
+		// ワーカースレッド用の確認。ホストの処理ではpvm->thread_attention()が常に偽で、読むだけ
+		if (pvm->thread_attention() && ThreadCancelStep(i, st, exitcode))
+			continue;
+
 		switch(st.type) {
 		case ST_OPEN: {					// "{"
 			i = ExecuteSubBlock(i + 1, lvar, BRACE_DEFAULT, exitcode, output, UpperLvCandidatePool, inpool_to_next, pReturnExpr);
@@ -448,6 +474,8 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 						break;
 					}
 					++loop_cur;
+					if (pvm->thread_attention() && ThreadCancelLoop(exitcode))
+						break;
 					ExecuteSubBlock(i + 2, lvar, BRACE_LOOP, exitcode, output, UpperLvCandidatePool, inpool_to_next, pReturnExpr);
 
 					if (exitcode == ST_BREAK) {
@@ -484,6 +512,8 @@ CFunction::ExecutionInBraceResult	CFunction::ExecuteInBrace(size_t line, CLocalV
 						break;
 					}
 					++loop_cur;
+					if (pvm->thread_attention() && ThreadCancelLoop(exitcode))
+						break;
 					ExecuteSubBlock(i + 4, lvar, BRACE_LOOP, exitcode, output, UpperLvCandidatePool, inpool_to_next, pReturnExpr);
 
 					if (exitcode == ST_BREAK) {
@@ -696,6 +726,38 @@ YAYA_NOINLINE void	CFunction::AppendParallel(CSelecter &output, const CValue &va
 	}
 	else
 		output.Append(val);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CFunction::ThreadCancelStep / ThreadCancelLoop
+ *  機能概要：  ワーカースレッドの確認です。ホストのリクエストが待っていれば実行権を譲り、
+ *  　　　　　  中断が求められていれば、return文と同じ形でこの関数の実行を打ち切ります
+ *
+ *  pvm->thread_attention()が真のときだけ呼ばれます（ホストの処理では常に偽）。
+ *  ExecuteInBraceのフレームを増やさないよう、ここに分けてあります
+ * -----------------------------------------------------------------------
+ */
+YAYA_NOINLINE bool	CFunction::ThreadCancelStep(size_t &line, const CStatement &st, int &exitcode)
+{
+	// {}の出入りの行や、すでに抜け出している途中では確認しない（FeedLineToTailの前提を保つため）
+	if (exitcode != ST_NOP || st.type == ST_OPEN || st.type == ST_CLOSE) {
+		return false;
+	}
+	if (!pvm->thread_attend()) {
+		return false;
+	}
+	exitcode = ST_RETURN;
+	FeedLineToTail(line);
+	return true;
+}
+
+YAYA_NOINLINE bool	CFunction::ThreadCancelLoop(int &exitcode)
+{
+	if (!pvm->thread_attend()) {
+		return false;
+	}
+	exitcode = ST_RETURN;
+	return true;
 }
 
 /* -----------------------------------------------------------------------

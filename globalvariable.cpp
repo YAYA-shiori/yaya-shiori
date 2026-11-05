@@ -57,7 +57,7 @@ int	CGlobalVariable::Make(const yaya::string_t &name, char erased)
 		addvariable.Erase();
 	else
 		addvariable.Enable();
-	var.emplace_back(addvariable);
+	var.push_back(addvariable);
 
 	int idx = var.size() - 1;
 	varmap.insert(yaya::indexmap::value_type(name,idx));
@@ -75,7 +75,7 @@ size_t	CGlobalVariable::GetMacthedLongestNameLength(const yaya::string_t &name)
 {
 	size_t	max_len = 0;
 
-	for(std::vector<CVariable>::iterator it = var.begin(); it != var.end(); it++) {
+	for(std::deque<CVariable>::iterator it = var.begin(); it != var.end(); it++) {
 		size_t	len = it->name.size();
 		if (!it->IsErased() && max_len < len && !name.compare(0,len,it->name,0,len))
 			max_len = len;
@@ -97,7 +97,7 @@ size_t	CGlobalVariable::GetMacthedLongestInCodeNameLength(const yaya::string_t &
 {
 	size_t	max_len = 0;
 
-	for(std::vector<CVariable>::iterator it = var.begin(); it != var.end(); it++) {
+	for(std::deque<CVariable>::iterator it = var.begin(); it != var.end(); it++) {
 		size_t	len = it->name.size();
 		if (it->IsInCode() && max_len < len && !name.compare(0,len,it->name,0,len))
 			max_len = len;

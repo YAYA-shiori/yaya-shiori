@@ -21,6 +21,7 @@
 #include "parser0.h"
 
 #include "ayavm.h"
+#include "workthread.h"
 
 #include "value.h"
 #include "variable.h"
@@ -536,6 +537,12 @@ char	CParser0::ParseEvalBlock(const yaya::string_t& str, CFunction& func, const 
  */
 int CParser0::DynamicLoadDictionary(const yaya::string_t& dicfilename, int charset)
 {
+	// ワーカースレッドは関数表の専用コピーで動いているので、動いている間は辞書を変えられない
+	if ( vm.threads().HasLiveWorkers() ) {
+		vm.logger().Error(E_W, 32);
+		return 1;
+	}
+
 	if ( IsDicFileAlreadyExist(dicfilename) ) {
 		vm.logger().Error(E_E, 95, dicfilename);
 		return 95;
@@ -581,6 +588,11 @@ int CParser0::DynamicLoadDictionary(const yaya::string_t& dicfilename, int chars
  */
 int CParser0::DynamicAppendRuntimeDictionary(const yaya::string_t& codes)
 {
+	if ( vm.threads().HasLiveWorkers() ) {
+		vm.logger().Error(E_W, 32);
+		return 1;
+	}
+
 	vm.func_parse_new();
 
 	bool isnoterror = 1;
@@ -629,6 +641,11 @@ int CParser0::DynamicAppendRuntimeDictionary(const yaya::string_t& codes)
  */
 int	CParser0::DynamicUnloadDictionary(yaya::string_t dicfilename)
 {
+	if ( vm.threads().HasLiveWorkers() ) {
+		vm.logger().Error(E_W, 32);
+		return 1;
+	}
+
 	dicfilename = vm.basis().ToFullPath(dicfilename);
 	if ( ! IsDicFileAlreadyExist(dicfilename) ) {
 		vm.logger().Error(E_E, 96, dicfilename);
@@ -691,6 +708,11 @@ int	CParser0::DynamicUnloadDictionary(yaya::string_t dicfilename)
  */
 int	CParser0::DynamicUndefFunc(const yaya::string_t& funcname)
 {
+	if ( vm.threads().HasLiveWorkers() ) {
+		vm.logger().Error(E_W, 32);
+		return 1;
+	}
+
 	vm.func_parse_new();
 
 	std::vector<CFunction> &functions = vm.function_parse().func;

@@ -21,6 +21,7 @@
 #include "parser0.h"
 #include "parser1.h"
 #include "sysfunc.h"
+#include "workthread.h"
 
 #include <string.h>
 
@@ -45,7 +46,7 @@
 	コンストラクタ
 -----------------------------------------------*/
 
-CAyaVM::CAyaVM()
+CAyaVM::CAyaVM() : m_active_call_limit(NULL), m_active_funcs(NULL), m_attention(0)
 {
 	memset(&rs_sysfunc64,  0, sizeof(rs_sysfunc64));
 	memset(&rs_internal64, 0, sizeof(rs_internal64));
@@ -56,7 +57,7 @@ CAyaVM::CAyaVM()
 	shared_ptrをディープコピーする点に注意
 -----------------------------------------------*/
 
-CAyaVM::CAyaVM(CAyaVM &ovm)
+CAyaVM::CAyaVM(CAyaVM &ovm) : m_active_call_limit(NULL), m_active_funcs(NULL), m_attention(0)
 {
 	#define copy_new(name) yaya::shared_ptr_deep_copy(ovm.name,name);
 	copy_new(m_basis);
@@ -125,6 +126,9 @@ void CAyaVM::request_after(void)
 -----------------------------------------------*/
 CFunctionDef& CAyaVM::function_parse()
 {
+	if ( m_active_funcs ) { //ワーカーは専用の関数表を使う
+		return *m_active_funcs;
+	}
 	if ( m_function_parse.get() ) {
 		return *m_function_parse.get();
 	}
@@ -210,8 +214,47 @@ FACTORY_DEFINE_PLAIN(std::vector<CDefine>,gdefines)
 
 FACTORY_DEFINE_THIS(CBasis,basis)
 
-FACTORY_DEFINE_PLAIN(CFunctionDef,function_exec)
-FACTORY_DEFINE_PLAIN(CCallLimit,call_limit)
+// 実行用の関数表と呼び出し制限は、ワーカースレッドが実行権を持っている間はそのスレッドのものを返す
+CFunctionDef& CAyaVM::function_exec()
+{
+	if( m_active_funcs ) {
+		return *m_active_funcs;
+	}
+	if( m_function_exec.get() == NULL ) {
+		m_function_exec = std_make_shared<CFunctionDef>();
+	}
+	return *(m_function_exec.get());
+}
+
+CCallLimit& CAyaVM::host_call_limit()
+{
+	if( m_call_limit.get() == NULL ) {
+		m_call_limit = std_make_shared<CCallLimit>();
+	}
+	return *(m_call_limit.get());
+}
+
+CCallLimit& CAyaVM::call_limit()
+{
+	if( m_active_call_limit ) {
+		return *m_active_call_limit;
+	}
+	return host_call_limit();
+}
+
+CThreadManager& CAyaVM::threads()
+{
+	if( m_threads.get() == NULL ) {
+		m_threads.reset(new CThreadManager(*this));
+	}
+	return *(m_threads.get());
+}
+
+bool CAyaVM::thread_attend()
+{
+	return threads().Attend();
+}
+
 FACTORY_DEFINE_THIS(CSystemFunction,sysfunction)
 FACTORY_DEFINE_THIS(CGlobalVariable,variable)
 

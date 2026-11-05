@@ -58,7 +58,10 @@ private:
 	void	UnloadLib(void);
 
 	int		LoadBasic(void);
-	int		RequestBasic(const yaya::string_t &istr, yaya::string_t &ostr);
+	int		RequestBasic(const yaya::string_t &istr, yaya::string_t &ostr, yaya::string_t *errlog);
+	void	LogBasic(const yaya::string_t &msg, yaya::string_t *errlog);
+
+	int		busy;		// Requestを実行中の数（GILを手放して呼ぶ間、別のスレッドにUNLOADLIBされないよう数える）
 
 public:
 	CLib1(CAyaVM &vmr, const yaya::string_t &n, int cs) : vm(vmr)
@@ -68,6 +71,7 @@ public:
 		hDLL    = NULL;
 		requestlib = NULL;
 		isAlreadyLoaded = false;
+		busy = 0;
 		isBasic = IsBasicName(n);
 #if defined(POSIX)
 		// POSIX の実行ファイルは UTF-8 で入出力するものが普通なので、SAORI-basic の既定は UTF-8 にする
@@ -89,7 +93,12 @@ public:
 	void	SetCharset(int cs) { charset = cs; }
 	int		GetCharset(void) { return charset; }
 
-	int		Request(const yaya::string_t &istr, yaya::string_t &ostr);
+	// errlogがあるときは、vmに触れずに（ログはerrlogへ溜めて）呼べる。GILを手放した間に呼ぶ場合に使う
+	int		Request(const yaya::string_t &istr, yaya::string_t &ostr, yaya::string_t *errlog = NULL);
+
+	void	AddBusy(void) { ++busy; }
+	void	DelBusy(void) { --busy; }
+	bool	IsBusy(void) const { return busy > 0; }
 };
 
 //----

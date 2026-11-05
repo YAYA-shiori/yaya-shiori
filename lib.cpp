@@ -17,6 +17,7 @@
 #include "lib.h"
 
 #include "ayavm.h"
+#include "workthread.h"
 
 #include "log.h"
 #include "wsex.h"
@@ -77,6 +78,10 @@ int	CLib::Delete(const yaya::string_t &name)
 {
 	for(std::list<CLib1>::iterator it = liblist.begin(); it != liblist.end(); it++) {
 		if (name == it->GetName()) {
+			if (it->IsBusy()) {
+				// 別のスレッドがRequestの最中（GILを手放して待っている）。今は解放できない
+				return 0;
+			}
 			int	result = it->Unload();
 			it = liblist.erase(it);
 			return result;
@@ -161,7 +166,40 @@ int	CLib::Request(const yaya::string_t &name, const yaya::string_t &istr, yaya::
 	for(std::list<CLib1>::iterator it = liblist.begin(); it != liblist.end(); it++) {
 		if (name == it->GetName()) {
 			vm.logger().IoLib(0, istr, name);
-			int	result = it->Request(istr, ostr);
+
+			int	result;
+			CThreadManager &threads = vm.threads();
+			if (threads.IsWorker() || threads.HasLiveWorkers()) {
+				// SAORIの応答は遅いことがあるので、待つ間はGILを手放してほかのスレッド（SSPのrequestを含む）を動かす。
+				// 手放している間はvm・CValue・共有されうる文字列に触れないので、要求は別のバッファにコピーし、
+				// ログも溜めておいて、戻ってから出す
+				const yaya::string_t	in_copy(istr.c_str(), istr.size());
+				yaya::string_t	out_copy;
+				yaya::string_t	errlog;
+				CLib1 *lib = &(*it);
+				CWorkerContext *me = threads.Current();
+
+				result = 0;
+				lib->AddBusy();	// 呼び出し中にUNLOADLIBで消されないように
+				{
+					CGilRelease rel(threads, true);
+					// SAORIは同時に1つのスレッドからしか呼べないものとして、ライブラリごとに直列にする
+					if (threads.LockLib(lib, me)) {
+						result = lib->Request(in_copy, out_copy, &errlog);
+						threads.UnlockLib(lib);
+					}
+				}
+				lib->DelBusy();
+
+				ostr = out_copy;
+				if (errlog.size()) {
+					vm.logger().Write(errlog);
+				}
+			}
+			else {
+				result = it->Request(istr, ostr);
+			}
+
 			vm.logger().IoLib(1, ostr, name);
 			return result;
 		}

@@ -56,6 +56,7 @@
 #include "globaldef.h"
 #include "wsex.h"
 #include "ayavm.h"
+#include "workthread.h"
 #include "dir_enum.h"
 
 //////////DEBUG/////////////////////////
@@ -377,6 +378,9 @@ void	CBasis::Configure(void)
  */
 void	CBasis::Termination(void)
 {
+	// ワーカースレッドを先に止める（unload関数や変数の保存の最中に動いていないように）
+	vm.threads().Shutdown();
+
 	// 動作抑止されていなければ終了時の処理を実行
 	if (!suppress) {
 		// unload

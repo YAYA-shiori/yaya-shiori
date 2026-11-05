@@ -149,6 +149,10 @@
 *warning W0029 : SQLite operation failed.
 *warning W0030 : More values were given than parameters. The extra values are not used.
 *warning W0031 : The name after % matches no function and no variable written in the dictionary, so it is treated as a plain string (embed.lazy,off). Use %(name) to embed a variable created at run time.
+*warning W0032 : Dictionaries and functions cannot be loaded, appended or removed while threads are running.
+*warning W0033 : The thread ended because an error occurred while it was running.
+*warning W0034 : Threads that did not stop were terminated forcibly.
+*warning W0035 : A thread could not be started.
 //
 // 注記文字列（英語）
 !!!msgn

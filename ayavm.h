@@ -29,6 +29,7 @@ class CLib;
 class CParser0;
 class CParser1;
 class CDefine;
+class CThreadManager;
 class CAyaVM;
 
 class CAyaVM
@@ -57,6 +58,13 @@ private:
 
 	MersenneTwister64 rs_sysfunc64;
 	MersenneTwister64 rs_internal64;
+
+	// ワーカースレッド（workthread.h）
+	// 実行権を持つスレッドが切り替わるたびに、今の呼び出し制限と関数表がここに入る（NULLならホスト側のもの）
+	std_shared_ptr<CThreadManager>			m_threads;
+	CCallLimit*								m_active_call_limit;
+	CFunctionDef*							m_active_funcs;
+	volatile long							m_attention;	// 1なら文の境界でthread_attendを呼ぶ（ホストが待っている・中断された）
 
 public:
 	CAyaVM();
@@ -93,7 +101,8 @@ public:
 
 	std::vector<CDefine>&	gdefines();
 
-	CCallLimit&				call_limit();
+	CCallLimit&				call_limit();		// 今実行しているスレッドのもの
+	CCallLimit&				host_call_limit();	// ホスト（load/request/unload）のもの
 	CSystemFunction&		sysfunction();
 	CGlobalVariable&		variable();
 
@@ -101,6 +110,16 @@ public:
 	CFile&					files();
 	CSqliteDB&				sqlite();
 	CLib&					libs();
+
+	// ワーカースレッド
+	CThreadManager&			threads();
+	void SetActiveContext(CCallLimit *call_limit, CFunctionDef *funcs) {
+		m_active_call_limit = call_limit;
+		m_active_funcs = funcs;
+	}
+	void SetAttention(bool value) { m_attention = value ? 1 : 0; }
+	bool thread_attention() const { return m_attention != 0; }
+	bool thread_attend();	// 今のワーカーが中断すべきならtrue（ホストが待っていれば実行権を譲る）
 
 	// ロガー
 	inline CLog& logger() {

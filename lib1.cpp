@@ -442,10 +442,10 @@ void CLib1::UnloadLib(void) {
  * -----------------------------------------------------------------------
  */
 #if defined(WIN32)
-int	CLib1::Request(const yaya::string_t &istr, yaya::string_t &ostr)
+int	CLib1::Request(const yaya::string_t &istr, yaya::string_t &ostr, yaya::string_t *errlog)
 {
 	if (isBasic)
-		return RequestBasic(istr, ostr);
+		return RequestBasic(istr, ostr, errlog);
 
 	ostr.erase();
 
@@ -513,9 +513,9 @@ int	CLib1::Request(const yaya::string_t &istr, yaya::string_t &ostr)
 	return 1;
 }
 #elif defined(POSIX)
-int CLib1::Request(const yaya::string_t &istr, yaya::string_t &ostr) {
+int CLib1::Request(const yaya::string_t &istr, yaya::string_t &ostr, yaya::string_t *errlog) {
 	if (isBasic) {
-		return RequestBasic(istr, ostr);
+		return RequestBasic(istr, ostr, errlog);
 	}
 
 	ostr.clear();
@@ -1000,7 +1000,18 @@ int	CLib1::LoadBasic(void)
  *  返値　　：　0/1=失敗/成功
  * -----------------------------------------------------------------------
  */
-int	CLib1::RequestBasic(const yaya::string_t &istr, yaya::string_t &ostr)
+// SAORI-basicのログ。errlogがあれば、そこへ溜める（GILを手放している間はvmのロガーに触れないため）
+void	CLib1::LogBasic(const yaya::string_t &msg, yaya::string_t *errlog)
+{
+	if ( errlog ) {
+		*errlog += msg;
+	}
+	else {
+		vm.logger().Write(msg);
+	}
+}
+
+int	CLib1::RequestBasic(const yaya::string_t &istr, yaya::string_t &ostr, yaya::string_t *errlog)
 {
 	ostr.erase();
 
@@ -1078,7 +1089,7 @@ int	CLib1::RequestBasic(const yaya::string_t &istr, yaya::string_t &ostr)
 	std::string	out;
 	yaya::string_t	error = RunBasic(name, args, charset, out);
 	if ( error.size() ) {
-		vm.logger().Write(L"SAORI-basic: " + name + L": " + error + L"\n");
+		LogBasic(L"SAORI-basic: " + name + L": " + error + L"\n", errlog);
 		ostr = L"SAORI/1.0 500 Internal Server Error\r\n" + charset_header + L"\r\n";
 		return 1;
 	}
@@ -1088,7 +1099,7 @@ int	CLib1::RequestBasic(const yaya::string_t &istr, yaya::string_t &ostr)
 	if ( out.size() ) {
 		wchar_t	*t_out = Ccct::MbcsToUcs2(out, charset);
 		if ( t_out == NULL ) {
-			vm.logger().Write(L"SAORI-basic: " + name + L": Failed to convert the output.\n");
+			LogBasic(L"SAORI-basic: " + name + L": Failed to convert the output.\n", errlog);
 			ostr = L"SAORI/1.0 500 Internal Server Error\r\n" + charset_header + L"\r\n";
 			return 1;
 		}
