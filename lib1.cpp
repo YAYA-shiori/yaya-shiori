@@ -38,6 +38,7 @@
 #include "log.h"
 #include "manifest.h"
 #include "misc.h"
+#include "proccapture.h"
 #include "wsex.h"
 #if defined(POSIX)
 # include "posix_utils.h"
@@ -594,16 +595,33 @@ static const unsigned long BASIC_TIMEOUT_MS = 10000;
 static const size_t BASIC_OUTPUT_LIMIT = 16 * 1024 * 1024;
 
 /* -----------------------------------------------------------------------
- *  読んだ分を out に足す
- *  VC6 の std::string は足りない分しか確保し直さないため、容量は倍々で確保する
+ *  実行ファイルを ProcCaptureRun（EXECUTE_CAPTURE と共通）で実行し、標準出力を out に入れる
+ *  標準入力と標準エラー出力は捨て、BASIC_TIMEOUT_MS / BASIC_OUTPUT_LIMIT で打ち切る
+ *
+ *  返値　　：　空文字列=成功、それ以外=失敗の理由
  * -----------------------------------------------------------------------
  */
-static void	AppendOutput(std::string &out, const char *buf, size_t len)
+static yaya::string_t	RunBasicCapture(CProcCapture &cap, std::string &out)
 {
-	if ( out.capacity() < out.size() + len ) {
-		out.reserve((out.size() + len) * 2);
+	cap.has_input = false;
+	cap.stderr_mode = PCAP_STDERR_DISCARD;
+	cap.timeout_ms = BASIC_TIMEOUT_MS;
+	cap.maxsize = BASIC_OUTPUT_LIMIT;
+	cap.cancel = NULL;
+
+	ProcCaptureRun(cap);
+	out.swap(cap.out);
+
+	switch ( cap.status ) {
+	case PCAP_OK:
+		return yaya::string_t();
+	case PCAP_TIMEOUT:
+		return L"Timed out.";
+	case PCAP_TRUNCATED:
+		return L"Output exceeded the limit.";
+	default:
+		return L"Failed to start the process.";
 	}
-	out.append(buf, len);
 }
 
 /* -----------------------------------------------------------------------
@@ -675,26 +693,6 @@ static void	AppendQuotedArgWin32(yaya::string_t &cmd, const yaya::string_t &arg)
 }
 
 /* -----------------------------------------------------------------------
- *  パイプに溜まっている分を out に足す（BASIC_OUTPUT_LIMIT まで）
- * -----------------------------------------------------------------------
- */
-static void	ReadPipeWin32(HANDLE hRead, std::string &out)
-{
-	char	buf[16384];
-	while ( out.size() < BASIC_OUTPUT_LIMIT ) {
-		DWORD	avail = 0;
-		if ( ! ::PeekNamedPipe(hRead, NULL, 0, NULL, &avail, NULL) || avail == 0 ) {
-			break;
-		}
-		DWORD	read = 0;
-		if ( ! ::ReadFile(hRead, buf, sizeof(buf), &read, NULL) || read == 0 ) {
-			break;
-		}
-		AppendOutput(out, buf, read);
-	}
-}
-
-/* -----------------------------------------------------------------------
  *  実行ファイルを起動し、終わるまで標準出力を読む
  *
  *  返値　　：　空文字列=成功、それ以外=失敗の理由
@@ -702,96 +700,22 @@ static void	ReadPipeWin32(HANDLE hRead, std::string &out)
  */
 static yaya::string_t	RunBasic(const yaya::string_t &path, const std::vector<yaya::string_t> &args, int /*charset*/, std::string &out)
 {
-	yaya::string_t	cmdline = L"\"";
-	cmdline += path;
-	cmdline += L"\"";
+	CProcCapture	cap;
+
+	cap.cmdline = L"\"";
+	cap.cmdline += path;
+	cap.cmdline += L"\"";
 	for ( size_t i = 0; i < args.size(); ++i ) {
-		cmdline += L' ';
-		AppendQuotedArgWin32(cmdline, args[i]);
+		cap.cmdline += L' ';
+		AppendQuotedArgWin32(cap.cmdline, args[i]);
 	}
+	cap.app = path;
 
 	yaya::string_t	drive, dir, fname, ext;
 	SplitPathParts(path, drive, dir, fname, ext);
-	yaya::string_t	workdir = drive + dir;
+	cap.dir = drive + dir;
 
-	SECURITY_ATTRIBUTES	sa;
-	memset(&sa, 0, sizeof(sa));
-	sa.nLength = sizeof(sa);
-	sa.bInheritHandle = TRUE;
-
-	HANDLE	hRead = NULL;
-	HANDLE	hWrite = NULL;
-	if ( ! ::CreatePipe(&hRead, &hWrite, &sa, 65536) ) {
-		return L"CreatePipe failed.";
-	}
-	// 読む側は子プロセスに継承させない
-	::SetHandleInformation(hRead, HANDLE_FLAG_INHERIT, 0);
-
-	// 標準入力と標準エラー出力は NUL につなぐ
-	HANDLE	hNul = ::CreateFileW(L"NUL", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
-		&sa, OPEN_EXISTING, 0, NULL);
-
-	STARTUPINFOW	si;
-	memset(&si, 0, sizeof(si));
-	si.cb = sizeof(si);
-	si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
-	si.wShowWindow = SW_HIDE;
-	si.hStdInput  = ( hNul != INVALID_HANDLE_VALUE ) ? hNul : NULL;
-	si.hStdOutput = hWrite;
-	si.hStdError  = ( hNul != INVALID_HANDLE_VALUE ) ? hNul : NULL;
-
-	PROCESS_INFORMATION	pi;
-	memset(&pi, 0, sizeof(pi));
-
-	// CreateProcessW はコマンドラインに書き換え可能なバッファを要求する
-	std::vector<wchar_t>	cmdbuf(cmdline.begin(), cmdline.end());
-	cmdbuf.push_back(L'\0');
-
-	BOOL	created = ::CreateProcessW(path.c_str(), &cmdbuf[0], NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL,
-		workdir.size() ? workdir.c_str() : NULL, &si, &pi);
-
-	// 書く側は子プロセスだけが持つようにする
-	::CloseHandle(hWrite);
-	if ( hNul != INVALID_HANDLE_VALUE ) {
-		::CloseHandle(hNul);
-	}
-
-	if ( ! created ) {
-		::CloseHandle(hRead);
-		return L"Failed to start the process.";
-	}
-	::CloseHandle(pi.hThread);
-
-	// 終了を待つ間も標準出力を読み続ける。読まないとパイプが一杯になって子プロセスが止まる。
-	// 読めたときは待たずに次を読む（待つとパイプの容量ずつしか進まない）
-	yaya::string_t	error;
-	const DWORD	start = ::GetTickCount();
-	size_t	last_size = out.size() + 1;
-	while ( true ) {
-		const DWORD	wait = ::WaitForSingleObject(pi.hProcess, ( out.size() != last_size ) ? 0 : 20);
-		last_size = out.size();
-		ReadPipeWin32(hRead, out);
-		if ( wait != WAIT_TIMEOUT ) {
-			break;
-		}
-		if ( out.size() >= BASIC_OUTPUT_LIMIT ) {
-			error = L"Output exceeded the limit.";
-			break;
-		}
-		if ( ::GetTickCount() - start >= BASIC_TIMEOUT_MS ) {
-			error = L"Timed out.";
-			break;
-		}
-	}
-
-	if ( error.size() ) {
-		::TerminateProcess(pi.hProcess, 1);
-		::WaitForSingleObject(pi.hProcess, 1000);
-	}
-	::CloseHandle(pi.hProcess);
-	::CloseHandle(hRead);
-
-	return error;
+	return RunBasicCapture(cap, out);
 }
 
 /* -----------------------------------------------------------------------
@@ -810,167 +734,35 @@ int	CLib1::LoadBasic(void)
 #elif defined(POSIX)
 
 /* -----------------------------------------------------------------------
- *  経過時間を測るためのミリ秒単位の時刻
- * -----------------------------------------------------------------------
- */
-static unsigned long	MonotonicMsPosix(void)
-{
-	struct timespec	ts;
-	clock_gettime(CLOCK_MONOTONIC, &ts);
-	return static_cast<unsigned long>(ts.tv_sec) * 1000UL + static_cast<unsigned long>(ts.tv_nsec / 1000000);
-}
-
-/* -----------------------------------------------------------------------
- *  パイプに溜まっている分を out に足す（BASIC_OUTPUT_LIMIT まで）
- *
- *  返値　　：　true=パイプが閉じられた（もう読むものがない）
- * -----------------------------------------------------------------------
- */
-static bool	ReadPipePosix(int fd, std::string &out)
-{
-	char	buf[4096];
-	while ( out.size() < BASIC_OUTPUT_LIMIT ) {
-		ssize_t	n = read(fd, buf, sizeof(buf));
-		if ( n > 0 ) {
-			AppendOutput(out, buf, static_cast<size_t>(n));
-			continue;
-		}
-		if ( n == 0 ) {
-			return true;
-		}
-		if ( errno == EINTR ) {
-			continue;
-		}
-		return errno != EAGAIN && errno != EWOULDBLOCK;
-	}
-	return false;
-}
-
-/* -----------------------------------------------------------------------
  *  実行ファイルを起動し、終わるまで標準出力を読む
  *
- *  シェルは通さず、引数は execv に1つずつ渡す。ホストがマルチスレッドの場合に備え、
- *  fork から exec までの間は async-signal-safe な関数しか呼ばない（文字列は fork の前に用意する）。
+ *  シェルは通さず、引数は execv に1つずつ渡す（ProcCaptureRun の argv 指定）
  *
  *  返値　　：　空文字列=成功、それ以外=失敗の理由
  * -----------------------------------------------------------------------
  */
 static yaya::string_t	RunBasic(const yaya::string_t &path, const std::vector<yaya::string_t> &args, int charset, std::string &out)
 {
+	CProcCapture	cap;
+
 	std::string	s_path = posix_path(path);
+	cap.argv.push_back(s_path);
 
-	std::string	s_dir;
-	std::string::size_type	pos_slash = s_path.rfind('/');
-	if ( pos_slash != std::string::npos ) {
-		s_dir = s_path.substr(0, pos_slash + 1);
-	}
-
-	std::vector<std::string>	s_args;
 	for ( size_t i = 0; i < args.size(); ++i ) {
 		char	*t_arg = Ccct::Ucs2ToMbcs(args[i], charset);
 		if ( t_arg == NULL ) {
 			return L"Failed to convert the arguments.";
 		}
-		s_args.push_back(t_arg);
+		cap.argv.push_back(t_arg);
 		free(t_arg);
 	}
 
-	std::vector<char*>	argv;
-	argv.push_back(const_cast<char*>(s_path.c_str()));
-	for ( size_t i = 0; i < s_args.size(); ++i ) {
-		argv.push_back(const_cast<char*>(s_args[i].c_str()));
-	}
-	argv.push_back(NULL);
-
-	int	fds[2];
-	if ( pipe(fds) != 0 ) {
-		return L"pipe failed.";
-	}
-	// 標準入力と標準エラー出力は /dev/null につなぐ
-	int	devnull = open("/dev/null", O_RDWR);
-
-	pid_t	pid = fork();
-	if ( pid < 0 ) {
-		close(fds[0]);
-		close(fds[1]);
-		if ( devnull >= 0 ) {
-			close(devnull);
-		}
-		return L"fork failed.";
+	std::string::size_type	pos_slash = s_path.rfind('/');
+	if ( pos_slash != std::string::npos ) {
+		cap.dir = s_path.substr(0, pos_slash + 1);
 	}
 
-	if ( pid == 0 ) {
-		close(fds[0]);
-		if ( fds[1] != STDOUT_FILENO ) {
-			dup2(fds[1], STDOUT_FILENO);
-			close(fds[1]);
-		}
-		if ( devnull >= 0 ) {
-			dup2(devnull, STDIN_FILENO);
-			dup2(devnull, STDERR_FILENO);
-			if ( devnull > STDERR_FILENO ) {
-				close(devnull);
-			}
-		}
-		if ( s_dir.size() && chdir(s_dir.c_str()) != 0 ) {
-			_exit(127);
-		}
-		execv(argv[0], &argv[0]);
-		_exit(127);
-	}
-
-	close(fds[1]);
-	if ( devnull >= 0 ) {
-		close(devnull);
-	}
-	fcntl(fds[0], F_SETFL, fcntl(fds[0], F_GETFL) | O_NONBLOCK);
-
-	// 終了を待つ間も標準出力を読み続ける。読まないとパイプが一杯になって子プロセスが止まる
-	yaya::string_t	error;
-	bool	exited = false;
-	bool	eof = false;
-	int		status = 0;
-	const unsigned long	start = MonotonicMsPosix();
-	while ( true ) {
-		struct pollfd	pfd;
-		pfd.fd = fds[0];
-		pfd.events = POLLIN;
-		pfd.revents = 0;
-		// パイプが閉じた後は待つだけ（孫プロセスが残って閉じないこともある）
-		poll(eof ? NULL : &pfd, eof ? 0 : 1, 50);
-		if ( ! eof ) {
-			eof = ReadPipePosix(fds[0], out);
-		}
-
-		pid_t	r = waitpid(pid, &status, WNOHANG);
-		// ホストが SIGCHLD を無視していると子は自動で回収され ECHILD になる
-		if ( r == pid || (r < 0 && errno != EINTR) ) {
-			exited = true;
-			if ( ! eof ) {
-				ReadPipePosix(fds[0], out);
-			}
-			break;
-		}
-		if ( out.size() >= BASIC_OUTPUT_LIMIT ) {
-			error = L"Output exceeded the limit.";
-			break;
-		}
-		if ( MonotonicMsPosix() - start >= BASIC_TIMEOUT_MS ) {
-			error = L"Timed out.";
-			break;
-		}
-	}
-
-	if ( ! exited ) {
-		kill(pid, SIGKILL);
-		pid_t	r;
-		do {
-			r = waitpid(pid, &status, 0);
-		} while ( r < 0 && errno == EINTR );
-	}
-	close(fds[0]);
-
-	return error;
+	return RunBasicCapture(cap, out);
 }
 
 /* -----------------------------------------------------------------------

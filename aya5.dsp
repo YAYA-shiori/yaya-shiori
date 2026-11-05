@@ -399,6 +399,10 @@ SOURCE=.\StdAfx.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\proccapture.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\sysfunc.cpp
 # End Source File
 # Begin Source File
@@ -556,6 +560,10 @@ SOURCE=.\tinyxml2\tinyxml2.h
 # Begin Source File
 
 SOURCE=.\uka_regexp\uka_regexp.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\proccapture.h
 # End Source File
 # Begin Source File
 

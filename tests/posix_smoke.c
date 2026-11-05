@@ -340,6 +340,28 @@ static const struct test_case posix_cases[] = {
 	{ "EXECUTE_WAIT exit code", "EXECUTE_WAIT(\"sh\", \"-c 'exit 3'\")", "3" },
 	{ "EXECUTE_WAIT full path", "EXECUTE_WAIT(\"/bin/sh\", \"-c 'exit 4'\")", "4" },
 	{ "EXECUTE_WAIT dir and UTF-8 args", "EXECUTE_WAIT(\"sh\", \"-c 'test -f \xE6\x97\xA5\xE6\x9C\xAC\xE8\xAA\x9E.txt'\", \".\")", "0" },
+	/* EXECUTE_CAPTURE */
+	{ "EXECUTE_CAPTURE stdout", "_r = EXECUTE_CAPTURE(\"echo\", \"hello\")\n_r['stdout'] == 'hello' + CHR(10)", "1" },
+	{ "EXECUTE_CAPTURE status and exit code", "_r = EXECUTE_CAPTURE(\"sh\", \"-c 'exit 3'\")\n_r['status'] + ',' + _r['exitcode']", "ok,3" },
+	{ "EXECUTE_CAPTURE stderr separate", "_r = EXECUTE_CAPTURE(\"sh\", \"-c 'echo err 1>&2'\")\nSTRLEN(_r['stdout']) + ',' + STRLEN(_r['stderr'])", "0,4" },
+	{ "EXECUTE_CAPTURE stderr merge", "_r = EXECUTE_CAPTURE(\"sh\", \"-c 'echo err 1>&2'\", \"\", IHASH(\"stderr\", \"merge\"))\nSTRLEN(_r['stdout']) + ',' + STRLEN(_r['stderr'])", "4,0" },
+	{ "EXECUTE_CAPTURE stderr discard", "_r = EXECUTE_CAPTURE(\"sh\", \"-c 'echo out; echo err 1>&2'\", \"\", IHASH(\"stderr\", \"discard\"))\nSTRLEN(_r['stdout']) + ',' + STRLEN(_r['stderr'])", "4,0" },
+	{ "EXECUTE_CAPTURE stdin", "_r = EXECUTE_CAPTURE(\"cat\", \"\", \"\", IHASH(\"stdin\", \"abc\"))\n_r['stdout'] == 'abc'", "1" },
+	{ "EXECUTE_CAPTURE stdin UTF-8", "_r = EXECUTE_CAPTURE(\"cat\", \"\", \"\", IHASH(\"stdin\", CHR(12354)))\n_r['stdout'] == CHR(12354)", "1" },
+	{ "EXECUTE_CAPTURE no stdin gives EOF", "_r = EXECUTE_CAPTURE(\"cat\")\n_r['status'] + ',' + STRLEN(_r['stdout'])", "ok,0" },
+	{ "EXECUTE_CAPTURE SIGPIPE is not ignored in the command", "_r = EXECUTE_CAPTURE(\"sh\", \"-c 'yes | head -n 3'\")\n_r['status'] + ',' + _r['exitcode'] + ',' + STRLEN(_r['stdout'])", "ok,0,6" },
+	{ "EXECUTE_CAPTURE dir and UTF-8 args", "_r = EXECUTE_CAPTURE(\"sh\", \"-c 'test -f \xE6\x97\xA5\xE6\x9C\xAC\xE8\xAA\x9E.txt'\", \".\")\n_r['exitcode']", "0" },
+	{ "EXECUTE_CAPTURE missing dir", "_r = EXECUTE_CAPTURE(\"echo\", \"x\", \"no_such_dir_xyz\")\n_r['status'] + ',' + _r['exitcode']", "failed,-1" },
+	{ "EXECUTE_CAPTURE timeout", "_r = EXECUTE_CAPTURE(\"sleep\", \"20\", \"\", IHASH(\"timeout\", 500))\n_r['status'] + ',' + _r['exitcode']", "timeout,-1" },
+	{ "EXECUTE_CAPTURE timeout kills the process group", "_r = EXECUTE_CAPTURE(\"sh\", \"-c 'sleep 20 & wait'\", \"\", IHASH(\"timeout\", 500))\n_r['status']", "timeout" },
+	{ "EXECUTE_CAPTURE output limit", "_r = EXECUTE_CAPTURE(\"sh\", \"-c 'yes | head -c 100000'\", \"\", IHASH(\"maxsize\", 1000))\n_r['status'] + ',' + STRLEN(_r['stdout'])", "truncated,1000" },
+	{ "EXECUTE_CAPTURE large stdin and stdout", "_s = 'abcdefghi' + CHR(10)\n_i = 0\nwhile _i < 18 { _s = _s + _s; _i = _i + 1 }\n_r = EXECUTE_CAPTURE(\"cat\", \"\", \"\", IHASH(\"stdin\", _s))\n_r['status'] + ',' + (_r['stdout'] == _s)", "ok,1" },
+	{ "EXECUTE_CAPTURE large stderr only", "_r = EXECUTE_CAPTURE(\"sh\", \"-c 'yes yyyyyyyyy | head -c 3000000 1>&2'\")\n_r['status'] + ',' + STRLEN(_r['stdout']) + ',' + STRLEN(_r['stderr'])", "ok,0,3000000" },
+	{ "EXECUTE_CAPTURE invalid option", "_r = EXECUTE_CAPTURE(\"echo\", \"x\", \"\", IHASH(\"stderr\", \"bogus\"))\n_r['status']", "failed" },
+	/* the command exits at once but a background process keeps writing (every 0.2s, shorter than the 500ms drain idle time) */
+	{ "EXECUTE_CAPTURE timeout while reading after exit", "_r = EXECUTE_CAPTURE(\"sh\", \"-c '(while :; do echo xxxxxxxxxx; sleep 0.2; done) & exit 0'\", \"\", IHASH(\"timeout\", 700))\n_r['status'] + ',' + _r['exitcode']", "timeout,0" },
+	/* SAORI-basic (an executable without a library extension) runs through the same code as EXECUTE_CAPTURE */
+	{ "SAORI-basic echo", "_l = LOADLIB(\"/bin/echo\")\n_r = REQUESTLIB(\"/bin/echo\", \"EXECUTE SAORI/1.0\" + CHR(13,10) + \"Charset: UTF-8\" + CHR(13,10) + \"SecurityLevel: Local\" + CHR(13,10) + \"Argument0: hello\" + CHR(13,10) + \"Argument1: a b\" + CHR(13,10) + CHR(13,10))\n(STRSTR(_r, 'SAORI/1.0 200 OK', 0) == 0) + ',' + (STRSTR(_r, 'Result: hello a b', 0) > 0)", "1,1" },
 };
 
 /* Send one request and compare the response with the expected string. */
@@ -527,6 +549,8 @@ int main(int argc, char **argv)
 	/* The exit code must be returned even if the host ignores SIGCHLD */
 	signal(SIGCHLD, SIG_IGN);
 	check("EXECUTE_WAIT with SIGCHLD ignored", "EXECUTE_WAIT(\"sh\", \"-c 'exit 3'\")", "3");
+	check("EXECUTE_CAPTURE with SIGCHLD ignored", "_r = EXECUTE_CAPTURE(\"sh\", \"-c 'echo hi; exit 3'\")\n_r['status'] + ',' + _r['exitcode'] + ',' + STRLEN(_r['stdout'])", "ok,3,3");
+	check("SAORI-basic with SIGCHLD ignored", "_l = LOADLIB(\"/bin/echo\")\n_r = REQUESTLIB(\"/bin/echo\", \"EXECUTE SAORI/1.0\" + CHR(13,10) + \"Charset: UTF-8\" + CHR(13,10) + \"SecurityLevel: Local\" + CHR(13,10) + \"Argument0: hi\" + CHR(13,10) + CHR(13,10))\nSTRSTR(_r, 'Result: hi', 0) > 0", "1");
 	signal(SIGCHLD, SIG_DFL);
 
 	/* A worker left running is cancelled by the unload below (Shutdown under pthreads).

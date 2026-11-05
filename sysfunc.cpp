@@ -83,6 +83,7 @@ const int BUFFER_SIZE = 1024;
 #include "messages.h"
 #include "misc.h"
 #include "parser0.h"
+#include "proccapture.h"
 #if defined(POSIX)
 #include "posix_utils.h"
 #endif
@@ -403,6 +404,8 @@ constexpr CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::THREADJOIN , L"THREADJOIN" } ,
 	{ &CSystemFunction::THREADRESULT , L"THREADRESULT" } ,
 	{ &CSystemFunction::THREADCLOSE , L"THREADCLOSE" } ,
+	// 特殊(9)
+	{ &CSystemFunction::EXECUTE_CAPTURE , L"EXECUTE_CAPTURE" } ,
 };
 
 #define SYSFUNC_NUM (sizeof(CSystemFunction::sysfunc)/sizeof(CSystemFunction::sysfunc[0]))
@@ -8030,6 +8033,262 @@ CValue	CSystemFunction::EXECUTE_WAIT(CSF_FUNCPARAM &p)
 
 	// 実行
 	return CValue(result);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::EXECUTE_CAPTURE
+ *  機能概要：  外部プログラムを起動して終わるまで待ち、標準入力を渡して、標準出力・標準エラー出力を取り込みます
+ *
+ *  EXECUTE_CAPTURE(path[,param[,dir[,options]]])
+ *  path / param / dir は EXECUTE_WAIT と同じ。ただしシェルの関連付けは使わず、実行ファイルを直接起動する
+ *  （Windows は CreateProcess、POSIX は sh -c）。options は IHASH で作るハッシュ
+ *    stdin(文字列) stderr("separate"/"merge"/"discard") timeout(ミリ秒、0=無制限)
+ *    maxsize(バイト、出力ごとの上限) charset(標準入出力の文字コード)
+ *  返値はハッシュ exitcode / stdout / stderr / status
+ *  status は "ok" "timeout" "canceled" "truncated" "failed"
+ * -----------------------------------------------------------------------
+ */
+static CValue MakeCaptureResult(yaya::int_t exitcode, const yaya::string_t &out, const yaya::string_t &err, const yaya::char_t *status)
+{
+	CValue result(F_TAG_HASH, 0/*dmy*/);
+	CValueHash &h = result.hash();
+	h[CValue(L"exitcode")] = CValue(exitcode);
+	h[CValue(L"stdout")] = CValue(out);
+	h[CValue(L"stderr")] = CValue(err);
+	h[CValue(L"status")] = CValue(status);
+	return result;
+}
+
+#if defined(POSIX)
+/* -----------------------------------------------------------------------
+ *  EXECUTE_CAPTURE のパスと引数からシェルに渡すコマンドを作る
+ *  EXECUTE_WAIT と違い、URL・文書・ディレクトリを既定のアプリケーションで開くことはしない
+ * -----------------------------------------------------------------------
+ */
+static std::string MakeCaptureCommandPosix(const yaya::string_t &file, const yaya::string_t &param)
+{
+	std::string path = posix_path(file);
+	std::string s_param = ToUtf8Posix(param);
+
+	// 実在するファイルは、パスに空白などがあっても1つの名前として渡す。
+	// 見つからなければ、シェルのコマンドとして渡す（PATH から探す）
+	struct stat sb;
+	std::string cmd;
+	if ( stat(path.c_str(), &sb) == 0 && ! S_ISDIR(sb.st_mode) ) {
+		cmd = ShellQuotePosix(path);
+	}
+	else {
+		cmd = path;
+	}
+	if ( s_param.size() ) {
+		cmd += ' ';
+		cmd += s_param;
+	}
+	return cmd;
+}
+#endif
+
+CValue	CSystemFunction::EXECUTE_CAPTURE(CSF_FUNCPARAM &p)
+{
+	const yaya::char_t *fname = L"EXECUTE_CAPTURE";
+	const yaya::string_t empty;
+
+	// 引数が不正なときも、起動に失敗したときと同じ形のハッシュを返す（GETLASTERROR に番号を残す）
+	if ( p.valuearg.size() < 1 ) {
+		vm.logger().Error(E_W, 8, fname, p.dicname, p.line);
+		SetError(8);
+		return MakeCaptureResult(-1, empty, empty, L"failed");
+	}
+	if ( ! p.valuearg[0].IsString() ) {
+		vm.logger().Error(E_W, 9, fname, p.dicname, p.line);
+		SetError(9);
+		return MakeCaptureResult(-1, empty, empty, L"failed");
+	}
+
+	yaya::string_t file = p.valuearg[0].s_value;
+	yaya::string_t param;
+	if ( p.valuearg.size() >= 2 ) {
+		param = p.valuearg[1].GetValueString();
+	}
+	yaya::string_t dir;
+	if ( p.valuearg.size() >= 3 && ! p.valuearg[2].IsVoid() ) {
+		if ( ! p.valuearg[2].IsString() ) {
+			vm.logger().Error(E_W, 9, fname, p.dicname, p.line);
+			SetError(9);
+			return MakeCaptureResult(-1, empty, empty, L"failed");
+		}
+		if ( p.valuearg[2].s_value.size() ) {
+			dir = vm.basis().ToFullPath(p.valuearg[2].s_value);
+		}
+	}
+
+	// オプション
+	bool has_input = false;
+	yaya::string_t input_text;
+	int stderr_mode = PCAP_STDERR_SEPARATE;
+	yaya::int_t timeout_ms = 0;
+	yaya::int_t maxsize = 16 * 1024 * 1024;
+	int charset = CHARSET_DEFAULT;
+
+	if ( p.valuearg.size() >= 4 && ! p.valuearg[3].IsVoid() ) {
+		if ( ! p.valuearg[3].IsHash() ) {
+			vm.logger().Error(E_W, 9, fname, p.dicname, p.line);
+			SetError(9);
+			return MakeCaptureResult(-1, empty, empty, L"failed");
+		}
+
+		const CValueHash &opt = p.valuearg[3].hash();
+		for ( CValueHash::const_iterator it = opt.begin(); it != opt.end(); ++it ) {
+			const yaya::string_t key = it->first.GetValueString();
+			const CValue &v = it->second;
+			if ( v.IsVoid() ) {
+				continue;	// 値がないキーは指定されていないものとして扱う
+			}
+
+			if ( key == L"stdin" ) {
+				if ( ! v.IsString() && ! v.IsNum() ) {
+					vm.logger().Error(E_W, 9, yaya::string_t(fname) + L" : " + key, p.dicname, p.line);
+					SetError(9);
+					return MakeCaptureResult(-1, empty, empty, L"failed");
+				}
+				has_input = true;
+				input_text = v.GetValueString();
+			}
+			else if ( key == L"stderr" ) {
+				if ( ! v.IsString() ) {
+					vm.logger().Error(E_W, 9, yaya::string_t(fname) + L" : " + key, p.dicname, p.line);
+					SetError(9);
+					return MakeCaptureResult(-1, empty, empty, L"failed");
+				}
+				yaya::string_t mode = v.s_value;
+				for ( size_t i = 0; i < mode.size(); ++i ) {
+					if ( mode[i] >= L'A' && mode[i] <= L'Z' ) {
+						mode[i] = static_cast<yaya::char_t>(mode[i] - L'A' + L'a');
+					}
+				}
+				if ( mode == L"separate" ) {
+					stderr_mode = PCAP_STDERR_SEPARATE;
+				}
+				else if ( mode == L"merge" ) {
+					stderr_mode = PCAP_STDERR_MERGE;
+				}
+				else if ( mode == L"discard" ) {
+					stderr_mode = PCAP_STDERR_DISCARD;
+				}
+				else {
+					vm.logger().Error(E_W, 12, yaya::string_t(fname) + L" : " + v.s_value, p.dicname, p.line);
+					SetError(12);
+					return MakeCaptureResult(-1, empty, empty, L"failed");
+				}
+			}
+			else if ( key == L"timeout" || key == L"maxsize" ) {
+				if ( ! v.IsNum() ) {
+					vm.logger().Error(E_W, 9, yaya::string_t(fname) + L" : " + key, p.dicname, p.line);
+					SetError(9);
+					return MakeCaptureResult(-1, empty, empty, L"failed");
+				}
+				yaya::int_t n = v.GetValueInt();
+				const bool is_timeout = ( key == L"timeout" );
+				if ( n < ( is_timeout ? 0 : 1 ) ) {
+					vm.logger().Error(E_W, 12, yaya::string_t(fname) + L" : " + key, p.dicname, p.line);
+					SetError(12);
+					return MakeCaptureResult(-1, empty, empty, L"failed");
+				}
+				if ( n > 0x7FFFFFFF ) {
+					n = 0x7FFFFFFF;
+				}
+				if ( is_timeout ) {
+					timeout_ms = n;
+				}
+				else {
+					// 32bit の size_t に収まる範囲にする
+					maxsize = ( n > 0x40000000 ) ? 0x40000000 : n;
+				}
+			}
+			else if ( key == L"charset" ) {
+				if ( v.IsStringReal() && v.s_value.empty() ) {
+					continue;
+				}
+				charset = GetCharset(v, fname, p.dicname, p.line);
+				if ( charset < 0 ) {
+					return MakeCaptureResult(-1, empty, empty, L"failed");
+				}
+				if ( charset == CHARSET_BINARY ) {
+					charset = CHARSET_UTF8;
+				}
+			}
+			else {
+				// つづりの間違いが黙って無視されないよう、知らないキーは警告する（処理は続ける）
+				vm.logger().Error(E_W, 12, yaya::string_t(fname) + L" : " + key, p.dicname, p.line);
+				SetError(12);
+			}
+		}
+	}
+
+	// 実行する内容を、GIL を手放しても安全な（CValue と共有しない）データにして渡す
+	CProcCapture cap;
+	cap.has_input = has_input;
+	cap.stderr_mode = stderr_mode;
+	cap.timeout_ms = static_cast<unsigned long>(timeout_ms);
+	cap.maxsize = static_cast<size_t>(maxsize);
+
+	if ( has_input ) {
+		char *bytes = Ccct::Ucs2ToMbcs(input_text, charset);
+		if ( bytes == NULL ) {
+			vm.logger().Error(E_W, 27, fname, p.dicname, p.line);
+			SetError(27);
+			return MakeCaptureResult(-1, empty, empty, L"failed");
+		}
+		cap.input = std::string(bytes, strlen(bytes));
+		free(bytes);
+	}
+
+#if defined(WIN32)
+	cap.cmdline.assign(1, L'"');
+	cap.cmdline += file;
+	cap.cmdline += L'"';
+	if ( param.size() ) {
+		cap.cmdline += L' ';
+		cap.cmdline += param;
+	}
+	cap.dir = dir;
+#elif defined(POSIX)
+	cap.dir = posix_path(dir);
+	cap.cmd = MakeCaptureCommandPosix(file, param);
+#endif
+
+	// 待つ間は GIL を手放して、ほかのスレッド（SSP の request を含む）を動かす。
+	// ワーカーが中断を求められたら、子プロセスを終了させて戻る
+	CWorkerContext *me = vm.threads().Current();
+	cap.cancel = me ? &me->cancel : NULL;
+	{
+		CGilRelease rel(vm.threads(), true);
+		ProcCaptureRun(cap);
+	}
+
+	yaya::string_t w_out, w_err;
+	bool conv_ok = true;
+	if ( cap.out.size() && ! Ccct::MbcsToUcs2Buf(w_out, cap.out, charset) ) {
+		conv_ok = false;
+	}
+	if ( cap.err.size() && ! Ccct::MbcsToUcs2Buf(w_err, cap.err, charset) ) {
+		conv_ok = false;
+	}
+	if ( ! conv_ok ) {
+		vm.logger().Error(E_W, 27, fname, p.dicname, p.line);
+		SetError(27);
+	}
+
+	const yaya::char_t *status = L"failed";
+	switch ( cap.status ) {
+	case PCAP_OK:        status = L"ok"; break;
+	case PCAP_TIMEOUT:   status = L"timeout"; break;
+	case PCAP_CANCELED:  status = L"canceled"; break;
+	case PCAP_TRUNCATED: status = L"truncated"; break;
+	default: break;
+	}
+
+	return MakeCaptureResult(cap.exitcode, w_out, w_err, status);
 }
 
 /* -----------------------------------------------------------------------

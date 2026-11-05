@@ -137,13 +137,29 @@ if ($IsWindows) {
         @('THREADSTART("TH.SaoriReq", 3)', '17', 0),
         @('TH.SaoriReq(1)', '1', 0),
         @('THREADJOIN(17, 10000)', '1', 0),
-        @('THREADRESULT(17)', '1', 0)
+        @('THREADRESULT(17)', '1', 0),
+        # EXECUTE_CAPTURE も待つ間はほかを止めない。中断を求められたら子プロセスを終了させて戻る
+        @('THREADSTART("TH.Capture", 30)', '18', 0),
+        @('1+1', '2', 400),
+        @('THREADSTOP(18)', '1', 0),
+        @('THREADJOIN(18, 3000)', '1', 1500),
+        @('THREADSTATE(18)', '2', 0),
+        @('THREADSTART("TH.Capture", 2)', '19', 0),
+        @('1+1', '2', 400),
+        @('THREADJOIN(19, 10000)', '1', 0),
+        @('THREADRESULT(19)', 'ok,0', 0),
+        # 子が終わった後に孫が出力し続けていても（終了後の読み取り中でも）中断できる
+        @('THREADSTART("TH.CaptureFlood")', '20', 0),
+        @('1+1', '2', 400),
+        @('THREADSTOP(20)', '1', 0),
+        @('THREADJOIN(20, 3000)', '1', 1500),
+        @('THREADSTATE(20)', '2', 0)
     )
 }
 
 # SLEEP（実行権を手放す）をまたいで、式の途中で同じ関数をホストとワーカーが同時に走らせる
 # （呼び出し元が式の途中で持つ一時値を、同じ関数の別の実行が壊さない）
-$midId = if ($IsWindows) { 18 } else { 14 }
+$midId = if ($IsWindows) { 21 } else { 14 }
 $cases += @(
     @('THREADSTART("TH.MidSleep", 300, 5)', "$midId", 0),
     @('TH.MidSleep(10, 20)', '1030', 0),

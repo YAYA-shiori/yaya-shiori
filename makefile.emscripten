@@ -64,6 +64,7 @@ LIBAYA5_OBJ = \
 	parson/parson.o \
 	parser0.o \
 	parser1.o \
+	proccapture.o \
 	selecter.o \
 	sqlite3_yaya.o \
 	sqlitedb.o \

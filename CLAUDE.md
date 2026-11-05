@@ -153,9 +153,23 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 ## SAORI-basic（LOADLIB / REQUESTLIB）
 
 - `CLib1::IsBasicName` が拡張子で SAORI-basic（実行ファイル）かを判定する（Windows は `.dll` と拡張子なし以外、POSIX は `.dll` `.so` `.dylib` `.bundle` 以外）。SAORI-basic なら DLL は扱わず、`Load` / `Unload` / `Request` は `LoadBasic` / 何もしない / `RequestBasic` に分かれる
-- `RequestBasic` は SAORI/1.0 の要求を解析し、`GET Version` には本体が応答する。`EXECUTE` は ArgumentN を1つずつの引数にして `RunBasic`（Windows は `CreateProcessW`、POSIX は fork → execv。シェルは通さない）で起動し、標準出力を Result（行を文字の `\r\n` でつなぐ）と ValueN（1行ずつ）にする。10秒・16MB で打ち切って 500
+- `RequestBasic` は SAORI/1.0 の要求を解析し、`GET Version` には本体が応答する。`EXECUTE` は ArgumentN を1つずつの引数にして `RunBasic`（`lib1.cpp`）で起動し、標準出力を Result（行を文字の `\r\n` でつなぐ）と ValueN（1行ずつ）にする。10秒・16MB で打ち切って 500
 - システム辞書の `FUNCTIONEX` は `LOADLIB` / `REQUESTLIB` を呼ぶだけなので、辞書側は変えずに SAORI-basic を直接呼べる
-- 出力を読むときは容量を倍々で確保する（`AppendOutput`）。VC6 の `std::string` は足りない分しか確保し直さず、大きな出力で二乗の時間がかかる
+- `RunBasic` は引数を詰めて `proccapture.cpp` の `ProcCaptureRun`（EXECUTE_CAPTURE と共通）に渡すだけで、起動・読み取り・時間切れの処理は持たない。EXECUTE_CAPTURE との違いは、シェルを通さず直接実行する指定（Windows は `CProcCapture::app` と `cmdline`、POSIX は `argv`）、標準入力・標準エラー出力を捨てること、10秒・16MB の上限だけ。POSIX の子はプロセスグループごと終了させる
+- 出力を読むときは容量を倍々で確保する（`AppendBytes`）。VC6 の `std::string` は足りない分しか確保し直さず、大きな出力で二乗の時間がかかる
+
+## 外部プログラムの出力の取り込み（EXECUTE_CAPTURE）
+
+`EXECUTE_WAIT` は拡張せず別関数にしてある（Windows は `ShellExecuteEx` が標準入出力をつなげず、`CreateProcess` に替えると関連付け・URL を開けなくなるため。.NET の `UseShellExecute=false`、AutoHotkey の `RunWait` / `Exec` と同じ分け方）。起動・取り込みの本体は `proccapture.cpp`（`ProcCaptureRun`）で、`sysfunc.cpp` の `EXECUTE_CAPTURE` が引数をハッシュ（`IHASH` のオプション）から読んで `CProcCapture` に詰め、GIL を手放して呼び、結果のハッシュ（`exitcode` / `stdout` / `stderr` / `status`）を作る。
+
+- `ProcCaptureRun` は `CValue` に触れない。呼び出し側が GIL を手放す前に、`CValue` と文字列の実体を共有しない `std::string` / `yaya::string_t`（連結や `std::string(ptr, len)` で作る）に詰めること（VC6 の COW の参照カウントが非アトミック）
+- **標準入力の書き込みと標準出力・標準エラー出力の読み出しは並行させる**。順に処理するとパイプが一杯になって子と待ち合う。Windows は書き込み専用スレッド（`_beginthreadex`。文脈はスレッドが所有して自分で解放する。書き込みが終わらなくても手放せる）、POSIX は EXECUTE_WAIT と同じ二重 fork の中間の子が、孫の標準入力に非ブロッキングで書く（fork 後は async-signal-safe な関数だけ。データは fork の前に用意する）
+- **パイプを作ってから子の側のハンドル（fd）を閉じるまでは `CProcSpawnLock`（プロセス全体で1つ）で直列にする**。別スレッドの起動が書き込み側を継承すると、その子が終わるまで EOF が来なくなる。SAORI-basic の `RunBasic` も `ProcCaptureRun` を通るので同じロックを使う。親側の端は継承させない（Windows は `SetHandleInformation`、POSIX は `FD_CLOEXEC` と、fd が 0〜2 にならないよう 3 以上へ移す `MoveHighCloexec`）
+- 中間の子は SIGPIPE を**孫を fork した後で**無視する（先に無視すると exec した孫のシェルにも引き継がれ、`yes | head` のようなパイプラインが壊れる）。孫は自分のプロセスグループに入れ、中断・時間切れ・上限超過のときは `kill(-gpid)` でグループごと終了させる（pid は状態パイプで中間の子から受け取る）。Windows は起動したプロセスだけを `TerminateProcess` する（ジョブオブジェクトは VC6 の SDK に無いので使っていない）
+- 標準入力を指定しないときは NUL（POSIX は `/dev/null`）につなぐ。開いたままのパイプにすると `sort` などが待ち続ける
+- 子が終わっても、孫がパイプを握っていると EOF が来ない。終了後は、出力が途切れてから `PCAP_DRAIN_IDLE_MS`（500ms）で打ち切る（status は ok）。この読み取り中も timeout と cancel は判定する（孫が 500ms より短い間隔で出し続けても止まり、SAORI-basic の 10 秒の上限もこれで守られる）。そのとき `exitcode` は返す。`tests/exec/run_capture.ps1` と `tests/thread/run_thread.ps1` の `TH.CaptureFlood` に試験がある
+- 上限の判定は上限+1 バイトまで読み、超えたら切り詰めて truncated にする（ちょうど上限なら ok）。出力の文字列化は `Ccct::MbcsToUcs2Buf` で NUL で切れる
+- POSIX 側は Linux / macOS の CI（`posix-build.yml`）でしか実行できない（`tests/posix_smoke.c` の `EXECUTE_CAPTURE` の件）。ローカルでは、スタブヘッダを `-include` して `g++ -fsyntax-only -DPOSIX proccapture.cpp` で文法だけ確かめられる。Windows は `tests/exec/run_capture.ps1`（EXE 構成。VC6 と MinGW の両方で通す）と `tests/thread/run_thread.ps1`（ワーカーからの呼び出しと THREADSTOP での中断）
 
 ## ワーカースレッド（THREADSTART / THREADSTATE / THREADSTOP / THREADJOIN / THREADRESULT / THREADCLOSE）
 
@@ -172,6 +186,6 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 - **ログ**: `SetLoghandler` のコールバックとチェックツールへの `WM_COPYDATA` は、ワーカーが動いている間は `CLog::Call_loghandler` が溜め（`defer_callbacks`）、ホストが GIL を取った直後・手放す直前・待ちから戻った直後に `FlushDeferred` で送る（SHIORI のコールバックは load / request / unload を呼んだスレッドで呼ぶ約束。ワーカーが SSP の UI スレッドを待つと、UI スレッドが request の GIL 待ちで止まって固まる）。`FlushDeferred` は `mon` を持たずに呼ぶ（コールバックが request を呼びうる）。ファイルへの書き出しはその場で行う
 - **辞書の変更**: ワーカーが1つでも動いている間は `DICLOAD` / `DICUNLOAD` / `APPEND_RUNTIME_DIC` / `UNDEFFUNC` を W0032 で断る（`CParser0::Dynamic*` の先頭）。`EVAL` は一時の `CFunction` を作るだけで関数表を触らないので許す
 - **unload**: `CBasis::Termination` の先頭で `Shutdown`。全ワーカーに中断を求め、ホストが GIL を手放して5秒待つ。終わらないものは強制停止する（Windows は `TerminateThread`。GIL を持つスレッドに使うとヒープのロックを残しうる。POSIX は `pthread_cancel` が強制 unwind で `catch(...)` や `CGilRelease` のデストラクタと噛み合わないため、見捨てて `detach` し、GIL を持つものは待ち続ける）。`HostEnterForUnload` は GIL が10秒空かなければ持ち主を強制停止して奪う。`DllMain` の `DLL_PROCESS_DETACH` で `g_yaya_detaching` を立て、そのとき（ローダーロックを持っているので待てない）は待たず、ロックも取らない
-- **外部の遅い応答を待つ関数**（`DIRECTSSTP`、`SLEEP`、`REQUESTLIB`、`EXECUTE_WAIT`）は、待つ間 GIL を手放す（`CGilRelease`）。ワーカーからなら常に、ホストからは動いているワーカーがあるときだけ（`alsoHost`。ホストが手放す間は別のホストを入れない）。`REQUESTLIB` は `CLib::Request` が、要求を別のバッファにコピーし、ログを `errlog` に溜めて（`CLib1::Request` / `RequestBasic` はその間 vm に触れない）、`CLib1::busy` を数えてから手放す。呼び出し中のライブラリは `UNLOADLIB` で消えない（`CLib::Delete` が 0 を返し W0013）。SAORI は同時に1つのスレッドからしか呼べないものとして、`LockLib(ライブラリ)` でライブラリごとに直列にする（**GIL を手放してから**取る。持ったまま待つと、持ち主が GIL を待って止まる）。`EXECUTE_WAIT` は Windows ではプロセスを 200ms ごとに見て中断を調べ、POSIX は終わるまで待つ。SAORI-basic の子プロセスの待ち（最大10秒）は中断で途中では戻らない
+- **外部の遅い応答を待つ関数**（`DIRECTSSTP`、`SLEEP`、`REQUESTLIB`、`EXECUTE_WAIT`、`EXECUTE_CAPTURE`）は、待つ間 GIL を手放す（`CGilRelease`）。ワーカーからなら常に、ホストからは動いているワーカーがあるときだけ（`alsoHost`。ホストが手放す間は別のホストを入れない）。`REQUESTLIB` は `CLib::Request` が、要求を別のバッファにコピーし、ログを `errlog` に溜めて（`CLib1::Request` / `RequestBasic` はその間 vm に触れない）、`CLib1::busy` を数えてから手放す。呼び出し中のライブラリは `UNLOADLIB` で消えない（`CLib::Delete` が 0 を返し W0013）。SAORI は同時に1つのスレッドからしか呼べないものとして、`LockLib(ライブラリ)` でライブラリごとに直列にする（**GIL を手放してから**取る。持ったまま待つと、持ち主が GIL を待って止まる）。`EXECUTE_WAIT` は Windows ではプロセスを 200ms ごとに見て中断を調べ、POSIX は終わるまで待つ。SAORI-basic の子プロセスの待ち（最大10秒）は中断で途中では戻らない
 - **限界**: `multi_load` で複数の VM を作ると、別の VM のホストとワーカーはロックを共有せず並列に動くので、プロセス全体の静的変数は競合しうる。SAORI の DLL がスレッド親和性を持つ（COM、ウィンドウ）場合、ワーカーのスレッドから呼ぶと動かないことがある。Emscripten は非対応（`THREADSTART` は -5）
 - **試験**: `tests/thread/run_thread.ps1`（EXE 構成。機能、同じ関数をホストと同時に実行、中断、辞書変更の拒否、unload、負荷）、`tests/thread/dll_host.c`（VC6 の `cl` でビルドする。DLL を `LoadLibrary` して unload / FreeLibrary / ExitProcess / ログのコールバックのスレッドを見る）、`tests/posix_smoke.c`（シェルモードの `request` を `THREADSTART` で呼ぶ3件）。**`makefile.mingw32` などはヘッダの依存を持たない**ので、ヘッダを変えたあとは `.o` を消して全部作り直す（古い `.o` が混ざると起動直後に落ちる）

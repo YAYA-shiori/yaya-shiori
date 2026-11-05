@@ -199,6 +199,20 @@ TH.ExecWait
 	EXECUTE_WAIT(GETENV('SystemRoot') + '\System32\cmd.exe', '/c ping -n ' + TOSTR(_argv[0]) + ' 127.0.0.1 >nul')
 }
 
+// EXECUTE_CAPTUREで外部プログラムの出力を取り込む。結果のstatusと終了コードを返す
+TH.Capture
+{
+	_r = EXECUTE_CAPTURE(GETENV('SystemRoot') + '\System32\ping.exe', '-n ' + TOSTR(_argv[0]) + ' 127.0.0.1')
+	_r['status'] + ',' + _r['exitcode']
+}
+
+// EXECUTE_CAPTUREで、起動した子が終わった後も孫が出力し続ける。終了後の読み取り中でもTHREADSTOPで止まる
+TH.CaptureFlood
+{
+	_r = EXECUTE_CAPTURE(GETENV('SystemRoot') + '\System32\cmd.exe', '/c start /b cmd /c for /L %i in (1,1,2000000) do @echo xxxxxxxxxx')
+	_r['status']
+}
+
 // SLEEP（実行権を手放す）をまたいで、式の途中で同じ関数がホストとワーカーで同時に走る
 TH.SleepRet
 {
