@@ -30,7 +30,12 @@ CLocalVariable::CLocalVariable(CAyaVM& vm)
 	pvm=&vm;
 	depth = -1;
 
+	// 関数の呼び出しごとに作られるので、_argv/_argc/_FUNC_NAME_と数個のローカル変数、
+	// 入れ子の{}ぶんの階層で配列が何度も確保し直され、変数が丸ごとコピーされるのを避ける
+	stack.reserve(8);
+
 	AddDepth();
+	stack[0].substack.reserve(4);
 }
 
 /* -----------------------------------------------------------------------

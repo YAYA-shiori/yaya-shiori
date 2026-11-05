@@ -21,6 +21,7 @@
 
 #include <vector>
 #include <memory>
+#include <algorithm>
 //modified by Neo 2015.oct
 #include <climits>
 //modified by Neo 2015.oct
@@ -116,6 +117,17 @@ public:
 	CValue(int tp, int) : type(tp), d_value(0.0), i_value(0) { }	// 型指定して初期化
 	CValue(void) : type(F_TAG_VOID), d_value(0.0), i_value(0) { }
 	~CValue(void) {}
+
+	// 中身を入れ替えます（コピーを伴わないので、使い捨てる値の受け渡しに使います）
+	void swap(CValue &rhs)
+	{
+		std::swap(type, rhs.type);
+		std::swap(d_value, rhs.d_value);
+		std::swap(i_value, rhs.i_value);
+		s_value.swap(rhs.s_value);
+		m_array.swap(rhs.m_array);
+		m_hash.swap(rhs.m_hash);
+	}
 
 	inline void		SetType(int tp) { type = tp; }
 	inline int		GetType(void) const { return type; }

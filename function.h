@@ -168,12 +168,20 @@ public:
 		CSelecter PossibleResults;
 
 		ExecutionResult(CAyaVM* pvm) :PossibleResults(pvm, NULL, BRACE_DEFAULT) {}
-		ExecutionResult(CSelecter& a) :PossibleResults(a) {}
+		// 候補を持たない入れ物（swapで受け取る専用。受け取る前にOutputしてはいけない）
+		enum EmptyTag { EMPTY };
+		ExecutionResult(CAyaVM* pvm, EmptyTag) :PossibleResults(pvm, CSelecter::EMPTY) {}
+		// aの候補を奪う（コピーしない）。aは以後破棄しか許されない
+		ExecutionResult(CSelecter& a) :PossibleResults(a, CSelecter::STEAL) {}
 
 		virtual ~ExecutionResult() { }
 		
 		CValue Output() { return PossibleResults.Output(); }
+		// Outputと同じ結果をdstに入れる。この結果は以後使えない（コピーを省くため）
+		void OutputConsume(CValue &dst) { PossibleResults.OutputConsume(dst); }
 		size_t OutputNum() { return PossibleResults.OutputNum(); }
+		// 中身を入れ替える（コピーしない）
+		void swap(ExecutionResult &rhs) { PossibleResults.swap(rhs.PossibleResults); }
 		
 		operator CValue() { return Output(); }
 	};
@@ -182,8 +190,12 @@ public:
 	ExecutionResult	Execute();
 	ExecutionResult	Execute(const CValue& arg);
 	ExecutionResult	Execute(const CValue &arg, CLocalVariable &lvar);
+	// Execute(arg, lvar).Output()と同じ値をanswerに入れる（出力候補をコピーしない）
+	void	ExecuteToValue(CValue &answer, const CValue &arg, CLocalVariable &lvar);
 	ExecutionResult	ExecuteEval(CLocalVariable &lvar);
 private:
+	void	ExecuteInto(ExecutionResult &result, const CValue &arg, CLocalVariable &lvar);
+	void	CallLimitExceeded(ExecutionResult &result);
 	void Execute_SEHhelper(ExecutionResult& aret, CLocalVariable& lvar, int& exitcode);
 	void Execute_SEHbody(ExecutionResult& retas, CLocalVariable& lvar, int& exitcode);
 public:
@@ -211,6 +223,21 @@ protected:
 		SReturnWithParamExpr() : used(false) {}
 	};
 
+	// ExecuteInBraceの補助。再帰のたびに積まれるExecuteInBraceのフレームを小さく保つため、
+	// 再帰の経路に載らない処理や、一時変数の多い処理を分けてある（いずれもインライン展開しない）
+	size_t	ExecuteSubBlock(size_t line, CLocalVariable& lvar, yaya::int_t type, int& exitcode, CSelecter& output, std::vector<CVecValue>* UpperLvCandidatePool, bool inpool, SReturnWithParamExpr* pReturnExpr);
+	void	FinishBlock(CSelecter& output, int exitcode, SReturnWithParamExpr* pReturnExpr, CSelecter* pUpperOutput, std::vector<CVecValue>* UpperLvCandidatePool, bool meltblock, bool inpool, bool ispoolbegin, bool notpoolblock, bool inmutiarea);
+	void	AppendParallel(CSelecter& output, const CValue& val);
+	void	SetForeachElement(CValue& value, CValue& key, const yaya::string_t& elem, int index);
+	void	SetForeachKey(CValue& key, int index);
+	void	TakeFormulaAnswer(CValue& dst, CStatement& st, const CValue& ans);
+	void	AppendFormulaOutput(CSelecter& output, CStatement& st, const CValue& ans);
+	void	LoopLimitExceeded(const CStatement& st);
+	// GetFormulaAnswerの補助（同じ理由で分けてある）
+	void	ApplyBinaryOp(CCell& o_cell, int op, const CValue& lv, const CValue& rv, const CStatement& st);
+	void	SetIntAnswer(CCell& o_cell, int value);
+	void	ExecSystemFunctionNoArg(CCell& cell, CStatement& st, CLocalVariable& lvar);
+
 	ExecutionInBraceResult	ExecuteInBrace(size_t line, CLocalVariable& lvar, yaya::int_t type, int& exitcode, CSelecter* pUpperOutput, std::vector<CVecValue>* UpperLvCandidatePool, bool inpool, SReturnWithParamExpr* pReturnExpr = NULL);
 
 	void	Foreach(CLocalVariable& lvar, CSelecter& output, size_t line, int& exitcode, std::vector<CVecValue>* UpperLvCandidatePool, bool inpool, SReturnWithParamExpr* pReturnExpr = NULL);
@@ -235,6 +262,8 @@ protected:
 	bool	not_in_(const CValue &src, const CValue &dst);
 	CFunction*	GetUserFunction(const CCell &cell);
 	char	ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	void	BuildFunctionArgs(CValue &arg, std::vector<size_t> &feedback, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	char	WriteBackFeedback(CLocalVariable &t_lvar, const std::vector<size_t> &feedback, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	char	ExecSystemFunctionWithArgs(CCell& cell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	void	ExecHistoryP1(size_t start_index, CCell& cell, const CValue &arg, CStatement &st);
 	void	ExecHistoryP2(CCell &cell, CStatement &st);

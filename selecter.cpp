@@ -40,6 +40,35 @@ CSelecter::CSelecter(CAyaVM *pvmr, CDuplEvInfo *dc, ptrdiff_t aid) : pvm(pvmr), 
 }
 
 /* -----------------------------------------------------------------------
+ *  CSelecter（候補を奪うコンストラクタ）
+ *
+ *  srcのvaluesをswapで受け取る。srcは空のvaluesになるので、以後は破棄しか許されない
+ * -----------------------------------------------------------------------
+ */
+CSelecter::CSelecter(CSelecter &src, StealTag) : pvm(src.pvm), areanum(src.areanum), duplctl(src.duplctl), aindex(src.aindex)
+{
+	values.swap(src.values);
+}
+
+CSelecter::CSelecter(CAyaVM *pvmr, EmptyTag) : pvm(pvmr), areanum(0), duplctl(NULL), aindex(BRACE_DEFAULT)
+{
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSelecter::swap
+ *  機能概要：  すべての状態を入れ替えます
+ * -----------------------------------------------------------------------
+ */
+void	CSelecter::swap(CSelecter &rhs)
+{
+	std::swap(pvm, rhs.pvm);
+	values.swap(rhs.values);
+	std::swap(areanum, rhs.areanum);
+	std::swap(duplctl, rhs.duplctl);
+	std::swap(aindex, rhs.aindex);
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CSelecter::AddArea
  *  機能概要：  新しい出力格納用の領域を用意します
  * -----------------------------------------------------------------------
@@ -70,6 +99,22 @@ void	CSelecter::Append(const CValue &value)
 		return;
 
 	values[areanum].array.emplace_back(value);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSelecter::AppendTake
+ *  機能概要：  候補値を追加します。Appendと違い、valueの中身を奪うのでコピーしません
+ *  　　　　　  （valueは使い捨てになります）
+ * -----------------------------------------------------------------------
+ */
+void	CSelecter::AppendTake(CValue &value)
+{
+	if (value.GetType() == F_TAG_VOID)
+		return;
+
+	std::vector<CValue> &arr = values[areanum].array;
+	arr.emplace_back(CValue());
+	arr.back().swap(value);
 }
 
 /* -----------------------------------------------------------------------
@@ -164,6 +209,50 @@ CValue	CSelecter::Output()
 	default:
 		return ChoiceRandom();
 	};
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSelecter::OutputConsume
+ *  機能概要：  Outputと同じ結果をdstに入れます。このCSelecterは以後使い捨てになります
+ *
+ *  領域がひとつで重複回避なしのランダム選択（もっとも多い形）では、選んだ候補を
+ *  コピーせずにdstへ入れ替えます。乱数の消費と直前の選択位置の更新はOutputと同じです。
+ *  それ以外はOutputの結果をdstに入れ替えます
+ * -----------------------------------------------------------------------
+ */
+void	CSelecter::OutputConsume(CValue &dst)
+{
+	bool	plain_random = false;
+	if (aindex < BRACE_SWITCH_OUT_OF_RANGE && areanum == 0 && values[0].array.size()) {
+		if (duplctl == NULL) {
+			plain_random = true;
+		}
+		else {
+			const choicetype_t	tp = duplctl->GetType();
+			if (!(tp & CHOICETYPE_SPECOUT_FILTER)) {
+				switch (tp & CHOICETYPE_SELECT_FILTER) {
+				case CHOICETYPE_NONOVERLAP_FLAG:
+				case CHOICETYPE_SEQUENTIAL_FLAG:
+				case CHOICETYPE_ARRAY_FLAG:
+					break;
+				default:
+					plain_random = true;
+					break;
+				}
+			}
+		}
+	}
+
+	if (plain_random) {
+		std::vector<CValue>	&cand = values[0].array;
+		size_t	choice = pvm->genrand_uint(cand.size());
+		pvm->sysfunction().SetLso(choice);
+		dst.swap(cand[choice]);
+		return;
+	}
+
+	CValue	t = Output();
+	dst.swap(t);
 }
 
 size_t CSelecter::OutputNum()

@@ -1,0 +1,103 @@
+load
+{
+}
+
+unload
+{
+}
+
+request
+{
+	'!! ' + EVAL(SUBSTR(_argv[0], 3, STRLEN(_argv[0])))
+}
+
+// 最小の再帰（1段あたりの最小フレーム）
+D.Plain
+{
+	if _argv[0] > 0 {
+		D.Plain(_argv[0] - 1)
+	}
+	else {
+		'ok'
+	}
+}
+
+// if / while の入れ子を通る再帰（ExecuteInBrace が積み重なる）
+D.Nest
+{
+	if _argv[0] > 0 {
+		while 1 {
+			if 1 {
+				{
+					return D.Nest(_argv[0] - 1)
+				}
+			}
+		}
+	}
+	else {
+		'ok'
+	}
+}
+
+// 式の途中での再帰（Comma/Subst などを経由）
+D.Expr
+{
+	if _argv[0] > 0 {
+		_r = 'x' + D.Expr(_argv[0] - 1)
+		_r
+	}
+	else {
+		'ok'
+	}
+}
+
+// 引数付き・多めのローカル
+D.Many
+{
+	_a = 1
+	_b = 2
+	_c = 3
+	_d = 'str'
+	if _argv[0] > 0 {
+		D.Many(_argv[0] - 1, _a, _b, _c, _d)
+	}
+	else {
+		'ok'
+	}
+}
+
+// 引数なしの再帰
+D.NoArg
+{
+	if G.n > 0 {
+		G.n = G.n - 1
+		D.NoArg()
+	}
+	else {
+		'ok'
+	}
+}
+
+D.NoArgStart
+{
+	G.n = _argv[0]
+	D.NoArg()
+}
+
+D.Fat
+{
+	_a = 1
+	_b = 2
+	_c = 'x' + 'y' + 'z'
+	_d = _a + _b * 3 - 4
+	_e = _c + TOSTR(_d) + 'abc' + 'def' + 'ghi'
+	_f = _a + _b + _a + _b + _a + _b + _a + _b
+	_g = _e + _e
+	if _argv[0] > 0 {
+		_h = _g + TOSTR(_f) + _c
+		D.Fat(_argv[0] - 1)
+	}
+	else {
+		'ok'
+	}
+}

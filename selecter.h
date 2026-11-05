@@ -129,10 +129,22 @@ public:
 #endif
 	CSelecter(CAyaVM *pvmr, CDuplEvInfo* dc, ptrdiff_t aid);
 
+	// srcの出力候補を奪って作ります（コピーしません）。奪われたsrcは破棄以外に使えません
+	enum StealTag { STEAL };
+	CSelecter(CSelecter &src, StealTag);
+
+	// 候補の領域を持たない状態で作ります（swapで受け取る専用。受け取る前にOutput等を呼んではいけません）
+	enum EmptyTag { EMPTY };
+	CSelecter(CAyaVM *pvmr, EmptyTag);
+
+	void	swap(CSelecter &rhs);
+
 	void	AddArea(void);
 	void	Append(const CValue &value);
+	void	AppendTake(CValue &value);
 	void	MeltArray(void);
 	CValue	Output(void);
+	void	OutputConsume(CValue &dst);
 	size_t	OutputNum();
 
 	static choicetype_t			GetDefaultBlockChoicetype(choicetype_t nowtype);

@@ -18,6 +18,12 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
+# if !defined(__EMSCRIPTEN__)
+#  include <pthread.h>
+#  if defined(__FreeBSD__)
+#   include <pthread_np.h>
+#  endif
+# endif
 #endif
 
 #include "manifest.h"
@@ -1504,5 +1510,70 @@ void DecodeURL(std::string &out,const yaya::char_t *in,size_t in_len,bool isPlus
 			out.append(1,static_cast<char>(in[pos]));
 		}
 	}
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  GetCurrentThreadStackLow
+ *  機能概要：  現在のスレッドのスタックの下端（低いほうのアドレス）を返します
+ *
+ *  ユーザー関数の再帰でスタックを使い切る前に呼び出しを止めるために使います（CCallLimit）。
+ *  取得できない環境では0を返し、その場合は検査をしません
+ * -----------------------------------------------------------------------
+ */
+#if defined(POSIX) && !defined(__EMSCRIPTEN__)
+static size_t QueryStackLowPosix(void)
+{
+# if defined(__APPLE__)
+	pthread_t	self = pthread_self();
+	void	*high = pthread_get_stackaddr_np(self);		// macOSは高いほうのアドレスを返す
+	size_t	size = pthread_get_stacksize_np(self);
+	return (high && size) ? reinterpret_cast<size_t>(high) - size : 0;
+# elif defined(__linux__) || defined(__FreeBSD__)
+	pthread_attr_t	attr;
+#  if defined(__FreeBSD__)
+	if (pthread_attr_init(&attr) != 0)
+		return 0;
+	if (pthread_attr_get_np(pthread_self(), &attr) != 0) {
+		pthread_attr_destroy(&attr);
+		return 0;
+	}
+#  else
+	if (pthread_getattr_np(pthread_self(), &attr) != 0)
+		return 0;
+#  endif
+	void	*addr = NULL;
+	size_t	size = 0;
+	int	rc = pthread_attr_getstack(&attr, &addr, &size);
+	pthread_attr_destroy(&attr);
+	return (rc == 0 && addr) ? reinterpret_cast<size_t>(addr) : 0;
+# else
+	return 0;
+# endif
+}
+#endif
+
+size_t	GetCurrentThreadStackLow(void)
+{
+#if defined(_WIN32)
+	MEMORY_BASIC_INFORMATION	mbi;
+	char	probe;
+	if (::VirtualQuery(&probe, &mbi, sizeof(mbi)) != sizeof(mbi))
+		return 0;
+	return reinterpret_cast<size_t>(mbi.AllocationBase);
+#elif defined(POSIX) && defined(__APPLE__)
+	// macOSの取得は軽いので、キャッシュしない（thread_localに対応しないSDKでも通るように）
+	return QueryStackLowPosix();
+#elif defined(POSIX) && !defined(__EMSCRIPTEN__)
+	// スレッドごとに1回だけ取得する（Linuxのメインスレッドでは/proc/self/mapsを読むため遅い）
+	static thread_local bool	done = false;
+	static thread_local size_t	low = 0;
+	if (!done) {
+		low = QueryStackLowPosix();
+		done = true;
+	}
+	return low;
+#else
+	return 0;
+#endif
 }
 

@@ -118,6 +118,11 @@ inline bool IsSpace(const yaya::char_t &c) {
 
 #define	CCALLLIMIT_CALLDEPTH_MAX	32		//呼び出し限界デフォルト
 #define	CCALLLIMIT_LOOP_MAX			1000000	//ループ処理限界デフォルト
+#define	CCALLLIMIT_STACK_MARGIN		(128 * 1024)	//残りスタックがこれを下回ったら呼び出しを止める（上限）
+
+// 現在のスレッドのスタックの下端（低いほうのアドレス）を返します。取得できないときは0
+size_t	GetCurrentThreadStackLow(void);
+
 class	CCallLimit
 {
 protected:
@@ -126,8 +131,18 @@ protected:
 	size_t maxloop;
 	std::vector<yaya::string_t> stack;
 
+	// ユーザー関数の再帰でC++のスタックを使い切らないための検査
+	// fncdepthを0（無制限）や大きな値にしても、スタックが尽きる前に呼び出しを止める
+	size_t	stack_low;			// スタックの下端。0なら不明（検査しない）
+	size_t	stack_margin;		// 残りがこれを下回ったら止める
+	bool	stack_failed;		// 直前のAddCallが失敗した原因がスタック不足か
+	bool	in_stack_handler;	// スタック不足で呼んだshiori.OnCallLimitの実行中か
+
 public:
-	CCallLimit(void) { depth = 0; maxdepth = CCALLLIMIT_CALLDEPTH_MAX; maxloop = CCALLLIMIT_LOOP_MAX; }
+	CCallLimit(void) {
+		depth = 0; maxdepth = CCALLLIMIT_CALLDEPTH_MAX; maxloop = CCALLLIMIT_LOOP_MAX;
+		stack_low = 0; stack_margin = 0; stack_failed = false; in_stack_handler = false;
+	}
 
 	void	SetMaxDepth(size_t value) { maxdepth = value; }
 	size_t	GetMaxDepth(void) { return maxdepth; }
@@ -135,16 +150,51 @@ public:
 	void	SetMaxLoop(size_t value) { maxloop = value; }
 	size_t	GetMaxLoop(void) { return maxloop; }
 
-	void	InitCall(void) { depth = 0; stack.clear(); }
+	void	InitCall(void) {
+		depth = 0; stack.clear();
+		stack_failed = false; in_stack_handler = false;
+
+		// リクエストの入口で、このスレッドのスタックの範囲を取り直す（呼び出し元のスレッドが変わりうるため）
+		char	probe;
+		const size_t	sp = reinterpret_cast<size_t>(&probe);
+		stack_low = GetCurrentThreadStackLow();
+		if (stack_low && sp > stack_low) {
+			// 小さなスタックでは、いきなり止まらないよう残りの1/4までにする
+			const size_t	remain = sp - stack_low;
+			stack_margin = remain / 4 < CCALLLIMIT_STACK_MARGIN ? remain / 4 : CCALLLIMIT_STACK_MARGIN;
+		}
+		else {
+			stack_low = 0;
+			stack_margin = 0;
+		}
+	}
 
 	char	AddCall(const yaya::string_t &str) {
 		depth++;
 		stack.emplace_back(str);
+		stack_failed = false;
 		if (maxdepth && depth > maxdepth)
 			return 0;
-		else
-			return 1;
+		if (stack_low) {
+			// shiori.OnCallLimitの実行中は、それ自身が動けるよう余裕を半分まで使わせる
+			char	probe;
+			const size_t	sp = reinterpret_cast<size_t>(&probe);
+			const size_t	margin = in_stack_handler ? stack_margin / 2 : stack_margin;
+			// InitCallを通らず別のスレッドから呼ばれた場合に備え、sp が記録した範囲の中にあるときだけ見る
+			// （記録より下にある別のスタックを、残りが少ないと誤って判定しない）
+			if (stack_low <= sp && sp < stack_low + margin) {
+				stack_failed = true;
+				return 0;
+			}
+		}
+		return 1;
 	}
+
+	// 直前のAddCallが、スタック不足で失敗したか
+	bool	StackFailed(void) const { return stack_failed; }
+	// スタック不足で呼んだshiori.OnCallLimitの実行中か（その中でさらに足りなくなったらハンドラを呼ばない）
+	bool	InStackHandler(void) const { return in_stack_handler; }
+	void	SetInStackHandler(bool value) { in_stack_handler = value; }
 
 	void	DeleteCall(void) {
 		if ( depth ) {

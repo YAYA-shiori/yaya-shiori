@@ -90,7 +90,16 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 - `ST_FORMULA`(=6)以上のステートメントだけがセルを持つ。`SetCellType` はそれ全てを型付けするので、`ST_RETURN` にセルを持たせても自動的に型解決される。`SetFormulaType` は `ST_FORMULA` だけを `ST_FORMULA_OUT_FORMULA` / `ST_FORMULA_SUBST` に再分類し、`ST_IF` / `ST_RETURN` 等は変えない
 - 引数なしキーワード（`break` / `continue` / `{` / `}` / `--` など）は `StoreInternalStatement` がセルなしの `CStatement` を直接作り、引数ありのもの（`if` / `while` / `return expr` など）は `MakeStatement` → `StructFormula` でセルを作る
 - `ExecuteInBrace` はローカルの `CSelecter output` に返り値候補を蓄積する。候補になるのは `ST_FORMULA_OUT_FORMULA`・ネスト `{}`・if-else・ループ各イテレーションの結果で、`ST_FORMULA_SUBST`（代入）と `ST_VOID` は含めない。`CSelecter` は `--` ごとに「エリア」を分け、`Output()` の既定はランダム選択（`duplctl` で変わる）
-- 制御フローは `exitcode`（int 参照）が `ExecuteInBrace` の再帰チェーンを貫通して伝わる。`break` / `continue` は直近のループが `ST_NOP` に戻して止める。`return` は誰もリセットせずトップまで伝わる。`return expr` は `CValue* pReturnExprResult` も全レベルを貫通させ、各 `ExecuteInBrace` の終端で `output.clear()` + `output.Append(*pReturnExprResult)` して候補を上書きする
+- 制御フローは `exitcode`（int 参照）が `ExecuteInBrace` の再帰チェーンを貫通して伝わる。`break` / `continue` は直近のループが `ST_NOP` に戻して止める。`return` は誰もリセットせずトップまで伝わる。`return expr` は `CValue* pReturnExprResult` も全レベルを貫通させ、各 `ExecuteInBrace` の終端で `output.clear()` + `output.Append(*pReturnExprResult)` して候補を上書きする（この終端処理は `FinishBlock`）
+
+### 再帰とスタック（ユーザー関数呼び出し）
+
+- ユーザー関数 1 回の呼び出しで C++ のスタックに積まれるのは `ExecFunctionWithArgs` → `Execute`（`ExecuteToValue` / `ExecuteInto`）→ `Execute_SEHbody` → `Execute_SEHhelper` → `ExecuteInBrace`（`{}` / `if` / `while` の入れ子ごとに `ExecuteSubBlock` を挟んで 1 段）→ `GetFormulaAnswer` の鎖。EXE 構成は既定の 1MB スタックで、`fncdepth, 0` の再帰が数百段で尽きる
+- **この鎖のフレームを大きくしない。** VC6 は同じ型の一時変数（約 56B の `CValue` など）でも領域を共有しないので、`ExecuteInBrace` / `GetFormulaAnswer` / `ExecFunctionWithArgs` に `CValue` の一時変数や局所変数を足すと、再帰 1 段ごとにその分だけ積まれる（演算ごとの一時変数でフレームが 1KB 超になっていた）。再帰の経路に載らない処理（ループ上限の処理、`melt` / `pool` の後処理、二項演算、`&` 引数の組み立てと書き戻し、値の受け渡し）は別の関数に出し、定義に `YAYA_NOINLINE` を付け、`#pragma auto_inline(off)` で囲んだ範囲に置く。VC6 には関数単位の `noinline` が無く、`/O2` は小さな関数を呼び出し元に展開して、分けたのにフレームが元に戻る
+- フレームは Release EXE の `function.obj` を `python tests/call/frames.py` にかけて測る（`sub esp,N`）。深さは `tests/call/probe_depth.ps1`、回帰は `tests/call/run_reg.ps1`（使い方は `tests/call/README.md`）
+- 返り値のコピーを増やさない。`CSelecter` は `STEAL` で候補を奪って作り（奪われた側は破棄しか許されない）、`OutputConsume` / `AppendTake` / `CValue::swap` で選んだ値を移す。`ExecuteToValue` が辞書内の呼び出しすべての入口で、`Execute(...)` の戻り値（`ExecutionResult`）の複製を避けている。式の最後の値は、最後の演算の項が持つ一時値で、他と共有されていないときだけ奪える（変数やリテラルの値、`emptyvalue` は壊さない）
+- 乱数で選ぶ経路（`OutputConsume` の高速経路）は、`Output` と同じ回数だけ乱数を使い、`SetLso` も同じにすること。変えたら `tests/call/README.md` の「乱数の経路」で基準と厳密に比べる
+- `CCallLimit::AddCall` は `fncdepth` だけでなく、C++ のスタックの残りが `CCALLLIMIT_STACK_MARGIN`（128KB。スタックが小さいときは残りの 1/4）を下回ったときも止める。`InitCall`（load / request / unload の入口）でスレッドのスタックの下端を取る（`GetCurrentThreadStackLow`。Windows は `VirtualQuery`、Linux / FreeBSD / macOS は pthread、Emscripten は取れないので検査なし）。止めたときは `fncdepth` 超過と同じ経路（E0097、`shiori.OnCallLimit`）で、スタック不足で呼んだハンドラの中でさらに足りなくなったときはハンドラを呼ばずログだけ出す（際限なく再帰しないため）。`sp` が記録した範囲の外にあるとき（`InitCall` を通らない別スレッド）は検査しない
 
 ## 値（value.h / value.cpp）
 

@@ -1,0 +1,779 @@
+// ユーザー関数呼び出しの回帰試験（出力は決定的になるよう候補を1つに絞る）
+load
+{
+}
+
+unload
+{
+}
+
+request
+{
+	'!! ' + EVAL(SUBSTR(_argv[0], 3, STRLEN(_argv[0])))
+}
+
+shiori.OnCallLimit
+{
+	'LIMIT(' + _argv[1] + ')'
+}
+
+shiori.OnLoopLimit
+{
+	'LOOPLIMIT(' + _argv[1] + ')'
+}
+
+// 配列を / 区切りの文字列にする（配列引数は展開されるので _argv を見る）
+T.J
+{
+	_s = ''
+	foreach _argv; _v {
+		_s += TOSTR(_v) + '/'
+	}
+	_s
+}
+
+// ---- 再帰 ----
+T.Sum
+{
+	if _argv[0] <= 0 {
+		0
+	}
+	else {
+		_argv[0] + T.Sum(_argv[0] - 1)
+	}
+}
+
+T.Fib
+{
+	if _argv[0] < 2 {
+		_argv[0]
+	}
+	else {
+		T.Fib(_argv[0] - 1) + T.Fib(_argv[0] - 2)
+	}
+}
+
+// 部分式の途中の値が再帰で壊れないか（式の途中で自分を2回呼ぶ）
+T.W
+{
+	if _argv[0] <= 0 {
+		1
+	}
+	else {
+		_argv[0] + T.W(_argv[0] - 1) * 2 + T.W(_argv[0] - 1)
+	}
+}
+
+// 相互再帰
+T.Ev
+{
+	if _argv[0] == 0 {
+		'even'
+	}
+	else {
+		T.Od(_argv[0] - 1)
+	}
+}
+
+T.Od
+{
+	if _argv[0] == 0 {
+		'odd'
+	}
+	else {
+		T.Ev(_argv[0] - 1)
+	}
+}
+
+// 文字列を積みながら再帰（長い文字列の受け渡し）
+T.Str
+{
+	if _argv[0] <= 0 {
+		_argv[1]
+	}
+	else {
+		T.Str(_argv[0] - 1, _argv[1] + 'ab' + TOSTR(_argv[0]))
+	}
+}
+
+// 深さ（fncdepth を超えたら OnCallLimit）
+T.Deep
+{
+	if _argv[0] <= 0 {
+		'bottom'
+	}
+	else {
+		'<' + T.Deep(_argv[0] - 1) + '>'
+	}
+}
+
+// ---- 引数・フィードバック ----
+T.Inc
+{
+	_argv[0] = _argv[0] + 1
+}
+
+T.Fb1
+{
+	_a = 1
+	_d = T.Inc(&_a)
+	_d = T.Inc(&_a)
+	_a
+}
+
+T.IncAll
+{
+	_argv[0] = _argv[0] + 1
+	_argv[1] = _argv[1] + 10
+}
+
+T.Fb2
+{
+	_a = 1
+	_b = 2
+	_d = T.IncAll(&_a, &_b)
+	TOSTR(_a) + ',' + TOSTR(_b)
+}
+
+T.Fb3
+{
+	_a = IARRAY
+	_a[0] = 5
+	_a[1] = 6
+	_d = T.Inc(&_a[1])
+	T.J(_a)
+}
+
+T.Fb4
+{
+	_a = IARRAY
+	_a[0] = IARRAY
+	_a[0][0] = 3
+	_d = T.Inc(&_a[0][0])
+	TOSTR(_a[0][0])
+}
+
+T.Fb5
+{
+	_a = IARRAY
+	_a[0] = 1
+	_a[1] = 2
+	_a[2] = 3
+	_d = T.IncAll(&_a)
+	T.J(_a)
+}
+
+// 配列を渡して書き換えても呼び出し元は変わらない
+T.Mut
+{
+	_argv[0] = 99
+	_argv[1] = 'x'
+	ARRAYSIZE(_argv)
+}
+
+T.NoFb
+{
+	_a = IARRAY
+	_a[0] = 1
+	_a[1] = 2
+	_n = T.Mut(_a)
+	T.J(_a) + TOSTR(_n)
+}
+
+T.Argc
+{
+	TOSTR(_argc) + ':' + _FUNC_NAME_ + ':' + TOSTR(ARRAYSIZE(_argv))
+}
+
+T.Args
+{
+	T.Argc() + '|' + T.Argc(1) + '|' + T.Argc(1, 2, 3) + '|' + T.Argc(IARRAY)
+}
+
+T.ArgsArr
+{
+	_a = IARRAY
+	_a[0] = 1
+	_a[1] = 2
+	T.Argc(_a) + '|' + T.Argc(0, _a) + '|' + T.Argc(_a, _a)
+}
+
+// 呼ばれた側のローカルは呼び出し元に出ない
+T.Local
+{
+	_x = 'caller'
+	_n = T.LocalCallee()
+	_x + ISVAR('_y')
+}
+
+T.LocalCallee
+{
+	_x = 'callee'
+	_y = 1
+	_x
+}
+
+// ---- 返り値 ----
+T.Ret
+{
+	if _argv[0] > 0 {
+		return 'pos'
+	}
+	'other'
+}
+
+T.RetLoop
+{
+	for _i = 0; _i < 10; _i++ {
+		if _i == _argv[0] {
+			return 'hit' + TOSTR(_i)
+		}
+	}
+	'miss'
+}
+
+T.RetNested
+{
+	_r = T.Ret(1) + T.Ret(0) + T.RetLoop(3) + T.RetLoop(30)
+	_r
+}
+
+T.RetVoid
+{
+	return
+	'never'
+}
+
+T.RetArr
+{
+	_a = IARRAY
+	_a[0] = 'p'
+	_a[1] = 'q'
+	return _a
+}
+
+T.RetArrUse
+{
+	_a = T.RetArr()
+	TOSTR(ARRAYSIZE(_a)) + T.J(_a)
+}
+
+T.RetHash
+{
+	_h = IARRAY
+	return _h
+}
+
+T.Hash
+{
+	_h = IHASH
+	_h['k'] = 'v'
+	_h['z'] = 1
+	return _h
+}
+
+T.HashUse
+{
+	_h = T.Hash()
+	_h['k'] + TOSTR(_h['z']) + TOSTR(HASH_SIZE(_h))
+}
+
+T.Void
+{
+}
+
+T.VoidUse
+{
+	'[' + T.Void() + ']' + TOSTR(GETTYPE(T.Void()))
+}
+
+// ---- 出力候補 ----
+T.Area
+{
+	'a'
+	--
+	'b'
+	--
+	'c'
+}
+
+T.All : all
+{
+	'x'
+	'y'
+	'z'
+}
+
+T.Last : last
+{
+	'x'
+	'y'
+	'z'
+}
+
+T.Arr : array
+{
+	1
+	2
+	3
+}
+
+T.ArrUse
+{
+	T.J(T.Arr())
+}
+
+T.Seq : sequential
+{
+	'a'
+	'b'
+	'c'
+}
+
+T.SeqUse
+{
+	T.Seq() + T.Seq() + T.Seq() + T.Seq() + T.Seq()
+}
+
+T.Melt : melt_sequential
+{
+	'x'
+	('r', 'g')
+}
+
+T.MeltUse
+{
+	T.Melt() + T.Melt() + T.Melt() + T.Melt()
+}
+
+T.Pool : _pool_sequential
+{
+	'x'
+	{
+		'y'
+		'z'
+	}
+}
+
+T.PoolUse
+{
+	T.Pool() + T.Pool() + T.Pool() + T.Pool()
+}
+
+T.Sw
+{
+	switch _argv[0] {
+		'zero'
+		'one'
+		'two'
+	}
+}
+
+T.SwUse
+{
+	T.Sw(0) + T.Sw(1) + T.Sw(2) + '[' + T.Sw(5) + ']'
+}
+
+T.Loops : all
+{
+	for _i = 0; _i < 3; _i++ {
+		_i
+	}
+	_j = 0
+	while _j < 3 {
+		_j++
+		if _j == 2 {
+			continue
+		}
+		'w' + TOSTR(_j)
+	}
+	_a = IARRAY
+	_a[0] = 'p'
+	_a[1] = 'q'
+	foreach _a; _v {
+		_v
+	}
+}
+
+T.LoopBreak : all
+{
+	for _i = 0; _i < 10; _i++ {
+		if _i == 4 {
+			break
+		}
+		_i
+	}
+}
+
+T.LoopLimit
+{
+	_c = 0
+	for _i = 0; _i < 10000; _i++ {
+		_c++
+	}
+	_c
+}
+
+T.Void2
+{
+	void T.Sum(3)
+	'v'
+}
+
+// ---- 呼び出し履歴 ----
+T.Cs
+{
+	if _argv[0] <= 0 {
+		T.J(GETCALLSTACK())
+	}
+	else {
+		T.Cs(_argv[0] - 1)
+	}
+}
+
+// ---- EVAL / 他経路から再帰 ----
+T.Ev2
+{
+	if _argv[0] <= 0 {
+		'e'
+	}
+	else {
+		EVAL('T.Ev2(' + TOSTR(_argv[0] - 1) + ')') + TOSTR(_argv[0])
+	}
+}
+
+T.Fx
+{
+	_x = 7
+	EVAL('_x + 1') + EVAL('T.Sum(4)')
+}
+
+T.Cmp
+{
+	TOSTR(T.Sum(3) == 6) + TOSTR(T.Sum(3) > T.Sum(2)) + TOSTR(T.Fib(6) + T.Fib(7) * 2)
+}
+
+// 引数に自分を使う（引数評価中に同じ関数が走る）
+T.Nest
+{
+	T.Sum(T.Sum(T.Sum(2)))
+}
+
+T.NestFn
+{
+	T.Id(T.Id(T.Id('n') + T.Id('m')))
+}
+
+T.Id
+{
+	_argv[0]
+}
+
+// 配列/ハッシュの値渡し
+T.Pass
+{
+	_a = IARRAY
+	_a[0] = 1
+	_a[1] = 2
+	T.J(T.Id(_a)) + T.J(T.Id(T.Id(_a)))
+}
+
+// 長い文字列
+T.Big
+{
+	_s = ''
+	for _i = 0; _i < 200; _i++ {
+		_s += 'abcdefghij'
+	}
+	STRLEN(T.Id(T.Id(_s)))
+}
+
+// 引数なしの再帰（グローバル変数で深さを持つ）
+T.NA
+{
+	if G.n > 0 {
+		G.n = G.n - 1
+		1 + T.NA()
+	}
+	else {
+		0
+	}
+}
+
+T.NAStart
+{
+	G.n = _argv[0]
+	T.NA()
+}
+
+// &引数を持つ再帰（再帰のたびに書き戻し）
+T.FbRec
+{
+	if _argv[0] > 0 {
+		_x = _argv[1]
+		_d = T.FbRec(_argv[0] - 1, &_x)
+		_argv[1] = _x + _argv[0]
+	}
+}
+
+T.FbRecUse
+{
+	_s = 0
+	_d = T.FbRec(5, &_s)
+	_s
+}
+
+// 比較・論理・in の各演算
+T.Ops
+{
+	_a = 7
+	_b = 3
+	_r = TOSTR(_a + _b) + TOSTR(_a - _b) + TOSTR(_a * _b) + TOSTR(_a / _b) + TOSTR(_a % _b)
+	_r += TOSTR(_a == _b) + TOSTR(_a != _b) + TOSTR(_a >= _b) + TOSTR(_a <= _b) + TOSTR(_a > _b) + TOSTR(_a < _b)
+	_r += TOSTR(_a && _b) + TOSTR(_a || 0) + TOSTR(0 && _b) + TOSTR(!_a)
+	_r += TOSTR('b' _in_ 'abc') + TOSTR('z' !_in_ 'abc')
+	_r
+}
+
+// 論理演算の短絡（右辺の関数が呼ばれないこと）
+T.Short
+{
+	G.m = 0
+	_x = 0 && T.Touch()
+	_y = 1 || T.Touch()
+	_z = 1 && T.Touch()
+	TOSTR(G.m) + TOSTR(_x) + TOSTR(_y) + TOSTR(_z)
+}
+
+T.Touch
+{
+	G.m = G.m + 1
+	1
+}
+
+// ---- 乱数・選択位置（種を固定して Output と OutputConsume が同じ乱数・LSO になることを確かめる） ----
+T.Rnd
+{
+	'a'
+	'b'
+	'c'
+	'd'
+}
+
+T.RndUse
+{
+	_r = SRAND(12345)
+	_s = ''
+	for _i = 0; _i < 12; _i++ {
+		_s += T.Rnd() + TOSTR(LSO) + ','
+	}
+	_s
+}
+
+T.RndArea
+{
+	'a'
+	'b'
+	--
+	'c'
+	'd'
+	'e'
+}
+
+T.RndAreaUse
+{
+	_r = SRAND(424242)
+	_s = ''
+	for _i = 0; _i < 8; _i++ {
+		_s += T.RndArea() + TOSTR(LSO) + ','
+	}
+	_s
+}
+
+T.RndNest
+{
+	{
+		'a'
+		'b'
+	}
+	{
+		'c'
+		{
+			'd'
+			'e'
+		}
+	}
+	'f'
+}
+
+T.RndNestUse
+{
+	_r = SRAND(99)
+	_s = ''
+	for _i = 0; _i < 10; _i++ {
+		_s += T.RndNest() + TOSTR(LSO) + ','
+	}
+	_s
+}
+
+T.NonOv : nonoverlap
+{
+	'a'
+	'b'
+	'c'
+}
+
+T.NonOvUse
+{
+	_r = SRAND(777)
+	_s = ''
+	for _i = 0; _i < 10; _i++ {
+		_s += T.NonOv()
+	}
+	_s
+}
+
+T.RndRec
+{
+	if _argv[0] > 0 {
+		T.RndRec(_argv[0] - 1) + T.Rnd()
+	}
+	else {
+		T.Rnd()
+	}
+}
+
+T.RndRecUse
+{
+	_r = SRAND(2024)
+	T.RndRec(10) + TOSTR(LSO)
+}
+
+T.OutN
+{
+	TOSTR(OUTPUTNUM('T.Rnd')) + TOSTR(OUTPUTNUM('T.Area')) + TOSTR(OUTPUTNUM('T.All')) + TOSTR(OUTPUTNUM('T.Sw'))
+}
+
+// ---- 変数の watcher / setter / destorier ----
+T.WSet
+{
+	_argv[1] + '!' + _argv[2]
+}
+
+T.WGet
+{
+	_argv[1] + '?'
+}
+
+T.WDes
+{
+	G.destroyed = 'gone:' + _argv[0]
+}
+
+T.Watch
+{
+	G.w = 'x'
+	_r1 = FUNCDECL_WRITE('G.w', 'T.WSet')
+	_r2 = FUNCDECL_READ('G.w', 'T.WGet')
+	_r3 = FUNCDECL_ERASE('G.w', 'T.WDes')
+	G.w = 'y'
+	_v = G.w
+	_r4 = FUNCDECL_WRITE('G.w', '')
+	_r5 = FUNCDECL_READ('G.w', '')
+	G.w = 'z'
+	_v2 = G.w
+	_v + '|' + _v2 + '|' + TOSTR(_r1) + TOSTR(_r2) + TOSTR(_r3)
+}
+
+T.WatchErase
+{
+	_d = ERASEVAR('G.w')
+	G.destroyed
+}
+
+// ---- EVAL のブロック形（ExecuteEval）----
+T.EvalBlock
+{
+	_a = 2
+	EVAL('_a = _a + 1; _a * 10') + '|' + TOSTR(_a) + '|' + EVAL('{ T.Sum(4) }') + '|' + EVAL('if _a > 1 { T.Fib(7) } else { 0 }')
+}
+
+T.EvalRec
+{
+	if _argv[0] > 0 {
+		EVAL('_x = T.EvalRec(' + TOSTR(_argv[0] - 1) + '); _x') + TOSTR(_argv[0])
+	}
+	else {
+		'e'
+	}
+}
+
+// ---- 正規表現のサブルーチンが関数を呼ぶ ----
+ReSub
+{
+	'b+'
+}
+
+T.ReFn
+{
+	TOSTR(RE_SEARCH('xabbbcx', 'a(?&ReSub)c')) + '|' + TOSTR(RE_MATCH('abbbc', 'a(?&ReSub)c'))
+}
+
+// ---- 呼ばれた側で関数表が変わる ----
+T.Grow
+{
+	_r = APPEND_RUNTIME_DIC('TDyn { "dyn" }')
+	'grew' + TOSTR(_r)
+}
+
+T.GrowUse
+{
+	_a = T.Grow()
+	_b = EVAL('TDyn()')
+	_a + _b + T.Sum(3) + EVAL('TDyn()')
+}
+
+// ---- foreach（配列・簡易配列・ハッシュ）と、その中での再帰 ----
+T.Fe2
+{
+	_argv[0] + '!'
+}
+
+T.Fe
+{
+	_a = IARRAY
+	_a[0] = 'p'
+	_a[1] = 'q'
+	_a[2] = 'r'
+	_s = ''
+	foreach _a; _k, _v {
+		_s += TOSTR(_k) + _v + T.Fe2(_v)
+	}
+	foreach 'x,y,z'; _w {
+		_s += _w
+	}
+	_h = IHASH
+	_h['a'] = 1
+	_h['b'] = 2
+	foreach _h; _hk, _hv {
+		_s += _hk + TOSTR(_hv)
+	}
+	_s
+}
+
+T.FeRec
+{
+	_n = 0
+	if _argv[0] > 0 {
+		_l = IARRAY
+		_l[0] = 1
+		_l[1] = 2
+		foreach _l; _e {
+			_n += T.FeRec(_argv[0] - 1)
+		}
+	}
+	else {
+		_n = 1
+	}
+	_n
+}
