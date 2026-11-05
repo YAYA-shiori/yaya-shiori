@@ -349,7 +349,7 @@ static const struct test_case posix_cases[] = {
 	{ "EXECUTE_CAPTURE stdin", "_r = EXECUTE_CAPTURE(\"cat\", \"\", \"\", IHASH(\"stdin\", \"abc\"))\n_r['stdout'] == 'abc'", "1" },
 	{ "EXECUTE_CAPTURE stdin UTF-8", "_r = EXECUTE_CAPTURE(\"cat\", \"\", \"\", IHASH(\"stdin\", CHR(12354)))\n_r['stdout'] == CHR(12354)", "1" },
 	{ "EXECUTE_CAPTURE no stdin gives EOF", "_r = EXECUTE_CAPTURE(\"cat\")\n_r['status'] + ',' + STRLEN(_r['stdout'])", "ok,0" },
-	{ "EXECUTE_CAPTURE SIGPIPE is not ignored in the command", "_r = EXECUTE_CAPTURE(\"sh\", \"-c 'yes | head -n 3'\")\n_r['status'] + ',' + _r['exitcode'] + ',' + STRLEN(_r['stdout'])", "ok,0,6" },
+	{ "EXECUTE_CAPTURE SIGPIPE is not ignored in the command", "_r = EXECUTE_CAPTURE(\"sh\", \"-c 'yes | head -n 3'\")\n_r['status'] + ',' + _r['exitcode'] + ',' + STRLEN(_r['stdout']) + ',' + STRLEN(_r['stderr'])", "ok,0,6,0" },
 	{ "EXECUTE_CAPTURE dir and UTF-8 args", "_r = EXECUTE_CAPTURE(\"sh\", \"-c 'test -f \xE6\x97\xA5\xE6\x9C\xAC\xE8\xAA\x9E.txt'\", \".\")\n_r['exitcode']", "0" },
 	{ "EXECUTE_CAPTURE missing dir", "_r = EXECUTE_CAPTURE(\"echo\", \"x\", \"no_such_dir_xyz\")\n_r['status'] + ',' + _r['exitcode']", "failed,-1" },
 	{ "EXECUTE_CAPTURE timeout", "_r = EXECUTE_CAPTURE(\"sleep\", \"20\", \"\", IHASH(\"timeout\", 500))\n_r['status'] + ',' + _r['exitcode']", "timeout,-1" },

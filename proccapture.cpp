@@ -497,6 +497,10 @@ static void IntermediateChild(const char *s_exe, char *const argv[], const char 
 	if ( g == 0 ) {
 		// 孫。自分のプロセスグループに入り、標準入出力をつないで実行する
 		setpgid(0, 0);
+		// ホスト（や CI のランナー）が SIGPIPE を無視していても、コマンドには引き継がない
+		// （無視したままだと `yes | head` の yes が静かに終わらず、標準エラー出力にエラーを書く）。
+		// sa はここまで SIG_DFL のまま
+		sigaction(SIGPIPE, &sa, NULL);
 		int in_fd  = has_input ? pin[0] : devnull;
 		int err_fd = ( stderr_mode == PCAP_STDERR_SEPARATE ) ? perr[1]
 			: ( stderr_mode == PCAP_STDERR_MERGE ) ? pout[1] : devnull;
