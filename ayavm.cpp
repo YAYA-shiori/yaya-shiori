@@ -46,7 +46,7 @@
 	コンストラクタ
 -----------------------------------------------*/
 
-CAyaVM::CAyaVM() : m_active_call_limit(NULL), m_active_funcs(NULL), m_attention(0)
+CAyaVM::CAyaVM() : m_active_call_limit(NULL), m_attention(0)
 {
 	memset(&rs_sysfunc64,  0, sizeof(rs_sysfunc64));
 	memset(&rs_internal64, 0, sizeof(rs_internal64));
@@ -57,7 +57,7 @@ CAyaVM::CAyaVM() : m_active_call_limit(NULL), m_active_funcs(NULL), m_attention(
 	shared_ptrをディープコピーする点に注意
 -----------------------------------------------*/
 
-CAyaVM::CAyaVM(CAyaVM &ovm) : m_active_call_limit(NULL), m_active_funcs(NULL), m_attention(0)
+CAyaVM::CAyaVM(CAyaVM &ovm) : m_active_call_limit(NULL), m_attention(0)
 {
 	#define copy_new(name) yaya::shared_ptr_deep_copy(ovm.name,name);
 	copy_new(m_basis);
@@ -126,9 +126,6 @@ void CAyaVM::request_after(void)
 -----------------------------------------------*/
 CFunctionDef& CAyaVM::function_parse()
 {
-	if ( m_active_funcs ) { //ワーカーは専用の関数表を使う
-		return *m_active_funcs;
-	}
 	if ( m_function_parse.get() ) {
 		return *m_function_parse.get();
 	}
@@ -214,12 +211,9 @@ FACTORY_DEFINE_PLAIN(std::vector<CDefine>,gdefines)
 
 FACTORY_DEFINE_THIS(CBasis,basis)
 
-// 実行用の関数表と呼び出し制限は、ワーカースレッドが実行権を持っている間はそのスレッドのものを返す
+// 実行用の関数表はスレッドで共有する（ワーカーが動いている間は辞書を変更できない）
 CFunctionDef& CAyaVM::function_exec()
 {
-	if( m_active_funcs ) {
-		return *m_active_funcs;
-	}
 	if( m_function_exec.get() == NULL ) {
 		m_function_exec = std_make_shared<CFunctionDef>();
 	}

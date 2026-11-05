@@ -60,10 +60,10 @@ private:
 	MersenneTwister64 rs_internal64;
 
 	// ワーカースレッド（workthread.h）
-	// 実行権を持つスレッドが切り替わるたびに、今の呼び出し制限と関数表がここに入る（NULLならホスト側のもの）
+	// 実行権を持つスレッドが切り替わるたびに、今の呼び出し制限がここに入る（NULLならホスト側のもの）
+	// （関数表はスレッドで共有する。式の評価中の一時値は呼び出しごとの実行フレームにあり、関数表は読み取り専用）
 	std_shared_ptr<CThreadManager>			m_threads;
 	CCallLimit*								m_active_call_limit;
-	CFunctionDef*							m_active_funcs;
 	volatile long							m_attention;	// 1なら文の境界でthread_attendを呼ぶ（ホストが待っている・中断された）
 
 public:
@@ -113,9 +113,8 @@ public:
 
 	// ワーカースレッド
 	CThreadManager&			threads();
-	void SetActiveContext(CCallLimit *call_limit, CFunctionDef *funcs) {
+	void SetActiveContext(CCallLimit *call_limit) {
 		m_active_call_limit = call_limit;
-		m_active_funcs = funcs;
 	}
 	void SetAttention(bool value) { m_attention = value ? 1 : 0; }
 	bool thread_attention() const { return m_attention != 0; }

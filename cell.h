@@ -6,6 +6,7 @@
 // 
 // CCellはステートメント内の数式の項を、CSerialはその演算順序を保持するだけのクラスです。
 // 操作はこれらのインスタンスを持つクラスが行ないます。
+// CCellTmpは式の評価中の項の一時値です（実行のたびに別に持つ。function.hのCExecFrame）。
 //
 
 #ifndef	CELLH
@@ -49,9 +50,6 @@ private:
 	int     m_type;									// m_valueにタイプしか格納しない場合に使用
 
 	mutable std_shared_ptr<CValue> m_value;		// 値（thisがリテラル値の際に使用します）
-	mutable std_shared_ptr<CValue> m_ansv;		// 値（thisが変数/ローカル変数/関数の際に、その内容/返値を格納します）
-	mutable std_shared_ptr<CValue> m_order;		// 演算時に使用（配列の序数を一時的に保持します）
-	mutable std_shared_ptr<CValue> m_emb_ansv;	// 値（%[n]で参照される値を保持します）
 
 public:
 	CCell(int t)
@@ -113,6 +111,26 @@ public:
 			m_value.reset();
 		}
 	}
+};
+
+//----
+
+// 式の評価中に項が持つ一時値（ansv/order/emb_ansv）。
+// CCellは関数の中間コードとして読み取り専用で、一時値は関数を呼び出すたびに用意する
+// 実行フレーム（CExecFrame、function.h）に項ごとに1つずつ持たせる。
+// これにより、同じ関数が再帰したり、複数のスレッドから同時に実行されたりしても、
+// 呼び出しごとの一時値が互いに上書きされない。
+class	CCellTmp
+{
+private:
+	mutable std_shared_ptr<CValue> m_ansv;		// 値（項が変数/ローカル変数/関数/演算子の際に、その内容/返値/演算結果を格納します）
+	mutable std_shared_ptr<CValue> m_order;		// 演算時に使用（配列の序数を一時的に保持します）
+	mutable std_shared_ptr<CValue> m_emb_ansv;	// 値（%[n]で参照される値を保持します）
+
+public:
+	CCellTmp(void) { }
+	~CCellTmp(void) { }
+
 	//////////////////////////////////////
 	std_shared_ptr<CValue> &ansv_shared(void) const {
 		return m_ansv;
@@ -203,18 +221,7 @@ public:
 		return *m_emb_ansv;
 	}
 	//////////////////////////////////////
-	// 一時値（ansv/order/emb_ansv）をp[0]～p[2]と交換します
-	// 一時値をすべて捨てる（関数表をスレッド用にコピーしたとき、元のセルと値を共有しないため）
-	void tmpdata_reset(void) const {
-		m_ansv.reset();
-		m_order.reset();
-		m_emb_ansv.reset();
-	}
-	void tmpdata_swap(std_shared_ptr<CValue> *p) const {
-		m_ansv.swap(p[0]);
-		m_order.swap(p[1]);
-		m_emb_ansv.swap(p[2]);
-	}
+	// 大きな値（長い文字列、配列）を持ったままにしないよう手放す
 	void tmpdata_cleanup(void) const {
 		{
 			const CValue &c = ansv_const();
@@ -230,6 +237,7 @@ public:
 		}
 	}
 };
+
 
 //----
 

@@ -24,7 +24,7 @@ function Prepare-Dir {
     Copy-Item (Resolve-Path $Exe).Path (Join-Path $WorkDir 'yaya.exe') -Force
 }
 
-# 実行はしない関数を n 個足した辞書にする（ワーカーの関数表のコピーが、終わったあとも残らないことを見るため）
+# 実行はしない関数を n 個足した辞書にする（ワーカーを繰り返し起動・終了しても、辞書の大きさに応じたメモリが増えないことを見るため）
 function Add-Filler([int]$n) {
     $sb = New-Object System.Text.StringBuilder
     for ($i = 0; $i -lt $n; $i++) {
@@ -141,6 +141,17 @@ if ($IsWindows) {
     )
 }
 
+# SLEEP（実行権を手放す）をまたいで、式の途中で同じ関数をホストとワーカーが同時に走らせる
+# （呼び出し元が式の途中で持つ一時値を、同じ関数の別の実行が壊さない）
+$midId = if ($IsWindows) { 18 } else { 14 }
+$cases += @(
+    @('THREADSTART("TH.MidSleep", 300, 5)', "$midId", 0),
+    @('TH.MidSleep(10, 20)', '1030', 0),
+    @('TH.MidSleep(0, 0)', '1000', 0),
+    @("THREADJOIN($midId)", '1', 0),
+    @("THREADRESULT($midId)", '1305', 0)
+)
+
 Prepare-Dir
 $exprs = @($cases | ForEach-Object { $_[0] })
 $rows = @(& $yrun -Exe (Join-Path $WorkDir 'yaya.exe') -Dir $WorkDir -Exprs $exprs) | Where-Object { $_.Expr -ne '(load)' }
@@ -181,7 +192,7 @@ $stress = @(
     @('TH.Burst(20)', '20', 0),
     @('1+1', '2', 400),
     @('TH.Shared(100)', '4950', 400),
-    # THREADCLOSEしなくても、終わったワーカーが関数表を持ち続けない（使い捨てのスレッドを繰り返してもメモリが増えない）
+    # THREADCLOSEしなくても、終わったワーカーが資源を持ち続けない（使い捨てのスレッドを繰り返してもメモリが増えない）
     @('TH.ChurnKeep(20)', '20', 0),
     @('1+1', '2', 0),
     @('TH.ChurnKeep(300)', '300', 0),

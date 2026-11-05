@@ -777,3 +777,90 @@ T.FeRec
 	}
 	_n
 }
+
+// ---- 一時値の独立性: 同じ文の途中で自分自身が再帰する ----
+// %[n]（同じ文の前の % 埋め込みの値）を持つ文の途中で、同じ関数が再帰する
+T.HistNext
+{
+	G.hn = G.hn - 1
+	T.Hist(G.hn)
+}
+
+T.Hist
+{
+	if _argv[0] > 0 {
+		G.hn = _argv[0]
+		"[%T.HistNext]-%[0]"
+	}
+	else {
+		'leaf'
+	}
+}
+
+T.HistUse
+{
+	T.Hist(3)
+}
+
+// 配列要素への & 引数を渡す呼び出しが、同じ関数への再帰になる
+T.FbRecA
+{
+	if _argv[0] > 0 {
+		_l = IARRAY
+		_l[0] = _argv[1]
+		_d = T.FbRecA(_argv[0] - 1, &_l[0])
+		_argv[1] = _l[0] + _argv[0]
+	}
+}
+
+T.FbRecAUse
+{
+	_s = 0
+	_d = T.FbRecA(4, &_s)
+	_s
+}
+
+// & 引数の配列の添字の式が再帰する
+T.FbPick
+{
+	if _argv[0] > 0 {
+		(T.FbPick(_argv[0] - 1) + 1) % 3
+	}
+	else {
+		0
+	}
+}
+
+T.FbIdxUse
+{
+	_a = IARRAY
+	_a[0] = 10
+	_a[1] = 20
+	_a[2] = 30
+	_d = T.Inc(&_a[T.FbPick(4)])
+	T.J(_a)
+}
+
+// SETDELIM の区切り文字は、即値・変数・式・関数の結果のどれでも渡せる
+T.DelimFn
+{
+	'/'
+}
+
+T.DelimUse
+{
+	_a = 'x/y/z'
+	_d = SETDELIM(_a, '/')
+	_r = _a[1]
+	_b = 'p/q/r'
+	_dl = '/'
+	_d = SETDELIM(_b, _dl)
+	_r += '|' + _b[1]
+	_c = 'u/v/w'
+	_d = SETDELIM(_c, '/' + '')
+	_r += '|' + _c[1]
+	_e = 'k/l/m'
+	_d = SETDELIM(_e, T.DelimFn())
+	_r += '|' + _e[1] + '|' + TOSTR(GETLASTERROR())
+	_r
+}

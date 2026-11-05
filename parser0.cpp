@@ -537,7 +537,7 @@ char	CParser0::ParseEvalBlock(const yaya::string_t& str, CFunction& func, const 
  */
 int CParser0::DynamicLoadDictionary(const yaya::string_t& dicfilename, int charset)
 {
-	// ワーカースレッドは関数表の専用コピーで動いているので、動いている間は辞書を変えられない
+	// ワーカースレッドは関数表をホストと共有して動いているので、動いている間は辞書を変えられない
 	if ( vm.threads().HasLiveWorkers() ) {
 		vm.logger().Error(E_W, 32);
 		return 1;

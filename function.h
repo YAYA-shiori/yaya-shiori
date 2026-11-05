@@ -17,6 +17,7 @@
 # include "stdafx.h"
 #endif
 
+#include <assert.h>
 #include <vector>
 #include <memory>
 
@@ -41,6 +42,7 @@ public:
 
 	mutable std_shared_ptr < CDuplEvInfo >	dupl_block;		// pool:{ //...
 	mutable bool						ismutiarea;
+	size_t							tmpbase;		// 実行フレーム（CExecFrame）の中での、この文の最初の項の位置（CFunction::CompleteSettingが決める）
 
 private:
 	mutable std_shared_ptr<std::vector<CCell> >		m_cell;				// 数式の項の群　
@@ -54,6 +56,7 @@ public:
 		jumpto = 0;
 		dupl_block=dupl;
 		ismutiarea = false;
+		tmpbase = 0;
 	}
 	CStatement(void) {
 		type = ST_NOP;
@@ -61,6 +64,7 @@ public:
 		jumpto = 0;
 		dupl_block.reset();
 		ismutiarea = false;
+		tmpbase = 0;
 	}
 	~CStatement(void) {}
 
@@ -111,31 +115,98 @@ public:
 		}
 		return *m_serial;
 	}
-	//////////////////////////////////////////////
-	// 各セルの一時値をpからの領域（1セルにつき3つ）と交換し、次の領域を返します
-	std_shared_ptr<CValue> *cell_swap_tmpdata(std_shared_ptr<CValue> *p) const {
-		if ( ! m_cell.get() ) {
-			return p;
-		}
-		for ( size_t i = 0 ; i < m_cell->size() ; ++i ) {
-			(*m_cell)[i].tmpdata_swap(p);
-			p += 3;
-		}
-		return p;
-	}
-	void cell_cleanup(void) const {
-		const std::vector<CCell>& c = cell();
+};
 
-		for ( size_t i = 0 ; i < c.size() ; ++i ) {
-			c[i].tmpdata_cleanup();
+//----
+
+/* -----------------------------------------------------------------------
+ *  クラス名：  CExecFrame
+ *  機能概要：  関数の1回の実行（呼び出し）が、式の評価中に使う一時値の置き場です
+ *
+ *  CCell（中間コード）には一時値を持たせず、項ごとの一時値（CCellTmp）をここに持たせます。
+ *  これで中間コードは実行中に書き換わらない（読み取り専用）ので、同じ関数が再帰したり
+ *  複数のスレッドから同時に実行されたりしても、呼び出しごとのフレームが別であれば衝突しません。
+ *
+ *  一時値の位置は、文の tmpbase と文の中の項の位置の和です（at）。
+ *  フレームと文は必ず対応させること。関数のフレーム（CFunction::framesize 個）は
+ *  その関数の文にだけ使い、関数に属さない文（EVALの式など）には、その文の項の数だけの
+ *  専用のフレームを用意する（tmpbase は0のまま）。
+ *  フレームの大きさは作るときに決めて変えない（GetFormulaAnswerが一時値への参照を返すため）。
+ * -----------------------------------------------------------------------
+ */
+class CExecFrame
+{
+private:
+	mutable std::vector<CCellTmp>	m_tmp;
+
+public:
+	explicit CExecFrame(size_t n) : m_tmp(n) { }
+	size_t size(void) const { return m_tmp.size(); }
+
+	// 文stの項cの一時値。cはst.cell()の要素でなければならない
+	CCellTmp& at(const CStatement &st, const CCell &c) const {
+		const CCell *pbase = &(st.cell()[0]);
+		assert(&c >= pbase && &c < pbase + st.cell_size());
+		const size_t i = st.tmpbase + static_cast<size_t>(&c - pbase);
+		assert(i < m_tmp.size());
+		return m_tmp[i];
+	}
+
+	// 大きな値（長い文字列や配列）を持ったままにしないよう手放す
+	void cleanup(void) {
+		for ( size_t i = 0 ; i < m_tmp.size() ; ++i ) {
+			m_tmp[i].tmpdata_cleanup();
 		}
 	}
-	void cell_reset_tmpdata(void) const {
-		if ( ! m_cell.get() ) {
-			return;
+};
+
+/* -----------------------------------------------------------------------
+ *  クラス名：  CFrameCache
+ *  機能概要：  関数が、使い終わった実行フレームを1つだけ取っておく入れ物です
+ *
+ *  非再帰の呼び出しでは前回のフレームを使い回せる（一時値の確保をやり直さない）。
+ *  再帰やスレッドで、取っておいたフレームがすでに使われている間の呼び出しには
+ *  新しいフレームを作る。
+ *
+ *  コピーしても中身は引き継がない。CFunctionDefのコピー（VMの複製）で
+ *  同じフレームを複数の関数が持つと、同じフレームを同時に使ってしまうため
+ * -----------------------------------------------------------------------
+ */
+class CFrameCache
+{
+private:
+	CExecFrame	*m_idle;
+
+public:
+	CFrameCache(void) : m_idle(NULL) { }
+	CFrameCache(const CFrameCache&) : m_idle(NULL) { }
+	CFrameCache& operator=(const CFrameCache&) {
+		clear();
+		return *this;
+	}
+	~CFrameCache(void) { clear(); }
+
+	void clear(void) {
+		delete m_idle;
+		m_idle = NULL;
+	}
+	// n個の一時値を持つフレームを取り出す。無ければ作る
+	CExecFrame* take(size_t n) {
+		CExecFrame *p = m_idle;
+		m_idle = NULL;
+		if (p && p->size() != n) {
+			delete p;
+			p = NULL;
 		}
-		for ( size_t i = 0 ; i < m_cell->size() ; ++i ) {
-			(*m_cell)[i].tmpdata_reset();
+		return p ? p : new CExecFrame(n);
+	}
+	// 使い終わったフレームを返す。すでに1つ持っていれば捨てる
+	void give(CExecFrame *p) {
+		if (m_idle) {
+			delete p;
+		}
+		else {
+			m_idle = p;
 		}
 	}
 };
@@ -157,14 +228,17 @@ public:
 protected:
 	size_t					statelenm1;		// statementの長さ-1（1を減じているのは終端の"}"を処理しないためです）
 	size_t					linecount;		// 定義された行
-	size_t					execdepth;		// 実行中の呼び出しの数（再帰の検出用）
-	bool					shared_ast;		// セル（中間コード）を別の関数表と共有している。スレッド用の関数表の関数は、
-											// 初めて実行するときにMakePrivateで自分用のコピーにする
+	size_t					framesize;		// 実行フレームの大きさ（全文の項の数。CompleteSettingで決める）
+	CFrameCache				frame_cache;	// 使い終わった実行フレームを1つ取っておく（コピーしても引き継がない）
 
-	friend class CFunctionReentryGuard;
+	friend class CFrameHolder;
 
 private:
 	CFunction(void);
+
+	// 実行フレームの貸し出しと返却（CFrameHolderが対で呼ぶ。実行の経路のフレームを増やさないよう別の関数にしてある）
+	CExecFrame*	AcquireFrame(void);
+	void		ReleaseFrame(CExecFrame *pf);
 
 public:
 	CFunction(CAyaVM& vmr, const yaya::string_t& n, const yaya::string_t& df, int lc);
@@ -172,16 +246,6 @@ public:
 	~CFunction(void) {}
 
 	void    deep_copy_statement(CFunction &from);
-	// 実行中の状態（再帰の深さとセルの一時値）を捨てる。スレッド用に関数表をコピーした直後に使う
-	void    ResetExecState(void) {
-		execdepth = 0;
-		for ( size_t i = 0 ; i < statement.size() ; ++i ) {
-			statement[i].cell_reset_tmpdata();
-		}
-	}
-	// セルを共有している関数（shared_ast）を、自分用のコピーにする
-	void    MakePrivate(void);
-	void    SetSharedAst(bool value) { shared_ast = value; }
 
 	class ExecutionResult {
 	public:
@@ -216,10 +280,12 @@ public:
 private:
 	void	ExecuteInto(ExecutionResult &result, const CValue &arg, CLocalVariable &lvar);
 	void	CallLimitExceeded(ExecutionResult &result);
-	void Execute_SEHhelper(ExecutionResult& aret, CLocalVariable& lvar, int& exitcode);
-	void Execute_SEHbody(ExecutionResult& retas, CLocalVariable& lvar, int& exitcode);
+	void Execute_SEHhelper(CExecFrame &fr, ExecutionResult& aret, CLocalVariable& lvar, int& exitcode);
+	void Execute_SEHbody(CExecFrame &fr, ExecutionResult& retas, CLocalVariable& lvar, int& exitcode);
 public:
-	const CValue& GetFormulaAnswer(CLocalVariable &lvar, CStatement &st);
+	const CValue& GetFormulaAnswer(CExecFrame &fr, CLocalVariable &lvar, CStatement &st);
+	// この関数に属さない一時の文（EVALの式）を実行して結果を返す。文の専用のフレームを用意する
+	CValue	EvalTempStatement(CLocalVariable &lvar, CStatement &st);
 
 	int     ReindexUserFunctions(void);
 
@@ -245,53 +311,53 @@ protected:
 
 	// ExecuteInBraceの補助。再帰のたびに積まれるExecuteInBraceのフレームを小さく保つため、
 	// 再帰の経路に載らない処理や、一時変数の多い処理を分けてある（いずれもインライン展開しない）
-	size_t	ExecuteSubBlock(size_t line, CLocalVariable& lvar, yaya::int_t type, int& exitcode, CSelecter& output, std::vector<CVecValue>* UpperLvCandidatePool, bool inpool, SReturnWithParamExpr* pReturnExpr);
+	size_t	ExecuteSubBlock(CExecFrame &fr, size_t line, CLocalVariable& lvar, yaya::int_t type, int& exitcode, CSelecter& output, std::vector<CVecValue>* UpperLvCandidatePool, bool inpool, SReturnWithParamExpr* pReturnExpr);
 	void	FinishBlock(CSelecter& output, int exitcode, SReturnWithParamExpr* pReturnExpr, CSelecter* pUpperOutput, std::vector<CVecValue>* UpperLvCandidatePool, bool meltblock, bool inpool, bool ispoolbegin, bool notpoolblock, bool inmutiarea);
 	void	AppendParallel(CSelecter& output, const CValue& val);
 	void	SetForeachElement(CValue& value, CValue& key, const yaya::string_t& elem, int index);
 	void	SetForeachKey(CValue& key, int index);
-	void	TakeFormulaAnswer(CValue& dst, CStatement& st, const CValue& ans);
-	void	AppendFormulaOutput(CSelecter& output, CStatement& st, const CValue& ans);
+	void	TakeFormulaAnswer(CExecFrame &fr, CValue& dst, CStatement& st, const CValue& ans);
+	void	AppendFormulaOutput(CExecFrame &fr, CSelecter& output, CStatement& st, const CValue& ans);
 	void	LoopLimitExceeded(const CStatement& st);
 	// ワーカースレッドの確認（ExecuteInBraceのフレームを増やさないよう分けてある）
 	// 実行を打ち切るべきなら、exitcodeをST_RETURNにして真を返す
 	bool	ThreadCancelStep(size_t& line, const CStatement& st, int& exitcode);
 	bool	ThreadCancelLoop(int& exitcode);
 	// GetFormulaAnswerの補助（同じ理由で分けてある）
-	void	ApplyBinaryOp(CCell& o_cell, int op, const CValue& lv, const CValue& rv, const CStatement& st);
-	void	SetIntAnswer(CCell& o_cell, int value);
-	void	ExecSystemFunctionNoArg(CCell& cell, CStatement& st, CLocalVariable& lvar);
+	void	ApplyBinaryOp(CExecFrame &fr, CCell& o_cell, int op, const CValue& lv, const CValue& rv, const CStatement& st);
+	void	SetIntAnswer(CExecFrame &fr, const CStatement& st, CCell& o_cell, int value);
+	void	ExecSystemFunctionNoArg(CExecFrame &fr, CCell& cell, CStatement& st, CLocalVariable& lvar);
 
-	ExecutionInBraceResult	ExecuteInBrace(size_t line, CLocalVariable& lvar, yaya::int_t type, int& exitcode, CSelecter* pUpperOutput, std::vector<CVecValue>* UpperLvCandidatePool, bool inpool, SReturnWithParamExpr* pReturnExpr = NULL);
+	ExecutionInBraceResult	ExecuteInBrace(CExecFrame &fr, size_t line, CLocalVariable& lvar, yaya::int_t type, int& exitcode, CSelecter* pUpperOutput, std::vector<CVecValue>* UpperLvCandidatePool, bool inpool, SReturnWithParamExpr* pReturnExpr = NULL);
 
-	void	Foreach(CLocalVariable& lvar, CSelecter& output, size_t line, int& exitcode, std::vector<CVecValue>* UpperLvCandidatePool, bool inpool, SReturnWithParamExpr* pReturnExpr = NULL);
+	void	Foreach(CExecFrame &fr, CLocalVariable& lvar, CSelecter& output, size_t line, int& exitcode, std::vector<CVecValue>* UpperLvCandidatePool, bool inpool, SReturnWithParamExpr* pReturnExpr = NULL);
 
-	const	CValue& GetValueRefForCalc(CCell &cell, CStatement &st, CLocalVariable &lvar);
-	const	CValue& GetLeftValueRef(CCell &s_cell, const CCell *d_cell, CValue &hold, CStatement &st, CLocalVariable &lvar);
+	const	CValue& GetValueRefForCalc(CExecFrame &fr, CCell &cell, CStatement &st, CLocalVariable &lvar);
+	const	CValue& GetLeftValueRef(CExecFrame &fr, CCell &s_cell, const CCell *d_cell, CValue &hold, CStatement &st, CLocalVariable &lvar);
 	
-	void	SolveEmbedCell(CCell &cell, CStatement &st, CLocalVariable &lvar);
+	void	SolveEmbedCell(CExecFrame &fr, CCell &cell, CStatement &st, CLocalVariable &lvar);
 
-	char	Comma(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
-	char	CommaAdd(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	char	Comma(CExecFrame &fr, CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	char	CommaAdd(CExecFrame &fr, CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	CVariable*	GetSubstVariable(const CCell &vcell, CLocalVariable &lvar);
-	char	Subst(int type, CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar, bool need_answer = true);
-	const	CValue& GetCompoundSubstLeftValue(std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
-	char	SubstToArray(CCell &vcell, CCell &ocell, CValue &answer, CStatement &st, CLocalVariable &lvar, size_t oindex = 0, bool spread = true);
+	char	Subst(CExecFrame &fr, int type, CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar, bool need_answer = true);
+	const	CValue& GetCompoundSubstLeftValue(CExecFrame &fr, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	char	SubstToArray(CExecFrame &fr, CCell &vcell, CCell &ocell, CValue &answer, CStatement &st, CLocalVariable &lvar, size_t oindex = 0, bool spread = true);
 	ptrdiff_t	FindUpperArrayOrder(CStatement &st, size_t oindex);
 	ptrdiff_t	FindFeedbackArrayOrder(CStatement &st, size_t findex);
-	char	RefreshUpperArrayOrder(CStatement &st, size_t oindex, CLocalVariable &lvar);
+	char	RefreshUpperArrayOrder(CExecFrame &fr, CStatement &st, size_t oindex, CLocalVariable &lvar);
 	void	WarnHashCalc(const CValue &lv, const CValue &rv, const yaya::char_t *op, const CStatement &st);
-	char	Array(CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	char	Array(CExecFrame &fr, CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	bool	_in_(const CValue &src, const CValue &dst);
 	bool	not_in_(const CValue &src, const CValue &dst);
 	CFunction*	GetUserFunction(const CCell &cell);
-	char	ExecFunctionWithArgs(CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
-	void	BuildFunctionArgs(CValue &arg, std::vector<size_t> &feedback, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
-	char	WriteBackFeedback(CLocalVariable &t_lvar, const std::vector<size_t> &feedback, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
-	char	ExecSystemFunctionWithArgs(CCell& cell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
-	void	ExecHistoryP1(size_t start_index, CCell& cell, const CValue &arg, CStatement &st);
-	void	ExecHistoryP2(CCell &cell, CStatement &st);
-	char	Feedback(CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	char	ExecFunctionWithArgs(CExecFrame &fr, CValue &answer, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	void	BuildFunctionArgs(CExecFrame &fr, CValue &arg, std::vector<size_t> &feedback, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	char	WriteBackFeedback(CExecFrame &fr, CLocalVariable &t_lvar, const std::vector<size_t> &feedback, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	char	ExecSystemFunctionWithArgs(CExecFrame &fr, CCell& cell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
+	void	ExecHistoryP1(CExecFrame &fr, size_t start_index, CCell& cell, const CValue &arg, CStatement &st);
+	void	ExecHistoryP2(CExecFrame &fr, CCell &cell, CStatement &st);
+	char	Feedback(CExecFrame &fr, CCell &anscell, std::vector<size_t> &sid, CStatement &st, CLocalVariable &lvar);
 	void	EncodeArrayOrder(CCell &vcell, const CValue &order, CLocalVariable &lvar, CValue &result);
 	void	FeedLineToTail(size_t&line);
 };
@@ -311,13 +377,6 @@ public:
 	void ClearFunctionIndex(void);
 	void RebuildFunctionMap(void);
 	void deep_copy_func(CFunctionDef &from);
-	// スレッド用に関数表をコピーした直後に呼ぶ。セルはコピーせず共有したままにして、
-	// 各関数を初めて実行するとき（CFunction::MakePrivate）に自分用のコピーを作る
-	void MarkSharedAst(void) {
-		for (size_t i = 0; i < func.size(); ++i) {
-			func[i].SetSharedAst(true);
-		}
-	}
 };
 
 //----

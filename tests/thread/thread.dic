@@ -198,3 +198,15 @@ TH.ExecWait
 {
 	EXECUTE_WAIT(GETENV('SystemRoot') + '\System32\cmd.exe', '/c ping -n ' + TOSTR(_argv[0]) + ' 127.0.0.1 >nul')
 }
+
+// SLEEP（実行権を手放す）をまたいで、式の途中で同じ関数がホストとワーカーで同時に走る
+TH.SleepRet
+{
+	_x = SLEEP(_argv[0])
+	_argv[0]
+}
+
+TH.MidSleep
+{
+	TOSTR(1000 + TH.SleepRet(_argv[0]) + TH.SleepRet(_argv[1]))
+}

@@ -43,7 +43,7 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 
 1. バージョンを上げる（例: `Tc600-2`）。どちらも Shift JIS かつ CRLF なので Sjis_ 系ツールで編集する（Git Bash の `sed -i` は CRLF を LF に変えてしまう）
    - `manifest.cpp` の `aya_version`
-   - `aya5.rc` の `FILEVERSION 6,00,2,0` と `VALUE "FileVersion", "6, 00, 2, 0\0"`（`TcXYY-N` → `X,YY,N,0`）
+   - `aya5.rc` の `FILEVERSION 6,8,2,0` と `VALUE "FileVersion", "6, 8, 2, 0\0"`（`TcXYY-N` → `X,Y,N,0`。`YY` は先頭の0を付けない整数にする。`08` は windres が8進数として読んで警告し、MinGW のバージョン資源が不正確になる）
 2. サブモジュール（`parson` / `tinyxml2` / `uka_regexp` / `sqlite` / `gumbo`）の参照を最新に更新する
    ```powershell
    git submodule update --init --remote parson tinyxml2 uka_regexp sqlite gumbo
@@ -94,7 +94,7 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 
 ### 再帰とスタック（ユーザー関数呼び出し）
 
-- ユーザー関数 1 回の呼び出しで C++ のスタックに積まれるのは `ExecFunctionWithArgs` → `Execute`（`ExecuteToValue` / `ExecuteInto`）→ `Execute_SEHbody` → `Execute_SEHhelper` → `ExecuteInBrace`（`{}` / `if` / `while` の入れ子ごとに `ExecuteSubBlock` を挟んで 1 段）→ `GetFormulaAnswer` の鎖。EXE 構成は既定の 1MB スタックで、`fncdepth, 0` の再帰が数百段で尽きる
+- ユーザー関数 1 回の呼び出しで C++ のスタックに積まれるのは `ExecFunctionWithArgs` → `Execute`（`ExecuteToValue` / `ExecuteInto`）→ `Execute_SEHbody` → `Execute_SEHhelper` → `ExecuteInBrace`（`{}` / `if` / `while` の入れ子ごとに `ExecuteSubBlock` を挟んで 1 段）→ `GetFormulaAnswer` の鎖（各段に実行フレーム `CExecFrame &fr` が引数で渡る）。EXE 構成は既定の 1MB スタックで、`fncdepth, 0` の再帰が数百段で尽きる（実行フレーム導入で、素直な再帰が 648 段から 640 段、`if` の入れ子を通る再帰が 385 段から 370 段になった。引数が1つ増えた分で、許容した）
 - **この鎖のフレームを大きくしない。** VC6 は同じ型の一時変数（約 56B の `CValue` など）でも領域を共有しないので、`ExecuteInBrace` / `GetFormulaAnswer` / `ExecFunctionWithArgs` に `CValue` の一時変数や局所変数を足すと、再帰 1 段ごとにその分だけ積まれる（演算ごとの一時変数でフレームが 1KB 超になっていた）。再帰の経路に載らない処理（ループ上限の処理、`melt` / `pool` の後処理、二項演算、`&` 引数の組み立てと書き戻し、値の受け渡し）は別の関数に出し、定義に `YAYA_NOINLINE` を付け、`#pragma auto_inline(off)` で囲んだ範囲に置く。VC6 には関数単位の `noinline` が無く、`/O2` は小さな関数を呼び出し元に展開して、分けたのにフレームが元に戻る
 - フレームは Release EXE の `function.obj` を `python tests/call/frames.py` にかけて測る（`sub esp,N`）。深さは `tests/call/probe_depth.ps1`、回帰は `tests/call/run_reg.ps1`（使い方は `tests/call/README.md`）
 - 返り値のコピーを増やさない。`CSelecter` は `STEAL` で候補を奪って作り（奪われた側は破棄しか許されない）、`OutputConsume` / `AppendTake` / `CValue::swap` で選んだ値を移す。`ExecuteToValue` が辞書内の呼び出しすべての入口で、`Execute(...)` の戻り値（`ExecutionResult`）の複製を避けている。式の最後の値は、最後の演算の項が持つ一時値で、他と共有されていないときだけ奪える（変数やリテラルの値、`emptyvalue` は壊さない）
@@ -162,8 +162,11 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 `workthread.h/.cpp` の `CThreadManager`（VM ごとに1つ。`CAyaVM::threads()`）が、ワーカースレッドと、インタプリタ全体のロック（GIL）を持つ。辞書の関数を実行できるのは GIL を持つスレッドだけで、本当に並列に動くのは GIL を手放した区間（SLEEP、DIRECTSSTP の通信、THREADJOIN の待ち）だけ。
 
 - **ホストは割り込まれない**。load / request / unload（`aya5.cpp` の `CHostScope`）は優先して GIL を取り、ワーカーは文の境界（`ExecuteInBrace` の先頭と `while` / `for` の周回）で `pvm->thread_attention()` を見て実行権を譲る。ホスト自身は途中で GIL を手放さない（THREADJOIN だけは、ほかのホストを入れずにワーカーへ譲る = `m_host_parked`）。ホストの再入（同じスレッドからの入れ子の request）は深さで数える
-- **実行権が移るたびに差し替えるもの**（`AcquireLocked` / `ReleaseLocked`）: `CAyaVM` の「今の呼び出し制限」と「今の関数表」（`call_limit()` / `function_exec()` / `function_parse()` が返す。ホストでは NULL でホスト側のもの）、`CSystemFunction` の直前の呼び出しの状態（`CSysFuncState`。`GETLASTERROR`、`LSO`、`RE_GETSTR` など）、`CLog` のコールバックの繰り延べ。ローカル変数は `CLocalVariable` が関数ごとのインスタンスなので何もしなくてよい。`CSysFuncState` の正規表現の結果は `F_TAG_ARRAY` で初期化すること（空の値だと配列として使えなくなる）
-- **関数表はワーカーごと**。セル（`CCell` の `m_ansv` / `m_order` / `m_emb_ansv`）に式の評価中の一時値が入っていて、`CFunctionReentryGuard` は呼び出しが入れ子（後入れ先出し）のときしか直せない。そのため `THREADSTART` は関数表を `CFunctionDef` のコピーにして、各 `CFunction` を `shared_ast` にする（セルは共有したまま）。`CFunction::ExecuteInto` が初めて実行するとき `MakePrivate` で自分用のセルにコピーして一時値を空にする。全部を最初にコピーすると辞書の30倍近いメモリと時間がかかる（2万関数・4MB の辞書で 125MB・190ms → 18MB・22ms）。`ExecuteInto` の `if (shared_ast)` は局所変数を増やさない形のまま保つこと
+- **実行権が移るたびに差し替えるもの**（`AcquireLocked` / `ReleaseLocked`）: `CAyaVM` の「今の呼び出し制限」（`call_limit()` が返す。ホストでは NULL でホスト側のもの。関数表は共有なので差し替えない）、`CSystemFunction` の直前の呼び出しの状態（`CSysFuncState`。`GETLASTERROR`、`LSO`、`RE_GETSTR` など）、`CLog` のコールバックの繰り延べ。ローカル変数は `CLocalVariable` が関数ごとのインスタンスなので何もしなくてよい。`CSysFuncState` の正規表現の結果は `F_TAG_ARRAY` で初期化すること（空の値だと配列として使えなくなる）
+- **関数表（中間コード）は全スレッドで共有し、実行中は読み取り専用**。式の評価中の一時値（`CCellTmp` = `ansv` / `order` / `emb_ansv`）は `CCell` に持たず、関数の1回の実行ごとの実行フレーム `CExecFrame`（`function.h`）に持つ。`ExecuteInto` / `ExecuteEval` が `CFrameHolder`（RAII）で借り、内部の関数（`ExecuteInBrace` / `GetFormulaAnswer` / `GetValueRefForCalc` など）には第1引数 `CExecFrame &fr` で渡す。再帰でも別スレッドからの同時実行でも、実行ごとにフレームが別なので一時値が衝突しない。以前あった `CFunctionReentryGuard`（再帰のたびにセルの一時値を退避する）、`MakePrivate`・`shared_ast`（スレッドごとの関数表のコピー）は無い。2万関数・2.5MB の辞書で、ワーカー起動は 18ms・13MB から 2ms・0.1MB 未満になった（Tc608-2）
+  - 一時値の位置は `CStatement::tmpbase`（文の最初の項の位置。`CFunction::CompleteSetting` が決め、`framesize` が全体の大きさ）と、文の中の項の位置の和（`CExecFrame::at(st, cell)`）。**`st` と `fr` は必ず対応させる**。関数に属さない一時の文（`SolveEmbedCell` の `%` 埋め込み、`EVAL` の式 = `EvalTempStatement`）は、`CExecFrame t(st.cell_size())` の専用フレームで評価する（`tmpbase` は0のまま）。項の数を変えたら `CompleteSetting` を呼び直す
+  - 使い終わったフレームは `CFunction::frame_cache`（`CFrameCache`）が1つだけ取っておき、非再帰の呼び出しで使い回す（一時値の確保をやり直さない）。**`CFrameCache` はコピーしても中身を引き継がない**（`CFunctionDef` のコピーや VM の複製で同じフレームを複数の関数が持つと、同時に使ってしまう）。借りる・返す（`AcquireFrame` / `ReleaseFrame`）はGILを持つ間に行う。大きな値は返すときに手放す（`tmpdata_cleanup`）
+  - システム関数に渡す `pcellarg`（`CCell*`）は静的な情報（`index` / `name` / `value`）だけを持つ。評価済みの値は `valuearg` から取る（項の一時値は読めない。システム関数はフレームに依存しない）
 - **中断は協調式**。`THREADSTOP` は `cancel` を立てて待機を起こす。ワーカーは `ThreadCancelStep` で `exitcode = ST_RETURN` にして `FeedLineToTail` で今の `{}` を抜ける（`return` 文と同じ経路。呼び出し元も次の文の境目で同じ確認に掛かって抜ける）。C++ の例外は使わない（`Execute_SEHbody` が `catch(...)` ですべて `memory_error` にする）。長いシステム関数1回の中では止まらない
 - **GIL を手放している間は、`CValue`・`std::string`・`shared_ptr` に触れない**。`sharedptr.h` の参照カウントはスレッドセーフではなく、VC6 の `std::string` はコピーオンライトで参照カウントが非アトミック。ブロックする処理（`DIRECTSSTP` の送信など）は、引数を先に `std::string` / 整数に取り出し、`CGilRelease` の範囲では通信だけを行い、戻ってから `CValue` を作る
 - **ログ**: `SetLoghandler` のコールバックとチェックツールへの `WM_COPYDATA` は、ワーカーが動いている間は `CLog::Call_loghandler` が溜め（`defer_callbacks`）、ホストが GIL を取った直後・手放す直前・待ちから戻った直後に `FlushDeferred` で送る（SHIORI のコールバックは load / request / unload を呼んだスレッドで呼ぶ約束。ワーカーが SSP の UI スレッドを待つと、UI スレッドが request の GIL 待ちで止まって固まる）。`FlushDeferred` は `mon` を持たずに呼ぶ（コールバックが request を呼びうる）。ファイルへの書き出しはその場で行う

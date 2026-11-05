@@ -41,7 +41,8 @@ $exprs = @(
     'T.Fe()', 'T.FeRec(6)',
     'T.RndUse()', 'T.RndAreaUse()', 'T.RndNestUse()', 'T.NonOvUse()', 'T.RndRecUse()',
     'T.OutN()', 'T.Watch()', 'T.WatchErase()', 'T.EvalBlock()', 'T.EvalRec(3)', 'T.ReFn()', 'T.GrowUse()',
-    'T.Sum(5)', 'T.NAStart(8)', 'T.FbRecUse()', 'T.Ops()', 'T.Short()', 'T.Sum(10)', 'T.Fib(15)'
+    'T.Sum(5)', 'T.NAStart(8)', 'T.FbRecUse()', 'T.Ops()', 'T.Short()', 'T.Sum(10)', 'T.Fib(15)',
+    'T.HistUse()', 'T.FbRecAUse()', 'T.FbIdxUse()', 'T.DelimUse()'
 )
 $rows = & $yrun -Exe $Exe -Dir $WorkDir -Exprs $exprs
 $lines = @(foreach ($r in $rows) { if ($r.Expr -ne '(load)') { '{0} => {1}' -f $r.Expr, $r.Result } })

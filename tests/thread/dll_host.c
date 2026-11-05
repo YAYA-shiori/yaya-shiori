@@ -3,7 +3,7 @@
  * unload / FreeLibrary / プロセス終了をしても止まらず落ちないことを確かめる試験用ホスト
  *
  * 32bitのyaya.dll（VC6）に合わせて、VC6のclでビルドする:
- *   cl /nologo /MT dll_host.c
+ *   cl /nologo /MT dll_host.c user32.lib
  * 使い方: dll_host <yaya.dllのパス> <辞書のディレクトリ> <unload|free|exit|log>
  *   unload : request → unload → FreeLibrary（SSPの通常の終わり方）
  *   free   : request → unloadを呼ばずにFreeLibrary

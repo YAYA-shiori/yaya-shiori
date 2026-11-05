@@ -3924,12 +3924,8 @@ CValue	CSystemFunction::SETDELIM(CSF_FUNCPARAM &p)
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	}
 
-	const CValue *delimiter;
-	if (p.pcellarg[1]->value_GetType() >= F_TAG_ORIGIN_VALUE &&
-		p.pcellarg[1]->value_GetType() <= F_TAG_STRING)
-		delimiter = &(p.pcellarg[1]->value_const());
-	else
-		delimiter = &(p.pcellarg[1]->ansv_const());
+	// 区切り文字は、即値・変数・式・関数の結果のどれでも、評価済みの引数の値から取る
+	const CValue *delimiter = &(p.valuearg[1]);
 
 	if (!delimiter->IsString()) {
 		vm.logger().Error(E_W, 9, L"SETDELIM", p.dicname, p.line);
@@ -4182,7 +4178,7 @@ CValue	CSystemFunction::EVAL(CSF_FUNCPARAM &p)
 		return CValue(p.arg.array()[0].GetValueString());
 
 	// 実行して結果を返す
-	CValue	result = p.thisfunc->GetFormulaAnswer(p.lvar, t_state);
+	CValue	result = p.thisfunc->EvalTempStatement(p.lvar, t_state);
 	if (t_state.type == ST_FORMULA_SUBST)
 		return CValue(F_TAG_NOP, 0/*dmy*/);
 	else

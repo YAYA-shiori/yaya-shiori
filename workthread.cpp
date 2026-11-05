@@ -383,7 +383,7 @@ void CThreadManager::AcquireLocked(CWorkerContext *c)
 	// ワーカーが動いている間のログは溜めておく（コールバックはホストのスレッドで呼ぶ）
 	vm.logger().SetDeferCallbacks(c != NULL);
 	m_slice_start = ThrTickMs();
-	vm.SetActiveContext(c ? c->call_limit.get() : NULL, c ? c->funcs.get() : NULL);
+	vm.SetActiveContext(c ? c->call_limit.get() : NULL);
 	UpdateAttentionLocked();
 }
 
@@ -398,7 +398,7 @@ void CThreadManager::ReleaseLocked(void)
 	m_depth = 0;
 	m_active = NULL;
 	vm.logger().SetDeferCallbacks(false);
-	vm.SetActiveContext(NULL, NULL);
+	vm.SetActiveContext(NULL);
 	vm.SetAttention(false);
 	mon->NotifyAll();
 }
@@ -779,8 +779,7 @@ int CThreadManager::Start(const yaya::string_t &funcname, const CValue &args)
 		return WORKER_START_TOOMANY;
 	}
 
-	CFunctionDef &cur = vm.function_exec();
-	if (cur.GetFunctionIndexFromName(funcname) < 0) {
+	if (vm.function_exec().GetFunctionIndexFromName(funcname) < 0) {
 		return WORKER_START_NOFUNC;
 	}
 
@@ -794,10 +793,8 @@ int CThreadManager::Start(const yaya::string_t &funcname, const CValue &args)
 	c->call_limit->SetMaxDepth(vm.host_call_limit().GetMaxDepth());
 	c->call_limit->SetMaxLoop(vm.host_call_limit().GetMaxLoop());
 
-	// 関数表の専用コピー。セル（中間コード）は共有したままにして、関数を初めて実行するときに
-	// 自分用にコピーする（CFunction::MakePrivate）。使わない関数の分のメモリと時間がかからない
-	c->funcs = std_make_shared<CFunctionDef>(cur);
-	c->funcs->MarkSharedAst();
+	// 関数表はホストと共有する（式の評価中の一時値は実行ごとのフレーム（CExecFrame）にあり、
+	// 関数表は読み取り専用なので、同じ関数を別のスレッドと同時に実行しても衝突しない）
 
 	mon->Lock();
 	c->id = m_next_id++;
@@ -971,11 +968,10 @@ void CThreadManager::RunWorker(CWorkerContext *c)
 		st = ExecuteWorker(c);
 	}
 
-	// 終わったワーカーの関数表・引数・呼び出し制限は、すぐ手放す（GILを持っている間に）。
+	// 終わったワーカーの引数・呼び出し制限は、すぐ手放す（GILを持っている間に）。
 	// 記録はTHREADCLOSEされるまで残るので、持ち続けると使い捨てのスレッドを繰り返したときにメモリが尽きる。
-	// 関数表を捨てる前に、VMが指さないようにしておく。monは持たない（捨てるのに時間がかかる）
-	vm.SetActiveContext(NULL, NULL);
-	c->funcs.reset();
+	// 呼び出し制限を捨てる前に、VMが指さないようにしておく。monは持たない（捨てるのに時間がかかる）
+	vm.SetActiveContext(NULL);
 	c->call_limit.reset();
 	{
 		CValue	empty;
