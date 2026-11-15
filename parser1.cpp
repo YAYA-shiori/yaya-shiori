@@ -338,7 +338,7 @@ char	CParser1::SetBreakJumpNo(CFunction &func)
 				break;
 			}
 			else
-				dline[depth].i_array.emplace_back(i);
+				dline[depth].i_array.emplace_back(static_cast<int>(i));
 		}
 	}
 
