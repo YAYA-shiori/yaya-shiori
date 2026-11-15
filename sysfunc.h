@@ -49,7 +49,7 @@ class CSysFuncState
 {
 public:
 	int		lasterror;
-	size_t	lso;
+	yaya::int_t	lso;
 	CValue	re_str;
 	CValue	re_pos;
 	CValue	re_len;
@@ -75,7 +75,7 @@ private:
 
 	protected:
 	int		lasterror;					// 最期に発生したエラーの番号
-	size_t	lso;						// LSOが返す値
+	yaya::int_t	lso;					// LSOが返す値（選択が無いときは -1。符号なしにすると 32bit で 4294967295 になる）
 
 	CValue	re_str;						// 正規表現処理結果の詳細情報（一致した文字列）
 	CValue	re_pos;						// 正規表現処理結果の詳細情報（一致した位置）
@@ -102,7 +102,7 @@ public:
 	static size_t HistoryIndex(void);
 	static const yaya::char_t* HistoryFunctionName(void);
 
-	void	SetLso(size_t order) { lso = order; }
+	void	SetLso(yaya::int_t order) { lso = order; }
 
 	// 直前の呼び出しの状態をsと入れ替える。実行権を持つスレッドが切り替わるたびに、出る側・入る側で呼ぶ
 	void	SwapState(CSysFuncState &s) {
