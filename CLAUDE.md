@@ -26,6 +26,16 @@ Get-Content "$env:TEMP\claude\yaya_build.log" -Encoding oem
 - サブモジュールを使う処理（JSON/XML、SQL* 関数、HTML、RE_* 関数）に手を入れる前に `git submodule update --init --remote parson tinyxml2 uka_regexp sqlite gumbo` で参照を最新にする
 - SQLite のフォークは upstream の amalgamation に VC6 / 古い SDK 向けの修正を1コミット載せたもの。64bit のリテラルは `INT64_C()` / `UINT64_C()`（`LL` は VC6 が、`i64` は gcc が読めない）。修正したら VC6 と gcc（Strawberry Perl 同梱）の両方で `sqlite3.c` 単体がコンパイルできることを確かめる
 
+### 最新の Visual Studio（MSBuild）と 64bit
+
+- `aya5.vcxproj` / `aya5.sln` に Win32 と x64 の全 4 構成（Release / Debug / Release EXE / Debug EXE）がある。x64 の出力先は `Release_x64` / `Debug_x64` / `Release_EXE_x64` / `Debug_EXE_x64`（`.gitignore` 済み）。vcxproj の既定ツールセットは v142。最新（v145）で試すときは `/p:PlatformToolset=v145` を付ける
+  ```powershell
+  & "C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\amd64\MSBuild.exe" aya5.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v145 /m /nologo /v:minimal
+  ```
+- ソースを増やしたら `aya5.dsp`（VC6）と `aya5.vcxproj` の両方に足す（`proccapture.cpp` が vcxproj に無くてリンクが通らなかったことがある）
+- VC6 と MSBuild は Win32 の出力先（`Release` / `Debug` など）を共有する。`yaya.pdb` が互換しない（LNK1207）ときと、別のコンパイラの `.obj` が混ざるときは、`.pdb` を消して `/REBUILD` する
+- VC6 の `cl` / `dumpbin` が PATH で先に見つかる。64bit の確認は `vcvars64.bat` を呼んだシェルで行う（`vswhere.exe` が見つからないと言われたら `C:\Program Files (x86)\Microsoft Visual Studio\Installer` を PATH に足す）。`tests/` の試験は EXE 構成の x64 でそのまま通る。DLL 構成は `tests/thread/dll_host.c` を x64 の `cl` でビルドして確かめる
+
 ### VC6 以外（makefile / GitHub Actions）
 
 - `makefile.linux` が基準で、`freebsd` / `posix`（macOS、`.bundle`）/ `emscripten` はオブジェクト一覧と規則を linux と同じにしてある。ソースを増やしたら全部の一覧に足す（`makefile.mingw32` は `posix_utils.o` に加えて `aya5_res.o` も持つ）

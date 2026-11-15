@@ -4,6 +4,7 @@
  *
  * 32bitのyaya.dll（VC6）に合わせて、VC6のclでビルドする:
  *   cl /nologo /MT dll_host.c user32.lib
+ * 64bitのyaya.dll（x64構成）には、vcvars64.bat を通した x64 の cl で同じようにビルドする
  * 使い方: dll_host <yaya.dllのパス> <辞書のディレクトリ> <unload|free|exit|log>
  *   unload : request → unload → FreeLibrary（SSPの通常の終わり方）
  *   free   : request → unloadを呼ばずにFreeLibrary
@@ -121,7 +122,7 @@ int main(int argc, char **argv)
 		if (dir[strlen(dir) - 1] != '\\') strcat(dir, "\\");
 		h = make(dir, &len);
 		load(h, len);
-		GlobalFree(h);
+		/* h は load() の中で DLL が GlobalFree する。ここで解放すると二重解放になる（x64 のヒープが検出する） */
 	}
 
 	if (logmode) {

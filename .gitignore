@@ -13,6 +13,10 @@ Debug
 Debug_EXE
 Release
 Release_EXE
+Debug_x64
+Debug_EXE_x64
+Release_x64
+Release_EXE_x64
 ReleaseLangSep
 tmp
 _UpgradeReport_Files

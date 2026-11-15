@@ -300,7 +300,7 @@ void	CBasis::SetPath(yaya::global_t h, int len, bool is_utf8)
 #if defined(WIN32)
 void	CBasis::SetLogRcvWnd(long hwnd)
 {
-	hlogrcvWnd = (HWND)hwnd;
+	hlogrcvWnd = (HWND)(LONG_PTR)hwnd;	// 64bit Ç≈ÇÕïÑçÜägí£ÇµÇƒ HWND Ç…Ç∑ÇÈ
 	vm.logger().Start(logpath, log_charset, hlogrcvWnd, iolog);
 }
 #endif
