@@ -150,8 +150,8 @@ void	CLocalVariable::Make(const yaya::string_t &name, const yaya::string_t &deli
  */
 void	CLocalVariable::GetIndex(const yaya::char_t *name, int &id, int &dp)
 {
-	for(int i = stack.size() - 1; i >= 0; i--)
-		for(int j = stack[i].substack.size() - 1; j >= 0; j--)
+	for(int i = static_cast<int>(stack.size() - 1); i >= 0; i--)
+		for(int j = static_cast<int>(stack[i].substack.size() - 1); j >= 0; j--)
 			if (stack[i].substack[j].name == name) {
 				if (stack[i].substack[j].IsErased()) {
 					id = -1;
@@ -172,8 +172,8 @@ void	CLocalVariable::GetIndex(const yaya::char_t *name, int &id, int &dp)
 
 void	CLocalVariable::GetIndex(const yaya::string_t &name, int &id, int &dp)
 {
-	for(int i = stack.size() - 1; i >= 0; i--)
-		for(int j = stack[i].substack.size() - 1; j >= 0; j--)
+	for(int i = static_cast<int>(stack.size() - 1); i >= 0; i--)
+		for(int j = static_cast<int>(stack[i].substack.size() - 1); j >= 0; j--)
 			if (stack[i].substack[j].name == name) {
 				if (stack[i].substack[j].IsErased()) {
 					id = -1;
@@ -260,7 +260,7 @@ int		CLocalVariable::GetNumber(int depth)
 	if(depth < 0 || (size_t)depth >= stack.size()) {
 		return 0;
 	}
-	return stack[depth].substack.size();
+	return static_cast<int>(stack[depth].substack.size());
 }
 
 /* -----------------------------------------------------------------------

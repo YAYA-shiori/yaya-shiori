@@ -1512,7 +1512,7 @@ CValue	CSystemFunction::SRAND(CSF_FUNCPARAM &p)
 				wstr.append(charsToAdd, L'0');
 			}
 
-			vm.genrand_sysfunc_srand_array(reinterpret_cast<const std::uint64_t*>(wstr.c_str()),wstr.size()/(targetByteAlignment/wcharSize));
+			vm.genrand_sysfunc_srand_array(reinterpret_cast<const std::uint64_t*>(wstr.c_str()),static_cast<int>(wstr.size()/(targetByteAlignment/wcharSize)));
 
 			return CValue(1);
 		}
@@ -1972,10 +1972,10 @@ CValue	CSystemFunction::SUBSTR(CSF_FUNCPARAM &p)
 		}
 	}
 
-	if ( pos >= src.length() || len <= 0 ) {
+	if ( static_cast<size_t>(pos) >= src.length() || len <= 0 ) {
 		return yaya::string_t();
 	}
-	if ( pos + len >= src.length() ) {
+	if ( static_cast<size_t>(pos + len) >= src.length() ) {
 		len = src.length() - pos;
 	}
 
@@ -2016,10 +2016,10 @@ CValue	CSystemFunction::ERASE(CSF_FUNCPARAM &p)
 		}
 	}
 
-	if ( pos >= src.length() || len <= 0 ) {
+	if ( static_cast<size_t>(pos) >= src.length() || len <= 0 ) {
 		return yaya::string_t();
 	}
-	if ( pos + len >= src.length() ) {
+	if ( static_cast<size_t>(pos + len) >= src.length() ) {
 	    len = src.length() - pos;
 	}
 
@@ -3805,7 +3805,7 @@ CValue CSystemFunction::FSIZE(CSF_FUNCPARAM &p) {
  */
 CValue	CSystemFunction::FENUM(CSF_FUNCPARAM &p)
 {
-	int	sz = p.arg.array_size();
+	int	sz = static_cast<int>(p.arg.array_size());
 
 	if (!sz) {
 		vm.logger().Error(E_W, 8, L"FENUM", p.dicname, p.line);
@@ -4494,7 +4494,7 @@ static bool Utils_HTTPToTM(const char *pText,struct tm &outTime,bool &hasTZ,int 
 
 	memset(&outTime,0,sizeof(outTime));
 
-	unsigned int len = strlen(pText) + 1;
+	unsigned int len = static_cast<unsigned int>(strlen(pText) + 1);
 	char *pData = (char*)malloc(len);
 	if( ! pData ) { return false; }
 	memcpy(pData,pText,len);
@@ -4748,7 +4748,7 @@ CValue	CSystemFunction::GETSECCOUNT(CSF_FUNCPARAM &p)
 		return CValue(static_cast<yaya::int_t>(ltime));
 	}
 
-	unsigned int asize = p.arg.array_size();
+	unsigned int asize = static_cast<unsigned int>(p.arg.array_size());
 
 	// 8番目の引数はタイムゾーン
 	CTimeZone tz;
@@ -5061,7 +5061,7 @@ CValue	CSystemFunction::RE_SEARCH(CSF_FUNCPARAM &p)
 
 CValue	CSystemFunction::RE_ASEARCH(CSF_FUNCPARAM &p)
 {
-	int	sz = p.arg.array_size();
+	int	sz = static_cast<int>(p.arg.array_size());
 
 	if (sz < 2) {
 		//check real arg size : if search target is empty array , arg array is 1
@@ -5114,7 +5114,7 @@ CValue	CSystemFunction::RE_ASEARCH(CSF_FUNCPARAM &p)
 
 CValue	CSystemFunction::RE_ASEARCHEX(CSF_FUNCPARAM &p)
 {
-	int	sz = p.arg.array_size();
+	int	sz = static_cast<int>(p.arg.array_size());
 
 	if (sz < 2) {
 		//check real arg size : if search target is empty array , arg array is 1
@@ -5376,7 +5376,7 @@ CValue	CSystemFunction::RE_SPLIT(CSF_FUNCPARAM &p)
 	ClearReResultDetails();
 
 	// 引数の数/型チェック
-	int sz = p.arg.array_size();
+	int sz = static_cast<int>(p.arg.array_size());
 	if (sz < 2) {
 		vm.logger().Error(E_W, 8, L"RE_SPLIT", p.dicname, p.line);
 		SetError(8);
@@ -5448,7 +5448,7 @@ CValue	CSystemFunction::RE_REPLACE(CSF_FUNCPARAM &p)
 
 	// まずsplitする
 	CValue	splits = RE_SPLIT_CORE(p.arg, p.lvar, p.dicname, p.line, L"RE_REPLACE", count);
-	int	num = splits.array_size();
+	int	num = static_cast<int>(splits.array_size());
 	if (!num || num == 1)
 		return CValue(arg0);
 
@@ -5639,7 +5639,7 @@ CValue	CSystemFunction::RE_SPLIT_CORE(const CValue &arg, CLocalVariable &lvar, c
 			}
 		}
 
-		int len = arg0.size() - t_pos;
+		int len = static_cast<int>(arg0.size() - t_pos);
 		if ( len > 0 ) {
 			splits.array().emplace_back(arg0.substr(t_pos, len));
 		}
@@ -6020,7 +6020,7 @@ CValue	CSystemFunction::CVAUTOEX(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::LETTONAME(CSF_FUNCPARAM &p)
 {
-	int	sz = p.valuearg.size();
+	int	sz = static_cast<int>(p.valuearg.size());
 
 	if (sz < 2) {
 		if ( sz && p.valuearg[0].IsArray() && p.valuearg[0].array_size() >= 2 ) {
@@ -6077,7 +6077,7 @@ CValue	CSystemFunction::LSO(CSF_FUNCPARAM &)
  */
 CValue	CSystemFunction::STRFORM(CSF_FUNCPARAM &p)
 {
-	int	sz = p.arg.array_size();
+	int	sz = static_cast<int>(p.arg.array_size());
 
 	if (!sz)
 		return CValue();
@@ -6093,7 +6093,7 @@ CValue	CSystemFunction::STRFORM(CSF_FUNCPARAM &p)
 
 	// '$'でsplitする
 	std::vector<yaya::string_t>	vargs;
-	int	vargs_sz = SplitToMultiString(p.arg.array()[0].GetValueString(), &vargs, yaya::string_t(L"$"));
+	int	vargs_sz = static_cast<int>(SplitToMultiString(p.arg.array()[0].GetValueString(), &vargs, yaya::string_t(L"$")));
 	if (!vargs_sz)
 		return CValue();
 
@@ -6208,7 +6208,7 @@ CValue	CSystemFunction::STRFORM(CSF_FUNCPARAM &p)
 CValue	CSystemFunction::ANY(CSF_FUNCPARAM &p)
 {
 	// 引数無しなら空文字列
-	int	sz = p.arg.array_size();
+	int	sz = static_cast<int>(p.arg.array_size());
 	if (!sz) {
 		SetLso(-1);
 		return CValue();
@@ -6229,7 +6229,7 @@ CValue	CSystemFunction::ANY(CSF_FUNCPARAM &p)
 			delimiter = p.lvar.GetDelimiter(p.pcellarg[0]->name);
 
 		std::vector<yaya::string_t>	s_array;
-		int	a_sz = SplitToMultiString(p.arg.array()[0].GetValueString(), &s_array, delimiter);
+		int	a_sz = static_cast<int>(SplitToMultiString(p.arg.array()[0].GetValueString(), &s_array, delimiter));
 		if (!a_sz) {
 			SetLso(-1);
 			return CValue();
@@ -6388,7 +6388,7 @@ CValue	CSystemFunction::DESERIALIZEVAR(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::GETSTRBYTES(CSF_FUNCPARAM &p)
 {
-	int	sz = p.arg.array_size();
+	int	sz = static_cast<int>(p.arg.array_size());
 
 	if (!sz) {
 		vm.logger().Error(E_W, 8, L"GETSTRBYTES", p.dicname, p.line);
@@ -6411,7 +6411,7 @@ CValue	CSystemFunction::GETSTRBYTES(CSF_FUNCPARAM &p)
 		vm.logger().Error(E_E, 89, L"GETSTRBYTES", p.dicname, p.line);
 		return CValue(0);
 	}
-	int	result = ::strlen(t_str);
+	int	result = static_cast<int>(::strlen(t_str));
 	free(t_str);
 	t_str = NULL;
 
@@ -6431,7 +6431,7 @@ struct ToLower {
 
 CValue	CSystemFunction::STRENCODE(CSF_FUNCPARAM &p)
 {
-	int	sz = p.arg.array_size();
+	int	sz = static_cast<int>(p.arg.array_size());
 
 	if (!sz) {
 		vm.logger().Error(E_W, 8, L"STRENCODE", p.dicname, p.line);
@@ -6489,7 +6489,7 @@ CValue	CSystemFunction::STRENCODE(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::STRDECODE(CSF_FUNCPARAM &p)
 {
-	int	sz = p.arg.array_size();
+	int	sz = static_cast<int>(p.arg.array_size());
 
 	if (!sz) {
 		vm.logger().Error(E_W, 8, L"STRDECODE", p.dicname, p.line);
@@ -6548,7 +6548,7 @@ CValue	CSystemFunction::STRDECODE(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::ASEARCH(CSF_FUNCPARAM &p)
 {
-	int	sz = p.arg.array_size();
+	int	sz = static_cast<int>(p.arg.array_size());
 
 	if (sz < 2) {
 		//check real arg size : if search target is empty array , arg array is 1
@@ -6571,7 +6571,7 @@ CValue	CSystemFunction::ASEARCH(CSF_FUNCPARAM &p)
 
 CValue	CSystemFunction::ASEARCHEX(CSF_FUNCPARAM &p)
 {
-	int	sz = p.arg.array_size();
+	int	sz = static_cast<int>(p.arg.array_size());
 
 	if (sz < 2) {
 		//check real arg size : if search target is empty array , arg array is 1
@@ -6750,7 +6750,7 @@ public:
 
 CValue	CSystemFunction::ASORT(CSF_FUNCPARAM &p)
 {
-	unsigned int sz = p.arg.array_size();
+	unsigned int sz = static_cast<unsigned int>(p.arg.array_size());
 	if (sz <= 0) {
 		vm.logger().Error(E_W, 8, L"ASORT", p.dicname, p.line);
 		SetError(8);
@@ -6830,13 +6830,13 @@ CValue	CSystemFunction::ASORT(CSF_FUNCPARAM &p)
 	CValue rval(F_TAG_ARRAY, 0/*dmy*/);
 
 	if ( option.find(L"index") != yaya::string_t::npos ) {
-		unsigned int n = sort_vector.size();
+		unsigned int n = static_cast<unsigned int>(sort_vector.size());
 		for ( unsigned int i = 0 ; i < n ; ++i ) {
 			rval.array().emplace_back(CValue((yaya::int_t)sort_vector[i]-1));
 		}
 	}
 	else {
-		unsigned int n = sort_vector.size();
+		unsigned int n = static_cast<unsigned int>(sort_vector.size());
 		for ( unsigned int i = 0 ; i < n ; ++i ) {
 			rval.array().emplace_back(p.arg.array()[sort_vector[i]]);
 		}
@@ -6899,7 +6899,7 @@ CValue	CSystemFunction::SETSETTING(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::GETSETTING(CSF_FUNCPARAM &p)
 {
-	int	sz = p.arg.array_size();
+	int	sz = static_cast<int>(p.arg.array_size());
 
 	if (!sz) {
 		vm.logger().Error(E_W, 8, L"GETSETTING", p.dicname, p.line);
@@ -6989,7 +6989,7 @@ CValue	CSystemFunction::ARRAYDEDUP(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::SPLIT(CSF_FUNCPARAM &p)
 {
-	int	sz = p.arg.array_size();
+	int	sz = static_cast<int>(p.arg.array_size());
 
 	if (sz < 2) {
 		vm.logger().Error(E_W, 8, L"SPLIT", p.dicname, p.line);
@@ -7072,7 +7072,7 @@ CValue	CSystemFunction::SETTAMAHWND(CSF_FUNCPARAM &p)
  */
 CValue	CSystemFunction::HASH_SPLIT(CSF_FUNCPARAM &p)
 {
-	int	sz = p.arg.array_size();
+	int	sz = static_cast<int>(p.arg.array_size());
 	if (sz < 3) {
 		vm.logger().Error(E_W, 8, L"HASH_SPLIT", p.dicname, p.line);
 		SetError(8);
@@ -8514,8 +8514,8 @@ CValue	CSystemFunction::TRANSLATE(CSF_FUNCPARAM &p)
 	bool is_delete = (rep_to.size() == 0);
 
 	//signedでカウントしないと erase時にひどいことになる
-	int n = str.length();
-	int rep_size = rep_from.size();
+	int n = static_cast<int>(str.length());
+	int rep_size = static_cast<int>(rep_from.size());
 
 	for ( int i = 0 ; i < n ; ++i ) {
 		yaya::char_t cx = str[i];
@@ -9095,7 +9095,7 @@ CValue	CSystemFunction::DIRECTSSTP(CSF_FUNCPARAM &p)
 
 	COPYDATASTRUCT cds;
 	cds.dwData = 9801;
-	cds.cbData = strlen(req);
+	cds.cbData = static_cast<DWORD>(strlen(req));
 	cds.lpData = req;
 
 	//相手はWM_COPYDATAの処理中に、こちらのウインドウへWM_COPYDATAで返信してくるので、

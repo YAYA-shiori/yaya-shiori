@@ -458,7 +458,7 @@ bool CValue::DecodeArrayOrder(size_t&order, size_t&order1, yaya::string_t &delim
 	delimiter = VAR_DELIMITER;
 
 	if (type == F_TAG_ARRAY) {
-		int	sz = array_size();
+		int	sz = static_cast<int>(array_size());
 		if (sz) {
 			// óvëf0:èòêî
 			if (array()[0].GetType() == F_TAG_INT)

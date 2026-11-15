@@ -501,7 +501,7 @@ void	CLog::SendLogToWnd(const yaya::char_t *str, int mode)
 
 	COPYDATASTRUCT cds;
 	cds.dwData = mode;
-	cds.cbData = (wcslen(str) + 1)*sizeof(yaya::char_t);
+	cds.cbData = static_cast<DWORD>((wcslen(str) + 1)*sizeof(yaya::char_t));
 	cds.lpData = (LPVOID)str;
 
 	DWORD_PTR res_dword = 0;

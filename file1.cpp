@@ -174,7 +174,7 @@ int	CFile1::WriteBin(const yaya::string_t &istr, const yaya::char_t alt)
 	free(t_istr);
 	t_istr = NULL;
 
-	return write;
+	return static_cast<int>(write);
 }
 
 /* -----------------------------------------------------------------------
@@ -204,7 +204,7 @@ int	CFile1::WriteDecode(const yaya::string_t &istr, const yaya::string_t &type)
 	// ‘‚«‚İ
 	size_t write = fwrite(out.c_str(), sizeof(unsigned char), out.length(), fp);
 
-	return write;
+	return static_cast<int>(write);
 }
 
 /* -----------------------------------------------------------------------
@@ -281,7 +281,7 @@ int	CFile1::ReadBin(yaya::string_t &ostr, size_t len, yaya::char_t alt)
 		if ( done < lenread ) { break; }
 	}
 
-	return read ? read : (isEOF ? -1 : 0);
+	return static_cast<int>(read ? read : (isEOF ? -1 : 0));
 }
 
 /* -----------------------------------------------------------------------
@@ -341,7 +341,7 @@ int	CFile1::ReadEncode(yaya::string_t &ostr, size_t len, const yaya::string_t &t
 		if ( done < lenread ) { break; }
 	}
 
-	return read;
+	return static_cast<int>(read);
 }
 
 /* -----------------------------------------------------------------------

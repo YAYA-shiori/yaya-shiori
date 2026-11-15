@@ -969,13 +969,13 @@ yaya::char_t *Ccct::mbcs_to_utf16be(const char *pAnsiStr, int charset)
     size_t nLen = strlen(pAnsiStr);
 	int cp = ccct_getcodepage(charset);
 
-	int wlen = ::MultiByteToWideChar(cp,0,pAnsiStr,nLen,NULL,0);
+	int wlen = ::MultiByteToWideChar(cp,0,pAnsiStr,static_cast<int>(nLen),NULL,0);
 
 	if ( wlen <= 0 ) { return NULL; }
 
 	yaya::char_t* pUcsStr = (yaya::char_t*)malloc((wlen + 1 + 5) * sizeof(yaya::char_t)); //add +5 for safety
 
-	wlen = ::MultiByteToWideChar(cp,0,pAnsiStr,nLen,pUcsStr,wlen+1);
+	wlen = ::MultiByteToWideChar(cp,0,pAnsiStr,static_cast<int>(nLen),pUcsStr,wlen+1);
 
 	if ( wlen <= 0 ) { return NULL; }
 

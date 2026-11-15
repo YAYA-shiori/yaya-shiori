@@ -832,7 +832,7 @@ char	CParser0::LoadDictionary1(const yaya::string_t& filename, std::vector<CDefi
 
 	for (size_t i = 1; ; i++) {
 		// 1行読み込み　暗号化ファイルの場合は復号も行なう
-		ret = yaya::ws_fgets(buf, readline, fp, charset, ciphered, i);
+		ret = yaya::ws_fgets(buf, readline, fp, charset, ciphered, static_cast<int>(i));
 		if (ret == yaya::WS_EOF)
 			break;
 
@@ -1415,7 +1415,7 @@ ptrdiff_t	CParser0::MakeFunction(const yaya::string_t& name, choicetype_t chtype
 			return -1;
 */
 
-	vm.function_parse().func.emplace_back(CFunction(vm, name, dicfilename, linecount));
+	vm.function_parse().func.emplace_back(CFunction(vm, name, dicfilename, static_cast<int>(linecount)));
 	size_t index = vm.function_parse().func.size()-1;
 	vm.function_parse().AddFunctionIndex(name, index);
 	
@@ -1546,7 +1546,7 @@ char	CParser0::StoreInternalStatement(CFunction& targetfunction, yaya::string_t 
 	// case　特殊な名前のローカル変数への代入に書き換えてしまう
 	else if (st == L"case") {
 		str = PREFIX_CASE_VAR + targetfunction.name;
-		str += yaya::ws_itoa(linecount);
+		str += yaya::ws_itoa(static_cast<int>(linecount));
 		str += L'=';
 		str += par;
 		return MakeStatement(ST_FORMULA, targetfunction, str, dicfilename, linecount);
@@ -1949,7 +1949,7 @@ void	CParser0::StructFormulaCell(yaya::string_t &str, std::vector<CCell> &cells)
 					}
 				}
 
-				tagtype = result;
+				tagtype = static_cast<int>(result);
 				taglen  = formulatag_len[tagtype];
 				
 				bstr.assign(str, i + taglen, str.size());
@@ -2815,7 +2815,7 @@ char	CParser0::ConvertEmbedStringToFormula(yaya::string_t& str, const yaya::stri
 			resstr += CSystemFunction::HistoryFunctionName();
 			resstr += L'(';
 			
-			resstr += yaya::ws_itoa(nindex, 10);
+			resstr += yaya::ws_itoa(static_cast<int>(nindex), 10);
 			resstr += L"-(";
 
 			resstr.append(str, 2, spos - 3);
@@ -3203,7 +3203,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 
 		// 定義の開始　演算子の登録
 		int	t_type = st.cell()[t_index].value_GetType();
-		CSerial	addserial(t_index);
+		CSerial	addserial(static_cast<int>(t_index));
 		depthvec[t_index] = -2;
 		// 左辺の項を取得
 		ptrdiff_t f_depth = 1;
@@ -3331,7 +3331,7 @@ char	CParser0::CheckDepthAndSerialize1(CStatement& st, const yaya::string_t& dic
 		if (depthvec[i] == -2) {
 			scount++;
 			if (st.cell()[i].value_GetType() >= F_TAG_ORIGIN_VALUE) {
-				CSerial	addserial(i);
+				CSerial	addserial(static_cast<int>(i));
 				addserial.index.emplace_back(0);	// dmy
 				addserial.index.emplace_back(0);	// dmy
 				st.serial().emplace_back(addserial);

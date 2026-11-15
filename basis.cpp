@@ -576,7 +576,7 @@ void	CBasis::LoadBaseConfigureFile_Base(yaya::string_t filename,std::vector<CDic
 			cset_real = setting_charset;
 		}
 
-		if (yaya::ws_fgets(buf, readline, fp, cset_real, 0, line) == yaya::WS_EOF) {
+		if (yaya::ws_fgets(buf, readline, fp, cset_real, 0, static_cast<int>(line)) == yaya::WS_EOF) {
 			// ƒtƒ@ƒCƒ‹‚ð•Â‚¶‚é
 			fclose(fp);
 

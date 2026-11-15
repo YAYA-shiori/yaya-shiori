@@ -463,7 +463,7 @@ int yaya::ws_fgets(std::string &buf, yaya::string_t &str, FILE *stream, int char
 		return yaya::WS_EOF;
 	}
 	else {
-		return str.size();
+		return static_cast<int>(str.size());
 	}
 }
 
@@ -478,7 +478,7 @@ int yaya::ws_fputs(const yaya::char_t *str, FILE *stream, int charset, int ayc)
 	char *str_result = Ccct::Ucs2ToMbcs(str, charset);
 	if ( ! str_result ) { return 0; }
 
-	int len = strlen(str_result);
+	int len = static_cast<int>(strlen(str_result));
 
 	if (ayc) {
 		char *resulttmp = str_result;

@@ -1096,7 +1096,7 @@ const CValue& CFunction::GetFormulaAnswer(CExecFrame &fr, CLocalVariable &lvar, 
 				break;
 			case F_TAG_SYSFUNCPARAM:
 				if (ExecSystemFunctionWithArgs(fr, o_cell, it->index, st, lvar))
-					pvm->logger().Error(E_E, 33, CSystemFunction::GetNameFromIndex(st.cell()[it->index[0]].index), dicfilename, st.linecount);
+					pvm->logger().Error(E_E, 33, CSystemFunction::GetNameFromIndex(static_cast<int>(st.cell()[it->index[0]].index)), dicfilename, st.linecount);
 				break;
 			case F_TAG_ARRAYORDER:
 				if (Array(fr, o_cell, it->index, st, lvar))
@@ -1134,7 +1134,7 @@ YAYA_NOINLINE void	CFunction::ExecSystemFunctionNoArg(CExecFrame &fr, CCell &cel
 	CValue	arg(F_TAG_ARRAY, 0/*dmy*/);
 	std::vector<CCell *> pcellarg; //dummy
 	std::vector<CValue> pvaluearg; //dummy
-	fr.at(st, cell).ansv() =  pvm->sysfunction().Execute(cell.index, arg, pcellarg, pvaluearg, lvar, st.linecount, this);
+	fr.at(st, cell).ansv() =  pvm->sysfunction().Execute(cell.index, arg, pcellarg, pvaluearg, lvar, static_cast<int>(st.linecount), this);
 }
 
 #if defined(_MSC_VER) && _MSC_VER < 1300
@@ -2167,7 +2167,7 @@ char	CFunction::ExecSystemFunctionWithArgs(CExecFrame &fr, CCell& cell, std::vec
 	if (index == CSystemFunction::HistoryIndex())
 		ExecHistoryP1(fr, func_index - 2, cell, arg, st);
 	else
-		fr.at(st, cell).ansv() = pvm->sysfunction().Execute(index, arg, pcellarg, valuearg, lvar, st.linecount, this);
+		fr.at(st, cell).ansv() = pvm->sysfunction().Execute(index, arg, pcellarg, valuearg, lvar, static_cast<int>(st.linecount), this);
 
 	return 0;
 }

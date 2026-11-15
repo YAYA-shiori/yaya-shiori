@@ -211,7 +211,7 @@ public:
 		size_t aret=0;
 		using std::swap;
 		swap(aret, maxdepth);
-		return aret;
+		return static_cast<int>(aret);
 	}
 	void reset_lock(size_t lock) {
 		using std::swap;

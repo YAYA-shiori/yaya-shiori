@@ -295,7 +295,7 @@ void	CutSpace(yaya::string_t &str)
 
 void	CutStartSpace(yaya::string_t &str)
 {
-	int	len = str.size();
+	int	len = static_cast<int>(str.size());
 	// ‘O•û
 	int	erasenum = 0;
 	for(int i = 0; i < len; i++) {
@@ -313,7 +313,7 @@ void	CutStartSpace(yaya::string_t &str)
 
 void	CutEndSpace(yaya::string_t &str)
 {
-	int	len = str.size();
+	int	len = static_cast<int>(str.size());
 	// Œã•û
 	int erasenum = 0;
 	for(int i = len - 1; i >= 0; i--) {
@@ -538,7 +538,7 @@ yaya::string_t::size_type IsInDQ(const yaya::string_t &str, yaya::string_t::size
  */
 char	IsDoubleButNotIntString(const yaya::string_t &str)
 {
-	int	len = str.size();
+	int	len = static_cast<int>(str.size());
 	if (!len)
 		return 0;
 
@@ -570,7 +570,7 @@ char	IsDoubleButNotIntString(const yaya::string_t &str)
  */
 char	IsIntString(const yaya::string_t &str)
 {
-	int	len = str.size();
+	int	len = static_cast<int>(str.size());
 	if (!len)
 		return 0;
 
@@ -609,7 +609,7 @@ char	IsIntString(const yaya::string_t &str)
  */
 char	IsIntBinString(const yaya::string_t &str, char header)
 {
-	int	len = str.size();
+	int	len = static_cast<int>(str.size());
 	if (!len)
 		return 0;
 
@@ -643,7 +643,7 @@ char	IsIntBinString(const yaya::string_t &str, char header)
  */
 char	IsIntHexString(const yaya::string_t &str, char header)
 {
-	int	len = str.size();
+	int	len = static_cast<int>(str.size());
 	if (!len)
 		return 0;
 
@@ -687,7 +687,7 @@ char	IsIntHexString(const yaya::string_t &str, char header)
  */
 char	IsLegalFunctionName(const yaya::string_t &str)
 {
-	int	len = str.size();
+	int	len = static_cast<int>(str.size());
 	if (!len)
 		return 1;
 
@@ -743,7 +743,7 @@ char	IsLegalFunctionName(const yaya::string_t &str)
  */
 char	IsLegalVariableName(const yaya::string_t &str)
 {
-	int	len = str.size();
+	int	len = static_cast<int>(str.size());
 	if (!len)
 		return 1;
 
@@ -796,7 +796,7 @@ char	IsLegalVariableName(const yaya::string_t &str)
  */
 char	IsLegalStrLiteral(const yaya::string_t &str)
 {
-	int	len = str.size();
+	int	len = static_cast<int>(str.size());
 	if (!len)
 		return 3;
 
@@ -850,7 +850,7 @@ char	IsLegalStrLiteral(const yaya::string_t &str)
  */
 char	IsLegalPlainStrLiteral(const yaya::string_t &str)
 {
-	int	len = str.size();
+	int	len = static_cast<int>(str.size());
 	if (!len)
 		return 3;
 
@@ -1379,7 +1379,7 @@ void	UnescapeString(yaya::string_t &wstr)
 
 void EncodeBase64(yaya::string_t &out,const char *in,size_t in_len)
 {
-	int len = in_len;
+	int len = static_cast<int>(in_len);
 	const unsigned char* p = reinterpret_cast<const unsigned char*>(in);
 	static const yaya::char_t table[] = L"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	

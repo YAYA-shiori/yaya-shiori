@@ -41,7 +41,7 @@ int	CGlobalVariable::Make(const yaya::string_t &name, char erased)
 	// Šù‚É‘¶Ý‚·‚é‚©’²‚×A‘¶Ý‚µ‚Ä‚¢‚½‚ç‚»‚ê‚ð•Ô‚·
 	yaya::indexmap::const_iterator it = varmap.find(name);
 	if ( it != varmap.end() ) {
-		int idx = it->second;
+		int idx = static_cast<int>(it->second);
 		if (!vm.basis().IsRun()) {
 			if (erased)
 				var[idx].Erase();
@@ -59,7 +59,7 @@ int	CGlobalVariable::Make(const yaya::string_t &name, char erased)
 		addvariable.Enable();
 	var.push_back(addvariable);
 
-	int idx = var.size() - 1;
+	int idx = static_cast<int>(var.size() - 1);
 	varmap.insert(yaya::indexmap::value_type(name,idx));
 	return idx;
 }
@@ -117,7 +117,7 @@ int		CGlobalVariable::GetIndex(const yaya::string_t &name)
 {
 	yaya::indexmap::const_iterator it = varmap.find(name);
 	if ( it != varmap.end() ) {
-		int idx = it->second;
+		int idx = static_cast<int>(it->second);
 		return var[idx].IsErased() ? -1 : idx;
 	}
 	return -1;

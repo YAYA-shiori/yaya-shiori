@@ -99,7 +99,7 @@ void	CDuplEvInfo::InitRoundOrder(CAyaVM &vm,int mode_param)
 			for (size_t i = 0 ; i < n ; ++i ) {
 				size_t s = vm.genrand_uint(n);
 				if ( i != s ) {
-					int tmp = roundorder[i];
+					int tmp = static_cast<int>(roundorder[i]);
 					roundorder[i] = roundorder[s];
 					roundorder[s] = tmp;
 				}
