@@ -256,7 +256,11 @@ inline void enlarge_loghandler_list(size_t size){
  */
 extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB loadu(yaya::global_t h, long len)
 {
-	if ( vm[0] ) { delete vm[0]; }
+	if ( vm[0] ) {
+		CAyaVMWrapper *p = vm[0];
+		vm[0] = NULL;
+		delete p;
+	}
 
 	id_now=0;
 	enlarge_loghandler_list(1);
@@ -353,8 +357,10 @@ extern "C" DLLEXPORT long FUNCATTRIB multi_load(yaya::global_t h, long len)
 extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB unload()
 {
 	if ( vm[0] ) {
-		delete vm[0];
+		// 終了処理の中から再入されても、解放中の実体に届かないよう、先に表から外す
+		CAyaVMWrapper *p = vm[0];
 		vm[0] = NULL;
+		delete p;
 	}
 
     return 1;
@@ -366,8 +372,17 @@ extern "C" DLLEXPORT BOOL_TYPE FUNCATTRIB multi_unload(long id)
 		return 0;
 	}
 
-	delete vm[id];
+	// 終了処理の中から再入されても、解放中の実体に届かないよう、先に表から外す
+	CAyaVMWrapper *p = vm[id];
 	vm[id] = NULL;
+
+	// 同じidを後の multi_load が再利用するので、この実体のログハンドラを引き継がせない
+	// （実体自身は自分のログハンドラを持っているので、終了処理のログは届く）
+	if ( static_cast<size_t>(id) < loghandler_list.size() ) {
+		loghandler_list[id] = nullptr;
+	}
+
+	delete p;
 
 	return 1;
 }

@@ -30,29 +30,32 @@
 
 namespace yayamsg {
 
-bool LoadMessageFromTxt(const yaya::string_t &basepath,yaya::string_t &filename,char cset);
+typedef std::vector<yaya::string_t> MessageArray;
+
+// メッセージ表。実体（CAyaVM）ごとに持つ（複数の実体で言語が違っても混ざらないように）
+struct CMessageTables {
+	// フェータルエラー文字列
+	MessageArray msgf;
+
+	// エラー文字列
+	MessageArray msge;
+
+	// ワーニング文字列
+	MessageArray msgw;
+
+	// 注記文字列
+	MessageArray msgn;
+
+	// その他のログ文字列
+	MessageArray msgj;
+};
+
+bool LoadMessageFromTxt(CMessageTables &tables,const yaya::string_t &basepath,yaya::string_t &filename,char cset);
 bool LoadMessageFromTxtResource(const yaya::string_t &basepath,yaya::string_t &filename,char cset,std::vector<yaya::string_t> &lines);
 bool LoadMessageFromTxtFile(const yaya::string_t &basepath,yaya::string_t &filename,char cset,std::vector<yaya::string_t> &lines);
 
-const yaya::string_t GetTextFromTable(int mode,int id);
-bool IsEmpty(void);
-
-typedef std::vector<yaya::string_t> MessageArray;
-
-// フェータルエラー文字列
-extern MessageArray msgf;
-
-// エラー文字列
-extern MessageArray msge;
-
-// ワーニング文字列
-extern MessageArray msgw;
-
-// 注記文字列
-extern MessageArray msgn;
-
-// その他のログ文字列
-extern MessageArray msgj;
+const yaya::string_t GetTextFromTable(const CMessageTables &tables,int mode,int id);
+bool IsEmpty(const CMessageTables &tables);
 
 }
 

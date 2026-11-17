@@ -25,13 +25,13 @@
 #endif
 ////////////////////////////////////////
 
-static void ClearMessageArrays()
+static void ClearMessageArrays(yayamsg::CMessageTables &tables)
 {
-	yayamsg::msgf.clear();
-	yayamsg::msge.clear();
-	yayamsg::msgw.clear();
-	yayamsg::msgn.clear();
-	yayamsg::msgj.clear();
+	tables.msgf.clear();
+	tables.msge.clear();
+	tables.msgw.clear();
+	tables.msgn.clear();
+	tables.msgj.clear();
 }
 
 /* -----------------------------------------------------------------------
@@ -39,9 +39,9 @@ static void ClearMessageArrays()
  *  機能概要：  エラーメッセージテーブルが空かどうかを判定します
  * -----------------------------------------------------------------------
  */
-bool yayamsg::IsEmpty(void)
+bool yayamsg::IsEmpty(const yayamsg::CMessageTables &tables)
 {
-	return yayamsg::msgf.empty() && yayamsg::msge.empty() && yayamsg::msgw.empty();
+	return tables.msgf.empty() && tables.msge.empty() && tables.msgw.empty();
 }
 
 
@@ -54,7 +54,7 @@ bool yayamsg::IsEmpty(void)
 extern void*  g_hModule;
 #endif
 
-bool yayamsg::LoadMessageFromTxt(const yaya::string_t &basepath,yaya::string_t &filename /* in and out : filename should not const */,char cset)
+bool yayamsg::LoadMessageFromTxt(yayamsg::CMessageTables &tables,const yaya::string_t &basepath,yaya::string_t &filename /* in and out : filename should not const */,char cset)
 {
 	std::vector<yaya::string_t> lines;
 
@@ -72,7 +72,7 @@ bool yayamsg::LoadMessageFromTxt(const yaya::string_t &basepath,yaya::string_t &
 
 	yaya::string_t line;
 
-	ClearMessageArrays();
+	ClearMessageArrays(tables);
 
 	for ( std::vector<yaya::string_t>::const_iterator it = lines.begin() ; it != lines.end() ; ++it )
 	{
@@ -84,19 +84,19 @@ bool yayamsg::LoadMessageFromTxt(const yaya::string_t &basepath,yaya::string_t &
 			yaya::string_t type = line.substr(3);
 
 			if ( type == L"msgf" ) {
-				ptr = &msgf;
+				ptr = &tables.msgf;
 			}
 			else if ( type == L"msge" ) {
-				ptr = &msge;
+				ptr = &tables.msge;
 			}
 			else if ( type == L"msgw" ) {
-				ptr = &msgw;
+				ptr = &tables.msgw;
 			}
 			else if ( type == L"msgn" ) {
-				ptr = &msgn;
+				ptr = &tables.msgn;
 			}
 			else if ( type == L"msgj" ) {
-				ptr = &msgj;
+				ptr = &tables.msgj;
 			}
 			else {
 				ptr = NULL;
@@ -216,34 +216,34 @@ bool yayamsg::LoadMessageFromTxtFile(const yaya::string_t &basepath,yaya::string
  *  機能概要：  エラーメッセージテーブルから文字列を抜き出します。
  * -----------------------------------------------------------------------
  */
-const yaya::string_t yayamsg::GetTextFromTable(int mode,int id)
+const yaya::string_t yayamsg::GetTextFromTable(const yayamsg::CMessageTables &tables,int mode,int id)
 {
-	yayamsg::MessageArray *ptr;
+	const yayamsg::MessageArray *ptr;
 	const yaya::char_t *emsg;
 
 	if (mode == E_F) {
-		ptr = &yayamsg::msgf;
+		ptr = &tables.msgf;
 		emsg = L"fatal F";
 	}
 	else if (mode == E_E) {
-		ptr = &yayamsg::msge;
+		ptr = &tables.msge;
 		emsg = L"error E";
 	}
 	else if (mode == E_W) {
-		ptr = &yayamsg::msgw;
+		ptr = &tables.msgw;
 		emsg = L"warning W";
 	}
 	else if (mode == E_N) {
-		ptr = &yayamsg::msgn;
+		ptr = &tables.msgn;
 		emsg = L"note N";
 	}
 	else {
-		ptr = &yayamsg::msgj;
+		ptr = &tables.msgj;
 		emsg = L"//msg M";
 	}
 
 	if ( id < 0 || ptr->size() <= static_cast<size_t>(id) ) { //catch overflow
-		if ( id == 0 && ptr == &yayamsg::msgj ) {
+		if ( id == 0 && ptr == &tables.msgj ) {
 			//need special care, because msgj id=0 will call before loading configure file.
 			return L"// AYA request log (before loading base configure file)\r\n// load time: ";
 		}
@@ -251,7 +251,7 @@ const yaya::string_t yayamsg::GetTextFromTable(int mode,int id)
 			yaya::char_t buf[64] = L"";
 			yaya::snprintf(buf,63,L"%04d",id);
 
-			if(IsEmpty())
+			if(IsEmpty(tables))
 				return yaya::string_t(emsg) + buf + L" : (please specify messagetxt)\r\n";
 			else
 				return yaya::string_t(emsg) + buf + L" : (not found, please update messagetxt or contact the developer)\r\n";
@@ -260,23 +260,4 @@ const yaya::string_t yayamsg::GetTextFromTable(int mode,int id)
 	else {
 		return (*ptr)[id];
 	}
-}
-
-namespace yayamsg {
-
-	// fatal
-	MessageArray msgf;
-
-	// error
-	MessageArray msge;
-
-	// warning
-	MessageArray msgw;
-
-	// note
-	MessageArray msgn;
-
-	// other
-	MessageArray msgj;
-
 }

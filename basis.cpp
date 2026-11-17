@@ -759,7 +759,7 @@ bool CBasis::SetParameter(const yaya::string_t &cmd, const yaya::string_t &param
 				cset = cx;
 			}
 		}
-		if ( yayamsg::LoadMessageFromTxt(load_path,param1,cset) ) {
+		if ( vm.logger().LoadMessageTxt(load_path,param1,cset) ) {
 			messagetxt_path = load_path + param1;
 		}
 		return true;

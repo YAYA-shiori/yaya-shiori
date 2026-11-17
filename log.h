@@ -20,6 +20,7 @@
 #include "globaldef.h"
 #include "manifest.h"
 #include "timer.h"
+#include "messages.h"
 
 #define	CLASSNAME_CHECKTOOL	"TamaWndClass"	/* チェックツールのウィンドウクラス名 */
 
@@ -35,6 +36,10 @@ protected:
 #endif
 	void (*loghandler)(const yaya::char_t *str, int mode, int id);
 	yaya::timer timer;
+	yaya::timer timer_lib;	// 外部ライブラリ呼び出しの時間（実体ごとに持つ。リクエストの時間とは別）
+
+	// メッセージ表（実体ごとに持つ。messagetxtで読み込む）
+	yayamsg::CMessageTables messages;
 
 	size_t logmaxnum;
 
@@ -95,6 +100,9 @@ public:
 	void	Write(const yaya::char_t *str, int mode = 0, int id = 0);
 
 	void	Message(int id, int mode = 0);
+
+	// messagetxtを読み込む（この実体のメッセージ表だけを入れ替える）
+	bool	LoadMessageTxt(const yaya::string_t &basepath, yaya::string_t &filename, char cset);
 	void	Filename(const yaya::string_t &filename);
 
 	void	Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t &dicfilename, ptrdiff_t linecount);

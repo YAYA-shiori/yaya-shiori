@@ -106,7 +106,7 @@ void	CLog::Start(const yaya::string_t &p, int cs, HWND hw, char il)
 	timer.restart();
 
 	// 文字列作成
-	yaya::string_t	str = yayamsg::GetTextFromTable(E_J,0);
+	yaya::string_t	str = yayamsg::GetTextFromTable(messages,E_J,0);
 	str += GetDateString();
 	str += L"\n\n";
 
@@ -231,7 +231,17 @@ void	CLog::Filename(const yaya::string_t &filename)
  */
 void	CLog::Message(int id, int mode)
 {
-	Write(yayamsg::GetTextFromTable(E_J,id), mode, id);
+	Write(yayamsg::GetTextFromTable(messages,E_J,id), mode, id);
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CLog::LoadMessageTxt
+ *  機能概要：  messagetxtを読み込み、この実体のメッセージ表を入れ替えます
+ * -----------------------------------------------------------------------
+ */
+bool	CLog::LoadMessageTxt(const yaya::string_t &basepath, yaya::string_t &filename, char cset)
+{
+	return yayamsg::LoadMessageFromTxt(messages, basepath, filename, cset);
 }
 
 /* -----------------------------------------------------------------------
@@ -266,7 +276,7 @@ void	CLog::Error(int mode, int id, const yaya::char_t *ref, const yaya::string_t
 	}
 	// ログに書き込み文字列を作成（本文）
 	{
-		logstr += yayamsg::GetTextFromTable(mode,id);
+		logstr += yayamsg::GetTextFromTable(messages,mode,id);
 	}
 	// ログに書き込み文字列を作成（付加情報）
 	if (ref != NULL) {
@@ -426,17 +436,15 @@ void	CLog::IoLib(char io, const yaya::string_t &str, const yaya::string_t &name)
 	if (!enable || !iolog)
 		return;
 
-	static	yaya::timer		timer;
-
 	if (!io) {
 		Write(L"// request to library\n// name : ");
 		Write(name + L"\n");
 		Write(str + L"\n");
 
-		timer.restart();
+		timer_lib.restart();
 	}
 	else {
-		int elapsed_time = timer.elapsed();
+		int elapsed_time = timer_lib.elapsed();
 		yaya::string_t t_str = L"// response (Execution time : " + yaya::ws_itoa(elapsed_time) + L"[ms])\n";
 
 		Write(t_str);
