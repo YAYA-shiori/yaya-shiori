@@ -406,6 +406,8 @@ constexpr CSF_FUNCTABLE CSystemFunction::sysfunc[] = {
 	{ &CSystemFunction::THREADCLOSE , L"THREADCLOSE" } ,
 	// 特殊(9)
 	{ &CSystemFunction::EXECUTE_CAPTURE , L"EXECUTE_CAPTURE" } ,
+	// JSON Lines(1)
+	{ &CSystemFunction::FREADJSONL , L"FREADJSONL" } ,
 };
 
 #define SYSFUNC_NUM (sizeof(CSystemFunction::sysfunc)/sizeof(CSystemFunction::sysfunc[0]))
@@ -9173,6 +9175,159 @@ CValue	CSystemFunction::PARSEJSON(CSF_FUNCPARAM &p)
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::ReadJsonPick
+ *  機能概要：  引数の first 番目から後ろ（文字列だけ）を、JSONから取り出すキーとして読みます
+ *
+ *  返値　　：　成功時true。文字列でない引数があれば W0009 を出して false
+ * -----------------------------------------------------------------------
+ */
+bool CSystemFunction::ReadJsonPick(CSF_FUNCPARAM &p, size_t first, const yaya::char_t *fname, CJsonPick &pick)
+{
+	for (size_t i = first; i < p.arg.array_size(); ++i) {
+		const CValue &v = p.arg.array()[i];
+		if (!v.IsStringReal()) {
+			vm.logger().Error(E_W, 9, fname, p.dicname, p.line);
+			SetError(9);
+			return false;
+		}
+		pick.Add(v.s_value);
+	}
+	return true;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  CSystemFunction::FREADJSONL
+ *  機能概要：  JSON Lines（1行に1つのJSON）のファイルを読み、行ごとの値の配列にします
+ *
+ *  FREADJSONL(path[,start[,maxlines[,key...]]])
+ *    start    : 読み始めるバイト位置（既定0）。行の途中なら、最初の1行は飛ばす
+ *               （start の1つ前のバイトが改行でなければ行の途中とみなす）
+ *    maxlines : 読む行数の上限（既定0=ファイルの終わりまで）
+ *    key...   : 取り出すキー。各行が最上位のオブジェクトなら、そのキーだけを変換する
+ *  返値はハッシュ。rows（解けた行の値の配列）、pos（各行の頭のバイト位置）、
+ *  end（読み終えた位置。次はここから読む）、skipped（解けずに読み飛ばした行の数）
+ *  ファイルを開けなければ空（W0025）
+ * -----------------------------------------------------------------------
+ */
+CValue	CSystemFunction::FREADJSONL(CSF_FUNCPARAM &p)
+{
+	if (!p.arg.array_size()) {
+		vm.logger().Error(E_W, 8, L"FREADJSONL", p.dicname, p.line);
+		SetError(8);
+		return CValue();
+	}
+
+	if (!p.arg.array()[0].IsString()) {
+		vm.logger().Error(E_W, 9, L"FREADJSONL", p.dicname, p.line);
+		SetError(9);
+		return CValue();
+	}
+
+	yaya::int_t start = 0;
+	yaya::int_t maxlines = 0;
+	if (p.arg.array_size() >= 2) {
+		if (!p.arg.array()[1].IsInt()) {
+			vm.logger().Error(E_W, 9, L"FREADJSONL", p.dicname, p.line);
+			SetError(9);
+			return CValue();
+		}
+		start = p.arg.array()[1].GetValueInt();
+	}
+	if (p.arg.array_size() >= 3) {
+		if (!p.arg.array()[2].IsInt()) {
+			vm.logger().Error(E_W, 9, L"FREADJSONL", p.dicname, p.line);
+			SetError(9);
+			return CValue();
+		}
+		maxlines = p.arg.array()[2].GetValueInt();
+	}
+	// 位置はfseekのlongで扱うので2GBまで
+	if (start < 0 || start > 2147483647 || maxlines < 0) {
+		vm.logger().Error(E_W, 12, L"FREADJSONL", p.dicname, p.line);
+		SetError(12);
+		return CValue();
+	}
+
+	CJsonPick pick;
+	if (!ReadJsonPick(p, 3, L"FREADJSONL", pick)) {
+		return CValue();
+	}
+
+	yaya::string_t full_path = vm.basis().ToFullPath(p.arg.array()[0].s_value);
+
+	FILE *pF = yaya::w_fopen(full_path.c_str(), L"rb");
+	if (!pF) {
+		vm.logger().Error(E_W, 25, yaya::string_t(L"FREADJSONL : ") + p.arg.array()[0].s_value, p.dicname, p.line);
+		SetError(25);
+		return CValue();
+	}
+
+	// start の1つ前のバイトを見て、行の頭から始まるか確かめる（start が終わりを越えていれば何も読まない）
+	bool skipfirst = false;
+	bool beyond = false;
+	if (start > 0) {
+		if (fseek(pF, static_cast<long>(start - 1), SEEK_SET) != 0) {
+			beyond = true;
+		}
+		else {
+			int prev = fgetc(pF);
+			if (prev == EOF) {
+				beyond = true;
+			}
+			else {
+				skipfirst = (prev != '\n');
+			}
+		}
+	}
+
+	std::string bytes;
+	if (!beyond) {
+		char buf[32768];
+		for (;;) {
+			size_t readsize = fread(buf, 1, sizeof(buf), pF);
+			if (readsize > 0) {
+				// VC6のstd::stringは足りない分しか確保し直さず、大きなファイルで二乗の時間がかかる。容量は倍々にする
+				if (bytes.capacity() < bytes.size() + readsize) {
+					bytes.reserve((bytes.size() + readsize) * 2);
+				}
+				bytes.append(buf, readsize);
+			}
+			if (readsize < sizeof(buf)) {
+				break;
+			}
+		}
+	}
+	fclose(pF);
+
+	// 行の途中から始まるときは、最初の（欠けた）1行を捨てる。改行が見つからなければ何も読まない
+	yaya::int_t base = start;
+	if (skipfirst) {
+		std::string::size_type nl = bytes.find('\n');
+		if (nl == std::string::npos) {
+			bytes.erase();
+		}
+		else {
+			bytes.erase(0, nl + 1);
+			base += static_cast<yaya::int_t>(nl) + 1;
+		}
+	}
+
+	CValue rows;
+	CValue rowpos;
+	yaya::int_t endpos = 0;
+	yaya::int_t skipped = 0;
+	JsonLinesToValue(bytes, base, maxlines, pick.empty() ? NULL : &pick, rows, rowpos, endpos, skipped);
+
+	CValue result(F_TAG_HASH, 0/*dmy*/);
+	CValueHash &rhash = result.hash();
+	rhash[CValue(L"rows")].swap(rows);
+	rhash[CValue(L"pos")].swap(rowpos);
+	rhash[CValue(L"end")] = CValue(endpos);
+	rhash[CValue(L"skipped")] = CValue(skipped);
+	return result;
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  CSystemFunction::PARSEXML
  *  機能概要：  XML文字列を解析し、ルート要素をハッシュにします
  * -----------------------------------------------------------------------
@@ -9335,6 +9490,16 @@ CValue	CSystemFunction::FReadDataFile(CSF_FUNCPARAM &p, const yaya::char_t *fnam
 		}
 	}
 
+	// FREADJSON(path, charset, key...) : charset の後ろは、取り出すキー
+	CJsonPick pick;
+	const CJsonPick *pickp = NULL;
+	if (fmt == DATAFMT_JSON && p.arg.array_size() > 2) {
+		if (!ReadJsonPick(p, 2, fname, pick)) {
+			return CValue();
+		}
+		pickp = &pick;
+	}
+
 	yaya::string_t full_path = vm.basis().ToFullPath(p.arg.array()[0].s_value);
 
 	FILE *pF = yaya::w_fopen(full_path.c_str(), L"rb");
@@ -9349,6 +9514,10 @@ CValue	CSystemFunction::FReadDataFile(CSF_FUNCPARAM &p, const yaya::char_t *fnam
 	for (;;) {
 		size_t readsize = fread(buf, 1, sizeof(buf), pF);
 		if (readsize > 0) {
+			// VC6のstd::stringは足りない分しか確保し直さず、大きなファイルで二乗の時間がかかる。容量は倍々にする
+			if (bytes.capacity() < bytes.size() + readsize) {
+				bytes.reserve((bytes.size() + readsize) * 2);
+			}
 			bytes.append(buf, readsize);
 		}
 		if (readsize < sizeof(buf)) {
@@ -9373,7 +9542,7 @@ CValue	CSystemFunction::FReadDataFile(CSF_FUNCPARAM &p, const yaya::char_t *fnam
 
 	if (charset == CHARSET_UTF8 || charset == CHARSET_BINARY) {
 		CutUtf8Bom(bytes);
-		return ParseUtf8Data(p, fname, bytes, fmt);
+		return ParseUtf8Data(p, fname, bytes, fmt, pickp);
 	}
 
 	// UTF-8以外はいったん内部文字列にしてからUTF-8にする
@@ -9389,7 +9558,7 @@ CValue	CSystemFunction::FReadDataFile(CSF_FUNCPARAM &p, const yaya::char_t *fnam
 	std::string utf8str(utf8);
 	free(utf8);
 
-	return ParseUtf8Data(p, fname, utf8str, fmt);
+	return ParseUtf8Data(p, fname, utf8str, fmt, pickp);
 }
 
 /* -----------------------------------------------------------------------
@@ -9411,6 +9580,16 @@ CValue	CSystemFunction::ParseDataString(CSF_FUNCPARAM &p, const yaya::char_t *fn
 		return CValue();
 	}
 
+	// PARSEJSON(str, key...) : str の後ろは、取り出すキー
+	CJsonPick pick;
+	const CJsonPick *pickp = NULL;
+	if (fmt == DATAFMT_JSON && p.arg.array_size() > 1) {
+		if (!ReadJsonPick(p, 1, fname, pick)) {
+			return CValue();
+		}
+		pickp = &pick;
+	}
+
 	const yaya::string_t &str = p.arg.array()[0].s_value;
 	yaya::string_t::size_type start = (!str.empty() && str[0] == 0xFEFF) ? 1 : 0; // BOM
 
@@ -9423,7 +9602,7 @@ CValue	CSystemFunction::ParseDataString(CSF_FUNCPARAM &p, const yaya::char_t *fn
 	std::string utf8str(utf8);
 	free(utf8);
 
-	return ParseUtf8Data(p, fname, utf8str, fmt);
+	return ParseUtf8Data(p, fname, utf8str, fmt, pickp);
 }
 
 /* -----------------------------------------------------------------------
@@ -9431,7 +9610,7 @@ CValue	CSystemFunction::ParseDataString(CSF_FUNCPARAM &p, const yaya::char_t *fn
  *  機能概要：  UTF-8のJSON/XML/YAML/TOML/HTMLを解析します　失敗時は警告を出して空値を返します
  * -----------------------------------------------------------------------
  */
-CValue	CSystemFunction::ParseUtf8Data(CSF_FUNCPARAM &p, const yaya::char_t *fname, const std::string &utf8, int fmt)
+CValue	CSystemFunction::ParseUtf8Data(CSF_FUNCPARAM &p, const yaya::char_t *fname, const std::string &utf8, int fmt, const CJsonPick *pick)
 {
 	CValue result;
 	yaya::string_t errstr;
@@ -9451,7 +9630,7 @@ CValue	CSystemFunction::ParseUtf8Data(CSF_FUNCPARAM &p, const yaya::char_t *fnam
 		ok = HtmlToValue(utf8, result, errstr);
 		break;
 	default:
-		ok = JsonToValue(utf8, result);
+		ok = JsonToValue(utf8, result, pick);
 		break;
 	}
 

@@ -139,13 +139,51 @@ static void JsonValueToValue(const JSON_Value *jv, CValue &out)
 }
 
 /* -----------------------------------------------------------------------
+ *  関数名  ：  CJsonPick::Add
+ * -----------------------------------------------------------------------
+ */
+void CJsonPick::Add(const yaya::string_t &name)
+{
+	names.push_back(name);
+	utf8names.push_back(WideToUtf8(name));
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  JsonRootToValue
+ *  機能概要：  parsonの値をCValueにします
+ *
+ *  pickがあって、値が最上位のオブジェクトなら、pickのキーだけを変換します
+ *  （無いキーは結果にも作りません。nullの値のキーは、全体を変換するときと同じく残ります）。
+ *  オブジェクトでなければ、pickは使わずに全体を変換します
+ * -----------------------------------------------------------------------
+ */
+static void JsonRootToValue(const JSON_Value *jv, const CJsonPick *pick, CValue &out)
+{
+	if ( pick && ! pick->empty() && json_value_get_type(jv) == JSONObject ) {
+		const JSON_Object *jo = json_value_get_object(jv);
+
+		out = CValue(F_TAG_HASH, 0/*dmy*/);
+		CValueHash &hash = out.hash();
+		for ( size_t i = 0; i < pick->names.size(); ++i ) {
+			const JSON_Value *v = json_object_get_value(jo, pick->utf8names[i].c_str());
+			if ( v ) {
+				JsonValueToValue(v, hash[CValue(pick->names[i])]);
+			}
+		}
+		return;
+	}
+
+	JsonValueToValue(jv, out);
+}
+
+/* -----------------------------------------------------------------------
  *  関数名  ：  JsonToValue
  *  機能概要：  UTF-8のJSONを解析してCValueにします
  *
  *  返値　　：　成功時true
  * -----------------------------------------------------------------------
  */
-bool JsonToValue(const std::string &utf8, CValue &out)
+bool JsonToValue(const std::string &utf8, CValue &out, const CJsonPick *pick)
 {
 	CNumericLocaleGuard locale_guard;
 
@@ -154,9 +192,110 @@ bool JsonToValue(const std::string &utf8, CValue &out)
 		return false;
 	}
 
-	JsonValueToValue(root, out);
+	JsonRootToValue(root, pick, out);
 	json_value_free(root);
 	return true;
+}
+
+/* -----------------------------------------------------------------------
+ *  関数名  ：  JsonLinesToValue
+ *  機能概要：  UTF-8のJSON Lines（1行に1つのJSON）を読みます（FREADJSONL）
+ *
+ *  行の区切りはLF（行末のCRは無視）。空白だけの行は飛ばし、JSONとして解けない行は
+ *  数えて読み飛ばします（警告は出しません）。コメントは書けません（JSON Linesにコメントは無い）。
+ *  basepos が0のとき、先頭のUTF-8 BOMは無視します。
+ *  最後の行が改行で終わっていないときは、JSONとして解ければ読み、解けなければ
+ *  （書いている途中かもしれないので）読まずに残して、endpos をその行の頭にします。
+ *  maxlines で止めたときの endpos は、最後に読んだ行の次の行の頭です
+ * -----------------------------------------------------------------------
+ */
+void JsonLinesToValue(std::string &bytes, yaya::int_t basepos, yaya::int_t maxlines, const CJsonPick *pick, CValue &rows, CValue &rowpos, yaya::int_t &endpos, yaya::int_t &skipped)
+{
+	CNumericLocaleGuard locale_guard;
+
+	rows   = CValue(F_TAG_ARRAY, 0/*dmy*/);
+	rowpos = CValue(F_TAG_ARRAY, 0/*dmy*/);
+	CValueArray &rarr = rows.array();
+	CValueArray &parr = rowpos.array();
+
+	const size_t total = bytes.size();
+	endpos  = basepos;
+	skipped = 0;
+
+	// 最後の行にもNULを書けるよう、1バイト足しておく（total は足す前の大きさ）。
+	// VC6のstd::stringは、非constの operator[] のたびに共有の確認をして遅いので、先頭のポインタを1回だけ取って使う
+	bytes.append(1, '\0');
+	char *buf = &bytes[0];
+
+	// 行数（改行の数 + 1）で配列の領域を先に取る。足しながら育てると、要素のコピーが何度も起きる
+	size_t estimate = 1;
+	{
+		const char *scan = buf;
+		const char *endp = buf + total;
+		while ( ( scan = static_cast<const char*>(memchr(scan, '\n', endp - scan)) ) != NULL ) {
+			++scan;
+			++estimate;
+		}
+	}
+	if ( maxlines > 0 && static_cast<yaya::int_t>(estimate) > maxlines ) {
+		estimate = static_cast<size_t>(maxlines);
+	}
+	rarr.reserve(estimate);
+	parr.reserve(estimate);
+
+	size_t i = 0;
+	yaya::int_t lines = 0;
+
+	if ( basepos == 0 && total >= 3 &&
+		static_cast<unsigned char>(buf[0]) == 0xEF &&
+		static_cast<unsigned char>(buf[1]) == 0xBB &&
+		static_cast<unsigned char>(buf[2]) == 0xBF ) {
+		i = 3;
+		endpos = 3;
+	}
+
+	while ( i < total ) {
+		if ( maxlines > 0 && lines >= maxlines ) {
+			break;
+		}
+
+		const char *nlp = static_cast<const char*>(memchr(buf + i, '\n', total - i));
+		const bool terminated = ( nlp != NULL );
+		const size_t nl = terminated ? static_cast<size_t>(nlp - buf) : total;
+		const size_t e = nl;
+
+		// 行末のCRを除く
+		size_t le = e;
+		if ( le > i && buf[le - 1] == '\r' ) {
+			--le;
+		}
+		// 行頭の空白を飛ばす。空白だけなら空行
+		size_t b = i;
+		while ( b < le && ( buf[b] == ' ' || buf[b] == '\t' ) ) {
+			++b;
+		}
+
+		if ( b < le ) {
+			buf[le] = '\0';
+			JSON_Value *root = json_parse_string(buf + b);
+			if ( root ) {
+				rarr.push_back(CValue());
+				JsonRootToValue(root, pick, rarr.back());
+				parr.push_back(CValue(basepos + static_cast<yaya::int_t>(i)));
+				json_value_free(root);
+			}
+			else if ( ! terminated ) {
+				break;
+			}
+			else {
+				++skipped;
+			}
+		}
+
+		i = terminated ? nl + 1 : total;
+		endpos = basepos + static_cast<yaya::int_t>(i);
+		++lines;
+	}
 }
 
 /* -----------------------------------------------------------------------

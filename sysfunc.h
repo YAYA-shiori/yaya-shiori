@@ -21,6 +21,8 @@
 #include "globaldef.h"
 #include "value.h"
 
+class CJsonPick;
+
 // macOS の <fcntl.h> は FREAD / FWRITE をマクロにするので、メンバ関数名に使えるよう外す
 #ifdef FREAD
 # undef FREAD
@@ -359,6 +361,7 @@ protected:
 	CValue	HASH_SIZE(CSF_FUNCPARAM &p);
 
 	CValue	FREADJSON(CSF_FUNCPARAM &p);
+	CValue	FREADJSONL(CSF_FUNCPARAM &p);
 	CValue	FREADXML(CSF_FUNCPARAM &p);
 	CValue	PARSEJSON(CSF_FUNCPARAM &p);
 	CValue	PARSEXML(CSF_FUNCPARAM &p);
@@ -389,7 +392,8 @@ protected:
 	// JSON/XML/YAML/TOML/HTMLの共通処理（fmtはDATAFMT_*。HTMLは読み込みのみ）
 	CValue	FReadDataFile(CSF_FUNCPARAM &p, const yaya::char_t *fname, int fmt);
 	CValue	ParseDataString(CSF_FUNCPARAM &p, const yaya::char_t *fname, int fmt);
-	CValue	ParseUtf8Data(CSF_FUNCPARAM &p, const yaya::char_t *fname, const std::string &utf8, int fmt);
+	CValue	ParseUtf8Data(CSF_FUNCPARAM &p, const yaya::char_t *fname, const std::string &utf8, int fmt, const CJsonPick *pick = NULL);
+	bool	ReadJsonPick(CSF_FUNCPARAM &p, size_t first, const yaya::char_t *fname, CJsonPick &pick);
 	CValue	FWriteDataFile(CSF_FUNCPARAM &p, const yaya::char_t *fname, int fmt);
 	CValue	DumpData(CSF_FUNCPARAM &p, const yaya::char_t *fname, int fmt);
 	bool	ValueToData(CSF_FUNCPARAM &p, const yaya::char_t *fname, const CValue &value, int charset, bool pretty, int fmt, yaya::string_t &out);

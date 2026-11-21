@@ -17,6 +17,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include <locale.h>
 
 #include "globaldef.h"
@@ -103,6 +104,24 @@ void	AppendUnicodeEscape(yaya::string_t &out, unsigned long cp, bool utf16pair);
 yaya::string_t	Utf8ToWide(const char *str);
 std::string		WideToUtf8(const yaya::string_t &str);
 
+/* -----------------------------------------------------------------------
+ *  クラス名：  CJsonPick
+ *  機能概要：  JSONのオブジェクトから取り出すキー（最上位だけ）の一覧です
+ *
+ *  PARSEJSON / FREADJSON / FREADJSONL の、キーを指定する引数で使います。
+ *  parsonで木にしたあと、ここに挙げたキーの値だけをCValueにします
+ * -----------------------------------------------------------------------
+ */
+class CJsonPick
+{
+public:
+	std::vector<yaya::string_t> names;	// 結果のハッシュのキー
+	std::vector<std::string> utf8names;	// parsonで引くためのUTF-8の名前
+
+	void Add(const yaya::string_t &name);
+	bool empty(void) const { return names.empty(); }
+};
+
 // NaNでも無限大でもなければtrue
 bool	IsFiniteDouble(double d);
 
@@ -111,7 +130,17 @@ bool	IsFiniteDouble(double d);
 void	AppendFiniteDouble(yaya::string_t &out, double d);
 
 // UTF-8のJSONを解析してCValueにする。成功時true
-bool	JsonToValue(const std::string &utf8, CValue &out);
+bool	JsonToValue(const std::string &utf8, CValue &out, const CJsonPick *pick = NULL);
+
+// UTF-8のJSON Lines（1行に1つのJSON）を読む（FREADJSONL）。成功時の値はすべて引数で返す
+//   bytes    : 読む範囲のバイト列。書き換える。先頭はファイルの basepos バイト目
+//   maxlines : 0より大きければ、その行数（空行・解けない行も数える）で止める
+//   pick     : あれば、最上位がオブジェクトの行について、そのキーだけを変換する
+//   rows     : 解けた行の値の配列
+//   rowpos   : rows の各行の頭のバイト位置の配列（rows と同じ並び）
+//   endpos   : 読み終えた位置。最後の行が改行で終わっておらず、解けないとき（書いている途中）は、その行の頭
+//   skipped  : 解けずに読み飛ばした行の数
+void	JsonLinesToValue(std::string &bytes, yaya::int_t basepos, yaya::int_t maxlines, const CJsonPick *pick, CValue &rows, CValue &rowpos, yaya::int_t &endpos, yaya::int_t &skipped);
 
 // UTF-8のXMLを解析してルート要素をCValueにする。成功時true、失敗時はerrstrに詳細
 bool	XmlToValue(const std::string &utf8, CValue &out, yaya::string_t &errstr);
